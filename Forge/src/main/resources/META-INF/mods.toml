@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[44,)"
+issueTrackerURL="https://github.com/AzureDoom/AzureLib/issues"
+license="MIT"
+[[mods]]
+modId="azurelib"
+version="${file.jarVersion}" 
+displayName="AzureLib"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/azurelib"
+logoFile="azurelib.png" 
+credits="AzureDoom, Gecko, Eliot, DerToaster, Tslat"
+authors="AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat"
+description='''
+Based off Geckolib but now just for my own needs.
+'''
+[[dependencies.azurelib]]
+    modId="forge"
+    mandatory=true 
+    versionRange="[44.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.azurelib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.3, 1.20)"
+    ordering="NONE"
+    side="BOTH"
