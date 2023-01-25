@@ -132,9 +132,9 @@ publishing {
     repositories {
         maven {
 	      name = "cloudsmith"
-	      url = "https://maven.cloudsmith.io/geckolib3/geckolib/"
-	      def releasesRepoUrl = "https://maven.cloudsmith.io/geckolib3/geckolib/"
-	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/geckolib3/geckolib/"
+	      url = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def releasesRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
 	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 	      credentials {
                 def envUsername = System.getenv("cloudUsername")

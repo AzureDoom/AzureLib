@@ -44,7 +44,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'parchment', version: '${project.minecraft_version}-2022.12.18-${project.minecraft_version}'
+    mappings channel: 'parchment', version: '1.19.3-2022.12.18-1.19.3'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -107,7 +107,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:${project.minecraft_version}-${project.loader_version}'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.7'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
 }
@@ -170,9 +170,9 @@ publishing {
     repositories {
         maven {
 	      name = "cloudsmith"
-	      url = "https://maven.cloudsmith.io/geckolib3/geckolib/"
-	      def releasesRepoUrl = "https://maven.cloudsmith.io/geckolib3/geckolib/"
-	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/geckolib3/geckolib/"
+	      url = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def releasesRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
 	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 	      credentials {
                 def envUsername = System.getenv("cloudUsername")
