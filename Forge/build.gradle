@@ -145,17 +145,31 @@ jar {
     }
 }
 
+task packageSources(type: ShadowJar, dependsOn: 'classes') {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.allSource
+    exclude('META-INF/**')
+    exclude('it/**')
+    exclude('com/google/**')
+    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
+    classifier = 'sources'
+}
+
 artifacts {
     archives shadowJar
+    archives packageSources
 }
 
 afterEvaluate {
     publish.dependsOn('reobfShadowJar')
     publish.dependsOn('reobfJar')
+    publish.dependsOn('packageSources')
+    shadowJar.dependsOn(packageSources)
     shadowJar.dependsOn('classes')
 }
 
 shadowJar.finalizedBy(reobfShadowJar)
+jar.finalizedBy(packageSources)
 
 publishing {
     publications {
