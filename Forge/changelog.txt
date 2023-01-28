@@ -1,3 +1,6 @@
-v1.0.0
+v1.0.2
 
-- First Release
+- Adds custom Navigation based off Mowzie Mobs.
+- Adds my custom light block.
+- Adds a core spawn egg for my mods.
+- Adds a core base gun item.
