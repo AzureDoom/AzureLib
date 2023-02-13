@@ -1,9 +1,13 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -35,10 +39,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
-import java.util.List;
 
 /**
  * An alternate to {@link GeoEntityRenderer}, used specifically for replacing existing non-AzureLib
@@ -291,16 +291,15 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		RenderUtils.scaleMatrixForBone(poseStack, bone);
 
 		if (bone.isTrackingMatrices()) {
-			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+			Matrix4f poseState = poseStack.last().pose().copy();
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
 
 			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-			localMatrix.translate(new Vector3f(getRenderOffset(this.currentEntity, 1).toVector3f()));
+			localMatrix.translate(new Vector3f(getRenderOffset(this.currentEntity, 1)));
 			bone.setLocalSpaceMatrix(localMatrix);
+			Matrix4f worldState = localMatrix.copy();
 
-			Matrix4f worldState = localMatrix;
-
-			worldState.translate(new Vector3f(this.currentEntity.position().toVector3f()));
+			worldState.translate(new Vector3f(this.currentEntity.position()));
 			bone.setWorldSpaceMatrix(worldState);
 		}
 
@@ -325,23 +324,23 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		LivingEntity livingEntity = this.currentEntity instanceof LivingEntity entity ? entity : null;
 
 		if (pose != Pose.SLEEPING)
-			poseStack.mulPose(Axis.YP.rotationDegrees(180f - rotationYaw));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
 
 		if (livingEntity != null && livingEntity.deathTime > 0) {
 			float deathRotation = (livingEntity.deathTime + partialTick - 1f) / 20f * 1.6f;
 
-			poseStack.mulPose(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * getDeathMaxRotation(animatable)));
+			poseStack.mulPose(Vector3f.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * getDeathMaxRotation(animatable)));
 		}
 		else if (livingEntity != null && livingEntity.isAutoSpinAttack()) {
-			poseStack.mulPose(Axis.XP.rotationDegrees(-90f - livingEntity.getXRot()));
-			poseStack.mulPose(Axis.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
+			poseStack.mulPose(Vector3f.XP.rotationDegrees(-90f - livingEntity.getXRot()));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
 		}
 		else if (livingEntity != null && pose == Pose.SLEEPING) {
 			Direction bedOrientation = livingEntity.getBedOrientation();
 
-			poseStack.mulPose(Axis.YP.rotationDegrees(bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw));
-			poseStack.mulPose(Axis.ZP.rotationDegrees(getDeathMaxRotation(animatable)));
-			poseStack.mulPose(Axis.YP.rotationDegrees(270f));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw));
+			poseStack.mulPose(Vector3f.ZP.rotationDegrees(getDeathMaxRotation(animatable)));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(270f));
 		}
 		else if (this.currentEntity.hasCustomName() || this.currentEntity instanceof Player) {
 			String name = this.currentEntity.getName().getString();
@@ -356,7 +355,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 			if (name != null && (name.equals("Dinnerbone") || name.equalsIgnoreCase("Grumm"))) {
 				poseStack.translate(0, this.currentEntity.getBbHeight() + 0.1f, 0);
-				poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+				poseStack.mulPose(Vector3f.ZP.rotationDegrees(180f));
 			}
 		}
 	}

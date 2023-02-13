@@ -1,14 +1,13 @@
 package mod.azure.azurelib.util;
 
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 
 import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
@@ -47,21 +46,21 @@ public final class RenderUtils {
 
 	public static void rotateMatrixAroundBone(PoseStack poseStack, CoreGeoBone bone) {
 		if (bone.getRotZ() != 0)
-			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
+			poseStack.mulPose(Vector3f.ZP.rotation(bone.getRotZ()));
 
 		if (bone.getRotY() != 0)
-			poseStack.mulPose(Axis.YP.rotation(bone.getRotY()));
+			poseStack.mulPose(Vector3f.YP.rotation(bone.getRotY()));
 
 		if (bone.getRotX() != 0)
-			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
+			poseStack.mulPose(Vector3f.XP.rotation(bone.getRotX()));
 	}
 
 	public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
 		Vec3 rotation = cube.rotation();
 
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, 0, (float)rotation.z()));
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, (float)rotation.y(), 0));
-		poseStack.mulPose(new Quaternionf().rotationXYZ((float)rotation.x(), 0, 0));
+		poseStack.mulPose(new Quaternion(0, 0, (float)rotation.z(), false));
+		poseStack.mulPose(new Quaternion(0, (float)rotation.y(), 0, false));
+		poseStack.mulPose(new Quaternion((float)rotation.x(), 0, 0, false));
 	}
 
 	public static void scaleMatrixForBone(PoseStack poseStack, CoreGeoBone bone) {
@@ -104,7 +103,7 @@ public final class RenderUtils {
 		inputMatrix = new Matrix4f(inputMatrix);
 		
 		inputMatrix.invert();
-		inputMatrix.mul(baseMatrix);
+		inputMatrix.multiply(baseMatrix);
 
 		return inputMatrix;
 	}
@@ -114,8 +113,8 @@ public final class RenderUtils {
      * Usually used for rotating projectiles towards their trajectory, in an {@link GeoRenderer#preRender} override.<br>
 	 */
 	public static void faceRotation(PoseStack poseStack, Entity animatable, float partialTick) {
-		poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
-		poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+		poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
+		poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
 	}
 	
 	/**

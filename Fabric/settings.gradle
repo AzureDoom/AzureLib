@@ -9,4 +9,4 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'azurelib-fabric'
+rootProject.name = 'azurelib-fabric-1.19.2'

@@ -1,6 +1,6 @@
 package mod.azure.azurelib.cache.object;
 
-import org.joml.Vector3f;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.core.Direction;
 
@@ -8,8 +8,10 @@ import net.minecraft.core.Direction;
  * Quad data holder
  */
 public record GeoQuad(GeoVertex[] vertices, Vector3f normal, Direction direction) {
-	public static GeoQuad build(GeoVertex[] vertices, double[] uvCoords, double[] uvSize, float texWidth, float texHeight, boolean mirror, Direction direction) {
-		return build(vertices, (float)uvCoords[0], (float)uvCoords[1], (float)uvSize[0], (float)uvSize[1], texWidth, texHeight, mirror, direction);
+	public static GeoQuad build(GeoVertex[] vertices, double[] uvCoords, double[] uvSize, float texWidth,
+			float texHeight, boolean mirror, Direction direction) {
+		return build(vertices, (float) uvCoords[0], (float) uvCoords[1], (float) uvSize[0], (float) uvSize[1], texWidth,
+				texHeight, mirror, direction);
 	}
 
 	public static GeoQuad build(GeoVertex[] vertices, float u, float v, float uSize, float vSize, float texWidth,

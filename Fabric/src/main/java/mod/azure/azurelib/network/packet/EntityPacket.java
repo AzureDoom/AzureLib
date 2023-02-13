@@ -3,7 +3,7 @@ package mod.azure.azurelib.network.packet;
 import io.netty.buffer.Unpooled;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -14,7 +14,7 @@ public class EntityPacket {
 
 	public static Packet<ClientGamePacketListener> createPacket(Entity entity) {
 		FriendlyByteBuf buf = createBuffer();
-		buf.writeVarInt(BuiltInRegistries.ENTITY_TYPE.getId(entity.getType()));
+		buf.writeVarInt(Registry.ENTITY_TYPE.getId(entity.getType()));
 		buf.writeUUID(entity.getUUID());
 		buf.writeVarInt(entity.getId());
 		buf.writeDouble(entity.getX());

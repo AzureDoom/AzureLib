@@ -6,7 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.EntityType;
 public class EntityPacketOnClient {
 	@Environment(EnvType.CLIENT)
 	public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {
-		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.byId(byteBuf.readVarInt());
+		EntityType<?> type = Registry.ENTITY_TYPE.byId(byteBuf.readVarInt());
 		UUID entityUUID = byteBuf.readUUID();
 		int entityID = byteBuf.readVarInt();
 		double x = byteBuf.readDouble();
