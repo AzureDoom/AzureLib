@@ -34,7 +34,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
  * and {@link CoreGeoModel Models}
  */
 public final class AzureLibCache {
-	private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of("moreplayermodels", "customnpcs", "gunsrpg");
+	private static final Set<String> ACCEPTED_NAMESPACES = ObjectOpenHashSet.of("azurelib", "gigeresque");
 
 	private static Map<ResourceLocation, BakedAnimations> ANIMATIONS = Collections.emptyMap();
 	private static Map<ResourceLocation, BakedGeoModel> MODELS = Collections.emptyMap();
@@ -113,7 +113,7 @@ public final class AzureLibCache {
 				.thenAcceptAsync(tasks -> {
 					for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
 						// Skip known namespaces that use an "animation" folder as well
-						if (!EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
+						if (ACCEPTED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
 							map.accept(entry.getKey(), entry.getValue().join());
 					}
 				}, executor);
