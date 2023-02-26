@@ -1,3 +1,3 @@
-v1.0.3
+v1.0.6
 
-- Fixes crash with all Geckolib 3.1.x mods
+- Version locks to 1.19.2 only.
