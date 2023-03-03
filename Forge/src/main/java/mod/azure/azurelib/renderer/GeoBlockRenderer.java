@@ -1,10 +1,23 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.event.GeoRenderEvent;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -15,19 +28,6 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.constant.DataTickets;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.event.GeoRenderEvent;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import java.util.List;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link BlockEntity Blocks} specifically.<br>
@@ -171,12 +171,13 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 		if (bone.isTrackingMatrices()) {
 			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.blockRenderTranslations);
-			Matrix4f worldState = new Matrix4f(localMatrix);
+			Matrix4f worldState = localMatrix.copy();
 			BlockPos pos = this.animatable.getBlockPos();
 
 			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
 			bone.setLocalSpaceMatrix(localMatrix);
-			bone.setWorldSpaceMatrix(worldState.translate(new Vector3f(pos.getX(), pos.getY(), pos.getZ())));
+			worldState.translate(new Vector3f(pos.getX(), pos.getY(), pos.getZ()));
+			bone.setWorldSpaceMatrix(worldState);
 		}
 
 		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue,
@@ -188,12 +189,12 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	protected void rotateBlock(Direction facing, PoseStack poseStack) {
 		switch (facing) {
-			case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
-			case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
-			case NORTH -> poseStack.mulPose(Axis.YP.rotationDegrees(0));
-			case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270));
-			case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
-			case DOWN -> poseStack.mulPose(Axis.XN.rotationDegrees(90));
+			case SOUTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
+			case WEST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
+			case NORTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
+			case EAST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
+			case UP -> poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
+			case DOWN -> poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
 		}
 	}
 

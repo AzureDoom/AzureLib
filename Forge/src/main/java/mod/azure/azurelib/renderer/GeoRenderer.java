@@ -1,25 +1,31 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-import mod.azure.azurelib.cache.object.*;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
+
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.List;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Base interface for all AzureLib renderers.<br>
@@ -271,8 +277,10 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 			if (quad == null)
 				continue;
 
-			Vector3f normal = normalisedPoseState.transform(new Vector3f(quad.normal()));
+			Vector3f normal = quad.normal().copy();
 
+			normal.transform(normalisedPoseState);
+			
 			RenderUtils.fixInvertedFlatCube(cube, normal);
 			createVerticesOfQuad(quad, poseState, normal, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 		}
@@ -284,8 +292,9 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	default void createVerticesOfQuad(GeoQuad quad, Matrix4f poseState, Vector3f normal, VertexConsumer buffer,
 			int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		for (GeoVertex vertex : quad.vertices()) {
-			Vector3f position = vertex.position();
-			Vector4f vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
+			Vector4f vector4f = new Vector4f(vertex.position().x(), vertex.position().y(), vertex.position().z(), 1);
+
+			vector4f.transform(poseState);
 
 			buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.texU(),
 					vertex.texV(), packedOverlay, packedLight, normal.x(), normal.y(), normal.z());

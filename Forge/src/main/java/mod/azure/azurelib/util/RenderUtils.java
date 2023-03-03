@@ -1,11 +1,24 @@
 package mod.azure.azurelib.util;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+
 import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.renderer.GeoRenderer;
+import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -22,19 +35,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.renderer.GeoArmorRenderer;
-import mod.azure.azurelib.renderer.GeoRenderer;
-import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
-
-import javax.annotation.Nullable;
 
 /**
  * Helper class for various methods and functions useful while rendering
@@ -46,21 +46,21 @@ public final class RenderUtils {
 
 	public static void rotateMatrixAroundBone(PoseStack poseStack, CoreGeoBone bone) {
 		if (bone.getRotZ() != 0)
-			poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
+			poseStack.mulPose(Vector3f.ZP.rotation(bone.getRotZ()));
 
 		if (bone.getRotY() != 0)
-			poseStack.mulPose(Axis.YP.rotation(bone.getRotY()));
+			poseStack.mulPose(Vector3f.YP.rotation(bone.getRotY()));
 
 		if (bone.getRotX() != 0)
-			poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
+			poseStack.mulPose(Vector3f.XP.rotation(bone.getRotX()));
 	}
 
 	public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
 		Vec3 rotation = cube.rotation();
 
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, 0, (float)rotation.z()));
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, (float)rotation.y(), 0));
-		poseStack.mulPose(new Quaternionf().rotationXYZ((float)rotation.x(), 0, 0));
+		poseStack.mulPose(new Quaternion(0, 0, (float) rotation.z(), false));
+		poseStack.mulPose(new Quaternion(0, (float) rotation.y(), 0, false));
+		poseStack.mulPose(new Quaternion((float) rotation.x(), 0, 0, false));
 	}
 
 	public static void scaleMatrixForBone(PoseStack poseStack, CoreGeoBone bone) {
@@ -99,30 +99,33 @@ public final class RenderUtils {
 		translateAwayFromPivotPoint(poseStack, bone);
 	}
 
-
 	public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {
 		inputMatrix = new Matrix4f(inputMatrix);
 
 		inputMatrix.invert();
-		inputMatrix.mul(baseMatrix);
+		inputMatrix.multiply(baseMatrix);
 
 		return inputMatrix;
 	}
-	
+
 	/**
-     * Translates the provided {@link PoseStack} to face towards the given {@link Entity}'s rotation.<br>
-     * Usually used for rotating projectiles towards their trajectory, in an {@link GeoRenderer#preRender} override.<br>
+	 * Translates the provided {@link PoseStack} to face towards the given
+	 * {@link Entity}'s rotation.<br>
+	 * Usually used for rotating projectiles towards their trajectory, in an
+	 * {@link GeoRenderer#preRender} override.<br>
 	 */
 	public static void faceRotation(PoseStack poseStack, Entity animatable, float partialTick) {
-		poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
-		poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+		poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
+		poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
 	}
 
 	/**
 	 * Gets the actual dimensions of a texture resource from a given path.<br>
 	 * Not performance-efficient, and should not be relied upon
+	 * 
 	 * @param texture The path of the texture resource to check
-	 * @return The dimensions (width x height) of the texture, or null if unable to find or read the file
+	 * @return The dimensions (width x height) of the texture, or null if unable to
+	 *         find or read the file
 	 */
 	@Nullable
 	public static IntIntPair getTextureDimensions(ResourceLocation texture) {
@@ -134,8 +137,7 @@ public final class RenderUtils {
 
 		try {
 			originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(texture)).get();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			AzureLib.LOGGER.warn("Failed to load image for id {}", texture);
 			e.printStackTrace();
 		}
@@ -148,8 +150,7 @@ public final class RenderUtils {
 		try {
 			image = originalTexture instanceof DynamicTexture dynamicTexture ? dynamicTexture.getPixels()
 					: NativeImage.read(mc.getResourceManager().getResource(texture).get().open());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			AzureLib.LOGGER.error("Failed to read image for id {}", texture);
 			e.printStackTrace();
 		}
@@ -162,8 +163,9 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Returns the current time (in ticks) that the {@link org.lwjgl.glfw.GLFW GLFW} instance has been running.
-	 * This is effectively a permanent timer that counts up since the game was launched.
+	 * Returns the current time (in ticks) that the {@link org.lwjgl.glfw.GLFW GLFW}
+	 * instance has been running. This is effectively a permanent timer that counts
+	 * up since the game was launched.
 	 */
 	public static double getCurrentTick() {
 		return Blaze3D.getTime() * 20d;
@@ -173,8 +175,8 @@ public final class RenderUtils {
 	 * Returns a float equivalent of a boolean.<br>
 	 * Output table:
 	 * <ul>
-	 *     <li>true -> 1</li>
-	 *     <li>false -> 0</li>
+	 * <li>true -> 1</li>
+	 * <li>false -> 0</li>
 	 * </ul>
 	 */
 	public static float booleanToFloat(boolean input) {
@@ -189,16 +191,20 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Rotates a {@link CoreGeoBone} to match a provided {@link ModelPart}'s rotations.<br>
-	 * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
+	 * Rotates a {@link CoreGeoBone} to match a provided {@link ModelPart}'s
+	 * rotations.<br>
+	 * Usually used for items or armor rendering to match the rotations of other
+	 * non-geo model parts.
 	 */
 	public static void matchModelPartRot(ModelPart from, CoreGeoBone to) {
 		to.updateRotation(-from.xRot, -from.yRot, from.zRot);
 	}
 
 	/**
-	 * If a {@link GeoCube} is a 2d plane the {@link mod.azure.azurelib.cache.object.GeoQuad Quad's}
-	 * normal is inverted in an intersecting plane,it can cause issues with shaders and other lighting tasks.<br>
+	 * If a {@link GeoCube} is a 2d plane the
+	 * {@link mod.azure.azurelib.cache.object.GeoQuad Quad's} normal is inverted in
+	 * an intersecting plane,it can cause issues with shaders and other lighting
+	 * tasks.<br>
 	 * This performs a pseudo-ABS function to help resolve some of those issues.
 	 */
 	public static void fixInvertedFlatCube(GeoCube cube, Vector3f normal) {
@@ -216,18 +222,20 @@ public final class RenderUtils {
 	 * Converts a {@link Direction} to a rotational float for rotation purposes
 	 */
 	public static float getDirectionAngle(Direction direction) {
-		return switch(direction) {
-			case SOUTH -> 90f;
-			case NORTH -> 270f;
-			case EAST -> 180f;
-			default -> 0f;
+		return switch (direction) {
+		case SOUTH -> 90f;
+		case NORTH -> 270f;
+		case EAST -> 180f;
+		default -> 0f;
 		};
 	}
 
 	/**
 	 * Gets a {@link GeoModel} instance from a given {@link EntityType}.<br>
-	 * This only works if you're calling this method for an EntityType known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
+	 * This only works if you're calling this method for an EntityType known to be
+	 * using a {@link GeoRenderer AzureLib Renderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
+	 * 
 	 * @param entityType The {@code EntityType} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
@@ -239,21 +247,28 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Gets a GeoAnimatable instance that has been registered as the replacement renderer for a given {@link EntityType}
-	 * @param entityType The {@code EntityType} to retrieve the replaced {@link GeoAnimatable} for
+	 * Gets a GeoAnimatable instance that has been registered as the replacement
+	 * renderer for a given {@link EntityType}
+	 * 
+	 * @param entityType The {@code EntityType} to retrieve the replaced
+	 *                   {@link GeoAnimatable} for
 	 * @return The {@code GeoAnimatable} instance, or null if one isn't found
 	 */
 	@Nullable
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
-		return renderer instanceof GeoReplacedEntityRenderer<?, ?> replacedEntityRenderer ? replacedEntityRenderer.getAnimatable() : null;
+		return renderer instanceof GeoReplacedEntityRenderer<?, ?> replacedEntityRenderer
+				? replacedEntityRenderer.getAnimatable()
+				: null;
 	}
 
 	/**
 	 * Gets a {@link GeoModel} instance from a given {@link Entity}.<br>
-	 * This only works if you're calling this method for an Entity known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
+	 * This only works if you're calling this method for an Entity known to be using
+	 * a {@link GeoRenderer AzureLib Renderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
+	 * 
 	 * @param entity The {@code Entity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
@@ -266,14 +281,16 @@ public final class RenderUtils {
 
 	/**
 	 * Gets a {@link GeoModel} instance from a given {@link Item}.<br>
-	 * This only works if you're calling this method for an Item known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
+	 * This only works if you're calling this method for an Item known to be using a
+	 * {@link GeoRenderer AzureLib Renderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
+	 * 
 	 * @param item The {@code Item} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForItem(Item item) {
-		if (IClientItemExtensions.of(item).getCustomRenderer() instanceof GeoRenderer<?> geoRenderer)
+		if (IClientItemExtensions.of(item).getCustomRenderer()instanceof GeoRenderer<?> geoRenderer)
 			return geoRenderer.getGeoModel();
 
 		return null;
@@ -281,28 +298,34 @@ public final class RenderUtils {
 
 	/**
 	 * Gets a {@link GeoModel} instance from a given {@link BlockEntity}.<br>
-	 * This only works if you're calling this method for a BlockEntity known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
+	 * This only works if you're calling this method for a BlockEntity known to be
+	 * using a {@link GeoRenderer AzureLib Renderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
+	 * 
 	 * @param blockEntity The {@code BlockEntity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForBlock(BlockEntity blockEntity) {
-		BlockEntityRenderer<?> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
+		BlockEntityRenderer<?> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher()
+				.getRenderer(blockEntity);
 
 		return renderer instanceof GeoRenderer<?> geoRenderer ? geoRenderer.getGeoModel() : null;
 	}
 
 	/**
 	 * Gets a {@link GeoModel} instance from a given {@link Item}.<br>
-	 * This only works if you're calling this method for an Item known to be using a {@link mod.azure.azurelib.renderer.GeoArmorRenderer GeoArmorRenderer}.<br>
+	 * This only works if you're calling this method for an Item known to be using a
+	 * {@link mod.azure.azurelib.renderer.GeoArmorRenderer GeoArmorRenderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
+	 * 
 	 * @param stack The ItemStack to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForArmor(ItemStack stack) {
-		if (IClientItemExtensions.of(stack).getHumanoidArmorModel(null, stack, null, null) instanceof GeoArmorRenderer<?> armorRenderer)
+		if (IClientItemExtensions.of(stack).getHumanoidArmorModel(null, stack, null,
+				null)instanceof GeoArmorRenderer<?> armorRenderer)
 			return armorRenderer.getGeoModel();
 
 		return null;

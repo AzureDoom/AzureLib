@@ -1,8 +1,24 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.event.GeoRenderEvent;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -16,20 +32,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import org.joml.Matrix4f;
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.constant.DataTickets;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.event.GeoRenderEvent;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * Base {@link GeoRenderer} for rendering in-world armor specifically.<br>

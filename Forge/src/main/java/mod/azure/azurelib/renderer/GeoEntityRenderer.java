@@ -1,10 +1,24 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.event.GeoRenderEvent;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.model.data.EntityModelData;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -26,20 +40,6 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.constant.DataTickets;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.event.GeoRenderEvent;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.model.data.EntityModelData;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import java.util.List;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link Entity Entities} specifically.<br>
@@ -275,12 +275,16 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		RenderUtils.scaleMatrixForBone(poseStack, bone);
 
 		if (bone.isTrackingMatrices()) {
-			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+			Matrix4f poseState = poseStack.last().pose().copy();
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
 
 			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-			bone.setLocalSpaceMatrix(localMatrix.translation(new Vector3f(getRenderOffset(this.animatable, 1).toVector3f())));
-			bone.setWorldSpaceMatrix(new Matrix4f(localMatrix).translation(new Vector3f(this.animatable.position().toVector3f())));
+			localMatrix.translate(new Vector3f(getRenderOffset(this.animatable, 1)));
+			bone.setLocalSpaceMatrix(localMatrix);
+			Matrix4f worldState = localMatrix.copy();
+
+			worldState.translate(new Vector3f(this.animatable.position()));
+			bone.setWorldSpaceMatrix(worldState);
 		}
 
 		RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
@@ -304,23 +308,23 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		LivingEntity livingEntity = animatable instanceof LivingEntity entity ? entity : null;
 
 		if (pose != Pose.SLEEPING)
-			poseStack.mulPose(Axis.YP.rotationDegrees(180f - rotationYaw));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
 
 		if (livingEntity != null && livingEntity.deathTime > 0) {
 			float deathRotation = (livingEntity.deathTime + partialTick - 1f) / 20f * 1.6f;
 
-			poseStack.mulPose(Axis.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * getDeathMaxRotation(animatable)));
+			poseStack.mulPose(Vector3f.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * getDeathMaxRotation(animatable)));
 		}
 		else if (livingEntity != null && livingEntity.isAutoSpinAttack()) {
-			poseStack.mulPose(Axis.XP.rotationDegrees(-90f - livingEntity.getXRot()));
-			poseStack.mulPose(Axis.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
+			poseStack.mulPose(Vector3f.XP.rotationDegrees(-90f - livingEntity.getXRot()));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
 		}
 		else if (livingEntity != null && pose == Pose.SLEEPING) {
 			Direction bedOrientation = livingEntity.getBedOrientation();
 
-			poseStack.mulPose(Axis.YP.rotationDegrees(bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw));
-			poseStack.mulPose(Axis.ZP.rotationDegrees(getDeathMaxRotation(animatable)));
-			poseStack.mulPose(Axis.YP.rotationDegrees(270f));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw));
+			poseStack.mulPose(Vector3f.ZP.rotationDegrees(getDeathMaxRotation(animatable)));
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(270f));
 		}
 		else if (animatable.hasCustomName() || animatable instanceof Player) {
 			String name = animatable.getName().getString();
@@ -335,7 +339,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 
 			if (name != null && (name.equals("Dinnerbone") || name.equalsIgnoreCase("Grumm"))) {
 				poseStack.translate(0, animatable.getBbHeight() + 0.1f, 0);
-				poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+				poseStack.mulPose(Vector3f.ZP.rotationDegrees(180f));
 			}
 		}
 	}
