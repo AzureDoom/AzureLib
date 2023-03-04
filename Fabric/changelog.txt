@@ -1,3 +1,3 @@
-v1.0.7
+v1.0.8
 
-- Locks checked namespaces for animations to only my mods.
+- Fixes #2 allowing stacking spawn eggs.
