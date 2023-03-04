@@ -10,7 +10,7 @@ import net.minecraftforge.common.ForgeSpawnEggItem;
 public class AzureSpawnEgg extends ForgeSpawnEggItem {
 
 	public AzureSpawnEgg(Supplier<? extends EntityType<? extends Mob>> type, int primaryColor, int secondaryColor) {
-		super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(1));
+		super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
 	}
 
 }
