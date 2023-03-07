@@ -44,16 +44,19 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 		
 		JsonObject animationJsonList = jsonObj.getAsJsonObject("animations");
 		JsonArray includeListJSONObj = jsonObj.getAsJsonArray("includes");
-		Map<String, ResourceLocation> includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
-		for(JsonElement entry : includeListJSONObj.asList()) {
-			JsonObject obj = entry.getAsJsonObject();
-			ResourceLocation fileId = new ResourceLocation(obj.get("file_id").getAsString());
-			for(JsonElement animName : obj.getAsJsonArray("animations")) {
-				String ani = animName.getAsString();
-				if(includes.containsKey(ani)) {
-					AzureLib.LOGGER.warn("Animation {} is already included! File already including: {}  File trying to include from again: {}", ani, includes.get(ani).toString(), fileId.toString());
-				} else {
-					includes.put(ani, fileId);
+		Map<String, ResourceLocation> includes = null;
+		if(includeListJSONObj != null) {
+			includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
+			for(JsonElement entry : includeListJSONObj.asList()) {
+				JsonObject obj = entry.getAsJsonObject();
+				ResourceLocation fileId = new ResourceLocation(obj.get("file_id").getAsString());
+				for(JsonElement animName : obj.getAsJsonArray("animations")) {
+					String ani = animName.getAsString();
+					if(includes.containsKey(ani)) {
+						AzureLib.LOGGER.warn("Animation {} is already included! File already including: {}  File trying to include from again: {}", ani, includes.get(ani).toString(), fileId.toString());
+					} else {
+						includes.put(ani, fileId);
+					}
 				}
 			}
 		}

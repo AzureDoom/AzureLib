@@ -18,7 +18,7 @@ public record BakedAnimations(Map<String, Animation> animations, Map<String, Res
 	@Nullable
 	public Animation getAnimation(String name){
 		Animation result = animations.get(name);
-		if(result == null) {
+		if(result == null && includes != null) {
 			ResourceLocation otherFileID = includes.getOrDefault(name, null);
 			if(otherFileID != null) {
 				BakedAnimations otherBakedAnims = AzureLibCache.getBakedAnimations().get(otherFileID);
