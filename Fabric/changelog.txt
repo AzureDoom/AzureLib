@@ -1,3 +1,4 @@
-v1.0.5
+v1.0.6
 
-- Fixes #2 allowing stacking spawn eggs.
+- Adds my own custom Vibration system, that doesn't have a particle.
+- Adds a Growable system for having mobs grow over time and turn into other mobs.
