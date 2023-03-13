@@ -25,7 +25,7 @@ public final class FileLoader {
 	 * @param manager The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
 	public static BakedAnimations loadAnimationsFile(ResourceLocation location, ResourceManager manager) {
-		return JsonUtil.GEO_GSON.fromJson(GsonHelper.getAsJsonObject(loadFile(location, manager), "animations"), BakedAnimations.class);
+		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
 	}
 
 	/**

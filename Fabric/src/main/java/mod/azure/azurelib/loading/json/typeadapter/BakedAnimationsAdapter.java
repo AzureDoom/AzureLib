@@ -1,9 +1,22 @@
 package mod.azure.azurelib.loading.json.typeadapter;
 
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.eliotlash.mclib.math.Constant;
 import com.eliotlash.mclib.math.IValue;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.AzureLib;
@@ -17,12 +30,8 @@ import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.util.JsonUtil;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import org.apache.commons.lang3.math.NumberUtils;
-
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
 
 /**
  * {@link com.google.gson.Gson} {@link JsonDeserializer} for {@link mod.azure.azurelib.loading.object.BakedAnimations}.<br>
@@ -31,10 +40,30 @@ import java.util.Map;
 public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations> {
 	@Override
 	public BakedAnimations deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject obj = json.getAsJsonObject();
-		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
+		JsonObject jsonObj = json.getAsJsonObject();
+		
+		JsonObject animationJsonList = jsonObj.getAsJsonObject("animations");
+		JsonArray includeListJSONObj = jsonObj.getAsJsonArray("includes");
+		Map<String, ResourceLocation> includes = null;
+		if(includeListJSONObj != null) {
+			includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
+			for(JsonElement entry : includeListJSONObj) {
+				JsonObject obj = entry.getAsJsonObject();
+				ResourceLocation fileId = new ResourceLocation(obj.get("file_id").getAsString());
+				for(JsonElement animName : obj.getAsJsonArray("animations")) {
+					String ani = animName.getAsString();
+					if(includes.containsKey(ani)) {
+						AzureLib.LOGGER.warn("Animation {} is already included! File already including: {}  File trying to include from again: {}", ani, includes.get(ani).toString(), fileId.toString());
+					} else {
+						includes.put(ani, fileId);
+					}
+				}
+			}
+		}
+		
+		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(animationJsonList.size());
 
-		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+		for (Map.Entry<String, JsonElement> entry : animationJsonList.entrySet()) {
 			try {
 				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), context));
 			}
@@ -44,7 +73,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 			}
 		}
 
-		return new BakedAnimations(animations);
+		return new BakedAnimations(animations, includes);
 	}
 
 	private Animation bakeAnimation(String name, JsonObject animationObj, JsonDeserializationContext context) throws MolangException {
