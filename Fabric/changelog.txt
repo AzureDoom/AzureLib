@@ -1,4 +1,3 @@
-v1.0.9
+v1.0.10
 
-- Adds my own custom Vibration system, that doesn't have a particle.
-- Adds a Growable system for having mobs grow over time and turn into other mobs.
+- Adds include animation support, allow you to have default animations files you can link to your other animation files, saving on duplication of animations.
