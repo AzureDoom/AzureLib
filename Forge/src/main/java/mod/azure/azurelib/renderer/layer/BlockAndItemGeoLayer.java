@@ -1,22 +1,24 @@
 package mod.azure.azurelib.renderer.layer;
 
+import java.util.function.BiFunction;
+
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.function.BiFunction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.model.data.ModelData;
 
 /**
  * {@link GeoRenderLayer} for rendering {@link net.minecraft.world.level.block.state.BlockState BlockStates}
@@ -25,6 +27,7 @@ import java.util.function.BiFunction;
 public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
 	protected final BiFunction<GeoBone, T, ItemStack> stackForBone;
 	protected final BiFunction<GeoBone, T, BlockState> blockForBone;
+	private Minecraft minecraft;
 
 	public BlockAndItemGeoLayer(GeoRenderer<T> renderer) {
 		this(renderer, (bone, animatable) -> null, (bone, animatable) -> null);
@@ -56,8 +59,8 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 	/**
 	 * Return a specific TransFormType for this {@link ItemStack} render for this bone.
 	 */
-	protected ItemTransforms.TransformType getTransformTypeForStack(GeoBone bone, ItemStack stack, T animatable) {
-		return ItemTransforms.TransformType.NONE;
+	protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, T animatable) {
+		return ItemDisplayContext.NONE;
 	}
 
 	/**
@@ -105,8 +108,9 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 					packedLight, packedOverlay, livingEntity.getId());
 		}
 		else {
-			Minecraft.getInstance().getItemRenderer().renderStatic(stack, getTransformTypeForStack(bone, stack, animatable),
-					packedLight, packedOverlay, poseStack, bufferSource, (int)this.renderer.getInstanceId(animatable));
+			Minecraft.getInstance().getItemRenderer().renderStatic(stack,
+					getTransformTypeForStack(bone, stack, animatable), packedLight, packedOverlay, poseStack,
+					bufferSource, minecraft.level, (int) this.renderer.getInstanceId(animatable));
 		}
 	}
 

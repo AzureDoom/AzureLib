@@ -1,16 +1,19 @@
 package mod.azure.azurelib.resource;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.NativeImage;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.GsonHelper;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer emissive texture feature} for a given texture
@@ -82,7 +85,7 @@ public class GeoGlowingTextureMeta {
 				int color = glowLayer.getPixelRGBA(x, y);
 
 				if (color != 0)
-					pixels.add(new Pixel(x, y, NativeImage.getA(color)));
+					pixels.add(new Pixel(x, y, FastColor.ABGR32.alpha(color)));
 			}
 		}
 
@@ -100,7 +103,7 @@ public class GeoGlowingTextureMeta {
 			int color = originalImage.getPixelRGBA(pixel.x, pixel.y);
 
 			if (pixel.alpha > 0)
-				color = NativeImage.combine(pixel.alpha, NativeImage.getB(color), NativeImage.getG(color), NativeImage.getR(color));
+				color = FastColor.ABGR32.color(pixel.alpha, FastColor.ABGR32.blue(color), FastColor.ABGR32.green(color), FastColor.ABGR32.red(color));
 
 			newImage.setPixelRGBA(pixel.x, pixel.y, color);
 			originalImage.setPixelRGBA(pixel.x, pixel.y, 0);

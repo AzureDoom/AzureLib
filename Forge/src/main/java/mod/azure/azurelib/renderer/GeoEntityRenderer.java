@@ -1,10 +1,26 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.List;
+
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.event.GeoRenderEvent;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.model.data.EntityModelData;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -26,20 +42,6 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.constant.DataTickets;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.event.GeoRenderEvent;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.model.data.EntityModelData;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import java.util.List;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link Entity Entities} specifically.<br>
@@ -205,8 +207,8 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick);
 
 		if (!shouldSit && animatable.isAlive() && livingEntity != null) {
-			limbSwingAmount = Mth.lerp(partialTick, livingEntity.animationSpeedOld, livingEntity.animationSpeed);
-			limbSwing = livingEntity.animationPosition - livingEntity.animationSpeed * (1 - partialTick);
+			limbSwingAmount = Mth.lerp(partialTick, livingEntity.walkAnimation.speedOld, livingEntity.walkAnimation.speed());
+			limbSwing = livingEntity.walkAnimation.position() - livingEntity.walkAnimation.speed() * (1 - partialTick);
 
 			if (livingEntity.isBaby())
 				limbSwing *= 3f;
@@ -395,12 +397,12 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		float xDif = (float)(ropeGripPosition.x - lerpOriginX);
 		float yDif = (float)(ropeGripPosition.y - lerpOriginY);
 		float zDif = (float)(ropeGripPosition.z - lerpOriginZ);
-		float offsetMod = Mth.fastInvSqrt(xDif * xDif + zDif * zDif) * 0.025f / 2f;
+		float offsetMod = (float) (Mth.fastInvSqrt(xDif * xDif + zDif * zDif) * 0.025f / 2f);
 		float xOffset = zDif * offsetMod;
 		float zOffset = xDif * offsetMod;
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.leash());
-		BlockPos entityEyePos = new BlockPos(mob.getEyePosition(partialTick));
-		BlockPos holderEyePos = new BlockPos(leashHolder.getEyePosition(partialTick));
+		BlockPos entityEyePos = BlockPos.containing(mob.getEyePosition(partialTick));
+		BlockPos holderEyePos = BlockPos.containing(leashHolder.getEyePosition(partialTick));
 		int entityBlockLight = getBlockLightLevel((T)mob, entityEyePos);
 		int holderBlockLight = leashHolder.isOnFire() ? 15 : leashHolder.level.getBrightness(LightLayer.BLOCK, holderEyePos);
 		int entitySkyLight = mob.level.getBrightness(LightLayer.SKY, entityEyePos);
