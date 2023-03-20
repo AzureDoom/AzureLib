@@ -19,8 +19,10 @@ import net.minecraft.world.item.ItemStack;
  */
 @Mixin(ItemRenderer.class)
 public class MixinItemRenderer {
-    @Inject(method = "render", at = @At(value = "INVOKE"), cancellable = true)
-    public void itemModelHook(ItemStack itemStack, ItemDisplayContext transformType, boolean bl, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, BakedModel bakedModel, CallbackInfo ci){
-        RenderProvider.of(itemStack).getCustomRenderer().renderByItem(itemStack, transformType, poseStack, multiBufferSource, i, j);
-    }
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"), cancellable = true)
+	public void itemModelHook(ItemStack itemStack, ItemDisplayContext transformType, boolean bl, PoseStack poseStack,
+			MultiBufferSource multiBufferSource, int i, int j, BakedModel bakedModel, CallbackInfo ci) {
+		RenderProvider.of(itemStack).getCustomRenderer().renderByItem(itemStack, transformType, poseStack,
+				multiBufferSource, i, j);
+	}
 }
