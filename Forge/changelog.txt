@@ -1,3 +1,4 @@
-v1.0.6
+v1.0.7
 
-- Fixes buffer not being reset for leash rendering.
+- Fixes leads not rendering correctly.
+- Ports scaleModelForRender from Geckolib.
