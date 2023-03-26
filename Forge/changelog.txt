@@ -1,4 +1,3 @@
-v1.0.5
+v1.0.7
 
-- Fixes leads not rendering correctly.
-- Ports scaleModelForRender from Geckolib.
+- Fixes crash with BlockandItemGeoLayer

@@ -21,13 +21,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 
 /**
- * {@link GeoRenderLayer} for rendering {@link net.minecraft.world.level.block.state.BlockState BlockStates}
- * or {@link net.minecraft.world.item.ItemStack ItemStacks} on a given {@link GeoAnimatable}
+ * {@link GeoRenderLayer} for rendering {@link net.minecraft.world.level.block.state.BlockState BlockStates} or {@link net.minecraft.world.item.ItemStack ItemStacks} on a given {@link GeoAnimatable}
  */
 public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
 	protected final BiFunction<GeoBone, T, ItemStack> stackForBone;
 	protected final BiFunction<GeoBone, T, BlockState> blockForBone;
-	private Minecraft minecraft;
 
 	public BlockAndItemGeoLayer(GeoRenderer<T> renderer) {
 		this(renderer, (bone, animatable) -> null, (bone, animatable) -> null);
@@ -71,12 +69,10 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 	 * <br>
 	 * The {@link GeoBone} in question has already been rendered by this stage.<br>
 	 * <br>
-	 * If you <i>do</i> use it, and you render something that changes the {@link VertexConsumer buffer}, you need to reset it back to the previous buffer
-	 * using {@link MultiBufferSource#getBuffer} before ending the method
+	 * If you <i>do</i> use it, and you render something that changes the {@link VertexConsumer buffer}, you need to reset it back to the previous buffer using {@link MultiBufferSource#getBuffer} before ending the method
 	 */
 	@Override
-	public void renderForBone(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource,
-							  VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+	public void renderForBone(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
 		ItemStack stack = getStackForBone(bone, animatable);
 		BlockState blockState = getBlockForBone(bone, animatable);
 
@@ -100,25 +96,18 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 	/**
 	 * Render the given {@link ItemStack} for the provided {@link GeoBone}.
 	 */
-	protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, T animatable, MultiBufferSource bufferSource,
-									  float partialTick, int packedLight, int packedOverlay) {
+	protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, T animatable, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		if (animatable instanceof LivingEntity livingEntity) {
-			Minecraft.getInstance().getItemRenderer().renderStatic(livingEntity, stack,
-					getTransformTypeForStack(bone, stack, animatable), false, poseStack, bufferSource, livingEntity.level,
-					packedLight, packedOverlay, livingEntity.getId());
-		}
-		else {
-			Minecraft.getInstance().getItemRenderer().renderStatic(stack,
-					getTransformTypeForStack(bone, stack, animatable), packedLight, packedOverlay, poseStack,
-					bufferSource, minecraft.level, (int) this.renderer.getInstanceId(animatable));
+			Minecraft.getInstance().getItemRenderer().renderStatic(livingEntity, stack, getTransformTypeForStack(bone, stack, animatable), false, poseStack, bufferSource, livingEntity.level, packedLight, packedOverlay, livingEntity.getId());
+		} else {
+			Minecraft.getInstance().getItemRenderer().renderStatic(stack, getTransformTypeForStack(bone, stack, animatable), packedLight, packedOverlay, poseStack, bufferSource, Minecraft.getInstance().level, (int) this.renderer.getInstanceId(animatable));
 		}
 	}
 
 	/**
 	 * Render the given {@link BlockState} for the provided {@link GeoBone}.
 	 */
-	protected void renderBlockForBone(PoseStack poseStack, GeoBone bone, BlockState state, T animatable, MultiBufferSource bufferSource,
-									  float partialTick, int packedLight, int packedOverlay) {
+	protected void renderBlockForBone(PoseStack poseStack, GeoBone bone, BlockState state, T animatable, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
 		poseStack.pushPose();
 		poseStack.translate(-0.25f, -0.25f, -0.25f);
 		poseStack.scale(0.5f, 0.5f, 0.5f);
