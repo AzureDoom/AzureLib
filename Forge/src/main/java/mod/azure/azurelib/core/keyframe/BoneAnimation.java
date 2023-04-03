@@ -13,6 +13,13 @@ public class BoneAnimation {
 	public KeyframeStack<Keyframe<IValue>> rotationKeyFrames;
 	public KeyframeStack<Keyframe<IValue>> positionKeyFrames;
 	public KeyframeStack<Keyframe<IValue>> scaleKeyFrames;
+	
+	public BoneAnimation(String boneName, KeyframeStack<Keyframe<IValue>> rotationKeyFrames, KeyframeStack<Keyframe<IValue>> positionkeyFrames, KeyframeStack<Keyframe<IValue>> scaleKeyFrames) {
+		this.boneName = boneName;
+		this.rotationKeyFrames = rotationKeyFrames;
+		this.positionKeyFrames = positionkeyFrames;
+		this.scaleKeyFrames = scaleKeyFrames;
+	}
 
 	public BoneAnimation(String boneName) {
 		this.boneName = boneName;

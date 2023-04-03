@@ -1,13 +1,22 @@
 package mod.azure.azurelib.cache.object;
 
-import com.mojang.math.Vector3f;
-
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3f;
 
 /**
  * Quad data holder
  */
-public record GeoQuad(GeoVertex[] vertices, Vector3f normal, Direction direction) {
+public class GeoQuad {
+	protected final GeoVertex[] vertices;
+	protected final Vector3f normal;
+	protected final Direction direction;
+	
+	public GeoQuad(final GeoVertex[] vertices, final Vector3f normal, final Direction direction) {
+		this.vertices = vertices;
+		this.normal = normal;
+		this.direction = direction;
+	}
+	
 	public static GeoQuad build(GeoVertex[] vertices, double[] uvCoords, double[] uvSize, float texWidth,
 			float texHeight, boolean mirror, Direction direction) {
 		return build(vertices, (float) uvCoords[0], (float) uvCoords[1], (float) uvSize[0], (float) uvSize[1], texWidth,
@@ -36,5 +45,17 @@ public record GeoQuad(GeoVertex[] vertices, Vector3f normal, Direction direction
 		vertices[3] = vertices[3].withUVs(u, vHeight);
 
 		return new GeoQuad(vertices, normal, direction);
+	}
+
+	public GeoVertex[] vertices() {
+		return vertices;
+	}
+
+	public Vector3f normal() {
+		return normal;
+	}
+
+	public Direction direction() {
+		return direction;
 	}
 }

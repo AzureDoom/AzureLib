@@ -8,8 +8,25 @@ import java.util.Map;
 /**
  * Container class for holding a {@link Bone} structure. Used at startup in deserialization
  */
-public record BoneStructure(Bone self, Map<String, BoneStructure> children) {
+public class BoneStructure {
+	
+	protected final Bone self;
+	protected final Map<String, BoneStructure> children;
+	
+	public BoneStructure(Bone self, Map<String, BoneStructure> children) {
+		this.self = self;
+		this.children = children;
+	}
+	
 	public BoneStructure(Bone self) {
 		this(self, new Object2ObjectOpenHashMap<>());
+	}
+	
+	public Bone self() {
+		return this.self;
+	}
+	
+	public Map<String, BoneStructure> children() {
+		return this.children;
 	}
 }
