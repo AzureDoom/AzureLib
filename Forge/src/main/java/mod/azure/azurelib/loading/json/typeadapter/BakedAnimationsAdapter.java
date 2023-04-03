@@ -1,6 +1,7 @@
 package mod.azure.azurelib.loading.json.typeadapter;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +112,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 
 	private static List<Pair<String, JsonElement>> getTripletObj(JsonElement element) {
 		if (element == null)
-			return List.of();
+			return new ArrayList<>();
 
 		if (element instanceof JsonPrimitive) {
 			JsonArray array = new JsonArray();
@@ -124,7 +125,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 		}
 
 		if (element instanceof JsonArray)
-			return ObjectArrayList.of(Pair.of("0", ((JsonArray)element)));
+			return ObjectArrayList.wrap(new Pair[] {Pair.of("0", ((JsonArray)element))});
 
 		if (element instanceof JsonObject) {
 			List<Pair<String, JsonElement>> list = new ObjectArrayList<>();

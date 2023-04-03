@@ -1,16 +1,24 @@
 package mod.azure.azurelib.loading.json.typeadapter;
 
-import com.google.gson.*;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.util.GsonHelper;
 import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.util.JsonUtil;
-
-import java.lang.reflect.Type;
-import java.util.Map;
+import net.minecraft.util.GsonHelper;
 
 /**
  * {@link Gson} {@link JsonDeserializer} for {@link Animation.Keyframes}.<br>
@@ -66,11 +74,11 @@ public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
 		for (Map.Entry<String, JsonElement> entry : customInstructionsObj.entrySet()) {
 			String instructions = "";
 
-			if (entry.getValue() instanceof JsonArray array) {
-				instructions = JsonUtil.GEO_GSON.fromJson(array, ObjectArrayList.class).toString();
+			if (entry.getValue() instanceof JsonArray) {
+				instructions = JsonUtil.GEO_GSON.fromJson(((JsonArray)entry.getValue()), ObjectArrayList.class).toString();
 			}
-			else if (entry.getValue() instanceof JsonPrimitive primitive) {
-				instructions = primitive.getAsString();
+			else if (entry.getValue() instanceof JsonPrimitive) {
+				instructions = ((JsonPrimitive)entry.getValue()).getAsString();
 			}
 
 			customInstructions[index] = new CustomInstructionKeyframeData(Double.parseDouble(entry.getKey()) * 20d, instructions);
