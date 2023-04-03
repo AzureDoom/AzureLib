@@ -1,17 +1,26 @@
 package mod.azure.azurelib.loading.object;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.cache.object.*;
-import mod.azure.azurelib.loading.json.raw.*;
-import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.loading.json.raw.Bone;
+import mod.azure.azurelib.loading.json.raw.Cube;
+import mod.azure.azurelib.loading.json.raw.FaceUV;
+import mod.azure.azurelib.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.loading.json.raw.UVUnion;
+import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.util.RenderUtils;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * Base interface for a factory of {@link BakedGeoModel} objects.
@@ -75,32 +84,45 @@ public interface BakedModelFactory {
 
 		double[] uv = cube.uv().boxUVCoords();
 		double[] uvSize = cube.size();
-		Vec3 uvSizeVec = new Vec3(Math.floor(uvSize[0]), Math.floor(uvSize[1]), Math.floor(uvSize[2]));
-		double[][] uvData = switch(direction) {
-			case WEST -> new double[][] {
+		Vector3d uvSizeVec = new Vector3d(Math.floor(uvSize[0]), Math.floor(uvSize[1]), Math.floor(uvSize[2]));
+		double[][] uvData = new double[][] {new double[] {0}, new double[] {0}};
+		switch(direction) {
+			case WEST:
+				uvData = new double[][] {
 					new double[] {uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z},
 					new double[] {uvSizeVec.z, uvSizeVec.y}
-			};
-			case EAST -> new double[][] {
+				};
+				break;
+			case EAST: 
+				uvData = new double[][] {
 					new double[] { uv[0], uv[1] + uvSizeVec.z },
 					new double[] { uvSizeVec.z, uvSizeVec.y }
-			};
-			case NORTH -> new double[][] {
+				};
+				break;
+			case NORTH: 
+				uvData = new double[][] {
 					new double[] {uv[0] + uvSizeVec.z, uv[1] + uvSizeVec.z},
 					new double[] {uvSizeVec.x, uvSizeVec.y}
-			};
-			case SOUTH -> new double[][] {
+				};
+				break;
+			case SOUTH: 
+				uvData = new double[][] {
 					new double[] {uv[0] + uvSizeVec.z + uvSizeVec.x + uvSizeVec.z, uv[1] + uvSizeVec.z},
 					new double[] {uvSizeVec.x, uvSizeVec.y }
-			};
-			case UP -> new double[][] {
+				};
+				break;
+			case UP: 
+				uvData = new double[][] {
 					new double[] {uv[0] + uvSizeVec.z, uv[1]},
 					new double[] {uvSizeVec.x, uvSizeVec.z}
-			};
-			case DOWN -> new double[][] {
+				};
+				break;
+			case DOWN: 
+				uvData = new double[][] {
 					new double[] {uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z},
 					new double[] {uvSizeVec.x, -uvSizeVec.z}
-			};
+				};
+				break;
 		};
 
 		return GeoQuad.build(vertices.verticesForQuad(direction, true, mirror || cube.mirror() == Boolean.TRUE), uvData[0], uvData[1], textureWidth, textureHeight, mirror, direction);
@@ -137,8 +159,8 @@ public interface BakedModelFactory {
 		public GeoBone constructBone(BoneStructure boneStructure, ModelProperties properties, GeoBone parent) {
 			Bone bone = boneStructure.self();
 			GeoBone newBone = new GeoBone(parent, bone.name(), bone.mirror(), bone.inflate(), bone.neverRender(), bone.reset());
-			Vec3 rotation = RenderUtils.arrayToVec(bone.rotation());
-			Vec3 pivot = RenderUtils.arrayToVec(bone.pivot());
+			Vector3d rotation = RenderUtils.arrayToVec(bone.rotation());
+			Vector3d pivot = RenderUtils.arrayToVec(bone.pivot());
 
 			newBone.updateRotation((float)Math.toRadians(-rotation.x), (float)Math.toRadians(-rotation.y), (float)Math.toRadians(rotation.z));
 			newBone.updatePivot((float)-pivot.x, (float)pivot.y, (float)pivot.z);
@@ -158,15 +180,15 @@ public interface BakedModelFactory {
 		public GeoCube constructCube(Cube cube, ModelProperties properties, GeoBone bone) {
 			boolean mirror = cube.mirror() == Boolean.TRUE;
 			double inflate = cube.inflate() != null ? cube.inflate() / 16f : (bone.getInflate() == null ? 0 : bone.getInflate() / 16f);
-			Vec3 size = RenderUtils.arrayToVec(cube.size());
-			Vec3 origin = RenderUtils.arrayToVec(cube.origin());
-			Vec3 rotation = RenderUtils.arrayToVec(cube.rotation());
-			Vec3 pivot = RenderUtils.arrayToVec(cube.pivot());
-			origin = new Vec3(-(origin.x + size.x) / 16d, origin.y / 16d, origin.z / 16d);
-			Vec3 vertexSize = size.multiply(1 / 16d, 1 / 16d, 1 / 16d);
+			Vector3d size = RenderUtils.arrayToVec(cube.size());
+			Vector3d origin = RenderUtils.arrayToVec(cube.origin());
+			Vector3d rotation = RenderUtils.arrayToVec(cube.rotation());
+			Vector3d pivot = RenderUtils.arrayToVec(cube.pivot());
+			origin = new Vector3d(-(origin.x + size.x) / 16d, origin.y / 16d, origin.z / 16d);
+			Vector3d vertexSize = size.multiply(1 / 16d, 1 / 16d, 1 / 16d);
 
 			pivot = pivot.multiply(-1, 1, 1);
-			rotation = new Vec3(Math.toRadians(-rotation.x), Math.toRadians(-rotation.y), Math.toRadians(rotation.z));
+			rotation = new Vector3d(Math.toRadians(-rotation.x), Math.toRadians(-rotation.y), Math.toRadians(rotation.z));
 			GeoQuad[] quads = buildQuads(cube.uv(), new VertexSet(origin, vertexSize, inflate), cube, (float)properties.textureWidth(), (float)properties.textureHeight(), mirror);
 
 			return new GeoCube(quads, pivot, rotation, size, inflate, mirror);
@@ -176,9 +198,31 @@ public interface BakedModelFactory {
 	/**
 	 * Holder class to make it easier to store and refer to vertices for a given cube
 	 */
-	record VertexSet(GeoVertex bottomLeftBack, GeoVertex bottomRightBack, GeoVertex topLeftBack, GeoVertex topRightBack,
-							GeoVertex topLeftFront, GeoVertex topRightFront, GeoVertex bottomLeftFront, GeoVertex bottomRightFront) {
-		public VertexSet(Vec3 origin, Vec3 vertexSize, double inflation) {
+	class VertexSet {
+		
+		protected final GeoVertex bottomLeftBack;
+		protected final GeoVertex bottomRightBack;
+		protected final GeoVertex topLeftBack;
+		protected final GeoVertex topRightBack;
+		protected final	GeoVertex topLeftFront;
+		protected final GeoVertex topRightFront;
+		protected final GeoVertex bottomLeftFront;
+		protected final GeoVertex bottomRightFront;
+		
+		public VertexSet(GeoVertex bottomLeftBack, GeoVertex bottomRightBack, GeoVertex topLeftBack, GeoVertex topRightBack,
+				GeoVertex topLeftFront, GeoVertex topRightFront, GeoVertex bottomLeftFront, GeoVertex bottomRightFront) {
+			this.topRightFront = topRightFront;
+			this.bottomLeftBack = bottomLeftBack;
+			this.bottomRightBack = bottomRightBack;
+			this.topLeftBack = topLeftBack;
+			this.topRightBack = topRightBack;
+			this.topLeftFront = topLeftFront;
+			this.bottomLeftFront = bottomLeftFront;
+			this.bottomRightFront = bottomRightFront;
+			
+		}
+		
+		public VertexSet(Vector3d origin, Vector3d vertexSize, double inflation) {
 			this(
 					new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z - inflation),
 					new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z + vertexSize.z + inflation),
@@ -236,14 +280,53 @@ public interface BakedModelFactory {
 		 * Return the vertex array relevant to the quad being built, taking into account mirroring and quad type
 		 */
 		public GeoVertex[] verticesForQuad(Direction direction, boolean boxUv, boolean mirror) {
-			return switch (direction) {
-				case WEST -> mirror ? quadEast() : quadWest();
-				case EAST -> mirror ? quadWest() : quadEast();
-				case NORTH -> quadNorth();
-				case SOUTH -> quadSouth();
-				case UP -> mirror && !boxUv ? quadDown() : quadUp();
-				case DOWN -> mirror && !boxUv ? quadUp() : quadDown();
+			switch (direction) {
+				case WEST:
+					return mirror ? quadEast() : quadWest();
+				case EAST: 
+					return mirror ? quadWest() : quadEast();
+				case NORTH:
+					return quadNorth();
+				case SOUTH:
+					return quadSouth();
+				case UP:
+					return mirror && !boxUv ? quadDown() : quadUp();
+				case DOWN:
+					return mirror && !boxUv ? quadUp() : quadDown();
 			};
+			return this.quadUp();
+		}
+
+		public GeoVertex bottomLeftBack() {
+			return bottomLeftBack;
+		}
+
+		public GeoVertex bottomRightBack() {
+			return bottomRightBack;
+		}
+
+		public GeoVertex topLeftBack() {
+			return topLeftBack;
+		}
+
+		public GeoVertex topRightBack() {
+			return topRightBack;
+		}
+
+		public GeoVertex topLeftFront() {
+			return topLeftFront;
+		}
+
+		public GeoVertex topRightFront() {
+			return topRightFront;
+		}
+
+		public GeoVertex bottomLeftFront() {
+			return bottomLeftFront;
+		}
+
+		public GeoVertex bottomRightFront() {
+			return bottomRightFront;
 		}
 	}
 }
