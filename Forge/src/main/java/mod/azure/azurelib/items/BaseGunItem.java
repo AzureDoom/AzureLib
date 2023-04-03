@@ -2,7 +2,6 @@ package mod.azure.azurelib.items;
 
 import java.util.List;
 
-import mod.azure.azurelib.AzureLibMod.AzureBlocks;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
@@ -10,32 +9,26 @@ import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
-import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.util.AzureLibUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 
 public abstract class BaseGunItem extends Item implements GeoItem {
 
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-	private BlockPos lightBlockPos = null;
 
 	/*
 	 * Make sure the durability is always +1 from what you a gun to use. This is make the item stops at 1 durablity properly. Example: Clip size of 20 would be registered with a durability of 21.
@@ -54,14 +47,14 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 		return this.cache;
 	}
 
-	public void removeAmmo(Item ammo, Player playerEntity) {
+	public void removeAmmo(Item ammo, PlayerEntity playerEntity) {
 		if (!playerEntity.isCreative()) {
-			for (ItemStack item : playerEntity.getInventory().offhand) {
+			for (ItemStack item : playerEntity.inventory.offhand) {
 				if (item.getItem() == ammo) {
 					item.shrink(1);
 					break;
 				}
-				for (ItemStack item1 : playerEntity.getInventory().items) {
+				for (ItemStack item1 : playerEntity.inventory.items) {
 					if (item1.getItem() == ammo) {
 						item1.shrink(1);
 						break;
@@ -71,9 +64,9 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 		}
 	}
 
-	public void removeOffHandItem(Item ammo, Player playerEntity) {
+	public void removeOffHandItem(Item ammo, PlayerEntity playerEntity) {
 		if (!playerEntity.isCreative()) {
-			for (ItemStack item : playerEntity.getInventory().offhand) {
+			for (ItemStack item : playerEntity.inventory.offhand) {
 				if (item.getItem() == ammo) {
 					item.shrink(1);
 					break;
@@ -83,10 +76,10 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+	public ActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack itemStack = user.getItemInHand(hand);
 		user.startUsingItem(hand);
-		return InteractionResultHolder.consume(itemStack);
+		return ActionResult.consume(itemStack);
 	}
 
 	/*
@@ -109,8 +102,8 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 	 * Adds Ammo tooltip.
 	 */
 	@Override
-	public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
-		tooltip.add(new TranslatableComponent("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)).withStyle(ChatFormatting.ITALIC));
+	public void appendHoverText(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag context) {
+		tooltip.add(new TranslationTextComponent("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)));
 	}
 
 	@Override
@@ -126,60 +119,15 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 		return false;
 	}
 
-	/*
-	 * Call wherever you are firing weapon, making sure to not do it client side.
-	 */
-	protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
-		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(entity.level, entity.blockPosition(), 2);
-			if (lightBlockPos == null)
-				return;
-			entity.level.setBlockAndUpdate(lightBlockPos, AzureBlocks.TICKING_LIGHT_BLOCK.get().defaultBlockState());
-		} else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
-			BlockEntity blockEntity = entity.level.getBlockEntity(lightBlockPos);
-			if (blockEntity instanceof TickingLightEntity) {
-				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
-			} else
-				lightBlockPos = null;
-		} else
-			lightBlockPos = null;
-	}
-
-	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
-		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
-	}
-
-	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
-		if (blockPos == null)
-			return null;
-
-		int[] offsets = new int[maxDistance * 2 + 1];
-		offsets[0] = 0;
-		for (int i = 2; i <= maxDistance * 2; i += 2) {
-			offsets[i - 1] = i / 2;
-			offsets[i] = -i / 2;
-		}
-		for (int x : offsets)
-			for (int y : offsets)
-				for (int z : offsets) {
-					BlockPos offsetPos = blockPos.offset(x, y, z);
-					BlockState state = world.getBlockState(offsetPos);
-					if (state.isAir() || state.getBlock().equals(AzureBlocks.TICKING_LIGHT_BLOCK.get()))
-						return offsetPos;
-				}
-
-		return null;
-	}
-
-	public static EntityHitResult hitscanTrace(Player player, double range, float ticks) {
-		var look = player.getViewVector(ticks);
-		var start = player.getEyePosition(ticks);
-		var end = new Vec3(player.getX() + look.x * range, player.getEyeY() + look.y * range, player.getZ() + look.z * range);
-		var traceDistance = player.level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getLocation().distanceToSqr(end);
-		for (var possible : player.level.getEntities(player, player.getBoundingBox().expandTowards(look.scale(traceDistance)).expandTowards(3.0D, 3.0D, 3.0D), (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity))) {
+	public static EntityRayTraceResult hitscanTrace(PlayerEntity player, double range, float ticks) {
+		Vector3d look = player.getViewVector(ticks);
+		Vector3d start = player.getEyePosition(ticks);
+		Vector3d end = new Vector3d(player.getX() + look.x * range, player.getEyeY() + look.y * range, player.getZ() + look.z * range);
+		double traceDistance = player.level.clip(new RayTraceContext(start, end, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, player)).getLocation().distanceToSqr(end);
+		for (Entity possible : player.level.getEntities(player, player.getBoundingBox().expandTowards(look.scale(traceDistance)).expandTowards(3.0D, 3.0D, 3.0D), (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity))) {
 			if (possible.getBoundingBox().inflate(0.3D).clip(start, end).isPresent())
 				if (start.distanceToSqr(possible.getBoundingBox().inflate(0.3D).clip(start, end).get()) < traceDistance)
-					return ProjectileUtil.getEntityHitResult(player.level, player, start, end, player.getBoundingBox().expandTowards(look.scale(traceDistance)).inflate(3.0D, 3.0D, 3.0D), (target) -> !target.isSpectator() && player.isAttackable() && player.hasLineOfSight(target));
+					return ProjectileHelper.getEntityHitResult(player.level, player, start, end, player.getBoundingBox().expandTowards(look.scale(traceDistance)).inflate(3.0D, 3.0D, 3.0D), (target) -> !target.isSpectator() && player.isAttackable() && player.canSee(target));
 		}
 		return null;
 	}

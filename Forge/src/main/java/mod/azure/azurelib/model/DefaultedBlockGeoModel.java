@@ -1,20 +1,22 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import net.minecraft.util.ResourceLocation;
 
 /**
- * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.level.block.Block Blocks}.
- * Using this class pre-sorts provided asset paths into the "block" subdirectory
+ * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.level.block.Block Blocks}. Using this class pre-sorts provided asset paths into the "block" subdirectory
  */
 public class DefaultedBlockGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 	/**
 	 * Create a new instance of this model class.<br>
 	 * The asset path should be the truncated relative path from the base folder.<br>
 	 * E.G.
-	 * <pre>{@code
+	 * 
+	 * <pre>
+	 * {@code
 	 * 	new ResourceLocation("myMod", "workbench/sawmill")
-	 * }</pre>
+	 * }
+	 * </pre>
 	 */
 	public DefaultedBlockGeoModel(ResourceLocation assetSubpath) {
 		super(assetSubpath);
@@ -31,7 +33,7 @@ public class DefaultedBlockGeoModel<T extends GeoAnimatable> extends DefaultedGe
 	 */
 	@Override
 	public DefaultedBlockGeoModel<T> withAltModel(ResourceLocation altPath) {
-		return (DefaultedBlockGeoModel<T>)super.withAltModel(altPath);
+		return (DefaultedBlockGeoModel<T>) super.withAltModel(altPath);
 	}
 
 	/**
@@ -40,7 +42,7 @@ public class DefaultedBlockGeoModel<T extends GeoAnimatable> extends DefaultedGe
 	 */
 	@Override
 	public DefaultedBlockGeoModel<T> withAltAnimations(ResourceLocation altPath) {
-		return (DefaultedBlockGeoModel<T>)super.withAltAnimations(altPath);
+		return (DefaultedBlockGeoModel<T>) super.withAltAnimations(altPath);
 	}
 
 	/**
@@ -49,6 +51,6 @@ public class DefaultedBlockGeoModel<T extends GeoAnimatable> extends DefaultedGe
 	 */
 	@Override
 	public DefaultedBlockGeoModel<T> withAltTexture(ResourceLocation altPath) {
-		return (DefaultedBlockGeoModel<T>)super.withAltTexture(altPath);
+		return (DefaultedBlockGeoModel<T>) super.withAltTexture(altPath);
 	}
 }

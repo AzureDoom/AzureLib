@@ -1,20 +1,22 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import net.minecraft.util.ResourceLocation;
 
 /**
- * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.item.Item Items}.
- * Using this class pre-sorts provided asset paths into the "item" subdirectory
+ * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.item.Item Items}. Using this class pre-sorts provided asset paths into the "item" subdirectory
  */
 public class DefaultedItemGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 	/**
 	 * Create a new instance of this model class.<br>
 	 * The asset path should be the truncated relative path from the base folder.<br>
 	 * E.G.
-	 * <pre>{@code
+	 * 
+	 * <pre>
+	 * {@code
 	 * 	new ResourceLocation("myMod", "armor/obsidian")
-	 * }</pre>
+	 * }
+	 * </pre>
 	 */
 	public DefaultedItemGeoModel(ResourceLocation assetSubpath) {
 		super(assetSubpath);
@@ -31,7 +33,7 @@ public class DefaultedItemGeoModel<T extends GeoAnimatable> extends DefaultedGeo
 	 */
 	@Override
 	public DefaultedItemGeoModel<T> withAltModel(ResourceLocation altPath) {
-		return (DefaultedItemGeoModel<T>)super.withAltModel(altPath);
+		return (DefaultedItemGeoModel<T>) super.withAltModel(altPath);
 	}
 
 	/**
@@ -40,7 +42,7 @@ public class DefaultedItemGeoModel<T extends GeoAnimatable> extends DefaultedGeo
 	 */
 	@Override
 	public DefaultedItemGeoModel<T> withAltAnimations(ResourceLocation altPath) {
-		return (DefaultedItemGeoModel<T>)super.withAltAnimations(altPath);
+		return (DefaultedItemGeoModel<T>) super.withAltAnimations(altPath);
 	}
 
 	/**
@@ -49,6 +51,6 @@ public class DefaultedItemGeoModel<T extends GeoAnimatable> extends DefaultedGeo
 	 */
 	@Override
 	public DefaultedItemGeoModel<T> withAltTexture(ResourceLocation altPath) {
-		return (DefaultedItemGeoModel<T>)super.withAltTexture(altPath);
+		return (DefaultedItemGeoModel<T>) super.withAltTexture(altPath);
 	}
 }

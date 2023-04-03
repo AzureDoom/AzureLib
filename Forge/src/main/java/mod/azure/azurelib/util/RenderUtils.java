@@ -29,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
@@ -114,8 +115,8 @@ public final class RenderUtils {
 	 * Usually used for rotating projectiles towards their trajectory, in an {@link GeoRenderer#preRender} override.<br>
 	 */
 	public static void faceRotation(MatrixStack poseStack, Entity animatable, float partialTick) {
-		poseStack.mulPose(Vector3f.YP.rotationDegrees(Math.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
-		poseStack.mulPose(Vector3f.ZP.rotationDegrees(Math.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+		poseStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTick, animatable.yRotO, animatable.yRot) - 90));
+		poseStack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTick, animatable.xRotO, animatable.xRot)));
 	}
 
 	/**
@@ -212,12 +213,14 @@ public final class RenderUtils {
 	 * Converts a {@link Direction} to a rotational float for rotation purposes
 	 */
 	public static float getDirectionAngle(Direction direction) {
-		return switch (direction) {
-		case SOUTH -> 90f;
-		case NORTH -> 270f;
-		case EAST -> 180f;
-		default -> 0f;
-		};
+		if (direction.equals(Direction.NORTH))
+			return 270f;
+		else if (direction.equals(Direction.SOUTH))
+			return 90f;
+		else if (direction.equals(Direction.EAST))
+			return 180f;
+		else
+			return 0f;
 	}
 
 	/**
@@ -260,7 +263,7 @@ public final class RenderUtils {
 	public static GeoModel<?> getGeoModelForEntity(Entity entity) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
-		return renderer instanceof GeoRenderer<?> ? ((GeoRenderer<?>)renderer).getGeoModel() : null;
+		return renderer instanceof GeoRenderer<?> ? ((GeoRenderer<?>) renderer).getGeoModel() : null;
 	}
 
 	/**
@@ -291,7 +294,7 @@ public final class RenderUtils {
 	public static GeoModel<?> getGeoModelForBlock(TileEntity blockEntity) {
 		TileEntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(blockEntity);
 
-		return renderer instanceof GeoRenderer<?> ? ((GeoRenderer<?>)renderer).getGeoModel() : null;
+		return renderer instanceof GeoRenderer<?> ? ((GeoRenderer<?>) renderer).getGeoModel() : null;
 	}
 
 	/**

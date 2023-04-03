@@ -1,17 +1,14 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.model.data.EntityModelData;
+import net.minecraft.util.ResourceLocation;
 
 /**
- * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.entity.Entity Entities}.
- * Using this class pre-sorts provided asset paths into the "entity" subdirectory
- * Additionally it can automatically handle head-turning if the entity has a "head" bone
+ * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.entity.Entity Entities}. Using this class pre-sorts provided asset paths into the "entity" subdirectory Additionally it can automatically handle head-turning if the entity has a "head" bone
  */
 public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 	private final boolean turnsHead;
@@ -20,9 +17,12 @@ public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedG
 	 * Create a new instance of this model class.<br>
 	 * The asset path should be the truncated relative path from the base folder.<br>
 	 * E.G.
-	 * <pre>{@code
+	 * 
+	 * <pre>
+	 * {@code
 	 * 	new ResourceLocation("myMod", "animals/red_fish")
-	 * }</pre>
+	 * }
+	 * </pre>
 	 */
 	public DefaultedEntityGeoModel(ResourceLocation assetSubpath) {
 		this(assetSubpath, false);
@@ -49,8 +49,8 @@ public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedG
 		if (head != null) {
 			EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-			head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-			head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
+			head.setRotX(entityData.headPitch() * ((float)Math.PI / 180F));
+			head.setRotY(entityData.netHeadYaw() * ((float)Math.PI / 180F));
 		}
 	}
 
@@ -60,7 +60,7 @@ public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedG
 	 */
 	@Override
 	public DefaultedEntityGeoModel<T> withAltModel(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltModel(altPath);
+		return (DefaultedEntityGeoModel<T>) super.withAltModel(altPath);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedG
 	 */
 	@Override
 	public DefaultedEntityGeoModel<T> withAltAnimations(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltAnimations(altPath);
+		return (DefaultedEntityGeoModel<T>) super.withAltAnimations(altPath);
 	}
 
 	/**
@@ -78,6 +78,6 @@ public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedG
 	 */
 	@Override
 	public DefaultedEntityGeoModel<T> withAltTexture(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltTexture(altPath);
+		return (DefaultedEntityGeoModel<T>) super.withAltTexture(altPath);
 	}
 }

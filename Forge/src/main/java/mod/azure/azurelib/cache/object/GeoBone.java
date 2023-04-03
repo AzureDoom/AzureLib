@@ -3,16 +3,15 @@ package mod.azure.azurelib.cache.object;
 import java.util.List;
 import java.util.Objects;
 
-import org.jetbrains.annotations.Nullable;
-
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3d;
-import com.mojang.math.Vector4f;
+import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.state.BoneSnapshot;
+import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector4f;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
@@ -61,8 +60,7 @@ public class GeoBone implements CoreGeoBone {
 
 	private boolean trackingMatrices;
 
-	public GeoBone(@Nullable GeoBone parent, String name, Boolean mirror, @Nullable Double inflate,
-			@Nullable Boolean dontRender, @Nullable Boolean reset) {
+	public GeoBone(@Nullable GeoBone parent, String name, Boolean mirror, @Nullable Double inflate, @Nullable Boolean dontRender, @Nullable Boolean reset) {
 		this.parent = parent;
 		this.name = name;
 		this.mirror = mirror;
@@ -346,7 +344,7 @@ public class GeoBone implements CoreGeoBone {
 	}
 
 	public void setLocalSpaceMatrix(Matrix4f matrix) {
-		this.localSpaceMatrix.load(matrix);
+		localload(matrix);
 	}
 
 	public Matrix4f getWorldSpaceMatrix() {
@@ -356,7 +354,7 @@ public class GeoBone implements CoreGeoBone {
 	}
 
 	public void setWorldSpaceMatrix(Matrix4f matrix) {
-		this.worldSpaceMatrix.multiply(matrix);
+		worldload(matrix);
 	}
 
 	public void setWorldSpaceNormal(Matrix3f matrix) {
@@ -407,7 +405,7 @@ public class GeoBone implements CoreGeoBone {
 		matrix.invert();
 		Vector4f vec = new Vector4f(-(float) pos.x / 16f, (float) pos.y / 16f, (float) pos.z / 16f, 1);
 		vec.transform(matrix);
-		
+
 		updatePosition(-vec.x() * 16f, vec.y() * 16f, vec.z() * 16f);
 	}
 
@@ -416,6 +414,44 @@ public class GeoBone implements CoreGeoBone {
 		removeMatrixTranslation(matrix);
 
 		return matrix;
+	}
+
+	public void worldload(Matrix4f pOther) {
+		this.worldSpaceMatrix.m00 = pOther.m00;
+		this.worldSpaceMatrix.m01 = pOther.m01;
+		this.worldSpaceMatrix.m02 = pOther.m02;
+		this.worldSpaceMatrix.m03 = pOther.m03;
+		this.worldSpaceMatrix.m10 = pOther.m10;
+		this.worldSpaceMatrix.m11 = pOther.m11;
+		this.worldSpaceMatrix.m12 = pOther.m12;
+		this.worldSpaceMatrix.m13 = pOther.m13;
+		this.worldSpaceMatrix.m20 = pOther.m20;
+		this.worldSpaceMatrix.m21 = pOther.m21;
+		this.worldSpaceMatrix.m22 = pOther.m22;
+		this.worldSpaceMatrix.m23 = pOther.m23;
+		this.worldSpaceMatrix.m30 = pOther.m30;
+		this.worldSpaceMatrix.m31 = pOther.m31;
+		this.worldSpaceMatrix.m32 = pOther.m32;
+		this.worldSpaceMatrix.m33 = pOther.m33;
+	}
+
+	public void localload(Matrix4f pOther) {
+		this.localSpaceMatrix.m00 = pOther.m00;
+		this.localSpaceMatrix.m01 = pOther.m01;
+		this.localSpaceMatrix.m02 = pOther.m02;
+		this.localSpaceMatrix.m03 = pOther.m03;
+		this.localSpaceMatrix.m10 = pOther.m10;
+		this.localSpaceMatrix.m11 = pOther.m11;
+		this.localSpaceMatrix.m12 = pOther.m12;
+		this.localSpaceMatrix.m13 = pOther.m13;
+		this.localSpaceMatrix.m20 = pOther.m20;
+		this.localSpaceMatrix.m21 = pOther.m21;
+		this.localSpaceMatrix.m22 = pOther.m22;
+		this.localSpaceMatrix.m23 = pOther.m23;
+		this.localSpaceMatrix.m30 = pOther.m30;
+		this.localSpaceMatrix.m31 = pOther.m31;
+		this.localSpaceMatrix.m32 = pOther.m32;
+		this.localSpaceMatrix.m33 = pOther.m33;
 	}
 
 	public static void removeMatrixTranslation(Matrix4f matrix) {
@@ -455,7 +491,6 @@ public class GeoBone implements CoreGeoBone {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0), getCubes().size(),
-				getChildBones().size());
+		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0), getCubes().size(), getChildBones().size());
 	}
 }

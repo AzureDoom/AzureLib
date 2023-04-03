@@ -1,22 +1,24 @@
 package mod.azure.azurelib.resource;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.mojang.blaze3d.platform.NativeImage;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
-import net.minecraft.util.GsonHelper;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.resources.data.IMetadataSectionSerializer;
+import net.minecraft.util.JSONUtils;
 
 /**
  * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer emissive texture feature} for a given texture
  */
 public class GeoGlowingTextureMeta {
-	public static final MetadataSectionSerializer<GeoGlowingTextureMeta> DESERIALIZER = new MetadataSectionSerializer<>() {
+	public static final IMetadataSectionSerializer<GeoGlowingTextureMeta> DESERIALIZER = new IMetadataSectionSerializer() {
 		@Override
 		public String getMetadataSectionName() {
 			return "glowsections";
@@ -24,7 +26,7 @@ public class GeoGlowingTextureMeta {
 
 		@Override
 		public GeoGlowingTextureMeta fromJson(JsonObject json) {
-			List<Pixel> pixels = fromSections(GsonHelper.getAsJsonArray(json, "sections", null));
+			List<Pixel> pixels = fromSections(JSONUtils.getAsJsonArray(json, "sections", null));
 
 			if (pixels.isEmpty())
 				throw new JsonParseException("Empty glowlayer sections file. Must have at least one glow section!");
@@ -37,19 +39,19 @@ public class GeoGlowingTextureMeta {
 		 */
 		private List<Pixel> fromSections(@Nullable JsonArray sectionsArray) {
 			if (sectionsArray == null)
-				return List.of();
+				return new ObjectArrayList<>();
 
 			List<Pixel> pixels = new ObjectArrayList<>();
 
 			for (JsonElement element : sectionsArray) {
-				if (!(element instanceof JsonObject obj))
+				if (!(element instanceof JsonObject))
 					throw new JsonParseException("Invalid glowsections json format, expected a JsonObject, found: " + element.getClass());
 
-				int x1 = GsonHelper.getAsInt(obj, "x1", GsonHelper.getAsInt(obj, "x", 0));
-				int y1 = GsonHelper.getAsInt(obj, "y1", GsonHelper.getAsInt(obj, "y", 0));
-				int x2 = GsonHelper.getAsInt(obj, "x2", GsonHelper.getAsInt(obj, "w", 0) + x1);
-				int y2 = GsonHelper.getAsInt(obj, "y2", GsonHelper.getAsInt(obj, "h", 0) + y1);
-				int alpha = GsonHelper.getAsInt(obj, "alpha", GsonHelper.getAsInt(obj, "a", 0));
+				int x1 = JSONUtils.getAsInt((JsonObject) element, "x1", JSONUtils.getAsInt((JsonObject) element, "x", 0));
+				int y1 = JSONUtils.getAsInt((JsonObject) element, "y1", JSONUtils.getAsInt((JsonObject) element, "y", 0));
+				int x2 = JSONUtils.getAsInt((JsonObject) element, "x2", JSONUtils.getAsInt((JsonObject) element, "w", 0) + x1);
+				int y2 = JSONUtils.getAsInt((JsonObject) element, "y2", JSONUtils.getAsInt((JsonObject) element, "h", 0) + y1);
+				int alpha = JSONUtils.getAsInt((JsonObject) element, "alpha", JSONUtils.getAsInt((JsonObject) element, "a", 0));
 
 				if (x1 + y1 + x2 + y2 == 0)
 					throw new IllegalArgumentException("Invalid glowsections section object, section must be at least one pixel in size");
@@ -107,11 +109,4 @@ public class GeoGlowingTextureMeta {
 		}
 	}
 
-	/**
-	 * A pixel marker for a glowlayer mask
-	 * @param x The X coordinate of the pixel
-	 * @param y The Y coordinate of the pixel
-	 * @param alpha The alpha value of the mask
-	 */
-	private record Pixel(int x, int y, int alpha) {}
 }

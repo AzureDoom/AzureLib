@@ -1,7 +1,7 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Defaulted model class for AzureLib models.<br>
@@ -17,10 +17,13 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 	 * Create a new instance of this model class.<br>
 	 * The asset path should be the truncated relative path from the base folder.<br>
 	 * E.G.
+	 * 
 	 * <pre>
 	 *     {@code
 	 *		new ResourceLocation("myMod", "animals/red_fish")
-	 *		}</pre>
+	 *		}
+	 * </pre>
+	 * 
 	 * @param assetSubpath
 	 */
 	public DefaultedGeoModel(ResourceLocation assetSubpath) {
@@ -61,8 +64,18 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 
 	/**
 	 * Constructs a defaulted resource path for a geo.json file based on the input namespace and subpath, automatically using the {@link DefaultedGeoModel#subtype() subtype}
-	 * @param basePath The base path of your resource. E.G. <pre>{@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}</pre>
-	 * @return The formatted model resource path based on recommended defaults. E.G. <pre>{@code "mymod:geo/entity/animal/goat.geo.json"}</pre>
+	 * 
+	 * @param basePath The base path of your resource. E.G.
+	 * 
+	 *                 <pre>
+	 * {@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}
+	 *                 </pre>
+	 * 
+	 * @return The formatted model resource path based on recommended defaults. E.G.
+	 * 
+	 *         <pre>
+	 * {@code "mymod:geo/entity/animal/goat.geo.json"}
+	 *         </pre>
 	 */
 	public ResourceLocation buildFormattedModelPath(ResourceLocation basePath) {
 		return new ResourceLocation(basePath.getNamespace(), "geo/" + subtype() + "/" + basePath.getPath() + ".geo.json");
@@ -70,8 +83,18 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 
 	/**
 	 * Constructs a defaulted resource path for a animation.json file based on the input namespace and subpath, automatically using the {@link DefaultedGeoModel#subtype() subtype}
-	 * @param basePath The base path of your resource. E.G. <pre>{@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}</pre>
-	 * @return The formatted model resource path based on recommended defaults. E.G. <pre>{@code "mymod:animations/entity/animal/goat.geo.json"}</pre>
+	 * 
+	 * @param basePath The base path of your resource. E.G.
+	 * 
+	 *                 <pre>
+	 * {@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}
+	 *                 </pre>
+	 * 
+	 * @return The formatted model resource path based on recommended defaults. E.G.
+	 * 
+	 *         <pre>
+	 * {@code "mymod:animations/entity/animal/goat.geo.json"}
+	 *         </pre>
 	 */
 	public ResourceLocation buildFormattedAnimationPath(ResourceLocation basePath) {
 		return new ResourceLocation(basePath.getNamespace(), "animations/" + subtype() + "/" + basePath.getPath() + ".animation.json");
@@ -79,8 +102,18 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 
 	/**
 	 * Constructs a defaulted resource path for a geo.json file based on the input namespace and subpath, automatically using the {@link DefaultedGeoModel#subtype() subtype}
-	 * @param basePath The base path of your resource. E.G. <pre>{@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}</pre>
-	 * @return The formatted model resource path based on recommended defaults. E.G. <pre>{@code "mymod:geo/entity/animal/goat.png"}</pre>
+	 * 
+	 * @param basePath The base path of your resource. E.G.
+	 * 
+	 *                 <pre>
+	 * {@code new ResourceLocation(MyMod.MOD_ID, "animal/goat")}
+	 *                 </pre>
+	 * 
+	 * @return The formatted model resource path based on recommended defaults. E.G.
+	 * 
+	 *         <pre>
+	 * {@code "mymod:geo/entity/animal/goat.png"}
+	 *         </pre>
 	 */
 	public ResourceLocation buildFormattedTexturePath(ResourceLocation basePath) {
 		return new ResourceLocation(basePath.getNamespace(), "textures/" + subtype() + "/" + basePath.getPath() + ".png");
@@ -88,12 +121,11 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 
 	/**
 	 * Returns the subtype string for this type of model.<br>
-	 * This allows for sorting of asset files into neat subdirectories for clean management.
-	 * Examples:
+	 * This allows for sorting of asset files into neat subdirectories for clean management. Examples:
 	 * <ul>
-	 *     <li>"entity"</li>
-	 *     <li>"block"</li>
-	 *     <li>"item"</li>
+	 * <li>"entity"</li>
+	 * <li>"block"</li>
+	 * <li>"item"</li>
 	 * </ul>
 	 */
 	protected abstract String subtype();

@@ -1,17 +1,25 @@
 package mod.azure.azurelib.event;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
+import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.renderer.GeoBlockRenderer;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.renderer.GeoObjectRenderer;
+import mod.azure.azurelib.renderer.GeoRenderer;
+import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.renderer.*;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-
-import javax.annotation.Nullable;
 
 /**
  * AzureLib events base-class for the various event stages of rendering.<br>
@@ -20,6 +28,7 @@ import javax.annotation.Nullable;
 public interface GeoRenderEvent {
 	/**
 	 * Returns the renderer for this event
+	 * 
 	 * @see mod.azure.azurelib.renderer.DynamicGeoEntityRenderer DynamicGeoEntityRenderer
 	 * @see mod.azure.azurelib.renderer.GeoArmorRenderer GeoArmorRenderer
 	 * @see mod.azure.azurelib.renderer.GeoBlockRenderer GeoBlockRenderer
@@ -52,7 +61,7 @@ public interface GeoRenderEvent {
 		 * Shortcut method for retrieving the entity being rendered
 		 */
 		@Nullable
-		public net.minecraft.world.entity.Entity getEntity() {
+		public Entity getEntity() {
 			return getRenderer().getCurrentEntity();
 		}
 
@@ -68,7 +77,7 @@ public interface GeoRenderEvent {
 		 * Shortcut method for retrieving the equipped slot of the armor piece being rendered
 		 */
 		@Nullable
-		public EquipmentSlot getEquipmentSlot() {
+		public EquipmentSlotType getEquipmentSlot() {
 			return getRenderer().getCurrentSlot();
 		}
 
@@ -81,13 +90,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends Armor {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoArmorRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoArmorRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -97,15 +106,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -123,13 +132,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends Armor {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoArmorRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoArmorRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -139,15 +148,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -200,7 +209,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method for retrieving the block entity being rendered
 		 */
-		public BlockEntity getBlockEntity() {
+		public TileEntity getBlockEntity() {
 			return getRenderer().getAnimatable();
 		}
 
@@ -213,13 +222,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends Block {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoBlockRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -229,15 +238,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -255,13 +264,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends Block {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoBlockRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -271,15 +280,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -312,8 +321,7 @@ public interface GeoRenderEvent {
 	}
 
 	/**
-	 * Renderer events for {@link net.minecraft.world.entity.Entity Entities} being rendered by {@link GeoEntityRenderer}, as well as
-	 * {@link mod.azure.azurelib.renderer.DynamicGeoEntityRenderer DynamicGeoEntityRenderer}
+	 * Renderer events for {@link Entity Entities} being rendered by {@link GeoEntityRenderer}, as well as {@link mod.azure.azurelib.renderer.DynamicGeoEntityRenderer DynamicGeoEntityRenderer}
 	 */
 	abstract class Entity extends Event implements GeoRenderEvent {
 		private final GeoEntityRenderer<?> renderer;
@@ -333,7 +341,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method for retrieving the entity being rendered
 		 */
-		public net.minecraft.world.entity.Entity getEntity() {
+		public net.minecraft.entity.Entity getEntity() {
 			return this.renderer.getAnimatable();
 		}
 
@@ -346,13 +354,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends Entity {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoEntityRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoEntityRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -362,15 +370,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -388,13 +396,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends Entity {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoEntityRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoEntityRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -404,15 +412,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -478,13 +486,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends Item {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoItemRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoItemRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -494,15 +502,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -520,13 +528,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends Item {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoItemRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoItemRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -536,15 +544,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -603,13 +611,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends Object {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoObjectRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -619,15 +627,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -645,13 +653,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends Object {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoObjectRenderer<?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -661,15 +669,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -722,7 +730,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method to get the Entity currently being rendered
 		 */
-		public net.minecraft.world.entity.Entity getReplacedEntity() {
+		public Entity getReplacedEntity() {
 			return getRenderer().getCurrentEntity();
 		}
 
@@ -735,13 +743,13 @@ public interface GeoRenderEvent {
 		 */
 		@Cancelable
 		public static class Pre extends ReplacedEntity {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Pre(GeoReplacedEntityRenderer<?, ?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Pre(GeoReplacedEntityRenderer<?, ?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -751,15 +759,15 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
-			
+
 			public BakedGeoModel getModel() {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 
@@ -777,13 +785,13 @@ public interface GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends ReplacedEntity {
-			private final PoseStack poseStack;
+			private final MatrixStack poseStack;
 			private final BakedGeoModel model;
-			private final MultiBufferSource bufferSource;
+			private final IRenderTypeBuffer bufferSource;
 			private final float partialTick;
 			private final int packedLight;
 
-			public Post(GeoReplacedEntityRenderer<?, ?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+			public Post(GeoReplacedEntityRenderer<?, ?> renderer, MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 				super(renderer);
 
 				this.poseStack = poseStack;
@@ -793,7 +801,7 @@ public interface GeoRenderEvent {
 				this.packedLight = packedLight;
 			}
 
-			public PoseStack getPoseStack() {
+			public MatrixStack getPoseStack() {
 				return this.poseStack;
 			}
 
@@ -801,7 +809,7 @@ public interface GeoRenderEvent {
 				return this.model;
 			}
 
-			public MultiBufferSource getBufferSource() {
+			public IRenderTypeBuffer getBufferSource() {
 				return this.bufferSource;
 			}
 

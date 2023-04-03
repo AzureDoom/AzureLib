@@ -4,28 +4,28 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.resource.GeoGlowingTextureMeta;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.data.TextureMetadataSection;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**

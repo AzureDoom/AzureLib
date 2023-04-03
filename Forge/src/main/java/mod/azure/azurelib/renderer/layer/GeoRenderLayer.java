@@ -1,16 +1,16 @@
 package mod.azure.azurelib.renderer.layer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.GeoRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Render layer base class for rendering additional layers of effects or textures over an existing model at runtime.<br>
@@ -31,8 +31,7 @@ public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	}
 
 	/**
-	 * Gets the {@link BakedGeoModel} instance that is currently being used.
-	 * This can be directly used for re-rendering
+	 * Gets the {@link BakedGeoModel} instance that is currently being used. This can be directly used for re-rendering
 	 */
 	public BakedGeoModel getDefaultBakedModel(T animatable) {
 		return getGeoModel().getBakedModel(getGeoModel().getModelResource(animatable));
@@ -41,7 +40,7 @@ public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	/**
 	 * Get the renderer responsible for the current render operation
 	 */
-	public GeoRenderer<T> getRenderer(){
+	public GeoRenderer<T> getRenderer() {
 		return this.renderer;
 	}
 
@@ -57,17 +56,15 @@ public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	 * This method is called by the {@link GeoRenderer} before rendering, immediately after {@link GeoRenderer#preRender} has been called.<br>
 	 * This allows for RenderLayers to perform pre-render manipulations such as hiding or showing bones
 	 */
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType,
-						  MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick,
-						  int packedLight, int packedOverlay) {}
+	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	}
 
 	/**
 	 * This is the method that is actually called by the render for your render layer to function.<br>
 	 * This is called <i>after</i> the animatable has been rendered, but before supplementary rendering like nametags.
 	 */
-	public void render(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType,
-								MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick,
-								int packedLight, int packedOverlay) {}
+	public void render(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	}
 
 	/**
 	 * This method is called by the {@link GeoRenderer} for each bone being rendered.<br>
@@ -77,9 +74,8 @@ public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	 * <br>
 	 * The {@link GeoBone} in question has already been rendered by this stage.<br>
 	 * <br>
-	 * If you <i>do</i> use it, and you render something that changes the {@link VertexConsumer buffer}, you need to reset it back to the previous buffer
-	 * using {@link MultiBufferSource#getBuffer} before ending the method
+	 * If you <i>do</i> use it, and you render something that changes the {@link IVertexBuilder buffer}, you need to reset it back to the previous buffer using {@link IRenderTypeBuffer #getBuffer} before ending the method
 	 */
-	public void renderForBone(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType,
-							  MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {}
+	public void renderForBone(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	}
 }

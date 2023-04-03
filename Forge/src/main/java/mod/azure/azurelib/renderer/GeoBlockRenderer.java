@@ -2,11 +2,9 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
@@ -18,22 +16,23 @@ import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.DirectionalBlock;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 
 /**
- * Base {@link GeoRenderer} class for rendering {@link BlockEntity Blocks} specifically.<br>
+ * Base {@link GeoRenderer} class for rendering {@link TileEntity Blocks} specifically.<br>
  * All blocks added to be rendered by AzureLib should use an instance of this class.
  */
-public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements GeoRenderer<T>, BlockEntityRenderer<T> {
+public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> implements GeoRenderer<T>, TileEntityRenderer<T> {
 	protected final GeoModel<T> model;
 	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
 
@@ -62,13 +61,12 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 * Gets the {@link GeoAnimatable} instance currently being rendered
 	 */
 	@Override
-	public T getAnimatable() {
+	public TileEntity getAnimatable() {
 		return this.animatable;
 	}
 
 	/**
-	 * Gets the id that represents the current animatable's instance for animation purposes.
-	 * This is mostly useful for things like items, which have a single registered instance for all objects
+	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
 	 */
 	@Override
 	public long getInstanceId(T animatable) {
@@ -110,22 +108,19 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	}
 
 	/**
-	 * Called before rendering the model to buffer. Allows for render modifications and preparatory
-	 * work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
+	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
+	 * {@link MatrixStack} translations made here are kept until the end of the render process
 	 */
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue,
-						  float alpha) {
+	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		this.blockRenderTranslations = new Matrix4f(poseStack.last().pose());;
 
 		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
 	}
 
 	@Override
-	public void render(BlockEntity animatable, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource,
-			int packedLight, int packedOverlay) {
-		this.animatable = (T)animatable;
+	public void render(TileEntity animatable, float partialTick, MatrixStack poseStack, IRenderTypeBuffer bufferSource, int packedLight, int packedOverlay) {
+		this.animatable = (T) animatable;
 
 		defaultRender(poseStack, this.animatable, bufferSource, null, null, 0, partialTick, packedLight);
 	}
@@ -135,9 +130,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
 	 */
 	@Override
-	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType,
-							   MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
-							   int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 
 		if (!isReRender) {
@@ -156,8 +149,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
 		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
-		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick,
-				packedLight, packedOverlay, red, green, blue, alpha);
+		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		poseStack.popPose();
 	}
 
@@ -165,8 +157,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
 	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
-								  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		if (bone.isTrackingMatrices()) {
 			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.blockRenderTranslations);
@@ -179,21 +170,20 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 			bone.setWorldSpaceMatrix(worldState);
 		}
 
-		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue,
-				alpha);
+		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 
 	/**
-	 * Rotate the {@link PoseStack} based on the determined {@link Direction} the block is facing
+	 * Rotate the {@link MatrixStack} based on the determined {@link Direction} the block is facing
 	 */
-	protected void rotateBlock(Direction facing, PoseStack poseStack) {
+	protected void rotateBlock(Direction facing, MatrixStack poseStack) {
 		switch (facing) {
-			case SOUTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
-			case WEST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
-			case NORTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
-			case EAST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
-			case UP -> poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
-			case DOWN -> poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
+		case SOUTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
+		case WEST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
+		case NORTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
+		case EAST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
+		case UP -> poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
+		case DOWN -> poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
 		}
 	}
 
@@ -211,16 +201,16 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 
 		return Direction.NORTH;
 	}
-	
-    /**
-     * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
-     * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
-     */
+
+	/**
+	 * Scales the {@link MatrixStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
+	 * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
+	 */
 	@Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if (!isReRender && (widthScale != 1 || heightScale != 1))
-            poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
-    }
+	public void scaleModelForRender(float widthScale, float heightScale, MatrixStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
+		if (!isReRender && (widthScale != 1 || heightScale != 1))
+			poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
+	}
 
 	/**
 	 * Create and fire the relevant {@code CompileLayers} event hook for this renderer
@@ -232,10 +222,11 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 
 	/**
 	 * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
+	 * 
 	 * @return Whether the renderer should proceed based on the cancellation state of the event
 	 */
 	@Override
-	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+	public boolean firePreRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 		return !MinecraftForge.EVENT_BUS.post(new GeoRenderEvent.Block.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
@@ -243,7 +234,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 * Create and fire the relevant {@code Post-Render} event hook for this renderer
 	 */
 	@Override
-	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+	public void firePostRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 		MinecraftForge.EVENT_BUS.post(new GeoRenderEvent.Block.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
