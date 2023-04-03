@@ -4,12 +4,12 @@ buildscript {
         maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
     }
 }
 
 plugins {
-    id 'fabric-loom' version '0.6-SNAPSHOT'
+    id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -26,9 +26,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
-
-minecraft {
-}
 
 repositories {
     mavenCentral()
@@ -92,12 +89,16 @@ processResources {
 	}
 }
 
-minecraft {
-	accessWidener "src/main/resources/azurelib.aw"
+loom {
+	accessWidenerPath = file("src/main/resources/azurelib.aw")
 }
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 8
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+	def targetVersion = 8
+	if (JavaVersion.current().isJava9Compatible()) {
+		 it.options.release = targetVersion
+	}
 }
 
 artifacts {
@@ -114,7 +115,7 @@ jar {
 
 remapJar {
     dependsOn(shadowJar)
-    input = shadowJar.archivePath
+    inputFile = shadowJar.archivePath
 }
 
 publishing {
