@@ -44,7 +44,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.18.2'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -96,18 +96,18 @@ minecraft.runs.all {
 }
 
 repositories {
-    maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
+    maven { url "https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/" }
     maven { url "https://maven.enginehub.org/repo/" }
     maven { url "https://maven.blamejared.com" }
     maven { url "https://minecraft.curseforge.com/api/maven/" }
-    maven { url "https://maven.cloudsmith.io/geckolib3/geckolib/" }
+    maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
 	maven { url "https://cursemaven.com" }
     maven { url "https://plugins.gradle.org/m2/" }
     mavenCentral()
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.6'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.1'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
 }
@@ -226,7 +226,7 @@ if (file('key.properties').exists()) {
             releaseType = "release"
             changelogType = 'text'
             changelog = file('changelog.txt')
-        	addGameVersion("1.19.2")
+        	addGameVersion("1.18.2")
             addGameVersion("Forge")
             addGameVersion("Java 17")
         }
@@ -242,10 +242,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.19.2'
+		versionName = 'Forge 1.18.2'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19.2']
+		gameVersions = ['1.18.2']
 		loaders = ['forge']
 	}
 }
