@@ -18,21 +18,22 @@ import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DirectionalBlock;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraftforge.common.MinecraftForge;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link TileEntity Blocks} specifically.<br>
  * All blocks added to be rendered by AzureLib should use an instance of this class.
  */
-public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> implements GeoRenderer<T>, TileEntityRenderer<T> {
+public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends TileEntityRenderer<T> implements GeoRenderer<T> {
 	protected final GeoModel<T> model;
 	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
 
@@ -178,12 +179,24 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> implements G
 	 */
 	protected void rotateBlock(Direction facing, MatrixStack poseStack) {
 		switch (facing) {
-		case SOUTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
-		case WEST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
-		case NORTH -> poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
-		case EAST -> poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
-		case UP -> poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
-		case DOWN -> poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
+		case SOUTH:
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(180));
+			return;
+		case WEST:
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(90));
+			return;
+		case NORTH:
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
+			return;
+		case EAST: 
+			poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
+			return;
+		case UP:
+			poseStack.mulPose(Vector3f.XP.rotationDegrees(90));
+			return;
+		case DOWN:
+			poseStack.mulPose(Vector3f.XN.rotationDegrees(90));
+			return;
 		}
 	}
 
@@ -193,8 +206,8 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> implements G
 	protected Direction getFacing(T block) {
 		BlockState blockState = block.getBlockState();
 
-		if (blockState.hasProperty(HorizontalDirectionalBlock.FACING))
-			return blockState.getValue(HorizontalDirectionalBlock.FACING);
+		if (blockState.hasProperty(HorizontalBlock.FACING))
+			return blockState.getValue(HorizontalBlock.FACING);
 
 		if (blockState.hasProperty(DirectionalBlock.FACING))
 			return blockState.getValue(DirectionalBlock.FACING);

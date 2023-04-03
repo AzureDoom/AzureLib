@@ -18,12 +18,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.data.TextureMetadataSection;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -77,8 +78,8 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	 */
 	@Nullable
 	@Override
-	protected RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException {
-		AbstractTexture originalTexture;
+	protected RenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException {
+		Texture originalTexture;
 
 		try {
 			originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(this.textureBase)).get();
@@ -86,7 +87,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 			throw new IOException("Failed to load original texture: " + this.textureBase, e);
 		}
 
-		Resource textureBaseResource = resourceManager.getResource(this.textureBase);
+		IResource textureBaseResource = resourceManager.getResource(this.textureBase);
 		NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture ? dynamicTexture.getPixels() : NativeImage.read(textureBaseResource.getInputStream());
 		NativeImage glowImage = null;
 		TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata(TextureMetadataSection.SERIALIZER);
@@ -94,7 +95,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		boolean clamp = textureBaseMeta != null && textureBaseMeta.isClamp();
 
 		try {
-			Resource glowLayerResource = resourceManager.getResource(this.glowLayer);
+			IResource glowLayerResource = resourceManager.getResource(this.glowLayer);
 			GeoGlowingTextureMeta glowLayerMeta = null;
 
 			if (glowLayerResource != null) {

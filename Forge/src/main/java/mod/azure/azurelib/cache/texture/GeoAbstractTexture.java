@@ -1,27 +1,29 @@
 package mod.azure.azurelib.cache.texture;
 
-import com.mojang.blaze3d.pipeline.RenderCall;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.fml.loading.FMLPaths;
-
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.pipeline.RenderCall;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
+import net.minecraft.client.renderer.texture.Texture;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
  * Abstract texture wrapper for AzureLib textures.<br>
  * Mostly just handles boilerplate
  */
-public abstract class GeoAbstractTexture extends AbstractTexture {
+public abstract class GeoAbstractTexture extends Texture {
 	/**
 	 * Generates the texture instance for the given path with the given appendix if it hasn't already been generated
 	 */
@@ -31,12 +33,12 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
 
 		TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-		if (!(textureManager.getTexture(texturePath, MissingTextureAtlasSprite.getTexture()) instanceof GeoAbstractTexture))
+		if (!(textureManager.getTexture(texturePath) instanceof GeoAbstractTexture))
 			textureManagerConsumer.accept(textureManager);
 	}
 
 	@Override
-	public final void load(ResourceManager resourceManager) throws IOException {
+	public final void load(IResourceManager resourceManager) throws IOException {
 		RenderCall renderCall = loadTexture(resourceManager, Minecraft.getInstance());
 
 		if (renderCall == null)
@@ -83,7 +85,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
 	 * @return The RenderCall to submit to the render pipeline, or null if no further action required
 	 */
 	@Nullable
-	protected abstract RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException;
+	protected abstract RenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException;
 
 	/**
 	 * No-frills helper method for uploading {@link NativeImage images} into memory for use

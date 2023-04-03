@@ -1,5 +1,6 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -53,7 +54,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Returns the list of registered {@link GeoRenderLayer GeoRenderLayers} for this renderer
 	 */
 	default List<GeoRenderLayer<T>> getRenderLayers() {
-		return List.of();
+		return new ArrayList<>();
 	}
 
 	/**
