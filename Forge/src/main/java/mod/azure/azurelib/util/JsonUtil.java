@@ -18,25 +18,45 @@ import com.google.gson.JsonParseException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.core.animation.Keyframes;
+import mod.azure.azurelib.loading.json.raw.Bone;
+import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
 import mod.azure.azurelib.loading.json.raw.LocatorClass;
 import mod.azure.azurelib.loading.json.raw.LocatorValue;
 import mod.azure.azurelib.loading.json.raw.MinecraftGeometry;
+import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.loading.json.raw.PolyMesh;
+import mod.azure.azurelib.loading.json.raw.PolysUnion;
+import mod.azure.azurelib.loading.json.raw.TextureMesh;
+import mod.azure.azurelib.loading.json.raw.UVFaces;
+import mod.azure.azurelib.loading.json.raw.UVUnion;
 import mod.azure.azurelib.loading.json.typeadapter.BakedAnimationsAdapter;
 import mod.azure.azurelib.loading.json.typeadapter.KeyFramesAdapter;
 import mod.azure.azurelib.loading.object.BakedAnimations;
-import net.minecraft.client.renderer.model.Model;
 import net.minecraft.util.JSONUtils;
-import net.minecraftforge.client.model.b3d.B3DModel.Bone;
 
 /**
  * Json helper class for various json functions
  */
 public final class JsonUtil {
-	public static final Gson GEO_GSON = new GsonBuilder().setLenient().registerTypeAdapter(Bone.class, Bone.deserializer()).registerTypeAdapter(Cube.class, Cube.deserializer()).registerTypeAdapter(FaceUV.class, FaceUV.deserializer()).registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer()).registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer()).registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
-			.registerTypeAdapter(Model.class, Model.deserializer()).registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer()).registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer()).registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer()).registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer()).registerTypeAdapter(UVFaces.class, UVFaces.deserializer()).registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
-			.registerTypeAdapter(Keyframes.class, new KeyFramesAdapter()).registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter()).create();
+	public static final Gson GEO_GSON = new GsonBuilder().setLenient()
+			.registerTypeAdapter(Bone.class, Bone.deserializer())
+			.registerTypeAdapter(Cube.class, Cube.deserializer())
+			.registerTypeAdapter(FaceUV.class, FaceUV.deserializer())
+			.registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer())
+			.registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer())
+			.registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
+			.registerTypeAdapter(Model.class, Model.deserializer())
+			.registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
+			.registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
+			.registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
+			.registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
+			.registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
+			.registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
+			.registerTypeAdapter(Keyframes.class, new KeyFramesAdapter())
+			.registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
+		.create();
 
 	/**
 	 * Convert a {@link JsonArray} of doubles to a {@code double[]}.<br>

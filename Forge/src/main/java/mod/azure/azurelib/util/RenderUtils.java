@@ -4,8 +4,6 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.ints.IntIntPair;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -17,6 +15,7 @@ import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.Texture;
@@ -29,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
@@ -127,7 +127,7 @@ public final class RenderUtils {
 	 * @return The dimensions (width x height) of the texture, or null if unable to find or read the file
 	 */
 	@Nullable
-	public static IntIntPair getTextureDimensions(ResourceLocation texture) {
+	public static Tuple<Integer, Integer> getTextureDimensions(ResourceLocation texture) {
 		if (texture == null)
 			return null;
 
@@ -153,7 +153,7 @@ public final class RenderUtils {
 			e.printStackTrace();
 		}
 
-		return image == null ? null : IntIntImmutablePair.of(image.getWidth(), image.getHeight());
+		return image == null ? null : new Tuple<Integer, Integer>(image.getWidth(), image.getHeight());
 	}
 
 	public static double getCurrentSystemTick() {
@@ -190,7 +190,7 @@ public final class RenderUtils {
 	 * Rotates a {@link CoreGeoBone} to match a provided {@link ModelPart}'s rotations.<br>
 	 * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
 	 */
-	public static void matchModelPartRot(ModelPart from, CoreGeoBone to) {
+	public static void matchModelPartRot(ModelRenderer from, CoreGeoBone to) {
 		to.updateRotation(-from.xRot, -from.yRot, from.zRot);
 	}
 

@@ -5,6 +5,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.network.SerializableDataTicket;
