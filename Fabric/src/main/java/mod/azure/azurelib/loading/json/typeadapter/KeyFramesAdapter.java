@@ -1,30 +1,38 @@
 package mod.azure.azurelib.loading.json.typeadapter;
 
-import com.google.gson.*;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Keyframes;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.util.JsonUtil;
 import net.minecraft.util.GsonHelper;
 
-import java.lang.reflect.Type;
-import java.util.Map;
-
 /**
- * {@link Gson} {@link JsonDeserializer} for {@link Animation.Keyframes}.<br>
+ * {@link Gson} {@link JsonDeserializer} for {@link Keyframes}.<br>
  * Acts as the deserialization interface for {@code Keyframes}
  */
-public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
+public class KeyFramesAdapter implements JsonDeserializer<Keyframes> {
 	@Override
-	public Animation.Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+	public Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
 		JsonObject obj = json.getAsJsonObject();
 		SoundKeyframeData[] sounds = buildSoundFrameData(obj);
 		ParticleKeyframeData[] particles = buildParticleFrameData(obj);
 		CustomInstructionKeyframeData[] customInstructions = buildCustomFrameData(obj);
 
-		return new Animation.Keyframes(sounds, particles, customInstructions);
+		return new Keyframes(sounds, particles, customInstructions);
 	}
 
 	private static SoundKeyframeData[] buildSoundFrameData(JsonObject rootObj) {
@@ -66,11 +74,10 @@ public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
 		for (Map.Entry<String, JsonElement> entry : customInstructionsObj.entrySet()) {
 			String instructions = "";
 
-			if (entry.getValue() instanceof JsonArray array) {
-				instructions = JsonUtil.GEO_GSON.fromJson(array, ObjectArrayList.class).toString();
-			}
-			else if (entry.getValue() instanceof JsonPrimitive primitive) {
-				instructions = primitive.getAsString();
+			if (entry.getValue() instanceof JsonArray) {
+				instructions = JsonUtil.GEO_GSON.fromJson(((JsonArray) entry.getValue()), ObjectArrayList.class).toString();
+			} else if (entry.getValue() instanceof JsonPrimitive) {
+				instructions = ((JsonPrimitive) entry.getValue()).getAsString();
 			}
 
 			customInstructions[index] = new CustomInstructionKeyframeData(Double.parseDouble(entry.getKey()) * 20d, instructions);

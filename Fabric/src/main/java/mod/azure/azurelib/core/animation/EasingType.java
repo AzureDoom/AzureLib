@@ -1,20 +1,21 @@
 package mod.azure.azurelib.core.animation;
 
-import com.eliotlash.mclib.utils.Interpolations;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.keyframe.AnimationPoint;
-import mod.azure.azurelib.core.keyframe.Keyframe;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.eliotlash.mclib.utils.Interpolations;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import mod.azure.azurelib.core.keyframe.AnimationPoint;
+import mod.azure.azurelib.core.keyframe.Keyframe;
+
 /**
  * Functional interface defining an easing function.<br>
- * {@code value} is the easing value provided from the keyframe's {@link Keyframe#easingArgs()}
- * <br><br>
+ * {@code value} is the easing value provided from the keyframe's {@link Keyframe#easingArgs()} <br>
+ * <br>
  * For more information on easings, see:<br>
  * <a href="https://easings.net/">Easings.net</a><br>
  * <a href="https://cubic-bezier.com">Cubic-Bezier.com</a><br>
@@ -72,14 +73,14 @@ public interface EasingType {
 		Double easingVariable = null;
 
 		if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
-			easingVariable = animationPoint.keyFrame().easingArgs().get(0).get();
+			easingVariable = animationPoint.keyFrame().easingArgs().get(0);
 
 		return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
 	}
 
 	default double apply(AnimationPoint animationPoint, Double easingValue, double lerpValue) {
 		if (animationPoint.currentTick() >= animationPoint.transitionLength())
-			return (float)animationPoint.animationEndValue();
+			return (float) animationPoint.animationEndValue();
 
 		return Interpolations.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
 	}
@@ -88,7 +89,8 @@ public interface EasingType {
 	 * Register an {@code EasingType} with AzureLib for handling animation transitions and value curves.<br>
 	 * <b><u>MUST be called during mod construct</u></b><br>
 	 * It is recommended you don't call this directly, and instead call it via {@code AzureLibUtil#addCustomEasingType}
-	 * @param name The name of the easing type
+	 * 
+	 * @param name       The name of the easing type
 	 * @param easingType The {@code EasingType} to associate with the given name
 	 * @return The {@code EasingType} you registered
 	 */
@@ -100,18 +102,20 @@ public interface EasingType {
 
 	/**
 	 * Retrieve an {@code EasingType} instance based on a {@link JsonElement}. Returns one of the default {@code EasingTypes} if the name matches, or any other registered {@code EasingType} with a matching name.
+	 * 
 	 * @param json The {@code easing} {@link JsonElement} to attempt to parse.
 	 * @return A usable {@code EasingType} instance
 	 */
 	static EasingType fromJson(JsonElement json) {
-		if (!(json instanceof JsonPrimitive primitive) || !primitive.isString())
+		if (!(json instanceof JsonPrimitive) || !((JsonPrimitive) json).isString())
 			return LINEAR;
 
-		return fromString(primitive.getAsString().toLowerCase(Locale.ROOT));
+		return fromString(((JsonPrimitive) json).getAsString().toLowerCase(Locale.ROOT));
 	}
 
 	/**
 	 * Get an existing {@code EasingType} from a given string, matching the string to its name.
+	 * 
 	 * @param name The name of the easing function
 	 * @return The relevant {@code EasingType}, or {@link EasingType#LINEAR} if none match
 	 */
@@ -127,15 +131,13 @@ public interface EasingType {
 	static Double2DoubleFunction linear(Double2DoubleFunction function) {
 		return function;
 	}
-	
+
 	/**
 	 * Performs a Catmull-Rom interpolation, used to get smooth interpolated motion between keyframes.<br>
 	 * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
 	 */
 	static double catmullRom(double n) {
-		return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1
-				+ (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
-				+ (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
+		return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1 + (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1 + (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
 	}
 
 	/**
@@ -280,6 +282,7 @@ public interface EasingType {
 	/**
 	 * An exponential function, equivalent to an exponential curve to the {@code n} root.<br>
 	 * <code>f(t) = t^n</code>
+	 * 
 	 * @param n The exponent
 	 */
 	static Double2DoubleFunction pow(double n) {
@@ -288,28 +291,16 @@ public interface EasingType {
 
 	// The MIT license notice below applies to the function step
 	/**
-	 * The MIT License (MIT)
-	 *<br><br>
-	 * Copyright (c) 2015 Boris Chumichev
-	 *<br><br>
-	 * Permission is hereby granted, free of charge, to any person obtaining a copy
-	 * of this software and associated documentation files (the "Software"), to deal
-	 * in the Software without restriction, including without limitation the rights
-	 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	 * copies of the Software, and to permit persons to whom the Software is
-	 * furnished to do so, subject to the following conditions:
-	 *<br><br>
-	 * The above copyright notice and this permission notice shall be included in
-	 * all copies or substantial portions of the Software.
-	 *<br><br>
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	 * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	 * SOFTWARE.
-	 * <br><br>
+	 * The MIT License (MIT) <br>
+	 * <br>
+	 * Copyright (c) 2015 Boris Chumichev <br>
+	 * <br>
+	 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: <br>
+	 * <br>
+	 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. <br>
+	 * <br>
+	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. <br>
+	 * <br>
 	 * Returns a stepped value based on the nearest step to the input value.<br>
 	 * The size (grade) of the steps depends on the provided value of {@code n}
 	 **/
@@ -319,7 +310,7 @@ public interface EasingType {
 		if (n2 < 2)
 			throw new IllegalArgumentException("Steps must be >= 2, got: " + n2);
 
-		final int steps = (int)n2;
+		final int steps = (int) n2;
 
 		return t -> {
 			double result = 0;
@@ -327,7 +318,7 @@ public interface EasingType {
 			if (t < 0)
 				return result;
 
-			double stepLength = (1 / (double)steps);
+			double stepLength = (1 / (double) steps);
 
 			if (t > (result = (steps - 1) * stepLength))
 				return result;
@@ -341,8 +332,7 @@ public interface EasingType {
 
 				if (t >= testIndex * stepLength) {
 					leftBorderIndex = testIndex;
-				}
-				else {
+				} else {
 					rightBorderIndex = testIndex;
 				}
 			}

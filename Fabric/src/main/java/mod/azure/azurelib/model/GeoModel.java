@@ -1,13 +1,5 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
-
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -28,10 +20,17 @@ import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.util.RenderUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
+ * 
  * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Models">AzureLib Wiki - Models</a>
  */
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
@@ -95,11 +94,12 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 	/**
 	 * Gets a bone from this model by name
+	 * 
 	 * @param name The name of the bone
 	 * @return An {@link Optional} containing the {@link mod.azure.azurelib.cache.object.GeoBone} if one matches, otherwise an empty Optional
 	 */
 	public Optional<mod.azure.azurelib.cache.object.GeoBone> getBone(String name) {
-		return Optional.ofNullable((GeoBone)getAnimationProcessor().getBone(name));
+		return Optional.ofNullable((GeoBone) getAnimationProcessor().getBone(name));
 	}
 
 	/**
@@ -123,11 +123,13 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 	/**
 	 * Add additional {@link DataTicket DataTickets} to the {@link AnimationState} to be handled by your animation handler at render time
-	 * @param animatable The animatable instance currently being animated
-	 * @param instanceId The unique instance id of the animatable being animated
+	 * 
+	 * @param animatable   The animatable instance currently being animated
+	 * @param instanceId   The unique instance id of the animatable being animated
 	 * @param dataConsumer The DataTicket + data consumer to be added to the AnimationEvent
 	 */
-	public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {}
+	public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {
+	}
 
 	@Override
 	public final void handleAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
@@ -136,7 +138,7 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 		Double currentTick = animationState.getData(DataTickets.TICK);
 
 		if (currentTick == null)
-			currentTick = animatable instanceof Entity livingEntity ? (double) livingEntity.tickCount : RenderUtils.getCurrentTick();
+			currentTick = animatable instanceof Entity ? (double) ((Entity) animatable).tickCount : RenderUtils.getCurrentTick();
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + mc.getFrameTime());
@@ -144,8 +146,7 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 		if (!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused()) {
 			if (animatable instanceof LivingEntity) {
 				animatableManager.updatedAt(currentTick + mc.getFrameTime());
-			}
-			else {
+			} else {
 				animatableManager.updatedAt(currentTick - animatableManager.getFirstTickTime());
 			}
 
@@ -175,22 +176,22 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 		parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> mc.level.getDayTime() / 24000f);
 		parser.setMemoizedValue(MolangQueries.MOON_PHASE, mc.level::getMoonPhase);
 
-		if (animatable instanceof Entity entity) {
-			parser.setMemoizedValue(MolangQueries.DISTANCE_FROM_CAMERA, () -> mc.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position()));
-			parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.isOnGround()));
-			parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(entity.isInWater()));
-			parser.setMemoizedValue(MolangQueries.IS_IN_WATER_OR_RAIN, () -> RenderUtils.booleanToFloat(entity.isInWaterRainOrBubble()));
+		if (animatable instanceof Entity) {
+			parser.setMemoizedValue(MolangQueries.DISTANCE_FROM_CAMERA, () -> mc.gameRenderer.getMainCamera().getPosition().distanceTo(((Entity) animatable).position()));
+			parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(((Entity) animatable).isOnGround()));
+			parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWater()));
+			parser.setMemoizedValue(MolangQueries.IS_IN_WATER_OR_RAIN, () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWaterRainOrBubble()));
 
-			if (entity instanceof LivingEntity livingEntity) {
-				parser.setMemoizedValue(MolangQueries.HEALTH, livingEntity::getHealth);
-				parser.setMemoizedValue(MolangQueries.MAX_HEALTH, livingEntity::getMaxHealth);
-				parser.setMemoizedValue(MolangQueries.IS_ON_FIRE, () -> RenderUtils.booleanToFloat(livingEntity.isOnFire()));
+			if (((Entity) animatable) instanceof LivingEntity) {
+				parser.setMemoizedValue(MolangQueries.HEALTH, ((LivingEntity) animatable)::getHealth);
+				parser.setMemoizedValue(MolangQueries.MAX_HEALTH, ((LivingEntity) animatable)::getMaxHealth);
+				parser.setMemoizedValue(MolangQueries.IS_ON_FIRE, () -> RenderUtils.booleanToFloat(((LivingEntity) animatable).isOnFire()));
 				parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
-					Vec3 velocity = livingEntity.getDeltaMovement();
+					Vec3 velocity = ((LivingEntity) animatable).getDeltaMovement();
 
-					return Mth.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
+					return Math.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
 				});
-				parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> livingEntity.getViewYRot((float)animTime - livingEntity.getViewYRot((float)animTime - 0.1f)));
+				parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> ((LivingEntity) animatable).getViewYRot((float) animTime - ((LivingEntity) animatable).getViewYRot((float) animTime - 0.1f)));
 			}
 		}
 	}

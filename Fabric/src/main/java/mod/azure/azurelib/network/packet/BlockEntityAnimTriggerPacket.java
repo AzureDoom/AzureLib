@@ -46,7 +46,7 @@ public class BlockEntityAnimTriggerPacket extends AbstractPacket {
         return AzureLibNetwork.BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+	public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
         final BlockPos BLOCK_POS = buf.readBlockPos();
         final String CONTROLLER_NAME = buf.readUtf();
         final String ANIM_NAME = buf.readUtf();
@@ -57,7 +57,7 @@ public class BlockEntityAnimTriggerPacket extends AbstractPacket {
     private static void runOnThread(BlockPos blockPos, String controllerName, String animName) {
         BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
 
-        if (blockEntity instanceof GeoBlockEntity getBlockEntity)
-            getBlockEntity.triggerAnim(controllerName.isEmpty() ? null : controllerName, animName);
+		if (blockEntity instanceof GeoBlockEntity)
+			((GeoBlockEntity) blockEntity).triggerAnim(controllerName.isEmpty() ? null : controllerName, animName);
     }
 }

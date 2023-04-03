@@ -2,8 +2,8 @@ package mod.azure.azurelib.helper;
 
 import static java.lang.Math.min;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public interface Growable {
 	float getGrowth();
@@ -21,14 +21,14 @@ public interface Growable {
 	LivingEntity growInto();
 
 	default void growUp(LivingEntity entity) {
-		var world = entity.level;
+		Level world = entity.level;
 		if (!world.isClientSide()) {
-			var newEntity = growInto();
+			LivingEntity newEntity = growInto();
 			if (newEntity == null)
 				return;
-			newEntity.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
+			newEntity.moveTo(entity.blockPosition(), entity.yRot, entity.xRot);
 			world.addFreshEntity(newEntity);
-			entity.remove(Entity.RemovalReason.DISCARDED);
+			entity.remove();
 		}
 	}
 

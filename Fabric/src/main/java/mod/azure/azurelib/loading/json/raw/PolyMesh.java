@@ -12,7 +12,22 @@ import net.minecraft.util.GsonHelper;
 /**
  * Container class for poly mesh information, only used in deserialization at startup
  */
-public record PolyMesh(@Nullable Boolean normalizedUVs, double[] normals, @Nullable PolysUnion polysUnion, double[] positions, double[] uvs) {
+public class PolyMesh {
+
+	protected final @Nullable Boolean normalizedUVs;
+	protected final double[] normals;
+	protected final @Nullable PolysUnion polysUnion;
+	protected final double[] positions;
+	protected final double[] uvs;
+
+	public PolyMesh(@Nullable Boolean normalizedUVs, double[] normals, @Nullable PolysUnion polysUnion, double[] positions, double[] uvs) {
+		this.normalizedUVs = normalizedUVs;
+		this.normals = normals;
+		this.polysUnion = polysUnion;
+		this.positions = positions;
+		this.uvs = uvs;
+	}
+
 	public static JsonDeserializer<PolyMesh> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();
@@ -25,4 +40,27 @@ public record PolyMesh(@Nullable Boolean normalizedUVs, double[] normals, @Nulla
 			return new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs);
 		};
 	}
+
+	@Nullable
+	public Boolean normalizedUVs() {
+		return this.normalizedUVs;
+	}
+
+	public double[] normals() {
+		return this.normals;
+	}
+
+	@Nullable
+	public PolysUnion polysUnion() {
+		return this.polysUnion;
+	}
+
+	public double[] positions() {
+		return this.positions;
+	}
+
+	public double[] uvs() {
+		return this.uvs;
+	}
+
 }

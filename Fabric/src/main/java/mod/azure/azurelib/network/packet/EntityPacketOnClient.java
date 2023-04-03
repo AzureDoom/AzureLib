@@ -28,8 +28,8 @@ public class EntityPacketOnClient {
 			if (entity != null) {
 				entity.absMoveTo(x, y, z);
 				entity.setPacketCoordinates(x, y, z);
-				entity.setXRot(pitch);
-				entity.setYRot(yaw);
+				entity.xRot = pitch;
+				entity.yRot = yaw;
 				entity.setId(entityID);
 				entity.setUUID(entityUUID);
 				world.putNonPlayerEntity(entityID, entity);

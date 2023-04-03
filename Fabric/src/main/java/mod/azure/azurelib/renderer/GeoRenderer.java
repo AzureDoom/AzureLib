@@ -1,5 +1,6 @@
 package mod.azure.azurelib.renderer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +53,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Returns the list of registered {@link GeoRenderLayer GeoRenderLayers} for this renderer
 	 */
 	default List<GeoRenderLayer<T>> getRenderLayers() {
-		return List.of();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -115,10 +116,10 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		poseStack.pushPose();
 
 		Color renderColor = getRenderColor(animatable, partialTick, packedLight);
-		float red = renderColor.getRedFloat();
-		float green = renderColor.getGreenFloat();
-		float blue = renderColor.getBlueFloat();
-		float alpha = renderColor.getAlphaFloat();
+		float red = renderColor.getRed();
+		float green = renderColor.getGreen();
+		float blue = renderColor.getBlue();
+		float alpha = renderColor.getAlpha();
 		int packedOverlay = getPackedOverlay(animatable, 0);
 		BakedGeoModel model = getGeoModel().getBakedModel(getGeoModel().getModelResource(animatable));
 

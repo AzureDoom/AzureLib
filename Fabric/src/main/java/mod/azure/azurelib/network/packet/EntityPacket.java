@@ -19,10 +19,10 @@ public class EntityPacket {
 		buf.writeDouble(entity.getX());
 		buf.writeDouble(entity.getY());
 		buf.writeDouble(entity.getZ());
-		buf.writeByte(Mth.floor(entity.getXRot() * 256.0F / 360.0F));
-		buf.writeByte(Mth.floor(entity.getYRot() * 256.0F / 360.0F));
-		buf.writeFloat(entity.getXRot());
-		buf.writeFloat(entity.getYRot());
+		buf.writeByte(Mth.floor(entity.xRot * 256.0F / 360.0F));
+		buf.writeByte(Mth.floor(entity.yRot * 256.0F / 360.0F));
+		buf.writeFloat(entity.xRot);
+		buf.writeFloat(entity.yRot);
 		return ServerPlayNetworking.createS2CPacket(AzureLibNetwork.CUSTOM_ENTITY_ID, buf);
 	}
 

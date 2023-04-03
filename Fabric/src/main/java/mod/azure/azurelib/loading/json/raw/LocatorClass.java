@@ -12,7 +12,30 @@ import net.minecraft.util.GsonHelper;
 /**
  * Container class for locator class information, only used in deserialization at startup
  */
-public record LocatorClass(@Nullable Boolean ignoreInheritedScale, double[] offset, double[] rotation) {
+public class LocatorClass {
+	@Nullable
+	public Boolean ignoreInheritedScale;
+	public double[] offset;
+	public double[] rotation;
+
+	public LocatorClass(@Nullable Boolean ignoreInheritedScale, double[] offset, double[] rotation) {
+		this.ignoreInheritedScale = ignoreInheritedScale;
+		this.offset = offset;
+		this.rotation = rotation;
+	}
+
+	public Boolean ignoreInheritedScale() {
+		return ignoreInheritedScale;
+	}
+
+	public double[] offset() {
+		return offset;
+	}
+
+	public double[] rotation() {
+		return rotation;
+	}
+
 	public static JsonDeserializer<LocatorClass> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

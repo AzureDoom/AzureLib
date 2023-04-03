@@ -60,7 +60,7 @@ public class AnimDataSyncPacket<D> extends AbstractPacket {
 	private static <D> void runOnThread(String syncableId, long instanceId, SerializableDataTicket<D> dataTicket, D data) {
 		GeoAnimatable animatable = AzureLibNetwork.getSyncedAnimatable(syncableId);
 
-		if (animatable instanceof SingletonGeoAnimatable singleton)
-			singleton.setAnimData(ClientUtils.getClientPlayer(), instanceId, dataTicket, data);
+		if (animatable instanceof SingletonGeoAnimatable)
+			((SingletonGeoAnimatable) animatable).setAnimData(ClientUtils.getClientPlayer(), instanceId, dataTicket, data);
 	}
 }

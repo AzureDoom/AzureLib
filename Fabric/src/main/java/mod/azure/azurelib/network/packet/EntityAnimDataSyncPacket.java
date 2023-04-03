@@ -15,8 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 /**
- * Packet for syncing user-definable animation data for
- * {@link net.minecraft.world.entity.Entity Entities}
+ * Packet for syncing user-definable animation data for {@link net.minecraft.world.entity.Entity Entities}
  */
 public class EntityAnimDataSyncPacket<D> extends AbstractPacket {
 	private final int ENTITY_ID;
@@ -56,7 +55,7 @@ public class EntityAnimDataSyncPacket<D> extends AbstractPacket {
 	private static <D> void runOnThread(int entityId, SerializableDataTicket<D> dataTicket, D data) {
 		Entity entity = ClientUtils.getLevel().getEntity(entityId);
 
-		if (entity instanceof GeoEntity geoEntity)
-			geoEntity.setAnimData(dataTicket, data);
+		if (entity instanceof GeoEntity)
+			((GeoEntity) entity).setAnimData(dataTicket, data);
 	}
 }

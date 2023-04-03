@@ -14,7 +14,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -33,7 +32,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
 
 		TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-		if (!(textureManager.getTexture(texturePath, MissingTextureAtlasSprite.getTexture()) instanceof GeoAbstractTexture))
+		if (!(textureManager.getTexture(texturePath) instanceof GeoAbstractTexture))
 			textureManagerConsumer.accept(textureManager);
 	}
 

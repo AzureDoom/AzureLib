@@ -57,7 +57,7 @@ public class BlockEntityAnimDataSyncPacket<D> extends AbstractPacket {
 	private static <D> void runOnThread(BlockPos blockPos, SerializableDataTicket<D> dataTicket, D data) {
 		BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
 
-		if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
-			geoBlockEntity.setAnimData(dataTicket, data);
+		if (blockEntity instanceof GeoBlockEntity)
+			((GeoBlockEntity) blockEntity).setAnimData(dataTicket, data);
 	}
 }

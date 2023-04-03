@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
@@ -162,7 +161,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
+//		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick,
 				packedLight, packedOverlay, red, green, blue, alpha);
 		poseStack.popPose();

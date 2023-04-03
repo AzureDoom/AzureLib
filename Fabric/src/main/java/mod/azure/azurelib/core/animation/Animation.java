@@ -5,6 +5,9 @@
 
 package mod.azure.azurelib.core.animation;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -14,19 +17,54 @@ import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+public class Animation {
+	public String name;
+	public double length = -1;
+	public LoopType loopType = LoopType.PLAY_ONCE;
+	public BoneAnimation[] boneAnimations = new BoneAnimation[0];
+	public Keyframes keyFrames;
+	public SoundKeyframeData[] soundKeyFrames = new SoundKeyframeData[0];
+	public ParticleKeyframeData[] particleKeyFrames = new ParticleKeyframeData[0];
+	public CustomInstructionKeyframeData[] customInstructionKeyframes = new CustomInstructionKeyframeData[0];
 
-/**
- * A compiled animation instance for use by the {@link AnimationController}<br>
- * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable.
- */
-public record Animation(String name, double length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames) {
-	public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
+	public Animation(String name, double length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyframes) {
+		this.name = name;
+		this.length = length;
+		this.loopType = loopType;
+		this.boneAnimations = boneAnimations;
+
+	}
 
 	static Animation generateWaitAnimation(double length) {
-		return new Animation(RawAnimation.Stage.WAIT, length, LoopType.PLAY_ONCE, new BoneAnimation[0],
-				new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]));
+		return new Animation(RawAnimation.Stage.WAIT, length, LoopType.PLAY_ONCE, new BoneAnimation[0], new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]));
+	}
+
+	public BoneAnimation[] boneAnimations() {
+		return boneAnimations;
+	}
+
+	public double length() {
+		return length;
+	}
+
+	public LoopType loopType() {
+		return loopType;
+	}
+
+	public SoundKeyframeData[] soundKeyFrames() {
+		return soundKeyFrames;
+	}
+
+	public ParticleKeyframeData[] particleKeyFrames() {
+		return particleKeyFrames;
+	}
+
+	public CustomInstructionKeyframeData[] customInstructionKeyframes() {
+		return customInstructionKeyframes;
+	}
+
+	public Keyframes keyFrames() {
+		return new Keyframes(soundKeyFrames(), particleKeyFrames(), customInstructionKeyframes());
 	}
 
 	/**
@@ -48,17 +86,17 @@ public record Animation(String name, double length, LoopType loopType, BoneAnima
 
 		/**
 		 * Override in a custom instance to dynamically decide whether an animation should repeat or stop
-		 * @param animatable The animating object relevant to this method call
-		 * @param controller The {@link AnimationController} playing the current animation
+		 * 
+		 * @param animatable       The animating object relevant to this method call
+		 * @param controller       The {@link AnimationController} playing the current animation
 		 * @param currentAnimation The current animation that just played
 		 * @return Whether the animation should play again, or stop
 		 */
 		boolean shouldPlayAgain(GeoAnimatable animatable, AnimationController<? extends GeoAnimatable> controller, Animation currentAnimation);
 
 		/**
-		 * Retrieve a LoopType instance based on a {@link JsonElement}.
-		 * Returns either {@link LoopType#PLAY_ONCE} or {@link LoopType#LOOP} based on a boolean or string element type,
-		 * or any other registered loop type with a matching type string.
+		 * Retrieve a LoopType instance based on a {@link JsonElement}. Returns either {@link LoopType#PLAY_ONCE} or {@link LoopType#LOOP} based on a boolean or string element type, or any other registered loop type with a matching type string.
+		 * 
 		 * @param json The <code>loop</code> {@link JsonElement} to attempt to parse
 		 * @return A usable LoopType instance
 		 */
@@ -85,7 +123,8 @@ public record Animation(String name, double length, LoopType loopType, BoneAnima
 		 * Register a LoopType with AzureLib for handling loop functionality of animations..<br>
 		 * <b><u>MUST be called during mod construct</u></b><br>
 		 * It is recommended you don't call this directly, and instead call it via {@code AzureLibUtil#addCustomLoopType}
-		 * @param name The name of the loop type
+		 * 
+		 * @param name     The name of the loop type
 		 * @param loopType The loop type to register
 		 * @return The registered {@code LoopType}
 		 */

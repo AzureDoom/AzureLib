@@ -1,5 +1,8 @@
 package mod.azure.azurelib.loading.object;
 
+import java.util.List;
+import java.util.Map;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.loading.json.raw.Bone;
@@ -7,17 +10,23 @@ import mod.azure.azurelib.loading.json.raw.MinecraftGeometry;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * Container class for a {@link Bone} structure, used at startup during deserialization
  */
-public record GeometryTree(Map<String, BoneStructure> topLevelBones, ModelProperties properties) {
+public class GeometryTree {
+	
+	protected final Map<String, BoneStructure> topLevelBones; 
+	protected final ModelProperties properties;
+	
+	public GeometryTree(Map<String, BoneStructure> topLevelBones, ModelProperties properties) {
+		this.topLevelBones = topLevelBones;
+		this.properties = properties;
+	}
+	
 	public static GeometryTree fromModel(Model model) {
 		Map<String, BoneStructure> topLevelBones = new Object2ObjectOpenHashMap<>();
 		MinecraftGeometry geometry = model.minecraftGeometry()[0];
-		List<Bone> bones = new ObjectArrayList<>(geometry.bones());
+		List<Bone> bones = new ObjectArrayList(geometry.bones());
 		int index = bones.size() - 1;
 
 		while (true) {
@@ -62,5 +71,13 @@ public record GeometryTree(Map<String, BoneStructure> topLevelBones, ModelProper
 		}
 
 		return null;
+	}
+	
+	public Map<String, BoneStructure> topLevelBones() {
+		return this.topLevelBones;
+	}
+	
+	public ModelProperties properties() {
+		return this.properties;
 	}
 }

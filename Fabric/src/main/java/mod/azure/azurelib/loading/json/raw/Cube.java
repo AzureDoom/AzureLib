@@ -12,7 +12,58 @@ import net.minecraft.util.GsonHelper;
 /**
  * Container class for cube information, only used in deserialization at startup
  */
-public record Cube(@Nullable Double inflate, @Nullable Boolean mirror, double[] origin, double[] pivot, double[] rotation, double[] size, UVUnion uv) {
+public class Cube {
+
+	@Nullable
+	public Double inflate;
+	@Nullable
+	public Boolean mirror;
+	public double[] origin;
+	public double[] pivot;
+	public double[] rotation;
+	public double[] size;
+	public UVUnion uv;
+
+	public Cube(@Nullable Double inflate, @Nullable Boolean mirror, double[] origin, double[] pivot, double[] rotation, double[] size, UVUnion uv) {
+		this.inflate = inflate;
+		this.mirror = mirror;
+		this.origin = origin;
+		this.pivot = pivot;
+		this.rotation = rotation;
+		this.size = size;
+		this.uv = uv;
+	}
+
+	@Nullable
+	public Double inflate() {
+		return inflate;
+	}
+
+	@Nullable
+	public Boolean mirror() {
+		return mirror;
+	}
+
+	public double[] origin() {
+		return origin;
+	}
+
+	public double[] pivot() {
+		return pivot;
+	}
+
+	public double[] rotation() {
+		return rotation;
+	}
+
+	public double[] size() {
+		return size;
+	}
+
+	public UVUnion uv() {
+		return uv;
+	}
+
 	public static JsonDeserializer<Cube> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

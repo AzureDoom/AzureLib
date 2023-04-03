@@ -12,7 +12,31 @@ import net.minecraft.util.GsonHelper;
 /**
  * Container class for face UV information, only used in deserialization at startup
  */
-public record FaceUV(@Nullable String materialInstance, double[] uv, double[] uvSize) {
+public class FaceUV {
+	@Nullable
+	public String materialInstance;
+	public double[] uv;
+	public double[] uvSize;
+
+	public FaceUV(@Nullable String materialInstance, double[] uv, double[] uvSize) {
+		this.materialInstance = materialInstance;
+		this.uv = uv;
+		this.uvSize = uvSize;
+	}
+
+	@Nullable
+	public String materialInstance() {
+		return materialInstance;
+	}
+
+	public double[] uv() {
+		return uv;
+	}
+
+	public double[] uvSize() {
+		return uvSize;
+	}
+
 	public static JsonDeserializer<FaceUV> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

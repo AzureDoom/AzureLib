@@ -17,7 +17,7 @@ import com.google.gson.JsonParseException;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Keyframes;
 import mod.azure.azurelib.loading.json.raw.Bone;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
@@ -40,23 +40,9 @@ import net.minecraft.util.GsonHelper;
  * Json helper class for various json functions
  */
 public final class JsonUtil {
-	public static final Gson GEO_GSON = new GsonBuilder().setLenient()
-			.registerTypeAdapter(Bone.class, Bone.deserializer())
-			.registerTypeAdapter(Cube.class, Cube.deserializer())
-			.registerTypeAdapter(FaceUV.class, FaceUV.deserializer())
-			.registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer())
-			.registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer())
-			.registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
-			.registerTypeAdapter(Model.class, Model.deserializer())
-			.registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
-			.registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
-			.registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
-			.registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
-			.registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
-			.registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
-			.registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter())
-			.registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
-			.create();
+	public static final Gson GEO_GSON = new GsonBuilder().setLenient().registerTypeAdapter(Bone.class, Bone.deserializer()).registerTypeAdapter(Cube.class, Cube.deserializer()).registerTypeAdapter(FaceUV.class, FaceUV.deserializer()).registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer()).registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer()).registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
+			.registerTypeAdapter(Model.class, Model.deserializer()).registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer()).registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer()).registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer()).registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer()).registerTypeAdapter(UVFaces.class, UVFaces.deserializer()).registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
+			.registerTypeAdapter(Keyframes.class, new KeyFramesAdapter()).registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter()).create();
 
 	/**
 	 * Convert a {@link JsonArray} of doubles to a {@code double[]}.<br>
@@ -78,12 +64,13 @@ public final class JsonUtil {
 
 	/**
 	 * Converts a {@link JsonArray} of a given object type to an array of that object, deserialized from their respective {@link JsonElement JsonElements}
-	 * @param array The array containing the objects to be converted
-	 * @param context The {@link com.google.gson.Gson} context for deserialization
+	 * 
+	 * @param array       The array containing the objects to be converted
+	 * @param context     The {@link com.google.gson.Gson} context for deserialization
 	 * @param objectClass The object type that the array contains
 	 */
 	public static <T> T[] jsonArrayToObjectArray(JsonArray array, JsonDeserializationContext context, Class<T> objectClass) {
-		T[] objArray = (T[])Array.newInstance(objectClass, array.size());
+		T[] objArray = (T[]) Array.newInstance(objectClass, array.size());
 
 		for (int i = 0; i < array.size(); i++) {
 			objArray[i] = context.deserialize(array.get(i), objectClass);
@@ -94,7 +81,8 @@ public final class JsonUtil {
 
 	/**
 	 * Converts a {@link JsonArray} to a {@link List} of elements of a pre-determined type.
-	 * @param array The {@code JsonArray} to convert
+	 * 
+	 * @param array              The {@code JsonArray} to convert
 	 * @param elementTransformer Transformation function that converts a {@link JsonElement} to the intended output object
 	 */
 	public static <T> List<T> jsonArrayToList(@Nullable JsonArray array, Function<JsonElement, T> elementTransformer) {
@@ -112,8 +100,9 @@ public final class JsonUtil {
 
 	/**
 	 * Converts a {@link JsonObject} to a {@link Map} of String keys to their respective objects
-	 * @param obj The base {@code JsonObject} to convert
-	 * @param context The {@link Gson} deserialization context
+	 * 
+	 * @param obj        The base {@code JsonObject} to convert
+	 * @param context    The {@link Gson} deserialization context
 	 * @param objectType The object class that the map should contain
 	 */
 	public static <T> Map<String, T> jsonObjToMap(JsonObject obj, JsonDeserializationContext context, Class<T> objectType) {
@@ -155,7 +144,7 @@ public final class JsonUtil {
 	 */
 	@Nullable
 	public static Double getOptionalDouble(JsonObject obj, String elementName) {
-		return obj.has(elementName) ? GsonHelper.getAsDouble(obj, elementName) : null;
+		return obj.has(elementName) ? (double) GsonHelper.getAsFloat(obj, elementName) : null;
 	}
 
 	/**
