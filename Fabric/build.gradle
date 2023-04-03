@@ -9,9 +9,9 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '0.5-SNAPSHOT'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -20,8 +20,8 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import com.modrinth.minotaur.dependencies.ModDependency
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_8
+targetCompatibility = JavaVersion.VERSION_8
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -31,12 +31,12 @@ repositories {
     mavenCentral()
     maven { url 'https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/' }
     maven { url 'https://maven.blamejared.com' }
-	maven { url "https://cfa2.cursemaven.com" }
+    maven { url "https://cfa2.cursemaven.com" }
     maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
     maven { url "https://plugins.gradle.org/m2/" }
     maven { url "https://maven.shedaniel.me/" }
-	maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
-	maven { url = "https://maven.terraformersmc.com/" }
+    maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
+    maven { url = "https://maven.terraformersmc.com/" }
 }
 
 configurations {
@@ -89,12 +89,12 @@ processResources {
 	}
 }
 
-loom {
-	accessWidenerPath = file("src/main/resources/azurelib.aw")
+minecraft {
+	accessWidener "src/main/resources/azurelib.aw"
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    it.options.release = 8
 }
 
 artifacts {
@@ -175,10 +175,9 @@ if (file('key.properties').exists()) {
         releaseType = "release"
         changelogType = 'text'
         changelog = file('changelog.txt')
-		addGameVersion("1.18.2")
+	addGameVersion("1.16.5")
         addGameVersion("Fabric")
-        addGameVersion("Quilt")
-        addGameVersion("Java 17")
+        addGameVersion("Java 8")
 
         relations {
             requiredDependency 'fabric-api'      
@@ -205,12 +204,12 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Fabric/Quilt 1.18.2'
+		versionName = 'Fabric 1.16.5'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.18.2']
+		gameVersions = ['1.16.5']
 		versionType = "release"
-		loaders = ['fabric','quilt']
+		loaders = ['fabric']
 		dependencies { 
         	required.project "fabric-api"
    		}
