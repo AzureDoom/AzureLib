@@ -1,7 +1,6 @@
 package mod.azure.azurelib.cache.texture;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
@@ -31,10 +30,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
  * Texture object type responsible for AzureLib's emissive render textures
+ * 
  * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Emissive-Textures-Glow-Layer">AzureLib Wiki - Glow Layers</a>
  */
 public class AutoGlowingTexture extends GeoAbstractTexture {
-	private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeEntityTranslucentEmissiveShader);
+	private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeEntityTranslucentShader);
 	private static final RenderStateShard.TransparencyStateShard TRANSPARENCY_STATE = new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
 		RenderSystem.enableBlend();
 		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -46,12 +46,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	private static final Function<ResourceLocation, RenderType> RENDER_TYPE_FUNCTION = Util.memoize(texture -> {
 		RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(texture, false, false);
 
-		return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true,
-				RenderType.CompositeState.builder()
-						.setShaderState(SHADER_STATE)
-						.setTextureState(textureState)
-						.setTransparencyState(TRANSPARENCY_STATE)
-						.setWriteMaskState(WRITE_MASK).createCompositeState(false));
+		return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder().setShaderState(SHADER_STATE).setTextureState(textureState).setTransparencyState(TRANSPARENCY_STATE).setWriteMaskState(WRITE_MASK).createCompositeState(false));
 	});
 	private static final String APPENDIX = "_glowmask";
 
@@ -66,6 +61,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	/**
 	 * Get the emissive resource equivalent of the input resource path.<br>
 	 * Additionally prepares the texture manager for the missing texture if the resource is not present
+	 * 
 	 * @return The glowlayer resourcepath for the provided input path
 	 */
 	private static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
@@ -86,32 +82,28 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 		try {
 			originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(this.textureBase)).get();
-		}
-		catch (InterruptedException | ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			throw new IOException("Failed to load original texture: " + this.textureBase, e);
 		}
 
-		Resource textureBaseResource = resourceManager.getResource(this.textureBase).get();
-		NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture ?
-				dynamicTexture.getPixels() : NativeImage.read(textureBaseResource.open());
+		Resource textureBaseResource = resourceManager.getResource(this.textureBase);
+		NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture ? dynamicTexture.getPixels() : NativeImage.read(textureBaseResource.getInputStream());
 		NativeImage glowImage = null;
-		Optional<TextureMetadataSection> textureBaseMeta = textureBaseResource.metadata().getSection(TextureMetadataSection.SERIALIZER);
-		boolean blur = textureBaseMeta.isPresent() && textureBaseMeta.get().isBlur();
-		boolean clamp = textureBaseMeta.isPresent() && textureBaseMeta.get().isClamp();
+		TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata(TextureMetadataSection.SERIALIZER);
+		boolean blur = textureBaseMeta != null && textureBaseMeta.isBlur();
+		boolean clamp = textureBaseMeta != null && textureBaseMeta.isClamp();
 
 		try {
-			Optional<Resource> glowLayerResource = resourceManager.getResource(this.glowLayer);
+			Resource glowLayerResource = resourceManager.getResource(this.glowLayer);
 			GeoGlowingTextureMeta glowLayerMeta = null;
 
-			if (glowLayerResource.isPresent()) {
-				glowImage = NativeImage.read(glowLayerResource.get().open());
+			if (glowLayerResource != null) {
+				glowImage = NativeImage.read(glowLayerResource.getInputStream());
 				glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(glowImage);
-			}
-			else {
-				Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata().getSection(GeoGlowingTextureMeta.DESERIALIZER);
-
-				if (meta.isPresent()) {
-					glowLayerMeta = meta.get();
+			} else {
+				GeoGlowingTextureMeta meta = textureBaseResource.getMetadata(GeoGlowingTextureMeta.DESERIALIZER);
+				if (meta != null) {
+					glowLayerMeta = meta;
 					glowImage = new NativeImage(baseImage.getWidth(), baseImage.getHeight(), true);
 				}
 			}
@@ -124,8 +116,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 					printDebugImageToDisk(this.glowLayer, glowImage);
 				}
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			AzureLib.LOGGER.warn("Resource failed to open for glowlayer meta: {}", this.glowLayer, e);
 		}
 
@@ -139,8 +130,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 			if (originalTexture instanceof DynamicTexture dynamicTexture) {
 				dynamicTexture.upload();
-			}
-			else {
+			} else {
 				uploadSimple(originalTexture.getId(), baseImage, blur, clamp);
 			}
 		};
@@ -148,6 +138,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 	/**
 	 * Return a cached instance of the RenderType for the given texture for GeoGlowingLayer rendering.
+	 * 
 	 * @param texture The texture of the resource to apply a glow layer to
 	 */
 	public static RenderType getRenderType(ResourceLocation texture) {

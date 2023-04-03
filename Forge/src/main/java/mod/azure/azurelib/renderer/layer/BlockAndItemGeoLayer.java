@@ -1,7 +1,16 @@
 package mod.azure.azurelib.renderer.layer;
 
+import java.util.function.BiFunction;
+
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.renderer.GeoRenderer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -9,14 +18,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.renderer.GeoRenderer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.function.BiFunction;
+import net.minecraftforge.client.model.data.EmptyModelData;
 
 /**
  * {@link GeoRenderLayer} for rendering {@link net.minecraft.world.level.block.state.BlockState BlockStates}
@@ -118,7 +120,7 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 		poseStack.pushPose();
 		poseStack.translate(-0.25f, -0.25f, -0.25f);
 		poseStack.scale(0.5f, 0.5f, 0.5f);
-		Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state, poseStack, bufferSource, packedLight, packedOverlay, ModelData.EMPTY, null);
+		Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state, poseStack, bufferSource, packedLight, packedOverlay, EmptyModelData.INSTANCE);
 		poseStack.popPose();
 	}
 }

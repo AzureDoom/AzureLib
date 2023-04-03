@@ -42,7 +42,7 @@ public final class AzureLibMod {
 	public class AzureEntities {
 
 		public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister
-				.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
+				.create(ForgeRegistries.BLOCK_ENTITIES, AzureLib.MOD_ID);
 
 		public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES
 				.register("lightblock", () -> BlockEntityType.Builder

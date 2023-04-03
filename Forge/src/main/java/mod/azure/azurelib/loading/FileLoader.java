@@ -52,7 +52,7 @@ public final class FileLoader {
 	 * @param manager The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
 	public static String getFileContents(ResourceLocation location, ResourceManager manager) {
-		try (InputStream inputStream = manager.getResourceOrThrow(location).open()) {
+		try (InputStream inputStream = manager.getResource(location).getInputStream()) {
 			return IOUtils.toString(inputStream, Charset.defaultCharset());
 		}
 		catch (Exception e) {

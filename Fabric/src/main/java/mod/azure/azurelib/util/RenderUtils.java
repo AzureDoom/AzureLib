@@ -146,7 +146,7 @@ public final class RenderUtils {
 
 		try {
 			image = originalTexture instanceof DynamicTexture dynamicTexture ? dynamicTexture.getPixels()
-					: NativeImage.read(mc.getResourceManager().getResource(texture).get().open());
+					: NativeImage.read(mc.getResourceManager().getResource(texture).getInputStream());
 		}
 		catch (Exception e) {
 			AzureLib.LOGGER.error("Failed to read image for id {}", texture);

@@ -109,7 +109,7 @@ public final class AzureLibCache {
 				.thenApplyAsync(resources -> {
 					Map<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
 
-					for (ResourceLocation resource : resources.keySet()) {
+					for (ResourceLocation resource : resources) {
 						tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));
 					}
 

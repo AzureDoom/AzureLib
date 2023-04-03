@@ -27,7 +27,7 @@ public class EntityPacketOnClient {
 			Entity entity = type.create(world);
 			if (entity != null) {
 				entity.absMoveTo(x, y, z);
-				entity.syncPacketPositionCodec(x, y, z);
+				entity.setPacketCoordinates(x, y, z);
 				entity.setXRot(pitch);
 				entity.setYRot(yaw);
 				entity.setId(entityID);
