@@ -3,7 +3,7 @@ package mod.azure.azurelib.loading.json.raw;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.JSONUtils;
 import mod.azure.azurelib.util.JsonUtil;
 
 import javax.annotation.Nullable;
@@ -16,10 +16,10 @@ public record PolyMesh(@Nullable Boolean normalizedUVs, double[] normals, @Nulla
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();
 			Boolean normalizedUVs = JsonUtil.getOptionalBoolean(obj, "normalized_uvs");
-			double[] normals = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "normals", null));
-			PolysUnion polysUnion = GsonHelper.getAsObject(obj, "polys", null, context, PolysUnion.class);
-			double[] positions = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "positions", null));
-			double[] uvs = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uvs", null));
+			double[] normals = JsonUtil.jsonArrayToDoubleArray(JSONUtils.getAsJsonArray(obj, "normals", null));
+			PolysUnion polysUnion = JSONUtils.getAsObject(obj, "polys", null, context, PolysUnion.class);
+			double[] positions = JsonUtil.jsonArrayToDoubleArray(JSONUtils.getAsJsonArray(obj, "positions", null));
+			double[] uvs = JsonUtil.jsonArrayToDoubleArray(JSONUtils.getAsJsonArray(obj, "uvs", null));
 
 			return new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs);
 		};

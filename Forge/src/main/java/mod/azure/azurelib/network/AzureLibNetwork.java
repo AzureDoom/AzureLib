@@ -1,16 +1,22 @@
 package mod.azure.azurelib.network;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.network.packet.*;
+import java.util.Map;
 
 import javax.annotation.Nullable;
-import java.util.Map;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
+import mod.azure.azurelib.network.packet.AnimTriggerPacket;
+import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
+import mod.azure.azurelib.network.packet.BlockEntityAnimTriggerPacket;
+import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
+import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 /**
  * Network handling class for AzureLib.<br>
@@ -46,6 +52,7 @@ public final class AzureLibNetwork {
 
 	/**
 	 * Gets a registered synced {@link GeoAnimatable} object by name
+	 * 
 	 * @param className
 	 */
 	@Nullable

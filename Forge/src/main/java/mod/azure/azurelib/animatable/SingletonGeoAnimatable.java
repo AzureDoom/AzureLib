@@ -1,15 +1,15 @@
 package mod.azure.azurelib.animatable;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.PacketDistributor;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.AnimTriggerPacket;
-
-import javax.annotation.Nullable;
+import net.minecraft.entity.Entity;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to singleton objects.

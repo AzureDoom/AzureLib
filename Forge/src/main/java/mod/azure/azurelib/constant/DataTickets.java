@@ -1,21 +1,22 @@
 package mod.azure.azurelib.constant;
 
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.model.data.EntityModelData;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.AzureLibUtil;
-
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.entity.Entity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Stores the default (builtin) {@link DataTicket DataTickets} used in AzureLib.<br>
@@ -26,13 +27,13 @@ public final class DataTickets {
 
 	// Builtin tickets
 	// These tickets are used by AzureLib by default, usually added in by the GeoRenderer for use in animations
-	public static final DataTicket<BlockEntity> BLOCK_ENTITY = new DataTicket<>("block_entity", BlockEntity.class);
+	public static final DataTicket<TileEntity> BLOCK_ENTITY = new DataTicket<>("block_entity", TileEntity.class);
 	public static final DataTicket<ItemStack> ITEMSTACK = new DataTicket<>("itemstack", ItemStack.class);
 	public static final DataTicket<Entity> ENTITY = new DataTicket<>("entity", Entity.class);
-	public static final DataTicket<EquipmentSlot> EQUIPMENT_SLOT = new DataTicket<>("equipment_slot", EquipmentSlot.class);
+	public static final DataTicket<EquipmentSlotType > EQUIPMENT_SLOT = new DataTicket<>("equipment_slot", EquipmentSlotType .class);
 	public static final DataTicket<EntityModelData> ENTITY_MODEL_DATA = new DataTicket<>("entity_model_data", EntityModelData.class);
 	public static final DataTicket<Double> TICK = new DataTicket<>("tick", Double.class);
-	public static final DataTicket<ItemTransforms.TransformType> ITEM_RENDER_PERSPECTIVE = new DataTicket<>("item_render_perspective", ItemTransforms.TransformType.class);
+	public static final DataTicket<TransformType> ITEM_RENDER_PERSPECTIVE = new DataTicket<>("item_render_perspective", TransformType.class);
 
 	// Builtin serializable tickets
 	// These are not used anywhere by default, but are provided as examples

@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
+import mod.azure.azurelib.core.animation.AnimationProcessor.QueuedAnimation;
 import mod.azure.azurelib.core.keyframe.*;
 import mod.azure.azurelib.core.keyframe.event.CustomInstructionKeyframeEvent;
 import mod.azure.azurelib.core.keyframe.event.ParticleKeyframeEvent;
@@ -323,7 +324,7 @@ public class AnimationController<T extends GeoAnimatable> {
 
 		if (this.needsAnimationReload || !rawAnimation.equals(this.currentRawAnimation)) {
 			if (this.lastModel != null) {
-				Queue<AnimationProcessor.QueuedAnimation> animations = this.lastModel.getAnimationProcessor().buildAnimationQueue(this.animatable, rawAnimation);
+				Queue<QueuedAnimation> animations = this.lastModel.getAnimationProcessor().buildAnimationQueue(this.animatable, rawAnimation);
 
 				if (animations != null) {
 					this.animationQueue = animations;

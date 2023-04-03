@@ -1,14 +1,14 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-
-import java.util.function.Supplier;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animation data for {@link net.minecraft.world.entity.Entity Entities}
@@ -24,15 +24,15 @@ public class EntityAnimDataSyncPacket<D> {
 		this.data = data;
 	}
 
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(PacketBuffer buffer) {
 		buffer.writeVarInt(this.entityId);
 		buffer.writeUtf(this.dataTicket.id());
 		this.dataTicket.encode(this.data, buffer);
 	}
 
-	public static <D> EntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+	public static <D> EntityAnimDataSyncPacket<D> decode(PacketBuffer buffer) {
 		int entityId = buffer.readVarInt();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 
 		return new EntityAnimDataSyncPacket<>(entityId, dataTicket, dataTicket.decode(buffer));
 	}
@@ -43,8 +43,8 @@ public class EntityAnimDataSyncPacket<D> {
 		handler.enqueueWork(() -> {
 			Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
 
-			if (entity instanceof GeoEntity geoEntity)
-				geoEntity.setAnimData(this.dataTicket, this.data);
+			if (entity instanceof GeoEntity)
+				((GeoEntity) entity).setAnimData(this.dataTicket, this.data);
 		});
 		handler.setPacketHandled(true);
 	}

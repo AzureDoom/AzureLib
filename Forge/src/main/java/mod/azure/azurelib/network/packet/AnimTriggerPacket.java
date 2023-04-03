@@ -1,13 +1,14 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
-
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the server
@@ -25,14 +26,14 @@ public class AnimTriggerPacket<D> {
 		this.animName = animName;
 	}
 
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(PacketBuffer buffer) {
 		buffer.writeUtf(this.syncableId);
 		buffer.writeVarLong(this.instanceId);
 		buffer.writeUtf(this.controllerName);
 		buffer.writeUtf(this.animName);
 	}
 
-	public static <D> AnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
+	public static <D> AnimTriggerPacket<D> decode(PacketBuffer buffer) {
 		return new AnimTriggerPacket<>(buffer.readUtf(), buffer.readVarLong(), buffer.readUtf(), buffer.readUtf());
 	}
 

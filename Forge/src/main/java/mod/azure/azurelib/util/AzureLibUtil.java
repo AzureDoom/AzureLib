@@ -1,16 +1,15 @@
 package mod.azure.azurelib.util;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.Animation;
-import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.network.SerializableDataTicket;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 
 /**
  * Helper class for various AzureLib-specific functions.
@@ -21,7 +20,7 @@ public final class AzureLibUtil {
 	 * @param animatable The animatable object
 	 */
 	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
-		return createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof BlockEntity));
+		return createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof TileEntity));
 	}
 
 	/**

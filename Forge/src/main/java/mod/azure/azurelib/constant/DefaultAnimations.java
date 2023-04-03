@@ -1,15 +1,15 @@
 package mod.azure.azurelib.constant;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 
 /**
  * Optionally usable class that holds constants for recommended animation paths.<br>

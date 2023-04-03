@@ -18,7 +18,7 @@ public record Model(@Nullable FormatVersion formatVersion, MinecraftGeometry[] m
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();
 			FormatVersion formatVersion = context.deserialize(obj.get("format_version"), FormatVersion.class);
-			MinecraftGeometry[] minecraftGeometry = JsonUtil.jsonArrayToObjectArray(GsonHelper.getAsJsonArray(obj, "minecraft:geometry", new JsonArray(0)), context, MinecraftGeometry.class);
+			MinecraftGeometry[] minecraftGeometry = JsonUtil.jsonArrayToObjectArray(JSONUtils.getAsJsonArray(obj, "minecraft:geometry", new JsonArray()), context, MinecraftGeometry.class);
 
 			return new Model(formatVersion, minecraftGeometry);
 		};

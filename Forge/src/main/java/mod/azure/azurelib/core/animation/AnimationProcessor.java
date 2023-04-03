@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
+import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.keyframe.AnimationPoint;
 import mod.azure.azurelib.core.keyframe.BoneAnimationQueue;
 import mod.azure.azurelib.core.state.BoneSnapshot;
@@ -264,5 +265,21 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 * {@link Animation} and {@link mod.azure.azurelib.core.animation.Animation.LoopType} override pair,
 	 * used to define a playable animation stage for a {@link GeoAnimatable}
 	 */
-	public record QueuedAnimation(Animation animation, Animation.LoopType loopType) {}
+	public class QueuedAnimation {
+		public Animation animation;
+		public Animation.LoopType loopType;
+		
+		public QueuedAnimation(Animation animation, LoopType loopType) {
+			this.animation = animation;
+			this.loopType = loopType;
+		}
+
+		public Animation animation() {
+			return this.animation;
+		}
+		
+		public Animation.LoopType loopType() {
+			return this.loopType;
+		}
+	}
 }

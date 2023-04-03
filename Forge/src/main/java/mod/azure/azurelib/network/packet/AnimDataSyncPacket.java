@@ -1,15 +1,15 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-
-import java.util.function.Supplier;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animation data for {@link SingletonGeoAnimatable} instances
@@ -27,17 +27,17 @@ public class AnimDataSyncPacket<D> {
 		this.data = data;
 	}
 
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(PacketBuffer buffer) {
 		buffer.writeUtf(this.syncableId);
 		buffer.writeVarLong(this.instanceId);
 		buffer.writeUtf(this.dataTicket.id());
 		this.dataTicket.encode(this.data, buffer);
 	}
 
-	public static <D> AnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+	public static <D> AnimDataSyncPacket<D> decode(PacketBuffer buffer) {
 		String syncableId = buffer.readUtf();
 		long instanceId = buffer.readVarLong();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 		D data = dataTicket.decode(buffer);
 
 		return new AnimDataSyncPacket<>(syncableId, instanceId, dataTicket, data);
@@ -49,8 +49,8 @@ public class AnimDataSyncPacket<D> {
 		handler.enqueueWork(() -> {
 			GeoAnimatable animatable = AzureLibNetwork.getSyncedAnimatable(this.syncableId);
 
-			if (animatable instanceof SingletonGeoAnimatable singleton)
-				singleton.setAnimData(ClientUtils.getClientPlayer(), this.instanceId, this.dataTicket, this.data);
+			if (animatable instanceof SingletonGeoAnimatable)
+				((SingletonGeoAnimatable) animatable).setAnimData(ClientUtils.getClientPlayer(), this.instanceId, this.dataTicket, this.data);
 		});
 
 		handler.setPacketHandled(true);

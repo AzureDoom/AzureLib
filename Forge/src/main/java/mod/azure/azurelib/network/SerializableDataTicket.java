@@ -1,8 +1,8 @@
 package mod.azure.azurelib.network;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import mod.azure.azurelib.core.object.DataTicket;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Network-compatible {@link mod.azure.azurelib.core.object.DataTicket} implementation.
@@ -18,14 +18,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param data The object to be serialized
 	 * @param buffer The buffer to serialize the object to
 	 */
-	public abstract void encode(D data, FriendlyByteBuf buffer);
+	public abstract void encode(D data, PacketBuffer buffer);
 
 	/**
 	 * Decode the object from a packet buffer after transmission
 	 * @param buffer The buffer to deserialize the object from
 	 * @return A new instance of your data object
 	 */
-	public abstract D decode(FriendlyByteBuf buffer);
+	public abstract D decode(PacketBuffer buffer);
 
 	// Pre-defined typings for use
 
@@ -34,14 +34,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static SerializableDataTicket<Double> ofDouble(ResourceLocation id) {
-		return new SerializableDataTicket<>(id.toString(), Double.class) {
+		return new SerializableDataTicket(id.toString(), Double.class) {
 			@Override
-			public void encode(Double data, FriendlyByteBuf buffer) {
-				buffer.writeDouble(data);
+			public void encode(Object data, PacketBuffer buffer) {
+				buffer.writeDouble((double) data);
 			}
 
 			@Override
-			public Double decode(FriendlyByteBuf buffer) {
+			public Double decode(PacketBuffer buffer) {
 				return buffer.readDouble();
 			}
 		};
@@ -52,14 +52,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static SerializableDataTicket<Float> ofFloat(ResourceLocation id) {
-		return new SerializableDataTicket<>(id.toString(), Float.class) {
+		return new SerializableDataTicket(id.toString(), Float.class) {
 			@Override
-			public void encode(Float data, FriendlyByteBuf buffer) {
-				buffer.writeFloat(data);
+			public void encode(Object data, PacketBuffer buffer) {
+				buffer.writeFloat((float) data);
 			}
 
 			@Override
-			public Float decode(FriendlyByteBuf buffer) {
+			public Float decode(PacketBuffer buffer) {
 				return buffer.readFloat();
 			}
 		};
@@ -70,14 +70,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static SerializableDataTicket<Boolean> ofBoolean(ResourceLocation id) {
-		return new SerializableDataTicket<>(id.toString(), Boolean.class) {
+		return new SerializableDataTicket(id.toString(), Boolean.class) {
 			@Override
-			public void encode(Boolean data, FriendlyByteBuf buffer) {
-				buffer.writeBoolean(data);
+			public void encode(Object data, PacketBuffer buffer) {
+				buffer.writeBoolean((boolean) data);
 			}
 
 			@Override
-			public Boolean decode(FriendlyByteBuf buffer) {
+			public Boolean decode(PacketBuffer buffer) {
 				return buffer.readBoolean();
 			}
 		};
@@ -88,14 +88,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static SerializableDataTicket<Integer> ofInt(ResourceLocation id) {
-		return new SerializableDataTicket<>(id.toString(), Integer.class) {
+		return new SerializableDataTicket(id.toString(), Integer.class) {
 			@Override
-			public void encode(Integer data, FriendlyByteBuf buffer) {
-				buffer.writeVarInt(data);
+			public void encode(Object data, PacketBuffer buffer) {
+				buffer.writeVarInt((int) data);
 			}
 
 			@Override
-			public Integer decode(FriendlyByteBuf buffer) {
+			public Integer decode(PacketBuffer buffer) {
 				return buffer.readVarInt();
 			}
 		};
@@ -106,14 +106,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static SerializableDataTicket<String> ofString(ResourceLocation id) {
-		return new SerializableDataTicket<>(id.toString(), String.class) {
+		return new SerializableDataTicket(id.toString(), String.class) {
 			@Override
-			public void encode(String data, FriendlyByteBuf buffer) {
-				buffer.writeUtf(data);
+			public void encode(Object data, PacketBuffer buffer) {
+				buffer.writeUtf((String) data);
 			}
 
 			@Override
-			public String decode(FriendlyByteBuf buffer) {
+			public String decode(PacketBuffer buffer) {
 				return buffer.readUtf();
 			}
 		};
@@ -124,14 +124,14 @@ public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	 * @param id The unique id of your ticket. Include your modid
 	 */
 	public static <E extends Enum<E>> SerializableDataTicket<E> ofEnum(ResourceLocation id, Class<E> enumClass) {
-		return new SerializableDataTicket<>(id.toString(), enumClass) {
+		return new SerializableDataTicket(id.toString(), enumClass) {
 			@Override
-			public void encode(E data, FriendlyByteBuf buffer) {
+			public void encode(Object data, PacketBuffer buffer) {
 				buffer.writeUtf(data.toString());
 			}
 
 			@Override
-			public E decode(FriendlyByteBuf buffer) {
+			public E decode(PacketBuffer buffer) {
 				return Enum.valueOf(enumClass, buffer.readUtf());
 			}
 		};

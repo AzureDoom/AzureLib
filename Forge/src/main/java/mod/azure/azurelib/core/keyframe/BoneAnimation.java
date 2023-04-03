@@ -7,16 +7,30 @@ package mod.azure.azurelib.core.keyframe;
 
 import com.eliotlash.mclib.math.IValue;
 
-/**
- * A record of a deserialized animation for a given bone.<br>
- * Responsible for holding the various {@link Keyframe Keyframes} for the bone's animation transformations
- * @param boneName The name of the bone as listed in the {@code animation.json}
- * @param rotationKeyFrames The deserialized rotation {@code Keyframe} stack
- * @param positionKeyFrames The deserialized position {@code Keyframe} stack
- * @param scaleKeyFrames The deserialized scale {@code Keyframe} stack
- */
-public record BoneAnimation(String boneName,
-							KeyframeStack<Keyframe<IValue>> rotationKeyFrames,
-							KeyframeStack<Keyframe<IValue>> positionKeyFrames,
-							KeyframeStack<Keyframe<IValue>> scaleKeyFrames) {
+public class BoneAnimation {
+	public final String boneName;
+
+	public KeyframeStack<Keyframe<IValue>> rotationKeyFrames;
+	public KeyframeStack<Keyframe<IValue>> positionKeyFrames;
+	public KeyframeStack<Keyframe<IValue>> scaleKeyFrames;
+
+	public BoneAnimation(String boneName) {
+		this.boneName = boneName;
+	}
+
+	public String boneName() {
+		return boneName;
+	}
+
+	public KeyframeStack<Keyframe<IValue>> rotationKeyFrames() {
+		return rotationKeyFrames;
+	}
+
+	public KeyframeStack<Keyframe<IValue>> positionKeyFrames() {
+		return positionKeyFrames;
+	}
+
+	public KeyframeStack<Keyframe<IValue>> scaleKeyFrames() {
+		return scaleKeyFrames;
+	}
 }

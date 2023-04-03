@@ -1,16 +1,17 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.animatable.GeoReplacedEntity;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.util.ClientUtils;
 import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.entity.Entity Entities}
@@ -32,14 +33,14 @@ public class EntityAnimTriggerPacket<D> {
 		this.animName = animName;
 	}
 
-	public void encode(FriendlyByteBuf buffer) {
+	public void encode(PacketBuffer buffer) {
 		buffer.writeVarInt(this.entityId);
 		buffer.writeBoolean(this.isReplacedEntity);
 		buffer.writeUtf(this.controllerName);
 		buffer.writeUtf(this.animName);
 	}
 
-	public static <D> EntityAnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
+	public static <D> EntityAnimTriggerPacket<D> decode(PacketBuffer buffer) {
 		return new EntityAnimTriggerPacket<>(buffer.readVarInt(), buffer.readBoolean(), buffer.readUtf(), buffer.readUtf());
 	}
 
@@ -55,11 +56,10 @@ public class EntityAnimTriggerPacket<D> {
 			if (this.isReplacedEntity) {
 				GeoAnimatable animatable = RenderUtils.getReplacedAnimatable(entity.getType());
 
-				if (animatable instanceof GeoReplacedEntity replacedEntity)
-					replacedEntity.triggerAnim(entity, this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-			}
-			else if (entity instanceof GeoEntity geoEntity) {
-				geoEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
+				if (animatable instanceof GeoReplacedEntity)
+					((GeoReplacedEntity) animatable).triggerAnim(entity, this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
+			} else if (entity instanceof GeoEntity) {
+				((GeoEntity) entity).triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
 			}
 		});
 		handler.setPacketHandled(true);
