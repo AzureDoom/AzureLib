@@ -96,7 +96,7 @@ minecraft.runs.all {
 }
 
 repositories {
-    maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
+    maven { url "https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/" }
     maven { url "https://maven.enginehub.org/repo/" }
     maven { url "https://maven.blamejared.com" }
     maven { url "https://minecraft.curseforge.com/api/maven/" }
