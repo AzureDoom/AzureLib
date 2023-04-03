@@ -1,32 +1,35 @@
 package mod.azure.azurelib.renderer.layer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.apache.logging.log4j.util.TriConsumer;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.renderer.GeoRenderer;
-
-import java.util.List;
-import java.util.function.Supplier;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 
 /**
  * A more efficient version of {@link BoneFilterGeoLayer}.<br>
- * This version requires you provide the list of bones to filter up-front,
- * so that the bone hierarchy doesn't need to be traversed.
+ * This version requires you provide the list of bones to filter up-front, so that the bone hierarchy doesn't need to be traversed.
  */
 public class FastBoneFilterGeoLayer<T extends GeoAnimatable> extends BoneFilterGeoLayer<T> {
 	protected final Supplier<List<String>> boneSupplier;
 
 	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer) {
-		this(renderer, List::of);
+		this(renderer, ArrayList::new);
 	}
 
 	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier) {
-		this(renderer, boneSupplier, (bone, animatable, partialTick) -> {});
+		this(renderer, boneSupplier, (bone, animatable, partialTick) -> {
+		});
 	}
 
 	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier, TriConsumer<GeoBone, T, Float> checkAndApply) {
@@ -44,8 +47,7 @@ public class FastBoneFilterGeoLayer<T extends GeoAnimatable> extends BoneFilterG
 	};
 
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource,
-						  VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
 		for (String boneName : getAffectedBones()) {
 			this.renderer.getGeoModel().getBone(boneName).ifPresent(bone -> checkAndApply(bone, animatable, partialTick));
 		}

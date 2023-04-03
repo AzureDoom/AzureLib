@@ -13,7 +13,6 @@ import mod.azure.azurelib.renderer.GeoArmorRenderer;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -34,8 +33,6 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.RenderProperties;
 
 /**
@@ -180,14 +177,14 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Converts a given double array to its {@link Vec3} equivalent
+	 * Converts a given double array to its {@link Vector3d} equivalent
 	 */
 	public static Vector3d arrayToVec(double[] array) {
 		return new Vector3d(array[0], array[1], array[2]);
 	}
 
 	/**
-	 * Rotates a {@link CoreGeoBone} to match a provided {@link ModelPart}'s rotations.<br>
+	 * Rotates a {@link CoreGeoBone} to match a provided {@link ModelRenderer}'s rotations.<br>
 	 * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
 	 */
 	public static void matchModelPartRot(ModelRenderer from, CoreGeoBone to) {
@@ -283,11 +280,11 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Gets a {@link GeoModel} instance from a given {@link BlockEntity}.<br>
-	 * This only works if you're calling this method for a BlockEntity known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
+	 * Gets a {@link GeoModel} instance from a given {@link TileEntity}.<br>
+	 * This only works if you're calling this method for a TileEntity known to be using a {@link GeoRenderer AzureLib Renderer}.<br>
 	 * Generally speaking you probably shouldn't be calling this method at all.
 	 * 
-	 * @param blockEntity The {@code BlockEntity} to retrieve the GeoModel for
+	 * @param blockEntity The {@code TileEntity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable

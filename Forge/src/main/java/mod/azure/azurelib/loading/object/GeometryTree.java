@@ -26,7 +26,7 @@ public class GeometryTree {
 	public static GeometryTree fromModel(Model model) {
 		Map<String, BoneStructure> topLevelBones = new Object2ObjectOpenHashMap<>();
 		MinecraftGeometry geometry = model.minecraftGeometry()[0];
-		List<Bone> bones = new ObjectArrayList<>(geometry.bones());
+		List<Bone> bones = new ObjectArrayList(geometry.bones());
 		int index = bones.size() - 1;
 
 		while (true) {

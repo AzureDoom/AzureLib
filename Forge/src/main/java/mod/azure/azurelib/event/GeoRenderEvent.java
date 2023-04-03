@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -61,7 +60,7 @@ public interface GeoRenderEvent {
 		 * Shortcut method for retrieving the entity being rendered
 		 */
 		@Nullable
-		public Entity getEntity() {
+		public net.minecraft.entity.Entity getEntity() {
 			return getRenderer().getCurrentEntity();
 		}
 
@@ -189,7 +188,7 @@ public interface GeoRenderEvent {
 	}
 
 	/**
-	 * Renderer events for {@link BlockEntity BlockEntities} being rendered by {@link GeoBlockRenderer}
+	 * Renderer events for {@link TileEntity BlockEntities} being rendered by {@link GeoBlockRenderer}
 	 */
 	abstract class Block extends Event implements GeoRenderEvent {
 		private final GeoBlockRenderer<?> renderer;
@@ -730,7 +729,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method to get the Entity currently being rendered
 		 */
-		public Entity getReplacedEntity() {
+		public net.minecraft.entity.Entity getReplacedEntity() {
 			return getRenderer().getCurrentEntity();
 		}
 

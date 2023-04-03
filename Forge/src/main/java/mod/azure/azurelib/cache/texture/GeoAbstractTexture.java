@@ -6,11 +6,10 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.pipeline.RenderCall;
+import com.mojang.blaze3d.systems.IRenderCall;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -39,15 +38,14 @@ public abstract class GeoAbstractTexture extends Texture {
 
 	@Override
 	public final void load(IResourceManager resourceManager) throws IOException {
-		RenderCall renderCall = loadTexture(resourceManager, Minecraft.getInstance());
+		IRenderCall renderCall = loadTexture(resourceManager, Minecraft.getInstance());
 
 		if (renderCall == null)
 			return;
 
 		if (!RenderSystem.isOnRenderThreadOrInit()) {
 			RenderSystem.recordRenderCall(renderCall);
-		}
-		else {
+		} else {
 			renderCall.execute();
 		}
 	}
@@ -61,8 +59,7 @@ public abstract class GeoAbstractTexture extends Texture {
 
 			if (!file.exists()) {
 				file.mkdirs();
-			}
-			else if (!file.isDirectory()) {
+			} else if (!file.isDirectory()) {
 				file.delete();
 				file.mkdirs();
 			}
@@ -73,19 +70,18 @@ public abstract class GeoAbstractTexture extends Texture {
 				file.createNewFile();
 
 			newImage.writeToFile(file);
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
 
 	/**
-	 * Called at {@link AbstractTexture#load} time to load this texture for the first time into the render cache.
-	 * Generate and apply the necessary functions here, then return the RenderCall to submit to the render pipeline.
+	 * Called at {@link NativeImage#load} time to load this texture for the first time into the render cache. Generate and apply the necessary functions here, then return the RenderCall to submit to the render pipeline.
+	 * 
 	 * @return The RenderCall to submit to the render pipeline, or null if no further action required
 	 */
 	@Nullable
-	protected abstract RenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException;
+	protected abstract IRenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException;
 
 	/**
 	 * No-frills helper method for uploading {@link NativeImage images} into memory for use

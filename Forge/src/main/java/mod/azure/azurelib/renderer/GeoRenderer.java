@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -20,7 +19,7 @@ import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.IRenderTypeBuffer ;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
@@ -62,7 +61,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
 	 * Override this to change the way a model will render (such as translucent models, etc)
 	 */
-	default RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable IRenderTypeBuffer  bufferSource, float partialTick) {
+	default RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable IRenderTypeBuffer bufferSource, float partialTick) {
 		return getGeoModel().getRenderType(animatable, texture);
 	}
 
@@ -107,14 +106,14 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Initial access point for rendering. It all begins here.<br>
 	 * All AzureLib renderers should immediately defer their respective default {@code render} calls to this, for consistent handling
 	 */
-	default void defaultRender(MatrixStack poseStack, T animatable, IRenderTypeBuffer  bufferSource, @Nullable RenderType renderType, @Nullable IVertexBuilder buffer, float yaw, float partialTick, int packedLight) {
+	default void defaultRender(MatrixStack poseStack, T animatable, IRenderTypeBuffer bufferSource, @Nullable RenderType renderType, @Nullable IVertexBuilder buffer, float yaw, float partialTick, int packedLight) {
 		poseStack.pushPose();
 
 		Color renderColor = getRenderColor(animatable, partialTick, packedLight);
-		float red = renderColor.getRedFloat();
-		float green = renderColor.getGreenFloat();
-		float blue = renderColor.getBlueFloat();
-		float alpha = renderColor.getAlphaFloat();
+		float red = renderColor.getRed();
+		float green = renderColor.getGreen();
+		float blue = renderColor.getBlue();
+		float alpha = renderColor.getAlpha();
 		int packedOverlay = getPackedOverlay(animatable, 0);
 		BakedGeoModel model = getGeoModel().getBakedModel(getGeoModel().getModelResource(animatable));
 
@@ -141,7 +140,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Re-renders the provided {@link BakedGeoModel} using the existing {@link GeoRenderer}.<br>
 	 * Usually you'd use this for rendering alternate {@link RenderType} layers or for sub-model rendering whilst inside a {@link GeoRenderLayer} or similar
 	 */
-	default void reRender(BakedGeoModel model, MatrixStack poseStack, IRenderTypeBuffer  bufferSource, T animatable, RenderType renderType, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void reRender(BakedGeoModel model, MatrixStack poseStack, IRenderTypeBuffer bufferSource, T animatable, RenderType renderType, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 		preRender(poseStack, animatable, model, bufferSource, buffer, true, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, true, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
@@ -153,7 +152,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * The actual render method that sub-type renderers should override to handle their specific rendering tasks.<br>
 	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
 	 */
-	default void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		for (GeoBone group : model.topLevelBones()) {
 			renderRecursively(poseStack, animatable, group, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		}
@@ -162,7 +161,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	/**
 	 * Calls back to the various {@link GeoRenderLayer RenderLayers} that have been registered to this renderer for their {@link GeoRenderLayer#preRender pre-render} actions.
 	 */
-	default void preApplyRenderLayers(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	default void preApplyRenderLayers(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
 		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
 			renderLayer.preRender(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 		}
@@ -171,7 +170,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	/**
 	 * Calls back to the various {@link GeoRenderLayer RenderLayers} that have been registered to this renderer for their {@link GeoRenderLayer#renderForBone per-bone} render actions.
 	 */
-	default void applyRenderLayersForBone(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	default void applyRenderLayersForBone(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
 		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
 			renderLayer.renderForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 		}
@@ -180,7 +179,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	/**
 	 * Render the various {@link GeoRenderLayer RenderLayers} that have been registered to this renderer
 	 */
-	default void applyRenderLayers(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+	default void applyRenderLayers(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
 		for (GeoRenderLayer<T> renderLayer : getRenderLayers()) {
 			renderLayer.render(poseStack, animatable, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 		}
@@ -188,22 +187,22 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 
 	/**
 	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
+	 * {@link MatrixStack} translations made here are kept until the end of the render process
 	 */
-	default void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, @Nullable IRenderTypeBuffer  bufferSource, @Nullable IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, @Nullable IRenderTypeBuffer bufferSource, @Nullable IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 	}
 
 	/**
 	 * Called after rendering the model to buffer. Post-render modifications should be performed here.<br>
-	 * {@link PoseStack} transformations will be unused and lost once this method ends
+	 * {@link MatrixStack} transformations will be unused and lost once this method ends
 	 */
-	default void postRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void postRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 	}
 
 	/**
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
-	default void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 		RenderUtils.prepMatrixForBone(poseStack, bone);
 		renderCubesOfBone(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
@@ -233,7 +232,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Render the child bones of a given {@link GeoBone}.<br>
 	 * Note that this does not render the bone itself. That should be done through {@link GeoRenderer#renderCubesOfBone} separately
 	 */
-	default void renderChildBones(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer  bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void renderChildBones(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		if (bone.isHidingChildren())
 			return;
 
@@ -290,15 +289,15 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * 
 	 * @return Whether the renderer should proceed based on the cancellation state of the event
 	 */
-	boolean firePreRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer  bufferSource, float partialTick, int packedLight);
+	boolean firePreRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight);
 
 	/**
 	 * Create and fire the relevant {@code Post-Render} event hook for this renderer
 	 */
-	void firePostRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer  bufferSource, float partialTick, int packedLight);
+	void firePostRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight);
 
 	/**
-	 * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
+	 * Scales the {@link MatrixStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
 	 * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
 	 */
 	default void scaleModelForRender(float widthScale, float heightScale, MatrixStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {

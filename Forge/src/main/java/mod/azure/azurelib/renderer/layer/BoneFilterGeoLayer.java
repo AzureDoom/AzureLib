@@ -1,14 +1,16 @@
 package mod.azure.azurelib.renderer.layer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import org.apache.logging.log4j.util.TriConsumer;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.renderer.GeoRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 
 /**
  * {@link GeoRenderLayer} for auto-applying some form of modification to bones of a model prior to rendering.<br>
@@ -38,7 +40,7 @@ public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<
 	}
 
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
 		for (GeoBone bone : bakedModel.topLevelBones()) {
 			checkChildBones(bone, animatable, partialTick);
 		}

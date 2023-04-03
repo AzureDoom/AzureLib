@@ -19,10 +19,9 @@ import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -66,8 +65,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	protected EquipmentSlotType currentSlot = null;
 
 	public GeoArmorRenderer(GeoModel<T> model) {
-		super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
-
+		super(1.0F);
 		this.model = model;
 
 		fireCompileRenderLayersEvent();

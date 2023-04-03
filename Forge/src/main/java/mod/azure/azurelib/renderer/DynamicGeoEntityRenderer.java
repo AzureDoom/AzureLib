@@ -18,7 +18,7 @@ import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -37,7 +37,7 @@ public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable>
 
 	protected ResourceLocation textureOverride = null;
 
-	public DynamicGeoEntityRenderer(EntityRendererProvider.Context renderManager, GeoModel<T> model) {
+	public DynamicGeoEntityRenderer(EntityRendererManager renderManager, GeoModel<T> model) {
 		super(renderManager, model);
 	}
 

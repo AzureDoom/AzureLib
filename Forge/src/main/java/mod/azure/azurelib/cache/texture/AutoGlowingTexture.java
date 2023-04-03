@@ -5,10 +5,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 
-import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.IRenderCall;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
@@ -78,7 +77,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	 */
 	@Nullable
 	@Override
-	protected RenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException {
+	protected IRenderCall loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException {
 		Texture originalTexture;
 
 		try {
@@ -88,7 +87,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		}
 
 		IResource textureBaseResource = resourceManager.getResource(this.textureBase);
-		NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture ? dynamicTexture.getPixels() : NativeImage.read(textureBaseResource.getInputStream());
+		NativeImage baseImage = originalTexture instanceof DynamicTexture ? ((DynamicTexture) originalTexture).getPixels() : NativeImage.read(textureBaseResource.getInputStream());
 		NativeImage glowImage = null;
 		TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata(TextureMetadataSection.SERIALIZER);
 		boolean blur = textureBaseMeta != null && textureBaseMeta.isBlur();
@@ -130,8 +129,8 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		return () -> {
 			uploadSimple(getId(), mask, blur, clamp);
 
-			if (originalTexture instanceof DynamicTexture dynamicTexture) {
-				dynamicTexture.upload();
+			if (originalTexture instanceof DynamicTexture) {
+				((DynamicTexture) originalTexture).upload();
 			} else {
 				uploadSimple(originalTexture.getId(), baseImage, blur, clamp);
 			}

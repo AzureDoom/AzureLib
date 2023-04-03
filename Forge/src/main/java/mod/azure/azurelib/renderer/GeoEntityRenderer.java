@@ -3,7 +3,6 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -17,7 +16,6 @@ import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.model.data.EntityModelData;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
@@ -38,6 +36,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.LightType;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -227,7 +226,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		}
 
 		poseStack.translate(0, 0.01f, 0);
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
+//		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
@@ -322,7 +321,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 				if (!((PlayerEntity) animatable).isModelPartShown(PlayerModelPart.CAPE))
 					return;
 			} else {
-				name = ChatFormatting.stripFormatting(name);
+				name = TextFormatting.stripFormatting(name);
 			}
 
 			if (name != null && (name.equals("Dinnerbone") || name.equalsIgnoreCase("Grumm"))) {

@@ -13,35 +13,35 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Keyframes;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.JSONUtils;
 
 /**
- * {@link Gson} {@link JsonDeserializer} for {@link Animation.Keyframes}.<br>
+ * {@link Gson} {@link JsonDeserializer} for {@link Keyframes}.<br>
  * Acts as the deserialization interface for {@code Keyframes}
  */
-public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
+public class KeyFramesAdapter implements JsonDeserializer<Keyframes> {
 	@Override
-	public Animation.Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+	public Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
 		JsonObject obj = json.getAsJsonObject();
 		SoundKeyframeData[] sounds = buildSoundFrameData(obj);
 		ParticleKeyframeData[] particles = buildParticleFrameData(obj);
 		CustomInstructionKeyframeData[] customInstructions = buildCustomFrameData(obj);
 
-		return new Animation.Keyframes(sounds, particles, customInstructions);
+		return new Keyframes(sounds, particles, customInstructions);
 	}
 
 	private static SoundKeyframeData[] buildSoundFrameData(JsonObject rootObj) {
-		JsonObject soundsObj = GsonHelper.getAsJsonObject(rootObj, "sound_effects", new JsonObject());
+		JsonObject soundsObj = JSONUtils.getAsJsonObject(rootObj, "sound_effects", new JsonObject());
 		SoundKeyframeData[] sounds = new SoundKeyframeData[soundsObj.size()];
 		int index = 0;
 
 		for (Map.Entry<String, JsonElement> entry : soundsObj.entrySet()) {
-			sounds[index] = new SoundKeyframeData(Double.parseDouble(entry.getKey()) * 20d, GsonHelper.getAsString(entry.getValue().getAsJsonObject(), "effect"));
+			sounds[index] = new SoundKeyframeData(Double.parseDouble(entry.getKey()) * 20d, JSONUtils.getAsString(entry.getValue().getAsJsonObject(), "effect"));
 			index++;
 		}
 
@@ -49,15 +49,15 @@ public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
 	}
 
 	private static ParticleKeyframeData[] buildParticleFrameData(JsonObject rootObj) {
-		JsonObject particlesObj = GsonHelper.getAsJsonObject(rootObj, "particle_effects", new JsonObject());
+		JsonObject particlesObj = JSONUtils.getAsJsonObject(rootObj, "particle_effects", new JsonObject());
 		ParticleKeyframeData[] particles = new ParticleKeyframeData[particlesObj.size()];
 		int index = 0;
 
 		for (Map.Entry<String, JsonElement> entry : particlesObj.entrySet()) {
 			JsonObject obj = entry.getValue().getAsJsonObject();
-			String effect = GsonHelper.getAsString(obj, "effect", "");
-			String locator = GsonHelper.getAsString(obj, "locator", "");
-			String script = GsonHelper.getAsString(obj, "pre_effect_script", "");
+			String effect = JSONUtils.getAsString(obj, "effect", "");
+			String locator = JSONUtils.getAsString(obj, "locator", "");
+			String script = JSONUtils.getAsString(obj, "pre_effect_script", "");
 
 			particles[index] = new ParticleKeyframeData(Double.parseDouble(entry.getKey()) * 20d, effect, locator, script);
 			index++;
@@ -67,7 +67,7 @@ public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
 	}
 
 	private static CustomInstructionKeyframeData[] buildCustomFrameData(JsonObject rootObj) {
-		JsonObject customInstructionsObj = GsonHelper.getAsJsonObject(rootObj, "timeline", new JsonObject());
+		JsonObject customInstructionsObj = JSONUtils.getAsJsonObject(rootObj, "timeline", new JsonObject());
 		CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionsObj.size()];
 		int index = 0;
 

@@ -5,9 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
@@ -111,7 +109,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	/**
 	 * The entry render point for this renderer.<br>
 	 * Call this whenever you want to render your object
-	 * @param poseStack The PoseStack to render under
+	 * @param poseStack The MatrixStack to render under
 	 * @param animatable The {@link T} instance to render
 	 * @param bufferSource The BufferSource to render with, or null to use the default
 	 * @param renderType The specific RenderType to use, or null to fall back to {@link GeoRenderer#getRenderType}
@@ -132,7 +130,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	/**
 	 * Called before rendering the model to buffer. Allows for render modifications and preparatory
 	 * work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
+	 * {@link MatrixStack} translations made here are kept until the end of the render process
 	 */
 	@Override
 	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue,
@@ -164,7 +162,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
+//		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick,
 				packedLight, packedOverlay, red, green, blue, alpha);
 		poseStack.popPose();
@@ -188,7 +186,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	}
 	
     /**
-     * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
+     * Scales the {@link MatrixStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
      * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
      */
 	@Override
