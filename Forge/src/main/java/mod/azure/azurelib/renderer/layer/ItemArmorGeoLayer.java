@@ -42,7 +42,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.RenderProperties;
 
 /**
  * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
@@ -136,8 +135,8 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 		if (armorStack == null)
 			return;
 
-		if (armorStack.getItem()instanceof BlockItem && ((BlockItem)armorStack.getItem()).getBlock()instanceof AbstractSkullBlock) {
-			renderSkullAsArmor(poseStack, bone, armorStack, ((AbstractSkullBlock)((BlockItem)armorStack.getItem()).getBlock()), bufferSource, packedLight);
+		if (armorStack.getItem() instanceof BlockItem && ((BlockItem) armorStack.getItem()).getBlock() instanceof AbstractSkullBlock) {
+			renderSkullAsArmor(poseStack, bone, armorStack, ((AbstractSkullBlock) ((BlockItem) armorStack.getItem()).getBlock()), bufferSource, packedLight);
 		} else {
 			EquipmentSlotType slot = getEquipmentSlotForBone(bone, armorStack, animatable);
 			BipedModel<?> model = getModelForItem(bone, slot, armorStack, animatable);
@@ -149,10 +148,10 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 
 				if (model instanceof GeoArmorRenderer<?>) {
 					prepModelPartForRender(poseStack, bone, modelPart);
-					((GeoArmorRenderer<?>)model).prepForRender(animatable, armorStack, slot, model);
-					((GeoArmorRenderer<?>)model).setAllVisible(false);
-					((GeoArmorRenderer<?>)model).applyBoneVisibilityByPart(slot, modelPart, model);
-					((GeoArmorRenderer<?>)model).renderToBuffer(poseStack, null, packedLight, packedOverlay, 1, 1, 1, 1);
+					((GeoArmorRenderer<?>) model).prepForRender(animatable, armorStack, slot, model);
+					((GeoArmorRenderer<?>) model).setAllVisible(false);
+					((GeoArmorRenderer<?>) model).applyBoneVisibilityByPart(slot, modelPart, model);
+					((GeoArmorRenderer<?>) model).renderToBuffer(poseStack, null, packedLight, packedOverlay, 1, 1, 1, 1);
 				} else if (armorStack.getItem() instanceof ArmorItem) {
 					prepModelPartForRender(poseStack, bone, modelPart);
 					renderVanillaArmorPiece(poseStack, animatable, bone, slot, armorStack, modelPart, bufferSource, partialTick, packedLight, packedOverlay);
@@ -172,8 +171,8 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 		ResourceLocation texture = getVanillaArmorResource(animatable, armorStack, slot, "");
 		IVertexBuilder buffer = getArmorBuffer(bufferSource, null, texture, armorStack.hasFoil());
 
-		if (armorStack.getItem()instanceof DyeableArmorItem) {
-			int color = ((DyeableArmorItem)armorStack.getItem()).getColor(armorStack);
+		if (armorStack.getItem() instanceof DyeableArmorItem) {
+			int color = ((DyeableArmorItem) armorStack.getItem()).getColor(armorStack);
 
 			modelPart.render(poseStack, buffer, packedLight, packedOverlay, (color >> 16 & 255) / 255f, (color >> 8 & 255) / 255f, (color & 255) / 255f, 1);
 
@@ -207,7 +206,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	protected BipedModel<?> getModelForItem(GeoBone bone, EquipmentSlotType slot, ItemStack stack, T animatable) {
 		BipedModel<?> defaultModel = slot == EquipmentSlotType.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
 
-		return RenderProperties.get(stack).getArmorModel(null, stack, null, defaultModel);
+		return stack.getItem().getArmorModel(null, stack, null, defaultModel);
 	}
 
 	/**

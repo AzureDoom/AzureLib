@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.util.NativeUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -33,7 +34,6 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.client.RenderProperties;
 
 /**
  * Helper class for various methods and functions useful while rendering
@@ -273,8 +273,8 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForItem(Item item) {
-		if (RenderProperties.get(item).getItemStackRenderer() instanceof GeoRenderer<?>)
-			return RenderProperties.get(item).getItemStackRenderer().getGeoModel();
+		if (item.getItemStackTileEntityRenderer() instanceof GeoRenderer<?>)
+			return ((GeoRenderer<?>) item.getItemStackTileEntityRenderer()).getGeoModel();
 
 		return null;
 	}
@@ -289,7 +289,7 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForBlock(TileEntity blockEntity) {
-		TileEntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(blockEntity);
+		TileEntityRenderer<?> renderer = TileEntityRendererDispatcher.instance.getRenderer(blockEntity);
 
 		return renderer instanceof GeoRenderer<?> ? ((GeoRenderer<?>) renderer).getGeoModel() : null;
 	}
@@ -304,8 +304,8 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForArmor(ItemStack stack) {
-		if (RenderProperties.get(stack).getArmorModel(null, stack, null, null) instanceof GeoArmorRenderer<?>)
-			return RenderProperties.get(stack).getArmorModel(null, stack, null, null).getGeoModel();
+		if (stack.getItem().getArmorModel(null, stack, null, null) instanceof GeoArmorRenderer<?>)
+			return ((GeoArmorRenderer<?>) stack.getItem().getArmorModel(null, stack, null, null)).getGeoModel();
 
 		return null;
 	}
