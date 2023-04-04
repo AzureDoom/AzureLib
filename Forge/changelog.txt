@@ -1,4 +1,3 @@
-v1.0.9
+v1.0.10
 
-- Fixes leads not rendering correctly.
-- Ports scaleModelForRender from Geckolib.
+- Updates for full move to AzureMods repo of all dependencies. 
