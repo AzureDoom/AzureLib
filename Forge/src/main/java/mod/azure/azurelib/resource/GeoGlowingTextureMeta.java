@@ -18,7 +18,7 @@ import net.minecraft.util.JSONUtils;
  * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer emissive texture feature} for a given texture
  */
 public class GeoGlowingTextureMeta {
-	public static final IMetadataSectionSerializer<GeoGlowingTextureMeta> DESERIALIZER = new IMetadataSectionSerializer() {
+	public static final IMetadataSectionSerializer<GeoGlowingTextureMeta> DESERIALIZER = new IMetadataSectionSerializer<GeoGlowingTextureMeta>() {
 		@Override
 		public String getMetadataSectionName() {
 			return "glowsections";
