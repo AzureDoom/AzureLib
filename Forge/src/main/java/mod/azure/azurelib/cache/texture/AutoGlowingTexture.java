@@ -144,6 +144,6 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	 * @param texture The texture of the resource to apply a glow layer to
 	 */
 	public static RenderType getRenderType(ResourceLocation texture) {
-		return GlowRenderType.emissive(texture);
+		return GlowRenderType.emissive(getEmissiveResource(texture));
 	}
 }
