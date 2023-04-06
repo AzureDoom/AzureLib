@@ -8,7 +8,6 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -18,6 +17,7 @@ import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Base {@link GeoRenderer} for rendering in-world armor specifically.<br>
@@ -39,7 +40,7 @@ import net.minecraft.world.item.ItemStack;
  * @param <T>
  */
 public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel implements GeoRenderer<T> {
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;
 
 	protected T animatable;
@@ -68,8 +69,6 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
 
 		this.model = model;
-
-		fireCompileRenderLayersEvent();
 	}
 
 	/**
@@ -132,14 +131,14 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoArmorRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}
@@ -255,7 +254,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		applyBaseModel(this.baseModel);
 		grabRelevantBones(getGeoModel().getBakedModel(getGeoModel().getModelResource(this.animatable)));
 		applyBaseTransformations(this.baseModel);
-
+		scaleModelForBaby(poseStack, animatable, partialTick, isReRender);
 		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
 
 		if (!(this.currentEntity instanceof GeoAnimatable))
@@ -317,13 +316,19 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 								  int packedOverlay, float red, float green, float blue, float alpha) {
 		if (bone.isTrackingMatrices()) {
 			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
 
 			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-			bone.setLocalSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations));
+			bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, getRenderOffset(this.currentEntity, 1).toVector3f()));
+			bone.setWorldSpaceMatrix(RenderUtils.translateMatrix(new Matrix4f(localMatrix), this.currentEntity.position().toVector3f()));
 		}
 
 		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 	}
+
+    public Vec3 getRenderOffset(Entity entity, float f) {
+        return Vec3.ZERO;
+    }
 
 	/**
 	 * Gets and caches the relevant armor model bones for this baked model if it hasn't been done already
@@ -507,6 +512,30 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		setBoneVisible(this.leftLeg, pVisible);
 		setBoneVisible(this.rightBoot, pVisible);
 		setBoneVisible(this.leftBoot, pVisible);
+	}
+
+	/**
+	 * Apply custom scaling to account for {@link net.minecraft.client.model.AgeableListModel AgeableListModel} baby models
+	 */
+	public void scaleModelForBaby(PoseStack poseStack, T animatable, float partialTick, boolean isReRender) {
+		if (!this.young || isReRender)
+			return;
+
+		if (this.currentSlot == EquipmentSlot.HEAD) {
+			if (this.baseModel.scaleHead) {
+				float headScale = 1.5f / this.baseModel.babyHeadScale;
+
+				poseStack.scale(headScale, headScale, headScale);
+			}
+
+			poseStack.translate(0, this.baseModel.babyYHeadOffset / 16f, this.baseModel.babyZHeadOffset / 16f);
+		}
+		else {
+			float bodyScale = 1 / this.baseModel.babyBodyScale;
+
+			poseStack.scale(bodyScale, bodyScale, bodyScale);
+			poseStack.translate(0, this.baseModel.bodyYOffset / 16f, 0);
+		}
 	}
 
 	/**

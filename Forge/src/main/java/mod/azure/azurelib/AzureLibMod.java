@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
- */
-
 package mod.azure.azurelib;
 
 import mod.azure.azurelib.entities.TickingLightBlock;
@@ -32,20 +27,15 @@ public final class AzureLibMod {
 	}
 
 	public class AzureBlocks {
-		public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS,
-				AzureLib.MOD_ID);
+		public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AzureLib.MOD_ID);
 
-		public static final RegistryObject<Block> TICKING_LIGHT_BLOCK = BLOCKS.register("lightblock",
-				() -> new TickingLightBlock());
+		public static final RegistryObject<Block> TICKING_LIGHT_BLOCK = BLOCKS.register("lightblock", () -> new TickingLightBlock());
 	}
 
 	public class AzureEntities {
 
-		public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister
-				.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
+		public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
 
-		public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES
-				.register("lightblock", () -> BlockEntityType.Builder
-						.of(TickingLightEntity::new, AzureBlocks.TICKING_LIGHT_BLOCK.get()).build(null));
+		public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES.register("lightblock", () -> BlockEntityType.Builder.of(TickingLightEntity::new, AzureBlocks.TICKING_LIGHT_BLOCK.get()).build(null));
 	}
 }
