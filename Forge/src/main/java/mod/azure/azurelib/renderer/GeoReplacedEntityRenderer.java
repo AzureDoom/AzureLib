@@ -5,7 +5,6 @@ import java.util.List;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.constant.DataTickets;
@@ -15,6 +14,7 @@ import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.model.data.EntityModelData;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -45,7 +45,7 @@ import net.minecraftforge.common.MinecraftForge;
  */
 public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable> extends EntityRenderer<E> implements GeoRenderer<T> {
 	protected final GeoModel<T> model;
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final T animatable;
 
 	protected E currentEntity;
@@ -61,7 +61,6 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		this.model = model;
 		this.animatable = animatable;
 
-		fireCompileRenderLayersEvent();
 	}
 
 	/**
@@ -113,14 +112,14 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoReplacedEntityRenderer<E, T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}
@@ -144,7 +143,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
+	 * {@link MatrixStack} translations made here are kept until the end of the render process
 	 */
 	@Override
 	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
@@ -169,13 +168,6 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		poseStack.pushPose();
 
 		LivingEntity livingEntity = this.currentEntity instanceof LivingEntity ? (LivingEntity) this.currentEntity : null;
-
-		if (this.currentEntity instanceof MobEntity && !isReRender) {
-			Entity leashHolder = ((MobEntity) this.currentEntity).getLeashHolder();
-
-			if (leashHolder != null)
-				renderLeash((MobEntity) this.currentEntity, partialTick, poseStack, bufferSource, leashHolder);
-		}
 
 		boolean shouldSit = this.currentEntity.isPassenger() && (this.currentEntity.getVehicle() != null && this.currentEntity.getVehicle().shouldRiderSit());
 		float lerpBodyRot = livingEntity == null ? 0 : MathHelper.rotLerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot);
@@ -266,13 +258,18 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	}
 
 	/**
-	 * Called after rendering the model to buffer. Post-render modifications should be performed here.<br>
-	 * {@link PoseStack} transformations will be unused and lost once this method ends
+	 * Call after all other rendering work has taken place, including reverting the {@link MatrixStack}'s state. This method is <u>not</u> called in {@link GeoRenderer#reRender re-render}
 	 */
 	@Override
-	public void postRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		if (!isReRender)
-			super.render(this.currentEntity, 0, partialTick, poseStack, bufferSource, packedLight);
+	public void renderFinal(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+		super.render(this.currentEntity, 0, partialTick, poseStack, bufferSource, packedLight);
+
+		if (this.currentEntity instanceof MobEntity) {
+			Entity leashHolder = ((MobEntity) this.currentEntity).getLeashHolder();
+
+			if (leashHolder != null)
+				renderLeash(((MobEntity) this.currentEntity), partialTick, poseStack, bufferSource, leashHolder);
+		}
 	}
 
 	/**
@@ -425,7 +422,6 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		for (int segment = 24; segment >= 0; --segment) {
 			renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight, entitySkyLight, holderSkyLight, 0.025f, 0.0f, xOffset, zOffset, segment, true);
 		}
-		bufferSource.getBuffer(getGeoModel().getRenderType(animatable, getTextureLocation(animatable)));
 
 		poseStack.popPose();
 	}
@@ -452,7 +448,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	}
 
 	/**
-	 * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
+	 * Scales the {@link MatrixStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
 	 * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
 	 */
 	@Override

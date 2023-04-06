@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.resource.GeoGlowingTextureMeta;
@@ -26,20 +29,24 @@ import net.minecraft.server.packs.resources.ResourceManager;
  * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Emissive-Textures-Glow-Layer">AzureLib Wiki - Glow Layers</a>
  */
 public class AutoGlowingTexture extends GeoAbstractTexture {
-//	private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeEntityTranslucentShader);
-//	private static final RenderStateShard.TransparencyStateShard TRANSPARENCY_STATE = new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
-//		RenderSystem.enableBlend();
-//		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-//	}, () -> {
-//		RenderSystem.disableBlend();
-//		RenderSystem.defaultBlendFunc();
-//	});
-//	private static final RenderStateShard.WriteMaskStateShard WRITE_MASK = new RenderStateShard.WriteMaskStateShard(true, true);
-//	private static final Function<ResourceLocation, RenderType> RENDER_TYPE_FUNCTION = Util.memoize(texture -> {
-//		RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(texture, false, false);
-//
-//		return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder().setShaderState(SHADER_STATE).setTextureState(textureState).setTransparencyState(TRANSPARENCY_STATE).setWriteMaskState(WRITE_MASK).createCompositeState(false));
-//	});
+	
+	static class GlowRenderType extends RenderType {
+
+		public GlowRenderType(String p_i225992_1_, VertexFormat p_i225992_2_, int p_i225992_3_, int p_i225992_4_, boolean p_i225992_5_, boolean p_i225992_6_, Runnable p_i225992_7_, Runnable p_i225992_8_) {
+			super(p_i225992_1_, p_i225992_2_, p_i225992_3_, p_i225992_4_, p_i225992_5_, p_i225992_6_, p_i225992_7_, p_i225992_8_);
+			// TODO Auto-generated constructor stub
+		}
+
+		public static RenderType emissive(ResourceLocation texture) {
+			return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, GL11.GL_QUADS, 256, RenderType.CompositeState.builder()
+					.setAlphaState(RenderType.DEFAULT_ALPHA)
+					.setCullState(RenderType.NO_CULL)
+					.setTextureState(new TextureStateShard(texture, false, false))
+					.setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
+					.setOverlayState(RenderType.OVERLAY)
+					.createCompositeState(true));
+		}
+	}
 	private static final String APPENDIX = "_glowmask";
 
 	protected final ResourceLocation textureBase;
@@ -134,7 +141,6 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	 * @param texture The texture of the resource to apply a glow layer to
 	 */
 	public static RenderType getRenderType(ResourceLocation texture) {
-		return null;
-//		return RENDER_TYPE_FUNCTION.apply(getEmissiveResource(texture));
+		return GlowRenderType.emissive(getEmissiveResource(texture));
 	}
 }

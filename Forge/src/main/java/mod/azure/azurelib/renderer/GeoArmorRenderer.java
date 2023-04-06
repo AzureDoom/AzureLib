@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -17,6 +16,7 @@ import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -35,11 +35,12 @@ import net.minecraftforge.common.MinecraftForge;
 /**
  * Base {@link GeoRenderer} for rendering in-world armor specifically.<br>
  * All custom armor added to be rendered in-world by AzureLib should use an instance of this class.
+ * 
  * @see GeoItem
  * @param <T>
  */
 public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel implements GeoRenderer<T> {
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;
 
 	protected T animatable;
@@ -65,10 +66,9 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	protected EquipmentSlotType currentSlot = null;
 
 	public GeoArmorRenderer(GeoModel<T> model) {
-		super(1.0F);
-		this.model = model;
+		super(1.0f);
 
-		fireCompileRenderLayersEvent();
+		this.model = model;
 	}
 
 	/**
@@ -108,8 +108,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	}
 
 	/**
-	 * Gets the id that represents the current animatable's instance for animation purposes.
-	 * This is mostly useful for things like items, which have a single registered instance for all objects
+	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
 	 */
 	@Override
 	public long getInstanceId(T animatable) {
@@ -131,14 +130,14 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoArmorRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}
@@ -163,6 +162,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'head' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the head model piece, or null if not using it
 	 */
 	@Nullable
@@ -173,6 +173,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'body' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the body model piece, or null if not using it
 	 */
 	@Nullable
@@ -183,6 +184,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'right arm' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right arm model piece, or null if not using it
 	 */
 	@Nullable
@@ -193,6 +195,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'left arm' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left arm model piece, or null if not using it
 	 */
 	@Nullable
@@ -203,6 +206,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'right leg' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right leg model piece, or null if not using it
 	 */
 	@Nullable
@@ -213,6 +217,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'left leg' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left leg model piece, or null if not using it
 	 */
 	@Nullable
@@ -223,6 +228,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'right boot' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right boot model piece, or null if not using it
 	 */
 	@Nullable
@@ -233,6 +239,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	/**
 	 * Returns the 'left boot' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left boot model piece, or null if not using it
 	 */
 	@Nullable
@@ -241,20 +248,17 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	}
 
 	/**
-	 * Called before rendering the model to buffer. Allows for render modifications and preparatory
-	 * work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
+	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
+	 * {@link MatrixStack} translations made here are kept until the end of the render process
 	 */
 	@Override
-	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, @Nullable IRenderTypeBuffer bufferSource,
-						  @Nullable IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight,
-						  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, @Nullable IRenderTypeBuffer bufferSource, @Nullable IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
 
 		applyBaseModel(this.baseModel);
 		grabRelevantBones(getGeoModel().getBakedModel(getGeoModel().getModelResource(this.animatable)));
 		applyBaseTransformations(this.baseModel);
-
+		scaleModelForBaby(poseStack, animatable, partialTick, isReRender);
 		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
 
 		if (!(this.currentEntity instanceof GeoAnimatable))
@@ -262,8 +266,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	}
 
 	@Override
-	public void renderToBuffer(MatrixStack poseStack, IVertexBuilder buffer, int packedLight,
-							   int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderToBuffer(MatrixStack poseStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Minecraft mc = Minecraft.getInstance();
 		IRenderTypeBuffer bufferSource = mc.renderBuffers().bufferSource();
 
@@ -274,8 +277,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
 		buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, this.currentStack.hasFoil());
 
-		defaultRender(poseStack, this.animatable, bufferSource, null, buffer,
-				0, partialTick, packedLight);
+		defaultRender(poseStack, this.animatable, bufferSource, null, buffer, 0, partialTick, packedLight);
 	}
 
 	/**
@@ -283,9 +285,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
 	 */
 	@Override
-	public void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType,
-			IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick,
-							   int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 		poseStack.translate(0, 24 / 16f, 0);
 		poseStack.scale(-1, -1, 1);
@@ -312,8 +312,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
 	@Override
-	public void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight,
-								  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		if (bone.isTrackingMatrices()) {
 			Matrix4f poseState = new Matrix4f(poseStack.last().pose());;
 
@@ -344,12 +343,12 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 
 	/**
 	 * Prepare the renderer for the current render cycle.<br>
-	 * Must be called prior to render as the default HumanoidModel doesn't give render context.<br>
-	 * Params have been left nullable so that the renderer can be called for model/texture purposes safely.
-	 * If you do grab the renderer using null parameters, you should not use it for actual rendering.
-	 * @param entity The entity being rendered with the armor on
-	 * @param stack The ItemStack being rendered
-	 * @param slot The slot being rendered
+	 * Must be called prior to render as the default BipedModel doesn't give render context.<br>
+	 * Params have been left nullable so that the renderer can be called for model/texture purposes safely. If you do grab the renderer using null parameters, you should not use it for actual rendering.
+	 * 
+	 * @param entity    The entity being rendered with the armor on
+	 * @param stack     The ItemStack being rendered
+	 * @param slot      The slot being rendered
 	 * @param baseModel The default (vanilla) model that would have been rendered if this model hadn't replaced it
 	 */
 	public void prepForRender(@Nullable Entity entity, ItemStack stack, @Nullable EquipmentSlotType slot, @Nullable BipedModel<?> baseModel) {
@@ -359,7 +358,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 		this.baseModel = baseModel;
 		this.currentEntity = entity;
 		this.currentStack = stack;
-		this.animatable = (T)stack.getItem();
+		this.animatable = (T) stack.getItem();
 		this.currentSlot = slot;
 	}
 
@@ -375,8 +374,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	}
 
 	/**
-	 * Resets the bone visibility for the model based on the currently rendering slot,
-	 * and then sets bones relevant to the current slot as visible for rendering.<br>
+	 * Resets the bone visibility for the model based on the currently rendering slot, and then sets bones relevant to the current slot as visible for rendering.<br>
 	 * <br>
 	 * This is only called by default for non-geo entities (I.E. players or vanilla mobs)
 	 */
@@ -384,33 +382,32 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 		setAllVisible(false);
 
 		switch (currentSlot) {
-			case HEAD: 
-				setBoneVisible(this.head, true); 
-				return;
-			case CHEST: 
-				setBoneVisible(this.body, true);
-				setBoneVisible(this.rightArm, true);
-				setBoneVisible(this.leftArm, true);
-				
-				return;
-			case LEGS: 
-				setBoneVisible(this.rightLeg, true);
-				setBoneVisible(this.leftLeg, true);
-				
-				return;
-			case FEET:
-				setBoneVisible(this.rightBoot, true);
-				setBoneVisible(this.leftBoot, true);
-				
-				return;
-			default:
-				return;
+		case HEAD:
+			setBoneVisible(this.head, true);
+			return;
+		case CHEST:
+			setBoneVisible(this.body, true);
+			setBoneVisible(this.rightArm, true);
+			setBoneVisible(this.leftArm, true);
+
+			return;
+		case LEGS:
+			setBoneVisible(this.rightLeg, true);
+			setBoneVisible(this.leftLeg, true);
+
+			return;
+		case FEET:
+			setBoneVisible(this.rightBoot, true);
+			setBoneVisible(this.leftBoot, true);
+
+			return;
+		default:
+			return;
 		}
 	}
 
 	/**
-	 * Resets the bone visibility for the model based on the current {@link ModelPart} and {@link EquipmentSlot},
-	 * and then sets the bones relevant to the current part as visible for rendering.<br>
+	 * Resets the bone visibility for the model based on the current {@link ModelRenderer} and {@link EquipmentSlotType}, and then sets the bones relevant to the current part as visible for rendering.<br>
 	 * <br>
 	 * If you are rendering a geo entity with armor, you should probably be calling this prior to rendering
 	 */
@@ -422,20 +419,15 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 
 		if (currentPart == model.hat || currentPart == model.head) {
 			bone = this.head;
-		}
-		else if (currentPart == model.body) {
+		} else if (currentPart == model.body) {
 			bone = this.body;
-		}
-		else if (currentPart == model.leftArm) {
+		} else if (currentPart == model.leftArm) {
 			bone = this.leftArm;
-		}
-		else if (currentPart == model.rightArm) {
+		} else if (currentPart == model.rightArm) {
 			bone = this.rightArm;
-		}
-		else if (currentPart == model.leftLeg) {
+		} else if (currentPart == model.leftLeg) {
 			bone = currentSlot == EquipmentSlotType.FEET ? this.leftBoot : this.leftLeg;
-		}
-		else if (currentPart == model.rightLeg) {
+		} else if (currentPart == model.rightLeg) {
 			bone = currentSlot == EquipmentSlotType.FEET ? this.rightBoot : this.rightLeg;
 		}
 
@@ -513,16 +505,29 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 		setBoneVisible(this.rightBoot, pVisible);
 		setBoneVisible(this.leftBoot, pVisible);
 	}
-	
-    /**
-     * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
-     * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
-     */
-	@Override
-    public void scaleModelForRender(float widthScale, float heightScale, MatrixStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if (!isReRender && (widthScale != 1 || heightScale != 1))
-            poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
-    }
+
+	/**
+	 * Apply custom scaling to account for {@link net.minecraft.client.model.AgeableListModel AgeableListModel} baby models
+	 */
+	public void scaleModelForBaby(MatrixStack poseStack, T animatable, float partialTick, boolean isReRender) {
+		if (!this.young || isReRender)
+			return;
+
+		if (this.currentSlot == EquipmentSlotType.HEAD) {
+			if (this.baseModel.scaleHead) {
+				float headScale = 1.5f / this.baseModel.babyHeadScale;
+
+				poseStack.scale(headScale, headScale, headScale);
+			}
+
+			poseStack.translate(0, this.baseModel.yHeadOffset / 16f, this.baseModel.zHeadOffset / 16f);
+		} else {
+			float bodyScale = 1 / this.baseModel.babyBodyScale;
+
+			poseStack.scale(bodyScale, bodyScale, bodyScale);
+			poseStack.translate(0, this.baseModel.bodyYOffset / 16f, 0);
+		}
+	}
 
 	/**
 	 * Sets a bone as visible or hidden, with nullability
@@ -544,6 +549,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 
 	/**
 	 * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
+	 * 
 	 * @return Whether the renderer should proceed based on the cancellation state of the event
 	 */
 	@Override
@@ -558,5 +564,4 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	public void firePostRenderEvent(MatrixStack poseStack, BakedGeoModel model, IRenderTypeBuffer bufferSource, float partialTick, int packedLight) {
 		MinecraftForge.EVENT_BUS.post(new GeoRenderEvent.Armor.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
-	
 }

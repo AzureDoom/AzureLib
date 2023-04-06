@@ -134,6 +134,8 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		}
 
 		poseStack.popPose();
+
+		renderFinal(poseStack, animatable, model, bufferSource, buffer, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 
 	/**
@@ -200,6 +202,12 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	}
 
 	/**
+	 * Call after all other rendering work has taken place, including reverting the {@link MatrixStack}'s state. This method is <u>not</u> called in {@link GeoRenderer#reRender re-render}
+	 */
+	default void renderFinal(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	}
+
+	/**
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
 	default void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
@@ -208,7 +216,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		renderCubesOfBone(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 
 		if (!isReRender)
-			applyRenderLayersForBone(poseStack, animatable, bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+			applyRenderLayersForBone(poseStack, getAnimatable(), bone, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 
 		renderChildBones(poseStack, animatable, bone, renderType, bufferSource, buffer, false, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		poseStack.popPose();
@@ -251,7 +259,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
 
 		Matrix3f normalisedPoseState = poseStack.last().normal();
-		Matrix4f poseState = poseStack.last().pose();
+		Matrix4f poseState = new Matrix4f(poseStack.last().pose());
 
 		for (GeoQuad quad : cube.quads()) {
 			if (quad == null)
@@ -301,5 +309,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
 	 */
 	default void scaleModelForRender(float widthScale, float heightScale, MatrixStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
+		if (!isReRender && (widthScale != 1 || heightScale != 1))
+			poseStack.scale(widthScale, heightScale, widthScale);
 	}
 }

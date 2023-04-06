@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "mod.azure.azurelib.mixins.fabric",
+  "package": "mod.azure.azurelib.mixins",
   "compatibilityLevel": "JAVA_17",
   "injectors": {
     "defaultRequire": 1
@@ -8,8 +8,7 @@
   "mixins": [
   ],
   "client": [
-    "ItemRendererAccessor",
-    "MixinItemRenderer",
-    "MixinHumanoidArmorLayer"
+    "fabric.MixinItemRenderer",
+    "fabric.MixinHumanoidArmorLayer"
   ]
 }

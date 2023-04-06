@@ -5,7 +5,6 @@ import java.util.List;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.constant.DataTickets;
@@ -15,6 +14,7 @@ import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.model.data.EntityModelData;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -46,7 +46,7 @@ import net.minecraftforge.common.MinecraftForge;
  * This also includes {@link net.minecraft.world.entity.projectile.Projectile Projectiles}
  */
 public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityRenderer<T> implements GeoRenderer<T> {
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;
 
 	protected T animatable;
@@ -61,7 +61,6 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 
 		this.model = model;
 
-		fireCompileRenderLayersEvent();
 	}
 
 	/**
@@ -102,14 +101,14 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoEntityRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}
@@ -158,13 +157,6 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		poseStack.pushPose();
 
 		LivingEntity livingEntity = animatable instanceof LivingEntity ? ((LivingEntity) animatable) : null;
-
-		if (animatable instanceof MobEntity && !isReRender) {
-			Entity leashHolder = ((MobEntity) animatable).getLeashHolder();
-
-			if (leashHolder != null)
-				renderLeash(((MobEntity) animatable), partialTick, poseStack, bufferSource, leashHolder);
-		}
 
 		boolean shouldSit = animatable.isPassenger() && (animatable.getVehicle() != null && animatable.getVehicle().shouldRiderSit());
 		float lerpBodyRot = livingEntity == null ? 0 : MathHelper.rotLerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot);
@@ -246,13 +238,18 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	}
 
 	/**
-	 * Called after rendering the model to buffer. Post-render modifications should be performed here.<br>
-	 * {@link MatrixStack} transformations will be unused and lost once this method ends
+	 * Call after all other rendering work has taken place, including reverting the {@link MatrixStack}'s state. This method is <u>not</u> called in {@link GeoRenderer#reRender re-render}
 	 */
 	@Override
-	public void postRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		if (!isReRender)
-			super.render(animatable, 0, partialTick, poseStack, bufferSource, packedLight);
+	public void renderFinal(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+		super.render(animatable, 0, partialTick, poseStack, bufferSource, packedLight);
+
+		if (animatable instanceof MobEntity) {
+			Entity leashHolder = ((MobEntity) animatable).getLeashHolder();
+
+			if (leashHolder != null)
+				renderLeash(((MobEntity) animatable), partialTick, poseStack, bufferSource, leashHolder);
+		}
 	}
 
 	/**
@@ -405,7 +402,6 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		for (int segment = 24; segment >= 0; --segment) {
 			GeoEntityRenderer.renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight, entitySkyLight, holderSkyLight, 0.025f, 0.0f, xOffset, zOffset, segment, true);
 		}
-		bufferSource.getBuffer(getGeoModel().getRenderType(animatable, getTextureLocation(animatable)));
 
 		poseStack.popPose();
 	}
