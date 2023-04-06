@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.constant.DataTickets;
@@ -17,6 +16,7 @@ import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -35,7 +35,7 @@ import net.minecraftforge.common.MinecraftForge;
  */
 public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements GeoRenderer<T>, BlockEntityRenderer<T> {
 	protected final GeoModel<T> model;
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 
 	protected T animatable;
 	protected float scaleWidth = 1;
@@ -47,7 +47,6 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	public GeoBlockRenderer(GeoModel<T> model) {
 		this.model = model;
 
-		fireCompileRenderLayersEvent();
 	}
 
 	/**
@@ -80,14 +79,14 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoBlockRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}

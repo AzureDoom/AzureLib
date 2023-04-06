@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
- */
-
 package mod.azure.azurelib;
 
 import mod.azure.azurelib.entities.TickingLightBlock;
