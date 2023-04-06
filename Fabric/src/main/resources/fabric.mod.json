@@ -28,7 +28,7 @@
 	],
 	"accessWidener": "azurelib.aw",
 	"depends": {
-   		"fabricloader": ">=0.14.10",
+   		"fabricloader": ">=0.14.14",
 		"fabric": "*",
 		"java": ">=17",
 		"minecraft": "1.19.2"
