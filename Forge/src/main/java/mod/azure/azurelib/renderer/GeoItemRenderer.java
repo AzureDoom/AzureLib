@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -18,6 +17,7 @@ import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -38,7 +38,7 @@ import net.minecraftforge.common.MinecraftForge;
  * All items added to be rendered by AzureLib should use an instance of this class.
  */
 public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntityWithoutLevelRenderer implements GeoRenderer<T> {
-	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();
+	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;
 
 	protected ItemStack currentItemStack;
@@ -60,7 +60,6 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 
 		this.model = model;
 
-		fireCompileRenderLayersEvent();
 	}
 
 	/**
@@ -109,14 +108,14 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers;
+		return this.renderLayers.getRenderLayers();
 	}
 
 	/**
 	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
 	 */
 	public GeoItemRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.add(renderLayer);
+		this.renderLayers.addLayer(renderLayer);
 
 		return this;
 	}
