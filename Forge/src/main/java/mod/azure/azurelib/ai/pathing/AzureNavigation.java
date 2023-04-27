@@ -2,7 +2,10 @@ package mod.azure.azurelib.ai.pathing;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.pathfinding.GroundPathNavigator;
 import net.minecraft.pathfinding.Path;
@@ -20,6 +23,8 @@ import net.minecraft.world.World;
  * https://github.com/BobMowzie/MowziesMobs/blob/master/src/main/java/com/bobmowzie/mowziesmobs/server/ai/MMPathNavigateGround.java
  * */
 public class AzureNavigation extends GroundPathNavigator {
+    @Nullable
+    private BlockPos pathToPosition;
 
 	public AzureNavigation(MobEntity entity, World world) {
 		super(entity, world);
@@ -51,6 +56,46 @@ public class AzureNavigation extends GroundPathNavigator {
 			}
 		}
 		this.doStuckDetection(entityPos);
+	}
+
+    @Override
+    public Path createPath(BlockPos blockPos, int i) {
+        this.pathToPosition = blockPos;
+        return super.createPath(blockPos, i);
+    }
+
+    @Override
+    public Path createPath(Entity entity, int i) {
+        this.pathToPosition = entity.blockPosition();
+        return super.createPath(entity, i);
+    }
+
+    @Override
+    public boolean moveTo(Entity entity, double d) {
+        Path path = this.createPath(entity, 0);
+        if (path != null) {
+            return this.moveTo(path, d);
+        }
+        this.pathToPosition = entity.blockPosition();
+        this.speedModifier = d;
+        return true;
+    }
+
+	@Override
+	public void tick() {
+		super.tick();
+        if (this.isDone()) {
+            if (this.pathToPosition != null) {
+                if (this.pathToPosition.closerThan(this.mob.position(), this.mob.getBbWidth()) || this.mob.getY() > (double)this.pathToPosition.getY() && new BlockPos(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerThan(this.mob.position(), this.mob.getBbWidth())) {
+                    this.pathToPosition = null;
+                } else {
+                    this.mob.getMoveControl().setWantedPosition(this.pathToPosition.getX(), this.pathToPosition.getY(), this.pathToPosition.getZ(), this.speedModifier);
+                }
+            }
+            return;
+        }
+		if (this.getTargetPos() != null)
+			this.mob.getLookControl().setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
 	}
 
 	private boolean isAt(Path path, float threshold) {
