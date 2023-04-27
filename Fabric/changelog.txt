@@ -1,3 +1,3 @@
-v1.0.16
+v1.0.17
 
-- Tweaked versions the library will run on to ensure the proper version.
+- Add climber features to AzureNavigation
