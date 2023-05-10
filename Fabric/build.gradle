@@ -172,12 +172,11 @@ if (file('key.properties').exists()) {
     project {
         apiKey = curseProp.getProperty('curseKey')
         id = "817423"
-        releaseType = "release"
+        releaseType = "beta"
         changelogType = 'text'
         changelog = file('changelog.txt')
-		addGameVersion("1.19.4")
+		addGameVersion("1.20-Snapshot")
         addGameVersion("Fabric")
-        addGameVersion("Quilt")
         addGameVersion("Java 17")
 
         relations {
@@ -205,12 +204,12 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Fabric/Quilt 1.19.4'
+		versionName = 'Fabric 1.20-pre1'
 		uploadFile = remapJar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19.4']
-		versionType = "release"
-		loaders = ['fabric','quilt']
+		gameVersions = ['1.20-pre1']
+		versionType = "beta"
+		loaders = ['fabric']
 		dependencies { 
         	required.project "fabric-api"
    		}

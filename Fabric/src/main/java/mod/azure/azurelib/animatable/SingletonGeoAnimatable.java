@@ -52,7 +52,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
      * @param data          The data to sync
      */
     default <D> void setAnimData(Entity relatedEntity, long instanceId, SerializableDataTicket<D> dataTicket, D data) {
-        if (relatedEntity.level.isClientSide()) {
+        if (relatedEntity.getCommandSenderWorld().isClientSide()) {
             getAnimatableInstanceCache().getManagerForId(instanceId).setData(dataTicket, data);
         } else {
             syncAnimData(instanceId, dataTicket, data, relatedEntity);
@@ -83,7 +83,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
      * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
      */
     default <D> void triggerAnim(Entity relatedEntity, long instanceId, @Nullable String controllerName, String animName) {
-        if (relatedEntity.level.isClientSide()) {
+        if (relatedEntity.getCommandSenderWorld().isClientSide()) {
             getAnimatableInstanceCache().getManagerForId(instanceId).tryTriggerAnimation(controllerName, animName);
         }
         else {

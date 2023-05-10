@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -29,8 +28,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 	public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
 
 	public TickingLightBlock() {
-		super(FabricBlockSettings.of(Material.AIR).sounds(SoundType.CANDLE).lightLevel(litBlockEmission(15))
-				.noOcclusion());
+		super(FabricBlockSettings.of().sounds(SoundType.CANDLE).lightLevel(litBlockEmission(15)).pushReaction(PushReaction.DESTROY).noOcclusion());
 	}
 
 	private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
@@ -54,8 +52,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState p_60555_, BlockGetter p_60556_, BlockPos p_60557_,
-			CollisionContext p_60558_) {
+	public VoxelShape getShape(BlockState p_60555_, BlockGetter p_60556_, BlockPos p_60557_, CollisionContext p_60558_) {
 		return Shapes.empty();
 	}
 
@@ -70,13 +67,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public PushReaction getPistonPushReaction(BlockState state) {
-		return PushReaction.DESTROY;
-	}
-
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
-			BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
 		return createTickerHelper(type, AzureLibMod.TICKING_LIGHT_ENTITY, TickingLightEntity::tick);
 	}
 
