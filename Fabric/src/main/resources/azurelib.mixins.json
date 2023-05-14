@@ -6,10 +6,12 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "fabric.PlayerListMixin"
   ],
   "client": [
     "fabric.ItemRendererAccessor",
     "fabric.MixinItemRenderer",
-    "fabric.MixinHumanoidArmorLayer"
+    "fabric.MixinHumanoidArmorLayer",
+    "fabric.MinecraftMixin"
   ]
 }

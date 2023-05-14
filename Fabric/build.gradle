@@ -37,6 +37,7 @@ repositories {
     maven { url "https://maven.shedaniel.me/" }
 	maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
 	maven { url = "https://maven.terraformersmc.com/" }
+	maven { url "https://maven.terraformersmc.com/releases" } // modmenu
 }
 
 configurations {
@@ -51,6 +52,7 @@ dependencies {
 
     // Actual dependencies
     implementation(include('com.eliotlash.mclib:mclib:20'))
+	modImplementation "com.terraformersmc:modmenu:7.0.0-beta.2"
 
     // Shaded dependencies
     shade 'com.eliotlash.mclib:mclib:20'
