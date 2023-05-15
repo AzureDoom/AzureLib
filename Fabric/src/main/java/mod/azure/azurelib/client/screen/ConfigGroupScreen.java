@@ -26,7 +26,7 @@ public class ConfigGroupScreen extends Screen {
     protected int pageSize;
 
     public ConfigGroupScreen(Screen last, String groupId, List<ConfigHolder<?>> configHolders) {
-        super(Component.translatable("text.configuration.screen.select_config"));
+        super(Component.translatable("text.azurelib.screen.select_config"));
         this.last = last;
         this.groupId = groupId;
         this.configHolders = configHolders;

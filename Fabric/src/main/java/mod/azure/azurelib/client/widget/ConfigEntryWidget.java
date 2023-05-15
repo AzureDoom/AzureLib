@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
 
 public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
 
-    public static final Component EDIT = Component.translatable("text.configuration.value.edit");
-    public static final Component BACK = Component.translatable("text.configuration.value.back");
-    public static final Component REVERT_DEFAULTS = Component.translatable("text.configuration.value.revert.default");
-    public static final Component REVERT_DEFAULTS_DIALOG_TEXT = Component.translatable("text.configuration.value.revert.default.dialog");
-    public static final Component REVERT_CHANGES = Component.translatable("text.configuration.value.revert.changes");
-    public static final Component REVERT_CHANGES_DIALOG_TEXT = Component.translatable("text.configuration.value.revert.changes.dialog");
+    public static final Component EDIT = Component.translatable("text.azurelib.value.edit");
+    public static final Component BACK = Component.translatable("text.azurelib.value.back");
+    public static final Component REVERT_DEFAULTS = Component.translatable("text.azurelib.value.revert.default");
+    public static final Component REVERT_DEFAULTS_DIALOG_TEXT = Component.translatable("text.azurelib.value.revert.default.dialog");
+    public static final Component REVERT_CHANGES = Component.translatable("text.azurelib.value.revert.changes");
+    public static final Component REVERT_CHANGES_DIALOG_TEXT = Component.translatable("text.azurelib.value.revert.changes.dialog");
 
     private final String configId;
     private final List<Component> description;

@@ -1,0 +1,24 @@
+{
+  "text.azureconfig.value.true": "True",
+  "text.azureconfig.value.false": "False",
+  "text.azureconfig.value.edit": "Edit",
+  "text.azureconfig.value.back": "Back",
+  "text.azureconfig.value.revert.default": "Use default config",
+  "text.azureconfig.value.revert.default.dialog": "Are you sure you want to reset config back to default values?",
+  "text.azureconfig.value.revert.changes": "Rollback changes",
+  "text.azureconfig.value.revert.changes.dialog": "Are you sure you want to discard your currently made changes?",
+  "text.azureconfig.value.add_element": "Add element",
+  "text.azureconfig.screen.select_config": "Select config",
+  "text.azureconfig.screen.dialog.confirm": "Confirm",
+  "text.azureconfig.screen.dialog.cancel": "Cancel",
+  "text.azureconfig.screen.color_dialog": "Select color",
+  "text.azureconfig.screen.color.red": "Red: %s",
+  "text.azureconfig.screen.color.green": "Green: %s",
+  "text.azureconfig.screen.color.blue": "Blue: %s",
+  "text.azureconfig.screen.color.alpha": "Alpha: %s",
+
+  "text.azureconfig.error.character_value_empty": "Character field cannot be empty!",
+  "text.azureconfig.error.nan": "Value '%s' is not a valid number!",
+  "text.azureconfig.error.num_bounds": "Value '%s' is not from interval <%s;%s>!",
+  "text.azureconfig.error.pattern_mismatch": "Value '%s' does not match pattern \\%s\\!"
+}

@@ -15,8 +15,8 @@ import net.minecraft.util.Mth;
 
 public class BooleanWidget extends AbstractWidget {
 
-    public static final Component TRUE = Component.translatable("text.configuration.value.true").withStyle(ChatFormatting.GREEN);
-    public static final Component FALSE = Component.translatable("text.configuration.value.false").withStyle(ChatFormatting.RED);
+    public static final Component TRUE = Component.translatable("text.azurelib.value.true").withStyle(ChatFormatting.GREEN);
+    public static final Component FALSE = Component.translatable("text.azurelib.value.false").withStyle(ChatFormatting.RED);
     private final BooleanValue value;
 
     public BooleanWidget(int x, int y, int w, int h, BooleanValue value) {

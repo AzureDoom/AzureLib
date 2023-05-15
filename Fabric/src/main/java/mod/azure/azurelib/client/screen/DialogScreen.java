@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public class DialogScreen extends Screen {
 
-    public static final Component TEXT_CONFIRM = Component.translatable("text.configuration.screen.dialog.confirm");
-    public static final Component TEXT_CANCEL = Component.translatable("text.configuration.screen.dialog.cancel");
+    public static final Component TEXT_CONFIRM = Component.translatable("text.azurelib.screen.dialog.confirm");
+    public static final Component TEXT_CANCEL = Component.translatable("text.azurelib.screen.dialog.cancel");
 
     private final Screen background;
     private DialogRespondEvent onCancel;

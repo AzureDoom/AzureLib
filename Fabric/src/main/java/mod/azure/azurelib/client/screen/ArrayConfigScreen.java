@@ -24,7 +24,7 @@ import net.minecraft.util.FormattedCharSequence;
 
 public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends AbstractConfigScreen {
 
-    public static final Component ADD_ELEMENT = Component.translatable("text.configuration.value.add_element");
+    public static final Component ADD_ELEMENT = Component.translatable("text.azurelib.value.add_element");
 
     public final C array;
     private final boolean fixedSize;

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public final class ColorWidget extends AbstractWidget {
 
-    public static final Component SELECT_COLOR = Component.translatable("text.configuration.screen.color_dialog");
+    public static final Component SELECT_COLOR = Component.translatable("text.azurelib.screen.color_dialog");
     private final boolean argb;
     private final String colorPrefix;
     private final IntSupplier colorSupplier;
@@ -217,7 +217,7 @@ public final class ColorWidget extends AbstractWidget {
                 this.bitOffset = bitOffset;
                 this.title = val -> {
                     String name = this.name().toLowerCase();
-                    String translate = "text.configuration.screen.color." + name;
+                    String translate = "text.azurelib.screen.color." + name;
                     int colorValue = (int) (val * 255);
                     return Component.translatable(translate, colorValue);
                 };
