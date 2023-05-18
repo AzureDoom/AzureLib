@@ -1,3 +1,3 @@
-v1.0.14
+v1.0.15
 
-- Fixes missing lang entries on config screens
+- Fixes broken lang entries on config screens
