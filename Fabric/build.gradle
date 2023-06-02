@@ -38,6 +38,7 @@ repositories {
 	maven { url = "https://ladysnake.jfrog.io/artifactory/mods" }
 	maven { url = "https://maven.terraformersmc.com/" }
 	maven { url "https://maven.terraformersmc.com/releases" } // modmenu
+	maven { url 'https://api.modrinth.com/maven' }
 }
 
 configurations {
@@ -53,6 +54,8 @@ dependencies {
     // Actual dependencies
     implementation(include('com.eliotlash.mclib:mclib:20'))
 	modImplementation "com.terraformersmc:modmenu:6.2.2"
+    modImplementation "maven.modrinth:iris:1.6.3+1.19.4"
+    modImplementation "maven.modrinth:sodium:mc1.19.4-0.4.10"
 
     // Shaded dependencies
     shade 'com.eliotlash.mclib:mclib:20'
