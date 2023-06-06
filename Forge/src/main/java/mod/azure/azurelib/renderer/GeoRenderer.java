@@ -16,6 +16,7 @@ import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.object.Color;
@@ -152,6 +153,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
 	 */
 	default void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+		updateAnimatedTextureFrame(animatable);
 		for (GeoBone group : model.topLevelBones()) {
 			renderRecursively(poseStack, animatable, group, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		}
@@ -309,4 +311,12 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		if (!isReRender && (widthScale != 1 || heightScale != 1))
 			poseStack.scale(widthScale, heightScale, widthScale);
 	}
+
+	/**
+	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
+	 * This should only be called immediately prior to rendering, and only
+	 * 
+	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+	 */
+	void updateAnimatedTextureFrame(T animatable);
 }

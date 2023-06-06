@@ -11,6 +11,7 @@ import com.mojang.math.Matrix4f;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
@@ -538,6 +539,18 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 			return;
 
 		bone.setHidden(!visible);
+	}
+
+	/**
+	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
+	 * This should only be called immediately prior to rendering, and only
+	 * 
+	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+	 */
+	@Override
+	public void updateAnimatedTextureFrame(T animatable) {
+		if (this.currentEntity != null)
+			AnimatableTexture.setAndUpdate(getTextureLocation(animatable), this.currentEntity.getId() + this.currentEntity.tickCount);
 	}
 
 	/**

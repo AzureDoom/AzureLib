@@ -2,7 +2,6 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
@@ -10,6 +9,7 @@ import com.mojang.math.Vector3f;
 
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
@@ -42,8 +42,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 
 /**
- * An alternate to {@link GeoEntityRenderer}, used specifically for replacing existing non-AzureLib
- * entities with AzureLib rendering dynamically, without the need for an additional entity class
+ * An alternate to {@link GeoEntityRenderer}, used specifically for replacing existing non-AzureLib entities with AzureLib rendering dynamically, without the need for an additional entity class
  */
 public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable> extends EntityRenderer<E> implements GeoRenderer<T> {
 	protected final GeoModel<T> model;
@@ -75,6 +74,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Gets the {@link GeoAnimatable} instance currently being rendered
+	 * 
 	 * @see GeoReplacedEntityRenderer#getCurrentEntity()
 	 */
 	@Override
@@ -84,6 +84,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Returns the current entity having its rendering replaced by this renderer
+	 * 
 	 * @see GeoReplacedEntityRenderer#getAnimatable()
 	 */
 	public E getCurrentEntity() {
@@ -91,8 +92,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	}
 
 	/**
-	 * Gets the id that represents the current animatable's instance for animation purposes.
-	 * This is mostly useful for things like items, which have a single registered instance for all objects
+	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
 	 */
 	@Override
 	public long getInstanceId(T animatable) {
@@ -143,13 +143,11 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	}
 
 	/**
-	 * Called before rendering the model to buffer. Allows for render modifications and preparatory
-	 * work such as scaling and translating.<br>
+	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
 	 * {@link PoseStack} translations made here are kept until the end of the render process
 	 */
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue,
-						  float alpha) {
+	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		this.entityRenderTranslations = poseStack.last().pose();
 
 		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
@@ -177,7 +175,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		float lerpHeadRot = livingEntity == null ? 0 : Mth.rotLerp(partialTick, livingEntity.yHeadRotO, livingEntity.yHeadRot);
 		float netHeadYaw = lerpHeadRot - lerpBodyRot;
 
-		if (shouldSit && this.currentEntity.getVehicle() instanceof LivingEntity livingentity) {
+		if (shouldSit && this.currentEntity.getVehicle()instanceof LivingEntity livingentity) {
 			lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
 			netHeadYaw = lerpHeadRot - lerpBodyRot;
 			float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
@@ -222,11 +220,10 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 		if (livingEntity != null) {
 			Vec3 velocity = livingEntity.getDeltaMovement();
-			float avgVelocity = (float)(Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f;
+			float avgVelocity = (float) (Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f;
 
 			isMoving = avgVelocity >= motionThreshold && limbSwingAmount != 0;
-		}
-		else {
+		} else {
 			isMoving = (limbSwingAmount <= -motionThreshold || limbSwingAmount >= motionThreshold);
 		}
 
@@ -242,7 +239,6 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		}
 
 		poseStack.translate(0, 0.01f, 0);
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
@@ -280,8 +276,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
 	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
-								  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 		RenderUtils.translateMatrixToBone(poseStack, bone);
 		RenderUtils.translateToPivotPoint(poseStack, bone);
@@ -316,8 +311,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	/**
 	 * Applies rotation transformations to the renderer prior to render time to account for various entity states
 	 */
-	protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw,
-								  float partialTick) {
+	protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
 		Pose pose = this.currentEntity.getPose();
 		LivingEntity livingEntity = this.currentEntity instanceof LivingEntity entity ? entity : null;
 
@@ -328,26 +322,22 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 			float deathRotation = (livingEntity.deathTime + partialTick - 1f) / 20f * 1.6f;
 
 			poseStack.mulPose(Vector3f.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * getDeathMaxRotation(animatable)));
-		}
-		else if (livingEntity != null && livingEntity.isAutoSpinAttack()) {
+		} else if (livingEntity != null && livingEntity.isAutoSpinAttack()) {
 			poseStack.mulPose(Vector3f.XP.rotationDegrees(-90f - livingEntity.getXRot()));
 			poseStack.mulPose(Vector3f.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
-		}
-		else if (livingEntity != null && pose == Pose.SLEEPING) {
+		} else if (livingEntity != null && pose == Pose.SLEEPING) {
 			Direction bedOrientation = livingEntity.getBedOrientation();
 
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw));
 			poseStack.mulPose(Vector3f.ZP.rotationDegrees(getDeathMaxRotation(animatable)));
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(270f));
-		}
-		else if (this.currentEntity.hasCustomName() || this.currentEntity instanceof Player) {
+		} else if (this.currentEntity.hasCustomName() || this.currentEntity instanceof Player) {
 			String name = this.currentEntity.getName().getString();
 
 			if (this.currentEntity instanceof Player player) {
 				if (!player.isModelPartShown(PlayerModelPart.CAPE))
 					return;
-			}
-			else {
+			} else {
 				name = ChatFormatting.stripFormatting(name);
 			}
 
@@ -383,25 +373,21 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Gets a packed overlay coordinate pair for rendering.<br>
-	 * Mostly just used for the red tint when an entity is hurt,
-	 * but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper}
-	 * white tint when exploding.
+	 * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
 	 */
 	@Override
 	public int getPackedOverlay(T animatable, float u) {
 		if (!(this.currentEntity instanceof LivingEntity entity))
 			return OverlayTexture.NO_OVERLAY;
 
-		return OverlayTexture.pack(OverlayTexture.u(u),
-				OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0));
+		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0));
 	}
 
 	/**
 	 * Static rendering code for rendering a leash segment.<br>
 	 * It's a like-for-like from {@link net.minecraft.client.renderer.entity.MobRenderer#renderLeash} that had to be duplicated here for flexible usage
 	 */
-	public <H extends Entity, M extends Mob> void renderLeash(M mob, float partialTick, PoseStack poseStack,
-															  MultiBufferSource bufferSource, H leashHolder) {
+	public <H extends Entity, M extends Mob> void renderLeash(M mob, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, H leashHolder) {
 		double lerpBodyAngle = (Mth.lerp(partialTick, mob.yBodyRotO, mob.yBodyRot) * Mth.DEG_TO_RAD) + Mth.HALF_PI;
 		Vec3 leashOffset = mob.getLeashOffset();
 		double xAngleOffset = Math.cos(lerpBodyAngle) * leashOffset.z + Math.sin(lerpBodyAngle) * leashOffset.x;
@@ -410,16 +396,16 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		double lerpOriginY = Mth.lerp(partialTick, mob.yo, mob.getY()) + leashOffset.y;
 		double lerpOriginZ = Mth.lerp(partialTick, mob.zo, mob.getZ()) + zAngleOffset;
 		Vec3 ropeGripPosition = leashHolder.getRopeHoldPosition(partialTick);
-		float xDif = (float)(ropeGripPosition.x - lerpOriginX);
-		float yDif = (float)(ropeGripPosition.y - lerpOriginY);
-		float zDif = (float)(ropeGripPosition.z - lerpOriginZ);
+		float xDif = (float) (ropeGripPosition.x - lerpOriginX);
+		float yDif = (float) (ropeGripPosition.y - lerpOriginY);
+		float zDif = (float) (ropeGripPosition.z - lerpOriginZ);
 		float offsetMod = Mth.fastInvSqrt(xDif * xDif + zDif * zDif) * 0.025f / 2f;
 		float xOffset = zDif * offsetMod;
 		float zOffset = xDif * offsetMod;
 		VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.leash());
 		BlockPos entityEyePos = new BlockPos(mob.getEyePosition(partialTick));
 		BlockPos holderEyePos = new BlockPos(leashHolder.getEyePosition(partialTick));
-		int entityBlockLight = getBlockLightLevel((E)mob, entityEyePos);
+		int entityBlockLight = getBlockLightLevel((E) mob, entityEyePos);
 		int holderBlockLight = leashHolder.isOnFire() ? 15 : leashHolder.level.getBrightness(LightLayer.BLOCK, holderEyePos);
 		int entitySkyLight = mob.level.getBrightness(LightLayer.SKY, entityEyePos);
 		int holderSkyLight = mob.level.getBrightness(LightLayer.SKY, holderEyePos);
@@ -430,13 +416,11 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		Matrix4f posMatrix = new Matrix4f(poseStack.last().pose());;
 
 		for (int segment = 0; segment <= 24; ++segment) {
-			renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight,
-					entitySkyLight, holderSkyLight, 0.025f, 0.025f, xOffset, zOffset, segment, false);
+			renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight, entitySkyLight, holderSkyLight, 0.025f, 0.025f, xOffset, zOffset, segment, false);
 		}
 
 		for (int segment = 24; segment >= 0; --segment) {
-			renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight,
-					entitySkyLight, holderSkyLight, 0.025f, 0.0f, xOffset, zOffset, segment, true);
+			renderLeashPiece(vertexConsumer, posMatrix, xDif, yDif, zDif, entityBlockLight, holderBlockLight, entitySkyLight, holderSkyLight, 0.025f, 0.0f, xOffset, zOffset, segment, true);
 		}
 
 		poseStack.popPose();
@@ -446,12 +430,10 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 * Static rendering code for rendering a leash segment.<br>
 	 * It's a like-for-like from {@link net.minecraft.client.renderer.entity.MobRenderer#addVertexPair} that had to be duplicated here for flexible usage
 	 */
-	private static void renderLeashPiece(VertexConsumer buffer, Matrix4f positionMatrix, float xDif, float yDif,
-										 float zDif, int entityBlockLight, int holderBlockLight, int entitySkyLight,
-										 int holderSkyLight, float width, float yOffset, float xOffset, float zOffset, int segment, boolean isLeashKnot) {
+	private static void renderLeashPiece(VertexConsumer buffer, Matrix4f positionMatrix, float xDif, float yDif, float zDif, int entityBlockLight, int holderBlockLight, int entitySkyLight, int holderSkyLight, float width, float yOffset, float xOffset, float zOffset, int segment, boolean isLeashKnot) {
 		float piecePosPercent = segment / 24f;
-		int lerpBlockLight = (int)Mth.lerp(piecePosPercent, entityBlockLight, holderBlockLight);
-		int lerpSkyLight = (int)Mth.lerp(piecePosPercent, entitySkyLight, holderSkyLight);
+		int lerpBlockLight = (int) Mth.lerp(piecePosPercent, entityBlockLight, holderBlockLight);
+		int lerpSkyLight = (int) Mth.lerp(piecePosPercent, entitySkyLight, holderSkyLight);
 		int packedLight = LightTexture.pack(lerpBlockLight, lerpSkyLight);
 		float knotColourMod = segment % 2 == (isLeashKnot ? 1 : 0) ? 0.7f : 1f;
 		float red = 0.5f * knotColourMod;
@@ -464,16 +446,17 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		buffer.vertex(positionMatrix, x - xOffset, y + yOffset, z + zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 		buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 	}
-	
-    /**
-     * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
-     * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
-     */
+
+	/**
+	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
+	 * This should only be called immediately prior to rendering, and only
+	 * 
+	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+	 */
 	@Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if (!isReRender && (widthScale != 1 || heightScale != 1))
-            poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
-    }
+	public void updateAnimatedTextureFrame(T animatable) {
+		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), this.currentEntity.getId() + (int) animatable.getTick(this.currentEntity));
+	}
 
 	/**
 	 * Create and fire the relevant {@code CompileLayers} event hook for this renderer
@@ -485,6 +468,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
+	 * 
 	 * @return Whether the renderer should proceed based on the cancellation state of the event
 	 */
 	@Override
