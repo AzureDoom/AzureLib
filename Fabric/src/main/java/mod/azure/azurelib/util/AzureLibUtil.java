@@ -76,4 +76,8 @@ public final class AzureLibUtil {
 	synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
 		return DataTickets.registerSerializable(dataTicket);
 	}
+
+	public static boolean isMultipleOf(int p_265754_, int p_265543_) {
+		return p_265754_ % p_265543_ == 0;
+	}
 }
