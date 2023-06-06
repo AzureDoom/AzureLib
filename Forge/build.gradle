@@ -9,6 +9,7 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
         classpath 'org.parchmentmc:librarian:1.+'
@@ -25,6 +26,7 @@ apply plugin: 'com.matthewprenger.cursegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "com.modrinth.minotaur"
+apply plugin: 'org.spongepowered.mixin'
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import groovy.json.JsonOutput
@@ -56,9 +58,10 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
 
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            args "-mixin.config=azurelib.mixins.json"
 
             mods {
-                geckolib {
+                azurelib {
                     source sourceSets.main
                 }
             }
@@ -79,15 +82,22 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            args "-mixin.config=azurelib.mixins.json"
 
             mods {
-                geckolib {
+                azurelib {
                     source sourceSets.main
                 }
             }
         }
     }
 }
+
+mixin { 
+    add sourceSets.main, "azurelib.refmap.json"
+    config "azurelib.mixins.json"
+}
+
 
 minecraft.runs.all {
     lazyToken('minecraft_classpath') {
@@ -110,6 +120,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.19.2-43.2.6'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 shadowJar {
