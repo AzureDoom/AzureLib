@@ -85,7 +85,7 @@ public class AnimatableManager<T extends GeoAnimatable> {
 		this.firstTickTime = time;
 	}
 
-	protected boolean isFirstTick() {
+	public boolean isFirstTick() {
 		return this.isFirstTick;
 	}
 
