@@ -12,6 +12,7 @@
     "fabric.ItemRendererAccessor",
     "fabric.MixinItemRenderer",
     "fabric.MixinHumanoidArmorLayer",
-    "fabric.MinecraftMixin"
+    "fabric.MinecraftMixin",
+    "fabric.TextureManagerMixin"
   ]
 }
