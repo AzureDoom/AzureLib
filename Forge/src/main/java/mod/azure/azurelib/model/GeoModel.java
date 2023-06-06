@@ -1,12 +1,8 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
@@ -14,19 +10,23 @@ import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
-import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.AnimationProcessor;
+import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.util.RenderUtils;
-
-import java.util.Optional;
-import java.util.function.BiConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Base class for all code-based model objects.<br>
@@ -140,12 +140,17 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + mc.getFrameTime());
 
-		if (!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused()) {
+		double currentFrameTime = animatable instanceof LivingEntity ? currentTick + mc.getFrameTime() : currentTick - animatableManager.getFirstTickTime();
+
+		if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
+			return;
+
+		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
 			if (animatable instanceof LivingEntity) {
-				animatableManager.updatedAt(currentTick + mc.getFrameTime());
+				animatableManager.updatedAt(currentFrameTime);
 			}
 			else {
-				animatableManager.updatedAt(currentTick - animatableManager.getFirstTickTime());
+				animatableManager.updatedAt(currentFrameTime);
 			}
 
 			double lastUpdateTime = animatableManager.getLastUpdateTime();
