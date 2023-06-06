@@ -6,12 +6,12 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.event.GeoRenderEvent;
@@ -164,7 +164,6 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 
 		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick,
 				packedLight, packedOverlay, red, green, blue, alpha);
 		poseStack.popPose();
@@ -192,15 +191,15 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 		return Vec3.ZERO;
 	}
 	
-    /**
-     * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as part of a {@link GeoRenderLayer} or external render call.<br>
-     * Override and call super with modified scale values as needed to further modify the scale of the model (E.G. child entities)
-     */
+	/**
+	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
+	 * This should only be called immediately prior to rendering, and only
+	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+	 */
 	@Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, T animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if (!isReRender && (widthScale != 1 || heightScale != 1))
-            poseStack.scale(this.scaleWidth, this.scaleHeight, this.scaleWidth);
-    }
+	public void updateAnimatedTextureFrame(T animatable) {
+		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), (int)animatable.getTick(animatable));
+	}
 
 	/**
 	 * Create and fire the relevant {@code CompileLayers} event hook for this renderer

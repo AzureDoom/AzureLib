@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
@@ -38,6 +39,7 @@ import net.minecraftforge.common.MinecraftForge;
 /**
  * Base {@link GeoRenderer} for rendering in-world armor specifically.<br>
  * All custom armor added to be rendered in-world by AzureLib should use an instance of this class.
+ * 
  * @see GeoItem
  * @param <T>
  */
@@ -110,8 +112,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	}
 
 	/**
-	 * Gets the id that represents the current animatable's instance for animation purposes.
-	 * This is mostly useful for things like items, which have a single registered instance for all objects
+	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
 	 */
 	@Override
 	public long getInstanceId(T animatable) {
@@ -165,6 +166,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'head' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the head model piece, or null if not using it
 	 */
 	@Nullable
@@ -175,6 +177,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'body' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the body model piece, or null if not using it
 	 */
 	@Nullable
@@ -185,6 +188,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'right arm' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right arm model piece, or null if not using it
 	 */
 	@Nullable
@@ -195,6 +199,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'left arm' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left arm model piece, or null if not using it
 	 */
 	@Nullable
@@ -205,6 +210,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'right leg' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right leg model piece, or null if not using it
 	 */
 	@Nullable
@@ -215,6 +221,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'left leg' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left leg model piece, or null if not using it
 	 */
 	@Nullable
@@ -225,6 +232,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'right boot' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the right boot model piece, or null if not using it
 	 */
 	@Nullable
@@ -235,6 +243,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Returns the 'left boot' GeoBone from this model.<br>
 	 * Override if your geo model has different bone names for these bones
+	 * 
 	 * @return The bone for the left boot model piece, or null if not using it
 	 */
 	@Nullable
@@ -243,14 +252,11 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	}
 
 	/**
-	 * Called before rendering the model to buffer. Allows for render modifications and preparatory
-	 * work such as scaling and translating.<br>
+	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
 	 * {@link PoseStack} translations made here are kept until the end of the render process
 	 */
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource,
-						  @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
-						  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
 
 		applyBaseModel(this.baseModel);
@@ -264,8 +270,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight,
-							   int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Minecraft mc = Minecraft.getInstance();
 		MultiBufferSource bufferSource = mc.renderBuffers().bufferSource();
 
@@ -276,8 +281,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
 		buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, this.currentStack.hasFoil());
 
-		defaultRender(poseStack, this.animatable, bufferSource, null, buffer,
-				0, partialTick, packedLight);
+		defaultRender(poseStack, this.animatable, bufferSource, null, buffer, 0, partialTick, packedLight);
 	}
 
 	/**
@@ -285,9 +289,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
 	 */
 	@Override
-	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType,
-							   MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick,
-							   int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		poseStack.pushPose();
 		poseStack.translate(0, 24 / 16f, 0);
 		poseStack.scale(-1, -1, 1);
@@ -314,8 +316,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * Renders the provided {@link GeoBone} and its associated child bones
 	 */
 	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
-								  int packedOverlay, float red, float green, float blue, float alpha) {
+	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		if (bone.isTrackingMatrices()) {
 			Matrix4f poseState = new Matrix4f(poseStack.last().pose());;
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
@@ -328,9 +329,9 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 
-    public Vec3 getRenderOffset(Entity entity, float f) {
-        return Vec3.ZERO;
-    }
+	public Vec3 getRenderOffset(Entity entity, float f) {
+		return Vec3.ZERO;
+	}
 
 	/**
 	 * Gets and caches the relevant armor model bones for this baked model if it hasn't been done already
@@ -353,11 +354,11 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Prepare the renderer for the current render cycle.<br>
 	 * Must be called prior to render as the default HumanoidModel doesn't give render context.<br>
-	 * Params have been left nullable so that the renderer can be called for model/texture purposes safely.
-	 * If you do grab the renderer using null parameters, you should not use it for actual rendering.
-	 * @param entity The entity being rendered with the armor on
-	 * @param stack The ItemStack being rendered
-	 * @param slot The slot being rendered
+	 * Params have been left nullable so that the renderer can be called for model/texture purposes safely. If you do grab the renderer using null parameters, you should not use it for actual rendering.
+	 * 
+	 * @param entity    The entity being rendered with the armor on
+	 * @param stack     The ItemStack being rendered
+	 * @param slot      The slot being rendered
 	 * @param baseModel The default (vanilla) model that would have been rendered if this model hadn't replaced it
 	 */
 	public void prepForRender(@Nullable Entity entity, ItemStack stack, @Nullable EquipmentSlot slot, @Nullable HumanoidModel<?> baseModel) {
@@ -367,7 +368,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		this.baseModel = baseModel;
 		this.currentEntity = entity;
 		this.currentStack = stack;
-		this.animatable = (T)stack.getItem();
+		this.animatable = (T) stack.getItem();
 		this.currentSlot = slot;
 	}
 
@@ -383,8 +384,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	}
 
 	/**
-	 * Resets the bone visibility for the model based on the currently rendering slot,
-	 * and then sets bones relevant to the current slot as visible for rendering.<br>
+	 * Resets the bone visibility for the model based on the currently rendering slot, and then sets bones relevant to the current slot as visible for rendering.<br>
 	 * <br>
 	 * This is only called by default for non-geo entities (I.E. players or vanilla mobs)
 	 */
@@ -392,27 +392,27 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		setAllVisible(false);
 
 		switch (currentSlot) {
-			case HEAD -> setBoneVisible(this.head, true);
-			case CHEST -> {
-				setBoneVisible(this.body, true);
-				setBoneVisible(this.rightArm, true);
-				setBoneVisible(this.leftArm, true);
-			}
-			case LEGS -> {
-				setBoneVisible(this.rightLeg, true);
-				setBoneVisible(this.leftLeg, true);
-			}
-			case FEET -> {
-				setBoneVisible(this.rightBoot, true);
-				setBoneVisible(this.leftBoot, true);
-			}
-			default -> {}
+		case HEAD -> setBoneVisible(this.head, true);
+		case CHEST -> {
+			setBoneVisible(this.body, true);
+			setBoneVisible(this.rightArm, true);
+			setBoneVisible(this.leftArm, true);
+		}
+		case LEGS -> {
+			setBoneVisible(this.rightLeg, true);
+			setBoneVisible(this.leftLeg, true);
+		}
+		case FEET -> {
+			setBoneVisible(this.rightBoot, true);
+			setBoneVisible(this.leftBoot, true);
+		}
+		default -> {
+		}
 		}
 	}
 
 	/**
-	 * Resets the bone visibility for the model based on the current {@link ModelPart} and {@link EquipmentSlot},
-	 * and then sets the bones relevant to the current part as visible for rendering.<br>
+	 * Resets the bone visibility for the model based on the current {@link ModelPart} and {@link EquipmentSlot}, and then sets the bones relevant to the current part as visible for rendering.<br>
 	 * <br>
 	 * If you are rendering a geo entity with armor, you should probably be calling this prior to rendering
 	 */
@@ -424,20 +424,15 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 
 		if (currentPart == model.hat || currentPart == model.head) {
 			bone = this.head;
-		}
-		else if (currentPart == model.body) {
+		} else if (currentPart == model.body) {
 			bone = this.body;
-		}
-		else if (currentPart == model.leftArm) {
+		} else if (currentPart == model.leftArm) {
 			bone = this.leftArm;
-		}
-		else if (currentPart == model.rightArm) {
+		} else if (currentPart == model.rightArm) {
 			bone = this.rightArm;
-		}
-		else if (currentPart == model.leftLeg) {
+		} else if (currentPart == model.leftLeg) {
 			bone = currentSlot == EquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
-		}
-		else if (currentPart == model.rightLeg) {
+		} else if (currentPart == model.rightLeg) {
 			bone = currentSlot == EquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
 		}
 
@@ -531,8 +526,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 			}
 
 			poseStack.translate(0, this.baseModel.babyYHeadOffset / 16f, this.baseModel.babyZHeadOffset / 16f);
-		}
-		else {
+		} else {
 			float bodyScale = 1 / this.baseModel.babyBodyScale;
 
 			poseStack.scale(bodyScale, bodyScale, bodyScale);
@@ -549,7 +543,19 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 
 		bone.setHidden(!visible);
 	}
-	
+
+	/**
+	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
+	 * This should only be called immediately prior to rendering, and only
+	 * 
+	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+	 */
+	@Override
+	public void updateAnimatedTextureFrame(T animatable) {
+		if (this.currentEntity != null)
+			AnimatableTexture.setAndUpdate(getTextureLocation(animatable), this.currentEntity.getId() + this.currentEntity.tickCount);
+	}
+
 	/**
 	 * Create and fire the relevant {@code CompileLayers} event hook for this renderer
 	 */
@@ -560,6 +566,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 
 	/**
 	 * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
+	 * 
 	 * @return Whether the renderer should proceed based on the cancellation state of the event
 	 */
 	@Override
