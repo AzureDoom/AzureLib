@@ -1,15 +1,17 @@
 package mod.azure.azurelib.animatable;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.PacketDistributor;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.AnimTriggerPacket;
-
-import javax.annotation.Nullable;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to singleton objects.
@@ -99,5 +101,14 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 */
 	default <D> void triggerAnim(long instanceId, @Nullable String controllerName, String animName, PacketDistributor.PacketTarget packetTarget) {
 		AzureLibNetwork.send(new AnimTriggerPacket<>(getClass().toString(), instanceId, controllerName, animName), packetTarget);
+	}
+
+	/**
+	 * Override the default handling for instantiating an AnimatableInstanceCache for this animatable.<br>
+	 * Don't override this unless you know what you're doing.
+	 */
+	@Override
+	default @Nullable AnimatableInstanceCache animatableCacheOverride() {
+		return new SingletonAnimatableInstanceCache(this);
 	}
 }
