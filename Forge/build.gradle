@@ -9,6 +9,7 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
         classpath 'org.parchmentmc:librarian:1.+'
@@ -25,6 +26,7 @@ apply plugin: 'com.matthewprenger.cursegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "com.modrinth.minotaur"
+apply plugin: 'org.spongepowered.mixin'
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import groovy.json.JsonOutput
@@ -44,7 +46,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.19.4'
+    mappings channel: 'official', version: '1.20'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -58,7 +60,7 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
-                geckolib {
+                azurelib {
                     source sourceSets.main
                 }
             }
@@ -81,13 +83,19 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
-                geckolib {
+                azurelib {
                     source sourceSets.main
                 }
             }
         }
     }
 }
+
+mixin { 
+    add sourceSets.main, "azurelib.refmap.json"
+    config "azurelib.mixins.json"
+}
+
 
 minecraft.runs.all {
     lazyToken('minecraft_classpath') {
@@ -100,16 +108,17 @@ repositories {
     maven { url "https://maven.enginehub.org/repo/" }
     maven { url "https://maven.blamejared.com" }
     maven { url "https://minecraft.curseforge.com/api/maven/" }
-    maven { url "https://maven.cloudsmith.io/geckolib3/geckolib/" }
+    maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
 	maven { url "https://cursemaven.com" }
     maven { url "https://plugins.gradle.org/m2/" }
     mavenCentral()
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.6'
+    minecraft 'net.minecraftforge:forge:1.20-46.0.0'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 shadowJar {
@@ -226,7 +235,7 @@ if (file('key.properties').exists()) {
             releaseType = "release"
             changelogType = 'text'
             changelog = file('changelog.txt')
-        	addGameVersion("1.19.4")
+        	addGameVersion("1.20")
             addGameVersion("Forge")
             addGameVersion("Java 17")
         }
@@ -242,10 +251,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.19.4'
+		versionName = 'Forge 1.20'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.19.4']
+		gameVersions = ['1.20']
 		loaders = ['forge']
 	}
 }
