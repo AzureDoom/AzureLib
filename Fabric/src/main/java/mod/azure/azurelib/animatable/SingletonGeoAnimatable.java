@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
@@ -104,6 +106,15 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
     default void triggerAnim(long instanceId, @Nullable String controllerName, String animName, AzureLibNetwork.IPacketCallback packetCallback) {
         AzureLibNetwork.sendWithCallback(new AnimTriggerPacket(getClass().toString(), instanceId, controllerName, animName), packetCallback);
     }
+
+	/**
+	 * Override the default handling for instantiating an AnimatableInstanceCache for this animatable.<br>
+	 * Don't override this unless you know what you're doing.
+	 */
+	@Override
+	default @Nullable AnimatableInstanceCache animatableCacheOverride() {
+		return new SingletonAnimatableInstanceCache(this);
+	}
 
     /**
      * Create your RenderProvider reference here.<br>
