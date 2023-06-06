@@ -1,3 +1,6 @@
-v1.0.17
+v1.0.18
 
-- Updated Branding
+- Port Animated texture support via .mcmeta for all geo types. 
+- Port Display Context/Settings for Item animations (EX: Doing an animation only in first person but not 3rd person or not in the GUI).
+- Port Fixed animation ticking system on anything using a non-0 transition value for shader support. 
+- Port Helper Methods in AnimationState.
