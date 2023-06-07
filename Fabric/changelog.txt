@@ -1,3 +1,3 @@
-v1.0.8
+v1.0.9
 
-- Fixes version number
+- Fixes Armor mixin crash.
