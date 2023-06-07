@@ -52,7 +52,7 @@ minecraft {
         client {
             workingDirectory project.file('runs/' + name)
             singleInstance true
-            taskName 'azurelib-forge_client'
+            taskName 'azurelib-forge120_client'
 
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
@@ -69,14 +69,14 @@ minecraft {
         clientAlt {
             parent minecraft.runs.client
             workingDirectory project.file('runs/' + name)
-            taskName 'azurelib-forge_client_alt'
+            taskName 'azurelib-forge120_client_alt'
             args '--username', 'Alt'
         }
 
         server {
             workingDirectory project.file('runs/' + name)
             singleInstance true
-            taskName 'azurelib-forge_server'
+            taskName 'azurelib-forge120_server'
 
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
