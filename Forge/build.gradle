@@ -6,11 +6,12 @@ buildscript {
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         jcenter()
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-        classpath 'com.github.johnrengelman:shadow:8.1.1'
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
         classpath 'org.parchmentmc:librarian:1.+'
         classpath "com.modrinth.minotaur:Minotaur:2.1.2"
@@ -128,7 +129,7 @@ shadowJar {
     exclude('it/**')
     exclude('com/google/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    classifier ''
 }
 
 
@@ -162,7 +163,7 @@ task packageSources(type: ShadowJar, dependsOn: 'classes') {
     exclude('com/google/**')
     exclude('assets/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    archiveClassifier.set('sources')
+    archiveClassifier = 'sources'
 }
 
 artifacts {
