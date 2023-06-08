@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
         classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
@@ -115,7 +115,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20-46.0.0'
+    minecraft 'net.minecraftforge:forge:1.20-46.0.1'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
@@ -128,7 +128,6 @@ shadowJar {
     exclude('it/**')
     exclude('com/google/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    classifier ''
 }
 
 
@@ -161,7 +160,6 @@ task packageSources(type: ShadowJar, dependsOn: 'classes') {
     exclude('it/**')
     exclude('com/google/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    classifier = 'sources'
 }
 
 artifacts {
