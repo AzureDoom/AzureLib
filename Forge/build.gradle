@@ -129,6 +129,7 @@ shadowJar {
     exclude('it/**')
     exclude('com/google/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     classifier ''
 }
 
@@ -163,7 +164,7 @@ task packageSources(type: ShadowJar, dependsOn: 'classes') {
     exclude('com/google/**')
     exclude('assets/**')
     relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 artifacts {
