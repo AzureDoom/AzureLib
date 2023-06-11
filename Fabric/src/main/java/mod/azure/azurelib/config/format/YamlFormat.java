@@ -420,7 +420,6 @@ public class YamlFormat implements IConfigFormat {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Map<String, Object> getValueMap(String key) throws ConfigValueMissingException {
         Object value = this.processedData.get(key);
         if (value == null) {

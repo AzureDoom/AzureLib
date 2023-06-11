@@ -92,7 +92,6 @@ public final class ConfigHolder<CFG> {
      * @return Optional with config holder when such object exists
      * @param <CFG> Config type
      */
-    @SuppressWarnings("unchecked")
     public static <CFG> Optional<ConfigHolder<CFG>> getConfig(String id) {
         ConfigHolder<CFG> value = (ConfigHolder<CFG>) REGISTERED_CONFIGS.get(id);
         return value == null ? Optional.empty() : Optional.of(value);
