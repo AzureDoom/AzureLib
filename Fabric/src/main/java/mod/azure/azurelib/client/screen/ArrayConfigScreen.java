@@ -193,7 +193,6 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
             return parentField;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public void setFieldValue(Object value) {
             this.setCallback.accept((V) value, this.index);

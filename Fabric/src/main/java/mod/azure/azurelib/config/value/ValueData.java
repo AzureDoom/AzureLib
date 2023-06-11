@@ -16,7 +16,6 @@ public final class ValueData<T> implements IDescriptionProvider {
     @Nullable
     private ConfigValue<?> parent;
 
-    @SuppressWarnings("unchecked")
     private ValueData(String id, String[] tooltip, T defaultValue, TypeAdapter.AdapterContext context) {
         this.id = id;
         this.tooltip = tooltip;

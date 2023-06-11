@@ -82,7 +82,6 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
     public void handleClientsidePacket(Minecraft client, ClientPacketListener listener, ConfigData packetData, PacketSender dispatcher) {
     }
 
-    @SuppressWarnings("unchecked")
     private <V> void setValue(ConfigValue<V> value, FriendlyByteBuf buffer) {
         TypeAdapter adapter = value.getAdapter();
         V v = (V) adapter.decodeFromBuffer(value, buffer);
