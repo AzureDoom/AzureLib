@@ -1,3 +1,4 @@
-v1.0.9
+v1.0.12
 
-- Fixes Armor mixin crash.
+- Moves from getCommandSenderWorld() to level()
+- Redo Vibration system
