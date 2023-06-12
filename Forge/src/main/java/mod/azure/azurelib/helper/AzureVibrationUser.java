@@ -25,11 +25,10 @@ import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 
 public class AzureVibrationUser implements VibrationSystem.User {
-	private final Mob mob;
-	@SuppressWarnings("unused")
-	private final float moveSpeed;
-	private final int range;
-	private final PositionSource positionSource;
+	protected final Mob mob;
+	protected final float moveSpeed;
+	protected final int range;
+	protected final PositionSource positionSource;
 
 	public AzureVibrationUser(Mob entity, float speed, int range) {
 		this.positionSource = new EntityPositionSource(entity, entity.getEyeHeight());
