@@ -16,7 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -89,8 +88,6 @@ public class AzureVibrationUser implements VibrationSystem.User {
 		if (this.mob.isDeadOrDying())
 			return;
 		if (this.mob.isVehicle())
-			return;
-		if (this.mob.getBrain().getMemory(MemoryModuleType.WALK_TARGET).isPresent())
 			return;
 	}
 
