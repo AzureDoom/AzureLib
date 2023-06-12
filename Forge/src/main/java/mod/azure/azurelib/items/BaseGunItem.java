@@ -128,12 +128,12 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 	 */
 	protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
 		if (lightBlockPos == null) {
-			lightBlockPos = findFreeSpace(entity.getCommandSenderWorld(), entity.blockPosition(), 2);
+			lightBlockPos = findFreeSpace(entity.level(), entity.blockPosition(), 2);
 			if (lightBlockPos == null)
 				return;
-			entity.getCommandSenderWorld().setBlockAndUpdate(lightBlockPos, AzureBlocks.TICKING_LIGHT_BLOCK.get().defaultBlockState());
+			entity.level().setBlockAndUpdate(lightBlockPos, AzureBlocks.TICKING_LIGHT_BLOCK.get().defaultBlockState());
 		} else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
-			var blockEntity = entity.getCommandSenderWorld().getBlockEntity(lightBlockPos);
+			var blockEntity = entity.level().getBlockEntity(lightBlockPos);
 			if (blockEntity instanceof TickingLightEntity)
 				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
 			else
@@ -172,11 +172,11 @@ public abstract class BaseGunItem extends Item implements GeoItem {
 		var look = player.getViewVector(ticks);
 		var start = player.getEyePosition(ticks);
 		var end = new Vec3(player.getX() + look.x * range, player.getEyeY() + look.y * range, player.getZ() + look.z * range);
-		var traceDistance = player.getCommandSenderWorld().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getLocation().distanceToSqr(end);
-		for (var possible : player.getCommandSenderWorld().getEntities(player, player.getBoundingBox().expandTowards(look.scale(traceDistance)).expandTowards(3.0D, 3.0D, 3.0D), (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity))) {
+		var traceDistance = player.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getLocation().distanceToSqr(end);
+		for (var possible : player.level().getEntities(player, player.getBoundingBox().expandTowards(look.scale(traceDistance)).expandTowards(3.0D, 3.0D, 3.0D), (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity))) {
 			if (possible.getBoundingBox().inflate(0.3D).clip(start, end).isPresent())
 				if (start.distanceToSqr(possible.getBoundingBox().inflate(0.3D).clip(start, end).get()) < traceDistance)
-					return ProjectileUtil.getEntityHitResult(player.getCommandSenderWorld(), player, start, end, player.getBoundingBox().expandTowards(look.scale(traceDistance)).inflate(3.0D, 3.0D, 3.0D), (target) -> !target.isSpectator() && player.isAttackable() && player.hasLineOfSight(target));
+					return ProjectileUtil.getEntityHitResult(player.level(), player, start, end, player.getBoundingBox().expandTowards(look.scale(traceDistance)).inflate(3.0D, 3.0D, 3.0D), (target) -> !target.isSpectator() && player.isAttackable() && player.hasLineOfSight(target));
 		}
 		return null;
 	}

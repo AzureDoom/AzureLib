@@ -1,15 +1,15 @@
 package mod.azure.azurelib.animatable;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.PacketDistributor;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
-
-import javax.annotation.Nullable;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to {@link net.minecraft.world.entity.Entity Entities}.
@@ -40,7 +40,7 @@ public interface GeoEntity extends GeoAnimatable {
 	default <D> void setAnimData(SerializableDataTicket<D> dataTicket, D data) {
 		Entity entity = (Entity)this;
 
-		if (entity.getCommandSenderWorld().isClientSide()) {
+		if (entity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(entity.getId()).setData(dataTicket, data);
 		}
 		else {
@@ -57,7 +57,7 @@ public interface GeoEntity extends GeoAnimatable {
 	default void triggerAnim(@Nullable String controllerName, String animName) {
 		Entity entity = (Entity)this;
 
-		if (entity.getCommandSenderWorld().isClientSide()) {
+		if (entity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(entity.getId()).tryTriggerAnimation(controllerName, animName);
 		}
 		else {

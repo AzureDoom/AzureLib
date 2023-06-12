@@ -1,16 +1,16 @@
 package mod.azure.azurelib.animatable;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.network.PacketDistributor;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
-
-import javax.annotation.Nullable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to {@link Entity Entities}.
@@ -46,7 +46,7 @@ public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 	 * @param data The data to sync
 	 */
 	default <D> void setAnimData(Entity relatedEntity, SerializableDataTicket<D> dataTicket, D data) {
-		if (relatedEntity.getCommandSenderWorld().isClientSide()) {
+		if (relatedEntity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(relatedEntity.getId()).setData(dataTicket, data);
 		}
 		else {
@@ -62,7 +62,7 @@ public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
 	default void triggerAnim(Entity relatedEntity, @Nullable String controllerName, String animName) {
-		if (relatedEntity.getCommandSenderWorld().isClientSide()) {
+		if (relatedEntity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(relatedEntity.getId()).tryTriggerAnimation(controllerName, animName);
 		}
 		else {
