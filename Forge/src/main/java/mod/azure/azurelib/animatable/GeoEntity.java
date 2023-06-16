@@ -8,6 +8,7 @@ import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -73,6 +74,6 @@ public interface GeoEntity extends GeoAnimatable {
 	 */
 	@Override
 	default double getTick(Object entity) {
-		return ((Entity)entity).tickCount;
+		return RenderUtils.getCurrentTick();
 	}
 }
