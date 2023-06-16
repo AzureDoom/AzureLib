@@ -149,12 +149,10 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 			return;
 
 		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
-			if (animatable instanceof LivingEntity) {
+			if (animatable instanceof LivingEntity) 
 				animatableManager.updatedAt(currentFrameTime);
-			}
-			else {
+			else 
 				animatableManager.updatedAt(currentFrameTime);
-			}
 
 			double lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
