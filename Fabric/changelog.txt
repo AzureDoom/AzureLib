@@ -1,3 +1,4 @@
-v1.0.22
+v1.0.23
 
-- Fixes mobs sharing animations when using shaders.
+- Backup port Headed crash fix
+- Fixes pack.mcmeta version
