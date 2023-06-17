@@ -20,17 +20,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}.
- * This also applies to armor, as they are just items too.
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Item-Animations">AzureLib Wiki - Item Animations</a>
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Armor-Animations">AzureLib Wiki - Armor Animations</a>
+ * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also applies to armor, as they are just items too.
  */
 public interface GeoItem extends SingletonGeoAnimatable {
 	static final String ID_NBT_KEY = "AzureLibID";
 
 	/**
-	 * Gets the unique identifying number from this ItemStack's {@link net.minecraft.nbt.Tag NBT},
-	 * or {@link Long#MAX_VALUE} if one hasn't been assigned
+	 * Gets the unique identifying number from this ItemStack's {@link net.minecraft.nbt.Tag NBT}, or {@link Long#MAX_VALUE} if one hasn't been assigned
 	 */
 	static long getId(ItemStack stack) {
 		CompoundTag tag = stack.getTag();
@@ -62,6 +58,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 	/**
 	 * Returns the current age/tick of the animatable instance.<br>
 	 * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables to provide their own values
+	 * 
 	 * @param itemStack The ItemStack representing this animatable
 	 * @return The current tick/age of the animatable, for animation purposes
 	 */

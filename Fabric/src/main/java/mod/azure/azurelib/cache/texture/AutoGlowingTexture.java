@@ -30,8 +30,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
  * Texture object type responsible for AzureLib's emissive render textures
- * 
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Emissive-Textures-Glow-Layer">AzureLib Wiki - Glow Layers</a>
  */
 public class AutoGlowingTexture extends GeoAbstractTexture {
 	private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeEntityTranslucentShader);
