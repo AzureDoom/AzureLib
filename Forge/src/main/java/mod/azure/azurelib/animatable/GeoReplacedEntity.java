@@ -14,9 +14,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to {@link Entity Entities}. This interface is <u>specifically</u> for entities replacing the rendering of other, existing entities.
- * 
- * @see software.bernie.example.entity.ReplacedCreeperEntity
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Entity-Animations">AzureLib Wiki - Entity Animations</a>
  */
 public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 	/**

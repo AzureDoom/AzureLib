@@ -30,8 +30,6 @@ import net.minecraft.util.math.vector.Vector3d;
 /**
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
- * 
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Models">AzureLib Wiki - Models</a>
  */
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
 	private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
@@ -142,16 +140,16 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + mc.getFrameTime());
-		
+
 		double currentFrameTime = animatable instanceof LivingEntity ? currentTick + mc.getFrameTime() : currentTick - animatableManager.getFirstTickTime();
 
 		if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
 			return;
 
 		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
-			if (animatable instanceof LivingEntity) 
+			if (animatable instanceof LivingEntity)
 				animatableManager.updatedAt(currentFrameTime);
-			else 
+			else
 				animatableManager.updatedAt(currentFrameTime);
 
 			double lastUpdateTime = animatableManager.getLastUpdateTime();
