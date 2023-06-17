@@ -17,8 +17,6 @@ import net.minecraft.world.entity.Entity;
 
 /**
  * The {@link GeoAnimatable} interface specific to singleton objects. This primarily applies to armor and items
- *
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Item-Animations">AzureLib Wiki - Item Animations</a>
  */
 public interface SingletonGeoAnimatable extends GeoAnimatable {
 	/**
