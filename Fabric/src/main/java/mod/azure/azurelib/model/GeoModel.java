@@ -1,13 +1,5 @@
 package mod.azure.azurelib.model;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
-
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -28,11 +20,17 @@ import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.util.RenderUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Models">AzureLib Wiki - Models</a>
  */
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
 	private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
@@ -95,11 +93,12 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 	/**
 	 * Gets a bone from this model by name
+	 * 
 	 * @param name The name of the bone
 	 * @return An {@link Optional} containing the {@link mod.azure.azurelib.cache.object.GeoBone} if one matches, otherwise an empty Optional
 	 */
 	public Optional<mod.azure.azurelib.cache.object.GeoBone> getBone(String name) {
-		return Optional.ofNullable((GeoBone)getAnimationProcessor().getBone(name));
+		return Optional.ofNullable((GeoBone) getAnimationProcessor().getBone(name));
 	}
 
 	/**
@@ -123,11 +122,13 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 	/**
 	 * Add additional {@link DataTicket DataTickets} to the {@link AnimationState} to be handled by your animation handler at render time
-	 * @param animatable The animatable instance currently being animated
-	 * @param instanceId The unique instance id of the animatable being animated
+	 * 
+	 * @param animatable   The animatable instance currently being animated
+	 * @param instanceId   The unique instance id of the animatable being animated
 	 * @param dataConsumer The DataTicket + data consumer to be added to the AnimationEvent
 	 */
-	public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {}
+	public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {
+	}
 
 	@Override
 	public final void handleAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
@@ -147,9 +148,9 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 			return;
 
 		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
-			if (animatable instanceof LivingEntity) 
+			if (animatable instanceof LivingEntity)
 				animatableManager.updatedAt(currentFrameTime);
-			else 
+			else
 				animatableManager.updatedAt(currentFrameTime);
 
 			double lastUpdateTime = animatableManager.getLastUpdateTime();
@@ -193,7 +194,7 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
 					return Mth.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
 				});
-				parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> livingEntity.getViewYRot((float)animTime - livingEntity.getViewYRot((float)animTime - 0.1f)));
+				parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> livingEntity.getViewYRot((float) animTime - livingEntity.getViewYRot((float) animTime - 0.1f)));
 			}
 		}
 	}

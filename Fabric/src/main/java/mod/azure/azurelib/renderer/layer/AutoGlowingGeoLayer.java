@@ -13,9 +13,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * {@link GeoRenderLayer} for rendering the auto-generated glowlayer functionality implemented by AzureLib using
- * the <i>_glowing</i> appendixed texture files.
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Emissive-Textures-Glow-Layer">AzureLib Wiki - Glow Layers</a>
+ * {@link GeoRenderLayer} for rendering the auto-generated glowlayer functionality implemented by AzureLib using the <i>_glowing</i> appendixed texture files.
  */
 public class AutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
 	public AutoGlowingGeoLayer(GeoRenderer<T> renderer) {
@@ -38,8 +36,6 @@ public class AutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer
 	public void render(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
 		RenderType emissiveRenderType = getRenderType(animatable);
 
-		getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, emissiveRenderType,
-				bufferSource.getBuffer(emissiveRenderType), partialTick, 15728640, OverlayTexture.NO_OVERLAY,
-				1, 1, 1, 1);
+		getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, emissiveRenderType, bufferSource.getBuffer(emissiveRenderType), partialTick, 15728640, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 	}
 }

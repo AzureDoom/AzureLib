@@ -21,9 +21,6 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also applies to armor, as they are just items too.
- * 
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Item-Animations">AzureLib Wiki - Item Animations</a>
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Armor-Animations">AzureLib Wiki - Armor Animations</a>
  */
 public interface GeoItem extends SingletonGeoAnimatable {
 	static final String ID_NBT_KEY = "AzureLibID";
@@ -88,7 +85,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 
 		return SingletonGeoAnimatable.super.animatableCacheOverride();
 	}
-	
+
 	/**
 	 * AnimatableInstanceCache specific to GeoItems, for doing render perspective based animations
 	 */
