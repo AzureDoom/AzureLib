@@ -1,4 +1,4 @@
-v1.0.19
+v1.0.20
 
-- Create fr_fr.json - Calvineries 
-- Fixes mobs sharing animations when using shaders.
+- Fixes crash causing Pedro270707/headed#4
+- Fixes pack.mcmeta version
