@@ -1,4 +1,4 @@
-v1.0.20
+v1.0.21
 
-- Fixes crash causing Pedro270707/headed#4
-- Fixes pack.mcmeta version
+- Fixes animation jittering
+- Adds AzureLibUtil#summonAoE helper for summon Area of Effect Clouds
