@@ -1,5 +1,7 @@
 package mod.azure.azurelib.util;
 
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
@@ -9,7 +11,12 @@ import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.network.SerializableDataTicket;
+import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.tileentity.TileEntity;
 
 /**
@@ -82,5 +89,29 @@ public final class AzureLibUtil {
 	 */
 	synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
 		return DataTickets.registerSerializable(dataTicket);
+	}
+
+	/**
+	 * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
+	 * 
+	 * @param entity     The Entity summoning the AoE
+	 * @param particle   Sets the Particle
+	 * @param yOffset    Set the yOffset if wanted
+	 * @param duration   Sets the duration of the AoE
+	 * @param radius     Sets the radius of the AoE
+	 * @param hasEffect  Should this have an effect?
+	 * @param effect     If it should effect, what effect?
+	 * @param effectTime How long the effect should be applied for?
+	 */
+	public void summonAoE(LivingEntity entity, IParticleData particle, int yOffset, int duration, float radius, boolean hasEffect, @Nullable Effect effect, int effectTime) {
+		AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(entity.level, entity.getX(), entity.getY() + yOffset, entity.getZ());
+		areaEffectCloudEntity.setRadius(radius);
+		areaEffectCloudEntity.setDuration(duration);
+		areaEffectCloudEntity.setParticle(particle);
+		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
+		if (hasEffect == true)
+			if (!entity.hasEffect(effect))
+				areaEffectCloudEntity.addEffect(new EffectInstance(effect, effectTime, 0));
+		entity.level.addFreshEntity(areaEffectCloudEntity);
 	}
 }
