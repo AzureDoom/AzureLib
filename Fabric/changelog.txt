@@ -1,4 +1,4 @@
-v1.0.23
+v1.0.24
 
-- Backup port Headed crash fix
-- Fixes pack.mcmeta version
+- Fixes animation jittering
+- Adds AzureLibUtil#summonAoE helper for summon Area of Effect Clouds
