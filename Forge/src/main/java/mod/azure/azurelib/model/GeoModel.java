@@ -136,21 +136,22 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 		Double currentTick = animationState.getData(DataTickets.TICK);
 
 		if (currentTick == null)
-			currentTick = animatable instanceof Entity ? (double) ((Entity) animatable).tickCount : RenderUtils.getCurrentTick();
+			currentTick = animatable instanceof LivingEntity ? (double) ((LivingEntity)animatable).tickCount : RenderUtils.getCurrentTick();
 
 		if (animatableManager.getFirstTickTime() == -1)
 			animatableManager.startedAt(currentTick + mc.getFrameTime());
 
-		double currentFrameTime = animatable instanceof LivingEntity ? currentTick + mc.getFrameTime() : currentTick - animatableManager.getFirstTickTime();
+		double currentFrameTime = currentTick - animatableManager.getFirstTickTime();
 
 		if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
 			return;
 
 		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
-			if (animatable instanceof LivingEntity)
+			if (animatable instanceof LivingEntity) {
 				animatableManager.updatedAt(currentFrameTime);
-			else
+			} else {
 				animatableManager.updatedAt(currentFrameTime);
+			}
 
 			double lastUpdateTime = animatableManager.getLastUpdateTime();
 			this.animTime += lastUpdateTime - this.lastGameTickTime;
