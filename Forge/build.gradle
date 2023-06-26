@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         maven { url = "https://maven.minecraftforge.net/" }
-		maven { url = "https://plugins.gradle.org/m2/" }
+        maven { url = "https://plugins.gradle.org/m2/" }
         maven { url = 'https://maven.parchmentmc.org' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         jcenter()
@@ -36,7 +36,7 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 configurations {
     library
@@ -46,13 +46,13 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.17.1'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('runs/' + name)
             singleInstance true
-            taskName 'azurelib-forge1182_client'
+            taskName 'azurelib-forge1171_client'
 
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
@@ -70,14 +70,14 @@ minecraft {
         clientAlt {
             parent minecraft.runs.client
             workingDirectory project.file('runs/' + name)
-            taskName 'azurelib-forge1182_client_alt'
+            taskName 'azurelib-forge1171_client_alt'
             args '--username', 'Alt'
         }
 
         server {
             workingDirectory project.file('runs/' + name)
             singleInstance true
-            taskName 'azurelib-forge1182_server'
+            taskName 'azurelib-forge1171_server'
 
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
@@ -110,13 +110,13 @@ repositories {
     maven { url "https://maven.blamejared.com" }
     maven { url "https://minecraft.curseforge.com/api/maven/" }
     maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
-	maven { url "https://cursemaven.com" }
+    maven { url "https://cursemaven.com" }
     maven { url "https://plugins.gradle.org/m2/" }
     mavenCentral()
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.18.2-40.2.1'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.1.1'
     library 'com.eliotlash.mclib:mclib:20'
     shade 'com.eliotlash.mclib:mclib:20'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
@@ -236,7 +236,7 @@ if (file('key.properties').exists()) {
             releaseType = "release"
             changelogType = 'text'
             changelog = file('changelog.txt')
-        	addGameVersion("1.18.2")
+            addGameVersion("1.17.1")
             addGameVersion("Forge")
             addGameVersion("Java 17")
         }
@@ -252,10 +252,10 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.18.2'
+		versionName = 'Forge 1.17.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
-		gameVersions = ['1.18.2']
+		gameVersions = ['1.17.1']
 		loaders = ['forge']
 	}
 }
