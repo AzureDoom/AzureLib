@@ -254,7 +254,6 @@ if (file('key.properties').exists()) {
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '7zlUOZvb' 
 		versionNumber = project.mod_version 
-		versionName = 'Forge 1.20.1'
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20.1']
