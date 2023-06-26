@@ -1,14 +1,25 @@
 package mod.azure.azurelib.animatable;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.base.Suppliers;
 
 import mod.azure.azurelib.cache.AnimatableIdCache;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animation.ContextAwareAnimatableManager;
 import mod.azure.azurelib.util.RenderUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -74,5 +85,64 @@ public interface GeoItem extends SingletonGeoAnimatable {
 	@Override
 	default double getTick(Object itemStack) {
 		return RenderUtils.getCurrentTick();
+	}
+
+	/**
+	 * Whether this item animatable is perspective aware, handling animations differently depending on the {@link net.minecraft.world.item.ItemDisplayContext render perspective}
+	 */
+	default boolean isPerspectiveAware() {
+		return false;
+	}
+
+	/**
+	 * Replaces the default AnimatableInstanceCache for GeoItems if {@link GeoItem#isPerspectiveAware()} is true, for perspective-dependent handling
+	 */
+	@Nullable
+	@Override
+	default AnimatableInstanceCache animatableCacheOverride() {
+		if (isPerspectiveAware())
+			return new ContextBasedAnimatableInstanceCache(this);
+
+		return SingletonGeoAnimatable.super.animatableCacheOverride();
+	}
+
+	/**
+	 * AnimatableInstanceCache specific to GeoItems, for doing render perspective based animations
+	 */
+	class ContextBasedAnimatableInstanceCache extends SingletonAnimatableInstanceCache {
+		public ContextBasedAnimatableInstanceCache(GeoAnimatable animatable) {
+			super(animatable);
+		}
+
+		/**
+		 * Gets an {@link AnimatableManager} instance from this cache, cached under the id provided, or a new one if one doesn't already exist.<br>
+		 * This subclass assumes that all animatable instances will be sharing this cache instance, and so differentiates data by ids.
+		 */
+		@Override
+		public AnimatableManager<?> getManagerForId(long uniqueId) {
+			if (!this.managers.containsKey(uniqueId))
+				this.managers.put(uniqueId, new ContextAwareAnimatableManager<GeoItem, TransformType>(this.animatable) {
+					@Override
+					protected Map<TransformType, AnimatableManager<GeoItem>> buildContextOptions(GeoAnimatable animatable) {
+						Map<TransformType, AnimatableManager<GeoItem>> map = new EnumMap<>(TransformType.class);
+
+						for (TransformType context : TransformType.values()) {
+							map.put(context, new AnimatableManager<>(animatable));
+						}
+
+						return map;
+					}
+
+					@Override
+					public TransformType getCurrentContext() {
+						@Nullable
+						TransformType context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
+
+						return context == null ? TransformType.NONE : context;
+					}
+				});
+
+			return this.managers.get(uniqueId);
+		}
 	}
 }

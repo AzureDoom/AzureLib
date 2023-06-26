@@ -29,7 +29,9 @@ public final class AzureLibUtil {
 	 * @param animatable The animatable object
 	 */
 	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
-		return createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof BlockEntity));
+		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
+
+		return cache != null ? cache : createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof BlockEntity));
 	}
 
 	/**
@@ -40,6 +42,11 @@ public final class AzureLibUtil {
 	 * @param singletonObject Whether the object is a singleton/flyweight object, and uses ints to differentiate animatable instances
 	 */
 	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable, boolean singletonObject) {
+		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
+
+		if (cache != null)
+			return cache;
+
 		return singletonObject ? new SingletonAnimatableInstanceCache(animatable) : new InstancedAnimatableInstanceCache(animatable);
 	}
 
@@ -85,6 +92,10 @@ public final class AzureLibUtil {
 	 */
 	synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
 		return DataTickets.registerSerializable(dataTicket);
+	}
+
+	public static boolean isMultipleOf(int p_265754_, int p_265543_) {
+		return p_265754_ % p_265543_ == 0;
 	}
 
 	/**
