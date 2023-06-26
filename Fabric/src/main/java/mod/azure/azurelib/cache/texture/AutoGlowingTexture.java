@@ -25,11 +25,9 @@ import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
  * Texture object type responsible for AzureLib's emissive render textures
- * 
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Emissive-Textures-Glow-Layer">AzureLib Wiki - Glow Layers</a>
  */
 public class AutoGlowingTexture extends GeoAbstractTexture {
-	
+
 	static class GlowRenderType extends RenderType {
 
 		public GlowRenderType(String p_i225992_1_, VertexFormat p_i225992_2_, int p_i225992_3_, int p_i225992_4_, boolean p_i225992_5_, boolean p_i225992_6_, Runnable p_i225992_7_, Runnable p_i225992_8_) {
@@ -38,15 +36,10 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		}
 
 		public static RenderType emissive(ResourceLocation texture) {
-			return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, GL11.GL_QUADS, 256, RenderType.CompositeState.builder()
-					.setAlphaState(RenderType.DEFAULT_ALPHA)
-					.setCullState(RenderType.NO_CULL)
-					.setTextureState(new TextureStateShard(texture, false, false))
-					.setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-					.setOverlayState(RenderType.OVERLAY)
-					.createCompositeState(true));
+			return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, GL11.GL_QUADS, 256, RenderType.CompositeState.builder().setAlphaState(RenderType.DEFAULT_ALPHA).setCullState(RenderType.NO_CULL).setTextureState(new TextureStateShard(texture, false, false)).setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY).setOverlayState(RenderType.OVERLAY).createCompositeState(true));
 		}
 	}
+
 	private static final String APPENDIX = "_glowmask";
 
 	protected final ResourceLocation textureBase;

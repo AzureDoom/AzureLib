@@ -30,8 +30,6 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
- * 
- * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Models">AzureLib Wiki - Models</a>
  */
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
 	private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
