@@ -1,16 +1,17 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.animatable.GeoReplacedEntity;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.util.ClientUtils;
 import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.entity.Entity Entities}
@@ -57,8 +58,7 @@ public class EntityAnimTriggerPacket<D> {
 
 				if (animatable instanceof GeoReplacedEntity replacedEntity)
 					replacedEntity.triggerAnim(entity, this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-			}
-			else if (entity instanceof GeoEntity geoEntity) {
+			} else if (entity instanceof GeoEntity geoEntity) {
 				geoEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
 			}
 		});

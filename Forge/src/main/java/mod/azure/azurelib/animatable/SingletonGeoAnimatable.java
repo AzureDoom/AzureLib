@@ -11,7 +11,7 @@ import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.AnimTriggerPacket;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to singleton objects. This primarily applies to armor and items

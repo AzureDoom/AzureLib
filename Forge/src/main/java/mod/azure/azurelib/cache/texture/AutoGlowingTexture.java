@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -73,7 +71,6 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	/**
 	 * Generates the glow layer {@link NativeImage} and appropriately modifies the base texture for use in glow render layers
 	 */
-	@Nullable
 	@Override
 	protected RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException {
 		AbstractTexture originalTexture;

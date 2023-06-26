@@ -124,7 +124,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * Override this to change the way a model will render (such as translucent models, etc)
 	 */
 	@Override
-	public RenderType getRenderType(T animatable, ResourceLocation texture, @org.jetbrains.annotations.Nullable MultiBufferSource bufferSource, float partialTick) {
+	public RenderType getRenderType(T animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
 		return RenderType.armorCutoutNoCull(texture);
 	}
 

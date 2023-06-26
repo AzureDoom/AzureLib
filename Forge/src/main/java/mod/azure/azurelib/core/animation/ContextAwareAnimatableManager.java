@@ -2,8 +2,6 @@ package mod.azure.azurelib.core.animation;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.core.state.BoneSnapshot;
@@ -135,7 +133,6 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored.<br>
 	 * Sub-managers do not have their data set, and instead it is all kept in this parent manager
 	 */
-	@Nullable
 	public <D> D getData(DataTicket<D> dataTicket) {
 		return super.getData(dataTicket);
 	}

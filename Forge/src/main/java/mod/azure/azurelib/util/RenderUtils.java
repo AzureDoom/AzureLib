@@ -1,7 +1,5 @@
 package mod.azure.azurelib.util;
 
-import javax.annotation.Nullable;
-
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,8 +7,6 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 
-import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
-import it.unimi.dsi.fastutil.ints.IntIntPair;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -28,6 +24,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -124,8 +121,7 @@ public final class RenderUtils {
 	 * @param texture The path of the texture resource to check
 	 * @return The dimensions (width x height) of the texture, or null if unable to find or read the file
 	 */
-	@Nullable
-	public static IntIntPair getTextureDimensions(ResourceLocation texture) {
+	public static Tuple<Integer, Integer> getTextureDimensions(ResourceLocation texture) {
 		if (texture == null)
 			return null;
 
@@ -151,7 +147,7 @@ public final class RenderUtils {
 			e.printStackTrace();
 		}
 
-		return image == null ? null : IntIntImmutablePair.of(image.getWidth(), image.getHeight());
+		return image == null ? null : new Tuple<Integer, Integer>(image.getWidth(), image.getHeight());
 	}
 
 	public static double getCurrentSystemTick() {
@@ -227,7 +223,6 @@ public final class RenderUtils {
 	 * @param entityType The {@code EntityType} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoModel<?> getGeoModelForEntityType(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
@@ -240,7 +235,6 @@ public final class RenderUtils {
 	 * @param entityType The {@code EntityType} to retrieve the replaced {@link GeoAnimatable} for
 	 * @return The {@code GeoAnimatable} instance, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
@@ -255,7 +249,6 @@ public final class RenderUtils {
 	 * @param entity The {@code Entity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoModel<?> getGeoModelForEntity(Entity entity) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
@@ -270,7 +263,6 @@ public final class RenderUtils {
 	 * @param item The {@code Item} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoModel<?> getGeoModelForItem(Item item) {
 		if (RenderProperties.get(item).getItemStackRenderer()instanceof GeoRenderer<?> geoRenderer)
 			return geoRenderer.getGeoModel();
@@ -286,7 +278,6 @@ public final class RenderUtils {
 	 * @param blockEntity The {@code BlockEntity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoModel<?> getGeoModelForBlock(BlockEntity blockEntity) {
 		BlockEntityRenderer<?> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
 
@@ -301,7 +292,6 @@ public final class RenderUtils {
 	 * @param stack The ItemStack to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
-	@Nullable
 	public static GeoModel<?> getGeoModelForArmor(ItemStack stack) {
 		if (RenderProperties.get(stack).getArmorModel(null, stack, null, null)instanceof GeoArmorRenderer<?> armorRenderer)
 			return armorRenderer.getGeoModel();

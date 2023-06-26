@@ -4,8 +4,6 @@
  */
 package mod.azure.azurelib.core.animatable;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animation.AnimatableManager;
@@ -70,7 +68,6 @@ public interface GeoAnimatable {
 	 * Override the default handling for instantiating an AnimatableInstanceCache for this animatable.<br>
 	 * Don't override this unless you know what you're doing.
 	 */
-	@Nullable
 	default AnimatableInstanceCache animatableCacheOverride() {
 		return null;
 	}

@@ -1,14 +1,15 @@
 package mod.azure.azurelib.network.packet;
 
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
+import mod.azure.azurelib.animatable.GeoBlockEntity;
+import mod.azure.azurelib.util.ClientUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
-import mod.azure.azurelib.animatable.GeoBlockEntity;
-import mod.azure.azurelib.util.ClientUtils;
-
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.level.block.entity.BlockEntity BlockEntities}

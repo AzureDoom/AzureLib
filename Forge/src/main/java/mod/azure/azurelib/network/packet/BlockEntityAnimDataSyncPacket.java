@@ -1,15 +1,15 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
 import mod.azure.azurelib.animatable.GeoBlockEntity;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-
-import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animation data for {@link BlockEntity BlockEntities}

@@ -113,7 +113,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 			return List.of();
 
 		if (element instanceof JsonPrimitive primitive) {
-			JsonArray array = new JsonArray(3);
+			JsonArray array = new JsonArray();
 
 			array.add(primitive);
 			array.add(primitive);
@@ -123,7 +123,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 		}
 
 		if (element instanceof JsonArray array)
-			return ObjectArrayList.of(Pair.of("0", array));
+			return ObjectArrayList.wrap(new Pair[] {Pair.of("0", array)});
 
 		if (element instanceof JsonObject obj) {
 			List<Pair<String, JsonElement>> list = new ObjectArrayList<>();

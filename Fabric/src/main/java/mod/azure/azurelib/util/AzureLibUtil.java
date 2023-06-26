@@ -111,7 +111,7 @@ public final class AzureLibUtil {
 	 * @param effectTime How long the effect should be applied for?
 	 */
 	public void summonAoE(LivingEntity entity, ParticleOptions particle, int yOffset, int duration, float radius, boolean hasEffect, @Nullable MobEffect effect, int effectTime) {
-		var areaEffectCloudEntity = new AreaEffectCloud(entity.getLevel(), entity.getX(), entity.getY() + yOffset, entity.getZ());
+		var areaEffectCloudEntity = new AreaEffectCloud(entity.level, entity.getX(), entity.getY() + yOffset, entity.getZ());
 		areaEffectCloudEntity.setRadius(radius);
 		areaEffectCloudEntity.setDuration(duration);
 		areaEffectCloudEntity.setParticle(particle);
@@ -119,6 +119,6 @@ public final class AzureLibUtil {
 		if (hasEffect == true)
 			if (!entity.hasEffect(effect))
 				areaEffectCloudEntity.addEffect(new MobEffectInstance(effect, effectTime, 0));
-		entity.getLevel().addFreshEntity(areaEffectCloudEntity);
+		entity.level.addFreshEntity(areaEffectCloudEntity);
 	}
 }

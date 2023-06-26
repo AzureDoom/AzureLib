@@ -3,8 +3,6 @@ package mod.azure.azurelib.cache.object;
 import java.util.List;
 import java.util.Objects;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3d;
@@ -61,8 +59,7 @@ public class GeoBone implements CoreGeoBone {
 
 	private boolean trackingMatrices;
 
-	public GeoBone(@Nullable GeoBone parent, String name, Boolean mirror, @Nullable Double inflate,
-			@Nullable Boolean dontRender, @Nullable Boolean reset) {
+	public GeoBone(GeoBone parent, String name, Boolean mirror, Double inflate, Boolean dontRender, Boolean reset) {
 		this.parent = parent;
 		this.name = name;
 		this.mirror = mirror;
@@ -407,7 +404,7 @@ public class GeoBone implements CoreGeoBone {
 		matrix.invert();
 		Vector4f vec = new Vector4f(-(float) pos.x / 16f, (float) pos.y / 16f, (float) pos.z / 16f, 1);
 		vec.transform(matrix);
-		
+
 		updatePosition(-vec.x() * 16f, vec.y() * 16f, vec.z() * 16f);
 	}
 
@@ -455,7 +452,6 @@ public class GeoBone implements CoreGeoBone {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0), getCubes().size(),
-				getChildBones().size());
+		return Objects.hash(getName(), (getParent() != null ? getParent().getName() : 0), getCubes().size(), getChildBones().size());
 	}
 }

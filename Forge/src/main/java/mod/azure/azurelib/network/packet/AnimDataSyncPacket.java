@@ -1,15 +1,15 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import java.util.function.Supplier;
+
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-
-import java.util.function.Supplier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animation data for {@link SingletonGeoAnimatable} instances
@@ -37,7 +37,7 @@ public class AnimDataSyncPacket<D> {
 	public static <D> AnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
 		String syncableId = buffer.readUtf();
 		long instanceId = buffer.readVarLong();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 		D data = dataTicket.decode(buffer);
 
 		return new AnimDataSyncPacket<>(syncableId, instanceId, dataTicket, data);

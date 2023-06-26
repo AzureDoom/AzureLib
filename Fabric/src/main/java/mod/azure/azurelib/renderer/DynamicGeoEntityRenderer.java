@@ -10,7 +10,6 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 
-import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
@@ -24,6 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -32,7 +32,7 @@ import net.minecraft.world.entity.Entity;
  * and consider whether the benefits are worth the cost for your needs.
  */
 public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable> extends GeoEntityRenderer<T> {
-	protected static Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
+	protected static Map<ResourceLocation, Tuple<Integer, Integer>> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
 
 	protected ResourceLocation textureOverride = null;
 
@@ -148,9 +148,9 @@ public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable>
 
 			return;
 		}
-
-		IntIntPair boneTextureSize = computeTextureSize(this.textureOverride);
-		IntIntPair entityTextureSize = computeTextureSize(getTextureLocation(this.animatable));
+		
+		Tuple<Integer, Integer> boneTextureSize = computeTextureSize(this.textureOverride);
+		Tuple<Integer, Integer> entityTextureSize = computeTextureSize(getTextureLocation(this.animatable));
 
 		if (boneTextureSize == null || entityTextureSize == null) {
 			super.createVerticesOfQuad(quad, poseState, normal, buffer, packedLight, packedOverlay, red, green,
@@ -161,8 +161,8 @@ public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable>
 
 		for (GeoVertex vertex : quad.vertices()) {
 			Vector4f vector4f = new Vector4f(vertex.position().x(), vertex.position().y(), vertex.position().z(), 1);
-			float texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
-			float texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
+			float texU = (vertex.texU() * entityTextureSize.getA()) / boneTextureSize.getA();
+			float texV = (vertex.texV() * entityTextureSize.getB()) / boneTextureSize.getB();
 
 			vector4f.transform(poseState);
 			
@@ -176,7 +176,7 @@ public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable>
 	 * This is used for dynamically mapping vertices on a given quad.<br>
 	 * This is inefficient however, and should only be used where required.
 	 */
-	protected IntIntPair computeTextureSize(ResourceLocation texture) {
+	protected Tuple<Integer, Integer> computeTextureSize(ResourceLocation texture) {
 		return TEXTURE_DIMENSIONS_CACHE.computeIfAbsent(texture, RenderUtils::getTextureDimensions);
 	}
 }
