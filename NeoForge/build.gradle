@@ -1,0 +1,262 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.minecraftforge.net/" }
+		maven { url = "https://plugins.gradle.org/m2/" }
+        maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+        classpath 'org.parchmentmc:librarian:1.+'
+        classpath "com.modrinth.minotaur:Minotaur:2.1.2"
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: "com.modrinth.minotaur"
+apply plugin: 'org.spongepowered.mixin'
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+configurations {
+    library
+    shade
+    implementation.extendsFrom library
+    shade.extendsFrom library
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    runs {
+        client {
+            workingDirectory project.file('runs/' + name)
+            singleInstance true
+            taskName 'azurelib-forge120_client'
+
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                azurelib {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        clientAlt {
+            parent minecraft.runs.client
+            workingDirectory project.file('runs/' + name)
+            taskName 'azurelib-forge120_client_alt'
+            args '--username', 'Alt'
+        }
+
+        server {
+            workingDirectory project.file('runs/' + name)
+            singleInstance true
+            taskName 'azurelib-forge120_server'
+
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                azurelib {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin { 
+    add sourceSets.main, "azurelib.refmap.json"
+    config "azurelib.mixins.json"
+}
+
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
+
+repositories {
+    maven { url "https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/" }
+    maven { url "https://maven.enginehub.org/repo/" }
+    maven { url "https://maven.blamejared.com" }
+    maven { url "https://minecraft.curseforge.com/api/maven/" }
+    maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
+	maven { url "https://cursemaven.com" }
+    maven { url "https://plugins.gradle.org/m2/" }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.0.0'
+    library 'com.eliotlash.mclib:mclib:20'
+    shade 'com.eliotlash.mclib:mclib:20'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+shadowJar {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.allSource
+    exclude('META-INF/services/**')
+    exclude('it/**')
+    exclude('com/google/**')
+    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    classifier ''
+}
+
+
+reobf {
+    shadowJar {} // Reobfuscate the shadowed JAR
+}
+tasks.build.dependsOn reobfShadowJar
+publish.dependsOn('reobfJar')
+shadowJar.dependsOn('classes')
+jar.finalizedBy('reobfJar')
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "AzureLib",
+                "Specification-Vendor"    : "AzureDoom",
+                "Specification-Version"   : "4",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "AzureDoom",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+task packageSources(type: ShadowJar, dependsOn: 'classes') {
+    configurations = [project.configurations.shade]
+    from sourceSets.main.allSource
+    exclude('META-INF/**')
+    exclude('it/**')
+    exclude('com/google/**')
+    exclude('assets/**')
+    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
+    archiveClassifier.set('sources')
+}
+
+artifacts {
+    archives shadowJar
+    archives packageSources
+}
+
+afterEvaluate {
+    publish.dependsOn('reobfShadowJar')
+    publish.dependsOn('reobfJar')
+    publish.dependsOn('packageSources')
+    shadowJar.dependsOn(packageSources)
+    shadowJar.dependsOn('classes')
+}
+
+shadowJar.finalizedBy(reobfShadowJar)
+jar.finalizedBy(packageSources)
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
+            artifactId = project.archives_base_name
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+	      name = "cloudsmith"
+	      url = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def releasesRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
+	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+	      credentials {
+                def envUsername = System.getenv("cloudUsername")
+                def envPassword = System.getenv("cloudPassword")
+                username = envUsername == null ? findProperty("cloudUsername") : envUsername
+                password = envPassword == null ? findProperty("cloudPassword") : envPassword
+	      }
+	    }
+    }
+}
+
+processResources {
+	doLast {
+        def jsonMinifyStart = System.currentTimeMillis()
+        def jsonMinified = 0
+        def jsonBytesSaved = 0
+        fileTree(dir: outputs.files.asPath, include: '**/*.json').each { 
+            File file = it
+            jsonMinified++
+            def oldLength = file.length()
+            file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+            jsonBytesSaved += oldLength - file.length()
+        }
+        println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
+    }
+}
+
+if (file('key.properties').exists()) {
+    curseforge {
+        def curseProp = new Properties()
+        File secretPropsFile = file("key.properties")
+        curseProp.load(secretPropsFile.newInputStream())
+
+        project {
+            apiKey = curseProp.getProperty('curseKey')
+            id = "817423"
+            releaseType = "release"
+            changelogType = 'text'
+            changelog = file('changelog.txt')
+        	addGameVersion("1.20.1")
+            addGameVersion("Forge")
+            addGameVersion("Java 17")
+        }
+    }
+}
+
+if (file('key.properties').exists()) {
+	modrinth {
+		def modrinthProp = new Properties()
+		File secretPropsFile = file("key.properties")
+		modrinthProp.load(secretPropsFile.newInputStream())
+		
+		token = modrinthProp.getProperty('modrinthKey')
+		projectId = '7zlUOZvb' 
+		versionNumber = project.mod_version 
+		uploadFile = jar 
+		changelog = rootProject.file("changelog.txt").text
+		gameVersions = ['1.20.1']
+		loaders = ['forge']
+	}
+}
