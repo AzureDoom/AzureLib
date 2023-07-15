@@ -2,8 +2,6 @@ package mod.azure.azurelib;
 
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
-import mod.azure.azurelib.entities.TimerSpellTurrentBlock;
-import mod.azure.azurelib.entities.TimerSpellTurrentEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -32,8 +30,6 @@ public final class AzureLibMod {
 		public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AzureLib.MOD_ID);
 
 		public static final RegistryObject<Block> TICKING_LIGHT_BLOCK = BLOCKS.register("lightblock", () -> new TickingLightBlock());
-
-		public static final RegistryObject<Block> TIMER_SPELL_TURRET = BLOCKS.register("timer_spell_turret", () -> new TimerSpellTurrentBlock());
 	}
 
 	public class AzureEntities {
@@ -41,7 +37,5 @@ public final class AzureLibMod {
 		public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
 
 		public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES.register("lightblock", () -> BlockEntityType.Builder.of(TickingLightEntity::new, AzureBlocks.TICKING_LIGHT_BLOCK.get()).build(null));
-		public static final RegistryObject<BlockEntityType<TimerSpellTurrentEntity>> TIMER_SPELL_TURRET_ENTITY = TILE_TYPES.register("timer_spell_turret", () -> BlockEntityType.Builder.of(TimerSpellTurrentEntity::new, AzureBlocks.TIMER_SPELL_TURRET.get()).build(null));
-
 	}
 }
