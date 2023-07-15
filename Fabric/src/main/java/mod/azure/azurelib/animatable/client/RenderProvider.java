@@ -1,6 +1,8 @@
 package mod.azure.azurelib.animatable.client;
 
 import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.mixins.fabric.ItemRendererAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -30,7 +32,7 @@ public interface RenderProvider {
 	}
 
 	default BlockEntityWithoutLevelRenderer getCustomRenderer() {
-		return BlockEntityWithoutLevelRenderer.instance;
+        return ((ItemRendererAccessor)Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
 	}
 
 	default Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {

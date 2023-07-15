@@ -91,6 +91,10 @@ public final class AzureLibUtil {
 		return DataTickets.registerSerializable(dataTicket);
 	}
 
+	public static boolean isMultipleOf(int p_265754_, int p_265543_) {
+		return p_265754_ % p_265543_ == 0;
+	}
+
 	/**
 	 * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
 	 * 

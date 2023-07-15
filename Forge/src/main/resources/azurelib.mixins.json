@@ -9,5 +9,6 @@
 	"mixins": [
 	],
 	"client": [
+		"TextureManagerMixin"
 	]
 }
