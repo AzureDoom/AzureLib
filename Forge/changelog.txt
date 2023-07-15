@@ -1,3 +1,5 @@
-v1.0.0
+v1.0.1
 
-- Ported to 1.17.1 because why the fuck not
+- Tweaks Item Lighting.
+- Fixes null animation crash if called a weird time.
+- Move AutoGlowingTexture#getEmissiveResource to protected instead of private.
