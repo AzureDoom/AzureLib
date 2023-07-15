@@ -9,7 +9,6 @@
   "mixins": [
   ],
   "client": [
-    "fabric.ItemRendererAccessor",
     "fabric.MixinItemRenderer",
     "fabric.MixinHumanoidArmorLayer",
     "fabric.TextureManagerMixin"

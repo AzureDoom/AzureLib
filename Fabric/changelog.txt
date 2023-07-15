@@ -1,11 +1,5 @@
-v1.0.18
+v1.0.19
 
-- Adds AzureLibUtil#summonAoE helper for summon Area of Effect Clouds
-- Port Display Context/Settings for Item animations (EX: Doing an animation only in first person but not 3rd person or not in the GUI).
-- Port Fixed animation ticking system on anything using a non-0 transition value for shader support. 
-- Port Helper Methods in AnimationState.
-- Remove wiki calls
-- Backup port Headed crash fix
-- Update pack.mcmeta
-- Fixes Mixin
-- Lowers required loader version
+- Fixes null animation crash if called a weird time.
+- Move AutoGlowingTexture#getEmissiveResource to protected instead of private.
+- Backports Animated Textures support.

@@ -1,4 +1,5 @@
-v1.0.18
+v1.0.19
 
-- Fixes animation jittering
-- Adds AzureLibUtil#summonAoE helper for summon Area of Effect Clouds
+- Fixes null animation crash if called a weird time.
+- Move AutoGlowingTexture#getEmissiveResource to protected instead of private.
+- Backports Animated Textures support.
