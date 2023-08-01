@@ -186,7 +186,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 		VertexConsumer buffer = ItemRenderer.getFoilBufferDirect(bufferSource, renderType, true, this.currentItemStack != null && this.currentItemStack.hasFoil());
 
 		poseStack.pushPose();
-		Lighting.setupForEntityInInventory();
+		Lighting.setupForFlatItems();
 		defaultRender(poseStack, this.animatable, defaultBufferSource, renderType, buffer,
 				0, Minecraft.getInstance().getFrameTime(), packedLight);
 		defaultBufferSource.endBatch();
