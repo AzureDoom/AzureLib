@@ -1,4 +1,3 @@
-v1.0.18
+v1.0.19
 
-- Fixes animation jittering
-- Adds AzureLibUtil#summonAoE helper for summon Area of Effect Clouds
+- Revert Item Lighting Tweak
