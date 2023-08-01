@@ -231,7 +231,7 @@ if (file('key.properties').exists()) {
             changelogType = 'text'
             changelog = file('changelog.txt')
         	addGameVersion("1.20.1")
-            addGameVersion("Forge")
+            addGameVersion("NeoForge")
             addGameVersion("Java 17")
         }
     }
@@ -248,6 +248,6 @@ if (file('key.properties').exists()) {
 		uploadFile = jar 
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20.1']
-		loaders = ['forge']
+		loaders = ['neoforge']
 	}
 }
