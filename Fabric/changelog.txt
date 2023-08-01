@@ -1,5 +1,3 @@
-v1.0.25
+v1.0.26
 
-- Tweaks Item Lighting.
-- Fixes null animation crash if called a weird time.
-- Move AutoGlowingTexture#getEmissiveResource to protected instead of private.
+- Revert Item Lighting Tweak
