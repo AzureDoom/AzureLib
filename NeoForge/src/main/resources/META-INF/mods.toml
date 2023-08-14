@@ -7,13 +7,13 @@ version="${mod_version}"
 displayName="${mod_name}" 
 displayURL="https://www.curseforge.com/minecraft/mc-mods/azurelib"
 logoFile="azurelib.png" 
-credits="AzureDoom, Gecko, Eliot, DerToaster, Tslat"
+credits="AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat"
 authors="AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat"
 description='''${mod_description}'''
 [[dependencies.${mod_id}]] 
     modId="forge" 
     mandatory=true 
-    versionRange="${forge_version_range}"
+    versionRange="${neo_version_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.${mod_id}]]
