@@ -36,7 +36,10 @@ minecraft {
 
     runs {
         configureEach {
-            workingDirectory project.file('run')
+            workingDirectory project.file("run/${it.name}")
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -45,26 +48,13 @@ minecraft {
         }
 
         client {
-            workingDirectory project.file('runs/' + name)
-            singleInstance true
             property 'forge.enabledGameTestNamespaces', mod_id
             taskName 'azurelib-neoforge120_client'
-
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
         }
 
         server {
-            workingDirectory project.file('runs/' + name)
-            singleInstance true
-            taskName 'azurelib-neoforge120_server'
-
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property 'forge.enabledGameTestNamespaces', mod_id
+            taskName 'azurelib-neoforge120_server'
             args '--nogui'
         }
     }
