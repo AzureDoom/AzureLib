@@ -70,6 +70,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		super(0.5f);
 
 		this.model = model;
+		this.young = false;
 	}
 
 	/**

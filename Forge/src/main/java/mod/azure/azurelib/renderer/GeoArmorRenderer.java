@@ -70,6 +70,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 		super(1.0f);
 
 		this.model = model;
+		this.young = false;
 	}
 
 	/**
