@@ -132,7 +132,6 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> extends Blo
 	 */
 	@Override
 	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		poseStack.pushPose();
 
 		if (!isReRender) {
 			AnimationState<T> animationState = new AnimationState<T>(animatable, 0, 0, partialTick, false);
@@ -151,7 +150,6 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> extends Blo
 
 //		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-		poseStack.popPose();
 	}
 
 	/**

@@ -134,7 +134,6 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 	 */
 	@Override
 	public void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		poseStack.pushPose();
 
 		if (!isReRender) {
 			AnimationState<T> animationState = new AnimationState<T>(animatable, 0, 0, partialTick, false);
@@ -153,7 +152,6 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 
 //		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
 		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-		poseStack.popPose();
 	}
 
 	/**
@@ -190,7 +188,7 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 		case NORTH:
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(0));
 			return;
-		case EAST: 
+		case EAST:
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(270));
 			return;
 		case UP:
@@ -216,7 +214,7 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 
 		return Direction.NORTH;
 	}
-	
+
 	/**
 	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
 	 * This should only be called immediately prior to rendering, and only
@@ -225,7 +223,7 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 	 */
 	@Override
 	public void updateAnimatedTextureFrame(T animatable) {
-		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), animatable.getBlockPos().getX() + animatable.getBlockPos().getY() + animatable.getBlockPos().getZ() + (int)animatable.getTick(animatable));
+		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), animatable.getBlockPos().getX() + animatable.getBlockPos().getY() + animatable.getBlockPos().getZ() + (int) animatable.getTick(animatable));
 	}
 
 	/**
