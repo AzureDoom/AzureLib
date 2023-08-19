@@ -1,3 +1,8 @@
-v1.0.20
+v1.0.21
 
-- Revert Item Lighting Tweak
+- Fix incorrectly popping posestack after inner-render of GeoBlockRenderer and GeoItemRenderer 
+- Fix javadoc mistakes in DefaultedGeoModel and ItemArmorGeoLayer
+- Fix renderRecursively passing a hardcoded false for isReRender in GeoEntityRenderer
+- Fix re-rendering already rendered geo models in GeoModel
+- Fix GeoArmor defaulting to young
+- Remove redundant method call in ItemArmorGeoLayer
