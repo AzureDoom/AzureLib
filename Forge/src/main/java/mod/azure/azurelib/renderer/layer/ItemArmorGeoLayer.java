@@ -149,7 +149,6 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 				if (model instanceof GeoArmorRenderer<?>) {
 					prepModelPartForRender(poseStack, bone, modelPart);
 					((GeoArmorRenderer<?>) model).prepForRender(animatable, armorStack, slot, model);
-					((GeoArmorRenderer<?>) model).setAllVisible(false);
 					((GeoArmorRenderer<?>) model).applyBoneVisibilityByPart(slot, modelPart, model);
 					((GeoArmorRenderer<?>) model).renderToBuffer(poseStack, null, packedLight, packedOverlay, 1, 1, 1, 1);
 				} else if (armorStack.getItem() instanceof ArmorItem) {
