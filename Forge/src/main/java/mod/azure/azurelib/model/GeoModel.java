@@ -37,6 +37,7 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 	private BakedGeoModel currentModel = null;
 	private double animTime;
 	private double lastGameTickTime;
+	private long lastRenderedInstance = -1;
 
 	/**
 	 * Returns the resource path for the {@link BakedGeoModel} (model json file) to render based on the provided animatable
@@ -142,11 +143,12 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 			animatableManager.startedAt(currentTick + mc.getFrameTime());
 
 		double currentFrameTime = currentTick - animatableManager.getFirstTickTime();
+		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
 
-		if (!animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime())
+		if (isReRender && instanceId == this.lastRenderedInstance)
 			return;
 
-		if ((!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
+		if (!isReRender && (!mc.isPaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
 			if (animatable instanceof LivingEntity) {
 				animatableManager.updatedAt(currentFrameTime);
 			} else {
