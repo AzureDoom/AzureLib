@@ -5,7 +5,7 @@
 
 package mod.azure.azurelib.core.keyframe;
 
-import com.eliotlash.mclib.math.IValue;
+import mod.azure.azurelib.core.math.IValue;
 
 public class BoneAnimation {
 	public final String boneName;

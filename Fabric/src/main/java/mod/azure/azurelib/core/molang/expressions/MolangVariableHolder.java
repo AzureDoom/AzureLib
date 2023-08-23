@@ -1,7 +1,7 @@
 package mod.azure.azurelib.core.molang.expressions;
 
-import com.eliotlash.mclib.math.IValue;
-import com.eliotlash.mclib.math.Variable;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.math.Variable;
 
 /**
  * Extension of {@link MolangValue} that additionally sets the value of a provided {@link Variable} when being called.

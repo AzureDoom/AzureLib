@@ -13,9 +13,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.eliotlash.mclib.math.Constant;
-import com.eliotlash.mclib.math.IValue;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -34,6 +31,8 @@ import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.Axis;
