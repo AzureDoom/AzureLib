@@ -1,8 +1,7 @@
 package mod.azure.azurelib.core.molang.expressions;
 
-import com.eliotlash.mclib.math.Constant;
-import com.eliotlash.mclib.math.IValue;
-
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 
 /**

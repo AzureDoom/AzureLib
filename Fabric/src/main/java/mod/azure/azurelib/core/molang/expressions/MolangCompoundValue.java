@@ -1,12 +1,12 @@
 package mod.azure.azurelib.core.molang.expressions;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.molang.LazyVariable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.core.molang.LazyVariable;
 
 /**
  * An extension of the {@link MolangValue} class, allowing for compound expressions.

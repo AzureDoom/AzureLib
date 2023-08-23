@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import com.eliotlash.mclib.math.Constant;
-import com.eliotlash.mclib.math.IValue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -25,6 +23,8 @@ import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.keyframe.BoneAnimation;
 import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.KeyframeStack;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
