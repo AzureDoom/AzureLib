@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
         classpath 'org.parchmentmc:librarian:1.+'
         classpath "com.modrinth.minotaur:Minotaur:2.1.2"
@@ -21,7 +20,6 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
@@ -29,7 +27,6 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "com.modrinth.minotaur"
 apply plugin: 'org.spongepowered.mixin'
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
@@ -38,13 +35,6 @@ version = project.mod_version
 group = project.maven_group
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-configurations {
-    library
-    shade
-    implementation.extendsFrom library
-    shade.extendsFrom library
-}
 
 minecraft {
     mappings channel: 'official', version: '1.20.1'
@@ -97,13 +87,6 @@ mixin {
     config "azurelib.mixins.json"
 }
 
-
-minecraft.runs.all {
-    lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
-    }
-}
-
 repositories {
     maven { url "https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/" }
     maven { url "https://maven.enginehub.org/repo/" }
@@ -117,30 +100,8 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.0.0'
-    library 'com.eliotlash.mclib:mclib:20'
-    shade 'com.eliotlash.mclib:mclib:20'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
-
-shadowJar {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.allSource
-    exclude('META-INF/services/**')
-    exclude('it/**')
-    exclude('com/google/**')
-    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    classifier ''
-}
-
-
-reobf {
-    shadowJar {} // Reobfuscate the shadowed JAR
-}
-tasks.build.dependsOn reobfShadowJar
-publish.dependsOn('reobfJar')
-shadowJar.dependsOn('classes')
-jar.finalizedBy('reobfJar')
 
 jar {
     manifest {
@@ -156,37 +117,10 @@ jar {
     }
 }
 
-task packageSources(type: ShadowJar, dependsOn: 'classes') {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.allSource
-    exclude('META-INF/**')
-    exclude('it/**')
-    exclude('com/google/**')
-    exclude('assets/**')
-    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    archiveClassifier.set('sources')
-}
-
-artifacts {
-    archives shadowJar
-    archives packageSources
-}
-
-afterEvaluate {
-    publish.dependsOn('reobfShadowJar')
-    publish.dependsOn('reobfJar')
-    publish.dependsOn('packageSources')
-    shadowJar.dependsOn(packageSources)
-    shadowJar.dependsOn('classes')
-}
-
-shadowJar.finalizedBy(reobfShadowJar)
-jar.finalizedBy(packageSources)
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact shadowJar
+            artifact jar
             artifactId = project.archives_base_name
         }
     }

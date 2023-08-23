@@ -5,12 +5,12 @@
 
 package mod.azure.azurelib.core.keyframe;
 
-import com.eliotlash.mclib.math.IValue;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animation.EasingType;
-
 import java.util.List;
 import java.util.Objects;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.core.animation.EasingType;
+import mod.azure.azurelib.core.math.IValue;
 
 /**
  * Animation keyframe data

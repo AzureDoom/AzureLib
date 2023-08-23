@@ -4,12 +4,10 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.gradle' version '[6.0.12,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
-    id 'com.github.johnrengelman.shadow' version "7.0.0"
     id "com.modrinth.minotaur" version "2.+"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
@@ -23,12 +21,7 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-configurations {
-    library
-    shade
-    implementation.extendsFrom library
-    shade.extendsFrom library
-}
+
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
     copyIdeResources = true
@@ -80,8 +73,6 @@ repositories {
 
 dependencies {
     minecraft "net.neoforged:forge:${minecraft_version}-${forge_version}"
-    library 'com.eliotlash.mclib:mclib:20'
-    shade 'com.eliotlash.mclib:mclib:20'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -115,63 +106,22 @@ tasks.named('jar', Jar).configure {
     finalizedBy 'reobfJar'
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' 
-}
-
-shadowJar {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.allSource
-    exclude('META-INF/services/**')
-    exclude('it/**')
-    exclude('com/google/**')
-    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archiveClassifier.set('dev')
-}
-
-reobf {
-    shadowJar {} // Reobfuscate the shadowed JAR
-}
-tasks.build.dependsOn reobfShadowJar
-publish.dependsOn('reobfJar')
-shadowJar.dependsOn('classes')
-jar.finalizedBy('reobfJar')
-
-task packageSources(type: ShadowJar, dependsOn: 'classes') {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.allSource
-    exclude('META-INF/**')
-    exclude('it/**')
-    exclude('com/google/**')
-    exclude('assets/**')
-    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    archiveClassifier.set('sources')
-}
-
-artifacts {
-    archives shadowJar
-    archives packageSources
-}
-
-afterEvaluate {
-    publish.dependsOn('reobfShadowJar')
-    publish.dependsOn('reobfJar')
-    publish.dependsOn('packageSources')
-    shadowJar.dependsOn(packageSources)
-    shadowJar.dependsOn('classes')
-}
-
-shadowJar.finalizedBy(reobfShadowJar)
-jar.finalizedBy(packageSources)
-
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifact shadowJar
+        register('mavenJava', MavenPublication) {
+            artifact jar
             artifactId = project.archives_base_name
         }
     }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' 
 }
 
 publishing {

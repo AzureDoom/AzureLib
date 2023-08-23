@@ -5,14 +5,25 @@
 
 package mod.azure.azurelib.core.animation;
 
-import com.eliotlash.mclib.math.Constant;
-import com.eliotlash.mclib.math.IValue;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.Function;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
-import mod.azure.azurelib.core.keyframe.*;
+import mod.azure.azurelib.core.keyframe.AnimationPoint;
+import mod.azure.azurelib.core.keyframe.BoneAnimation;
+import mod.azure.azurelib.core.keyframe.BoneAnimationQueue;
+import mod.azure.azurelib.core.keyframe.Keyframe;
+import mod.azure.azurelib.core.keyframe.KeyframeLocation;
+import mod.azure.azurelib.core.keyframe.KeyframeStack;
 import mod.azure.azurelib.core.keyframe.event.CustomInstructionKeyframeEvent;
 import mod.azure.azurelib.core.keyframe.event.ParticleKeyframeEvent;
 import mod.azure.azurelib.core.keyframe.event.SoundKeyframeEvent;
@@ -20,14 +31,13 @@ import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.core.state.BoneSnapshot;
-
-import java.util.*;
-import java.util.function.Function;
 
 /**
  * The actual controller that handles the playing and usage of animations, including their various keyframes and instruction markers.
