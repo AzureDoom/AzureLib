@@ -1,7 +1,7 @@
 package mod.azure.azurelib.core.molang.functions;
 
-import com.eliotlash.mclib.math.IValue;
-import com.eliotlash.mclib.math.functions.Function;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.math.functions.Function;
 
 /**
  * Replacement function for {@link com.eliotlash.mclib.math.functions.classic.Sin}, operating in degrees rather than radians

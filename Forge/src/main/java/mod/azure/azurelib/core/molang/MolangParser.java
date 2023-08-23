@@ -1,21 +1,22 @@
 package mod.azure.azurelib.core.molang;
 
-import com.eliotlash.mclib.math.Constant;
-import com.eliotlash.mclib.math.IValue;
-import com.eliotlash.mclib.math.MathBuilder;
-import com.eliotlash.mclib.math.Variable;
+import java.util.List;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.math.MathBuilder;
+import mod.azure.azurelib.core.math.Variable;
 import mod.azure.azurelib.core.molang.expressions.MolangCompoundValue;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.CosDegrees;
 import mod.azure.azurelib.core.molang.functions.SinDegrees;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.DoubleSupplier;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
