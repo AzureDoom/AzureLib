@@ -1,15 +1,16 @@
 package mod.azure.azurelib.core.animation;
 
-import com.eliotlash.mclib.utils.Interpolations;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.keyframe.AnimationPoint;
-import mod.azure.azurelib.core.keyframe.Keyframe;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import mod.azure.azurelib.core.keyframe.AnimationPoint;
+import mod.azure.azurelib.core.keyframe.Keyframe;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 /**
  * Functional interface defining an easing function.<br>
