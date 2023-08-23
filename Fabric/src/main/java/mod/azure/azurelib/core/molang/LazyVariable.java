@@ -1,8 +1,8 @@
 package mod.azure.azurelib.core.molang;
 
-import com.eliotlash.mclib.math.Variable;
-
 import java.util.function.DoubleSupplier;
+
+import mod.azure.azurelib.core.math.Variable;
 
 /**
  * Lazy override of Variable, to allow for deferred value calculation. <br>

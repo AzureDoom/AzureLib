@@ -4,14 +4,12 @@ buildscript {
         maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.0"
     }
 }
 
 plugins {
     id 'fabric-loom' version '1.1-SNAPSHOT'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.0'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
 }
@@ -50,24 +48,7 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    // Actual dependencies
-    implementation(include('com.eliotlash.mclib:mclib:20'))
-	modImplementation "com.terraformersmc:modmenu:6.2.2"
-
-    // Shaded dependencies
-    shade 'com.eliotlash.mclib:mclib:20'
-}
-
-shadowJar {
-    configurations = [project.configurations.shade]
-    from sourceSets.main.output
-    duplicatesStrategy = 'exclude'
-    exclude('META-INF/services/**')
-    exclude('it/**')
-    exclude('com/google/**')
-    relocate 'com.eliotlash', 'mod.azure.shadowed.eliotlash'
-    classifier 'dev'
+    modImplementation "com.terraformersmc:modmenu:6.2.2"
 }
 
 jar {
@@ -100,21 +81,12 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 17
 }
 
-artifacts {
-    archives shadowJar
-}
-
 java {
 	withSourcesJar()
 }
 
 jar {
     from "LICENSE"
-}
-
-remapJar {
-    dependsOn(shadowJar)
-    inputFile = shadowJar.archiveFile
 }
 
 publishing {
