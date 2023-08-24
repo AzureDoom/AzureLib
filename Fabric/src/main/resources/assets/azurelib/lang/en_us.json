@@ -1,4 +1,6 @@
 {
+  "category.azurelib.binds": "AzureLib Binds",
+  "key.azurelib.reload": "Reload Gun/Weapon",
   "text.azurelib.value.true": "True",
   "text.azurelib.value.false": "False",
   "text.azurelib.value.edit": "Edit",

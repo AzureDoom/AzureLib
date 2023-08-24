@@ -1,4 +1,6 @@
 {
+  "category.azurelib.binds": "Liaisons AzureLib",
+  "key.azurelib.reload": "Recharger le pistolet/l'arme",
 	"text.azurelib.value.true": "Oui",
 	"text.azurelib.value.false": "Non",
 	"text.azurelib.value.edit": "Modifier",
