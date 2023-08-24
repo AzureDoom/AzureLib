@@ -1,0 +1,26 @@
+{
+  "category.azurelib.binds": "Liaisons AzureLib",
+  "key.azurelib.reload": "Recharger le pistolet/l'arme",
+	"text.azurelib.value.true": "Oui",
+	"text.azurelib.value.false": "Non",
+	"text.azurelib.value.edit": "Modifier",
+	"text.azurelib.value.back": "Retour",
+	"text.azurelib.value.revert.default": "Utiliser la configuration par défaut",
+	"text.azurelib.value.revert.default.dialog": "Êtes-vous sûr de vouloir réinitialiser la configuration avec les valeurs par défaut ?",
+	"text.azurelib.value.revert.changes": "Annuler les modifications",
+	"text.azurelib.value.revert.changes.dialog": "Êtes-vous sûr de vouloir abandonner les modifications que vous avez apportées ?",
+	"text.azurelib.value.add_element": "Ajouter un élément",
+	"text.azurelib.screen.select_config": "Sélectionner une configuration",
+	"text.azurelib.screen.dialog.confirm": "Confirmer",
+	"text.azurelib.screen.dialog.cancel": "Annuler",
+	"text.azurelib.screen.color_dialog": "Sélectionner une couleur",
+	"text.azurelib.screen.color.red": "Rouge : %s",
+	"text.azurelib.screen.color.green": "Vert : %s",
+	"text.azurelib.screen.color.blue": "Bleu : %s",
+	"text.azurelib.screen.color.alpha": "Alpha : %s",
+
+	"text.azurelib.error.character_value_empty": "Le champ de caractère ne peut pas être vide !",
+	"text.azurelib.error.nan": "La valeur '%s' n'est pas un nombre valide !",
+	"text.azurelib.error.num_bounds": "La valeur '%s' n'est pas comprise dans l'intervalle <%s;%s> !",
+	"text.azurelib.error.pattern_mismatch": "La valeur '%s' ne correspond pas au motif \\%s\\ !"
+}
