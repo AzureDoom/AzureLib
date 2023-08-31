@@ -31,11 +31,10 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.fml.ModLoader;
 
 /**
- * Cache class for holding loaded {@link mod.azure.azurelib.core.animation.Animation Animations}
- * and {@link CoreGeoModel Models}
+ * Cache class for holding loaded {@link mod.azure.azurelib.core.animation.Animation Animations} and {@link CoreGeoModel Models}
  */
 public final class AzureLibCache {
-	private static final List<String> EXCLUDED_NAMESPACES = Arrays.asList("moreplayermodels", "customnpcs", "gunsrpg");
+	private static final List<String> EXCLUDED_NAMESPACES = Arrays.asList("moreplayermodels", "dungeons_mobs", "customnpcs", "gunsrpg", "mimic", "celestisynth", "the_flesh_that_hates", "enemyexpansion", "mutationcraft");
 
 	private static Map<ResourceLocation, BakedAnimations> ANIMATIONS = Collections.emptyMap();
 	private static Map<ResourceLocation, BakedGeoModel> MODELS = Collections.emptyMap();
@@ -70,24 +69,18 @@ public final class AzureLibCache {
 		resourceManager.registerReloadListener(AzureLibCache::reload);
 	}
 
-	private static CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager,
-			ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
-			Executor gameExecutor) {
+	private static CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
 		Map<ResourceLocation, BakedAnimations> animations = new Object2ObjectOpenHashMap<>();
 		Map<ResourceLocation, BakedGeoModel> models = new Object2ObjectOpenHashMap<>();
 
-		return CompletableFuture.allOf(
-				loadAnimations(backgroundExecutor, resourceManager, animations::put),
-				loadModels(backgroundExecutor, resourceManager, models::put))
-				.thenCompose(stage::wait).thenAcceptAsync(empty -> {
-					AzureLibCache.ANIMATIONS = animations;
-					AzureLibCache.MODELS = models;
-				}, gameExecutor);
+		return CompletableFuture.allOf(loadAnimations(backgroundExecutor, resourceManager, animations::put), loadModels(backgroundExecutor, resourceManager, models::put)).thenCompose(stage::wait).thenAcceptAsync(empty -> {
+			AzureLibCache.ANIMATIONS = animations;
+			AzureLibCache.MODELS = models;
+		}, gameExecutor);
 	}
 
 	private static CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager, BiConsumer<ResourceLocation, BakedAnimations> elementConsumer) {
-		return loadResources(backgroundExecutor, resourceManager, "animations", resource ->
-				FileLoader.loadAnimationsFile(resource, resourceManager), elementConsumer);
+		return loadResources(backgroundExecutor, resourceManager, "animations", resource -> FileLoader.loadAnimationsFile(resource, resourceManager), elementConsumer);
 	}
 
 	private static CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager, BiConsumer<ResourceLocation, BakedGeoModel> elementConsumer) {
@@ -98,28 +91,24 @@ public final class AzureLibCache {
 				throw new AzureLibException(resource, "Unsupported geometry json version. Supported versions: 1.12.0");
 
 			return BakedModelFactory.getForNamespace(resource.getNamespace()).constructGeoModel(GeometryTree.fromModel(model));
-			}, elementConsumer);
+		}, elementConsumer);
 	}
 
-	private static <T> CompletableFuture<Void> loadResources(Executor executor, ResourceManager resourceManager,
-			String type, Function<ResourceLocation, T> loader, BiConsumer<ResourceLocation, T> map) {
-		return CompletableFuture.supplyAsync(
-				() -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")), executor)
-				.thenApplyAsync(resources -> {
-					Map<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
+	private static <T> CompletableFuture<Void> loadResources(Executor executor, ResourceManager resourceManager, String type, Function<ResourceLocation, T> loader, BiConsumer<ResourceLocation, T> map) {
+		return CompletableFuture.supplyAsync(() -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")), executor).thenApplyAsync(resources -> {
+			Map<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
 
-					for (ResourceLocation resource : resources) {
-						tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));
-					}
+			for (ResourceLocation resource : resources) {
+				tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));
+			}
 
-					return tasks;
-				}, executor)
-				.thenAcceptAsync(tasks -> {
-					for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
-						// Skip known namespaces that use an "animation" folder as well
-						if (!EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
-							map.accept(entry.getKey(), entry.getValue().join());
-					}
-				}, executor);
+			return tasks;
+		}, executor).thenAcceptAsync(tasks -> {
+			for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
+				// Skip known namespaces that use an "animation" folder as well
+				if (!EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
+					map.accept(entry.getKey(), entry.getValue().join());
+			}
+		}, executor);
 	}
 }
