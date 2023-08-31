@@ -34,7 +34,7 @@ import net.minecraftforge.fml.ModLoader;
  * Cache class for holding loaded {@link mod.azure.azurelib.core.animation.Animation Animations} and {@link CoreGeoModel Models}
  */
 public final class AzureLibCache {
-	private static final List<String> EXCLUDED_NAMESPACES = Arrays.asList("moreplayermodels", "customnpcs", "gunsrpg");
+	private static final List<String> EXCLUDED_NAMESPACES = Arrays.asList("moreplayermodels", "dungeons_mobs", "customnpcs", "gunsrpg", "mimic", "celestisynth", "the_flesh_that_hates", "enemyexpansion", "mutationcraft");
 
 	private static Map<ResourceLocation, BakedAnimations> ANIMATIONS = Collections.emptyMap();
 	private static Map<ResourceLocation, BakedGeoModel> MODELS = Collections.emptyMap();
