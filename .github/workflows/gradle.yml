@@ -26,7 +26,6 @@ jobs:
         arguments: build
         build-root-directory: ${{matrix.directory}}
     - name: capture build artifacts
-        if: ${{ runner.os == 'Linux' && matrix.java == '11' }} # Only upload artifacts built from LTS java on one OS
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts
