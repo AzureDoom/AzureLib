@@ -21,7 +21,7 @@ jobs:
         java-version: ${{ matrix.java }}
         distribution: adopt
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2.4.0
+      uses: gradle/gradle-build-action@v2.4.2
       with:
         arguments: build
         build-root-directory: ${{matrix.directory}}
