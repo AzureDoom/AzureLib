@@ -2,9 +2,6 @@ name: Java CI with Gradle
 
 on: push
 
-permissions:
-  contents: read
-
 jobs:
   build:
     strategy:
@@ -14,9 +11,9 @@ jobs:
         directory: ["Fabric", "Forge", "NeoForge"]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v2
       with:
         java-version: ${{ matrix.java }}
         distribution: adopt
