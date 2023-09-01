@@ -17,6 +17,9 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
         distribution: adopt
+    - name: make gradle wrapper executable
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ${{matrix.directory}}/./gradlew
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.4.2
       with:
