@@ -34,12 +34,8 @@ repositories {
     maven { url "https://maven.cloudsmith.io/azuredoom-mods/azurelib/" }
     maven { url "https://plugins.gradle.org/m2/" }
     maven { url "https://maven.shedaniel.me/" }
-	maven { url = "https://maven.terraformersmc.com/" }
+	maven { url "https://maven.terraformersmc.com/" }
 	maven { url "https://maven.terraformersmc.com/releases" } // modmenu
-}
-
-configurations {
-    shade
 }
 
 dependencies {

@@ -18,6 +18,8 @@ daemon
 wrapper
 native
 
+# allow gradlew
+!gradle/wrapper
 # gradle
 build
 .gradle
