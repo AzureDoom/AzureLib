@@ -18,7 +18,9 @@ jobs:
         java-version: ${{ matrix.java }}
         distribution: adopt
     - name: make gradle wrapper executable
-        run: chmod +x ${{matrix.directory}}/./gradlew
+      with:
+        build-root-directory: ${{matrix.directory}}
+        run: chmod +x ./gradlew
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.4.2
       with:
