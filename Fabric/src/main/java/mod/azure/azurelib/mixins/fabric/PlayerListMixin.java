@@ -12,13 +12,14 @@ import mod.azure.azurelib.network.Networking;
 import mod.azure.azurelib.network.S2C_SendConfigData;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
-    private void configuration_sendServerConfigs(Connection connection, ServerPlayer player, CallbackInfo ci) {
+    private void configuration_sendServerConfigs(Connection connection, ServerPlayer player, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         Set<String> set = ConfigHolder.getSynchronizedConfigs();
         set.forEach(id -> Networking.sendClientPacket(player, new S2C_SendConfigData(id)));
     }

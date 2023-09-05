@@ -30,9 +30,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,7 +39,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PlayerHeadItem;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
@@ -243,32 +239,12 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 * Render a given {@link AbstractSkullBlock} as a worn armor piece in relation to a given {@link GeoBone}
 	 */
 	protected void renderSkullAsArmor(PoseStack poseStack, GeoBone bone, ItemStack stack, AbstractSkullBlock skullBlock, MultiBufferSource bufferSource, int packedLight) {
-		GameProfile skullProfile = null;
 		CompoundTag stackTag = stack.getTag();
-
-		if (stackTag != null) {
-			Tag skullTag = stackTag.get(PlayerHeadItem.TAG_SKULL_OWNER);
-
-			if (skullTag instanceof CompoundTag compoundTag) {
-				skullProfile = NbtUtils.readGameProfile(compoundTag);
-			}
-			else if (skullTag instanceof StringTag tag) {
-				String skullOwner = tag.getAsString();
-
-				if (!skullOwner.isBlank()) {
-					CompoundTag profileTag = new CompoundTag();
-
-					SkullBlockEntity.updateGameprofile(new GameProfile(null, skullOwner), name ->
-							stackTag.put(PlayerHeadItem.TAG_SKULL_OWNER, NbtUtils.writeGameProfile(profileTag, name)));
-
-					skullProfile = NbtUtils.readGameProfile(profileTag);
-				}
-			}
-		}
+        GameProfile gameProfile = stackTag != null ? SkullBlockEntity.getOrResolveGameProfile(stackTag) : null;
 
 		SkullBlock.Type type = skullBlock.getType();
 		SkullModelBase model = SkullBlockRenderer.createSkullRenderers(Minecraft.getInstance().getEntityModels()).get(type);
-		RenderType renderType = SkullBlockRenderer.getRenderType(type, skullProfile);
+		RenderType renderType = SkullBlockRenderer.getRenderType(type, gameProfile);
 
 		poseStack.pushPose();
 		RenderUtils.translateAndRotateMatrixForBone(poseStack, bone);

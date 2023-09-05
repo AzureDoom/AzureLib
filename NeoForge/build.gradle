@@ -125,21 +125,24 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 publishing {
-    repositories {
-        maven {
-	      name = "cloudsmith"
-	      url = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      def releasesRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-	      credentials {
-                def envUsername = System.getenv("cloudUsername")
-                def envPassword = System.getenv("cloudPassword")
-                username = envUsername == null ? findProperty("cloudUsername") : envUsername
-                password = envPassword == null ? findProperty("cloudPassword") : envPassword
-	      }
-	    }
+  repositories {
+    maven {
+      name = "azurelib"
+      url = "https://libs.azuredoom.com:4443/mods"
+      credentials(PasswordCredentials)
+      authentication {
+        basic(BasicAuthentication)
+      }
     }
+  }
+  publications {
+    maven(MavenPublication) {
+      groupId = project.mod_group_id
+      artifactId = project.mod_version
+      version = project.archives_base_name
+      from components.java
+    }
+  }
 }
 
 processResources {

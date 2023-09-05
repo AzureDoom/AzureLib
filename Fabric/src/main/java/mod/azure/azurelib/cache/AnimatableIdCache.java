@@ -4,7 +4,9 @@ import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCa
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
 /**
@@ -23,6 +25,10 @@ public final class AnimatableIdCache extends SavedData {
 	private AnimatableIdCache(CompoundTag tag) {
 		this.lastId = tag.getLong("last_id");
 	}
+
+    public static SavedData.Factory<AnimatableIdCache> factory() {
+        return new SavedData.Factory<AnimatableIdCache>(AnimatableIdCache::new, AnimatableIdCache::new, DataFixTypes.SAVED_DATA_MAP_DATA);
+    }
 
 	/**
 	 * Get the next free id from the id cache
@@ -48,10 +54,10 @@ public final class AnimatableIdCache extends SavedData {
 
 	private static AnimatableIdCache getCache(ServerLevel level) {
 		DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
-		AnimatableIdCache cache = storage.computeIfAbsent(AnimatableIdCache::new, AnimatableIdCache::new, DATA_KEY);
+		AnimatableIdCache cache = storage.computeIfAbsent(AnimatableIdCache.factory(), DATA_KEY);
 
 		if (cache.lastId == 0) {
-			AnimatableIdCache legacyCache = storage.get(AnimatableIdCache::fromLegacy, "AzureLib_ids");
+			AnimatableIdCache legacyCache = storage.get(AnimatableIdCache.factory(), "AzureLib_ids");
 
 			if (legacyCache != null)
 				cache.lastId = legacyCache.lastId;

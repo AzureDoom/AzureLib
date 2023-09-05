@@ -6,13 +6,13 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
 public class EntityPacket {
 
-	public static Packet<ClientGamePacketListener> createPacket(Entity entity) {
+	public static Packet<ClientCommonPacketListener> createPacket(Entity entity) {
 		FriendlyByteBuf buf = createBuffer();
 		buf.writeVarInt(BuiltInRegistries.ENTITY_TYPE.getId(entity.getType()));
 		buf.writeUUID(entity.getUUID());

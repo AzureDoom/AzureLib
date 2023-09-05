@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
     id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
@@ -43,7 +43,7 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation "com.terraformersmc:modmenu:7.2.1"
+	//modImplementation "com.terraformersmc:modmenu:7.2.1"
 }
 
 jar {
@@ -99,21 +99,24 @@ publishing {
 }
 
 publishing {
-    repositories {
-        maven {
-	      name = "cloudsmith"
-	      url = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      def releasesRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      def snapshotsRepoUrl = "https://maven.cloudsmith.io/azuredoom-mods/azurelib/"
-	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-	      credentials {
-                def envUsername = System.getenv("cloudUsername")
-                def envPassword = System.getenv("cloudPassword")
-                username = envUsername == null ? findProperty("cloudUsername") : envUsername
-                password = envPassword == null ? findProperty("cloudPassword") : envPassword
-	      }
-	    }
+  repositories {
+    maven {
+      name = "azurelib"
+      url = "https://libs.azuredoom.com:4443/mods"
+      credentials(PasswordCredentials)
+      authentication {
+        basic(BasicAuthentication)
+      }
     }
+  }
+  publications {
+    maven(MavenPublication) {
+      groupId = project.maven_group
+      artifactId = project.mod_version
+      version = project.archives_base_name
+      from components.java
+    }
+  }
 }
 
 processResources {
@@ -142,10 +145,10 @@ if (file('key.properties').exists()) {
     project {
         apiKey = curseProp.getProperty('curseKey')
         id = "817423"
-        releaseType = "release"
+        releaseType = "alpha"
         changelogType = 'text'
         changelog = file('changelog.txt')
-		addGameVersion("1.20.1")
+		addGameVersion("1.20.2-Snapshot")
         addGameVersion("Fabric")
         addGameVersion("Java 17")
 

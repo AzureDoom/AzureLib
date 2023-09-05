@@ -27,11 +27,11 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
     @Override
     public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderTexture(0, new ResourceLocation("textures/gui/widgets.png"));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        stack.blitNineSliced(new ResourceLocation("minecraft"), this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+        stack.blitSprite(new ResourceLocation("minecraft"), this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderString(stack, minecraft.font, Mth.ceil(this.alpha * 255.0F) << 24);
     }
