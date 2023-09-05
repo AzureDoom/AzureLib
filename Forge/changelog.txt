@@ -1,3 +1,0 @@
-v1.0.25
-
-- Moves reload keybind to AzureLib instead of each mod having it's own.
