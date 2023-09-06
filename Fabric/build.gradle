@@ -89,17 +89,24 @@ jar {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-			from components.java
-            artifactId = project.archives_base_name
-        }
+  repositories {
+    maven {
+      name = "azurelib"
+      url = "https://libs.azuredoom.com:4443/mods"
+      credentials(PasswordCredentials)
+      authentication {
+        basic(BasicAuthentication)
+      }
     }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
+  }
+  publications {
+    maven(MavenPublication) {
+      groupId = project.maven_group
+      artifactId = project.mod_version
+      version = project.archives_base_name
+      from components.java
     }
+  }
 }
 
 publishing {
