@@ -1,3 +1,4 @@
-v1.0.25
+v1.0.26
 
-- Moves reload keybind to AzureLib instead of each mod having it's own.
+- Fixes AzureLibUtil#summonAoE not being static
+- Makes ModMenu not required
