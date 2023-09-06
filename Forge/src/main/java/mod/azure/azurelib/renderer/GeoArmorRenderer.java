@@ -270,10 +270,10 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel imple
 	@Override
 	public void renderToBuffer(MatrixStack poseStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Minecraft mc = Minecraft.getInstance();
-		IRenderTypeBuffer bufferSource = mc.renderBuffers().bufferSource();
+		IRenderTypeBuffer bufferSource = mc.levelRenderer.renderBuffers.bufferSource();
 
 		if (mc.levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
-			bufferSource = mc.renderBuffers().outlineBufferSource();
+			bufferSource = mc.levelRenderer.renderBuffers.outlineBufferSource();
 
 		float partialTick = mc.getFrameTime();
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
