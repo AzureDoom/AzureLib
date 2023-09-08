@@ -20,219 +20,216 @@ import net.minecraft.network.chat.Component;
 
 public final class ColorWidget extends AbstractWidget {
 
-    public static final Component SELECT_COLOR = Component.translatable("text.azurelib.screen.color_dialog");
-    private final boolean argb;
-    private final String colorPrefix;
-    private final IntSupplier colorSupplier;
-    private final GetSet<String> colorWidget;
-    private final Screen lastScreen;
+	public static final Component SELECT_COLOR = Component.translatable("text.azurelib.screen.color_dialog");
+	private final boolean argb;
+	private final String colorPrefix;
+	private final IntSupplier colorSupplier;
+	private final GetSet<String> colorWidget;
+	private final Screen lastScreen;
 
-    public ColorWidget(int x, int y, int width, int height, Configurable.Gui.ColorValue colorOptions, GetSet<String> colorWidget, Screen lastScreen) {
-        super(x, y, width, height, CommonComponents.EMPTY);
-        this.argb = colorOptions.isARGB();
-        this.colorPrefix = colorOptions.getGuiColorPrefix();
-        this.colorWidget = colorWidget;
-        this.colorSupplier = () -> {
-            String rawColor = colorWidget.get();
-            try {
-                long longClr = Long.decode(rawColor);
-                return (int) longClr;
-            } catch (NumberFormatException e) {
-                return 0;
-            }
-        };
-        this.lastScreen = lastScreen;
-    }
+	public ColorWidget(int x, int y, int width, int height, Configurable.Gui.ColorValue colorOptions, GetSet<String> colorWidget, Screen lastScreen) {
+		super(x, y, width, height, CommonComponents.EMPTY);
+		this.argb = colorOptions.isARGB();
+		this.colorPrefix = colorOptions.getGuiColorPrefix();
+		this.colorWidget = colorWidget;
+		this.colorSupplier = () -> {
+			String rawColor = colorWidget.get();
+			try {
+				long longClr = Long.decode(rawColor);
+				return (int) longClr;
+			} catch (NumberFormatException e) {
+				return 0;
+			}
+		};
+		this.lastScreen = lastScreen;
+	}
 
-    @Override
-    public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialRenderTicks) {
-        int borderColor = this.isFocused() ? 0xffffffff : 0xffa0a0a0;
-        int providedColor = this.colorSupplier.getAsInt();
-        int color = this.argb ? providedColor : (0xFF << 24) | providedColor;
-        stack.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, borderColor);
-        stack.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFFFFFFFF, 0xFF888888);
-        stack.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, color);
-    }
-    
-    @Override
-    protected boolean isValidClickButton(int button) {
-        return button == 0;
-    }
+	@Override
+	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialRenderTicks) {
+		int borderColor = this.isFocused() ? 0xffffffff : 0xffa0a0a0;
+		int providedColor = this.colorSupplier.getAsInt();
+		int color = this.argb ? providedColor : (0xFF << 24) | providedColor;
+		graphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, borderColor);
+		graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFFFFFFFF, 0xFF888888);
+		graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, color);
+	}
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        ColorSelectorDialog dialog = new ColorSelectorDialog(SELECT_COLOR, this.lastScreen, this.argb, this.colorSupplier);
-        dialog.onConfirmed(screen -> {
-            int color = dialog.getResultColor();
-            String colorText = this.colorPrefix + Integer.toHexString(color).toUpperCase();
-            this.colorWidget.set(colorText);
-            dialog.displayPreviousScreen(dialog);
-        });
-        Minecraft.getInstance().setScreen(dialog);
-    }
+	@Override
+	protected boolean isValidClickButton(int button) {
+		return button == 0;
+	}
 
-    @Override
-    public void updateWidgetNarration(NarrationElementOutput elementOutput) {
-    }
+	@Override
+	public void onClick(double mouseX, double mouseY) {
+		ColorSelectorDialog dialog = new ColorSelectorDialog(SELECT_COLOR, this.lastScreen, this.argb, this.colorSupplier);
+		dialog.onConfirmed(screen -> {
+			int color = dialog.getResultColor();
+			String colorText = this.colorPrefix + Integer.toHexString(color).toUpperCase();
+			this.colorWidget.set(colorText);
+			dialog.displayPreviousScreen(dialog);
+		});
+		Minecraft.getInstance().setScreen(dialog);
+	}
 
-    public interface GetSet<T> {
+	@Override
+	public void updateWidgetNarration(NarrationElementOutput elementOutput) {
+	}
 
-        T get();
+	public interface GetSet<T> {
 
-        void set(T t);
+		T get();
 
-        static <T> GetSet<T> of(Supplier<T> get, Consumer<T> set) {
-            return new GetSet<T>() {
-                @Override
-                public T get() {
-                    return get.get();
-                }
+		void set(T t);
 
-                @Override
-                public void set(T t) {
-                    set.accept(t);
-                }
-            };
-        }
-    }
+		static <T> GetSet<T> of(Supplier<T> get, Consumer<T> set) {
+			return new GetSet<T>() {
+				@Override
+				public T get() {
+					return get.get();
+				}
 
-    private static final class ColorSelectorDialog extends DialogScreen {
+				@Override
+				public void set(T t) {
+					set.accept(t);
+				}
+			};
+		}
+	}
 
-        private final boolean argb;
-        private final IntSupplier colorProvider;
-        private final List<ColorSlider> sliders = new ArrayList<>();
+	private static final class ColorSelectorDialog extends DialogScreen {
 
-        public ColorSelectorDialog(Component title, Screen background, boolean allowTransparency, IntSupplier colorProvider) {
-            super(title, new Component[0], background);
-            this.argb = allowTransparency;
-            this.colorProvider = colorProvider;
-        }
+		private final boolean argb;
+		private final IntSupplier colorProvider;
+		private final List<ColorSlider> sliders = new ArrayList<>();
 
-        @Override
-        protected void init() {
-            this.sliders.clear();
-            int width = 190;
-            int height = 120;
-            int rightMargin = 85;
-            if (this.argb) {
-                height = 150;
-                rightMargin = 110;
-                width = 230;
-            }
-            super.init();
-            this.setDimensions(width, height);
-            int color = this.colorProvider.getAsInt();
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 20, dialogWidth - rightMargin, 20, color, ColorComponent.RED)));
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 45, dialogWidth - rightMargin, 20, color, ColorComponent.GREEN)));
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 70, dialogWidth - rightMargin, 20, color, ColorComponent.BLUE)));
-            if (this.argb) {
-                this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 95, dialogWidth - rightMargin, 20, color, ColorComponent.ALPHA)));
-            }
-            this.addRenderableWidget(new ColorDisplay(dialogLeft + 5 + dialogWidth - rightMargin + 5, dialogTop + 20, rightMargin - 15, rightMargin - 15, argb, this::getResultColor));
-            super.addDefaultDialogButtons();
-        }
+		public ColorSelectorDialog(Component title, Screen background, boolean allowTransparency, IntSupplier colorProvider) {
+			super(title, new Component[0], background);
+			this.argb = allowTransparency;
+			this.colorProvider = colorProvider;
+		}
 
-        @Override
-        protected void addDefaultDialogButtons() {
-        }
+		@Override
+		protected void init() {
+			this.sliders.clear();
+			int width = 190;
+			int height = 120;
+			int rightMargin = 85;
+			if (this.argb) {
+				height = 150;
+				rightMargin = 110;
+				width = 230;
+			}
+			super.init();
+			this.setDimensions(width, height);
+			int color = this.colorProvider.getAsInt();
+			this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 20, dialogWidth - rightMargin, 20, color, ColorComponent.RED)));
+			this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 45, dialogWidth - rightMargin, 20, color, ColorComponent.GREEN)));
+			this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 70, dialogWidth - rightMargin, 20, color, ColorComponent.BLUE)));
+			if (this.argb) {
+				this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 95, dialogWidth - rightMargin, 20, color, ColorComponent.ALPHA)));
+			}
+			this.addRenderableWidget(new ColorDisplay(dialogLeft + 5 + dialogWidth - rightMargin + 5, dialogTop + 20, rightMargin - 15, rightMargin - 15, argb, this::getResultColor));
+			super.addDefaultDialogButtons();
+		}
 
-        public int getResultColor() {
-            int color = 0;
-            for (ColorSlider slider : this.sliders) {
-                color |= slider.getColor();
-            }
-            return color;
-        }
+		@Override
+		protected void addDefaultDialogButtons() {
+		}
 
-        private static final class ColorDisplay extends AbstractWidget {
+		public int getResultColor() {
+			int color = 0;
+			for (ColorSlider slider : this.sliders) {
+				color |= slider.getColor();
+			}
+			return color;
+		}
 
-            private final boolean argb;
-            private final IntSupplier colorProvider;
+		private static final class ColorDisplay extends AbstractWidget {
 
-            public ColorDisplay(int x, int y, int width, int height, boolean argb, IntSupplier colorProvider) {
-                super(x, y, width, height, CommonComponents.EMPTY);
-                this.argb = argb;
-                this.colorProvider = colorProvider;
-            }
+			private final boolean argb;
+			private final IntSupplier colorProvider;
 
-            @Override
-            public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-                int color = this.colorProvider.getAsInt();
-                if (!this.argb) {
-                    color |= 0xFF << 24;
-                }
-                int borderColor = 0xffa0a0a0;
-                stack.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, borderColor);
-                stack.fillGradient(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFFFFFFFF, 0xFF888888);
-                stack.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, color);
-            }
+			public ColorDisplay(int x, int y, int width, int height, boolean argb, IntSupplier colorProvider) {
+				super(x, y, width, height, CommonComponents.EMPTY);
+				this.argb = argb;
+				this.colorProvider = colorProvider;
+			}
 
-            @Override
-            protected boolean isValidClickButton(int button) {
-                return false;
-            }
+			@Override
+			public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+				int color = this.colorProvider.getAsInt();
+				if (!this.argb) {
+					color |= 0xFF << 24;
+				}
+				int borderColor = 0xffa0a0a0;
+				graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, borderColor);
+				graphics.fillGradient(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, 0xFFFFFFFF, 0xFF888888);
+				graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, color);
+			}
 
-            @Override
-            public void updateWidgetNarration(NarrationElementOutput p_169152_) {
-            }
-        }
+			@Override
+			protected boolean isValidClickButton(int button) {
+				return false;
+			}
 
-        private static final class ColorSlider extends AbstractSliderButton {
+			@Override
+			public void updateWidgetNarration(NarrationElementOutput p_169152_) {
+			}
+		}
 
-            private final ColorComponent colorComponent;
+		private static final class ColorSlider extends AbstractSliderButton {
 
-            public ColorSlider(int x, int y, int width, int height, int color, ColorComponent colorComponent) {
-                super(x, y, width, height, CommonComponents.EMPTY, (colorComponent.getByteColor(color) / 255.0D));
-                this.colorComponent = colorComponent;
-                this.updateMessage();
-            }
+			private final ColorComponent colorComponent;
 
-            @Override
-            protected void updateMessage() {
-                Component colorLabel = this.colorComponent.updateTitle(this.value);
-                this.setMessage(colorLabel);
-            }
+			public ColorSlider(int x, int y, int width, int height, int color, ColorComponent colorComponent) {
+				super(x, y, width, height, CommonComponents.EMPTY, (colorComponent.getByteColor(color) / 255.0D));
+				this.colorComponent = colorComponent;
+				this.updateMessage();
+			}
 
-            @Override
-            protected void applyValue() {
-            }
+			@Override
+			protected void updateMessage() {
+				Component colorLabel = this.colorComponent.updateTitle(this.value);
+				this.setMessage(colorLabel);
+			}
 
-            int getColor() {
-                return this.colorComponent.getOffsetColor((int) (0xFF * this.value));
-            }
-        }
+			@Override
+			protected void applyValue() {
+			}
 
-        private enum ColorComponent {
+			int getColor() {
+				return this.colorComponent.getOffsetColor((int) (0xFF * this.value));
+			}
+		}
 
-            ALPHA(24),
-            RED(16),
-            GREEN(8),
-            BLUE(0);
+		private enum ColorComponent {
 
-            private final int bitOffset;
-            private final Function<Double, Component> title;
+			ALPHA(24), RED(16), GREEN(8), BLUE(0);
 
-            ColorComponent(int bitOffset) {
-                this.bitOffset = bitOffset;
-                this.title = val -> {
-                    String name = this.name().toLowerCase();
-                    String translate = "text.azurelib.screen.color." + name;
-                    int colorValue = (int) (val * 255);
-                    return Component.translatable(translate, colorValue);
-                };
-            }
+			private final int bitOffset;
+			private final Function<Double, Component> title;
 
-            public int getOffsetColor(int value) {
-                return value << bitOffset;
-            }
+			ColorComponent(int bitOffset) {
+				this.bitOffset = bitOffset;
+				this.title = val -> {
+					String name = this.name().toLowerCase();
+					String translate = "text.azurelib.screen.color." + name;
+					int colorValue = (int) (val * 255);
+					return Component.translatable(translate, colorValue);
+				};
+			}
 
-            public int getByteColor(int value) {
-                return (value >> bitOffset) & 0xFF;
-            }
+			public int getOffsetColor(int value) {
+				return value << bitOffset;
+			}
 
-            public Component updateTitle(double sliderValue) {
-                return this.title.apply(sliderValue);
-            }
-        }
-    }
+			public int getByteColor(int value) {
+				return (value >> bitOffset) & 0xFF;
+			}
+
+			public Component updateTitle(double sliderValue) {
+				return this.title.apply(sliderValue);
+			}
+		}
+	}
 }
