@@ -1,3 +1,3 @@
-v1.0.25
+v1.0.26
 
-- Fixes Armor render bug with Iris
+- Moves Item and OBJ GeoRender renderBuffers to LevelRender
