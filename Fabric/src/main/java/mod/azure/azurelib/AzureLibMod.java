@@ -20,6 +20,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,9 +33,14 @@ public final class AzureLibMod implements ModInitializer {
 	public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
 	public static TestingConfig config;
 
+    public AzureLibMod() {
+		if (FabricLoader.getInstance().isDevelopmentEnvironment())
+			config = registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
+    }
+
 	@Override
 	public void onInitialize() {
-		config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
+        ConfigIO.FILE_WATCH_MANAGER.startService();
 		AzureLib.initialize();
 		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(AzureLib.MOD_ID, "lightblock"), TICKING_LIGHT_BLOCK);
 		TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AzureLib.MOD_ID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
