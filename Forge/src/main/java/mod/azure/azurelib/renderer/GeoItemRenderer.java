@@ -162,7 +162,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends ItemStackTi
 	 * Just includes some additional required transformations and settings.
 	 */
 	protected void renderInGui(ItemCameraTransforms.TransformType transformType, MatrixStack poseStack, IRenderTypeBuffer bufferSource, int packedLight, int packedOverlay) {
-		IRenderTypeBuffer.Impl defaultBufferSource = bufferSource instanceof IRenderTypeBuffer.Impl ? ((IRenderTypeBuffer.Impl) bufferSource) : Minecraft.getInstance().renderBuffers().bufferSource();
+		IRenderTypeBuffer.Impl defaultBufferSource = bufferSource instanceof IRenderTypeBuffer.Impl ? ((IRenderTypeBuffer.Impl) bufferSource) : Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), defaultBufferSource, Minecraft.getInstance().getFrameTime());
 		IVertexBuilder buffer = ItemRenderer.getFoilBufferDirect(bufferSource, renderType, true, this.currentItemStack != null && this.currentItemStack.hasFoil());
 
