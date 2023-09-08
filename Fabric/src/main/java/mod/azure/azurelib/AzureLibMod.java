@@ -32,9 +32,13 @@ public final class AzureLibMod implements ModInitializer {
 	public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
 	public static TestingConfig config;
 
+	public AzureLibMod() {
+		config = registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
+	}
+
 	@Override
 	public void onInitialize() {
-		config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
+		ConfigIO.FILE_WATCH_MANAGER.startService();
 		AzureLib.initialize();
 		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(AzureLib.MOD_ID, "lightblock"), TICKING_LIGHT_BLOCK);
 		TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AzureLib.MOD_ID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
