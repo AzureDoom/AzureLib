@@ -1,3 +1,5 @@
-v1.0.27
+v1.0.28
 
-- Fixes Armor render bug with Iris
+- Fixes Config screen not focusing.
+- Fixes Config button textures.
+- Moves Item and OBJ GeoRender renderBuffers to LevelRender
