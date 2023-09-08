@@ -32,7 +32,7 @@ public class EntityPacketOnClient {
 				entity.setYRot(yaw);
 				entity.setId(entityID);
 				entity.setUUID(entityUUID);
-				world.putNonPlayerEntity(entityID, entity);
+				world.addEntity(entity);
 			}
 		});
 	}
