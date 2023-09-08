@@ -6,8 +6,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 
 /**
  * Storage class that keeps track of the last animatable id used, and provides new ones on request.<br>
@@ -28,6 +26,10 @@ public final class AnimatableIdCache extends SavedData {
 
     public static SavedData.Factory<AnimatableIdCache> factory() {
         return new SavedData.Factory<AnimatableIdCache>(AnimatableIdCache::new, AnimatableIdCache::new, DataFixTypes.SAVED_DATA_MAP_DATA);
+    }
+
+    public static SavedData.Factory<AnimatableIdCache> factory2() {
+        return new SavedData.Factory<AnimatableIdCache>(AnimatableIdCache::new, AnimatableIdCache::fromLegacy, DataFixTypes.SAVED_DATA_MAP_DATA);
     }
 
 	/**
@@ -53,11 +55,11 @@ public final class AnimatableIdCache extends SavedData {
 	}
 
 	private static AnimatableIdCache getCache(ServerLevel level) {
-		DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
-		AnimatableIdCache cache = storage.computeIfAbsent(AnimatableIdCache.factory(), DATA_KEY);
+		var storage = level.getServer().overworld().getDataStorage();
+		var cache = storage.computeIfAbsent(AnimatableIdCache.factory(), DATA_KEY);
 
 		if (cache.lastId == 0) {
-			AnimatableIdCache legacyCache = storage.get(AnimatableIdCache.factory(), "AzureLib_ids");
+			AnimatableIdCache legacyCache = storage.get(AnimatableIdCache.factory2(), "AzureLib_ids");
 
 			if (legacyCache != null)
 				cache.lastId = legacyCache.lastId;
@@ -71,12 +73,11 @@ public final class AnimatableIdCache extends SavedData {
 	 * Remove this at some point in the future
 	 */
 	private static AnimatableIdCache fromLegacy(CompoundTag tag) {
-		AnimatableIdCache legacyCache = new AnimatableIdCache();
+		var legacyCache = new AnimatableIdCache();
 
-		for (String key : tag.getAllKeys()) {
+		for (var key : tag.getAllKeys()) 
 			if (tag.contains(key, Tag.TAG_ANY_NUMERIC))
 				legacyCache.lastId = Math.max(legacyCache.lastId, tag.getInt(key));
-		}
 
 		return legacyCache;
 	}
