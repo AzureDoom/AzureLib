@@ -1,3 +1,5 @@
-v1.0.28
+v1.0.29
 
-- Updated to 1.20.2-Prerelease 2
+- Port nested json array format for bedrock animations parsing
+- Port disable pre-render translation for GeoItems if doing re-render
+- Port prevent animated texture mixin from early-cancelling method call
