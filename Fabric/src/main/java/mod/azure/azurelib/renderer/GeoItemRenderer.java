@@ -137,7 +137,8 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 
 		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
 
-		poseStack.translate(0.5f, 0.51f, 0.5f);
+		if (!isReRender)
+			poseStack.translate(0.5f, 0.51f, 0.5f);
 	}
 
 	@Override
@@ -213,7 +214,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 
 		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 	}
-	
+
 	/**
 	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
 	 * This should only be called immediately prior to rendering, and only
@@ -222,7 +223,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public void updateAnimatedTextureFrame(T animatable) {
-		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), Item.getId(animatable) + (int)animatable.getTick(animatable));
+		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), Item.getId(animatable) + (int) animatable.getTick(animatable));
 	}
 
 	/**
