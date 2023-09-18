@@ -1,3 +1,5 @@
-v1.0.29
+v1.0.30
 
-- Fixes Armor render bug with Iris
+- Port nested json array format for bedrock animations parsing
+- Port disable pre-render translation for GeoItems if doing re-render
+- Port prevent animated texture mixin from early-cancelling method call
