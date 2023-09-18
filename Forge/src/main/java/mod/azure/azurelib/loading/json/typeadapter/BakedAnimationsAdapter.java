@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import mod.azure.azurelib.core.math.Constant;
-import mod.azure.azurelib.core.math.IValue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -25,6 +23,8 @@ import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.keyframe.BoneAnimation;
 import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.KeyframeStack;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
@@ -133,11 +133,19 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 					String timestamp = entry.getKey();
 					double time = NumberUtils.isCreatable(timestamp) ? Double.parseDouble(timestamp) : 0;
 
-					if (entryObj.has("pre"))
-						list.add(Pair.of(timestamp, GsonHelper.getAsJsonArray(entryObj, "pre")));
+					if (entryObj.has("pre")) {
+						JsonElement postElement = entryObj.get("pre");
+						JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
 
-					if (entryObj.has("post"))
-						list.add(Pair.of(String.valueOf(time + 0.0000001), GsonHelper.getAsJsonArray(entryObj, "post")));
+						list.add(Pair.of(timestamp, array));
+					}
+
+					if (entryObj.has("post")) {
+						JsonElement postElement = entryObj.get("post");
+						JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
+
+						list.add(Pair.of(String.valueOf(time + 0.0000001), array));
+					}
 
 					continue;
 				}
