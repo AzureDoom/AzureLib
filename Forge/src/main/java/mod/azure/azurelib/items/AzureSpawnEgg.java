@@ -13,4 +13,8 @@ public class AzureSpawnEgg extends ForgeSpawnEggItem {
 		super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
 	}
 
+	public AzureSpawnEgg(EntityType<? extends Mob> type, int primaryColor, int secondaryColor) {
+		super(() -> type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
+	}
+
 }
