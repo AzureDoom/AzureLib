@@ -4,6 +4,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.cache.AzureLibCache;
 
@@ -15,6 +18,7 @@ import mod.azure.azurelib.cache.AzureLibCache;
  */
 public class AzureLib {
 	public static final Logger LOGGER = LogManager.getLogger();
+	public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
 	public static final String MOD_ID = "azurelib";
 	public static volatile boolean hasInitialized;
 
