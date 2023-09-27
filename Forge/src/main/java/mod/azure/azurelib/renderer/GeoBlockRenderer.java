@@ -122,8 +122,8 @@ public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends Tile
 	}
 
 	@Override
-	public void render(TileEntity animatable, float partialTick, MatrixStack poseStack, IRenderTypeBuffer bufferSource, int packedLight, int packedOverlay) {
-		this.animatable = (T) animatable;
+	public void render(T animatable, float partialTick, MatrixStack poseStack, IRenderTypeBuffer bufferSource, int packedLight, int packedOverlay) {
+		this.animatable = animatable;
 
 		defaultRender(poseStack, this.animatable, bufferSource, null, null, 0, partialTick, packedLight);
 	}
