@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -204,6 +206,23 @@ public final class GsonFormat implements IConfigFormat {
     }
 
     @Override
+    public <E extends Enum<E>> void writeEnumArray(String field, E[] value) {
+        String[] strings = Arrays.stream(value).map(Enum::name).toArray(String[]::new);
+        writeStringArray(field, strings);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <E extends Enum<E>> E[] readEnumArray(String field, Class<E> enumClass) throws ConfigValueMissingException {
+        String[] strings = readStringArray(field);
+        E[] arr = (E[]) Array.newInstance(enumClass, strings.length);
+        for (int i = 0; i < strings.length; i++) {
+            arr[i] = ConfigUtils.getEnumConstant(strings[i], enumClass);
+        }
+        return arr;
+    }
+
+    @Override
     public void writeMap(String field, Map<String, ConfigValue<?>> value) {
         GsonFormat config = new GsonFormat(new Settings());
         value.values().forEach(val -> val.serializeValue(config));
@@ -269,7 +288,7 @@ public final class GsonFormat implements IConfigFormat {
         try {
             return function.apply(element);
         } catch (Exception e) {
-            AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
+        	AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
             throw new ConfigValueMissingException("Invalid value");
         }
     }
@@ -288,7 +307,7 @@ public final class GsonFormat implements IConfigFormat {
             }
             return arr;
         } catch (Exception e) {
-            AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
+        	AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
             throw new ConfigValueMissingException("Invalid value");
         }
     }

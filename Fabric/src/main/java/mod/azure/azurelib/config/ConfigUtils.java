@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.io.ConfigIO;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.EditBox;
 
 public final class ConfigUtils {
@@ -26,11 +24,11 @@ public final class ConfigUtils {
     public static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPINGS = new HashMap<>();
 
     public static void logCorrectedMessage(String field, @Nullable Object prevValue, Object corrected) {
-        AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config value '{}' from '{}' to '{}'", field, Objects.toString(prevValue), corrected);
+    	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config value '{}' from '{}' to '{}'", field, Objects.toString(prevValue), corrected);
     }
 
     public static void logArraySizeCorrectedMessage(String field, Object prevValue, Object corrected) {
-        AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config array value '{}' due to invalid size from '{}' to '{}'", field, prevValue, corrected);
+    	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config array value '{}' due to invalid size from '{}' to '{}'", field, prevValue, corrected);
     }
 
     public static boolean[] unboxArray(Boolean[] values) {
@@ -119,7 +117,6 @@ public final class ConfigUtils {
         return PRIMITIVE_MAPPINGS.getOrDefault(type, type);
     }
 
-    @Environment(EnvType.CLIENT)
     public static void adjustCharacterLimit(Field field, EditBox widget) {
         Configurable.Gui.CharacterLimit limit = field.getAnnotation(Configurable.Gui.CharacterLimit.class);
         if (limit != null) {

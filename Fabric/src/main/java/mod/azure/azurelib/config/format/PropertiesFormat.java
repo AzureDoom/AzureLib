@@ -1,5 +1,20 @@
 package mod.azure.azurelib.config.format;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.config.ConfigUtils;
@@ -7,11 +22,6 @@ import mod.azure.azurelib.config.exception.ConfigReadException;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.IDescriptionProvider;
-
-import java.io.*;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class PropertiesFormat implements IConfigFormat {
 
@@ -29,7 +39,7 @@ public final class PropertiesFormat implements IConfigFormat {
         this(prefix, bufferRef, new HashMap<>(), settings);
     }
 
-    private PropertiesFormat(@Nullable String prefix, StringBuilder bufferRef, Map<String, String> parsed, Settings settings) {
+    private PropertiesFormat(String prefix, StringBuilder bufferRef, Map<String, String> parsed, Settings settings) {
         this.prefix = prefix;
         this.buffer = bufferRef;
         this.parsed = parsed;
@@ -249,6 +259,23 @@ public final class PropertiesFormat implements IConfigFormat {
     @Override
     public <E extends Enum<E>> E readEnum(String field, Class<E> enumClass) throws ConfigValueMissingException {
         return ConfigUtils.getEnumConstant(this.getValue(field), enumClass);
+    }
+
+    @Override
+    public <E extends Enum<E>> void writeEnumArray(String field, E[] value) {
+        String[] strings = Arrays.stream(value).map(Enum::name).toArray(String[]::new);
+        writeStringArray(field, strings);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <E extends Enum<E>> E[] readEnumArray(String field, Class<E> enumClass) throws ConfigValueMissingException {
+        String[] strings = readStringArray(field);
+        E[] arr = (E[]) Array.newInstance(enumClass, strings.length);
+        for (int i = 0; i < strings.length; i++) {
+            arr[i] = ConfigUtils.getEnumConstant(strings[i], enumClass);
+        }
+        return arr;
     }
 
     @Override

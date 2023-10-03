@@ -1,14 +1,14 @@
 package mod.azure.azurelib.config.format;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
 import mod.azure.azurelib.config.exception.ConfigReadException;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.IDescriptionProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Handles exporting of data to custom file format
@@ -72,6 +72,10 @@ public interface IConfigFormat {
     <E extends Enum<E>> void writeEnum(String field, E value);
 
     <E extends Enum<E>> E readEnum(String field, Class<E> enumClass) throws ConfigValueMissingException;
+
+    <E extends Enum<E>> void writeEnumArray(String field, E[] value);
+
+    <E extends Enum<E>> E[] readEnumArray(String field, Class<E> enumClass) throws ConfigValueMissingException;
 
     void writeMap(String field, Map<String, ConfigValue<?>> value);
 

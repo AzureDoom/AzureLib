@@ -1,10 +1,10 @@
 package mod.azure.azurelib.config.value;
 
+import java.util.Objects;
+
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.config.adapter.TypeAdapter;
-
-import java.util.Objects;
 
 public final class ValueData<T> implements IDescriptionProvider {
 

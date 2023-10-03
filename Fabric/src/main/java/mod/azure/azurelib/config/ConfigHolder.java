@@ -64,7 +64,7 @@ public final class ConfigHolder<CFG> {
         try {
             this.configInstance = cfgClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
-            AzureLib.LOGGER.fatal(AzureLib.MAIN_MARKER, "Failed to instantiate config class for {} config", configId);
+        	AzureLib.LOGGER.fatal(AzureLib.MAIN_MARKER, "Failed to instantiate config class for {} config", configId);
             throw new RuntimeException("Config create failed", e);
         }
         try {
@@ -222,12 +222,12 @@ public final class ConfigHolder<CFG> {
                 continue;
             int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
-                AzureLib.LOGGER.warn(ConfigIO.MARKER, "Skipping config field {}, only instance non-final types are supported", field);
+            	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Skipping config field {}, only instance non-final types are supported", field);
                 continue;
             }
             TypeAdapter adapter = TypeAdapters.forType(field.getType());
             if (adapter == null) {
-                AzureLib.LOGGER.warn(ConfigIO.MARKER, "Missing adapter for type {}, skipping serialization", field.getType());
+            	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Missing adapter for type {}, skipping serialization", field.getType());
                 continue;
             }
             String[] comments = new String[0];
@@ -253,7 +253,7 @@ public final class ConfigHolder<CFG> {
                     try {
                         adapter.setFieldValue(field, instance, value);
                     } catch (IllegalAccessException e) {
-                        AzureLib.LOGGER.error(ConfigIO.MARKER, "Failed to update config value for field {} from {} to a new value {} due to error {}", field.getName(), type, value, e);
+                    	AzureLib.LOGGER.error(ConfigIO.MARKER, "Failed to update config value for field {} from {} to a new value {} due to error {}", field.getName(), type, value, e);
                     }
                 }
             });
@@ -283,15 +283,15 @@ public final class ConfigHolder<CFG> {
                     method.setAccessible(true);
                     method.invoke(instance, val, handler);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    AzureLib.LOGGER.error(ConfigIO.MARKER, "Error occurred while invoking {} method: {}", method, e);
+                	AzureLib.LOGGER.error(ConfigIO.MARKER, "Error occurred while invoking {} method: {}", method, e);
                 }
             };
             value.setValueValidator(setValueCallback);
             AzureLib.LOGGER.debug(ConfigIO.MARKER, "Attached new value listener method '{}' for config value {}", methodName, value.getId());
         } catch (NoSuchMethodException e) {
-            AzureLib.LOGGER.error(ConfigIO.MARKER, "Unable to map method {} for config value {} due to {}", methodName, value.getId(), e);
+        	AzureLib.LOGGER.error(ConfigIO.MARKER, "Unable to map method {} for config value {} due to {}", methodName, value.getId(), e);
         } catch (Exception e) {
-            AzureLib.LOGGER.fatal(ConfigIO.MARKER, "Fatal error occurred while trying to map value listener for {} method", methodName);
+        	AzureLib.LOGGER.fatal(ConfigIO.MARKER, "Fatal error occurred while trying to map value listener for {} method", methodName);
             throw new RuntimeException("Value listener map failed", e);
         }
     }
@@ -302,8 +302,8 @@ public final class ConfigHolder<CFG> {
 
     private void loadNetworkFields(Map<String, ConfigValue<?>> src, Map<String, ConfigValue<?>> dest) {
         src.values().forEach(value -> {
-            if (value instanceof ObjectValue) {
-                Map<String, ConfigValue<?>> data = ((ObjectValue) value).get();
+            if (value instanceof ObjectValue objValue) {
+                Map<String, ConfigValue<?>> data = objValue.get();
                 loadNetworkFields(data, dest);
             } else {
                 if (!value.shouldSynchronize())

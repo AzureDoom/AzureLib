@@ -1,5 +1,11 @@
 package mod.azure.azurelib.config.value;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.client.IValidationHandler;
@@ -8,12 +14,6 @@ import mod.azure.azurelib.config.Configurable;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class ConfigValue<T> implements Supplier<T>{
 

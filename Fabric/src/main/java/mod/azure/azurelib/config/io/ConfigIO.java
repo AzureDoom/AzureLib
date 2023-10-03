@@ -20,20 +20,20 @@ public final class ConfigIO {
     public static final FileWatchManager FILE_WATCH_MANAGER = new FileWatchManager();
 
     public static void processConfig(ConfigHolder<?> holder) {
-        AzureLib.LOGGER.debug(MARKER, "Starting processing of config {}", holder.getConfigId());
+    	AzureLib.LOGGER.debug(MARKER, "Starting processing of config {}", holder.getConfigId());
         processSafely(holder, () -> {
             File file = getConfigFile(holder);
             if (file.exists()) {
                 try {
                     readConfig(holder);
                 } catch (IOException e) {
-                    AzureLib.LOGGER.error(MARKER, "Config read failed for config ID {}, will create default config file", holder.getConfigId());
+                	AzureLib.LOGGER.error(MARKER, "Config read failed for config ID {}, will create default config file", holder.getConfigId());
                 }
             }
             try {
                 writeConfig(holder);
             } catch (IOException e) {
-                AzureLib.LOGGER.fatal(MARKER, "Couldn't write config {}, aborting mod startup", holder.getConfigId());
+            	AzureLib.LOGGER.fatal(MARKER, "Couldn't write config {}, aborting mod startup", holder.getConfigId());
                 throw new RuntimeException("Config write failed", e);
             }
         });
@@ -45,7 +45,7 @@ public final class ConfigIO {
             try {
                 readConfig(configHolder);
             } catch (IOException e) {
-                AzureLib.LOGGER.error(MARKER, "Failed to read config file {}", configHolder.getConfigId());
+            	AzureLib.LOGGER.error(MARKER, "Failed to read config file {}", configHolder.getConfigId());
             }
         });
     }
@@ -55,7 +55,7 @@ public final class ConfigIO {
             try {
                 writeConfig(configHolder);
             } catch (IOException e) {
-                AzureLib.LOGGER.error(MARKER, "Failed to write config file {}", configHolder.getConfigId());
+            	AzureLib.LOGGER.error(MARKER, "Failed to write config file {}", configHolder.getConfigId());
             }
         });
     }
@@ -66,13 +66,13 @@ public final class ConfigIO {
                 action.run();
             }
         } catch (Exception e) {
-            AzureLib.LOGGER.fatal(MARKER, "Error loading config {} due to critical error '{}'. Report this issue to this config's owner!", holder.getConfigId(), e.getMessage());
+        	AzureLib.LOGGER.fatal(MARKER, "Error loading config {} due to critical error '{}'. Report this issue to this config's owner!", holder.getConfigId(), e.getMessage());
             throw new ReportedException(CrashReport.forThrowable(e, "Config " + holder.getConfigId() + " failed. Report issue to config owner"));
         }
     }
 
     private static void readConfig(ConfigHolder<?> holder) throws IOException {
-        AzureLib.LOGGER.debug(MARKER, "Reading config {}", holder.getConfigId());
+    	AzureLib.LOGGER.debug(MARKER, "Reading config {}", holder.getConfigId());
         IConfigFormat format = holder.getFormat().createFormat();
         File file = getConfigFile(holder);
         if (!file.exists())
@@ -81,16 +81,16 @@ public final class ConfigIO {
             format.readFile(file);
             holder.values().forEach(value -> value.deserializeValue(format));
         } catch (ConfigReadException e) {
-            AzureLib.LOGGER.error(MARKER, "Config read failed, using default values", e);
+        	AzureLib.LOGGER.error(MARKER, "Config read failed, using default values", e);
         }
     }
 
     public static void writeConfig(ConfigHolder<?> holder) throws IOException {
-        AzureLib.LOGGER.debug(MARKER, "Writing config {}", holder.getConfigId());
+    	AzureLib.LOGGER.debug(MARKER, "Writing config {}", holder.getConfigId());
         File file = getConfigFile(holder);
         File dir = file.getParentFile();
         if (dir.mkdirs()) {
-            AzureLib.LOGGER.debug(MARKER, "Created file directories at {}", dir.getAbsolutePath());
+        	AzureLib.LOGGER.debug(MARKER, "Created file directories at {}", dir.getAbsolutePath());
         }
         if (!file.exists()) {
             if (!file.createNewFile()) {
