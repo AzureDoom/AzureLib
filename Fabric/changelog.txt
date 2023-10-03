@@ -1,3 +1,4 @@
-v1.0.30
+v1.0.31
 
-- Forgot to rename Mod Menu support for configs
+- Use generic type instead of BlockEntity when overriding BlockEntityRenderer#render
+- Fixes Auto-Sync Thread from not stopping at server stop.
