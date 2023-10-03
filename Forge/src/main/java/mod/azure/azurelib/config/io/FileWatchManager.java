@@ -56,6 +56,10 @@ public final class FileWatchManager {
             });
         }
     }
+    
+    public void stopService() {
+    	this.executorService.shutdown();
+    }
 
     public void startService() {
     	AzureLib.LOGGER.debug(MARKER, "Starting file watching service");
