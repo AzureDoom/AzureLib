@@ -1,5 +1,3 @@
-v1.0.30
+v1.0.31
 
-- Port nested json array format for bedrock animations parsing
-- Port disable pre-render translation for GeoItems if doing re-render
-- Port prevent animated texture mixin from early-cancelling method call
+- Use generic type instead of BlockEntity when overriding BlockEntityRenderer#render
