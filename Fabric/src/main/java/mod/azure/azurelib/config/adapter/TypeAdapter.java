@@ -1,11 +1,10 @@
 package mod.azure.azurelib.config.adapter;
 
+import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Map;
-
-import mod.azure.azurelib.config.value.ConfigValue;
 
 public abstract class TypeAdapter {
 

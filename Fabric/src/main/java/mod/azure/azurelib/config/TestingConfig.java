@@ -1,6 +1,5 @@
 package mod.azure.azurelib.config;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import mod.azure.azurelib.AzureLib;
@@ -15,7 +14,6 @@ public final class TestingConfig {
     public boolean bool = true;
 
     @Configurable
-    @Configurable.Synchronized
     public int number = 15;
 
     @Configurable
@@ -64,6 +62,9 @@ public final class TestingConfig {
     public TestEnum testEnum = TestEnum.C;
 
     @Configurable
+    public TestEnum[] testEnumArray = { TestEnum.A, TestEnum.C };
+
+    @Configurable
     public NestedTest nestedTest = new NestedTest();
 
     public enum TestEnum {
@@ -71,7 +72,6 @@ public final class TestingConfig {
     }
 
     public void onUpdate(String[] value, IValidationHandler handler) {
-        System.out.println(Arrays.toString(value));
         handler.setValidationResult(ValidationResult.warn(Component.literal("Generic warning")));
     }
 

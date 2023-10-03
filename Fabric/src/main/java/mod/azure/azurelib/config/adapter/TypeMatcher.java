@@ -68,6 +68,10 @@ public interface TypeMatcher extends Predicate<Class<?>> {
         return NamedMatcherImpl.vanilla("enum", Class::isEnum);
     }
 
+    static TypeMatcher matchEnumArray() {
+        return NamedMatcherImpl.vanilla("array/enum", type -> type.isArray() && type.getComponentType().isEnum());
+    }
+
     static TypeMatcher matchObject() {
         return NamedMatcherImpl.vanilla("object", type -> !type.isArray())
                 .withPriority(Integer.MAX_VALUE);

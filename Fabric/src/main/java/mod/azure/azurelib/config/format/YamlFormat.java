@@ -1,15 +1,16 @@
 package mod.azure.azurelib.config.format;
 
-import java.io.*;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.exception.ConfigReadException;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.IDescriptionProvider;
+
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class YamlFormat implements IConfigFormat {
 
@@ -247,6 +248,23 @@ public class YamlFormat implements IConfigFormat {
     }
 
     @Override
+    public <E extends Enum<E>> void writeEnumArray(String field, E[] value) {
+        String[] strings = Arrays.stream(value).map(Enum::name).toArray(String[]::new);
+        writeStringArray(field, strings);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <E extends Enum<E>> E[] readEnumArray(String field, Class<E> enumClass) throws ConfigValueMissingException {
+        String[] strings = readStringArray(field);
+        E[] arr = (E[]) Array.newInstance(enumClass, strings.length);
+        for (int i = 0; i < strings.length; i++) {
+            arr[i] = ConfigUtils.getEnumConstant(strings[i], enumClass);
+        }
+        return arr;
+    }
+
+    @Override
     public void writeMap(String field, Map<String, ConfigValue<?>> value) {
         writeKey(field);
         YamlFormat format = new YamlFormat(this.buffer, this.currentNesting + 1);
@@ -420,6 +438,7 @@ public class YamlFormat implements IConfigFormat {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> getValueMap(String key) throws ConfigValueMissingException {
         Object value = this.processedData.get(key);
         if (value == null) {

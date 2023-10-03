@@ -1,9 +1,9 @@
 package mod.azure.azurelib.config.value;
 
+import mod.azure.azurelib.config.Configurable;
+
 import java.lang.reflect.Field;
 import java.util.Objects;
-
-import mod.azure.azurelib.config.Configurable;
 
 public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 

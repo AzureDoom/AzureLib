@@ -1,15 +1,14 @@
 package mod.azure.azurelib.config.value;
 
-import net.minecraft.network.FriendlyByteBuf;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.Configurable;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public class FloatArrayValue extends ConfigValue<float[]> implements ArrayValue {
 

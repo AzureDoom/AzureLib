@@ -1,10 +1,10 @@
 package mod.azure.azurelib.config.adapter;
 
+import mod.azure.azurelib.config.value.*;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
-import mod.azure.azurelib.config.value.*;
 
 public final class TypeAdapters {
 
@@ -45,6 +45,7 @@ public final class TypeAdapters {
 
         // enums
         registerTypeAdapter(TypeMatcher.matchEnum(), new EnumValue.Adapter<>());
+        registerTypeAdapter(TypeMatcher.matchEnumArray(), new EnumArrayValue.Adapter<>());
 
         // objects
         registerTypeAdapter(TypeMatcher.matchObject(), new ObjectValue.Adapter());
