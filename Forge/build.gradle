@@ -11,7 +11,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+        classpath group: 'gradle.plugin.net.darkhax.curseforgegradle', name: 'CurseForgeGradle', version: '1.+'
         classpath 'org.parchmentmc:librarian:1.+'
         classpath "com.modrinth.minotaur:Minotaur:2.1.2"
     }
@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'java'
-apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'net.darkhax.curseforgegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "com.modrinth.minotaur"
@@ -82,7 +82,7 @@ minecraft {
     }
 }
 
-mixin { 
+mixin {
     add sourceSets.main, "azurelib.refmap.json"
     config "azurelib.mixins.json"
 }
@@ -152,7 +152,7 @@ processResources {
         def jsonMinifyStart = System.currentTimeMillis()
         def jsonMinified = 0
         def jsonBytesSaved = 0
-        fileTree(dir: outputs.files.asPath, include: '**/*.json').each { 
+        fileTree(dir: outputs.files.asPath, include: '**/*.json').each {
             File file = it
             jsonMinified++
             def oldLength = file.length()
@@ -164,21 +164,19 @@ processResources {
 }
 
 if (file('key.properties').exists()) {
-    curseforge {
+    task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
         def curseProp = new Properties()
         File secretPropsFile = file("key.properties")
         curseProp.load(secretPropsFile.newInputStream())
+        apiToken = curseProp.getProperty("curseKey")
 
-        project {
-            apiKey = curseProp.getProperty('curseKey')
-            id = "817423"
-            releaseType = "release"
-            changelogType = 'text'
-            changelog = file('changelog.txt')
-        	addGameVersion("1.20.1")
-            addGameVersion("Forge")
-            addGameVersion("Java 17")
-        }
+        def mainFile = upload("817423", jar)
+        mainFile.releaseType = "release"
+        mainFile.changelogType = "text"
+        mainFile.changelog = file("changelog.txt")
+        mainFile.addModLoader("Forge")
+        mainFile.addJavaVersion("Java 17")
+        mainFile.addGameVersion("1.20.1")
     }
 }
 
@@ -187,11 +185,11 @@ if (file('key.properties').exists()) {
 		def modrinthProp = new Properties()
 		File secretPropsFile = file("key.properties")
 		modrinthProp.load(secretPropsFile.newInputStream())
-		
+
 		token = modrinthProp.getProperty('modrinthKey')
-		projectId = '7zlUOZvb' 
-		versionNumber = project.mod_version 
-		uploadFile = jar 
+		projectId = '7zlUOZvb'
+		versionNumber = project.mod_version
+		uploadFile = jar
 		changelog = rootProject.file("changelog.txt").text
 		gameVersions = ['1.20.1']
 		loaders = ['forge']
