@@ -11,7 +11,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-        classpath group: 'gradle.plugin.net.darkhax.curseforgegradle', name: 'CurseForgeGradle', version: '1.+'
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
         classpath 'org.parchmentmc:librarian:1.+'
         classpath "com.modrinth.minotaur:Minotaur:2.1.2"
     }
@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'java'
-apply plugin: 'net.darkhax.curseforgegradle'
+apply plugin: 'com.matthewprenger.cursegradle'
 apply from: "https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: "com.modrinth.minotaur"
@@ -164,19 +164,21 @@ processResources {
 }
 
 if (file('key.properties').exists()) {
-    task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    curseforge {
         def curseProp = new Properties()
         File secretPropsFile = file("key.properties")
         curseProp.load(secretPropsFile.newInputStream())
-        apiToken = curseProp.getProperty("curseKey")
 
-        def mainFile = upload("817423", jar)
-        mainFile.releaseType = "release"
-        mainFile.changelogType = "text"
-        mainFile.changelog = file("changelog.txt")
-        mainFile.addModLoader("Forge")
-        mainFile.addJavaVersion("Java 17")
-        mainFile.addGameVersion("1.20.1")
+        project {
+            apiKey = curseProp.getProperty('curseKey')
+            id = "817423"
+            releaseType = "release"
+            changelogType = 'text'
+            changelog = file('changelog.txt')
+        	addGameVersion("1.20.1")
+            addGameVersion("Forge")
+            addGameVersion("Java 17")
+        }
     }
 }
 
