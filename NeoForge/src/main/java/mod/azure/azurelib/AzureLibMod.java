@@ -18,7 +18,10 @@ import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.Networking;
+import mod.azure.azurelib.test.DoomicornDoomArmor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,6 +53,7 @@ public final class AzureLibMod {
 		modEventBus.addListener(this::clientInit);
 		AzureBlocks.BLOCKS.register(modEventBus);
 		AzureEntities.TILE_TYPES.register(modEventBus);
+		AzureItems.ITEMS.register(modEventBus);
         registerConfig(TestingConfig.class, ConfigFormats.yaml());
 	}
 
@@ -158,6 +162,15 @@ public final class AzureLibMod {
 				}));
 			});
 		}
+	}
+
+	public class AzureItems {
+		public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, AzureLib.MOD_ID);
+
+		public static final RegistryObject<Item> DOOMICORN_HELMET = ITEMS.register("doomicorn_helmet", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
+		public static final RegistryObject<Item> DOOMICORN_CHEST = ITEMS.register("doomicorn_chest", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
+		public static final RegistryObject<Item> DOOMICORN_LEGGINGS = ITEMS.register("doomicorn_leggings", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
+		public static final RegistryObject<Item> DOOMICORN_BOOTS = ITEMS.register("doomicorn_boots", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
 	}
 
 	public class AzureBlocks {
