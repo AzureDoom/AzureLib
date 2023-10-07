@@ -1,3 +1,5 @@
-v1.0.32
+v1.0.33
 
-- Update HumanoidArmorLayer mixin.
+- Updated Fabric name 
+- Add Modmenu badge
+- Tweak MixinHumanoidArmorLayer
