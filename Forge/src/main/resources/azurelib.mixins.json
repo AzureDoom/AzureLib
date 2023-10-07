@@ -7,5 +7,5 @@
     "defaultRequire" : 1
   },
   "mixins" : [ "PlayerListMixin" ],
-  "client" : [ "TextureManagerMixin", "MinecraftMixin" ]
+  "client" : [ "TextureManagerMixin", "MinecraftMixin", "ItemRendererAccessor", "MixinItemRenderer", "MixinHumanoidArmorLayer" ]
 }

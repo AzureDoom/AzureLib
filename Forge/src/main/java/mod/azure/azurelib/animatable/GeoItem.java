@@ -2,8 +2,12 @@ package mod.azure.azurelib.animatable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
+
+import com.google.common.base.Suppliers;
 
 import mod.azure.azurelib.cache.AnimatableIdCache;
 import mod.azure.azurelib.constant.DataTickets;
@@ -18,6 +22,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /**
  * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also applies to armor, as they are just items too.
@@ -25,6 +30,21 @@ import net.minecraft.world.item.ItemStack;
 public interface GeoItem extends SingletonGeoAnimatable {
 	static final String ID_NBT_KEY = "AzureLibID";
 
+	/**
+	 * Safety wrapper to distance the client-side code from common code.<br>
+	 * This should be cached in your {@link net.minecraft.world.item.Item Item} class
+	 */
+	static Supplier<Object> makeRenderer(GeoItem item) {
+		if (FMLEnvironment.dist.isDedicatedServer())
+			return () -> null;
+
+		return Suppliers.memoize(() -> {
+			AtomicReference<Object> renderProvider = new AtomicReference<>();
+			item.createRenderer(renderProvider::set);
+			return renderProvider.get();
+		});
+	}
+	
 	/**
 	 * Gets the unique identifying number from this ItemStack's {@link net.minecraft.nbt.Tag NBT}, or {@link Long#MAX_VALUE} if one hasn't been assigned
 	 */

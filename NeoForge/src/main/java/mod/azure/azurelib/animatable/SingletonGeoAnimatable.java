@@ -1,5 +1,8 @@
 package mod.azure.azurelib.animatable;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -110,4 +113,34 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	default @Nullable AnimatableInstanceCache animatableCacheOverride() {
 		return new SingletonAnimatableInstanceCache(this);
 	}
+
+	/**
+	 * Create your RenderProvider reference here.<br>
+	 * <b><u>MUST provide an anonymous class</u></b><br>
+	 * Example Code:
+	 * 
+	 * <pre>
+	 * {@code
+	 * &#64;Override
+	 * public void createRenderer(Consumer<RenderProvider> consumer) {
+	 * 	consumer.accept(new RenderProvider() {
+	 * 		private final GeoArmorRenderer<?> renderer = new MyArmorRenderer();
+	 *
+	 *        &#64;Override
+	 *        GeoArmorRenderer<?> getRenderer(GeoArmor armor) {
+	 * 			return this.renderer;
+	 *        }
+	 *    }
+	 * }
+	 * }
+	 * </pre>
+	 *
+	 * @param consumer
+	 */
+	void createRenderer(Consumer<Object> consumer);
+
+	/**
+	 * Getter for the cached RenderProvider in your class
+	 */
+	Supplier<Object> getRenderProvider();
 }
