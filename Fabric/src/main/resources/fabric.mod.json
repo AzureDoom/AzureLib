@@ -22,7 +22,7 @@
   "accessWidener" : "azurelib.aw",
   "depends" : {
     "fabricloader" : ">=0.14.10",
-    "fabric" : "*",
+    "fabric-api" : "*",
     "java" : ">=17",
     "minecraft" : ">=1.20.1"
   }
