@@ -168,9 +168,9 @@ public final class AzureLibMod {
 		public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, AzureLib.MOD_ID);
 
 		public static final RegistryObject<Item> DOOMICORN_HELMET = ITEMS.register("doomicorn_helmet", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
-		public static final RegistryObject<Item> DOOMICORN_CHEST = ITEMS.register("doomicorn_chest", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
-		public static final RegistryObject<Item> DOOMICORN_LEGGINGS = ITEMS.register("doomicorn_leggings", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
-		public static final RegistryObject<Item> DOOMICORN_BOOTS = ITEMS.register("doomicorn_boots", () -> new DoomicornDoomArmor(ArmorItem.Type.HELMET));
+		public static final RegistryObject<Item> DOOMICORN_CHEST = ITEMS.register("doomicorn_chest", () -> new DoomicornDoomArmor(ArmorItem.Type.CHESTPLATE));
+		public static final RegistryObject<Item> DOOMICORN_LEGGINGS = ITEMS.register("doomicorn_leggings", () -> new DoomicornDoomArmor(ArmorItem.Type.LEGGINGS));
+		public static final RegistryObject<Item> DOOMICORN_BOOTS = ITEMS.register("doomicorn_boots", () -> new DoomicornDoomArmor(ArmorItem.Type.BOOTS));
 	}
 
 	public class AzureBlocks {
