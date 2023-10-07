@@ -1,3 +1,6 @@
-v1.0.31
+v1.0.32
 
-- Use generic type instead of BlockEntity when overriding BlockEntityRenderer#render
+- Rewrite Item/Armor Render Registration to bw 1 to 1 the Fabric version. 
+	- Devs please see: 
+	Items: https://wiki.azuredoom.com/how-to-create-an-animated-item#fabric-neoforge-forge-1.20.1+
+	Armor: https://wiki.azuredoom.com/how-to-create-animated-armor#fabric-neoforge-forge-1.20.1+
