@@ -1,36 +1,33 @@
 {
-	"schemaVersion": 1,
-	"id": "azurelib",
-	"version": "${version}",
-	"name": "AzureLib",
-	"description": "Based off Geckolib but now just for my own needs.",
-	"authors": [
-		"AzureDoom, Gecko, Eliot, Hydos, DerToaster, Tslat, KyoSleep"
-	],
-	"contact": {
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/azurelib",
-		"issues": "https://github.com/AzureDoom/AzureLib/issues",
-		"sources": "https://github.com/AzureDoom/AzureLib"
-	},
-	"license": "MIT",
-	"icon": "azurelib.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"mod.azure.azurelib.AzureLibMod"
-		],
-		"client": [
-			"mod.azure.azurelib.ClientListener"
-		]
-	},
-	"mixins": [
-		"azurelib.mixins.json"
-	],
-	"accessWidener": "azurelib.aw",
-	"depends": {
-   		"fabricloader": ">=0.11.3",
-		"fabric": "*",
-		"java": ">=8",
-		"minecraft": "1.16.5"
-	}
+  "schemaVersion" : 1,
+  "id" : "azurelib",
+  "version" : "${version}",
+  "name" : "AzureLib",
+  "description" : "Based off Geckolib but now just for my own needs.",
+  "authors" : [ "AzureDoom, Gecko, Eliot, Hydos, DerToaster, Tslat, KyoSleep" ],
+  "contact" : {
+    "homepage" : "https://www.curseforge.com/minecraft/mc-mods/azurelib",
+    "issues" : "https://github.com/AzureDoom/AzureLib/issues",
+    "sources" : "https://github.com/AzureDoom/AzureLib"
+  },
+  "license" : "MIT",
+  "icon" : "azurelib.png",
+  "environment" : "*",
+  "entrypoints" : {
+    "main" : [ "mod.azure.azurelib.AzureLibMod" ],
+    "client" : [ "mod.azure.azurelib.ClientListener" ]
+  },
+  "mixins" : [ "azurelib.mixins.json" ],
+  "accessWidener" : "azurelib.aw",
+  "depends" : {
+    "fabricloader" : ">=0.11.3",
+    "fabric" : "*",
+    "java" : ">=8",
+    "minecraft" : "1.16.5"
+  },
+  "custom" : {
+    "modmenu" : {
+      "badges" : [ "library" ]
+    }
+  }
 }
