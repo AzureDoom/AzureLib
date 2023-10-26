@@ -4,9 +4,11 @@ plugins {
     id 'net.neoforged.gradle'
     id 'org.spongepowered.mixin'
 }
+
 base {
-    archivesName = "${mod_name}-forge-${minecraft_version}"
+    archivesName = "${mod_name}-neoforged-${minecraft_version}"
 }
+
 mixin {
     add(sourceSets.main, "${mod_id}.refmap.json")
 
@@ -75,7 +77,7 @@ minecraft {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft "net.neoforged:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 }

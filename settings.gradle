@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven {
-            name = 'Forge'
+            name = 'NeoForged'
             url = 'https://maven.neoforged.net/releases'
         }
         maven {
@@ -24,5 +24,5 @@ plugins {
 rootProject.name = 'AzureLib'
 include("common")
 include("fabric")
-include("forge")
+include("neoforge")
 
