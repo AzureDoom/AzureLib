@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.client.DisplayAdapter;
 import mod.azure.azurelib.client.DisplayAdapterManager;
 import mod.azure.azurelib.client.widget.ConfigEntryWidget;

@@ -1,5 +1,6 @@
 package mod.azure.azurelib.util;
 
+import mod.azure.azurelib.AzureLib;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;

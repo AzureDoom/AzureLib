@@ -2,6 +2,7 @@ package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.BakedAnimations;

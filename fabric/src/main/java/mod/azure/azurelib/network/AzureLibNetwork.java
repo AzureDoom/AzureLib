@@ -2,6 +2,7 @@ package mod.azure.azurelib.network;
 
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
 import org.jetbrains.annotations.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;

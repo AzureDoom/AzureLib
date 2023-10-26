@@ -3,6 +3,7 @@ package mod.azure.azurelib.constant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import mod.azure.azurelib.AzureLib;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.object.DataTicket;

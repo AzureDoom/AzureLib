@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import mod.azure.azurelib.AzureLib;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;

@@ -3,6 +3,7 @@ package mod.azure.azurelib.network;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
+import mod.azure.azurelib.AzureLib;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 

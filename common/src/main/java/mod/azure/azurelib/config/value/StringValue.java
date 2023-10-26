@@ -3,6 +3,7 @@ package mod.azure.azurelib.config.value;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.Configurable;
 import mod.azure.azurelib.config.adapter.TypeAdapter;

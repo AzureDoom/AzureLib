@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animatable;
 
+import mod.azure.azurelib.AzureLib;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;

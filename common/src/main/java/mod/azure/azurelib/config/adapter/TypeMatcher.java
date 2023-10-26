@@ -3,6 +3,7 @@ package mod.azure.azurelib.config.adapter;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.AzureLib;
 import net.minecraft.resources.ResourceLocation;
 
 public interface TypeMatcher extends Predicate<Class<?>> {

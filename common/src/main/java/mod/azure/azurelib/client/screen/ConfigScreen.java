@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.client.DisplayAdapter;
 import mod.azure.azurelib.client.DisplayAdapterManager;
 import mod.azure.azurelib.client.widget.ConfigEntryWidget;

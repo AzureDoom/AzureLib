@@ -3,6 +3,7 @@ package mod.azure.azurelib.config.io;
 import java.io.File;
 import java.io.IOException;
 
+import mod.azure.azurelib.AzureLib;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 

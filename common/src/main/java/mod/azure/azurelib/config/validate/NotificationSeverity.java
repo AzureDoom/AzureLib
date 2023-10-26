@@ -1,5 +1,6 @@
 package mod.azure.azurelib.config.validate;
 
+import mod.azure.azurelib.AzureLib;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 

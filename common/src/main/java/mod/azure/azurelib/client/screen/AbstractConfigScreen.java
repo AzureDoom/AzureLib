@@ -3,6 +3,7 @@ package mod.azure.azurelib.client.screen;
 import java.util.Collection;
 import java.util.List;
 
+import mod.azure.azurelib.AzureLib;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.joml.Matrix4f;
