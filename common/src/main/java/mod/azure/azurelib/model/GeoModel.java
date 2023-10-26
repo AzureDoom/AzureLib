@@ -3,6 +3,7 @@ package mod.azure.azurelib.model;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
