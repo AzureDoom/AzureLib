@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.pipeline.RenderCall;
@@ -11,7 +12,6 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -57,7 +57,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
 	 */
 	protected void printDebugImageToDisk(ResourceLocation id, NativeImage newImage) {
 		try {
-			File file = new File(FabricLoader.getInstance().getGameDir().toFile(), "GeoTexture Debug Printouts");
+			File file = new File(Services.PLATFORM.getGameDir().toFile(), "GeoTexture Debug Printouts");
 
 			if (!file.exists()) {
 				file.mkdirs();
