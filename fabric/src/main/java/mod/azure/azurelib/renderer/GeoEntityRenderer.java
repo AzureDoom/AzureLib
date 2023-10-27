@@ -2,6 +2,7 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
+import mod.azure.azurelib.event.GeoRenderEntityEvent;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -438,7 +439,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderEvent.Entity.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderEvent.Entity.CompileRenderLayers(this));
+		GeoRenderEntityEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderEntityEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -448,7 +449,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderEvent.Entity.Pre.EVENT.invoker().handle(new GeoRenderEvent.Entity.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderEntityEvent.Pre.EVENT.invoker().handle(new GeoRenderEntityEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -456,6 +457,6 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderEvent.Entity.Post.EVENT.invoker().handle(new GeoRenderEvent.Entity.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderEntityEvent.Post.EVENT.invoker().handle(new GeoRenderEntityEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
