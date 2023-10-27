@@ -2,6 +2,7 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
+import mod.azure.azurelib.event.GeoRenderBlockEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -219,7 +220,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderEvent.Block.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderEvent.Block.CompileRenderLayers(this));
+		GeoRenderBlockEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderBlockEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -229,7 +230,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderEvent.Block.Pre.EVENT.invoker().handle(new GeoRenderEvent.Block.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderBlockEvent.Pre.EVENT.invoker().handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -237,6 +238,6 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderEvent.Block.Post.EVENT.invoker().handle(new GeoRenderEvent.Block.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderBlockEvent.Post.EVENT.invoker().handle(new GeoRenderBlockEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
