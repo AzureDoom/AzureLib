@@ -1,10 +1,5 @@
 package mod.azure.azurelib;
 
-import java.util.List;
-import java.util.Map;
-
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.client.screen.ConfigGroupScreen;
 import mod.azure.azurelib.client.screen.ConfigScreen;
 import mod.azure.azurelib.config.Config;
@@ -16,34 +11,18 @@ import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.jetbrains.annotations.Nullable;
 
-public final class AzureLibMod implements ModInitializer {
+import java.util.List;
+import java.util.Map;
+
+public final class AzureLibMod {
 
 	public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY;
 	public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
 	public static TestingConfig config;
-
-	@Override
-	public void onInitialize() {
-		ConfigIO.FILE_WATCH_MANAGER.startService();
-		AzureLib.initialize();
-		Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(AzureLib.MOD_ID, "lightblock"), TICKING_LIGHT_BLOCK);
-		TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AzureLib.MOD_ID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, TICKING_LIGHT_BLOCK).build(null));
-		config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
-		ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
-			ConfigIO.FILE_WATCH_MANAGER.stopService();
-		});
-	}
 
 	/**
 	 * Registers your config class. Config will be immediately loaded upon calling.
@@ -83,7 +62,6 @@ public final class AzureLibMod implements ModInitializer {
 	 * @return Either new config screen or {@code null} when no config exists for the provided class
 	 */
 	@Nullable
-	@Environment(EnvType.CLIENT)
 	public static Screen getConfigScreen(Class<?> configClass, Screen previous) {
 		Config cfg = configClass.getAnnotation(Config.class);
 		if (cfg == null) {
@@ -101,7 +79,6 @@ public final class AzureLibMod implements ModInitializer {
 	 * @return Either new config screen or {@code null} when no config exists with the provided ID
 	 */
 	@Nullable
-	@Environment(EnvType.CLIENT)
 	public static Screen getConfigScreen(String configId, Screen previous) {
 		return ConfigHolder.getConfig(configId).map(holder -> getConfigScreenForHolder(holder, previous)).orElse(null);
 	}
@@ -113,7 +90,6 @@ public final class AzureLibMod implements ModInitializer {
 	 * @param previous Previously open screen
 	 * @return Either new config group screen or null when no config exists under the provided group
 	 */
-	@Environment(EnvType.CLIENT)
 	public static Screen getConfigScreenByGroup(String group, Screen previous) {
 		List<ConfigHolder<?>> list = ConfigHolder.getConfigsByGroup(group);
 		if (list.isEmpty())
@@ -121,13 +97,11 @@ public final class AzureLibMod implements ModInitializer {
 		return getConfigScreenByGroup(list, group, previous);
 	}
 
-	@Environment(EnvType.CLIENT)
 	public static Screen getConfigScreenForHolder(ConfigHolder<?> holder, Screen previous) {
 		Map<String, ConfigValue<?>> valueMap = holder.getValueMap();
 		return new ConfigScreen(holder.getConfigId(), holder.getConfigId(), valueMap, previous);
 	}
 
-	@Environment(EnvType.CLIENT)
 	public static Screen getConfigScreenByGroup(List<ConfigHolder<?>> group, String groupId, Screen previous) {
 		return new ConfigGroupScreen(previous, groupId, group);
 	}
