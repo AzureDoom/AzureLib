@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.pipeline.RenderCall;
@@ -16,7 +17,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import mod.azure.azurelib.resource.GeoGlowingTextureMeta;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -111,7 +111,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 			if (glowLayerMeta != null) {
 				glowLayerMeta.createImageMask(baseImage, glowImage);
 
-				if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+				if (Services.PLATFORM.isDevelopmentEnvironment()) {
 					printDebugImageToDisk(this.textureBase, baseImage);
 					printDebugImageToDisk(this.glowLayer, glowImage);
 				}
