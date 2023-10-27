@@ -2,6 +2,7 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
+import mod.azure.azurelib.event.GeoRenderArmorEvent;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -15,7 +16,6 @@ import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
@@ -560,7 +560,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderEvent.Armor.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderEvent.Armor.CompileRenderLayers(this));
+		GeoRenderArmorEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderArmorEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -570,7 +570,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderEvent.Armor.Pre.EVENT.invoker().handle(new GeoRenderEvent.Armor.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderArmorEvent.Pre.EVENT.invoker().handle(new GeoRenderArmorEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -578,6 +578,6 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderEvent.Armor.Post.EVENT.invoker().handle(new GeoRenderEvent.Armor.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderArmorEvent.Post.EVENT.invoker().handle(new GeoRenderArmorEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
