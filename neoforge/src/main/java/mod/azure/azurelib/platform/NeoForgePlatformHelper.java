@@ -2,6 +2,7 @@ package mod.azure.azurelib.platform;
 
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
 
 import java.nio.file.Path;
@@ -29,5 +30,10 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public Path getGameDir() {
         return FMLLoader.getGamePath();
+    }
+
+    @Override
+    public boolean isServerEnvironment() {
+        return FMLEnvironment.dist.isDedicatedServer();
     }
 }
