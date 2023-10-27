@@ -1,15 +1,6 @@
 package mod.azure.azurelib.event;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.renderer.GeoObjectRenderer;
 import mod.azure.azurelib.renderer.GeoRenderer;
-import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.renderer.MultiBufferSource;
 
 /**
  * AzureLib events base-class for the various event stages of rendering.<br>
