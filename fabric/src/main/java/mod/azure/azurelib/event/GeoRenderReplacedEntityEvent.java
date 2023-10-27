@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 /**
  * Renderer events for miscellaneous {@link mod.azure.azurelib.animatable.GeoReplacedEntity replaced entities} being rendered by {@link GeoReplacedEntityRenderer}
  */
-abstract class GeoRenderReplacedEntityEvent implements GeoRenderEvent {
+public abstract class GeoRenderReplacedEntityEvent implements GeoRenderEvent {
 	private final GeoReplacedEntityRenderer<?, ?> renderer;
 
 	public GeoRenderReplacedEntityEvent(GeoReplacedEntityRenderer<?, ?> renderer) {

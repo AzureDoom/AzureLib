@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 /**
  * Renderer events for miscellaneous {@link mod.azure.azurelib.core.animatable.GeoAnimatable animatables} being rendered by {@link GeoObjectRenderer}
  */
-abstract class GeoRenderObjectEvent implements GeoRenderEvent {
+public abstract class GeoRenderObjectEvent implements GeoRenderEvent {
 	private final GeoObjectRenderer<?> renderer;
 
 	public GeoRenderObjectEvent(GeoObjectRenderer<?> renderer) {

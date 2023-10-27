@@ -2,6 +2,7 @@ package mod.azure.azurelib.renderer;
 
 import java.util.List;
 
+import mod.azure.azurelib.event.GeoRenderReplacedEntityEvent;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -459,7 +460,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderEvent.ReplacedEntity.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderEvent.ReplacedEntity.CompileRenderLayers(this));
+		GeoRenderReplacedEntityEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderReplacedEntityEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -469,7 +470,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderEvent.ReplacedEntity.Pre.EVENT.invoker().handle(new GeoRenderEvent.ReplacedEntity.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderReplacedEntityEvent.Pre.EVENT.invoker().handle(new GeoRenderReplacedEntityEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -477,6 +478,6 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderEvent.ReplacedEntity.Post.EVENT.invoker().handle(new GeoRenderEvent.ReplacedEntity.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderReplacedEntityEvent.Post.EVENT.invoker().handle(new GeoRenderReplacedEntityEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
