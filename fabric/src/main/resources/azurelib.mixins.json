@@ -6,13 +6,13 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "fabric.PlayerListMixin"
+    "PlayerListMixin"
   ],
   "client": [
-    "fabric.ItemRendererAccessor",
-    "fabric.MixinItemRenderer",
-    "fabric.MixinHumanoidArmorLayer",
-    "fabric.MinecraftMixin",
-    "fabric.TextureManagerMixin"
+    "ItemRendererAccessor",
+    "MixinItemRenderer",
+    "MixinHumanoidArmorLayer",
+    "MinecraftMixin",
+    "TextureManagerMixin"
   ]
 }
