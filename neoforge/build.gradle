@@ -115,8 +115,8 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = project.maven_group
-            artifactId = project.mod_version
-            version = project.archives_base_name
+            artifactId = "${mod_id}-neo-${minecraft_version}"
+            version = project.mod_version
             from components.java
         }
     }
