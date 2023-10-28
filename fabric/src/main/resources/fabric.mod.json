@@ -14,7 +14,7 @@
   "icon" : "azurelib.png",
   "environment" : "*",
   "entrypoints" : {
-    "main" : [ "mod.azure.azurelib.AzureLibMod" ],
+    "main" : [ "mod.azure.azurelib.FabricAzureLibMod" ],
     "client" : [ "mod.azure.azurelib.ClientListener" ],
     "modmenu" : [ "mod.azure.azurelib.integration.ModMenuIntegration" ]
   },
