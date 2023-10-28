@@ -3,6 +3,10 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.gradle'
     id 'org.spongepowered.mixin'
+
+    // Custom plugins
+    id 'net.darkhax.curseforgegradle' version '1.+'
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 base {
@@ -98,16 +102,55 @@ processResources {
 jar.finalizedBy('reobfJar')
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-            fg.component(it)
-        }
-    }
     repositories {
         maven {
-            url "file://" + System.getenv("local_maven")
+            name = "azurelib"
+            url = "https://libs.azuredoom.com:4443/mods"
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
         }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = project.maven_group
+            artifactId = project.mod_version
+            version = project.archives_base_name
+            from components.java
+        }
+    }
+}
+
+if (file('key.properties').exists()) {
+    task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+        def curseProp = new Properties()
+        File secretPropsFile = file("key.properties")
+        curseProp.load(secretPropsFile.newInputStream())
+        apiToken = curseProp.getProperty("curseKey")
+
+        def mainFile = upload("817423", jar)
+        mainFile.releaseType = "release"
+        mainFile.changelogType = "text"
+        mainFile.changelog = file("changelog.txt")
+        mainFile.addModLoader("NeoForge")
+        mainFile.addModLoader("Forge")
+        mainFile.addJavaVersion("Java 17")
+        mainFile.addGameVersion("1.20.1")
+    }
+}
+
+if (file('key.properties').exists()) {
+    modrinth {
+        def modrinthProp = new Properties()
+        File secretPropsFile = file("key.properties")
+        modrinthProp.load(secretPropsFile.newInputStream())
+        token = modrinthProp.getProperty('modrinthKey')
+        projectId = '7zlUOZvb'
+        versionNumber = project.mod_version
+        uploadFile = jar
+        changelog = rootProject.file("changelog.txt").text
+        gameVersions = ['1.20.1']
+        loaders = ['neoforge', 'forge']
     }
 }
