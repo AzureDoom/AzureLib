@@ -170,7 +170,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	}
 
 	/**
-	 * Wrapper method to handle rendering the item in a GUI context (defined by {@link net.minecraft.client.renderer.block.model.ItemTransforms.TransformType#GUI} normally).<br>
+	 * Wrapper method to handle rendering the item in a GUI context (defined by {@link net.minecraft.world.item.ItemDisplayContext#GUI} normally).<br>
 	 * Just includes some additional required transformations and settings.
 	 */
 	protected void renderInGui(ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {

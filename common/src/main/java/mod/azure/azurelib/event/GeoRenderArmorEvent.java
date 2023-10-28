@@ -5,6 +5,8 @@ import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
 import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.EquipmentSlot;

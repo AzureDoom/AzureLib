@@ -7,8 +7,8 @@ package mod.azure.azurelib.core.utils;
  * interpolation code was from website below, but BauerCam also uses this code.
  *
  * @author mchorse
- * @link http://paulbourke.net/miscellaneous/interpolation/
- * @link https://github.com/daipenger/BauerCam
+ * http://paulbourke.net/miscellaneous/interpolation/
+ * https://github.com/daipenger/BauerCam
  */
 public class Interpolations {
 	/**

@@ -78,7 +78,7 @@ public final class ConfigHolder<CFG> {
 
     /**
      * Registers config to internal registry. You should never call
-     * this method. Instead, use {@link AzureLib#registerConfig(Class, IConfigFormatHandler)} for config registration
+     * this method. Instead, use {@link mod.azure.azurelib.AzureLibMod#registerConfig(Class, IConfigFormatHandler)} for config registration
      * @param holder Config holder to be registered
      */
     public static void registerConfig(ConfigHolder<?> holder) {

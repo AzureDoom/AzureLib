@@ -4,7 +4,7 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.functions.Function;
 
 /**
- * Replacement function for {@link com.eliotlash.mclib.math.functions.classic.Sin}, operating in degrees rather than radians
+ * Replacement function for {@link mod.azure.azurelib.core.math.functions.classic.Sin}, operating in degrees rather than radians
  */
 public class SinDegrees extends Function {
 	public SinDegrees(IValue[] values, String name) throws Exception {
