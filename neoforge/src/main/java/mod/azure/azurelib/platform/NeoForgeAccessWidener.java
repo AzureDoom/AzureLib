@@ -7,12 +7,17 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import mod.azure.azurelib.platform.services.AccessWidener;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -41,5 +46,55 @@ public class NeoForgeAccessWidener implements AccessWidener {
     @Override
     public Function<ResourceLocation, RenderType> getRenderTypeFunction() {
         return RENDER_TYPE_FUNCTION;
+    }
+
+    @Override
+    public RenderBuffers getRenderBuffers() {
+        return Minecraft.getInstance().levelRenderer.renderBuffers;
+    }
+
+    @Override
+    public Vec3 getLeashOffsetForMob(Entity entity) {
+        return entity.getLeashOffset();
+    }
+
+    @Override
+    public float getSpeedOld(LivingEntity livingEntity) {
+        return livingEntity.walkAnimation.speedOld;
+    }
+
+    @Override
+    public boolean shouldShowEntityOutlines() {
+        return Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines();
+    }
+
+    @Override
+    public boolean scaleHead(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.scaleHead;
+    }
+
+    @Override
+    public float babyHeadScale(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.babyHeadScale;
+    }
+
+    @Override
+    public float babyYHeadOffset(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.babyYHeadOffset;
+    }
+
+    @Override
+    public float babyZHeadOffset(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.babyZHeadOffset;
+    }
+
+    @Override
+    public float babyBodyScale(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.babyBodyScale;
+    }
+
+    @Override
+    public float bodyYOffset(HumanoidModel<?> humanoidModel) {
+        return humanoidModel.bodyYOffset;
     }
 }
