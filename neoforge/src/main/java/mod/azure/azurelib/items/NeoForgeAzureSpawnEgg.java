@@ -7,13 +7,13 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 
-public class AzureSpawnEgg extends ForgeSpawnEggItem {
+public class NeoForgeAzureSpawnEgg extends ForgeSpawnEggItem {
 
-	public AzureSpawnEgg(Supplier<? extends EntityType<? extends Mob>> type, int primaryColor, int secondaryColor) {
+	public NeoForgeAzureSpawnEgg(Supplier<? extends EntityType<? extends Mob>> type, int primaryColor, int secondaryColor) {
 		super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
 	}
 
-	public AzureSpawnEgg(EntityType<? extends Mob> type, int primaryColor, int secondaryColor) {
+	public NeoForgeAzureSpawnEgg(EntityType<? extends Mob> type, int primaryColor, int secondaryColor) {
 		super(() -> type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
 	}
 
