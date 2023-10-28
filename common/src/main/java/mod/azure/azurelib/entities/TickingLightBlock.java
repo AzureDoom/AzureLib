@@ -3,7 +3,6 @@ package mod.azure.azurelib.entities;
 import java.util.function.ToIntFunction;
 
 import mod.azure.azurelib.AzureLibMod;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,7 +28,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 	public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
 
 	public TickingLightBlock() {
-		super(FabricBlockSettings.of().sounds(SoundType.CANDLE).lightLevel(litBlockEmission(15)).pushReaction(PushReaction.DESTROY).noOcclusion());
+		super(BlockBehaviour.Properties.of().sound(SoundType.CANDLE).lightLevel(litBlockEmission(15)).pushReaction(PushReaction.DESTROY).noOcclusion());
 	}
 
 	private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
