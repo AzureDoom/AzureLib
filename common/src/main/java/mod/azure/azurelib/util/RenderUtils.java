@@ -1,6 +1,7 @@
 package mod.azure.azurelib.util;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -237,7 +238,7 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForEntityType(EntityType<?> entityType) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
+		EntityRenderer<?> renderer = Services.ACCESS_WIDENER.getEntityRenderers().get(entityType);
 
 		return renderer instanceof GeoRenderer<?> geoRenderer ? geoRenderer.getGeoModel() : null;
 	}
@@ -250,7 +251,7 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
-		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
+		EntityRenderer<?> renderer = Services.ACCESS_WIDENER.getEntityRenderers().get(entityType);
 
 		return renderer instanceof GeoReplacedEntityRenderer<?, ?> replacedEntityRenderer ? replacedEntityRenderer.getAnimatable() : null;
 	}
