@@ -8,8 +8,8 @@ version="${file.jarVersion}"
 displayName="AzureLib"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/azurelib"
 logoFile="azurelib.png" 
-credits="AzureDoom, Gecko, Eliot, DerToaster, Tslat"
-authors="AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat"
+credits="AzureDoom, Gecko, Eliot, DerToaster, Tslat, Bvanseg"
+authors="AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat, Bvanseg"
 description='''
 Based off Geckolib but now just for my own needs.
 '''
