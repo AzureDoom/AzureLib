@@ -40,7 +40,7 @@ public final class NeoForgeAzureLibMod {
 		modEventBus.addListener(this::clientInit);
 		AzureBlocks.BLOCKS.register(modEventBus);
 		AzureEntities.TILE_TYPES.register(modEventBus);
-        AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.yaml());
+        //AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.yaml());
 	}
 
 	private void init(FMLCommonSetupEvent event) {
