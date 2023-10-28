@@ -220,7 +220,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderBlockEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderBlockEvent.CompileRenderLayers(this));
+		GeoRenderBlockEvent.CompileRenderLayers.EVENT.handle(new GeoRenderBlockEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -230,7 +230,7 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderBlockEvent.Pre.EVENT.invoker().handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderBlockEvent.Pre.EVENT.handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -238,6 +238,6 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderBlockEvent.Post.EVENT.invoker().handle(new GeoRenderBlockEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderBlockEvent.Post.EVENT.handle(new GeoRenderBlockEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }

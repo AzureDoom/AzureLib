@@ -3,6 +3,7 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import mod.azure.azurelib.event.GeoRenderItemEvent;
+import mod.azure.azurelib.platform.Services;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.platform.Lighting;
@@ -173,7 +174,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 * Just includes some additional required transformations and settings.
 	 */
 	protected void renderInGui(ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		MultiBufferSource.BufferSource defaultBufferSource = bufferSource instanceof MultiBufferSource.BufferSource bufferSource2 ? bufferSource2 : Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
+		MultiBufferSource.BufferSource defaultBufferSource = bufferSource instanceof MultiBufferSource.BufferSource bufferSource2 ? bufferSource2 : Services.ACCESS_WIDENER.getRenderBuffers().bufferSource();
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), defaultBufferSource, Minecraft.getInstance().getFrameTime());
 		VertexConsumer buffer = ItemRenderer.getFoilBufferDirect(bufferSource, renderType, true, this.currentItemStack != null && this.currentItemStack.hasFoil());
 
@@ -246,7 +247,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderItemEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderItemEvent.CompileRenderLayers(this));
+		GeoRenderItemEvent.CompileRenderLayers.EVENT.handle(new GeoRenderItemEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -256,7 +257,7 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderItemEvent.Pre.EVENT.invoker().handle(new GeoRenderItemEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderItemEvent.Pre.EVENT.handle(new GeoRenderItemEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -264,6 +265,6 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderItemEvent.Post.EVENT.invoker().handle(new GeoRenderItemEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderItemEvent.Post.EVENT.handle(new GeoRenderItemEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }

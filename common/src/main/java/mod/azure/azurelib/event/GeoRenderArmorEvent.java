@@ -2,10 +2,10 @@ package mod.azure.azurelib.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
 import mod.azure.azurelib.renderer.GeoArmorRenderer;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -61,14 +61,7 @@ public abstract class GeoRenderArmorEvent implements GeoRenderEvent {
 		 * If the event is cancelled by returning false in the {@link Listener}, the armor piece will not be rendered and the corresponding {@link Post} event will not be fired.
 		 */
 		public static class Pre extends GeoRenderArmorEvent {
-			public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-				for (Listener listener : listeners) {
-					if (!listener.handle(event))
-						return false;
-				}
-
-				return true;
-			});
+			public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
 			private final PoseStack poseStack;
 			private final BakedGeoModel model;
@@ -121,11 +114,7 @@ public abstract class GeoRenderArmorEvent implements GeoRenderEvent {
 		 * This event is called after {@link GeoRenderer#postRender}
 		 */
 		public static class Post extends GeoRenderArmorEvent {
-			public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-				for (Listener listener : listeners) {
-					listener.handle(event);
-				}
-			});
+			public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
 			private final PoseStack poseStack;
 			private final BakedGeoModel model;
@@ -177,11 +166,7 @@ public abstract class GeoRenderArmorEvent implements GeoRenderEvent {
 		 * Use this event to add render layers to the renderer as needed
 		 */
 		public static class CompileRenderLayers extends GeoRenderArmorEvent {
-			public static final Event<CompileRenderLayers.Listener> EVENT = EventFactory.createArrayBacked(CompileRenderLayers.Listener.class, post -> {}, listeners -> event -> {
-				for (CompileRenderLayers.Listener listener : listeners) {
-					listener.handle(event);
-				}
-			});
+			public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT  = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
 			public CompileRenderLayers(GeoArmorRenderer<?> renderer) {
 				super(renderer);

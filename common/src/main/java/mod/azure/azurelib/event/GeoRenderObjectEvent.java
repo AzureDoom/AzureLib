@@ -2,21 +2,20 @@ package mod.azure.azurelib.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.renderer.GeoBlockRenderer;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
+import mod.azure.azurelib.renderer.GeoObjectRenderer;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
- * Renderer events for {@link BlockEntity BlockEntities} being rendered by {@link GeoBlockRenderer}
+ * Renderer events for miscellaneous {@link mod.azure.azurelib.core.animatable.GeoAnimatable animatables} being rendered by {@link GeoObjectRenderer}
  */
-public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
-	private final GeoBlockRenderer<?> renderer;
+public abstract class GeoRenderObjectEvent implements GeoRenderEvent {
+	private final GeoObjectRenderer<?> renderer;
 
-	public GeoRenderBlockEvent(GeoBlockRenderer<?> renderer) {
+	public GeoRenderObjectEvent(GeoObjectRenderer<?> renderer) {
 		this.renderer = renderer;
 	}
 
@@ -24,33 +23,19 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 	 * Returns the renderer for this event
 	 */
 	@Override
-	public GeoBlockRenderer<?> getRenderer() {
+	public GeoObjectRenderer<?> getRenderer() {
 		return this.renderer;
 	}
 
 	/**
-	 * Shortcut method for retrieving the block entity being rendered
-	 */
-	public BlockEntity getBlockEntity() {
-		return getRenderer().getAnimatable();
-	}
-
-	/**
-	 * Pre-render event for block entities being rendered by {@link GeoBlockRenderer}.<br>
+	 * Pre-render event for miscellaneous animatables being rendered by {@link GeoObjectRenderer}.<br>
 	 * This event is called before rendering, but after {@link GeoRenderer#preRender}<br>
 	 * <br>
 	 * This event is <u>cancellable</u>.<br>
-	 * If the event is cancelled by returning false in the {@link Listener}, the block entity will not be rendered and the corresponding {@link Post} event will not be fired.
+	 * If the event is cancelled by returning false in the {@link Listener}, the object will not be rendered and the corresponding {@link Post} event will not be fired.
 	 */
-	public static class Pre extends GeoRenderBlockEvent {
-		public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-			for (Listener listener : listeners) {
-				if (!listener.handle(event))
-					return false;
-			}
-
-			return true;
-		});
+	public static class Pre extends GeoRenderObjectEvent {
+		public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT  = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
 		private final PoseStack poseStack;
 		private final BakedGeoModel model;
@@ -58,7 +43,7 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 		private final float partialTick;
 		private final int packedLight;
 
-		public Pre(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+		public Pre(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
 			super(renderer);
 
 			this.poseStack = poseStack;
@@ -89,7 +74,7 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 		}
 
 		/**
-		 * Event listener interface for the Block.Pre GeoRenderEvent.<br>
+		 * Event listener interface for the Object.Pre GeoRenderEvent.<br>
 		 * Return false to cancel the render pass
 		 */
 		@FunctionalInterface
@@ -99,15 +84,11 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 	}
 
 	/**
-	 * Post-render event for block entities being rendered by {@link GeoBlockRenderer}.<br>
+	 * Post-render event for miscellaneous animatables being rendered by {@link GeoObjectRenderer}.<br>
 	 * This event is called after {@link GeoRenderer#postRender}
 	 */
-	public static class Post extends GeoRenderBlockEvent {
-		public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-			for (Listener listener : listeners) {
-				listener.handle(event);
-			}
-		});
+	public static class Post extends GeoRenderObjectEvent {
+		public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT  = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
 		private final PoseStack poseStack;
 		private final BakedGeoModel model;
@@ -115,7 +96,7 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 		private final float partialTick;
 		private final int packedLight;
 
-		public Post(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+		public Post(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
 			super(renderer);
 
 			this.poseStack = poseStack;
@@ -146,7 +127,7 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 		}
 
 		/**
-		 * Event listener interface for the Block.Post GeoRenderEvent
+		 * Event listener interface for the Object.Post GeoRenderEvent
 		 */
 		@FunctionalInterface
 		public interface Listener {
@@ -155,17 +136,13 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 	}
 
 	/**
-	 * One-time event for a {@link GeoBlockRenderer} called on first initialisation.<br>
+	 * One-time event for a {@link GeoObjectRenderer} called on first initialisation.<br>
 	 * Use this event to add render layers to the renderer as needed
 	 */
-	public static class CompileRenderLayers extends GeoRenderBlockEvent {
-		public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-			for (Listener listener : listeners) {
-				listener.handle(event);
-			}
-		});
+	public static class CompileRenderLayers extends GeoRenderObjectEvent {
+		public static final GeoRenderPhaseEventFactory.GeoRenderPhaseEvent EVENT  = Services.GEO_RENDER_PHASE_EVENT_FACTORY.create();
 
-		public CompileRenderLayers(GeoBlockRenderer<?> renderer) {
+		public CompileRenderLayers(GeoObjectRenderer<?> renderer) {
 			super(renderer);
 		}
 
@@ -178,7 +155,7 @@ public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 		}
 
 		/**
-		 * Event listener interface for the Armor.CompileRenderLayers GeoRenderEvent
+		 * Event listener interface for the Object.CompileRenderLayers GeoRenderEvent
 		 */
 		@FunctionalInterface
 		public interface Listener {

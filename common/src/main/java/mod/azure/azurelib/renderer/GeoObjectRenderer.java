@@ -3,6 +3,7 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import mod.azure.azurelib.event.GeoRenderObjectEvent;
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -123,7 +124,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 		Minecraft mc = Minecraft.getInstance();
 
 		if (buffer == null)
-			bufferSource = mc.levelRenderer.renderBuffers.bufferSource();
+			bufferSource = Services.ACCESS_WIDENER.getRenderBuffers().bufferSource();
 
 		defaultRender(poseStack, animatable, bufferSource, renderType, buffer, 0, mc.getFrameTime(), packedLight);
 	}
@@ -199,7 +200,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderObjectEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderObjectEvent.CompileRenderLayers(this));
+		GeoRenderObjectEvent.CompileRenderLayers.EVENT.handle(new GeoRenderObjectEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -209,7 +210,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderObjectEvent.Pre.EVENT.invoker().handle(new GeoRenderObjectEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderObjectEvent.Pre.EVENT.handle(new GeoRenderObjectEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -217,6 +218,6 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderObjectEvent.Post.EVENT.invoker().handle(new GeoRenderObjectEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderObjectEvent.Post.EVENT.handle(new GeoRenderObjectEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }

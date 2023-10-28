@@ -3,6 +3,7 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import mod.azure.azurelib.event.GeoRenderArmorEvent;
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -271,10 +272,10 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Minecraft mc = Minecraft.getInstance();
-		MultiBufferSource bufferSource = mc.levelRenderer.renderBuffers.bufferSource();
+		MultiBufferSource bufferSource = Services.ACCESS_WIDENER.getRenderBuffers().bufferSource();
 
-		if (mc.levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
-			bufferSource = mc.levelRenderer.renderBuffers.outlineBufferSource();
+		if (Services.ACCESS_WIDENER.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
+			bufferSource = Services.ACCESS_WIDENER.getRenderBuffers().outlineBufferSource();
 
 		float partialTick = mc.getFrameTime();
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
@@ -518,18 +519,18 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 			return;
 
 		if (this.currentSlot == EquipmentSlot.HEAD) {
-			if (this.baseModel.scaleHead) {
-				float headScale = 1.5f / this.baseModel.babyHeadScale;
+			if (Services.ACCESS_WIDENER.scaleHead(this.baseModel)) {
+				float headScale = 1.5f / Services.ACCESS_WIDENER.babyHeadScale(this.baseModel);
 
 				poseStack.scale(headScale, headScale, headScale);
 			}
 
-			poseStack.translate(0, this.baseModel.babyYHeadOffset / 16f, this.baseModel.babyZHeadOffset / 16f);
+			poseStack.translate(0, Services.ACCESS_WIDENER.babyYHeadOffset(this.baseModel) / 16f, Services.ACCESS_WIDENER.babyZHeadOffset(this.baseModel) / 16f);
 		} else {
-			float bodyScale = 1 / this.baseModel.babyBodyScale;
+			float bodyScale = 1 / Services.ACCESS_WIDENER.babyBodyScale(this.baseModel);
 
 			poseStack.scale(bodyScale, bodyScale, bodyScale);
-			poseStack.translate(0, this.baseModel.bodyYOffset / 16f, 0);
+			poseStack.translate(0, Services.ACCESS_WIDENER.bodyYOffset(this.baseModel) / 16f, 0);
 		}
 	}
 
@@ -560,7 +561,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public void fireCompileRenderLayersEvent() {
-		GeoRenderArmorEvent.CompileRenderLayers.EVENT.invoker().handle(new GeoRenderArmorEvent.CompileRenderLayers(this));
+		GeoRenderArmorEvent.CompileRenderLayers.EVENT.handle(new GeoRenderArmorEvent.CompileRenderLayers(this));
 	}
 
 	/**
@@ -570,7 +571,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderArmorEvent.Pre.EVENT.invoker().handle(new GeoRenderArmorEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return GeoRenderArmorEvent.Pre.EVENT.handle(new GeoRenderArmorEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 
 	/**
@@ -578,6 +579,6 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Override
 	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderArmorEvent.Post.EVENT.invoker().handle(new GeoRenderArmorEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
+		GeoRenderArmorEvent.Post.EVENT.handle(new GeoRenderArmorEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
 	}
 }
