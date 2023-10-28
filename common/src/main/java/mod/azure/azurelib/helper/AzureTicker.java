@@ -1,5 +1,6 @@
 package mod.azure.azurelib.helper;
 
+import mod.azure.azurelib.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.server.level.ServerLevel;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.Data;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.Listener;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.User;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
 public interface AzureTicker {
 	public static void tick(Level level, Data data, User user) {
@@ -40,7 +40,7 @@ public interface AzureTicker {
 			data.setCurrentVibration((VibrationInfo) vibrationInfo);
 			Vec3 vec3 = vibrationInfo.pos();
 			data.setTravelTimeInTicks(user.calculateTravelTimeInTicks(vibrationInfo.distance()));
-			if (!FMLEnvironment.production)
+			if (Services.PLATFORM.isDevelopmentEnvironment())
 				serverLevel.sendParticles(new VibrationParticleOption(user.getPositionSource(), data.getTravelTimeInTicks()), vec3.x, vec3.y, vec3.z, 1, 0.0, 0.0, 0.0, 0.0);
 			user.onDataChanged();
 			data.getSelectionStrategy().startOver();
