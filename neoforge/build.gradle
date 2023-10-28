@@ -6,7 +6,7 @@ plugins {
 }
 
 base {
-    archivesName = "${mod_name}-neoforged-${minecraft_version}"
+    archivesName = "${mod_name}-neo-${minecraft_version}"
 }
 
 mixin {
