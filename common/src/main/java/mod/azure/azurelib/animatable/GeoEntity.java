@@ -1,16 +1,15 @@
 package mod.azure.azurelib.animatable;
 
-import javax.annotation.Nullable;
+import mod.azure.azurelib.platform.Services;
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
 import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.PacketDistributor;
 
 /**
  * The {@link GeoAnimatable} interface specific to {@link net.minecraft.world.entity.Entity Entities}. This also applies to Projectiles and other Entity subclasses.<br>
@@ -43,7 +42,8 @@ public interface GeoEntity extends GeoAnimatable {
 		if (entity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(entity.getId()).setData(dataTicket, data);
 		} else {
-			AzureLibNetwork.send(new EntityAnimDataSyncPacket<>(entity.getId(), dataTicket, data), PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity));
+			EntityAnimDataSyncPacket<D> entityAnimDataSyncPacket = new EntityAnimDataSyncPacket<>(entity.getId(), dataTicket, data);
+			Services.NETWORK.sendToTrackingEntityAndSelf(entityAnimDataSyncPacket, entity);
 		}
 	}
 
@@ -60,7 +60,8 @@ public interface GeoEntity extends GeoAnimatable {
 		if (entity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(entity.getId()).tryTriggerAnimation(controllerName, animName);
 		} else {
-			AzureLibNetwork.send(new EntityAnimTriggerPacket<>(entity.getId(), controllerName, animName), PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity));
+			EntityAnimTriggerPacket entityAnimTriggerPacket = new EntityAnimTriggerPacket(entity.getId(), controllerName, animName);
+			Services.NETWORK.sendToTrackingEntityAndSelf(entityAnimTriggerPacket, entity);
 		}
 	}
 

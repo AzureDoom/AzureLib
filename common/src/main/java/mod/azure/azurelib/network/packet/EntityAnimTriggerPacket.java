@@ -1,32 +1,27 @@
 package mod.azure.azurelib.network.packet;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.animatable.GeoReplacedEntity;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.util.ClientUtils;
 import mod.azure.azurelib.util.RenderUtils;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the
  * server for {@link net.minecraft.world.entity.Entity Entities}
  */
 public class EntityAnimTriggerPacket extends AbstractPacket {
-    private final int ENTITY_ID;
-    private final boolean IS_REPLACED_ENTITY;
+    private final int entityId;
+    private final boolean isReplacedEntity;
 
-    private final String CONTROLLER_NAME;
-    private final String ANIM_NAME;
+    private final String controllerName;
+    private final String animName;
 
     public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
         this(entityId, false, controllerName, animName);
@@ -34,23 +29,19 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
 
     public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, @Nullable String controllerName,
                                    String animName) {
-        this.ENTITY_ID = entityId;
-        this.IS_REPLACED_ENTITY = isReplacedEntity;
-        this.CONTROLLER_NAME = controllerName == null ? "" : controllerName;
-        this.ANIM_NAME = animName;
+        this.entityId = entityId;
+        this.isReplacedEntity = isReplacedEntity;
+        this.controllerName = controllerName == null ? "" : controllerName;
+        this.animName = animName;
     }
 
     @Override
-    public FriendlyByteBuf encode() {
-        FriendlyByteBuf buf = PacketByteBufs.create();
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeVarInt(this.entityId);
+        buf.writeBoolean(this.isReplacedEntity);
 
-        buf.writeVarInt(this.ENTITY_ID);
-        buf.writeBoolean(this.IS_REPLACED_ENTITY);
-
-        buf.writeUtf(this.CONTROLLER_NAME);
-        buf.writeUtf(this.ANIM_NAME);
-
-        return buf;
+        buf.writeUtf(this.controllerName);
+        buf.writeUtf(this.animName);
     }
 
     @Override
@@ -58,17 +49,11 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
         return AzureLibNetwork.ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        final int ENTITY_ID = buf.readVarInt();
-        final boolean IS_REPLACED_ENTITY = buf.readBoolean();
-
-        final String CONTROLLER_NAME = buf.readUtf();
-        final String ANIM_NAME = buf.readUtf();
-
-        client.execute(() -> runOnThread(ENTITY_ID, IS_REPLACED_ENTITY, CONTROLLER_NAME, ANIM_NAME));
+    public static EntityAnimTriggerPacket receive(FriendlyByteBuf buf) {
+        return new EntityAnimTriggerPacket(buf.readVarInt(), buf.readBoolean(), buf.readUtf(), buf.readUtf());
     }
 
-    private static void runOnThread(int entityId, boolean isReplacedEntity, String controllerName, String animName) {
+    public void handle() {
         Entity entity = ClientUtils.getLevel().getEntity(entityId);
         if (entity == null)
             return;

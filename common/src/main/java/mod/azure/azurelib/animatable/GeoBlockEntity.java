@@ -1,11 +1,11 @@
 package mod.azure.azurelib.animatable;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.BlockEntityAnimTriggerPacket;
@@ -54,7 +54,7 @@ public interface GeoBlockEntity extends GeoAnimatable {
 			BlockPos pos = blockEntity.getBlockPos();
 
 			BlockEntityAnimDataSyncPacket<D> blockEntityAnimDataSyncPacket = new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, data);
-			AzureLibNetwork.sendToEntitiesTrackingChunk(blockEntityAnimDataSyncPacket, (ServerLevel) level, pos);
+			Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimDataSyncPacket, (ServerLevel) level, pos);
 		}
 	}
 
@@ -81,7 +81,7 @@ public interface GeoBlockEntity extends GeoAnimatable {
 			BlockPos pos = blockEntity.getBlockPos();
 
 			BlockEntityAnimTriggerPacket blockEntityAnimTriggerPacket = new BlockEntityAnimTriggerPacket(pos, controllerName, animName);
-			AzureLibNetwork.sendToEntitiesTrackingChunk(blockEntityAnimTriggerPacket, (ServerLevel) level, pos);
+			Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimTriggerPacket, (ServerLevel) level, pos);
 		}
 	}
 

@@ -2,8 +2,6 @@ package mod.azure.azurelib.network.packet;
 
 import java.util.UUID;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,7 +10,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 public class EntityPacketOnClient {
-	@Environment(EnvType.CLIENT)
 	public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {
 		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.byId(byteBuf.readVarInt());
 		UUID entityUUID = byteBuf.readUUID();

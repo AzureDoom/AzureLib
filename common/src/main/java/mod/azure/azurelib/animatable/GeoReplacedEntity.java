@@ -3,11 +3,11 @@ package mod.azure.azurelib.animatable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
@@ -51,7 +51,7 @@ public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 			getAnimatableInstanceCache().getManagerForId(relatedEntity.getId()).setData(dataTicket, data);
 		} else {
 			EntityAnimDataSyncPacket<D> entityAnimDataSyncPacket = new EntityAnimDataSyncPacket<>(relatedEntity.getId(), dataTicket, data);
-			AzureLibNetwork.sendToTrackingEntityAndSelf(entityAnimDataSyncPacket, relatedEntity);
+			Services.NETWORK.sendToTrackingEntityAndSelf(entityAnimDataSyncPacket, relatedEntity);
 		}
 	}
 
@@ -68,7 +68,7 @@ public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 			getAnimatableInstanceCache().getManagerForId(relatedEntity.getId()).tryTriggerAnimation(controllerName, animName);
 		} else {
 			EntityAnimTriggerPacket entityAnimTriggerPacket = new EntityAnimTriggerPacket(relatedEntity.getId(), controllerName, animName);
-			AzureLibNetwork.sendToTrackingEntityAndSelf(entityAnimTriggerPacket, relatedEntity);
+			Services.NETWORK.sendToTrackingEntityAndSelf(entityAnimTriggerPacket, relatedEntity);
 		}
 	}
 

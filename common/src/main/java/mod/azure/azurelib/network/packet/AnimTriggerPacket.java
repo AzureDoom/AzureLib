@@ -1,17 +1,12 @@
 package mod.azure.azurelib.network.packet;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the
@@ -30,15 +25,11 @@ public class AnimTriggerPacket extends AbstractPacket {
         this.animName = animName;
     }
 
-    public FriendlyByteBuf encode() {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-
+    public void encode(FriendlyByteBuf buf) {
         buf.writeUtf(this.syncableId);
         buf.writeVarLong(this.instanceId);
         buf.writeUtf(this.controllerName);
         buf.writeUtf(this.animName);
-
-        return buf;
     }
 
     @Override
@@ -46,16 +37,12 @@ public class AnimTriggerPacket extends AbstractPacket {
         return AzureLibNetwork.ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        String syncableId = buf.readUtf();
-        long instanceId = buf.readVarLong();
-        String controllerName = buf.readUtf();
-        String animName = buf.readUtf();
-
-        client.execute(() -> runOnThread(syncableId, instanceId, controllerName, animName));
+    public static AnimTriggerPacket receive(FriendlyByteBuf buf) {
+        return new AnimTriggerPacket(buf.readUtf(), buf.readVarLong(), buf.readUtf(), buf.readUtf());
     }
 
-    private static <D> void runOnThread(String syncableId, long instanceId, String controllerName, String animName) {
+    @Override
+    public void handle() {
         GeoAnimatable animatable = AzureLibNetwork.getSyncedAnimatable(syncableId);
 
         if (animatable != null) {
