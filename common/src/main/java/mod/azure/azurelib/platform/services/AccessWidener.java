@@ -1,6 +1,7 @@
 package mod.azure.azurelib.platform.services;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,4 +46,6 @@ public interface AccessWidener {
     float babyBodyScale(HumanoidModel<?> humanoidModel);
 
     float bodyYOffset(HumanoidModel<?> humanoidModel);
+
+    List<ModelPart.Cube> getCubes(ModelPart modelPart);
 }

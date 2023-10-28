@@ -1,9 +1,25 @@
 package mod.azure.azurelib.renderer.layer;
 
+import java.util.Map;
+
+import mod.azure.azurelib.platform.Services;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.renderer.GeoRenderer;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.SkullModelBase;
@@ -22,24 +38,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeableArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PlayerHeadItem;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.renderer.GeoArmorRenderer;
-import mod.azure.azurelib.renderer.GeoRenderer;
-import mod.azure.azurelib.util.RenderUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
 
 /**
  * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
@@ -66,7 +73,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 * Return an EquipmentSlot for a given {@link ItemStack} and animatable instance.<br>
 	 * This is what determines the base model to use for rendering a particular stack
 	 */
-	@Nonnull
+	@NotNull
 	protected EquipmentSlot getEquipmentSlotForBone(GeoBone bone, ItemStack stack, T animatable) {
 		for(EquipmentSlot slot : EquipmentSlot.values()) {
 			if(slot.getType() == EquipmentSlot.Type.ARMOR) {
@@ -82,7 +89,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 * Return a ModelPart for a given {@link GeoBone}.<br>
 	 * This is then transformed into position for the final render
 	 */
-	@Nonnull
+	@NotNull
 	protected ModelPart getModelPartForBone(GeoBone bone, EquipmentSlot slot, ItemStack stack, T animatable, HumanoidModel<?> baseModel) {
 		return baseModel.body;
 	}
@@ -138,7 +145,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 			HumanoidModel<?> model = getModelForItem(bone, slot, armorStack, animatable);
 			ModelPart modelPart = getModelPartForBone(bone, slot, armorStack, animatable, model);
 
-			if (!modelPart.cubes.isEmpty()) {
+			if (!Services.ACCESS_WIDENER.getCubes(modelPart).isEmpty()) {
 				poseStack.pushPose();
 				poseStack.scale(-1, -1, 1);
 
@@ -198,11 +205,11 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	/**
 	 * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided {@link ItemStack}
 	 */
-	@Nonnull
+	@NotNull
 	protected HumanoidModel<?> getModelForItem(GeoBone bone, EquipmentSlot slot, ItemStack stack, T animatable) {
-		HumanoidModel<?> defaultModel = slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
-
-		return IClientItemExtensions.of(stack).getHumanoidArmorModel(null, stack, null, defaultModel);
+		HumanoidModel<LivingEntity> defaultModel = slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
+		
+		return RenderProvider.of(stack).getHumanoidArmorModel(null, stack, null, defaultModel);
 	}
 
 	/**
@@ -223,7 +230,12 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 			type = "_" + type;
 
 		String texture = String.format("%s:textures/models/armor/%s_layer_%d%s.png", domain, path, (slot == EquipmentSlot.LEGS ? 2 : 1), type);
-		texture = ForgeHooksClient.getArmorTexture(entity, stack, texture, slot, type);
+		ResourceLocation ResourceLocation = ARMOR_PATH_CACHE.get(texture);
+
+		if (ResourceLocation == null) {
+			ResourceLocation = new ResourceLocation(texture);
+			ARMOR_PATH_CACHE.put(texture, ResourceLocation);
+		}
 
 		return ARMOR_PATH_CACHE.computeIfAbsent(texture, ResourceLocation::new);
 	}
@@ -275,7 +287,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 */
 	protected void prepModelPartForRender(PoseStack poseStack, GeoBone bone, ModelPart sourcePart) {
 		final GeoCube firstCube = bone.getCubes().get(0);
-		final Cube armorCube = sourcePart.cubes.get(0);
+		final Cube armorCube = Services.ACCESS_WIDENER.getCubes(sourcePart).get(0);
 		final double armorBoneSizeX = firstCube.size().x();
 		final double armorBoneSizeY = firstCube.size().y();
 		final double armorBoneSizeZ = firstCube.size().z();

@@ -8,6 +8,7 @@ import mod.azure.azurelib.platform.services.AccessWidener;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -96,5 +98,10 @@ public class NeoForgeAccessWidener implements AccessWidener {
     @Override
     public float bodyYOffset(HumanoidModel<?> humanoidModel) {
         return humanoidModel.bodyYOffset;
+    }
+
+    @Override
+    public List<ModelPart.Cube> getCubes(ModelPart modelPart) {
+        return modelPart.cubes;
     }
 }
