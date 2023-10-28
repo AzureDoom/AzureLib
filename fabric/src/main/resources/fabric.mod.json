@@ -18,7 +18,7 @@
     "client" : [ "mod.azure.azurelib.ClientListener" ],
     "modmenu" : [ "mod.azure.azurelib.integration.ModMenuIntegration" ]
   },
-  "mixins" : [ "azurelib.mixins.json" ],
+  "mixins" : [ "azurelib.fabric.mixins.json" ],
   "accessWidener" : "azurelib.aw",
   "depends" : {
     "fabricloader" : ">=0.14.10",
