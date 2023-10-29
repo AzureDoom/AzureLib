@@ -145,7 +145,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 			HumanoidModel<?> model = getModelForItem(bone, slot, armorStack, animatable);
 			ModelPart modelPart = getModelPartForBone(bone, slot, armorStack, animatable, model);
 
-			if (!Services.ACCESS_WIDENER.getCubes(modelPart).isEmpty()) {
+			if (!modelPart.cubes.isEmpty()) {
 				poseStack.pushPose();
 				poseStack.scale(-1, -1, 1);
 
@@ -287,7 +287,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 */
 	protected void prepModelPartForRender(PoseStack poseStack, GeoBone bone, ModelPart sourcePart) {
 		final GeoCube firstCube = bone.getCubes().get(0);
-		final Cube armorCube = Services.ACCESS_WIDENER.getCubes(sourcePart).get(0);
+		final Cube armorCube = sourcePart.cubes.get(0);
 		final double armorBoneSizeX = firstCube.size().x();
 		final double armorBoneSizeY = firstCube.size().y();
 		final double armorBoneSizeZ = firstCube.size().z();

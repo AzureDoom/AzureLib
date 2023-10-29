@@ -1,7 +1,6 @@
 package mod.azure.azurelib.platform;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.platform.services.AccessWidener;
 import mod.azure.azurelib.platform.services.AzureLibInitializer;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
@@ -11,7 +10,6 @@ import java.util.ServiceLoader;
 
 public class Services {
 
-    public static final AccessWidener ACCESS_WIDENER = load(AccessWidener.class);
     public static final GeoRenderPhaseEventFactory GEO_RENDER_PHASE_EVENT_FACTORY = load(GeoRenderPhaseEventFactory.class);
     public static final AzureLibInitializer INITIALIZER = load(AzureLibInitializer.class);
     public static final AzureLibNetwork NETWORK = load(AzureLibNetwork.class);

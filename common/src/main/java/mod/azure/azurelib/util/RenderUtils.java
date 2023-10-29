@@ -238,7 +238,7 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoModel<?> getGeoModelForEntityType(EntityType<?> entityType) {
-		EntityRenderer<?> renderer = Services.ACCESS_WIDENER.getEntityRenderers().get(entityType);
+		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
 		return renderer instanceof GeoRenderer<?> geoRenderer ? geoRenderer.getGeoModel() : null;
 	}
@@ -251,7 +251,7 @@ public final class RenderUtils {
 	 */
 	@Nullable
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
-		EntityRenderer<?> renderer = Services.ACCESS_WIDENER.getEntityRenderers().get(entityType);
+		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
 		return renderer instanceof GeoReplacedEntityRenderer<?, ?> replacedEntityRenderer ? replacedEntityRenderer.getAnimatable() : null;
 	}
