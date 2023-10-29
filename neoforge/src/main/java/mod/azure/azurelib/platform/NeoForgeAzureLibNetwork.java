@@ -52,12 +52,12 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     @Override
     public void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack) {
-        throw new UnsupportedOperationException();
+        send(packet, PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entityToTrack));
     }
 
     @Override
     public void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos) {
-        throw new UnsupportedOperationException();
+        send(packet, PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(blockPos)));
     }
 
     /**
