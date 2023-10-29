@@ -12,9 +12,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
@@ -71,8 +73,8 @@ public class AnimationController<T extends GeoAnimatable> {
 	protected AnimationProcessor.QueuedAnimation currentAnimation;
 	protected State animationState = State.STOPPED;
 	protected double tickOffset;
-	protected Function<T, Double> animationSpeedModifier = animatable -> 1d;
-	protected Function<T, EasingType> overrideEasingTypeFunction = animatable -> null;
+	protected ToDoubleFunction<T> animationSpeedModifier = obj -> 1d;
+	protected Function<T, EasingType> overrideEasingTypeFunction = obj -> null;
 	private final Set<KeyFrameData> executedKeyFrames = new ObjectOpenHashSet<>();
 	protected CoreGeoModel<T> lastModel;
 
@@ -160,7 +162,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @param speedModFunction The function to apply to this controller to handle animation speed
 	 * @return this
 	 */
-	public AnimationController<T> setAnimationSpeedHandler(Function<T, Double> speedModFunction) {
+	public AnimationController<T> setAnimationSpeedHandler(ToDoubleFunction<T> speedModFunction) {
 		this.animationSpeedModifier = speedModFunction;
 
 		return this;
@@ -173,7 +175,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @return this
 	 */
 	public AnimationController<T> setAnimationSpeed(double speed) {
-		return setAnimationSpeedHandler(animatable -> speed);
+		return setAnimationSpeedHandler(obj -> speed);
 	}
 
 	/**
@@ -183,7 +185,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @return this
 	 */
 	public AnimationController<T> setOverrideEasingType(EasingType easingTypeFunction) {
-		return setOverrideEasingTypeFunction(animatable -> easingTypeFunction);
+		return setOverrideEasingTypeFunction(obj -> easingTypeFunction);
 	}
 
 	/**
@@ -261,7 +263,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @return The computed current animation speed modifier
 	 */
 	public double getAnimationSpeed() {
-		return this.animationSpeedModifier.apply(this.animatable);
+		return this.animationSpeedModifier.applyAsDouble(this.animatable);
 	}
 
 	/**
@@ -474,9 +476,9 @@ public class AnimationController<T extends GeoAnimatable> {
 						continue;
 					}
 
-					KeyframeStack<Keyframe<IValue>> rotationKeyFrames = boneAnimation.rotationKeyFrames();
-					KeyframeStack<Keyframe<IValue>> positionKeyFrames = boneAnimation.positionKeyFrames();
-					KeyframeStack<Keyframe<IValue>> scaleKeyFrames = boneAnimation.scaleKeyFrames();
+					KeyframeStack<IValue> rotationKeyFrames = boneAnimation.rotationKeyFrames();
+					KeyframeStack<IValue> positionKeyFrames = boneAnimation.positionKeyFrames();
+					KeyframeStack<IValue> scaleKeyFrames = boneAnimation.scaleKeyFrames();
 
 					if (!rotationKeyFrames.xKeyframes().isEmpty()) {
 						boneAnimationQueue.addNextRotation(null, adjustedTick, this.transitionLength, boneSnapshot, bone.getInitialSnapshot(),
@@ -551,9 +553,9 @@ public class AnimationController<T extends GeoAnimatable> {
 				continue;
 			}
 
-			KeyframeStack<Keyframe<IValue>> rotationKeyFrames = boneAnimation.rotationKeyFrames();
-			KeyframeStack<Keyframe<IValue>> positionKeyFrames = boneAnimation.positionKeyFrames();
-			KeyframeStack<Keyframe<IValue>> scaleKeyFrames = boneAnimation.scaleKeyFrames();
+			KeyframeStack<IValue> rotationKeyFrames = boneAnimation.rotationKeyFrames();
+			KeyframeStack<IValue> positionKeyFrames = boneAnimation.positionKeyFrames();
+			KeyframeStack<IValue> scaleKeyFrames = boneAnimation.scaleKeyFrames();
 
 			if (!rotationKeyFrames.xKeyframes().isEmpty()) {
 				boneAnimationQueue.addRotations(
@@ -582,8 +584,7 @@ public class AnimationController<T extends GeoAnimatable> {
 		for (SoundKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().sounds()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.soundKeyframeHandler == null) {
-					System.out.println("Sound Keyframe found for " + this.animatable.getClass().getSimpleName() + " -> " + getName() + ", but no keyframe handler registered");
-
+					AzureLib.LOGGER.warn("Sound Keyframe found for {} -> {}, but no keyframe handler registered", this.animatable.getClass().getSimpleName(), getName());
 					break;
 				}
 
@@ -594,8 +595,7 @@ public class AnimationController<T extends GeoAnimatable> {
 		for (ParticleKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().particles()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.particleKeyframeHandler == null) {
-					System.out.println("Particle Keyframe found for " + this.animatable.getClass().getSimpleName() + " -> " + getName() + ", but no keyframe handler registered");
-
+					AzureLib.LOGGER.warn("Particle Keyframe found for {} -> {}, but no keyframe handler registered", this.animatable.getClass().getSimpleName(), getName());
 					break;
 				}
 
@@ -606,8 +606,7 @@ public class AnimationController<T extends GeoAnimatable> {
 		for (CustomInstructionKeyframeData keyframeData : this.currentAnimation.animation().keyFrames().customInstructions()) {
 			if (adjustedTick >= keyframeData.getStartTick() && this.executedKeyFrames.add(keyframeData)) {
 				if (this.customKeyframeHandler == null) {
-					System.out.println("Custom Instruction Keyframe found for " + this.animatable.getClass().getSimpleName() + " -> " + getName() + ", but no keyframe handler registered");
-
+					AzureLib.LOGGER.warn("Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered", this.animatable.getClass().getSimpleName(), getName());
 					break;
 				}
 
@@ -615,8 +614,9 @@ public class AnimationController<T extends GeoAnimatable> {
 			}
 		}
 
-		if (this.transitionLength == 0 && this.shouldResetTick && this.animationState == State.TRANSITIONING)
+		if (this.transitionLength == 0 && this.shouldResetTick && this.animationState == State.TRANSITIONING) {
 			this.currentAnimation = this.animationQueue.poll();
+		}
 	}
 
 	/**
@@ -638,14 +638,15 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @param snapshots The master snapshot collection to pull filter from
 	 */
 	private void saveSnapshotsForAnimation(AnimationProcessor.QueuedAnimation animation, Map<String, BoneSnapshot> snapshots) {
-		for (BoneSnapshot snapshot : snapshots.values()) {
-			if (animation.animation().boneAnimations() != null) {
-				for (BoneAnimation boneAnimation : animation.animation().boneAnimations()) {
-					if (boneAnimation.boneName().equals(snapshot.getBone().getName())) {
-						this.boneSnapshots.put(boneAnimation.boneName(), BoneSnapshot.copy(snapshot));
+		if (animation.animation().boneAnimations() == null) {
+			return;
+		}
 
-						break;
-					}
+		for (BoneSnapshot snapshot : snapshots.values()) {
+			for (BoneAnimation boneAnimation : animation.animation().boneAnimations()) {
+				if (boneAnimation.boneName().equals(snapshot.getBone().getName())) {
+					this.boneSnapshots.put(boneAnimation.boneName(), BoneSnapshot.copy(snapshot));
+					break;
 				}
 			}
 		}
@@ -659,7 +660,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 */
 	protected double adjustTick(double tick) {
 		if (!this.shouldResetTick)
-			return this.animationSpeedModifier.apply(this.animatable) * Math.max(tick - this.tickOffset, 0);
+			return this.animationSpeedModifier.applyAsDouble(this.animatable) * Math.max(tick - this.tickOffset, 0);
 
 		if (getAnimationState() != State.STOPPED)
 			this.tickOffset = tick;
@@ -674,7 +675,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 */
 	private AnimationPoint getAnimationPointAtTick(List<Keyframe<IValue>> frames, double tick, boolean isRotation,
 												   Axis axis) {
-		KeyframeLocation<Keyframe<IValue>> location = getCurrentKeyFrameLocation(frames, tick);
+		KeyframeLocation<IValue> location = getCurrentKeyFrameLocation(frames, tick);
 		Keyframe<IValue> currentFrame = location.keyframe();
 		double startValue = currentFrame.startValue().get();
 		double endValue = currentFrame.endValue().get();
@@ -704,7 +705,7 @@ public class AnimationController<T extends GeoAnimatable> {
 	 * @param ageInTicks The current tick time
 	 * @return A new {@code KeyFrameLocation} containing the current {@code KeyFrame} and the tick time used to find it
 	 */
-	private KeyframeLocation<Keyframe<IValue>> getCurrentKeyFrameLocation(List<Keyframe<IValue>> frames,
+	private KeyframeLocation<IValue> getCurrentKeyFrameLocation(List<Keyframe<IValue>> frames,
 																		  double ageInTicks) {
 		double totalFrameTime = 0;
 

@@ -51,6 +51,7 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	 * Add an {@link AnimationController} to this animatable's manager.<br>
 	 * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
 	 */
+	@Override
 	public void addController(AnimationController controller) {
 		getManagerForContext(getCurrentContext()).addController(controller);
 	}
@@ -58,42 +59,52 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	/**
 	 * Removes an {@link AnimationController} from this manager by the given name, if present.
 	 */
+	@Override
 	public void removeController(String name) {
 		getManagerForContext(getCurrentContext()).removeController(name);
 	}
 
+	@Override
 	public Map<String, AnimationController<T>> getAnimationControllers() {
 		return getManagerForContext(getCurrentContext()).getAnimationControllers();
 	}
 
+	@Override
 	public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
 		return getManagerForContext(getCurrentContext()).getBoneSnapshotCollection();
 	}
 
+	@Override
 	public void clearSnapshotCache() {
 		getManagerForContext(getCurrentContext()).clearSnapshotCache();
 	}
 
+	@Override
 	public double getLastUpdateTime() {
 		return getManagerForContext(getCurrentContext()).getLastUpdateTime();
 	}
 
+	@Override
 	public void updatedAt(double updateTime) {
 		getManagerForContext(getCurrentContext()).updatedAt(updateTime);
 	}
 
+	@Override
 	public double getFirstTickTime() {
 		return getManagerForContext(getCurrentContext()).getFirstTickTime();
 	}
 
+	@Override
 	public void startedAt(double time) {
 		getManagerForContext(getCurrentContext()).startedAt(time);
 	}
 
+	@Override
 	public boolean isFirstTick() {
 		return getManagerForContext(getCurrentContext()).isFirstTick();
 	}
 
+	@Override
 	protected void finishFirstTick() {
 		getManagerForContext(getCurrentContext()).finishFirstTick();
 	}
@@ -104,6 +115,7 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	 * This can be sped up by specifying which controller you intend to receive the trigger in {@link AnimatableManager#tryTriggerAnimation(String, String)}
 	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
+	@Override
 	public void tryTriggerAnimation(String animName) {
 		for (AnimatableManager<T> manager : this.managers.values()) {
 			manager.tryTriggerAnimation(animName);
@@ -115,6 +127,7 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	 * @param controllerName The name of the controller name the animation belongs to
 	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
+	@Override
 	public void tryTriggerAnimation(String controllerName, String animName) {
 		for (AnimatableManager<T> manager : this.managers.values()) {
 			manager.tryTriggerAnimation(controllerName, animName);
@@ -122,20 +135,11 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 	}
 
 	/**
-	 * Set a custom data point to be used later.<br>
-	 * Sub-managers do not have their data set, and instead it is all kept in this parent manager
-	 * @param dataTicket The DataTicket for the data point
-	 * @param data The piece of data to store
-	 */
-	public <D> void setData(DataTicket<D> dataTicket, D data) {
-		super.setData(dataTicket, data);
-	}
-
-	/**
 	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored.<br>
 	 * Sub-managers do not have their data set, and instead it is all kept in this parent manager
 	 */
 	@Nullable
+	@Override
 	public <D> D getData(DataTicket<D> dataTicket) {
 		return super.getData(dataTicket);
 	}

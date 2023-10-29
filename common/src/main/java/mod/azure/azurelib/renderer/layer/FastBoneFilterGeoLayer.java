@@ -42,7 +42,7 @@ public class FastBoneFilterGeoLayer<T extends GeoAnimatable> extends BoneFilterG
 	 */
 	protected List<String> getAffectedBones() {
 		return boneSupplier.get();
-	};
+	}
 
 	@Override
 	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource,

@@ -19,4 +19,8 @@ public final class MolangQueries {
 	public static final String IS_ON_FIRE = "query.is_on_fire";
 	public static final String GROUND_SPEED = "query.ground_speed";
 	public static final String YAW_SPEED = "query.yaw_speed";
+
+	private MolangQueries() {
+		throw new UnsupportedOperationException();
+	}
 }

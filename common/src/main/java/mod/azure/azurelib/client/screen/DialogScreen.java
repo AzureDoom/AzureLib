@@ -52,7 +52,7 @@ public class DialogScreen extends Screen {
 
 		this.dialogLeft = (this.width - this.dialogWidth) / 2;
 		this.dialogTop = (this.height - this.dialogHeight) / 2;
-		this.splitText = Arrays.stream(this.text).map(line -> this.font.split(line, this.dialogWidth - 10)).flatMap(Collection::stream).collect(Collectors.toList());
+		this.splitText = Arrays.stream(this.text).map(line -> this.font.split(line, this.dialogWidth - 10)).flatMap(Collection::stream).toList();
 	}
 
 	@Override

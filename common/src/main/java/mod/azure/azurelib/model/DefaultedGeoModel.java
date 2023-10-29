@@ -23,7 +23,7 @@ public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoMode
 	 *		}</pre>
 	 * @param assetSubpath
 	 */
-	public DefaultedGeoModel(ResourceLocation assetSubpath) {
+	protected DefaultedGeoModel(ResourceLocation assetSubpath) {
 		this.modelPath = buildFormattedModelPath(assetSubpath);
 		this.texturePath = buildFormattedTexturePath(assetSubpath);
 		this.animationsPath = buildFormattedAnimationPath(assetSubpath);

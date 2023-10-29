@@ -23,7 +23,7 @@ public abstract class ConfigValue<T> implements Supplier<T>{
     @Nullable
     private SetValueCallback<T> setValueCallback;
 
-    public ConfigValue(ValueData<T> valueData) {
+    protected ConfigValue(ValueData<T> valueData) {
         this.valueData = valueData;
         this.useDefaultValue();
     }

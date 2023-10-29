@@ -24,9 +24,7 @@ public class YamlFormat implements IConfigFormat {
 
 
     public YamlFormat() {
-        this.buffer = new StringBuilder();
-        this.currentNesting = 0;
-        this.processedData = new HashMap<>();
+        this(new HashMap<>());
     }
 
     public YamlFormat(StringBuilder buffer, int nesting) {
@@ -36,7 +34,7 @@ public class YamlFormat implements IConfigFormat {
     }
 
     public YamlFormat(Map<String, Object> processed) {
-        this.buffer = null;
+        this.buffer = new StringBuilder();
         this.currentNesting = 0;
         this.processedData = processed;
     }
@@ -371,12 +369,9 @@ public class YamlFormat implements IConfigFormat {
 
     @Override
     public void addComments(IDescriptionProvider provider) {
-        String[] comments = provider.getDescription();
-        if (comments.length > 0) {
-            for (String comment : comments) {
-                spaces();
-                buffer.append("# ").append(comment).append("\n");
-            }
+        for (String comment : provider.getDescription()) {
+            spaces();
+            buffer.append("# ").append(comment).append("\n");
         }
     }
 

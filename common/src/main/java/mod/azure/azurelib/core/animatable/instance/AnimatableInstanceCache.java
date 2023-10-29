@@ -11,7 +11,7 @@ import mod.azure.azurelib.core.object.DataTicket;
 public abstract class AnimatableInstanceCache {
 	protected final GeoAnimatable animatable;
 
-	public AnimatableInstanceCache(GeoAnimatable animatable) {
+	protected AnimatableInstanceCache(GeoAnimatable animatable) {
 		this.animatable = animatable;
 	}
 

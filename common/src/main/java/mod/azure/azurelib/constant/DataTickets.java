@@ -61,8 +61,12 @@ public final class DataTickets {
 		SerializableDataTicket<?> existingTicket = SERIALIZABLE_TICKETS.putIfAbsent(ticket.id(), ticket);
 
 		if (existingTicket != null)
-			AzureLib.LOGGER.error("Duplicate SerializableDataTicket registered! This will cause issues. Existing: " + existingTicket.id() + ", New: " + ticket.id());
+			AzureLib.LOGGER.error("Duplicate SerializableDataTicket registered! This will cause issues. Existing: {}, New: {}", existingTicket.id(), ticket.id());
 
 		return ticket;
+	}
+
+	private DataTickets() {
+		throw new UnsupportedOperationException();
 	}
 }

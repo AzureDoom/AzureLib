@@ -134,4 +134,8 @@ public final class ConfigUtils {
         PRIMITIVE_MAPPINGS.put(Float.class, Float.TYPE);
         PRIMITIVE_MAPPINGS.put(Double.class, Double.TYPE);
     }
+
+    private ConfigUtils() {
+        throw new UnsupportedOperationException();
+    }
 }

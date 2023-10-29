@@ -82,7 +82,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 * @param controllerName The name of the controller name the animation belongs to, or null to do an inefficient lazy search
 	 * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
-	default <D> void triggerAnim(Entity relatedEntity, long instanceId, @Nullable String controllerName, String animName) {
+	default void triggerAnim(Entity relatedEntity, long instanceId, @Nullable String controllerName, String animName) {
 		if (relatedEntity.level().isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(instanceId).tryTriggerAnimation(controllerName, animName);
 		} else {

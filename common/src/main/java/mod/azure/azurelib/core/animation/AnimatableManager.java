@@ -46,7 +46,7 @@ public class AnimatableManager<T extends GeoAnimatable> {
 	 * Add an {@link AnimationController} to this animatable's manager.<br>
 	 * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
 	 */
-	public void addController(AnimationController controller) {
+	public void addController(AnimationController<T> controller) {
 		this.animationControllers.put(controller.getName(), controller);
 	}
 

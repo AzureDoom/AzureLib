@@ -31,9 +31,7 @@ public interface DisplayAdapter {
     void placeWidgets(ConfigValue<?> value, Field field, WidgetAdder container);
 
     static DisplayAdapter booleanValue() {
-        return (value, field, container) -> container.addConfigWidget((x, y, width, height, configId) -> {
-            return new BooleanWidget(getValueX(x, width), y, getValueWidth(width), 20, (BooleanValue) value);
-        });
+        return (value, field, container) -> container.addConfigWidget((x, y, width, height, configId) -> new BooleanWidget(getValueX(x, width), y, getValueWidth(width), 20, (BooleanValue) value));
     }
 
     static DisplayAdapter characterValue() {
@@ -44,7 +42,7 @@ public interface DisplayAdapter {
             widget.setValue(String.valueOf(character));
             widget.setFilter(str -> str.length() <= 1);
             widget.setResponder(str -> {
-                if (str.length() > 0) {
+                if (!str.isEmpty()) {
                     container.setOkStatus();
                     char toSet = str.charAt(0);
                     charValue.setWithValidationHandler(toSet, container);
@@ -427,9 +425,7 @@ public interface DisplayAdapter {
     }
 
     static DisplayAdapter enumValue() {
-        return (value, field, container) -> container.addConfigWidget((x, y, width, height, configId) -> {
-            return new EnumWidget<>(getValueX(x, width), y, getValueWidth(width), 20, (EnumValue<?>) value);
-        });
+        return (value, field, container) -> container.addConfigWidget((x, y, width, height, configId) -> new EnumWidget<>(getValueX(x, width), y, getValueWidth(width), 20, (EnumValue<?>) value));
     }
 
     static DisplayAdapter objectValue() {
