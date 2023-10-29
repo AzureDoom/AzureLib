@@ -151,7 +151,7 @@ public class MathBuilder {
 	 * Breakdown characters into a list of math expression symbols.
 	 */
 	public List<Object> breakdownChars(String[] chars) {
-		List<Object> symbols = new ArrayList<Object>();
+		List<Object> symbols = new ArrayList<>();
 		String buffer = "";
 		int len = chars.length;
 
@@ -423,8 +423,8 @@ public class MathBuilder {
 			throw new Exception("Function '" + first + "' couldn't be found!");
 		}
 
-		List<IValue> values = new ArrayList<IValue>();
-		List<Object> buffer = new ArrayList<Object>();
+		List<IValue> values = new ArrayList<>();
+		List<Object> buffer = new ArrayList<>();
 
 		for (Object o : args) {
 			if (o.equals(",")) {
@@ -441,9 +441,7 @@ public class MathBuilder {
 
 		Class<? extends Function> function = this.functions.get(first);
 		Constructor<? extends Function> ctor = function.getConstructor(IValue[].class, String.class);
-		Function func = ctor.newInstance(values.toArray(new IValue[values.size()]), first);
-
-		return func;
+		return ctor.newInstance(values.toArray(new IValue[values.size()]), first);
 	}
 
 	/**
@@ -453,9 +451,11 @@ public class MathBuilder {
 	 * input object. It can create constants, variables and groups.
 	 */
 	public IValue valueFromObject(Object object) throws Exception {
-		if (object instanceof String) {
-			String symbol = (String) object;
+		if (object instanceof List) {
+			return new Group(this.parseSymbols((List<Object>) object));
+		}
 
+		if (object instanceof String symbol) {
 			/* Variable and constant negation */
 			if (symbol.startsWith("!")) {
 				return new Negate(this.valueFromObject(symbol.substring(1)));
@@ -481,8 +481,6 @@ public class MathBuilder {
 					}
 				}
 			}
-		} else if (object instanceof List) {
-			return new Group(this.parseSymbols((List<Object>) object));
 		}
 
 		throw new Exception("Given object couldn't be converted to value! " + object);
@@ -512,11 +510,11 @@ public class MathBuilder {
 	 * Whether given object is a variable
 	 */
 	protected boolean isVariable(Object o) {
-		return o instanceof String && !this.isDecimal((String) o) && !this.isOperator((String) o);
+		return o instanceof String string && !this.isDecimal((String) o) && !this.isOperator(string);
 	}
 
 	protected boolean isOperator(Object o) {
-		return o instanceof String && this.isOperator((String) o);
+		return o instanceof String string && this.isOperator(string);
 	}
 
 	/**

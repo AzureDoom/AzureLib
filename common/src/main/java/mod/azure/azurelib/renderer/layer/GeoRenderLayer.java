@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	protected final GeoRenderer<T> renderer;
 
-	public GeoRenderLayer(GeoRenderer<T> entityRendererIn) {
+	protected GeoRenderLayer(GeoRenderer<T> entityRendererIn) {
 		this.renderer = entityRendererIn;
 	}
 

@@ -42,4 +42,8 @@ public final class DisplayAdapterManager {
         registerDisplayAdapter(TypeMatcher.matchEnum(), DisplayAdapter.enumValue());
         registerDisplayAdapter(TypeMatcher.matchObject(), DisplayAdapter.objectValue());
     }
+
+    private DisplayAdapterManager() {
+        throw new UnsupportedOperationException();
+    }
 }

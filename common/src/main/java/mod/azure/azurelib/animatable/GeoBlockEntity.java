@@ -42,7 +42,7 @@ public interface GeoBlockEntity extends GeoAnimatable {
 		Level level = blockEntity.getLevel();
 
 		if (level == null) {
-			AzureLib.LOGGER.error("Attempting to set animation data for BlockEntity too early! Must wait until after the BlockEntity has been set in the world. (" + blockEntity.getClass().toString() + ")");
+			AzureLib.LOGGER.error("Attempting to set animation data for BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})", blockEntity.getClass());
 
 			return;
 		}
@@ -69,7 +69,7 @@ public interface GeoBlockEntity extends GeoAnimatable {
 		Level level = blockEntity.getLevel();
 
 		if (level == null) {
-			AzureLib.LOGGER.error("Attempting to trigger an animation for a BlockEntity too early! Must wait until after the BlockEntity has been set in the world. (" + blockEntity.getClass().toString() + ")");
+			AzureLib.LOGGER.error("Attempting to trigger an animation for a BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})", blockEntity.getClass());
 
 			return;
 		}

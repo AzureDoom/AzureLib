@@ -50,4 +50,8 @@ public final class TypeAdapters {
         // objects
         registerTypeAdapter(TypeMatcher.matchObject(), new ObjectValue.Adapter());
     }
+
+    private TypeAdapters() {
+        throw new UnsupportedOperationException();
+    }
 }

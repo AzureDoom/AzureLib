@@ -317,4 +317,8 @@ public final class RenderUtils {
 
 		return null;
 	}
+
+	private RenderUtils() {
+		throw new UnsupportedOperationException();
+	}
 }

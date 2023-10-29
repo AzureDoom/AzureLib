@@ -7,9 +7,9 @@ package mod.azure.azurelib.core.math;
  * given condition value
  */
 public class Ternary implements IValue {
-	public IValue condition;
-	public IValue ifTrue;
-	public IValue ifFalse;
+	public final IValue condition;
+	public final IValue ifTrue;
+	public final IValue ifFalse;
 
 	public Ternary(IValue condition, IValue ifTrue, IValue ifFalse) {
 		this.condition = condition;

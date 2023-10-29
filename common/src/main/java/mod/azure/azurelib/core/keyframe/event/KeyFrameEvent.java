@@ -23,7 +23,7 @@ public abstract class KeyFrameEvent<T extends GeoAnimatable, E extends KeyFrameD
 	private final AnimationController<T> controller;
 	private final E eventKeyFrame;
 
-	public KeyFrameEvent(T animatable, double animationTick, AnimationController<T> controller, E eventKeyFrame) {
+	protected KeyFrameEvent(T animatable, double animationTick, AnimationController<T> controller, E eventKeyFrame) {
 		this.animatable = animatable;
 		this.animationTick = animationTick;
 		this.controller = controller;

@@ -57,9 +57,13 @@ public final class FileLoader {
 			return IOUtils.toString(inputStream, Charset.defaultCharset());
 		}
 		catch (Exception e) {
-			AzureLib.LOGGER.error("Couldn't load " + location, e);
+			AzureLib.LOGGER.error("Couldn't load {}", location, e);
 
 			throw new RuntimeException(new FileNotFoundException(location.toString()));
 		}
+	}
+
+	private FileLoader() {
+		throw new UnsupportedOperationException();
 	}
 }

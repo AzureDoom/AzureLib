@@ -44,7 +44,7 @@ public abstract class AbstractConfigScreen extends Screen {
 	protected int index;
 	protected int pageSize;
 
-	public AbstractConfigScreen(Component title, Screen previous, String configId) {
+	protected AbstractConfigScreen(Component title, Screen previous, String configId) {
 		super(title);
 		this.last = previous;
 		this.configId = configId;
@@ -218,7 +218,7 @@ public abstract class AbstractConfigScreen extends Screen {
 			for (int i = 0; i < texts.size(); i++) {
 				FormattedCharSequence textComponent = texts.get(i);
 				if (textComponent != null) {
-					this.font.drawInBatch(textComponent, (float) startX + textOffset, (float) startY, -1, true, matrix4f, bufferSource, Font.DisplayMode.NORMAL, 0, 0xf000f0);
+					this.font.drawInBatch(textComponent, (float) startX + textOffset, startY, -1, true, matrix4f, bufferSource, Font.DisplayMode.NORMAL, 0, 0xf000f0);
 				}
 
 				if (i == 0) {

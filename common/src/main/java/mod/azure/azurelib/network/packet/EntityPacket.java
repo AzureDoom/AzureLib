@@ -9,4 +9,8 @@ public class EntityPacket {
     public static Packet<ClientGamePacketListener> createPacket(Entity entity) {
         return Services.NETWORK.createPacket(entity);
     }
+
+    private EntityPacket() {
+        throw new UnsupportedOperationException();
+    }
 }

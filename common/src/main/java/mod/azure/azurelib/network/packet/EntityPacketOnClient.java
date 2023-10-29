@@ -33,4 +33,8 @@ public class EntityPacketOnClient {
 			}
 		});
 	}
+
+	private EntityPacketOnClient() {
+		throw new UnsupportedOperationException();
+	}
 }

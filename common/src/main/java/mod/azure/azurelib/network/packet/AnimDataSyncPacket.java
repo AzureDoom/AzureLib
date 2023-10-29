@@ -7,8 +7,6 @@ import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.util.ClientUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 

@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 public abstract class GeoRenderObjectEvent implements GeoRenderEvent {
 	private final GeoObjectRenderer<?> renderer;
 
-	public GeoRenderObjectEvent(GeoObjectRenderer<?> renderer) {
+	protected GeoRenderObjectEvent(GeoObjectRenderer<?> renderer) {
 		this.renderer = renderer;
 	}
 

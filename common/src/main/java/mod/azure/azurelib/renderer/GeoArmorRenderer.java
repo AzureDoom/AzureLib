@@ -392,22 +392,21 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		setAllVisible(false);
 
 		switch (currentSlot) {
-		case HEAD -> setBoneVisible(this.head, true);
-		case CHEST -> {
-			setBoneVisible(this.body, true);
-			setBoneVisible(this.rightArm, true);
-			setBoneVisible(this.leftArm, true);
-		}
-		case LEGS -> {
-			setBoneVisible(this.rightLeg, true);
-			setBoneVisible(this.leftLeg, true);
-		}
-		case FEET -> {
-			setBoneVisible(this.rightBoot, true);
-			setBoneVisible(this.leftBoot, true);
-		}
-		default -> {
-		}
+			case HEAD -> setBoneVisible(this.head, true);
+			case CHEST -> {
+				setBoneVisible(this.body, true);
+				setBoneVisible(this.rightArm, true);
+				setBoneVisible(this.leftArm, true);
+			}
+			case LEGS -> {
+				setBoneVisible(this.rightLeg, true);
+				setBoneVisible(this.leftLeg, true);
+			}
+			case FEET -> {
+				setBoneVisible(this.rightBoot, true);
+				setBoneVisible(this.leftBoot, true);
+			}
+			case MAINHAND, OFFHAND -> { /* No-Op */ }
 		}
 	}
 

@@ -1,9 +1,9 @@
 package mod.azure.azurelib.core.utils;
 
 public class Timer {
-	public boolean enabled;
-	public long time;
-	public long duration;
+	private boolean enabled;
+	private long time;
+	private final long duration;
 
 	public Timer(long duration) {
 		this.duration = duration;
@@ -27,13 +27,13 @@ public class Timer {
 	}
 
 	public boolean checkReset() {
-		boolean enabled = this.check();
+		boolean isEnabled = this.check();
 
-		if (enabled) {
+		if (isEnabled) {
 			this.reset();
 		}
 
-		return enabled;
+		return isEnabled;
 	}
 
 	public boolean check() {

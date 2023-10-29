@@ -37,15 +37,13 @@ public class StringValue extends ConfigValue<String> {
 
     @Override
     protected String getCorrectedValue(String in) {
-        if (this.pattern != null) {
-            if (!this.pattern.matcher(in).matches()) {
-                String defaultValue = this.valueData.getDefaultValue();
-                if (!this.pattern.matcher(defaultValue).matches()) {
-                    throw new IllegalArgumentException(String.format("Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\", defaultValue, this.getId(), this.pattern.toString()));
-                }
-                ConfigUtils.logCorrectedMessage(this.getId(), in, defaultValue);
-                return defaultValue;
+        if (this.pattern != null && (!this.pattern.matcher(in).matches())) {
+            String defaultValue = this.valueData.getDefaultValue();
+            if (!this.pattern.matcher(defaultValue).matches()) {
+                throw new IllegalArgumentException(String.format("Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\", defaultValue, this.getId(), this.pattern.toString()));
             }
+            ConfigUtils.logCorrectedMessage(this.getId(), in, defaultValue);
+            return defaultValue;
         }
         return in;
     }

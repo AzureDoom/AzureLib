@@ -17,7 +17,7 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
 public abstract class KeyFrameData {
 	private final double startTick;
 
-	public KeyFrameData(double startTick) {
+	protected KeyFrameData(double startTick) {
 		this.startTick = startTick;
 	}
 

@@ -9,7 +9,7 @@ public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 
     protected Range range;
 
-    public DecimalValue(ValueData<N> data, Range range) {
+    protected DecimalValue(ValueData<N> data, Range range) {
         super(data);
         this.range = Objects.requireNonNull(range);
     }
@@ -32,7 +32,8 @@ public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 
     public static final class Range {
 
-        private final double min, max;
+        private final double min;
+        private final double max;
 
         private Range(double min, double max) {
             this.min = min;

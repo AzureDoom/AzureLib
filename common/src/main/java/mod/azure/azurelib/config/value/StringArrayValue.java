@@ -49,11 +49,9 @@ public class StringArrayValue extends ConfigValue<String[]> implements ArrayValu
     @Override
     protected String[] getCorrectedValue(String[] in) {
         String[] defaultArray = this.valueData.getDefaultValue();
-        if (this.fixedSize) {
-            if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
-                return defaultArray;
-            }
+        if (this.fixedSize && (in.length != defaultArray.length)) {
+            ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+            return defaultArray;
         }
         if (this.pattern != null) {
             for (int i = 0; i < in.length; i++) {

@@ -32,11 +32,11 @@ import net.minecraft.world.entity.Entity;
  * and consider whether the benefits are worth the cost for your needs.
  */
 public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable> extends GeoEntityRenderer<T> {
-	protected static Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
+	protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
 
 	protected ResourceLocation textureOverride = null;
 
-	public DynamicGeoEntityRenderer(EntityRendererProvider.Context renderManager, GeoModel<T> model) {
+	protected DynamicGeoEntityRenderer(EntityRendererProvider.Context renderManager, GeoModel<T> model) {
 		super(renderManager, model);
 	}
 

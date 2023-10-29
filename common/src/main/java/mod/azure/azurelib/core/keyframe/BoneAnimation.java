@@ -16,7 +16,7 @@ import mod.azure.azurelib.core.math.IValue;
  * @param scaleKeyFrames The deserialized scale {@code Keyframe} stack
  */
 public record BoneAnimation(String boneName,
-							KeyframeStack<Keyframe<IValue>> rotationKeyFrames,
-							KeyframeStack<Keyframe<IValue>> positionKeyFrames,
-							KeyframeStack<Keyframe<IValue>> scaleKeyFrames) {
+							KeyframeStack<IValue> rotationKeyFrames,
+							KeyframeStack<IValue> positionKeyFrames,
+							KeyframeStack<IValue> scaleKeyFrames) {
 }
