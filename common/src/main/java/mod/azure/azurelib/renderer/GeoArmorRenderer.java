@@ -272,10 +272,10 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		Minecraft mc = Minecraft.getInstance();
-		MultiBufferSource bufferSource = Services.ACCESS_WIDENER.getRenderBuffers().bufferSource();
+		MultiBufferSource bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
 
-		if (Services.ACCESS_WIDENER.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
-			bufferSource = Services.ACCESS_WIDENER.getRenderBuffers().outlineBufferSource();
+		if (Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(this.currentEntity))
+			bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
 
 		float partialTick = mc.getFrameTime();
 		RenderType renderType = getRenderType(this.animatable, getTextureLocation(this.animatable), bufferSource, partialTick);
@@ -519,18 +519,18 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 			return;
 
 		if (this.currentSlot == EquipmentSlot.HEAD) {
-			if (Services.ACCESS_WIDENER.scaleHead(this.baseModel)) {
-				float headScale = 1.5f / Services.ACCESS_WIDENER.babyHeadScale(this.baseModel);
+			if (this.baseModel.scaleHead) {
+				float headScale = 1.5f / this.baseModel.babyHeadScale;
 
 				poseStack.scale(headScale, headScale, headScale);
 			}
 
-			poseStack.translate(0, Services.ACCESS_WIDENER.babyYHeadOffset(this.baseModel) / 16f, Services.ACCESS_WIDENER.babyZHeadOffset(this.baseModel) / 16f);
+			poseStack.translate(0, this.baseModel.babyYHeadOffset / 16f, this.baseModel.babyZHeadOffset / 16f);
 		} else {
-			float bodyScale = 1 / Services.ACCESS_WIDENER.babyBodyScale(this.baseModel);
+			float bodyScale = 1 / this.baseModel.babyBodyScale;
 
 			poseStack.scale(bodyScale, bodyScale, bodyScale);
-			poseStack.translate(0, Services.ACCESS_WIDENER.bodyYOffset(this.baseModel) / 16f, 0);
+			poseStack.translate(0, this.baseModel.bodyYOffset / 16f, 0);
 		}
 	}
 

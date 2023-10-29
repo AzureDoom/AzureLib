@@ -203,7 +203,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 		applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick);
 
 		if (!shouldSit && this.currentEntity.isAlive() && livingEntity != null) {
-			limbSwingAmount = Mth.lerp(partialTick, Services.ACCESS_WIDENER.getSpeedOld(livingEntity), livingEntity.walkAnimation.speed());
+			limbSwingAmount = Mth.lerp(partialTick, livingEntity.walkAnimation.speedOld, livingEntity.walkAnimation.speed());
 			limbSwing = livingEntity.walkAnimation.position() - livingEntity.walkAnimation.speed() * (1 - partialTick);
 
 			if (livingEntity.isBaby())
@@ -385,7 +385,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	public <H extends Entity, M extends Mob> void renderLeash(M mob, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, H leashHolder) {
 		double lerpBodyAngle = (Mth.lerp(partialTick, mob.yBodyRotO, mob.yBodyRot) * Mth.DEG_TO_RAD) + Mth.HALF_PI;
-		Vec3 leashOffset = Services.ACCESS_WIDENER.getLeashOffsetForMob(mob);
+		Vec3 leashOffset = mob.getLeashOffset();
 		double xAngleOffset = Math.cos(lerpBodyAngle) * leashOffset.z + Math.sin(lerpBodyAngle) * leashOffset.x;
 		double zAngleOffset = Math.sin(lerpBodyAngle) * leashOffset.z - Math.cos(lerpBodyAngle) * leashOffset.x;
 		double lerpOriginX = Mth.lerp(partialTick, mob.xo, mob.getX()) + xAngleOffset;
