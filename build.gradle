@@ -55,20 +55,20 @@ subprojects {
 
     processResources {
         def expandProps = [
-                "version": version,
-                "group": project.group, //Else we target the task's group.
-                "minecraft_version": minecraft_version,
-                "forge_version": forge_version,
+                "version"                   : version,
+                "group"                     : project.group, //Else we target the task's group.
+                "minecraft_version"         : minecraft_version,
+                "forge_version"             : forge_version,
                 "forge_loader_version_range": forge_loader_version_range,
-                "forge_version_range": forge_version_range,
-                "minecraft_version_range": minecraft_version_range,
-                "fabric_version": fabric_version,
-                "fabric_loader_version": fabric_loader_version,
-                "mod_name": mod_name,
-                "mod_author": mod_author,
-                "mod_id": mod_id,
-                "license": mod_license,
-                "description": project.mod_description
+                "forge_version_range"       : forge_version_range,
+                "minecraft_version_range"   : minecraft_version_range,
+                "fabric_version"            : fabric_version,
+                "fabric_loader_version"     : fabric_loader_version,
+                "mod_name"                  : mod_name,
+                "mod_author"                : mod_author,
+                "mod_id"                    : mod_id,
+                "license"                   : mod_license,
+                "description"               : project.mod_description
         ]
 
         filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
