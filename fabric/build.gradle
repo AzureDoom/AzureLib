@@ -6,10 +6,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'fabric-loom'
-
-    // Custom plugins
-    id 'net.darkhax.curseforgegradle' version '1.+'
-    id "com.modrinth.minotaur" version "2.+"
+    id "me.modmuss50.mod-publish-plugin" version "0.4.0"
 }
 
 base {
@@ -129,39 +126,29 @@ processResources {
 }
 
 if (file('key.properties').exists()) {
-    task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-        def curseProp = new Properties()
+    publishMods {
+        def releaseProp = new Properties()
         File secretPropsFile = file("key.properties")
-        curseProp.load(secretPropsFile.newInputStream())
-        apiToken = curseProp.getProperty("curseKey")
-
-        def mainFile = upload("817423", remapJar)
-        mainFile.releaseType = "release"
-        mainFile.changelogType = "text"
-        mainFile.addRequirement "fabric-api"
-        mainFile.changelog = file("changelog.txt")
-        mainFile.addModLoader("Fabric", "Quilt")
-        mainFile.addJavaVersion("Java 17")
-        mainFile.addGameVersion("1.20.1")
-    }
-}
-
-if (file('key.properties').exists()) {
-    modrinth {
-        def modrinthProp = new Properties()
-        File secretPropsFile = file("key.properties")
-        modrinthProp.load(secretPropsFile.newInputStream())
-
-        token = modrinthProp.getProperty('modrinthKey')
-        projectId = '7zlUOZvb'
-        versionNumber = project.mod_version
-        uploadFile = remapJar
+        releaseProp.load(secretPropsFile.newInputStream())
+        file = remapJar.archiveFile
         changelog = rootProject.file("changelog.txt").text
-        gameVersions = ['1.20.1']
-        versionType = "release"
-        loaders = ['fabric', 'quilt']
-        dependencies {
-            required.project "fabric-api"
+        type = STABLE
+        modLoaders.add("fabric")
+        dryRun = true
+
+        curseforge {
+            projectId = "817423"
+            projectSlug = "azurelib"
+            accessToken = releaseProp.getProperty("curseKey")
+            minecraftVersions.add("1.20.1")
+            requires {
+                slug = "fabric-api"
+            }
+        }
+        modrinth {
+            projectId = "7zlUOZvb"
+            accessToken = releaseProp.getProperty('modrinthKey')
+            minecraftVersions.add("1.20.1")
         }
     }
 }
