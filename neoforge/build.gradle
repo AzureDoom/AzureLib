@@ -130,7 +130,6 @@ if (file('key.properties').exists()) {
         type = STABLE
         modLoaders.add("neoforge")
         modLoaders.add("forge")
-        dryRun = true
 
         curseforge {
             projectId = "817423"

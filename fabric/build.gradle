@@ -134,7 +134,6 @@ if (file('key.properties').exists()) {
         changelog = rootProject.file("changelog.txt").text
         type = STABLE
         modLoaders.add("fabric")
-        dryRun = true
 
         curseforge {
             projectId = "817423"
