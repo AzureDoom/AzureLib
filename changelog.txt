@@ -1,4 +1,3 @@
-v2.0.0
+v2.0.1 (Neo/Forge Only)
 
-- Moved to Multiloader source (Special thanks to Boston!)
-- Bumped to 2.x.x.
+- Fixes common mixin config.
