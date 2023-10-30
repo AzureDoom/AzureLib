@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,7 @@ public interface AzureLibNetwork {
     void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack);
     void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos);
 
+    void sendClientPacket(ServerPlayer player, String id);
     static void sendWithCallback(AbstractPacket packet, IPacketCallback callback) {
         callback.onReadyToSend(packet);
     }

@@ -5,14 +5,11 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [
-    "PlayerListMixin"
-  ],
   "client": [
     "ItemRendererAccessor",
-    "MixinItemRenderer",
-    "MixinHumanoidArmorLayer",
     "MinecraftMixin",
+    "MixinHumanoidArmorLayer",
+    "MixinItemRenderer",
     "TextureManagerMixin"
   ]
 }

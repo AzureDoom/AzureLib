@@ -1,6 +1,8 @@
 package mod.azure.azurelib.platform;
 
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.Networking;
+import mod.azure.azurelib.network.S2C_SendConfigData;
 import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.AnimTriggerPacket;
 import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
@@ -86,5 +88,10 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
             packet.encode(buf);
             ServerPlayNetworking.send(trackingPlayer, packet.getPacketID(), buf);
         }
+    }
+
+    @Override
+    public void sendClientPacket(ServerPlayer player, String id) {
+        Networking.sendClientPacket(player, new S2C_SendConfigData(id));
     }
 }

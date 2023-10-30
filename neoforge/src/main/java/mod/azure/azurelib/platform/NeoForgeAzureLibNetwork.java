@@ -2,18 +2,16 @@ package mod.azure.azurelib.platform;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.AnimTriggerPacket;
-import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.BlockEntityAnimTriggerPacket;
-import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
+import mod.azure.azurelib.network.Networking;
+import mod.azure.azurelib.network.S2C_SendConfigData;
+import mod.azure.azurelib.network.packet.*;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
@@ -65,5 +63,10 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
      */
     public static <M> void send(M packet, PacketDistributor.PacketTarget distributor) {
         PACKET_CHANNEL.send(distributor, packet);
+    }
+
+    @Override
+    public void sendClientPacket(ServerPlayer player, String id) {
+        Networking.sendClientPacket(player, new S2C_SendConfigData(id));
     }
 }
