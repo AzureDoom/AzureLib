@@ -12,4 +12,12 @@ public class ParticleKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEven
 	public ParticleKeyframeEvent(T animatable, double animationTick, AnimationController<T> controller, ParticleKeyframeData particleKeyFrameData) {
 		super(animatable, animationTick, controller, particleKeyFrameData);
 	}
+
+	/**
+	 * Get the {@link ParticleKeyframeData} relevant to this event call
+	 */
+	@Override
+	public ParticleKeyframeData getKeyframeData() {
+		return super.getKeyframeData();
+	}
 }

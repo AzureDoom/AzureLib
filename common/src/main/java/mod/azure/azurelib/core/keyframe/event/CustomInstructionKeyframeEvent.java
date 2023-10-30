@@ -18,4 +18,11 @@ public class CustomInstructionKeyframeEvent<T extends GeoAnimatable> extends Key
 										  CustomInstructionKeyframeData customInstructionKeyframeData) {
 		super(entity, animationTick, controller, customInstructionKeyframeData);
 	}
+	/**
+	 * Get the {@link CustomInstructionKeyframeData} relevant to this event call
+	 */
+	@Override
+	public CustomInstructionKeyframeData getKeyframeData() {
+		return super.getKeyframeData();
+	}
 }
