@@ -94,11 +94,11 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 
 		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
 			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<IValue> scaleFrames = buildKeyframeStack(
+			KeyframeStack<Keyframe<IValue>> scaleFrames = buildKeyframeStack(
 					getTripletObj(entryObj.get("scale")), false);
-			KeyframeStack<IValue> positionFrames = buildKeyframeStack(
+			KeyframeStack<Keyframe<IValue>> positionFrames = buildKeyframeStack(
 					getTripletObj(entryObj.get("position")), false);
-			KeyframeStack<IValue> rotationFrames = buildKeyframeStack(
+			KeyframeStack<Keyframe<IValue>> rotationFrames = buildKeyframeStack(
 					getTripletObj(entryObj.get("rotation")), true);
 
 			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames);
@@ -159,7 +159,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 		throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
 	}
 
-	private KeyframeStack<IValue> buildKeyframeStack(List<Pair<String, JsonElement>> entries, boolean isForRotation) throws MolangException {
+	private KeyframeStack<Keyframe<IValue>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, boolean isForRotation) throws MolangException {
 		if (entries.isEmpty())
 			return new KeyframeStack<>();
 
