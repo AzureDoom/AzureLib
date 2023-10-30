@@ -3,6 +3,8 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import mod.azure.azurelib.event.GeoRenderBlockEvent;
+import mod.azure.azurelib.event.GeoRenderReplacedEntityEvent;
+import mod.azure.azurelib.platform.Services;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -230,7 +232,8 @@ public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements 
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderBlockEvent.Pre.EVENT.handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		var event = GeoRenderBlockEvent.Pre.EVENT.handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") ? !event : event;
 	}
 
 	/**

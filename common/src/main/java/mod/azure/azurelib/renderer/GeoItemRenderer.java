@@ -3,6 +3,7 @@ package mod.azure.azurelib.renderer;
 import java.util.List;
 
 import mod.azure.azurelib.event.GeoRenderItemEvent;
+import mod.azure.azurelib.event.GeoRenderReplacedEntityEvent;
 import mod.azure.azurelib.platform.Services;
 import org.joml.Matrix4f;
 
@@ -257,7 +258,8 @@ public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntity
 	 */
 	@Override
 	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		return GeoRenderItemEvent.Pre.EVENT.handle(new GeoRenderItemEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		var event = GeoRenderItemEvent.Pre.EVENT.handle(new GeoRenderItemEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
+		return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") ? !event : event;
 	}
 
 	/**
