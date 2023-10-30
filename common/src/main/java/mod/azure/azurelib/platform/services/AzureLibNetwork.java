@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.AbstractPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +47,7 @@ public interface AzureLibNetwork {
         }
     }
 
-    Packet<ClientGamePacketListener> createPacket(Entity entity);
+    Packet<ClientCommonPacketListener> createPacket(Entity entity);
 
     /**
      * Used to register packets that the server sends

@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientCommonPacketListener;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,7 +48,7 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     }
 
     @Override
-    public Packet<ClientGamePacketListener> createPacket(Entity entity) {
+    public Packet<ClientCommonPacketListener> createPacket(Entity entity) {
         FriendlyByteBuf buf = createFriendlyByteBuf();
         buf.writeVarInt(BuiltInRegistries.ENTITY_TYPE.getId(entity.getType()));
         buf.writeUUID(entity.getUUID());
