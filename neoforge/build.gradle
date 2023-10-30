@@ -114,7 +114,7 @@ publishing {
             groupId = project.maven_group
             artifactId = "${mod_id}-neo-${minecraft_version}"
             version = project.mod_version
-            from components.java
+            artifact jar
         }
     }
 }
