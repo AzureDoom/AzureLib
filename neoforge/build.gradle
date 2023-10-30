@@ -1,9 +1,14 @@
 plugins {
+    id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle'
-    id 'org.spongepowered.mixin'
+    id 'net.neoforged.gradle.userdev'
+    id 'net.neoforged.gradle.mixin' version '[7.0.5,)'
     id "me.modmuss50.mod-publish-plugin" version "0.4.0"
+}
+
+repositories {
+    mavenLocal()
 }
 
 base {
@@ -11,74 +16,31 @@ base {
 }
 
 mixin {
-    add(sourceSets.main, "${mod_id}.refmap.json")
-
-    config("${mod_id}.mixins.json")
     config("${mod_id}.forge.mixins.json")
+    config("${mod_id}.mixins.json")
 }
 
-minecraft {
-    mappings channel: 'official', version: minecraft_version
-
-    copyIdeResources = true //Calls processResources when in dev
-
-    // Automatically enable forge AccessTransformers if the file exists
-    // This location is hardcoded in Forge and can not be changed.
-    // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
-    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+runs {
+    configureEach {
+        modSource project.sourceSets.main
     }
 
-    runs {
-        client {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Client'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                modClientRun {
-                    source sourceSets.main
-                    source project(":common").sourceSets.main
-                }
-            }
-        }
+    client {
+        // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
 
-        server {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
-            taskName 'Server'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                modServerRun {
-                    source sourceSets.main
-                    source project(":common").sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            taskName 'Data'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                modDataRun {
-                    source sourceSets.main
-                    source project(":common").sourceSets.main
-                }
-            }
-        }
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        programArgument '--nogui'
     }
 }
 
-sourceSets.main.resources.srcDir 'src/generated/resources'
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    minecraft "net.neoforged:forge:${minecraft_version}-${forge_version}"
+    implementation "net.neoforged:neoforge:${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 }
@@ -97,8 +59,6 @@ processResources {
     from project(":common").sourceSets.main.resources
 }
 
-jar.finalizedBy('reobfJar')
-
 publishing {
     repositories {
         maven {
@@ -115,7 +75,7 @@ publishing {
             groupId = project.maven_group
             artifactId = "${mod_id}-neo-${minecraft_version}"
             version = project.mod_version
-            artifact jar
+            components.java
         }
     }
 }
@@ -129,18 +89,17 @@ if (file('key.properties').exists()) {
         changelog = rootProject.file("changelog.txt").text
         type = STABLE
         modLoaders.add("neoforge")
-        modLoaders.add("forge")
 
         curseforge {
             projectId = "817423"
             projectSlug = "azurelib"
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.20.1")
+            minecraftVersions.add("1.20.2")
         }
         modrinth {
             projectId = "7zlUOZvb"
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.20.1")
+            minecraftVersions.add("1.20.2")
         }
     }
 }

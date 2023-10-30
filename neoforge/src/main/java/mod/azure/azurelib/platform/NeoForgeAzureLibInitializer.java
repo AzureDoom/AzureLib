@@ -2,8 +2,8 @@ package mod.azure.azurelib.platform;
 
 import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.platform.services.AzureLibInitializer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
 
 public class NeoForgeAzureLibInitializer implements AzureLibInitializer {
     @Override
