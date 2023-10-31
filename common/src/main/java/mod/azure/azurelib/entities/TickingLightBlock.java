@@ -3,6 +3,7 @@ package mod.azure.azurelib.entities;
 import java.util.function.ToIntFunction;
 
 import mod.azure.azurelib.AzureLibMod;
+import mod.azure.azurelib.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -32,9 +33,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 	}
 
 	private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
-		return (p_50763_) -> {
-			return BlockStateProperties.MAX_LEVEL_15;
-		};
+		return p_50763_ -> BlockStateProperties.MAX_LEVEL_15;
 	}
 
 	public static IntegerProperty getLightLevel() {
@@ -68,7 +67,7 @@ public class TickingLightBlock extends BaseEntityBlock {
 
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-		return createTickerHelper(type, AzureLibMod.TICKING_LIGHT_ENTITY, TickingLightEntity::tick);
+		return createTickerHelper(type, Services.PLATFORM.getTickingLightEntity(), TickingLightEntity::tick);
 	}
 
 }
