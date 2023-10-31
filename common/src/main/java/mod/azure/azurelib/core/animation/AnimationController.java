@@ -8,6 +8,7 @@ package mod.azure.azurelib.core.animation;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
@@ -473,7 +474,7 @@ public class AnimationController<T extends GeoAnimatable> {
 
                     if (bone == null) {
                         if (crashWhenCantFindBone)
-                            throw new RuntimeException("Could not find bone: " + boneAnimation.boneName());
+                            throw new AzureLibException("Could not find bone: " + boneAnimation.boneName());
 
                         continue;
                     }
@@ -549,7 +550,7 @@ public class AnimationController<T extends GeoAnimatable> {
 
             if (boneAnimationQueue == null) {
                 if (crashWhenCantFindBone)
-                    throw new RuntimeException("Could not find bone: " + boneAnimation.boneName());
+                    throw new AzureLibException("Could not find bone: " + boneAnimation.boneName());
 
                 continue;
             }

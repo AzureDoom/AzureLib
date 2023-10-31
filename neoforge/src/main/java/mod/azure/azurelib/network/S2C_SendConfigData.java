@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;
@@ -49,7 +50,7 @@ public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
                 ConfigValue<?> value = serialized.get(fieldId);
                 if (value == null) {
                 	AzureLib.LOGGER.fatal(Networking.MARKER, "Received unknown config value " + fieldId);
-                    throw new RuntimeException("Unknown config field: " + fieldId);
+                    throw new AzureLibException("Unknown config field: " + fieldId);
                 }
                 setValue(value, buffer);
             }

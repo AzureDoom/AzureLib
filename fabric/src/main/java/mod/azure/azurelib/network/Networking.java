@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -56,7 +57,7 @@ public final class Networking {
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                      IllegalAccessException exc) {
             	AzureLib.LOGGER.fatal(MARKER, "Couldn't instantiate new client packet from class {}, make sure it declares public default constructor", clientPacketClass.getSimpleName());
-                throw new RuntimeException(exc);
+                throw new AzureLibException(exc);
             }
         }
     }
