@@ -8,16 +8,15 @@ import mod.azure.azurelib.network.packet.*;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkHooks;
+import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.simple.SimpleChannel;
 
 import java.util.function.Supplier;
 
@@ -26,20 +25,19 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(AzureLib.MOD_ID, "main"), () -> VER, VER::equals, VER::equals);
 
     @Override
-    public Packet<ClientGamePacketListener> createPacket(Entity entity) {
+    public Packet<?> createPacket(Entity entity) {
         return NetworkHooks.getEntitySpawningPacket(entity);
     }
 
-    private void handlePacket(AbstractPacket packet, Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context handler = context.get();
-        handler.enqueueWork(packet::handle);
-        handler.setPacketHandled(true);
+    private void handlePacket(AbstractPacket packet, NetworkEvent.Context context) {
+        NetworkEvent.Context handler = context;
+        context.enqueueWork(packet::handle);
+        context.setPacketHandled(true);
     }
 
     @Override
     public void registerClientReceiverPackets() {
         int id = 0;
-
         PACKET_CHANNEL.registerMessage(id++, AnimDataSyncPacket.class, AnimDataSyncPacket::encode, AnimDataSyncPacket::receive, this::handlePacket);
         PACKET_CHANNEL.registerMessage(id++, AnimTriggerPacket.class, AnimTriggerPacket::encode, AnimTriggerPacket::receive, this::handlePacket);
         PACKET_CHANNEL.registerMessage(id++, EntityAnimDataSyncPacket.class, EntityAnimDataSyncPacket::encode, EntityAnimDataSyncPacket::receive, this::handlePacket);

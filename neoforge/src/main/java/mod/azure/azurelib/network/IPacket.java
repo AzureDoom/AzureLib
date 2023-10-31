@@ -1,7 +1,7 @@
 package mod.azure.azurelib.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -11,5 +11,5 @@ public interface IPacket<P extends IPacket<P>> {
 
     P decode(FriendlyByteBuf buffer);
 
-    void handle(Supplier<NetworkEvent.Context> supplier);
+    void handle(NetworkEvent.Context context);
 }

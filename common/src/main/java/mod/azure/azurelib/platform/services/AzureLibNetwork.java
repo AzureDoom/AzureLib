@@ -6,8 +6,6 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.AbstractPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.common.ClientCommonPacketListener;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,7 +45,7 @@ public interface AzureLibNetwork {
         }
     }
 
-    Packet<ClientCommonPacketListener> createPacket(Entity entity);
+    Packet<?> createPacket(Entity entity);
 
     /**
      * Used to register packets that the server sends
@@ -55,9 +53,11 @@ public interface AzureLibNetwork {
     void registerClientReceiverPackets();
 
     void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack);
+
     void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos);
 
     void sendClientPacket(ServerPlayer player, String id);
+
     static void sendWithCallback(AbstractPacket packet, IPacketCallback callback) {
         callback.onReadyToSend(packet);
     }

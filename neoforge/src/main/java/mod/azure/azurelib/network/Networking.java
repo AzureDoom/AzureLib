@@ -1,5 +1,8 @@
 package mod.azure.azurelib.network;
 
+import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
+import net.neoforged.neoforge.network.simple.SimpleChannel;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -8,9 +11,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class Networking {
 
@@ -24,7 +24,7 @@ public final class Networking {
             .simpleChannel();
 
     public static void sendClientPacket(ServerPlayer target, IPacket<?> packet) {
-        CHANNEL.sendTo(packet, target.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        CHANNEL.sendTo(packet, target.connection.connection, PlayNetworkDirection.PLAY_TO_CLIENT);
     }
 
     public static final class PacketRegistry {

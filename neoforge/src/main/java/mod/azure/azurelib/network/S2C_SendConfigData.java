@@ -8,7 +8,7 @@ import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkEvent;
 
 public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
 
@@ -58,8 +58,8 @@ public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        supplier.get().setPacketHandled(true);
+    public void handle(NetworkEvent.Context context) {
+        context.setPacketHandled(true);
     }
 
     @SuppressWarnings("unchecked")
