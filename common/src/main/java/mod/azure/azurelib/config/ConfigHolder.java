@@ -1,21 +1,7 @@
 package mod.azure.azurelib.config;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.client.IValidationHandler;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.adapter.TypeAdapters;
@@ -23,6 +9,13 @@ import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.ObjectValue;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Manages config values and stores some default parameters of your config class.
@@ -65,12 +58,12 @@ public final class ConfigHolder<CFG> {
             this.configInstance = cfgClass.getDeclaredConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e) {
         	AzureLib.LOGGER.fatal(AzureLib.MAIN_MARKER, "Failed to instantiate config class for {} config", configId);
-            throw new RuntimeException("Config create failed", e);
+            throw new AzureLibException("Config create failed", e);
         }
         try {
             serializeType(configClass, configInstance, true);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Config serialize failed", e);
+            throw new AzureLibException("Config serialize failed", e);
         }
         this.format = format;
         this.loadNetworkFields(valueMap, networkSerializedFields);
@@ -292,7 +285,7 @@ public final class ConfigHolder<CFG> {
         	AzureLib.LOGGER.error(ConfigIO.MARKER, "Unable to map method {} for config value {} due to {}", methodName, value.getId(), e);
         } catch (Exception e) {
         	AzureLib.LOGGER.fatal(ConfigIO.MARKER, "Fatal error occurred while trying to map value listener for {} method", methodName);
-            throw new RuntimeException("Value listener map failed", e);
+            throw new AzureLibException("Value listener map failed", e);
         }
     }
 
