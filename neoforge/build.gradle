@@ -116,6 +116,7 @@ publishing {
             artifactId = "${mod_id}-neo-${minecraft_version}"
             version = project.mod_version
             artifact jar
+            artifact sourcesJar
         }
     }
 }
