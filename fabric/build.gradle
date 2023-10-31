@@ -6,7 +6,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'fabric-loom'
-    id "me.modmuss50.mod-publish-plugin" version "0.4.0"
+    id "me.modmuss50.mod-publish-plugin"
 }
 
 base {
