@@ -6,6 +6,7 @@ bin
 .classpath
 .project
 mcmodsrepo
+repo
 
 # idea
 out
@@ -27,6 +28,7 @@ logs
 # other
 eclipse
 run
+runs
 
 # Files from Forge MDK
 forge*changelog.txt
