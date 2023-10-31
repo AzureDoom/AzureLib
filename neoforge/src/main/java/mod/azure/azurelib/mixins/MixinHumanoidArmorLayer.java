@@ -2,6 +2,7 @@ package mod.azure.azurelib.mixins;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -23,21 +24,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = HumanoidArmorLayer.class, priority = 700)
 public class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
 
-	@Unique
-	private LivingEntity gl_storedEntity;
-	@Unique
-	private EquipmentSlot gl_storedSlot;
-	@Unique
-	private ItemStack gl_storedItemStack;
+    @Unique
+    private LivingEntity gl_storedEntity;
+    @Unique
+    private EquipmentSlot gl_storedSlot;
+    @Unique
+    private ItemStack gl_storedItemStack;
 
-	@Inject(method = "renderArmorPiece", at = @At(value = "HEAD"))
-	public void armorModelHook(PoseStack poseStack, MultiBufferSource source, T livingEntity, EquipmentSlot equipmentSlot, int i, A model, CallbackInfo ci){
-		this.gl_storedEntity = livingEntity;
-		this.gl_storedSlot = equipmentSlot;
-		this.gl_storedItemStack = livingEntity.getItemBySlot(equipmentSlot);
-	}
-	@ModifyArg(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/item/ArmorItem;Lnet/minecraft/client/model/Model;ZFFFLnet/minecraft/resources/ResourceLocation;)V", remap = false), index = 4)
-	public Model injectArmor(Model humanoidModel) {
-		return RenderProvider.of(this.gl_storedItemStack).getGenericArmorModel(this.gl_storedEntity, this.gl_storedItemStack, this.gl_storedSlot, (HumanoidModel<LivingEntity>) humanoidModel);
-	}
+    @Inject(method = "renderArmorPiece", at = @At(value = "HEAD"))
+    public void armorModelHook(PoseStack poseStack, MultiBufferSource source, T livingEntity, EquipmentSlot equipmentSlot, int i, A model, CallbackInfo ci) {
+        this.gl_storedEntity = livingEntity;
+        this.gl_storedSlot = equipmentSlot;
+        this.gl_storedItemStack = livingEntity.getItemBySlot(equipmentSlot);
+    }
+
+    @ModifyArg(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/item/ArmorItem;Lnet/minecraft/client/model/Model;ZFFFLnet/minecraft/resources/ResourceLocation;)V", remap = false), index = 4)
+    public Model injectArmor(Model humanoidModel) {
+        return this.gl_storedItemStack.getItem() instanceof GeoItem ? (A) RenderProvider.of(this.gl_storedItemStack).getGenericArmorModel(this.gl_storedEntity, this.gl_storedItemStack, this.gl_storedSlot, (HumanoidModel<LivingEntity>) humanoidModel) : humanoidModel;
+    }
 }
