@@ -1,4 +1,7 @@
 v2.0.0
 
-- Moved to Multiloader source (Special thanks to Boston!)
-- Bumped to 2.x.x.
+- Updated to 1.20.2
+- RuntimeException -> AzureLibException
+- Fixes server crash due to configuration screen.
+- Fixes Forge crashing when registering config.
+- Unifies en_us.json between Forge/Fabric.
