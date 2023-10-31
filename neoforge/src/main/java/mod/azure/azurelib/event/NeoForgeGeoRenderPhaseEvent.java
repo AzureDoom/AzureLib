@@ -1,8 +1,9 @@
 package mod.azure.azurelib.event;
 
 import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * @author Boston Vanseghi
@@ -10,7 +11,7 @@ import net.minecraftforge.eventbus.api.Event;
 public class NeoForgeGeoRenderPhaseEvent implements GeoRenderPhaseEventFactory.GeoRenderPhaseEvent {
 
     // TODO: Move this.
-    static class NeoForgeGeoRenderEvent extends Event {
+    static class NeoForgeGeoRenderEvent extends Event implements ICancellableEvent {
         private final GeoRenderEvent geoRenderEvent;
 
         public NeoForgeGeoRenderEvent(GeoRenderEvent geoRenderEvent) {
@@ -24,6 +25,6 @@ public class NeoForgeGeoRenderPhaseEvent implements GeoRenderPhaseEventFactory.G
 
     @Override
     public boolean handle(GeoRenderEvent geoRenderEvent) {
-        return MinecraftForge.EVENT_BUS.post(new NeoForgeGeoRenderEvent(geoRenderEvent));
+        return NeoForge.EVENT_BUS.post(new NeoForgeGeoRenderEvent(geoRenderEvent)).hasResult();
     }
 }
