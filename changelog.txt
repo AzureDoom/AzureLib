@@ -1,3 +1,6 @@
-v2.0.1
+v2.0.3
 
-- Fixes common mixin config.
+- RuntimeException -> AzureLibException
+- Fixes server crash due to configuration screen.
+- Fixes Forge crashing when registering config.
+- Unifies en_us.json between Forge/Fabric.
