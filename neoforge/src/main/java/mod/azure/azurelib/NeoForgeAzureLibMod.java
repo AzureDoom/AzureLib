@@ -1,6 +1,8 @@
 package mod.azure.azurelib;
 
 import mod.azure.azurelib.config.ConfigHolder;
+import mod.azure.azurelib.config.TestingConfig;
+import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
@@ -23,56 +25,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Mod.EventBusSubscriber
 @Mod(AzureLib.MOD_ID)
 public final class NeoForgeAzureLibMod {
+    public static NeoForgeAzureLibMod instance;
 
-	public static NeoForgeAzureLibMod instance;
+    public NeoForgeAzureLibMod() {
+        instance = this;
+        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        AzureLib.initialize();
+        modEventBus.addListener(this::init);
+        AzureBlocks.BLOCKS.register(modEventBus);
+        AzureEntities.TILE_TYPES.register(modEventBus);
+    }
 
-	public NeoForgeAzureLibMod() {
-		instance = this;
-		final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-		AzureLib.initialize();
-		modEventBus.addListener(this::init);
-		modEventBus.addListener(this::clientInit);
-		AzureBlocks.BLOCKS.register(modEventBus);
-		AzureEntities.TILE_TYPES.register(modEventBus);
-        //AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.yaml());
-	}
+    private void init(FMLCommonSetupEvent event) {
+        Networking.PacketRegistry.register();
+        ConfigIO.FILE_WATCH_MANAGER.startService();
+    }
 
-	private void init(FMLCommonSetupEvent event) {
-		Networking.PacketRegistry.register();
-		ConfigIO.FILE_WATCH_MANAGER.startService();
-	}
+    public class AzureBlocks {
+        public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AzureLib.MOD_ID);
 
-	private void clientInit(FMLClientSetupEvent event) {
-		Map<String, List<ConfigHolder<?>>> groups = ConfigHolder.getConfigGroupingByGroup();
-		ModList modList = ModList.get();
-		for (Map.Entry<String, List<ConfigHolder<?>>> entry : groups.entrySet()) {
-			String modId = entry.getKey();
-			Optional<? extends ModContainer> optional = modList.getModContainerById(modId);
-			optional.ifPresent(modContainer -> {
-				List<ConfigHolder<?>> list = entry.getValue();
-				modContainer.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, screen) -> {
-					if (list.size() == 1) {
-						return AzureLibMod.getConfigScreen(list.get(0).getConfigId(), screen);
-					}
-					return AzureLibMod.getConfigScreenByGroup(list, modId, screen);
-				}));
-			});
-		}
-	}
+        public static final RegistryObject<Block> TICKING_LIGHT_BLOCK = BLOCKS.register("lightblock", () -> new TickingLightBlock());
+    }
 
-	public class AzureBlocks {
-		public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AzureLib.MOD_ID);
+    public class AzureEntities {
 
-		public static final RegistryObject<Block> TICKING_LIGHT_BLOCK = BLOCKS.register("lightblock", () -> new TickingLightBlock());
-	}
+        public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
 
-	public class AzureEntities {
-
-		public static final DeferredRegister<BlockEntityType<?>> TILE_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, AzureLib.MOD_ID);
-
-		public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES.register("lightblock", () -> BlockEntityType.Builder.of(TickingLightEntity::new, AzureBlocks.TICKING_LIGHT_BLOCK.get()).build(null));
-	}
+        public static final RegistryObject<BlockEntityType<TickingLightEntity>> TICKING_LIGHT_ENTITY = TILE_TYPES.register("lightblock", () -> BlockEntityType.Builder.of(TickingLightEntity::new, AzureBlocks.TICKING_LIGHT_BLOCK.get()).build(null));
+    }
 }
