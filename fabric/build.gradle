@@ -101,9 +101,7 @@ publishing {
     }
     publications {
         maven(MavenPublication) {
-            groupId = project.maven_group
-            artifactId = "${mod_id}-fabric-${minecraft_version}"
-            version = project.mod_version
+            artifactId base.archivesName.get()
             from components.java
         }
     }
