@@ -1,6 +1,3 @@
-v2.0.3
+v2.0.4
 
-- RuntimeException -> AzureLibException
-- Fixes server crash due to configuration screen.
-- Fixes Forge crashing when registering config.
-- Unifies en_us.json between Forge/Fabric.
+- Fixes crash with other modded armors suchs Mek Tools Glow Armor.
