@@ -18,7 +18,6 @@
   "text.azurelib.screen.color.green": "Green: %s",
   "text.azurelib.screen.color.blue": "Blue: %s",
   "text.azurelib.screen.color.alpha": "Alpha: %s",
-
   "text.azurelib.error.character_value_empty": "Character field cannot be empty!",
   "text.azurelib.error.nan": "Value '%s' is not a valid number!",
   "text.azurelib.error.num_bounds": "Value '%s' is not from interval <%s;%s>!",
