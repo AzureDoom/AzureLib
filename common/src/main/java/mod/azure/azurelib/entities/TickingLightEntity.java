@@ -1,6 +1,7 @@
 package mod.azure.azurelib.entities;
 
 import mod.azure.azurelib.AzureLibMod;
+import mod.azure.azurelib.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -11,7 +12,7 @@ public class TickingLightEntity extends BlockEntity {
 	private int lifespan = 0;
 
 	public TickingLightEntity(BlockPos blockPos, BlockState blockState) {
-		super(AzureLibMod.TICKING_LIGHT_ENTITY, blockPos, blockState);
+		super(Services.PLATFORM.getTickingLightEntity(), blockPos, blockState);
 	}
 
 	public void refresh(int lifeExtension) {

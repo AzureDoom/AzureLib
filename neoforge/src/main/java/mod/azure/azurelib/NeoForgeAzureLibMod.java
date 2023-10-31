@@ -33,6 +33,7 @@ public final class NeoForgeAzureLibMod {
         instance = this;
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AzureLib.initialize();
+        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         modEventBus.addListener(this::init);
         AzureBlocks.BLOCKS.register(modEventBus);
         AzureEntities.TILE_TYPES.register(modEventBus);

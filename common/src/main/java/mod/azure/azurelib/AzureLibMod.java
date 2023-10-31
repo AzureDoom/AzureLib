@@ -6,13 +6,9 @@ import mod.azure.azurelib.config.TestingConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
 
 public final class AzureLibMod {
 
-	public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY;
-	public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
     public static TestingConfig config;
 
     /**

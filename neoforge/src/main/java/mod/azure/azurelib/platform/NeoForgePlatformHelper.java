@@ -1,6 +1,10 @@
 package mod.azure.azurelib.platform;
 
+import mod.azure.azurelib.NeoForgeAzureLibMod;
+import mod.azure.azurelib.entities.TickingLightBlock;
+import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
@@ -35,5 +39,16 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public boolean isServerEnvironment() {
         return FMLEnvironment.dist.isDedicatedServer();
+    }
+
+
+    @Override
+    public TickingLightBlock getTickingLightBlock() {
+        return (TickingLightBlock) NeoForgeAzureLibMod.AzureBlocks.TICKING_LIGHT_BLOCK.get();
+    }
+
+    @Override
+    public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
+        return NeoForgeAzureLibMod.AzureEntities.TICKING_LIGHT_ENTITY.get();
     }
 }
