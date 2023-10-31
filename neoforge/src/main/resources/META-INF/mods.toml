@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[1,)"
 issueTrackerURL="https://github.com/AzureDoom/AzureLib/issues"
 license="MIT"
 [[mods]]
@@ -14,14 +14,14 @@ description='''
 Based off Geckolib but now just for my own needs.
 '''
 [[dependencies.azurelib]]
-    modId="forge"
+    modId="neoforge"
     mandatory=true 
-    versionRange="[47.0.0,)"
+    versionRange="[1.0.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.azurelib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.1, 1.21)"
+    versionRange="[1.20.2, 1.20.3)"
     ordering="NONE"
     side="BOTH"
