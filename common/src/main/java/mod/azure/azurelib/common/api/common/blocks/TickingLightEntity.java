@@ -1,4 +1,4 @@
-package mod.azure.azurelib.common.internal.common.entities.entities;
+package mod.azure.azurelib.common.api.common.blocks;
 
 import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;

@@ -1,8 +1,8 @@
 package mod.azure.azurelib.fabric.platform;
 
 import mod.azure.azurelib.fabric.FabricAzureLibMod;
-import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightBlock;
-import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightEntity;
+import mod.azure.azurelib.common.api.common.blocks.TickingLightBlock;
+import mod.azure.azurelib.common.api.common.blocks.TickingLightEntity;
 import mod.azure.azurelib.common.platform.services.IPlatformHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;

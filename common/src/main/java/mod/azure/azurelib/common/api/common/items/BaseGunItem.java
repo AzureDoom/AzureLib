@@ -7,7 +7,7 @@ import mod.azure.azurelib.common.internal.common.core.animation.Animation.LoopTy
 import mod.azure.azurelib.common.internal.common.core.animation.AnimationController;
 import mod.azure.azurelib.common.internal.common.core.animation.RawAnimation;
 import mod.azure.azurelib.common.internal.common.core.object.PlayState;
-import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightEntity;
+import mod.azure.azurelib.common.api.common.blocks.TickingLightEntity;
 import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import net.minecraft.ChatFormatting;
