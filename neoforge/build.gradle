@@ -2,8 +2,8 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.5'
-    id 'net.neoforged.gradle.mixin' version '[7.0.5,)'
+    id 'net.neoforged.gradle.userdev' version '7.0.21'
+    id 'net.neoforged.gradle.mixin' version '7.0.21'
     id "me.modmuss50.mod-publish-plugin"
 }
 
