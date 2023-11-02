@@ -23,7 +23,7 @@
       "mod.azure.azurelib.ClientListener"
     ],
     "modmenu": [
-      "mod.azure.azurelib.integration.ModMenuIntegration"
+      "mod.azure.azurelib.fabric.integration.ModMenuIntegration"
     ]
   },
   "mixins": [

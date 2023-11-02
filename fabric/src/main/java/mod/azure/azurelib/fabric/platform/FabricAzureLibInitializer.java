@@ -1,4 +1,4 @@
-package mod.azure.azurelib.platform;
+package mod.azure.azurelib.fabric.platform;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.AzureLibCache;

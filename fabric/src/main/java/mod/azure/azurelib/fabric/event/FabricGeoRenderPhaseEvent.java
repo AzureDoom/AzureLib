@@ -1,5 +1,6 @@
-package mod.azure.azurelib.event;
+package mod.azure.azurelib.fabric.event;
 
+import mod.azure.azurelib.event.GeoRenderEvent;
 import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

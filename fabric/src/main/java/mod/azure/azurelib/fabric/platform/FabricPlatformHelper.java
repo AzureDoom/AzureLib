@@ -1,4 +1,4 @@
-package mod.azure.azurelib.platform;
+package mod.azure.azurelib.fabric.platform;
 
 import mod.azure.azurelib.FabricAzureLibMod;
 import mod.azure.azurelib.entities.TickingLightBlock;

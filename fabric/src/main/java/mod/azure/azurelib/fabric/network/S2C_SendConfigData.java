@@ -1,4 +1,4 @@
-package mod.azure.azurelib.network;
+package mod.azure.azurelib.fabric.network;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;
-import mod.azure.azurelib.network.api.IClientPacket;
+import mod.azure.azurelib.fabric.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;

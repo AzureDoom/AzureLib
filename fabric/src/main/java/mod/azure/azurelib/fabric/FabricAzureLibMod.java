@@ -1,5 +1,7 @@
-package mod.azure.azurelib;
+package mod.azure.azurelib.fabric;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.TestingConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;

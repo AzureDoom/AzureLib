@@ -1,4 +1,4 @@
-package mod.azure.azurelib.mixins;
+package mod.azure.azurelib.fabric.mixins;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 

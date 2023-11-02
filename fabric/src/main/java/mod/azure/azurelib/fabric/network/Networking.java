@@ -1,4 +1,4 @@
-package mod.azure.azurelib.network;
+package mod.azure.azurelib.fabric.network;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import io.netty.buffer.Unpooled;
-import mod.azure.azurelib.network.api.IClientPacket;
+import mod.azure.azurelib.fabric.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;

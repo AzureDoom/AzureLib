@@ -1,4 +1,4 @@
-package mod.azure.azurelib.integration;
+package mod.azure.azurelib.fabric.integration;
 
 import java.util.HashMap;
 import java.util.List;
