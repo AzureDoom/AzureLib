@@ -1,13 +1,11 @@
 package mod.azure.azurelib.entities;
 
+import com.mojang.serialization.MapCodec;
 import mod.azure.azurelib.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -21,17 +19,19 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
 public class TickingLightBlock extends BaseEntityBlock {
+    public static final MapCodec<TickingLightBlock> CODEC = simpleCodec(TickingLightBlock::new);
 
     public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
 
-    public TickingLightBlock() {
-        super(BlockBehaviour.Properties.of().sound(SoundType.CANDLE).lightLevel(litBlockEmission(15)).pushReaction(PushReaction.DESTROY).noOcclusion());
+    public TickingLightBlock(BlockBehaviour.Properties properties) {
+        super(properties);
     }
 
-    private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
+    public static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
         return p_50763_ -> BlockStateProperties.MAX_LEVEL_15;
     }
 
@@ -57,6 +57,11 @@ public class TickingLightBlock extends BaseEntityBlock {
     @Override
     public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override
