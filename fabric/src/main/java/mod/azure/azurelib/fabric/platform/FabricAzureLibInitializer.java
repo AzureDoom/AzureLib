@@ -1,8 +1,8 @@
 package mod.azure.azurelib.fabric.platform;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.cache.AzureLibCache;
-import mod.azure.azurelib.platform.services.AzureLibInitializer;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.cache.AzureLibCache;
+import mod.azure.azurelib.common.platform.services.AzureLibInitializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.fabric.platform;
 
 import mod.azure.azurelib.fabric.event.FabricGeoRenderPhaseEvent;
-import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
+import mod.azure.azurelib.common.platform.services.GeoRenderPhaseEventFactory;
 
 /**
  * @author Boston Vanseghi

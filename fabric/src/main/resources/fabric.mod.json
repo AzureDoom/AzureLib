@@ -17,10 +17,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "mod.azure.azurelib.FabricAzureLibMod"
+      "mod.azure.azurelib.fabric.FabricAzureLibMod"
     ],
     "client": [
-      "mod.azure.azurelib.ClientListener"
+      "mod.azure.azurelib.fabric.ClientListener"
     ],
     "modmenu": [
       "mod.azure.azurelib.fabric.integration.ModMenuIntegration"

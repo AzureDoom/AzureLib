@@ -4,7 +4,6 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.Networking;
 import mod.azure.azurelib.network.S2C_SendConfigData;
-import mod.azure.azurelib.network.packet.*;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;

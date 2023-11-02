@@ -2,14 +2,14 @@ package mod.azure.azurelib.fabric.network;
 
 import java.util.Map;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import mod.azure.azurelib.fabric.network.api.IClientPacket;
-import mod.azure.azurelib.network.api.IPacketDecoder;
-import mod.azure.azurelib.network.api.IPacketEncoder;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketDecoder;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketEncoder;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;

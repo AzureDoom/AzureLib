@@ -1,9 +1,9 @@
 package mod.azure.azurelib.fabric.platform;
 
-import mod.azure.azurelib.FabricAzureLibMod;
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
-import mod.azure.azurelib.platform.services.IPlatformHelper;
+import mod.azure.azurelib.fabric.FabricAzureLibMod;
+import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightBlock;
+import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightEntity;
+import mod.azure.azurelib.common.platform.services.IPlatformHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -43,6 +43,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
     public TickingLightBlock getTickingLightBlock() {
         return FabricAzureLibMod.TICKING_LIGHT_BLOCK;
     }
+
     @Override
     public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
         return FabricAzureLibMod.TICKING_LIGHT_ENTITY;

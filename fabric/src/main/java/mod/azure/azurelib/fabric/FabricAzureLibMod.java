@@ -1,12 +1,12 @@
 package mod.azure.azurelib.fabric;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibMod;
-import mod.azure.azurelib.config.TestingConfig;
-import mod.azure.azurelib.config.format.ConfigFormats;
-import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibMod;
+import mod.azure.azurelib.common.api.common.config.TestingConfig;
+import mod.azure.azurelib.common.internal.common.config.format.ConfigFormats;
+import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
+import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightBlock;
+import mod.azure.azurelib.common.internal.common.entities.entities.TickingLightEntity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;

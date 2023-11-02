@@ -1,6 +1,6 @@
 package mod.azure.azurelib.fabric.network.api;
 
-import mod.azure.azurelib.network.api.IPacket;
+import mod.azure.azurelib.common.internal.common.network.api.IPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;

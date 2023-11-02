@@ -2,7 +2,7 @@ package mod.azure.azurelib.fabric.mixins;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.common.internal.client.RenderProvider;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;

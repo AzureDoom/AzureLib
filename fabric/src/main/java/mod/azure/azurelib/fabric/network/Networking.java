@@ -3,16 +3,16 @@ package mod.azure.azurelib.fabric.network;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import io.netty.buffer.Unpooled;
 import mod.azure.azurelib.fabric.network.api.IClientPacket;
-import mod.azure.azurelib.network.api.IPacket;
-import mod.azure.azurelib.network.api.IPacketDecoder;
-import mod.azure.azurelib.network.api.IPacketEncoder;
+import mod.azure.azurelib.common.internal.common.network.api.IPacket;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketDecoder;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketEncoder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
