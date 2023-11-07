@@ -71,11 +71,20 @@ public abstract class BaseGunItem extends Item implements GeoItem {
     }
 
     /**
+     * Get the amount of an item reloading should use per reload
+     *
+     * @return number of Items to remove per reload
+     */
+    public int getAmmoItemRemovalAmount() {
+        return 1;
+    }
+
+    /**
      * Returns how much ammo should reload for/repair as we use durability to track ammo
      *
      * @return repair amount in int
      */
-    public int getRepairAmount() {
+    public int getReloadAmount() {
         return 1;
     }
 
@@ -110,7 +119,9 @@ public abstract class BaseGunItem extends Item implements GeoItem {
     }
 
     /**
-     * Handles the item repairing/removing of ammo item set in
+     * Handles the item reloading.
+     * <p>
+     * Uses {@link BaseGunItem#getAmmoItem()}, {@link BaseGunItem#getReloadAmount()}, {@link BaseGunItem#getCoolDownTime()}, and {@link BaseGunItem#getReloadsound()}.
      *
      * @param user Player who's reloading
      * @param hand Currenly only sets the {@link InteractionHand#MAIN_HAND}
@@ -119,7 +130,7 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         if (user.getItemInHand(hand).getItem() instanceof BaseGunItem gunItem) {
             while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0 && user.getInventory().countItem(gunItem.getAmmoItem()) > 0) {
                 removeAmmo(gunItem.getAmmoItem(), user);
-                user.getItemInHand(hand).hurtAndBreak(-gunItem.getRepairAmount(), user, s -> user.broadcastBreakEvent(hand));
+                user.getItemInHand(hand).hurtAndBreak(-gunItem.getReloadAmount(), user, s -> user.broadcastBreakEvent(hand));
                 user.getItemInHand(hand).setPopTime(gunItem.getCoolDownTime());
                 user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(), gunItem.getReloadsound(), SoundSource.PLAYERS, 1.00F, 1.0F);
             }
@@ -127,40 +138,23 @@ public abstract class BaseGunItem extends Item implements GeoItem {
     }
 
     /**
-     * Removes matching item from offhand first then check inventory for item
+     * Removes matching item from offhand first then checks inventory for item
      *
      * @param ammo         Item you want to be used as ammo
      * @param playerEntity Player whose inventory is being checked.
      */
     public static void removeAmmo(Item ammo, Player playerEntity) {
-        if (!playerEntity.isCreative()) { // Creative mode reloading breaks things
+        if (playerEntity.getItemInHand(playerEntity.getUsedItemHand()).getItem() instanceof BaseGunItem gunItem && !playerEntity.isCreative()) { // Creative mode reloading breaks things
             for (var item : playerEntity.getInventory().offhand) {
                 if (item.getItem() == ammo) {
-                    item.shrink(1); // Removes 1 of the items
+                    item.shrink(gunItem.getAmmoItemRemovalAmount());
                     break;
                 }
                 for (var item1 : playerEntity.getInventory().items) {
                     if (item1.getItem() == ammo) {
-                        item1.shrink(1); // Removes 1 of the items
+                        item1.shrink(gunItem.getAmmoItemRemovalAmount());
                         break;
                     }
-                }
-            }
-        }
-    }
-
-    /**
-     * Removes ammo item from offhand only, doesn't check inventory
-     *
-     * @param ammo         Item you want to be used as ammo
-     * @param playerEntity Player whose inventory is being checked.
-     */
-    public static void removeOffHandItem(Item ammo, Player playerEntity) {
-        if (!playerEntity.isCreative()) {
-            for (var item : playerEntity.getInventory().offhand) {
-                if (item.getItem() == ammo) {
-                    item.shrink(1);
-                    break;
                 }
             }
         }
