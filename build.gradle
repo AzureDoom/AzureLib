@@ -59,9 +59,9 @@ subprojects {
                 "version"                   : version,
                 "group"                     : project.group, //Else we target the task's group.
                 "minecraft_version"         : minecraft_version,
-                "forge_version"             : forge_version,
-                "forge_loader_version_range": forge_loader_version_range,
-                "forge_version_range"       : forge_version_range,
+                "forge_version"             : neo_version,
+                "forge_loader_version_range": neo_version_range,
+                "forge_version_range"       : loader_version_range,
                 "minecraft_version_range"   : minecraft_version_range,
                 "fabric_version"            : fabric_version,
                 "fabric_loader_version"     : fabric_loader_version,

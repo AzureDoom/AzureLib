@@ -2,8 +2,8 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.21'
-    id 'net.neoforged.gradle.mixin' version '7.0.21'
+    id 'net.neoforged.gradle.userdev' version '7.0.33'
+    id 'net.neoforged.gradle.mixin' version '7.0.33'
     id "me.modmuss50.mod-publish-plugin"
 }
 
@@ -40,11 +40,26 @@ runs {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${forge_version}"
+    implementation "net.neoforged:neoforge:${neo_version}"
     compileOnly project(":common")
 }
 
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+            neo_version         : neo_version, neo_version_range: neo_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_description     : mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('compileJava', JavaCompile).configure {
     source(project(":common").sourceSets.main.allSource)
 }
 tasks.withType(Javadoc).configureEach {
