@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.api.common.items;
 
+import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.common.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.common.internal.common.core.animation.AnimatableManager.ControllerRegistrar;
@@ -7,42 +8,48 @@ import mod.azure.azurelib.common.internal.common.core.animation.Animation.LoopTy
 import mod.azure.azurelib.common.internal.common.core.animation.AnimationController;
 import mod.azure.azurelib.common.internal.common.core.animation.RawAnimation;
 import mod.azure.azurelib.common.internal.common.core.object.PlayState;
-import mod.azure.azurelib.common.api.common.blocks.TickingLightEntity;
-import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
+import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
+/**
+ * Base Gun Class
+ * Has controller preconfigured for animation triggers for animations called firing and reload
+ * Handles reload packet sending
+ *
+ * @author AzureDoom
+ */
 public abstract class BaseGunItem extends Item implements GeoItem {
 
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-    private BlockPos lightBlockPos = null;
 
-    /*
-     * Make sure the durability is always +1 from what you a gun to use. This is make the item stops at 1 durablity properly. Example: Clip size of 20 would be registered with a durability of 21.
+    /**
+     * Make sure the durability is always +1 from what you a gun to use. This is make the item stops at 1 durability properly. Example: Clip size of 20 would be registered with a durability of 21.
      */
     protected BaseGunItem(Properties properties) {
         super(properties);
     }
 
+    /**
+     * Preconfigured for triggers called firing/reload animations
+     *
+     * @param controllers The object to register your controller instances to
+     */
     @Override
     public void registerControllers(ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "shoot_controller", event -> PlayState.CONTINUE).triggerableAnim("firing", RawAnimation.begin().then("firing", LoopType.PLAY_ONCE)).triggerableAnim("reload", RawAnimation.begin().then("reload", LoopType.PLAY_ONCE)));
@@ -53,16 +60,88 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         return this.cache;
     }
 
-    public void removeAmmo(Item ammo, Player playerEntity) {
-        if (!playerEntity.isCreative()) {
-            for (ItemStack item : playerEntity.getInventory().offhand) {
+    /**
+     * Item used in {@link BaseGunItem#reload(Player, InteractionHand)}
+     * Defaults to AIR
+     *
+     * @return Item
+     */
+    public Item getAmmoItem() {
+        return Items.AIR;
+    }
+
+    /**
+     * Returns how much ammo should reload for/repair as we use durability to track ammo
+     *
+     * @return repair amount in int
+     */
+    public int getRepairAmount() {
+        return 1;
+    }
+
+    /**
+     * Returns how long in ticks should the item be on cooldown after reloading.
+     * Usually this is how long the reload animation should take to play.
+     *
+     * @return cooldown ticks in int
+     */
+    public int getCoolDownTime() {
+        return 5;
+    }
+
+    /**
+     * Returns SoundEvent to be played when reloading
+     *
+     * @return SoundEvent
+     */
+    public SoundEvent getReloadsound() {
+        return SoundEvents.LEVER_CLICK;
+    }
+
+    /**
+     * Sends reloading packet from the client to the server when pressing {@link ClientUtils#RELOAD} keymap
+     */
+    @Override
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
+        if (world.isClientSide && entity instanceof Player player && player.getMainHandItem().getItem() instanceof BaseGunItem)
+            if (ClientUtils.RELOAD.isDown() && selected && !player.getCooldowns().isOnCooldown(stack.getItem())) {
+                Services.NETWORK.reloadGun();
+            }
+    }
+
+    /**
+     * Handles the item repairing/removing of ammo item set in
+     *
+     * @param user Player who's reloading
+     * @param hand Currenly only sets the {@link InteractionHand#MAIN_HAND}
+     */
+    public static void reload(Player user, InteractionHand hand) {
+        if (user.getItemInHand(hand).getItem() instanceof BaseGunItem gunItem) {
+            while (!user.isCreative() && user.getItemInHand(hand).getDamageValue() != 0 && user.getInventory().countItem(gunItem.getAmmoItem()) > 0) {
+                removeAmmo(gunItem.getAmmoItem(), user);
+                user.getItemInHand(hand).hurtAndBreak(-gunItem.getRepairAmount(), user, s -> user.broadcastBreakEvent(hand));
+                user.getItemInHand(hand).setPopTime(gunItem.getCoolDownTime());
+                user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(), gunItem.getReloadsound(), SoundSource.PLAYERS, 1.00F, 1.0F);
+            }
+        }
+    }
+
+    /**
+     * Removes matching item from offhand first then check inventory for item
+     *
+     * @param ammo         Item you want to be used as ammo
+     * @param playerEntity Player whose inventory is being checked.
+     */
+    public static void removeAmmo(Item ammo, Player playerEntity) {
+        if (!playerEntity.isCreative()) { // Creative mode reloading breaks things
+            for (var item : playerEntity.getInventory().offhand) {
                 if (item.getItem() == ammo) {
-                    item.shrink(1);
+                    item.shrink(1); // Removes 1 of the items
                     break;
                 }
-                for (ItemStack item1 : playerEntity.getInventory().items) {
+                for (var item1 : playerEntity.getInventory().items) {
                     if (item1.getItem() == ammo) {
-                        item1.shrink(1);
+                        item1.shrink(1); // Removes 1 of the items
                         break;
                     }
                 }
@@ -70,9 +149,15 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         }
     }
 
-    public void removeOffHandItem(Item ammo, Player playerEntity) {
+    /**
+     * Removes ammo item from offhand only, doesn't check inventory
+     *
+     * @param ammo         Item you want to be used as ammo
+     * @param playerEntity Player whose inventory is being checked.
+     */
+    public static void removeOffHandItem(Item ammo, Player playerEntity) {
         if (!playerEntity.isCreative()) {
-            for (ItemStack item : playerEntity.getInventory().offhand) {
+            for (var item : playerEntity.getInventory().offhand) {
                 if (item.getItem() == ammo) {
                     item.shrink(1);
                     break;
@@ -81,22 +166,16 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         }
     }
 
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
-        ItemStack itemStack = user.getItemInHand(hand);
-        user.startUsingItem(hand);
-        return InteractionResultHolder.consume(itemStack);
-    }
-
-    /*
-     * Turns off the enchanted glint. Useful for Arachnids that uses enchantments for attachments.
+    /**
+     * Makes it so it will use the gun properly
      */
     @Override
-    public boolean isFoil(ItemStack stack) {
-        return false;
+    public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+        user.startUsingItem(hand);
+        return InteractionResultHolder.consume(user.getItemInHand(hand));
     }
 
-    /*
+    /**
      * Only here so mobs can use the guns too with the bow like goal/tasks.
      */
     @Override
@@ -104,82 +183,12 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         return 72000;
     }
 
-    /*
-     * Adds Ammo tooltip.
+    /**
+     * Adds Ammo amount tooltip.
      */
     @Override
     public void appendHoverText(ItemStack stack, Level world, List<Component> tooltip, TooltipFlag context) {
         tooltip.add(Component.translatable("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)).withStyle(ChatFormatting.ITALIC));
-    }
-
-    @Override
-    public int getEnchantmentValue() {
-        return 0;
-    }
-
-    /*
-     * Makes the item not use enchantments in the enchament table.
-     */
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return false;
-    }
-
-    /*
-     * Call wherever you are firing weapon, making sure to not do it client side.
-     */
-    protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
-        if (lightBlockPos == null) {
-            lightBlockPos = findFreeSpace(entity.level(), entity.blockPosition(), 2);
-            if (lightBlockPos == null)
-                return;
-            entity.level().setBlockAndUpdate(lightBlockPos, Services.PLATFORM.getTickingLightBlock().defaultBlockState());
-        } else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
-            BlockEntity blockEntity = entity.level().getBlockEntity(lightBlockPos);
-            if (blockEntity instanceof TickingLightEntity tickingLightEntity) {
-                tickingLightEntity.refresh(isInWaterBlock ? 20 : 0);
-            } else
-                lightBlockPos = null;
-        } else
-            lightBlockPos = null;
-    }
-
-    private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
-        return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
-    }
-
-    private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
-        if (blockPos == null)
-            return null;
-
-        int[] offsets = new int[maxDistance * 2 + 1];
-        offsets[0] = 0;
-        for (int i = 2; i <= maxDistance * 2; i += 2) {
-            offsets[i - 1] = i / 2;
-            offsets[i] = -i / 2;
-        }
-        for (int x : offsets)
-            for (int y : offsets)
-                for (int z : offsets) {
-                    BlockPos offsetPos = blockPos.offset(x, y, z);
-                    BlockState state = world.getBlockState(offsetPos);
-                    if (state.isAir() || state.getBlock().equals(Services.PLATFORM.getTickingLightBlock()))
-                        return offsetPos;
-                }
-
-        return null;
-    }
-
-    public static EntityHitResult hitscanTrace(Player player, double range, float ticks) {
-        var look = player.getViewVector(ticks);
-        var start = player.getEyePosition(ticks);
-        var end = new Vec3(player.getX() + look.x * range, player.getEyeY() + look.y * range, player.getZ() + look.z * range);
-        var traceDistance = player.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getLocation().distanceToSqr(end);
-        for (var possible : player.level().getEntities(player, player.getBoundingBox().expandTowards(look.scale(traceDistance)).expandTowards(3.0D, 3.0D, 3.0D), (entity -> !entity.isSpectator() && entity.isPickable() && entity instanceof LivingEntity))) {
-            if (possible.getBoundingBox().inflate(0.3D).clip(start, end).isPresent() && start.distanceToSqr(possible.getBoundingBox().inflate(0.3D).clip(start, end).get()) < traceDistance)
-                    return ProjectileUtil.getEntityHitResult(player.level(), player, start, end, player.getBoundingBox().expandTowards(look.scale(traceDistance)).inflate(3.0D, 3.0D, 3.0D), target -> !target.isSpectator() && player.isAttackable() && player.hasLineOfSight(target));
-        }
-        return null;
     }
 
 }
