@@ -112,7 +112,7 @@ public abstract class BaseGunItem extends Item implements GeoItem {
      */
     @Override
     public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
-        if (world.isClientSide && entity instanceof Player player && player.getMainHandItem().getItem() instanceof BaseGunItem)
+        if (world.isClientSide && entity instanceof Player player && player.getItemInHand(player.getUsedItemHand()).getItem() instanceof BaseGunItem)
             if (ClientUtils.RELOAD.isDown() && selected && !player.getCooldowns().isOnCooldown(stack.getItem())) {
                 Services.NETWORK.reloadGun();
             }
