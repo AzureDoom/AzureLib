@@ -31,6 +31,8 @@ public interface AzureLibNetwork {
 
     ResourceLocation CUSTOM_ENTITY_ID = new ResourceLocation(AzureLib.MOD_ID, "spawn_entity");
 
+    ResourceLocation RELOAD = new ResourceLocation(AzureLib.MOD_ID, "reload");
+
     Map<String, GeoAnimatable> SYNCED_ANIMATABLES = new Object2ObjectOpenHashMap<>();
 
     /**
@@ -45,6 +47,8 @@ public interface AzureLibNetwork {
                 AzureLib.LOGGER.debug("Registered SyncedAnimatable for " + animatable.getClass());
         }
     }
+
+    void reloadGun();
 
     Packet<?> createPacket(Entity entity);
 

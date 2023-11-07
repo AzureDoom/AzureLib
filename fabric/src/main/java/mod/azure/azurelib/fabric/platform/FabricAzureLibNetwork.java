@@ -1,5 +1,6 @@
 package mod.azure.azurelib.fabric.platform;
 
+import mod.azure.azurelib.common.api.common.items.BaseGunItem;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
 import mod.azure.azurelib.fabric.network.Networking;
@@ -17,6 +18,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 
 public class FabricAzureLibNetwork implements AzureLibNetwork {
@@ -37,6 +39,14 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
         ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, (client, $2, buf, $4) -> this.handlePacket(client, BlockEntityAnimTriggerPacket.receive(buf)));
 
         ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID, (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf));
+    }
+
+    @Override
+    public void reloadGun() {
+        ServerPlayNetworking.registerGlobalReceiver(RELOAD, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
+            if (player.getMainHandItem().getItem() instanceof BaseGunItem)
+                BaseGunItem.reload(player, InteractionHand.MAIN_HAND);
+        });
     }
 
     @Override
