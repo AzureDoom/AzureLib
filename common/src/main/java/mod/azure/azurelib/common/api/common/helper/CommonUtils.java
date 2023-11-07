@@ -46,7 +46,7 @@ public record CommonUtils() {
      * Call wherever you are firing weapon to place the half tick light-block, making sure do so only on the server.
      *
      * @param entity         Usually the player or mob that is using the weapon
-     * @param isInWaterBlock Checks if it's in a water block to add life or not.
+     * @param isInWaterBlock Checks if it's in a water block to refresh faster.
      */
     public void spawnLightSource(Entity entity, boolean isInWaterBlock) {
         BlockPos lightBlockPos = null;
