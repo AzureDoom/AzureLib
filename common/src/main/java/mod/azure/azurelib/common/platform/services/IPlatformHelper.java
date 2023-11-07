@@ -1,7 +1,7 @@
 package mod.azure.azurelib.common.platform.services;
 
-import mod.azure.azurelib.common.api.common.blocks.TickingLightBlock;
-import mod.azure.azurelib.common.api.common.blocks.TickingLightEntity;
+import mod.azure.azurelib.common.internal.common.blocks.TickingLightBlock;
+import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.nio.file.Path;

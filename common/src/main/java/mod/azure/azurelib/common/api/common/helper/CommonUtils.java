@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.api.common.helper;
 
-import mod.azure.azurelib.common.api.common.blocks.TickingLightEntity;
+import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;

@@ -1,4 +1,4 @@
-package mod.azure.azurelib.common.api.common.blocks;
+package mod.azure.azurelib.common.internal.common.blocks;
 
 import com.mojang.serialization.MapCodec;
 import mod.azure.azurelib.common.platform.Services;
