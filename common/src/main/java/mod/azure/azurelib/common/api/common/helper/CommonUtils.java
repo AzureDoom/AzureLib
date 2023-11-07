@@ -7,7 +7,7 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class CommonUtils {
+public record CommonUtils() {
 
     /**
      * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
