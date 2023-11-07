@@ -56,7 +56,7 @@ public record CommonUtils() {
                 return;
             entity.level().setBlockAndUpdate(lightBlockPos, Services.PLATFORM.getTickingLightBlock().defaultBlockState());
         } else if (AzureLibUtil.checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
-            BlockEntity blockEntity = entity.level().getBlockEntity(lightBlockPos);
+            var blockEntity = entity.level().getBlockEntity(lightBlockPos);
             if (blockEntity instanceof TickingLightEntity tickingLightEntity) {
                 tickingLightEntity.refresh(isInWaterBlock ? 20 : 0);
             }
