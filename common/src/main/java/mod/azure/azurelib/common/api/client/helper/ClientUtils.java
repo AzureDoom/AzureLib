@@ -1,4 +1,4 @@
-package mod.azure.azurelib.common.api.client;
+package mod.azure.azurelib.common.api.client.helper;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;

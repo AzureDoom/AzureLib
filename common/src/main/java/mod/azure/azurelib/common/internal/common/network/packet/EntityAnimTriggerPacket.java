@@ -6,7 +6,7 @@ import mod.azure.azurelib.common.internal.client.util.RenderUtils;
 import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.common.api.client.ClientUtils;
+import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;

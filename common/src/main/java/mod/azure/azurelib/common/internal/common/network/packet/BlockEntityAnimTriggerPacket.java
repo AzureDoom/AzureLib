@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.common.api.common.animatable.GeoBlockEntity;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.api.client.ClientUtils;
+import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
