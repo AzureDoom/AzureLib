@@ -7,8 +7,15 @@ import net.minecraft.world.item.SpawnEggItem;
 
 public class AzureSpawnEgg extends SpawnEggItem {
 
-	public AzureSpawnEgg(EntityType<? extends Mob> type, int primaryColor, int secondaryColor) {
-		super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
-	}
+    /**
+     * TODO: Make egg work correctly for both loaders using this common version, currently only works correctly with Fabric.
+     *
+     * @param type           Your registered Entity
+     * @param primaryColor   Primary Egg Color
+     * @param secondaryColor Secondary Egg Color
+     */
+    public AzureSpawnEgg(EntityType<? extends Mob> type, int primaryColor, int secondaryColor) {
+        super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
+    }
 
 }
