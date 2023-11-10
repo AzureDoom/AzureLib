@@ -35,7 +35,7 @@ import java.util.List;
 public abstract class BaseGunItem extends Item implements GeoItem {
 
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-    public AzureGunProperties gunBuilder = new AzureGunProperties.Builder().canReload(1, 1, 5, SoundEvents.LEVER_CLICK).getFiringCoolDownTime(5).build();
+    public AzureGunProperties gunBuilder = new AzureGunProperties.Builder().setCanReload(1, 1, 5, SoundEvents.LEVER_CLICK).setFiringCoolDownTime(5).build();
 
     /**
      * Make sure the durability is always +1 from what you a gun to use. This is make the item stops at 1 durability properly. Example: Clip size of 20 would be registered with a durability of 21.

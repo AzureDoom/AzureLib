@@ -45,7 +45,7 @@ public class AzureGunProperties {
             this.properties = new AzureGunProperties();
         }
 
-        public Builder canReload(int itemAmountUsed, int reloadAmount, int reloadCooldown, SoundEvent reloadSound) {
+        public Builder setCanReload(int itemAmountUsed, int reloadAmount, int reloadCooldown, SoundEvent reloadSound) {
             this.properties.ammoCount = itemAmountUsed;
             this.properties.reloadAmount = reloadAmount;
             this.properties.reloadCooldown = reloadCooldown;
@@ -53,33 +53,8 @@ public class AzureGunProperties {
             return this;
         }
 
-        public Builder getAmmoItemRemovalAmount(int ammoCount) {
-            this.properties.ammoCount = ammoCount;
-            return this;
-        }
-
-        public Builder getReloadAmount(int reloadAmount) {
-            this.properties.reloadAmount = reloadAmount;
-            return this;
-        }
-
-        public Builder getReloadCoolDownTime(int cooldownTime) {
-            this.properties.reloadCooldown = cooldownTime;
-            return this;
-        }
-
-        public Builder getFiringCoolDownTime(int firingCooldown) {
+        public Builder setFiringCoolDownTime(int firingCooldown) {
             this.properties.firingCooldown = firingCooldown;
-            return this;
-        }
-
-        public Builder setAmmoItem(Item ammo) {
-            this.properties.ammoItem = ammo;
-            return this;
-        }
-
-        public Builder getReloadsound(SoundEvent soundEvent) {
-            this.properties.reloadSound = soundEvent;
             return this;
         }
 
