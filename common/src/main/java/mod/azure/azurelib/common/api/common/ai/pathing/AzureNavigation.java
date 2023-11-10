@@ -2,6 +2,7 @@ package mod.azure.azurelib.common.api.common.ai.pathing;
 
 import java.util.Objects;
 
+import mod.azure.azurelib.common.internal.common.ai.pathing.AzurePathFinder;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;

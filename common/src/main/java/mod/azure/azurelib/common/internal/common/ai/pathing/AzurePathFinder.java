@@ -1,4 +1,4 @@
-package mod.azure.azurelib.common.api.common.ai.pathing;
+package mod.azure.azurelib.common.internal.common.ai.pathing;
 
 import java.util.ArrayList;
 import java.util.List;
