@@ -1,5 +1,6 @@
 package mod.azure.azurelib.fabric.platform;
 
+import mod.azure.azurelib.common.api.common.helper.CommonUtils;
 import mod.azure.azurelib.common.api.common.items.BaseGunItem;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
@@ -18,7 +19,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 
 public class FabricAzureLibNetwork implements AzureLibNetwork {
@@ -45,7 +45,7 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     public void reloadGun() {
         ServerPlayNetworking.registerGlobalReceiver(RELOAD, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
             if (player.getUseItem().getItem() instanceof BaseGunItem)
-                BaseGunItem.reload(player, player.getUsedItemHand());
+                CommonUtils.reload(player, player.getUsedItemHand());
         });
     }
 
