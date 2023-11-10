@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.internal.common.util;
 
+import mod.azure.azurelib.common.api.common.items.BaseGunItem;
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
 import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.common.core.animatable.instance.AnimatableInstanceCache;
@@ -13,6 +14,8 @@ import mod.azure.azurelib.common.internal.common.network.SerializableDataTicket;
 import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -115,5 +118,28 @@ public final record AzureLibUtil() {
                         return offsetPos;
                 }
         return null;
+    }
+
+    /**
+     * Removes matching item from offhand first then checks inventory for item
+     *
+     * @param ammo         Item you want to be used as ammo
+     * @param playerEntity Player whose inventory is being checked.
+     */
+    public static void removeAmmo(Item ammo, Player playerEntity) {
+        if (playerEntity.getItemInHand(playerEntity.getUsedItemHand()).getItem() instanceof BaseGunItem gunItem && !playerEntity.isCreative()) { // Creative mode reloading breaks things
+            for (var item : playerEntity.getInventory().offhand) {
+                if (item.getItem() == ammo) {
+                    item.shrink(gunItem.gunBuilder.getAmmoCount());
+                    break;
+                }
+                for (var item1 : playerEntity.getInventory().items) {
+                    if (item1.getItem() == ammo) {
+                        item1.shrink(gunItem.gunBuilder.getAmmoCount());
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
