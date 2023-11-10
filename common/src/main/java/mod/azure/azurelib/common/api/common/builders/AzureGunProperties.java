@@ -3,6 +3,11 @@ package mod.azure.azurelib.common.api.common.builders;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 
+/**
+ * Builder class for setting up gun properties
+ *
+ * @author AzureDoom/Boston Vanseghi
+ */
 public class AzureGunProperties {
     private int ammoCount;
     private int reloadAmount;
