@@ -140,7 +140,7 @@ public record CommonUtils() {
      * @param firingSound  {@link SoundEvent} used for the sound made when fired.
      * @param emptySound   {@link SoundEvent} used for the sound made when empty.
      */
-    public static void dealDamageToEntity(Player playerentity, ItemStack stack, Level level, int cooldown, int damage, @Nullable Enchantment enchantment, int itemDamage, @Nullable SoundEvent firingSound, @Nullable SoundEvent emptySound) {
+    public static void dealDamageToEntity(Player playerentity, ItemStack stack, Level level, int cooldown, float damage, @Nullable Enchantment enchantment, int itemDamage, @Nullable SoundEvent firingSound, @Nullable SoundEvent emptySound) {
         if (stack.getDamageValue() < stack.getMaxDamage() - 1) {
             playerentity.getCooldowns().addCooldown(stack.getItem(), cooldown);
             if (!level.isClientSide) {

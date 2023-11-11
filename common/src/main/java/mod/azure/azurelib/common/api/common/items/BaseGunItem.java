@@ -13,15 +13,18 @@ import mod.azure.azurelib.common.internal.common.core.object.PlayState;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -35,13 +38,37 @@ import java.util.List;
 public abstract class BaseGunItem extends Item implements GeoItem {
 
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
-    public AzureGunProperties gunBuilder = new AzureGunProperties.Builder().setCanReload(1, 1, 5, SoundEvents.LEVER_CLICK).setFiringCoolDownTime(5).build();
+    private int ammoAmountUsed;
+    private int reloadAmount;
+    private int reloadCooldown;
+    private SoundEvent reloadSound;
+    private int firingCooldown;
+    private float weaponDamage;
+    private int useDamage;
+    private SoundEvent firingSound;
+    private SoundEvent emptySound;
+    private Enchantment enchantmentExtraDamage;
+
+    /**
+     * Builder where you will define various properties to your gun
+     */
+    public AzureGunProperties gunBuilder = new AzureGunProperties.Builder().setCanReload(ammoAmountUsed, reloadAmount, reloadCooldown, reloadSound).setFiringCoolDownTime(firingCooldown).setDamage(weaponDamage).setUseDamage(useDamage).setFiringSound(firingSound).setEmptySound(emptySound).setEnchantmentExtraDamage(enchantmentExtraDamage).build();
 
     /**
      * Make sure the durability is always +1 from what you a gun to use. This is make the item stops at 1 durability properly. Example: Clip size of 20 would be registered with a durability of 21.
      */
-    protected BaseGunItem(Properties properties) {
+    protected BaseGunItem(Properties properties, int ammoAmountUsed, int reloadAmount, int reloadCooldown, SoundEvent reloadSound, int firingCooldown, float weaponDamage, int useDamage, SoundEvent firingSound, SoundEvent emptySound, @Nullable Enchantment enchantmentExtraDamage) {
         super(properties);
+        this.ammoAmountUsed = ammoAmountUsed;
+        this.reloadAmount = reloadAmount;
+        this.reloadCooldown = reloadCooldown;
+        this.reloadSound = reloadSound;
+        this.firingCooldown = firingCooldown;
+        this.weaponDamage = weaponDamage;
+        this.useDamage = useDamage;
+        this.firingSound = firingSound;
+        this.emptySound = emptySound;
+        this.enchantmentExtraDamage = enchantmentExtraDamage;
     }
 
     /**
@@ -92,4 +119,9 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         tooltip.add(Component.translatable("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)).withStyle(ChatFormatting.ITALIC));
     }
 
+    @Override
+    public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack, int count) {
+        if (entity instanceof Player player)
+            CommonUtils.dealDamageToEntity(player, itemStack, level, gunBuilder.getFiringCooldown(), gunBuilder.getDamage(), gunBuilder.getEnchantmentExtraDamage() != null ? gunBuilder.getEnchantmentExtraDamage() : null, gunBuilder.getUseDamage(), gunBuilder.getFiringSound(), gunBuilder.getEmptySound());
+    }
 }

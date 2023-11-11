@@ -2,6 +2,8 @@ package mod.azure.azurelib.common.api.common.builders;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Builder class for setting up gun properties
@@ -15,6 +17,11 @@ public class AzureGunProperties {
     private SoundEvent reloadSound;
     private Item ammoItem;
     private int firingCooldown;
+    private float damage;
+    private int usedamage;
+    private SoundEvent firingSound;
+    private SoundEvent emptySound;
+    private Enchantment enchantmentExtraDamage;
 
     public AzureGunProperties() {
     }
@@ -43,6 +50,26 @@ public class AzureGunProperties {
         return this.reloadSound;
     }
 
+    public SoundEvent getFiringSound() {
+        return this.firingSound;
+    }
+
+    public SoundEvent getEmptySound() {
+        return this.emptySound;
+    }
+
+    public float getDamage() {
+        return this.damage;
+    }
+
+    public int getUseDamage() {
+        return this.usedamage;
+    }
+
+    public Enchantment getEnchantmentExtraDamage() {
+        return this.enchantmentExtraDamage;
+    }
+
     public static class Builder {
         private AzureGunProperties properties;
 
@@ -63,7 +90,41 @@ public class AzureGunProperties {
             return this;
         }
 
+        public Builder setDamage(float damage) {
+            this.properties.damage = damage;
+            return this;
+        }
+
+        public Builder setUseDamage(int usedamage) {
+            this.properties.usedamage = usedamage;
+            return this;
+        }
+
+        public Builder setReloadSound(SoundEvent reloadSound) {
+            this.properties.reloadSound = reloadSound;
+            return this;
+        }
+
+        public Builder setFiringSound(SoundEvent firingSound) {
+            this.properties.firingSound = firingSound;
+            return this;
+        }
+
+        public Builder setEmptySound(SoundEvent emptySound) {
+            this.properties.emptySound = emptySound;
+            return this;
+        }
+
+        public Builder setEnchantmentExtraDamage(@Nullable Enchantment enchantment) {
+            this.properties.enchantmentExtraDamage = enchantment;
+            return this;
+        }
+
         public AzureGunProperties build() {
+            return this.properties;
+        }
+
+        public AzureGunProperties copy() {
             return this.properties;
         }
     }
