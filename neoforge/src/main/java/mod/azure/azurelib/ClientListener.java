@@ -1,5 +1,6 @@
 package mod.azure.azurelib;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import mod.azure.azurelib.client.AzureLibClient;
 import mod.azure.azurelib.config.ConfigHolder;
 import net.minecraft.client.KeyMapping;
@@ -22,12 +23,12 @@ public class ClientListener {
 
     @SubscribeEvent
     public static void registerKeys(final RegisterKeyMappingsEvent event) {
-        Keybindings.RELOAD = new KeyMapping("key.azurelib.reload", GLFW.GLFW_KEY_R, "category.azurelib.binds");
+        Keybindings.RELOAD = new KeyMapping("key.azurelib.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.azurelib.binds");
         event.register(Keybindings.RELOAD);
     }
 
     @SubscribeEvent
-    public static void clientInit(FMLClientSetupEvent event) {
+    public static void clientInit(final FMLClientSetupEvent event) {
         Map<String, List<ConfigHolder<?>>> groups = ConfigHolder.getConfigGroupingByGroup();
         ModList modList = ModList.get();
         for (Map.Entry<String, List<ConfigHolder<?>>> entry : groups.entrySet()) {
