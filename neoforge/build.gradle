@@ -50,7 +50,8 @@ tasks.withType(ProcessResources).configureEach {
             neo_version         : neo_version, neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_description     : mod_description,
+            mod_description     : mod_description,  mod_credits: mod_credits, mod_logo: mod_logo,
+            mod_url             : mod_url, mod_issues: mod_issues,
     ]
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
