@@ -1,3 +1,5 @@
-v2.0.5
+v2.0.6
 
-- Fixes Forge reload button.
+- Adds Scope keybind for use in my other mods.
+- Backport AzureGunProperties builder system.
+- Cleanup source.
