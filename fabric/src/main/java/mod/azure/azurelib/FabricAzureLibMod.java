@@ -20,10 +20,10 @@ public final class FabricAzureLibMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ConfigIO.FILE_WATCH_MANAGER.startService();
+        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         AzureLib.initialize();
         Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(AzureLib.MOD_ID, "lightblock"), FabricAzureLibMod.TICKING_LIGHT_BLOCK);
         FabricAzureLibMod.TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AzureLib.MOD_ID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, FabricAzureLibMod.TICKING_LIGHT_BLOCK).build(null));
-        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
             ConfigIO.FILE_WATCH_MANAGER.stopService();
         });
