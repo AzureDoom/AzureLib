@@ -97,7 +97,7 @@ public record CommonUtils() {
      * Handles the item reloading.
      *
      * @param user Player who's reloading
-     * @param hand Currenly only sets the {@link InteractionHand#MAIN_HAND}
+     * @param hand Currently only sets the {@link InteractionHand#MAIN_HAND}
      */
     public static void reload(Player user, InteractionHand hand) {
         if (user.getItemInHand(hand).getItem() instanceof BaseGunItem gunItem) {
