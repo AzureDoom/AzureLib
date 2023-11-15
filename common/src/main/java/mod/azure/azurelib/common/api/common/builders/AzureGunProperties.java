@@ -95,8 +95,8 @@ public class AzureGunProperties {
             return this;
         }
 
-        public Builder setUseDamage(int usedamage) {
-            this.properties.usedamage = usedamage;
+        public Builder setUseDamage(int useDamage) {
+            this.properties.usedamage = useDamage;
             return this;
         }
 
