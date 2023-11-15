@@ -43,5 +43,10 @@ public final class ClientUtils {
     /**
      * Common reload KeyMapping for my various mods
      */
-    public static KeyMapping RELOAD = new KeyMapping("key.azurelib.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.azurelib.binds");
+    public static KeyMapping RELOAD;
+
+    /**
+     * Common scope KeyMapping for my various mods
+     */
+    public static KeyMapping SCOPE;
 }
