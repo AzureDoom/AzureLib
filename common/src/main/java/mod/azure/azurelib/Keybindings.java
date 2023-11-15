@@ -6,6 +6,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class Keybindings {
 	public static KeyMapping RELOAD;
+	public static KeyMapping SCOPE;
 
 	private Keybindings() {
 		throw new UnsupportedOperationException();

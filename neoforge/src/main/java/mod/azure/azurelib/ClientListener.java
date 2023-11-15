@@ -25,6 +25,8 @@ public class ClientListener {
     public static void registerKeys(final RegisterKeyMappingsEvent event) {
         Keybindings.RELOAD = new KeyMapping("key.azurelib.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.azurelib.binds");
         event.register(Keybindings.RELOAD);
+        Keybindings.SCOPE = new KeyMapping("key.azurelib.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.azurelib.binds");
+        event.register(Keybindings.SCOPE);
     }
 
     @SubscribeEvent

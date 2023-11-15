@@ -13,6 +13,8 @@ public final class ClientListener implements ClientModInitializer {
 	public void onInitializeClient() {
 		Keybindings.RELOAD = new KeyMapping("key.azurelib.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.azurelib.binds");
 		KeyBindingHelper.registerKeyBinding(Keybindings.RELOAD);
+		Keybindings.SCOPE = new KeyMapping("key.azurelib.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.azurelib.binds");
+		KeyBindingHelper.registerKeyBinding(Keybindings.SCOPE);
 		Services.NETWORK.registerClientReceiverPackets();
         Networking.PacketRegistry.registerClient();
 	}
