@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * @author AzureDoom/Boston Vanseghi
  */
 public class AzureGunProperties {
+    private AzureGunProperties properties;
     private int ammoCount;
     private int reloadAmount;
     private int reloadCooldown;
@@ -124,8 +125,9 @@ public class AzureGunProperties {
             return this.properties;
         }
 
-        public AzureGunProperties copy() {
-            return this.properties;
+        public Builder copy(AzureGunProperties data) {
+            this.properties = data.properties;
+            return this;
         }
     }
 }
