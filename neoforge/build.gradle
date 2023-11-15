@@ -78,7 +78,7 @@ minecraft {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
-    minecraft "net.neoforged:forge:${minecraft_version}-${forge_version}"
+    minecraft "net.neoforged:forge:${minecraft_version}-${neo_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
 }

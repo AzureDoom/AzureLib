@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT' apply(false)
     id 'net.neoforged.gradle' version '[6.0,6.2)' apply(false)
@@ -55,26 +58,44 @@ subprojects {
 
     processResources {
         def expandProps = [
-                "version"                   : version,
+                "mod_version"               : project.mod_version,
                 "group"                     : project.group, //Else we target the task's group.
-                "minecraft_version"         : minecraft_version,
-                "forge_version"             : forge_version,
-                "forge_loader_version_range": forge_loader_version_range,
-                "forge_version_range"       : forge_version_range,
-                "minecraft_version_range"   : minecraft_version_range,
-                "fabric_version"            : fabric_version,
-                "fabric_loader_version"     : fabric_loader_version,
-                "mod_name"                  : mod_name,
-                "mod_author"                : mod_author,
-                "mod_id"                    : mod_id,
-                "license"                   : mod_license,
-                "description"               : project.mod_description
+                "minecraft_version"         : project.minecraft_version,
+                "neo_version"               : project.neo_version,
+                "loader_version_range"      : project.loader_version_range,
+                "neo_version_range"         : project.neo_version_range,
+                "minecraft_version_range"   : project.minecraft_version_range,
+                "fabric_version"            : project.fabric_version,
+                "fabric_loader_version"     : project.fabric_loader_version,
+                "mod_name"                  : project.mod_name,
+                "mod_author"                : project.mod_author,
+                "mod_id"                    : project.mod_id,
+                "mod_license"               : project.mod_license,
+                "mod_description"           : project.mod_description,
+                "mod_credits"               : project.mod_credits,
+                "mod_logo"                  : project.mod_logo,
+                "mod_url"                   : project.mod_url,
+                "mod_issues"                : project.mod_issues,
+                "mod_sources"               : project.mod_sources,
         ]
 
-        filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
+        filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json', 'META-INF/mods.toml']) {
             expand expandProps
         }
         inputs.properties(expandProps)
+        doLast {
+            def jsonMinifyStart = System.currentTimeMillis()
+            def jsonMinified = 0
+            def jsonBytesSaved = 0
+            fileTree(dir: outputs.files.asPath, include: '**/*.json').each {
+                File file = it
+                jsonMinified++
+                def oldLength = file.length()
+                file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+                jsonBytesSaved += oldLength - file.length()
+            }
+            println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
+        }
     }
 
     // Disables Gradle's custom module metadata from being published to maven. The
