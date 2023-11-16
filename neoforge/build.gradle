@@ -15,11 +15,6 @@ base {
     archivesName = "${mod_id}-neo-${minecraft_version}"
 }
 
-mixin {
-    config("${mod_id}.mixins.json")
-    config("${mod_id}.forge.mixins.json")
-}
-
 minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
 runs {
     configureEach {
