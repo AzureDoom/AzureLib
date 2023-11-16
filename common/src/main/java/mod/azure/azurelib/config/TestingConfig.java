@@ -72,7 +72,7 @@ public final class TestingConfig {
 
     public void onUpdate(String[] value, IValidationHandler handler) {
         AzureLib.LOGGER.debug(() -> Arrays.toString(value));
-        handler.setValidationResult(ValidationResult.warn(Component.literal("Generic warning")));
+        handler.setValidationResult(ValidationResult.warn(Component.translatable("config.azurelib.option.genericwarning")));
     }
 
     public static class NestedTest {
