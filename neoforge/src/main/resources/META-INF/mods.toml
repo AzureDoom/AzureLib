@@ -11,15 +11,19 @@ logoFile="${mod_logo}"
 credits="${mod_credits}"
 authors="${mod_credits}"
 description='''${mod_description}'''
-[[dependencies.azurelib]]
+[[dependencies.${mod_id}]]
     modId="neoforge"
     mandatory=true 
     versionRange="${neo_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.azurelib]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+[[mixins]]
+    config = "${mod_id}.mixins.json"
+[[mixins]]
+    config = "${mod_id}.forge.mixins.json"
