@@ -1,5 +1,6 @@
-v2.0.2
+v2.0.3
 
-- Adds Scope keybind for use in my other mods.
-- Backport AzureGunProperties builder system.
-- Cleanup source.
+- Updated NeoForge mixins to new format.
+- Updated NeoForge to new Registry update.
+- Adds missing langs to example config.
+- Remove NeoForge refmap line from it's mixin, no longer needed.
