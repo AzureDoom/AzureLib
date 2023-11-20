@@ -78,6 +78,7 @@ subprojects {
                 "mod_url"                   : project.mod_url,
                 "mod_issues"                : project.mod_issues,
                 "mod_sources"               : project.mod_sources,
+                "version"                   : project.mod_version
         ]
 
         filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json', 'META-INF/mods.toml']) {
