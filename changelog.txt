@@ -1,3 +1,4 @@
-v2.0.9
+v2.0.10
 
-- Create getter needed Incendairy Echantment
+- Fixes crash on startup.
+- Fixes missing enchantment lang.
