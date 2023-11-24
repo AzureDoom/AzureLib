@@ -40,5 +40,7 @@
   "config.azurelib.option.testEnum": "Test Enum",
   "config.azurelib.option.nestedTest": "Test Nested",
   "config.azurelib.option.testInt": "Test Int",
-  "config.azurelib.option.genericwarning": "Generic Warning"
+  "config.azurelib.option.genericwarning": "Generic Warning",
+  "enchantment.azurelib.incendiaryenchantment": "Incendiary Attachment",
+  "enchantment.azurelib.incendiaryenchantment.desc": "Allows bullets fired to light mobs on fire"
 }
