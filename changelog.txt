@@ -1,5 +1,3 @@
-v2.0.4
+v2.0.5
 
-- Move MixinHumanoidArmorLayer to common, loading a Fabric version or Neo/Forge version depending on loader being used.
-- Added new Enchantment for various gun mods, Incendiary.
-- Added a new tag for the echantment to add my guns to the tags for easy configuration.
+- Create getter needed Incendairy Echantment
