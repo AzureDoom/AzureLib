@@ -1,6 +1,5 @@
-v2.0.3
+v2.0.4
 
-- Updated NeoForge mixins to new format.
-- Updated NeoForge to new Registry update.
-- Adds missing langs to example config.
-- Remove NeoForge refmap line from it's mixin, no longer needed.
+- Move MixinHumanoidArmorLayer to common, loading a Fabric version or Neo/Forge version depending on loader being used.
+- Added new Enchantment for various gun mods, Incendiary.
+- Added a new tag for the echantment to add my guns to the tags for easy configuration.
