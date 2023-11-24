@@ -1,7 +1,6 @@
-package mod.azure.azurelib.fabric.mixins;
+package mod.azure.azurelib.common.internal.mixins;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
 import mod.azure.azurelib.common.internal.client.RenderProvider;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Render hook for injecting AzureLib's armor rendering functionalities
  */
 @Mixin(value = HumanoidArmorLayer.class, priority = 700)
-public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
+public abstract class FabricMixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
     @Unique
     private LivingEntity gl_storedEntity;
     @Unique
