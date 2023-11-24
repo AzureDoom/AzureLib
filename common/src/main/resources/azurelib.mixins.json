@@ -2,19 +2,7 @@
   "required": true,
   "package": "mod.azure.azurelib.common.internal.mixins",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "mod.azure.azurelib.common.internal.mixins.AzureLibMixinPlugin",
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "PlayerListMixin"
-  ],
-  "client": [
-    "FabricMixinHumanoidArmorLayer",
-    "ItemRendererAccessor",
-    "MinecraftMixin",
-    "MixinItemRenderer",
-    "NeoMixinHumanoidArmorLayer",
-    "TextureManagerMixin"
-  ]
+  }
 }
