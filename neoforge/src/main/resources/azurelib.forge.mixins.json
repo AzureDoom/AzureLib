@@ -5,6 +5,14 @@
   "injectors": {
     "defaultRequire": 1
   },
+  "mixins": [
+    "PlayerListMixin"
+  ],
   "client": [
+    "ItemRendererAccessor",
+    "MinecraftMixin",
+    "MixinItemRenderer",
+    "NeoMixinHumanoidArmorLayer",
+    "TextureManagerMixin"
   ]
 }
