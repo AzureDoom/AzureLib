@@ -32,7 +32,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    modImplementation "com.terraformersmc:modmenu:${modmenu_version}"
+    modApi "com.terraformersmc:modmenu:${modmenu_version}"
     compileOnly project(":common")
 }
 
@@ -109,10 +109,10 @@ publishing {
 
 tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
-            minecraft_version   : minecraft_version, fabric_loader_version: fabric_loader_version,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_description     : mod_description, mod_credits: mod_credits, mod_logo: mod_logo,
-            mod_url             : mod_url, mod_issues: mod_issues, mod_issues: mod_issues,
+            minecraft_version: minecraft_version, fabric_loader_version: fabric_loader_version,
+            mod_id           : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_description  : mod_description, mod_credits: mod_credits, mod_logo: mod_logo,
+            mod_url          : mod_url, mod_issues: mod_issues, mod_issues: mod_issues,
     ]
     inputs.properties replaceProperties
 
