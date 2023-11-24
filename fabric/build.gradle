@@ -32,7 +32,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    modImplementation "com.terraformersmc:modmenu:${modmenu_version}"
+    modApi "com.terraformersmc:modmenu:${modmenu_version}"
     compileOnly project(":common")
 }
 
@@ -138,7 +138,7 @@ if (file('key.properties').exists()) {
             projectId = "817423"
             projectSlug = "azurelib"
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.20.2")
+            minecraftVersions.add("1.20.3")
             requires {
                 slug = "fabric-api"
             }
@@ -146,7 +146,7 @@ if (file('key.properties').exists()) {
         modrinth {
             projectId = "7zlUOZvb"
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.20.2")
+            minecraftVersions.add("1.20.3")
         }
     }
 }
