@@ -18,7 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.ConfigData> {
 
-    public static final ResourceLocation IDENTIFIER = new ResourceLocation(AzureLib.MOD_ID, "s2c_send_config_data");
+    public static final ResourceLocation IDENTIFIER = AzureLib.modResource("s2c_send_config_data");
 
     private final ConfigData config;
 

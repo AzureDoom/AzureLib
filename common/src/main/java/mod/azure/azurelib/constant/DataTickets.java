@@ -38,13 +38,13 @@ public final class DataTickets {
 	// Builtin serializable tickets
 	// These are not used anywhere by default, but are provided as examples
 	// and for ease of use
-	public static final SerializableDataTicket<Integer> ANIM_STATE = AzureLibUtil.addDataTicket(SerializableDataTicket.ofInt(new ResourceLocation(AzureLib.MOD_ID, "anim_state")));
-	public static final SerializableDataTicket<String> ANIM = AzureLibUtil.addDataTicket(SerializableDataTicket.ofString(new ResourceLocation(AzureLib.MOD_ID, "anim")));
-	public static final SerializableDataTicket<Integer> USE_TICKS = AzureLibUtil.addDataTicket(SerializableDataTicket.ofInt(new ResourceLocation(AzureLib.MOD_ID, "use_ticks")));
-	public static final SerializableDataTicket<Boolean> ACTIVE = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(new ResourceLocation(AzureLib.MOD_ID, "active")));
-	public static final SerializableDataTicket<Boolean> OPEN = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(new ResourceLocation(AzureLib.MOD_ID, "open")));
-	public static final SerializableDataTicket<Boolean> CLOSED = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(new ResourceLocation(AzureLib.MOD_ID, "closed")));
-	public static final SerializableDataTicket<Direction> DIRECTION = AzureLibUtil.addDataTicket(SerializableDataTicket.ofEnum(new ResourceLocation(AzureLib.MOD_ID, "direction"), Direction.class));
+	public static final SerializableDataTicket<Integer> ANIM_STATE = AzureLibUtil.addDataTicket(SerializableDataTicket.ofInt(AzureLib.modResource("anim_state")));
+	public static final SerializableDataTicket<String> ANIM = AzureLibUtil.addDataTicket(SerializableDataTicket.ofString(AzureLib.modResource("anim")));
+	public static final SerializableDataTicket<Integer> USE_TICKS = AzureLibUtil.addDataTicket(SerializableDataTicket.ofInt(AzureLib.modResource("use_ticks")));
+	public static final SerializableDataTicket<Boolean> ACTIVE = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(AzureLib.modResource("active")));
+	public static final SerializableDataTicket<Boolean> OPEN = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(AzureLib.modResource("open")));
+	public static final SerializableDataTicket<Boolean> CLOSED = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(AzureLib.modResource("closed")));
+	public static final SerializableDataTicket<Direction> DIRECTION = AzureLibUtil.addDataTicket(SerializableDataTicket.ofEnum(AzureLib.modResource("direction"), Direction.class));
 
 	@Nullable
 	public static SerializableDataTicket<?> byName(String id) {

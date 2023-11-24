@@ -17,7 +17,7 @@ public final class Networking {
     public static final Marker MARKER = MarkerManager.getMarker("Network");
     private static final String NETWORK_VERSION = "2.0.0";
     private static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
-            .named(new ResourceLocation(AzureLib.MOD_ID, "network_channel"))
+            .named(AzureLib.modResource("network_channel"))
             .networkProtocolVersion(() -> NETWORK_VERSION)
             .clientAcceptedVersions(NETWORK_VERSION::equals)
             .serverAcceptedVersions(NETWORK_VERSION::equals)
