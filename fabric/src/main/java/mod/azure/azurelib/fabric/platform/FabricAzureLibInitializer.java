@@ -21,7 +21,7 @@ public class FabricAzureLibInitializer implements AzureLibInitializer {
                 .registerReloadListener(new IdentifiableResourceReloadListener() {
                     @Override
                     public ResourceLocation getFabricId() {
-                        return new ResourceLocation(AzureLib.MOD_ID, "models");
+                        return AzureLib.modResource("models");
                     }
 
                     @Override

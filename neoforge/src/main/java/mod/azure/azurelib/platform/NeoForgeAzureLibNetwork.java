@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     private static final String VER = "1";
-    private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(AzureLib.MOD_ID, "main"), () -> VER, VER::equals, VER::equals);
+    private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(AzureLib.modResource("main"), () -> VER, VER::equals, VER::equals);
 
     @Override
     public Packet<?> createPacket(Entity entity) {

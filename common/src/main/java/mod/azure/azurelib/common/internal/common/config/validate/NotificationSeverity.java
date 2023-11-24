@@ -17,7 +17,7 @@ public enum NotificationSeverity {
     public final int fadeMax;
 
     NotificationSeverity(String iconName, ChatFormatting formatting, int background, int fadeMin, int fadeMax) {
-        this.icon = new ResourceLocation(AzureLib.MOD_ID, "textures/icons/" + iconName + ".png");
+        this.icon = AzureLib.modResource("textures/icons/" + iconName + ".png");
         this.extraFormatting = formatting;
         this.background = background;
         this.fadeMin = fadeMin;
