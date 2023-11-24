@@ -105,7 +105,8 @@ public record CommonUtils() {
                 AzureLibUtil.removeAmmo(gunItem.gunBuilder.getAmmoItem(), user);
                 user.getItemInHand(hand).hurtAndBreak(-gunItem.gunBuilder.getReloadAmount(), user, s -> user.broadcastBreakEvent(hand));
                 user.getItemInHand(hand).setPopTime(gunItem.gunBuilder.getReloadCooldown());
-                user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(), gunItem.gunBuilder.getReloadSound(), SoundSource.PLAYERS, 1.00F, 1.0F);
+                if (gunItem.gunBuilder.getReloadSound() != null)
+                    user.level().playSound((Player) null, user.getX(), user.getY(), user.getZ(), gunItem.gunBuilder.getReloadSound(), SoundSource.PLAYERS, 1.00F, 1.0F);
             }
         }
     }
