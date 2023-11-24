@@ -2,6 +2,7 @@ package mod.azure.azurelib.platform.services;
 
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.nio.file.Path;
@@ -51,4 +52,6 @@ public interface IPlatformHelper {
     default TickingLightBlock getTickingLightBlock() {
         return null;
     }
+
+    Enchantment getIncendairyenchament();
 }
