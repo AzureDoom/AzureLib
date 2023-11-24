@@ -6,6 +6,7 @@ import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
 import mod.azure.azurelib.common.platform.services.IPlatformHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.nio.file.Path;
@@ -47,5 +48,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
         return FabricAzureLibMod.TICKING_LIGHT_ENTITY;
+    }
+
+    @Override
+    public Enchantment getIncendairyenchament() {
+        return FabricAzureLibMod.INCENDIARYENCHANTMENT;
     }
 }
