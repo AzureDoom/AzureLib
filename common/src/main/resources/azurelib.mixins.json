@@ -2,7 +2,7 @@
   "required": true,
   "package": "mod.azure.azurelib.common.internal.mixins",
   "compatibilityLevel": "JAVA_17",
-  "refmap": "azurelib.refmap.json",
+  "plugin": "mod.azure.azurelib.common.internal.mixins.AzureLibMixinPlugin",
   "injectors": {
     "defaultRequire": 1
   },
@@ -10,9 +10,11 @@
     "PlayerListMixin"
   ],
   "client": [
+    "FabricMixinHumanoidArmorLayer",
     "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",
+    "NeoMixinHumanoidArmorLayer",
     "TextureManagerMixin"
   ]
 }

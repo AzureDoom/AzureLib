@@ -2,6 +2,7 @@ package mod.azure.azurelib.common.internal.common;
 
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import mod.azure.azurelib.common.platform.Services;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -24,5 +25,9 @@ public class AzureLib {
 			Services.INITIALIZER.initialize();
 		}
 		hasInitialized = true;
+	}
+
+	public static final ResourceLocation modResource(String name) {
+		return new ResourceLocation(MOD_ID, name);
 	}
 }
