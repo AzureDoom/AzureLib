@@ -2,6 +2,7 @@ package mod.azure.azurelib.common.internal.mixins;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.RenderProvider;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -39,6 +40,5 @@ public class NeoMixinHumanoidArmorLayer<T extends LivingEntity, A extends Humano
 
     @ModifyArg(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/item/ArmorItem;Lnet/minecraft/client/model/Model;ZFFFLnet/minecraft/resources/ResourceLocation;)V", remap = false), index = 4)
     public Model injectArmor(Model humanoidModel) {
-        return RenderProvider.of(this.gl_storedItemStack).getGenericArmorModel(this.gl_storedEntity, this.gl_storedItemStack, this.gl_storedSlot, (HumanoidModel<LivingEntity>) humanoidModel);
-    }
+        return this.gl_storedItemStack.getItem() instanceof GeoItem ? (A) RenderProvider.of(this.gl_storedItemStack).getGenericArmorModel(this.gl_storedEntity, this.gl_storedItemStack, this.gl_storedSlot, (HumanoidModel<LivingEntity>) humanoidModel) : humanoidModel;    }
 }
