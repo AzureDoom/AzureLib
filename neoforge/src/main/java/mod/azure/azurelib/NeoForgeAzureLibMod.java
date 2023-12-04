@@ -1,13 +1,12 @@
 package mod.azure.azurelib;
 
-import mod.azure.azurelib.config.TestingConfig;
+import mod.azure.azurelib.config.AzureLibConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.enchantments.IncendiaryEnchantment;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.Networking;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
@@ -30,7 +29,7 @@ public final class NeoForgeAzureLibMod {
         instance = this;
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AzureLib.initialize();
-        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
+        AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
         modEventBus.addListener(this::init);
         AzureEnchantments.ENCHANTMENTS.register(modEventBus);
         AzureBlocks.BLOCKS.register(modEventBus);
