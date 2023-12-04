@@ -13,6 +13,7 @@
     "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "AccessorWarningScreen"
   ]
 }

@@ -47,4 +47,11 @@ public class ClientListener {
             });
         }
     }
+
+    @SubscribeEvent
+    public static void onClientStart(ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof TitleScreen) {
+            IncompatibleModsCheck.warnings(Minecraft.getInstance());
+        }
+    }
 }

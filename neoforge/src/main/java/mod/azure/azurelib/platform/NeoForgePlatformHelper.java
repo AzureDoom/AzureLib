@@ -51,4 +51,9 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
         return NeoForgeAzureLibMod.AzureEntities.TICKING_LIGHT_ENTITY.get();
     }
+
+    @Override
+    public Path modsDir() {
+        return FMLPaths.MODSDIR.get();
+    }
 }

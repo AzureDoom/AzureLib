@@ -54,4 +54,9 @@ public class FabricPlatformHelper implements IPlatformHelper {
     public Enchantment getIncendairyenchament() {
         return FabricAzureLibMod.INCENDIARYENCHANTMENT;
     }
+
+    @Override
+    public Path modsDir() {
+        return FabricLoader.getInstance().getGameDir().resolve("mods");
+    }
 }

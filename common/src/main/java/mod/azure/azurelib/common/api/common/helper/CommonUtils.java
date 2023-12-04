@@ -1,14 +1,13 @@
 package mod.azure.azurelib.common.api.common.helper;
 
 import mod.azure.azurelib.common.api.client.helper.ClientUtils;
-import mod.azure.azurelib.common.api.common.builders.AzureGunProperties;
 import mod.azure.azurelib.common.api.common.items.BaseGunItem;
 import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.common.platform.services.IPlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
@@ -17,11 +16,10 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -63,8 +61,7 @@ public record CommonUtils() {
         BlockPos lightBlockPos = null;
         if (lightBlockPos == null) {
             lightBlockPos = AzureLibUtil.findFreeSpace(entity.level(), entity.blockPosition(), 2);
-            if (lightBlockPos == null)
-                return;
+            if (lightBlockPos == null) return;
             entity.level().setBlockAndUpdate(lightBlockPos, Services.PLATFORM.getTickingLightBlock().defaultBlockState());
         } else if (AzureLibUtil.checkDistance(lightBlockPos, entity.blockPosition(), 2) && entity.level().getBlockEntity(lightBlockPos) instanceof TickingLightEntity tickingLightEntity) {
             tickingLightEntity.refresh(isInWaterBlock ? 20 : 0);
@@ -128,47 +125,14 @@ public record CommonUtils() {
     }
 
     /**
-     * Handles damaging entities when called, used for doing damage with the {@link BaseGunItem}
-     * By default stops when {@link Item} is at 1 durability.
+     * Handles setting fire to targets when using the {@link IPlatformHelper#getIncendairyenchament()}
      *
-     * @param playerentity The Player entity who is using the item
-     * @param stack        The Item being used
-     * @param level        The {@link  Level} of the playerentity
-     * @param cooldown     The cooldown placed on the item when triggered, suggested to {@link AzureGunProperties.Builder()#getFiringCoolDownTime()}
-     * @param damage       How much damage should it deal to the entity
-     * @param enchantment  Enchantment to check the item for if you wish to deal extra damage. Setup as damage + (enchantment level * 2)
-     * @param itemDamage   How much durability damage to cause the {@link Item}. Suggested value: 1
-     * @param firingSound  {@link SoundEvent} used for the sound made when fired.
-     * @param emptySound   {@link SoundEvent} used for the sound made when empty.
+     * @param projectile The Projectile being used
      */
-    public static void dealDamageToEntity(Player playerentity, ItemStack stack, Level level, int cooldown, float damage, @Nullable Enchantment enchantment, int itemDamage, @Nullable SoundEvent firingSound, @Nullable SoundEvent emptySound) {
-        if (stack.getDamageValue() < stack.getMaxDamage() - 1) {
-            playerentity.getCooldowns().addCooldown(stack.getItem(), cooldown);
-            if (!level.isClientSide) {
-                var result = CommonUtils.hitscanTrace(playerentity, 64, 1.0F);
-                var enchantLevel = EnchantmentHelper.getItemEnchantmentLevel(enchantment, stack);
-                if (result != null) {
-                    if (result.getEntity() instanceof LivingEntity livingEntity) {
-                        if (enchantment != null)
-                            livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), damage + (enchantLevel * 2));
-                        else {
-                            livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), damage);
-                        }
-                    }
-                } else {
-                    // TODO: Add option to pass a Project entity in the event the hitscan above fails
-//                        final var bullet = createArrow(level, stack, playerentity);
-//                        bullet.shootFromRotation(playerentity, playerentity.getXRot(), playerentity.getYRot(), 0.0F, 1.0F * 3.0F, 1.0F);
-//                        level.addFreshEntity(bullet);
-                }
-                stack.hurtAndBreak(itemDamage, playerentity, p -> p.broadcastBreakEvent(playerentity.getUsedItemHand()));
-                if (firingSound != null)
-                    level.playSound((Player) null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), firingSound, SoundSource.PLAYERS, 1.0F, 1.0F / (level.random.nextFloat() * 0.4F + 1.2F) + 0.25F * 0.5F);
-            }
-            CommonUtils.spawnLightSource(playerentity, playerentity.level().isWaterAt(playerentity.blockPosition()));
-        } else {
-            if (emptySound != null)
-                level.playSound((Player) null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), emptySound, SoundSource.PLAYERS, 1.0F, 1.5F);
-        }
+    public static void setOnFire(Projectile projectile) {
+        if (projectile.isOnFire())
+            projectile.level().getEntitiesOfClass(LivingEntity.class, projectile.getBoundingBox().inflate(2)).forEach(e -> {
+                if (e.isAlive() && !(e instanceof Player)) e.setRemainingFireTicks(90);
+            });
     }
 }

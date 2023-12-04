@@ -17,7 +17,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -119,9 +118,4 @@ public abstract class BaseGunItem extends Item implements GeoItem {
         tooltip.add(Component.translatable("Ammo: " + (stack.getMaxDamage() - stack.getDamageValue() - 1) + " / " + (stack.getMaxDamage() - 1)).withStyle(ChatFormatting.ITALIC));
     }
 
-    @Override
-    public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack, int count) {
-        if (entity instanceof Player player)
-            CommonUtils.dealDamageToEntity(player, itemStack, level, gunBuilder.getFiringCooldown(), gunBuilder.getDamage(), gunBuilder.getEnchantmentExtraDamage() != null ? gunBuilder.getEnchantmentExtraDamage() : null, gunBuilder.getUseDamage(), gunBuilder.getFiringSound(), gunBuilder.getEmptySound());
-    }
 }

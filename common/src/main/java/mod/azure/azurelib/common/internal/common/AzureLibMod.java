@@ -1,15 +1,15 @@
 package mod.azure.azurelib.common.internal.common;
 
 import mod.azure.azurelib.common.api.common.config.Config;
+import mod.azure.azurelib.common.internal.common.config.AzureLibConfig;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-import mod.azure.azurelib.common.api.common.config.TestingConfig;
 
 public final class AzureLibMod {
 
-    public static TestingConfig config;
+    public static AzureLibConfig config;
 
     /**
      * Registers your config class. Config will be immediately loaded upon calling.

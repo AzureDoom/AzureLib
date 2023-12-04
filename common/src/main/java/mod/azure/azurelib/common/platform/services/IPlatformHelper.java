@@ -53,4 +53,6 @@ public interface IPlatformHelper {
     }
 
     Enchantment getIncendairyenchament();
+
+    Path modsDir();
 }
