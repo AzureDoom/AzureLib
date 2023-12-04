@@ -9,6 +9,7 @@
     "PlayerListMixin"
   ],
   "client": [
+    "AccessorWarningScreen",
     "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",

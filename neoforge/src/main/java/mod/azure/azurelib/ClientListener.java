@@ -3,7 +3,10 @@ package mod.azure.azurelib;
 import com.mojang.blaze3d.platform.InputConstants;
 import mod.azure.azurelib.client.AzureLibClient;
 import mod.azure.azurelib.config.ConfigHolder;
+import mod.azure.azurelib.util.IncompatibleModsCheck;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -12,6 +15,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -45,6 +49,13 @@ public class ClientListener {
                     return AzureLibClient.getConfigScreenByGroup(list, modId, screen);
                 }));
             });
+        }
+    }
+
+    @SubscribeEvent
+    public static void onClientStart(ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof TitleScreen) {
+            IncompatibleModsCheck.warnings(Minecraft.getInstance());
         }
     }
 }

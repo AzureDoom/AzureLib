@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
 
@@ -56,5 +57,10 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public Enchantment getIncendairyenchament() {
         return NeoForgeAzureLibMod.AzureEnchantments.INCENDIARYENCHANTMENT.get();
+    }
+
+    @Override
+    public Path modsDir() {
+        return FMLPaths.MODSDIR.get();
     }
 }

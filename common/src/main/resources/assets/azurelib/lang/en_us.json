@@ -41,6 +41,11 @@
   "config.azurelib.option.nestedTest": "Test Nested",
   "config.azurelib.option.testInt": "Test Int",
   "config.azurelib.option.genericwarning": "Generic Warning",
+  "config.azurelib.option.disableOptifineWarning": "Disable Optfine Warning",
+  "header.azurelib.optifine": "Warning: Optifine present on game client",
+  "message.azurelib.optifine": "Warning: Optifine is unsupported by most mods, ranging from minor visual artifacts to game crashes. It's recommended to remove the mod to avoid these issues and more. This warning can be disabled in Steam 'n' Rails client sided configs however you accept responsibility for any bugs or issues you encounter. If you needed Optifine for one reason or another, check PrismLauncher's Optifine Alternatives list:",  "label.azurelib.open_mods_folder": "Open Mods Folder",
+  "label.azurelib.optifine_alternatives": "Optifine Alternatives",
+  "label.azurelib.proceed_anyway": "Proceed Anyway",
   "enchantment.azurelib.incendiaryenchantment": "Incendiary Attachment",
   "enchantment.azurelib.incendiaryenchantment.desc": "Allows bullets fired to light mobs on fire"
 }
