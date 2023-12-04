@@ -44,6 +44,7 @@ public class FabricPlatformHelper implements IPlatformHelper {
     public TickingLightBlock getTickingLightBlock() {
         return FabricAzureLibMod.TICKING_LIGHT_BLOCK;
     }
+
     @Override
     public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
         return FabricAzureLibMod.TICKING_LIGHT_ENTITY;
@@ -52,5 +53,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public Enchantment getIncendairyenchament() {
         return FabricAzureLibMod.INCENDIARYENCHANTMENT;
+    }
+
+    @Override
+    public Path modsDir() {
+        return FabricLoader.getInstance().getGameDir().resolve("mods");
     }
 }
