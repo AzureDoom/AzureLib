@@ -36,5 +36,12 @@
     "fabric-api": "*",
     "java": ">=17",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
   }
 }
