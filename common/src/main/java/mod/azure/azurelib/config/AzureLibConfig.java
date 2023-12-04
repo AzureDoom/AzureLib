@@ -7,4 +7,7 @@ public class AzureLibConfig {
     @Configurable
     @Configurable.Synchronized
     public boolean disableOptifineWarning = false;
+    @Configurable
+    @Configurable.Synchronized
+    public boolean useVanillaUseKey = true;
 }
