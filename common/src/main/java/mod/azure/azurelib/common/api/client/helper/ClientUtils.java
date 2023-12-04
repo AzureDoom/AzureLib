@@ -49,4 +49,9 @@ public final class ClientUtils {
      * Common scope KeyMapping for my various mods
      */
     public static KeyMapping SCOPE;
+
+    /**
+     * Common scope KeyMapping for my various mods
+     */
+    public static KeyMapping FIRE_WEAPON;
 }

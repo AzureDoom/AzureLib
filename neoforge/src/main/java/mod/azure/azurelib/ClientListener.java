@@ -27,6 +27,10 @@ public class ClientListener {
         event.register(Keybindings.RELOAD);
         Keybindings.SCOPE = new KeyMapping("key.azurelib.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.azurelib.binds");
         event.register(Keybindings.SCOPE);
+        if (!AzureLibMod.config.useVanillaUseKey) {
+            Keybindings.FIRE_WEAPON = new KeyMapping("key.azurelib.fire", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SEMICOLON, "category.azurelib.binds");
+            event.register(Keybindings.FIRE_WEAPON);
+        }
     }
 
     @SubscribeEvent
