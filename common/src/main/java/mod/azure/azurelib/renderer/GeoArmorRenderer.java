@@ -55,7 +55,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	protected Matrix4f entityRenderTranslations = new Matrix4f();
 	protected Matrix4f modelRenderTranslations = new Matrix4f();
 
-	protected BakedGeoModel lastModel = null;
+	public BakedGeoModel lastModel = null;
 	protected GeoBone head = null;
 	protected GeoBone body = null;
 	protected GeoBone rightArm = null;
