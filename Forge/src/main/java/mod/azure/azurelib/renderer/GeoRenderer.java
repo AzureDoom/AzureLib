@@ -77,9 +77,20 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Gets a packed overlay coordinate pair for rendering.<br>
 	 * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
 	 */
+    @Deprecated()
 	default int getPackedOverlay(T animatable, float u) {
 		return OverlayTexture.NO_OVERLAY;
 	}
+    
+    /**
+     * Gets a packed overlay coordinate pair for rendering.<br>
+     * Mostly just used for the red tint when an entity is hurt,
+     * but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper}
+     * white tint when exploding.
+     */
+    default int getPackedOverlay(T animatable, float u, float partialTick) {
+        return getPackedOverlay(animatable, u);
+    }
 
 	/**
 	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
@@ -114,7 +125,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 		float green = renderColor.getGreen();
 		float blue = renderColor.getBlue();
 		float alpha = renderColor.getAlpha();
-		int packedOverlay = getPackedOverlay(animatable, 0);
+		int packedOverlay = getPackedOverlay(animatable, 0, partialTick);
 		BakedGeoModel model = getGeoModel().getBakedModel(getGeoModel().getModelResource(animatable));
 
 		if (renderType == null)
