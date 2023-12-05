@@ -19,10 +19,8 @@ public final class ClientListener implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(Keybindings.RELOAD);
         Keybindings.SCOPE = new KeyMapping("key.azurelib.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.azurelib.binds");
         KeyBindingHelper.registerKeyBinding(Keybindings.SCOPE);
-        if (!AzureLibMod.config.useVanillaUseKey) {
-            Keybindings.FIRE_WEAPON = new KeyMapping("key.azurelib.fire", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SEMICOLON, "category.azurelib.binds");
-            KeyBindingHelper.registerKeyBinding(Keybindings.FIRE_WEAPON);
-        }
+        Keybindings.FIRE_WEAPON = new KeyMapping("key.azurelib.fire", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.azurelib.binds");
+        KeyBindingHelper.registerKeyBinding(Keybindings.FIRE_WEAPON);
         Services.NETWORK.registerClientReceiverPackets();
         Networking.PacketRegistry.registerClient();
     }

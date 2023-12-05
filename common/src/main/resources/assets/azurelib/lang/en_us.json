@@ -2,6 +2,7 @@
   "category.azurelib.binds": "AzureLib Binds",
   "key.azurelib.reload": "Reload Gun/Weapon",
   "key.azurelib.scope": "Scope Weapon",
+  "key.azurelib.fire": "Alternate Weapon FIre",
   "text.azurelib.value.true": "True",
   "text.azurelib.value.false": "False",
   "text.azurelib.value.edit": "Edit",
