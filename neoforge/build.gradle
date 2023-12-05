@@ -77,6 +77,11 @@ minecraft {
 
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
+repositories {
+    maven { url "https://cfa2.cursemaven.com" }
+    mavenCentral()
+}
+
 dependencies {
     minecraft "net.neoforged:forge:${minecraft_version}-${neo_version}"
     compileOnly project(":common")
