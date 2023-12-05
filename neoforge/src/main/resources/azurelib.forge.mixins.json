@@ -10,11 +10,12 @@
     "PlayerListMixin"
   ],
   "client": [
+    "AccessorWarningScreen",
+    "ClientHooksMixin",
     "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",
     "NeoMixinHumanoidArmorLayer",
-    "TextureManagerMixin",
-    "AccessorWarningScreen"
+    "TextureManagerMixin"
   ]
 }
