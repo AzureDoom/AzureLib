@@ -1,9 +1,7 @@
-package mod.azure.azurelib.network;
+package mod.azure.azurelib.neoforge.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.neoforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 public interface IPacket<P extends IPacket<P>> {
 

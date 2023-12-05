@@ -1,6 +1,7 @@
-package mod.azure.azurelib.event;
+package mod.azure.azurelib.neoforge.event;
 
-import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
+import mod.azure.azurelib.common.internal.common.event.GeoRenderEvent;
+import mod.azure.azurelib.common.platform.services.GeoRenderPhaseEventFactory;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.neoforge.common.NeoForge;

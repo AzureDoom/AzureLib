@@ -90,7 +90,7 @@ public abstract class BaseGunItem extends Item implements GeoItem {
      */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
-        CommonUtils.sendReloadPacket(stack, level, entity, selected);
+        CommonUtils.sendReloadPacket(stack, level, entity, selected, slot);
     }
 
     /**

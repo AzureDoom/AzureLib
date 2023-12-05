@@ -1,6 +1,6 @@
-package mod.azure.azurelib;
+package mod.azure.azurelib.neoforge;
 
-import mod.azure.azurelib.util.IncompatibleModsCheck;
+import mod.azure.azurelib.common.internal.common.util.IncompatibleModsCheck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.neoforged.api.distmarker.Dist;

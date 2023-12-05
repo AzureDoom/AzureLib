@@ -1,13 +1,12 @@
-package mod.azure.azurelib.network;
+package mod.azure.azurelib.neoforge.network;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.neoforge.network.NetworkEvent;
 

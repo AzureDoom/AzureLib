@@ -42,7 +42,7 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     }
 
     @Override
-    public void reloadGun() {
+    public void reloadGun(int slot) {
         ServerPlayNetworking.registerGlobalReceiver(RELOAD, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
             if (player.getUseItem().getItem() instanceof BaseGunItem)
                 CommonUtils.reload(player, player.getUsedItemHand());

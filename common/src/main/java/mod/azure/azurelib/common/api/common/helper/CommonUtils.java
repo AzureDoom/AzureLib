@@ -117,10 +117,10 @@ public record CommonUtils() {
      * @param entity   The entity calling the reload packet, should be a Player
      * @param selected The check to see if the player is holding the entity.
      */
-    public static void sendReloadPacket(ItemStack stack, Level level, Entity entity, boolean selected) {
+    public static void sendReloadPacket(ItemStack stack, Level level, Entity entity, boolean selected, int slot) {
         if (level.isClientSide && entity instanceof Player player && player.getItemInHand(player.getUsedItemHand()).getItem() instanceof BaseGunItem)
             if (ClientUtils.RELOAD.isDown() && selected && !player.getCooldowns().isOnCooldown(stack.getItem())) {
-                Services.NETWORK.reloadGun();
+                Services.NETWORK.reloadGun(slot);
             }
     }
 

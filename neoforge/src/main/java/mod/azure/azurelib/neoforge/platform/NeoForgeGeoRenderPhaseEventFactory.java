@@ -1,7 +1,7 @@
-package mod.azure.azurelib.platform;
+package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.event.NeoForgeGeoRenderPhaseEvent;
-import mod.azure.azurelib.platform.services.GeoRenderPhaseEventFactory;
+import mod.azure.azurelib.common.platform.services.GeoRenderPhaseEventFactory;
+import mod.azure.azurelib.neoforge.event.NeoForgeGeoRenderPhaseEvent;
 
 /**
  * @author Boston Vanseghi

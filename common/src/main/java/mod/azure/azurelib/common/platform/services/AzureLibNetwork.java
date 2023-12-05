@@ -48,7 +48,7 @@ public interface AzureLibNetwork {
         }
     }
 
-    void reloadGun();
+    void reloadGun(int slot);
 
     Packet<?> createPacket(Entity entity);
 

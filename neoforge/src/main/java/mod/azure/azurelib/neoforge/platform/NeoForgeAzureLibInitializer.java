@@ -1,7 +1,8 @@
-package mod.azure.azurelib.platform;
+package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.cache.AzureLibCache;
-import mod.azure.azurelib.platform.services.AzureLibInitializer;
+import mod.azure.azurelib.common.internal.common.cache.AzureLibCache;
+import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.common.platform.services.AzureLibInitializer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 

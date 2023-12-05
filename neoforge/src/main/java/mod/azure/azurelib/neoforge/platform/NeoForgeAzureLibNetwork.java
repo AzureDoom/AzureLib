@@ -1,14 +1,14 @@
-package mod.azure.azurelib.platform;
+package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.Networking;
-import mod.azure.azurelib.network.S2C_SendConfigData;
-import mod.azure.azurelib.network.packet.*;
-import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
+import mod.azure.azurelib.common.internal.common.network.packet.*;
+import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.neoforge.network.Networking;
+import mod.azure.azurelib.neoforge.network.ReloadPacket;
+import mod.azure.azurelib.neoforge.network.S2C_SendConfigData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -18,11 +18,14 @@ import net.neoforged.neoforge.network.NetworkRegistry;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.simple.SimpleChannel;
 
-import java.util.function.Supplier;
-
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     private static final String VER = "1";
     private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(AzureLib.modResource("main"), () -> VER, VER::equals, VER::equals);
+
+    @Override
+    public void reloadGun(int slot) {
+        PACKET_CHANNEL.sendToServer(new ReloadPacket(slot));
+    }
 
     @Override
     public Packet<?> createPacket(Entity entity) {
@@ -44,6 +47,7 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
         PACKET_CHANNEL.registerMessage(id++, EntityAnimTriggerPacket.class, EntityAnimTriggerPacket::encode, EntityAnimTriggerPacket::receive, this::handlePacket);
         PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimDataSyncPacket.class, BlockEntityAnimDataSyncPacket::encode, BlockEntityAnimDataSyncPacket::receive, this::handlePacket);
         PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimTriggerPacket.class, BlockEntityAnimTriggerPacket::encode, BlockEntityAnimTriggerPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, ReloadPacket.class, ReloadPacket::encode, ReloadPacket::new, ReloadPacket::handle);
     }
 
     @Override
