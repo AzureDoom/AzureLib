@@ -1,3 +1,5 @@
-v1.0.37
+v1.0.38
 
-- Blacklist fear_the_dark for animation file checking.
+- Port ItemArmorGeoLayer tweak
+- Port DyeableGeoArmorRenderer
+- Port getPackedOverlay change
