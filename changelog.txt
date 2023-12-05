@@ -1,4 +1,4 @@
-v2.0.13
+v2.0.14
 
-- Adds new Optifine screen if Optifine is installed. This can be disabled via the AzureLib config.
-- Adds new KeyBind for my gun weapons.
+- Registers KeyBind always, just unbound. Closes #35
+- Adds missing lang file for keybind.
