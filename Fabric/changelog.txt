@@ -1,4 +1,5 @@
-v1.0.31
+v1.0.32
 
-- Use generic type instead of BlockEntity when overriding BlockEntityRenderer#render
-- Fixes Auto-Sync Thread from not stopping at server stop.
+- Port ItemArmorGeoLayer tweak
+- Port DyeableGeoArmorRenderer
+- Port getPackedOverlay change
