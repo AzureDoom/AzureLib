@@ -3,14 +3,10 @@ package mod.azure.azurelib;
 import com.mojang.blaze3d.platform.InputConstants;
 import mod.azure.azurelib.client.AzureLibClient;
 import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.util.IncompatibleModsCheck;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
@@ -23,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @EventBusSubscriber(modid = AzureLib.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class ClientListener {
+public class ClientModListener {
 
     @SubscribeEvent
     public static void registerKeys(final RegisterKeyMappingsEvent event) {
@@ -31,10 +27,8 @@ public class ClientListener {
         event.register(Keybindings.RELOAD);
         Keybindings.SCOPE = new KeyMapping("key.azurelib.scope", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "category.azurelib.binds");
         event.register(Keybindings.SCOPE);
-        if (!AzureLibMod.config.useVanillaUseKey) {
-            Keybindings.FIRE_WEAPON = new KeyMapping("key.azurelib.fire", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SEMICOLON, "category.azurelib.binds");
-            event.register(Keybindings.FIRE_WEAPON);
-        }
+        Keybindings.FIRE_WEAPON = new KeyMapping("key.azurelib.fire", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.azurelib.binds");
+        event.register(Keybindings.FIRE_WEAPON);
     }
 
     @SubscribeEvent
@@ -53,13 +47,6 @@ public class ClientListener {
                     return AzureLibClient.getConfigScreenByGroup(list, modId, screen);
                 }));
             });
-        }
-    }
-
-    @SubscribeEvent
-    public static void onClientStart(ScreenEvent.Init.Post event) {
-        if (event.getScreen() instanceof TitleScreen) {
-            IncompatibleModsCheck.warnings(Minecraft.getInstance());
         }
     }
 }
