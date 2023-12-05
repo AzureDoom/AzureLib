@@ -1,18 +1,20 @@
 package mod.azure.azurelib;
 
-import mod.azure.azurelib.config.TestingConfig;
+import mod.azure.azurelib.config.AzureLibConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
+import mod.azure.azurelib.enchantments.IncendiaryEnchantment;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.network.Networking;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
@@ -21,12 +23,12 @@ import java.util.function.Supplier;
 public final class NeoForgeAzureLibMod {
     public static NeoForgeAzureLibMod instance;
 
-    public NeoForgeAzureLibMod() {
+    public NeoForgeAzureLibMod(IEventBus modEventBus) {
         instance = this;
-        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AzureLib.initialize();
         AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
         modEventBus.addListener(this::init);
+        AzureEnchantments.ENCHANTMENTS.register(modEventBus);
         AzureBlocks.BLOCKS.register(modEventBus);
         AzureEntities.TILE_TYPES.register(modEventBus);
     }
@@ -34,6 +36,11 @@ public final class NeoForgeAzureLibMod {
     private void init(FMLCommonSetupEvent event) {
         Networking.PacketRegistry.register();
         ConfigIO.FILE_WATCH_MANAGER.startService();
+    }
+
+    public class AzureEnchantments {
+        public static final DeferredRegister<Enchantment> ENCHANTMENTS = DeferredRegister.create(Registries.ENCHANTMENT, AzureLib.MOD_ID);
+        public static final Supplier<Enchantment> INCENDIARYENCHANTMENT = ENCHANTMENTS.register("incendiaryenchantment", () -> new IncendiaryEnchantment(Enchantment.Rarity.RARE, EquipmentSlot.MAINHAND));
     }
 
     public class AzureBlocks {
