@@ -1,4 +1,3 @@
-v2.0.10
+v2.0.11
 
-- Registers KeyBind always, just unbound. Closes #35
-- Adds missing lang file for keybind.
+- Mixin into ClientHooks to apply AzureLib Armor armor model to entities.
