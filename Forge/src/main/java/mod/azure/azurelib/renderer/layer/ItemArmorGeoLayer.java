@@ -205,7 +205,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	protected BipedModel<?> getModelForItem(GeoBone bone, EquipmentSlotType slot, ItemStack stack, T animatable) {
 		BipedModel<?> defaultModel = slot == EquipmentSlotType.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
 
-		return stack.getItem().getArmorModel(null, stack, null, defaultModel);
+		return stack.getItem().getArmorModel(animatable, stack, slot, defaultModel);
 	}
 
 	/**
