@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "mod.azure.azurelib.neo.internal.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "ClientHooksMixin"
+  ]
+}
