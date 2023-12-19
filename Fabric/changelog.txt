@@ -1,5 +1,4 @@
-v1.0.29
+v1.0.30
 
-- Port ItemArmorGeoLayer tweak
-- Port DyeableGeoArmorRenderer
-- Port getPackedOverlay change
+- Backup port the shaking effect, allowing the modder to override isShaking to define it since frozen wasn't added until 1.17
+- Filters yet another mcraptor mods broken animations.
