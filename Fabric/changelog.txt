@@ -1,3 +1,4 @@
-v1.0.38
+v1.0.39
 
-- Use generic type instead of BlockEntity when overriding BlockEntityRenderer#render
+- Fixes GeoEntityRender missing the shaking effect from the mob being frozen.
+- Filters yet another mcraptor mods broken animations.
