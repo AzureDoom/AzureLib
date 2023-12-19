@@ -295,6 +295,10 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		Pose pose = animatable.getPose();
 		LivingEntity livingEntity = animatable instanceof LivingEntity ? ((LivingEntity) animatable) : null;
 
+        if (this.isShaking(animatable)) {
+            rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
+        }
+
 		if (pose != Pose.SLEEPING)
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
 
@@ -437,6 +441,10 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		buffer.vertex(positionMatrix, x - xOffset, y + yOffset, z + zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 		buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 	}
+
+    public boolean isShaking(T entity) {
+        return false;
+    }
 	
 	/**
 	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
