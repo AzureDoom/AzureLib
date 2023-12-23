@@ -48,8 +48,6 @@ public interface AzureLibNetwork {
         }
     }
 
-    void reloadGun(int slot);
-
     Packet<?> createPacket(Entity entity);
 
     /**

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.fabric.platform;
 
-import mod.azure.azurelib.common.api.common.helper.CommonUtils;
-import mod.azure.azurelib.common.api.common.items.BaseGunItem;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
 import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
@@ -29,24 +27,27 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
 
     @Override
     public void registerClientReceiverPackets() {
-        ClientPlayNetworking.registerGlobalReceiver(ANIM_DATA_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, AnimDataSyncPacket.receive(buf)));
-        ClientPlayNetworking.registerGlobalReceiver(ANIM_TRIGGER_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, AnimTriggerPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(ANIM_DATA_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client, AnimDataSyncPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(ANIM_TRIGGER_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client, AnimTriggerPacket.receive(buf)));
 
-        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_DATA_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, EntityAnimDataSyncPacket.receive(buf)));
-        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, EntityAnimTriggerPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_DATA_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client,
+                        EntityAnimDataSyncPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client,
+                        EntityAnimTriggerPacket.receive(buf)));
 
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, BlockEntityAnimDataSyncPacket.receive(buf)));
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, (client, handler, buf, responseSender) -> this.handlePacket(client, BlockEntityAnimTriggerPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client,
+                        BlockEntityAnimDataSyncPacket.receive(buf)));
+        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+                (client, handler, buf, responseSender) -> this.handlePacket(client,
+                        BlockEntityAnimTriggerPacket.receive(buf)));
 
-        ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID, (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf));
-    }
-
-    @Override
-    public void reloadGun(int slot) {
-        ServerPlayNetworking.registerGlobalReceiver(RELOAD, (server, player, serverPlayNetworkHandler, inputPacket, packetSender) -> {
-            if (player.getUseItem().getItem() instanceof BaseGunItem)
-                CommonUtils.reload(player, player.getUsedItemHand());
-        });
+        ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID,
+                (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf));
     }
 
     @Override

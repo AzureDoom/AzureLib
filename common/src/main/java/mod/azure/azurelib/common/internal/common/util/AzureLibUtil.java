@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.internal.common.util;
 
-import mod.azure.azurelib.common.api.common.items.BaseGunItem;
+import mod.azure.azurelib.common.api.common.items.AzureBaseGunItem;
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
 import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.common.core.animatable.instance.AnimatableInstanceCache;
@@ -32,7 +32,8 @@ public final record AzureLibUtil() {
     public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
         AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
-        return cache != null ? cache : createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof BlockEntity));
+        return cache != null ? cache : createInstanceCache(animatable,
+                !(animatable instanceof Entity) && !(animatable instanceof BlockEntity));
     }
 
     /**
@@ -45,10 +46,10 @@ public final record AzureLibUtil() {
     public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable, boolean singletonObject) {
         AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
-        if (cache != null)
-            return cache;
+        if (cache != null) return cache;
 
-        return singletonObject ? new SingletonAnimatableInstanceCache(animatable) : new InstancedAnimatableInstanceCache(animatable);
+        return singletonObject ? new SingletonAnimatableInstanceCache(
+                animatable) : new InstancedAnimatableInstanceCache(animatable);
     }
 
     /**
@@ -96,12 +97,13 @@ public final record AzureLibUtil() {
     }
 
     public static boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
-        return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+        return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(
+                blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(
+                blockPosA.getZ() - blockPosB.getZ()) <= distance;
     }
 
     public static BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
-        if (blockPos == null)
-            return null;
+        if (blockPos == null) return null;
 
         int[] offsets = new int[maxDistance * 2 + 1];
         offsets[0] = 0;
@@ -127,15 +129,16 @@ public final record AzureLibUtil() {
      * @param playerEntity Player whose inventory is being checked.
      */
     public static void removeAmmo(Item ammo, Player playerEntity) {
-        if (playerEntity.getItemInHand(playerEntity.getUsedItemHand()).getItem() instanceof BaseGunItem gunItem && !playerEntity.isCreative()) { // Creative mode reloading breaks things
+        if ((playerEntity.getItemInHand(
+                playerEntity.getUsedItemHand()).getItem() instanceof AzureBaseGunItem) && !playerEntity.isCreative()) { // Creative mode reloading breaks things
             for (var item : playerEntity.getInventory().offhand) {
                 if (item.getItem() == ammo) {
-                    item.shrink(gunItem.gunBuilder.getAmmoCount());
+                    item.shrink(1);
                     break;
                 }
                 for (var item1 : playerEntity.getInventory().items) {
                     if (item1.getItem() == ammo) {
-                        item1.shrink(gunItem.gunBuilder.getAmmoCount());
+                        item1.shrink(1);
                         break;
                     }
                 }

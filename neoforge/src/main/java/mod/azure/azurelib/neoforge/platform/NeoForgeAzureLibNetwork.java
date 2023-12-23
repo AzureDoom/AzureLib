@@ -5,7 +5,6 @@ import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
 import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.neoforge.network.Networking;
-import mod.azure.azurelib.neoforge.network.ReloadPacket;
 import mod.azure.azurelib.neoforge.network.S2C_SendConfigData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
@@ -20,12 +19,8 @@ import net.neoforged.neoforge.network.simple.SimpleChannel;
 
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     private static final String VER = "1";
-    private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(AzureLib.modResource("main"), () -> VER, VER::equals, VER::equals);
-
-    @Override
-    public void reloadGun(int slot) {
-        PACKET_CHANNEL.sendToServer(new ReloadPacket(slot));
-    }
+    private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(AzureLib.modResource("main"),
+            () -> VER, VER::equals, VER::equals);
 
     @Override
     public Packet<?> createPacket(Entity entity) {
@@ -41,13 +36,18 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void registerClientReceiverPackets() {
         int id = 0;
-        PACKET_CHANNEL.registerMessage(id++, AnimDataSyncPacket.class, AnimDataSyncPacket::encode, AnimDataSyncPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, AnimTriggerPacket.class, AnimTriggerPacket::encode, AnimTriggerPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, EntityAnimDataSyncPacket.class, EntityAnimDataSyncPacket::encode, EntityAnimDataSyncPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, EntityAnimTriggerPacket.class, EntityAnimTriggerPacket::encode, EntityAnimTriggerPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimDataSyncPacket.class, BlockEntityAnimDataSyncPacket::encode, BlockEntityAnimDataSyncPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimTriggerPacket.class, BlockEntityAnimTriggerPacket::encode, BlockEntityAnimTriggerPacket::receive, this::handlePacket);
-        PACKET_CHANNEL.registerMessage(id++, ReloadPacket.class, ReloadPacket::encode, ReloadPacket::new, ReloadPacket::handle);
+        PACKET_CHANNEL.registerMessage(id++, AnimDataSyncPacket.class, AnimDataSyncPacket::encode,
+                AnimDataSyncPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, AnimTriggerPacket.class, AnimTriggerPacket::encode,
+                AnimTriggerPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, EntityAnimDataSyncPacket.class, EntityAnimDataSyncPacket::encode,
+                EntityAnimDataSyncPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, EntityAnimTriggerPacket.class, EntityAnimTriggerPacket::encode,
+                EntityAnimTriggerPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimDataSyncPacket.class, BlockEntityAnimDataSyncPacket::encode,
+                BlockEntityAnimDataSyncPacket::receive, this::handlePacket);
+        PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimTriggerPacket.class, BlockEntityAnimTriggerPacket::encode,
+                BlockEntityAnimTriggerPacket::receive, this::handlePacket);
     }
 
     @Override
