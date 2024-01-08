@@ -74,14 +74,14 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     public void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack) {
         for (ServerPlayer trackingPlayer : PlayerLookup.tracking(entityToTrack)) {
             FriendlyByteBuf buf = createFriendlyByteBuf();
-            packet.encode(buf);
-            ServerPlayNetworking.send(trackingPlayer, packet.getPacketID(), buf);
+            packet.write(buf);
+            ServerPlayNetworking.send(trackingPlayer, packet.id(), buf);
         }
 
         if (entityToTrack instanceof ServerPlayer serverPlayer) {
             FriendlyByteBuf buf = createFriendlyByteBuf();
-            packet.encode(buf);
-            ServerPlayNetworking.send(serverPlayer, packet.getPacketID(), buf);
+            packet.write(buf);
+            ServerPlayNetworking.send(serverPlayer, packet.id(), buf);
         }
     }
 
@@ -89,8 +89,8 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     public void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos) {
         for (ServerPlayer trackingPlayer : PlayerLookup.tracking(level, blockPos)) {
             FriendlyByteBuf buf = createFriendlyByteBuf();
-            packet.encode(buf);
-            ServerPlayNetworking.send(trackingPlayer, packet.getPacketID(), buf);
+            packet.write(buf);
+            ServerPlayNetworking.send(trackingPlayer, packet.id(), buf);
         }
     }
 
