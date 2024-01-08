@@ -28,6 +28,7 @@ public interface AzureLibNetwork {
 
     ResourceLocation BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID = AzureLib.modResource("block_entity_anim_data_sync");
     ResourceLocation BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = AzureLib.modResource("block_entity_anim_trigger_sync");
+    ResourceLocation CONFIG_PACKET_ID = AzureLib.modResource("config_packet");
 
     ResourceLocation CUSTOM_ENTITY_ID = AzureLib.modResource("spawn_entity");
 

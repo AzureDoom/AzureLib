@@ -30,7 +30,7 @@ public class AnimDataSyncPacket<D> extends AbstractPacket {
 	}
 
 	@Override
-    public void encode(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeUtf(this.syncableId);
         buf.writeVarLong(this.instanceId);
         buf.writeUtf(this.dataTicket.id());
@@ -38,7 +38,7 @@ public class AnimDataSyncPacket<D> extends AbstractPacket {
     }
 
 	@Override
-	public ResourceLocation getPacketID() {
+	public ResourceLocation id() {
 		return ANIM_DATA_SYNC_PACKET_ID;
 	}
 

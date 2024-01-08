@@ -26,14 +26,14 @@ public class EntityAnimDataSyncPacket<D> extends AbstractPacket {
 	}
 
 	@Override
-	public void encode(FriendlyByteBuf buf) {
+	public void write(FriendlyByteBuf buf) {
 		buf.writeVarInt(this.entityId);
 		buf.writeUtf(this.dataTicket.id());
 		this.dataTicket.encode(this.data, buf);
 	}
 
 	@Override
-	public ResourceLocation getPacketID() {
+	public ResourceLocation id() {
 		return AzureLibNetwork.ENTITY_ANIM_DATA_SYNC_PACKET_ID;
 	}
 

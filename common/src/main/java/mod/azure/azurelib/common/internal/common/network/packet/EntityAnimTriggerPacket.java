@@ -36,7 +36,7 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
     }
 
     @Override
-    public void encode(FriendlyByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(this.entityId);
         buf.writeBoolean(this.isReplacedEntity);
 
@@ -45,7 +45,7 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
     }
 
     @Override
-    public ResourceLocation getPacketID() {
+    public ResourceLocation id() {
         return AzureLibNetwork.ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 

@@ -27,14 +27,15 @@ public class BlockEntityAnimTriggerPacket extends AbstractPacket {
         this.animName = animName;
     }
 
-    public void encode(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(this.blockPos);
         buf.writeUtf(this.controllerName);
         buf.writeUtf(this.animName);
     }
 
     @Override
-    public ResourceLocation getPacketID() {
+    public ResourceLocation id() {
         return AzureLibNetwork.BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 

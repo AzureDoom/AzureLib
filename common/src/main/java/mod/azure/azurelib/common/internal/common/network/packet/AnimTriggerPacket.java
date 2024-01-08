@@ -25,7 +25,8 @@ public class AnimTriggerPacket extends AbstractPacket {
         this.animName = animName;
     }
 
-    public void encode(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
         buf.writeUtf(this.syncableId);
         buf.writeVarLong(this.instanceId);
         buf.writeUtf(this.controllerName);
@@ -33,7 +34,7 @@ public class AnimTriggerPacket extends AbstractPacket {
     }
 
     @Override
-    public ResourceLocation getPacketID() {
+    public ResourceLocation id() {
         return AzureLibNetwork.ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
