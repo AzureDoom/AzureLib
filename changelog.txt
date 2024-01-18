@@ -1,3 +1,4 @@
-v2.0.18
+v2.0.19
 
-- Backported AzureBaseGunItem
+- Fixes isReRender not being passed correctly.
+- Port support for Teams for nametag rendering.
