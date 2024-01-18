@@ -1,4 +1,5 @@
-v1.0.30
+v1.0.31
 
-- Fixes GeoEntityRender missing the shaking effect from the mob being frozen.
-- Filters yet another mcraptor mods broken animations.
+- Blacklist Geckolib3 asset namespace.
+- Fixes isReRender not being passed correctly.
+- Port support for Teams for nametag rendering.
