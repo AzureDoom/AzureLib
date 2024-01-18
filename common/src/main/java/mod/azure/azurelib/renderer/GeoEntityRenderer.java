@@ -304,7 +304,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
         LivingEntity livingEntity = animatable instanceof LivingEntity entity ? entity : null;
 
         if (this.isShaking(animatable)) {
-            rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
+            rotationYaw += (float) (Math.cos(animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
         }
 
         if (pose != Pose.SLEEPING)
@@ -357,12 +357,31 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
      */
     @Override
     public boolean shouldShowName(T animatable) {
-        double nameRenderDistance = animatable.isDiscrete() ? 32d : 64d;
+        var nameRenderDistance = animatable.isDiscrete() ? 32d : 64d;
 
         if (this.entityRenderDispatcher.distanceToSqr(animatable) >= nameRenderDistance * nameRenderDistance)
             return false;
 
-        return animatable == this.entityRenderDispatcher.crosshairPickEntity && animatable.hasCustomName() && Minecraft.renderNames();
+        if (animatable instanceof Mob && (!animatable.shouldShowName() && (!animatable.hasCustomName() || animatable != this.entityRenderDispatcher.crosshairPickEntity)))
+            return false;
+
+        final var minecraft = Minecraft.getInstance();
+        var visibleToClient = !animatable.isInvisibleTo(minecraft.player);
+        var entityTeam = animatable.getTeam();
+
+        if (entityTeam == null)
+            return Minecraft.renderNames() && animatable != minecraft.getCameraEntity() && visibleToClient && !animatable.isVehicle();
+
+        var playerTeam = minecraft.player.getTeam();
+
+        return switch (entityTeam.getNameTagVisibility()) {
+            case ALWAYS -> visibleToClient;
+            case NEVER -> false;
+            case HIDE_FOR_OTHER_TEAMS -> playerTeam == null ? visibleToClient : entityTeam.isAlliedTo(
+                    playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient);
+            case HIDE_FOR_OWN_TEAM ->
+                    playerTeam == null ? visibleToClient : !entityTeam.isAlliedTo(playerTeam) && visibleToClient;
+        };
     }
 
     /**
