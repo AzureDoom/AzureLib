@@ -360,12 +360,32 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public boolean shouldShowName(E entity) {
-		double nameRenderDistance = entity.isDiscrete() ? 32d : 64d;
+		if (!(entity instanceof LivingEntity))
+			return super.shouldShowName(entity);
 
-		if (this.entityRenderDispatcher.distanceToSqr(entity) >= nameRenderDistance * nameRenderDistance)
+		var nameRenderCutoff = entity.isDiscrete() ? 32d : 64d;
+
+		if (this.entityRenderDispatcher.distanceToSqr(entity) >= nameRenderCutoff * nameRenderCutoff)
 			return false;
 
-		return this.currentEntity == this.entityRenderDispatcher.crosshairPickEntity && entity.hasCustomName() && Minecraft.renderNames();
+		if (entity instanceof Mob && (!entity.shouldShowName() && (!entity.hasCustomName() || entity != this.entityRenderDispatcher.crosshairPickEntity)))
+			return false;
+
+		final var minecraft = Minecraft.getInstance();
+		var visibleToClient = !entity.isInvisibleTo(minecraft.player);
+		var entityTeam = entity.getTeam();
+
+		if (entityTeam == null)
+			return Minecraft.renderNames() && entity != minecraft.getCameraEntity() && visibleToClient && !entity.isVehicle();
+
+		var playerTeam = minecraft.player.getTeam();
+
+		return switch (entityTeam.getNameTagVisibility()) {
+		case ALWAYS -> visibleToClient;
+		case NEVER -> false;
+		case HIDE_FOR_OTHER_TEAMS -> playerTeam == null ? visibleToClient : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient);
+		case HIDE_FOR_OWN_TEAM -> playerTeam == null ? visibleToClient : !entityTeam.isAlliedTo(playerTeam) && visibleToClient;
+		};
 	}
 
 	/**
