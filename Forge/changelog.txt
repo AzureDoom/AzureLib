@@ -1,3 +1,4 @@
-v1.0.33
+v1.0.34
 
-- Fixes GeoEntityRender missing the shaking effect from the mob being frozen.
+- Fixes isReRender not being passed correctly.
+- Port support for Teams for nametag rendering.
