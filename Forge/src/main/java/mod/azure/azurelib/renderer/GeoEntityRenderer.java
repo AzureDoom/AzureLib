@@ -164,7 +164,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		float lerpHeadRot = livingEntity == null ? 0 : Mth.rotLerp(partialTick, livingEntity.yHeadRotO, livingEntity.yHeadRot);
 		float netHeadYaw = lerpHeadRot - lerpBodyRot;
 
-		if (shouldSit && animatable.getVehicle()instanceof LivingEntity livingentity) {
+		if (shouldSit && animatable.getVehicle() instanceof LivingEntity livingentity) {
 			lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
 			netHeadYaw = lerpHeadRot - lerpBodyRot;
 			float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
@@ -295,9 +295,9 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		Pose pose = animatable.getPose();
 		LivingEntity livingEntity = animatable instanceof LivingEntity entity ? entity : null;
 
-        if (this.isShaking(animatable)) {
-            rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
-        }
+		if (this.isShaking(animatable)) {
+			rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
+		}
 
 		if (pose != Pose.SLEEPING)
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
@@ -347,12 +347,29 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public boolean shouldShowName(T animatable) {
-		double nameRenderDistance = animatable.isDiscrete() ? 32d : 64d;
+		var nameRenderDistance = animatable.isDiscrete() ? 32d : 64d;
 
 		if (this.entityRenderDispatcher.distanceToSqr(animatable) >= nameRenderDistance * nameRenderDistance)
 			return false;
 
-		return animatable == this.entityRenderDispatcher.crosshairPickEntity && animatable.hasCustomName() && Minecraft.renderNames();
+		if (animatable instanceof Mob && (!animatable.shouldShowName() && (!animatable.hasCustomName() || animatable != this.entityRenderDispatcher.crosshairPickEntity)))
+			return false;
+
+		final var minecraft = Minecraft.getInstance();
+		var visibleToClient = !animatable.isInvisibleTo(minecraft.player);
+		var entityTeam = animatable.getTeam();
+
+		if (entityTeam == null)
+			return Minecraft.renderNames() && animatable != minecraft.getCameraEntity() && visibleToClient && !animatable.isVehicle();
+
+		var playerTeam = minecraft.player.getTeam();
+
+		return switch (entityTeam.getNameTagVisibility()) {
+		case ALWAYS -> visibleToClient;
+		case NEVER -> false;
+		case HIDE_FOR_OTHER_TEAMS -> playerTeam == null ? visibleToClient : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient);
+		case HIDE_FOR_OWN_TEAM -> playerTeam == null ? visibleToClient : !entityTeam.isAlliedTo(playerTeam) && visibleToClient;
+		};
 	}
 
 	/**
@@ -366,12 +383,10 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0));
 	}
-	
+
 	/**
 	 * Gets a packed overlay coordinate pair for rendering.<br>
-	 * Mostly just used for the red tint when an entity is hurt,
-	 * but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper}
-	 * white tint when exploding.
+	 * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
 	 */
 	@Override
 	public int getPackedOverlay(T animatable, float u, float partialTick) {
@@ -442,9 +457,9 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 	}
 
-    public boolean isShaking(T entity) {
-        return entity.isFullyFrozen();
-    }
+	public boolean isShaking(T entity) {
+		return entity.isFullyFrozen();
+	}
 
 	/**
 	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
