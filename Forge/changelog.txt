@@ -1,4 +1,5 @@
-v1.0.30
+v1.0.31
 
-- Backup port the shaking effect, allowing the modder to override isShaking to define it since frozen wasn't added until 1.17
-- Filters yet another mcraptor mods broken animations.
+- Blacklist Geckolib3 asset namespace.
+- Fixes isReRender not being passed correctly.
+- Port support for Teams for nametag rendering.
