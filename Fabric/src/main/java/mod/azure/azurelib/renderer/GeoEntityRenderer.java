@@ -39,6 +39,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
+import net.minecraft.world.scores.Team.Visibility;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link Entity Entities} specifically.<br>
@@ -295,9 +297,9 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		Pose pose = animatable.getPose();
 		LivingEntity livingEntity = animatable instanceof LivingEntity ? ((LivingEntity) animatable) : null;
 
-        if (this.isShaking(animatable)) {
-            rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
-        }
+		if (this.isShaking(animatable)) {
+			rotationYaw += (float) (Math.cos((double) animatable.tickCount * 3.25) * Math.PI * 0.4000000059604645);
+		}
 
 		if (pose != Pose.SLEEPING)
 			poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
@@ -352,7 +354,21 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		if (this.entityRenderDispatcher.distanceToSqr(animatable) >= nameRenderDistance * nameRenderDistance)
 			return false;
 
-		return animatable == this.entityRenderDispatcher.crosshairPickEntity && animatable.hasCustomName() && Minecraft.renderNames();
+		if (animatable instanceof Mob && (!animatable.shouldShowName() && (!animatable.hasCustomName() || animatable != this.entityRenderDispatcher.crosshairPickEntity)))
+			return false;
+
+		final Minecraft minecraft = Minecraft.getInstance();
+		boolean visibleToClient = !animatable.isInvisibleTo(minecraft.player);
+		Team entityTeam = animatable.getTeam();
+
+		if (entityTeam == null)
+			return Minecraft.renderNames() && animatable != minecraft.getCameraEntity() && visibleToClient && !animatable.isVehicle();
+
+		Team playerTeam = minecraft.player.getTeam();
+
+		Visibility tagVisibiility = entityTeam.getNameTagVisibility();
+
+		return tagVisibiility == Visibility.ALWAYS ? visibleToClient : tagVisibiility == Visibility.HIDE_FOR_OTHER_TEAMS ? playerTeam == null ? visibleToClient : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient) : tagVisibiility == Visibility.HIDE_FOR_OWN_TEAM ? playerTeam == null ? visibleToClient : !entityTeam.isAlliedTo(playerTeam) && visibleToClient : false;
 	}
 
 	/**
@@ -366,12 +382,10 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 
 		return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(((LivingEntity) animatable).hurtTime > 0 || ((LivingEntity) animatable).deathTime > 0));
 	}
-	
+
 	/**
 	 * Gets a packed overlay coordinate pair for rendering.<br>
-	 * Mostly just used for the red tint when an entity is hurt,
-	 * but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper}
-	 * white tint when exploding.
+	 * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
 	 */
 	@Override
 	public int getPackedOverlay(T animatable, float u, float partialTick) {
@@ -442,10 +456,10 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 		buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1).uv2(packedLight).endVertex();
 	}
 
-    public boolean isShaking(T entity) {
-        return false;
-    }
-	
+	public boolean isShaking(T entity) {
+		return false;
+	}
+
 	/**
 	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
 	 * This should only be called immediately prior to rendering, and only
@@ -454,7 +468,7 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	 */
 	@Override
 	public void updateAnimatedTextureFrame(T animatable) {
-		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), animatable.getId() + (int)animatable.getTick(animatable));
+		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), animatable.getId() + (int) animatable.getTick(animatable));
 	}
 
 	/**

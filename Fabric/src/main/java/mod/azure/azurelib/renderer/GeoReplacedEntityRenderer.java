@@ -39,6 +39,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
+import net.minecraft.world.scores.Team.Visibility;
 
 /**
  * An alternate to {@link GeoEntityRenderer}, used specifically for replacing existing non-AzureLib entities with AzureLib rendering dynamically, without the need for an additional entity class
@@ -363,12 +365,29 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 	 */
 	@Override
 	public boolean shouldShowName(E entity) {
-		double nameRenderDistance = entity.isDiscrete() ? 32d : 64d;
+		if (!(entity instanceof LivingEntity))
+			return super.shouldShowName(entity);
 
-		if (this.entityRenderDispatcher.distanceToSqr(entity) >= nameRenderDistance * nameRenderDistance)
+		double nameRenderCutoff = entity.isDiscrete() ? 32d : 64d;
+
+		if (this.entityRenderDispatcher.distanceToSqr(entity) >= nameRenderCutoff * nameRenderCutoff)
 			return false;
 
-		return this.currentEntity == this.entityRenderDispatcher.crosshairPickEntity && entity.hasCustomName() && Minecraft.renderNames();
+		if (entity instanceof Mob && (!entity.shouldShowName() && (!entity.hasCustomName() || entity != this.entityRenderDispatcher.crosshairPickEntity)))
+			return false;
+
+		final Minecraft minecraft = Minecraft.getInstance();
+		boolean visibleToClient = !entity.isInvisibleTo(minecraft.player);
+		Team entityTeam = entity.getTeam();
+
+		if (entityTeam == null)
+			return Minecraft.renderNames() && entity != minecraft.getCameraEntity() && visibleToClient && !entity.isVehicle();
+
+		Team playerTeam = minecraft.player.getTeam();
+
+		Visibility tagVisibiility = entityTeam.getNameTagVisibility();
+
+		return tagVisibiility == Visibility.ALWAYS ? visibleToClient : tagVisibiility == Visibility.HIDE_FOR_OTHER_TEAMS ? playerTeam == null ? visibleToClient : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient) : tagVisibiility == Visibility.HIDE_FOR_OWN_TEAM ? playerTeam == null ? visibleToClient : !entityTeam.isAlliedTo(playerTeam) && visibleToClient : false;
 	}
 
 	/**
@@ -385,9 +404,7 @@ public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable
 
 	/**
 	 * Gets a packed overlay coordinate pair for rendering.<br>
-	 * Mostly just used for the red tint when an entity is hurt,
-	 * but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper}
-	 * white tint when exploding.
+	 * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
 	 */
 	@Override
 	public int getPackedOverlay(T animatable, float u, float partialTick) {
