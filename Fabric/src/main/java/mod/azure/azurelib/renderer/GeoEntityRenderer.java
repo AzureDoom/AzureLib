@@ -348,6 +348,9 @@ public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityR
 	public boolean shouldShowName(T animatable) {
 		var nameRenderDistance = animatable.isDiscrete() ? 32d : 64d;
 
+        if (!(animatable instanceof LivingEntity))
+            return false;
+
 		if (this.entityRenderDispatcher.distanceToSqr(animatable) >= nameRenderDistance * nameRenderDistance)
 			return false;
 
