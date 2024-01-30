@@ -1,4 +1,3 @@
-v1.0.34
+v1.0.35
 
-- Fixes isReRender not being passed correctly.
-- Port support for Teams for nametag rendering.
+- Fixes name rendering on non-living entities such as projectiles
