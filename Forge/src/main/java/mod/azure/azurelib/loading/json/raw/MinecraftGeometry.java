@@ -9,7 +9,6 @@ import com.google.gson.JsonParseException;
 
 import mod.azure.azurelib.util.JsonUtil;
 import net.minecraft.util.JSONUtils;
-import net.minecraftforge.client.model.b3d.B3DModel.Bone;
 
 /**
  * Container class for generic geometry information, only used in deserialization at startup
