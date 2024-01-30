@@ -14,6 +14,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -40,23 +41,9 @@ import net.minecraft.util.JSONUtils;
  * Json helper class for various json functions
  */
 public final class JsonUtil {
-	public static final Gson GEO_GSON = new GsonBuilder().setLenient()
-			.registerTypeAdapter(Bone.class, Bone.deserializer())
-			.registerTypeAdapter(Cube.class, Cube.deserializer())
-			.registerTypeAdapter(FaceUV.class, FaceUV.deserializer())
-			.registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer())
-			.registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer())
-			.registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
-			.registerTypeAdapter(Model.class, Model.deserializer())
-			.registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
-			.registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
-			.registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
-			.registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
-			.registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
-			.registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
-			.registerTypeAdapter(Keyframes.class, new KeyFramesAdapter())
-			.registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
-		.create();
+	public static final Gson GEO_GSON = new GsonBuilder().setLenient().registerTypeAdapter(Bone.class, Bone.deserializer()).registerTypeAdapter(Cube.class, Cube.deserializer()).registerTypeAdapter(FaceUV.class, FaceUV.deserializer()).registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer()).registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer()).registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
+			.registerTypeAdapter(Model.class, Model.deserializer()).registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer()).registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer()).registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer()).registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer()).registerTypeAdapter(UVFaces.class, UVFaces.deserializer()).registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
+			.registerTypeAdapter(Keyframes.class, new KeyFramesAdapter()).registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter()).create();
 
 	/**
 	 * Convert a {@link JsonArray} of doubles to a {@code double[]}.<br>
@@ -146,6 +133,14 @@ public final class JsonUtil {
 	}
 
 	/**
+	 * Retrieves an optionally present Double from the provided {@link JsonObject}, or null if the element isn't present
+	 */
+	@Nullable
+	public static Double getOptionalDouble(JsonObject obj, String elementName) {
+		return obj.has(elementName) ? JsonUtil.getAsDouble(obj, elementName) : null;
+	}
+
+	/**
 	 * Retrieves an optionally present Float from the provided {@link JsonObject}, or null if the element isn't present
 	 */
 	@Nullable
@@ -154,18 +149,26 @@ public final class JsonUtil {
 	}
 
 	/**
-	 * Retrieves an optionally present Double from the provided {@link JsonObject}, or null if the element isn't present
-	 */
-	@Nullable
-	public static Double getOptionalDouble(JsonObject obj, String elementName) {
-		return obj.has(elementName) ? ((double) JSONUtils.getAsFloat(obj, elementName)) : null;
-	}
-
-	/**
 	 * Retrieves an optionally present Integer from the provided {@link JsonObject}, or null if the element isn't present
 	 */
 	@Nullable
 	public static Integer getOptionalInteger(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? JSONUtils.getAsInt(obj, elementName) : null;
+	}
+
+	public static double convertToDouble(JsonElement jsonElement, String string) {
+		if (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isNumber()) {
+			return jsonElement.getAsDouble();
+		} else {
+			throw new JsonSyntaxException("Expected " + string + " to be a Double, was " + JSONUtils.getType(jsonElement));
+		}
+	}
+
+	public static double getAsDouble(JsonObject jsonObject, String string) {
+		if (jsonObject.has(string)) {
+			return convertToDouble(jsonObject.get(string), string);
+		} else {
+			throw new JsonSyntaxException("Missing " + string + ", expected to find a Double");
+		}
 	}
 }

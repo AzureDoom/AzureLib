@@ -14,6 +14,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -132,6 +133,14 @@ public final class JsonUtil {
 	}
 
 	/**
+	 * Retrieves an optionally present Double from the provided {@link JsonObject}, or null if the element isn't present
+	 */
+	@Nullable
+	public static Double getOptionalDouble(JsonObject obj, String elementName) {
+		return obj.has(elementName) ? JsonUtil.getAsDouble(obj, elementName) : null;
+	}
+
+	/**
 	 * Retrieves an optionally present Float from the provided {@link JsonObject}, or null if the element isn't present
 	 */
 	@Nullable
@@ -140,18 +149,26 @@ public final class JsonUtil {
 	}
 
 	/**
-	 * Retrieves an optionally present Double from the provided {@link JsonObject}, or null if the element isn't present
-	 */
-	@Nullable
-	public static Double getOptionalDouble(JsonObject obj, String elementName) {
-		return obj.has(elementName) ? (double) GsonHelper.getAsFloat(obj, elementName) : null;
-	}
-
-	/**
 	 * Retrieves an optionally present Integer from the provided {@link JsonObject}, or null if the element isn't present
 	 */
 	@Nullable
 	public static Integer getOptionalInteger(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsInt(obj, elementName) : null;
+	}
+
+	public static double convertToDouble(JsonElement jsonElement, String string) {
+		if (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isNumber()) {
+			return jsonElement.getAsDouble();
+		} else {
+			throw new JsonSyntaxException("Expected " + string + " to be a Double, was " + GsonHelper.getType(jsonElement));
+		}
+	}
+
+	public static double getAsDouble(JsonObject jsonObject, String string) {
+		if (jsonObject.has(string)) {
+			return convertToDouble(jsonObject.get(string), string);
+		} else {
+			throw new JsonSyntaxException("Missing " + string + ", expected to find a Double");
+		}
 	}
 }
