@@ -131,7 +131,7 @@ public class Bone {
 	public TextureMesh[] textureMeshes() {
 		return textureMeshes;
 	}
-
+	
 	public static JsonDeserializer<Bone> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();
