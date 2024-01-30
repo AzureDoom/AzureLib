@@ -21,7 +21,9 @@ public class MinecraftGeometry {
 	public ModelProperties modelProperties;
 
 	public MinecraftGeometry(Bone[] bones, @Nullable String cape, @Nullable ModelProperties modelProperties) {
-
+		this.bones = bones;
+		this.cape = cape;
+		this.modelProperties = modelProperties;
 	}
 
 	public Bone[] bones() {
