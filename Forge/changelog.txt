@@ -1,5 +1,3 @@
-v1.0.31
+v1.0.32
 
-- Blacklist Geckolib3 asset namespace.
-- Fixes isReRender not being passed correctly.
-- Port support for Teams for nametag rendering.
+- Fixes name rendering on non-living entities such as projectiles
