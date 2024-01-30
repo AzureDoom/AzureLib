@@ -24,7 +24,7 @@ import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.loading.object.GeometryTree;
 import net.minecraft.client.Minecraft;
 import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IFutureReloadListener.IStage;
+import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -69,7 +69,7 @@ public final class AzureLibCache {
 		((IReloadableResourceManager) mc.getResourceManager()).registerReloadListener(AzureLibCache::reload);
 	}
 
-	private static CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
+	private static CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
 		Map<ResourceLocation, BakedAnimations> animations = new Object2ObjectOpenHashMap<>();
 		Map<ResourceLocation, BakedGeoModel> models = new Object2ObjectOpenHashMap<>();
 
