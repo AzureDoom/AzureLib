@@ -3,6 +3,7 @@ package mod.azure.azurelib.fabric;
 import com.mojang.blaze3d.platform.InputConstants;
 import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.internal.common.util.IncompatibleModsCheck;
+import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.fabric.network.Networking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -25,5 +26,6 @@ public final class ClientListener implements ClientModInitializer {
                 "category.azurelib.binds");
         KeyBindingHelper.registerKeyBinding(ClientUtils.FIRE_WEAPON);
         Networking.PacketRegistry.registerClient();
+        Services.NETWORK.registerClientReceiverPackets();
     }
 }

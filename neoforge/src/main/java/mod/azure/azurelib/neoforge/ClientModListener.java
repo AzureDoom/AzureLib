@@ -5,6 +5,7 @@ import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.internal.client.AzureLibClient;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -50,5 +51,6 @@ public class ClientModListener {
                 }));
             });
         }
+        Services.NETWORK.registerClientReceiverPackets();
     }
 }
