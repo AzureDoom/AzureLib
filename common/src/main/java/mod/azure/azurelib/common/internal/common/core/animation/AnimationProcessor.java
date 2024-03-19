@@ -3,6 +3,7 @@ package mod.azure.azurelib.common.internal.common.core.animation;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -14,8 +15,13 @@ import mod.azure.azurelib.common.internal.common.core.keyframe.AnimationPoint;
 import mod.azure.azurelib.common.internal.common.core.keyframe.BoneAnimationQueue;
 import mod.azure.azurelib.common.internal.common.core.state.BoneSnapshot;
 import mod.azure.azurelib.common.internal.common.core.utils.Interpolations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnimationProcessor<T extends GeoAnimatable> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AnimationProcessor.class);
+
 	private final Map<String, CoreGeoBone> bones = new Object2ObjectOpenHashMap<>();
 	private final CoreGeoModel<T> model;
 
@@ -33,12 +39,11 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 */
 	public Queue<QueuedAnimation> buildAnimationQueue(T animatable, RawAnimation rawAnimation) {
 		LinkedList<QueuedAnimation> animations = new LinkedList<>();
-		boolean error = false;
 
 		for (RawAnimation.Stage stage : rawAnimation.getAnimationStages()) {
 			Animation animation;
 
-			if (stage.animationName() == RawAnimation.Stage.WAIT) {
+			if (Objects.equals(stage.animationName(), RawAnimation.Stage.WAIT)) {
 				animation = Animation.generateWaitAnimation(stage.additionalTicks());
 			}
 			else {
@@ -46,16 +51,15 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 			}
 
 			if (animation == null) {
-				System.out.println("Unable to find animation: " + stage.animationName() + " for " + animatable.getClass().getSimpleName());
-
-				error = true;
+				LOGGER.warn("Unable to find animation: {} for {}", stage.animationName(), animatable.getClass().getSimpleName());
+				return null;
 			}
 			else {
 				animations.add(new QueuedAnimation(animation, stage.loopType()));
 			}
 		}
 
-		return error ? null : animations;
+		return animations;
 	}
 
 	/**
@@ -63,7 +67,7 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 *
 	 * @param animatable            The animatable object relevant to the animation being played
 	 * @param model                 The model currently being processed
-	 * @param animatableManager			The AnimatableManager instance being used for this animation processor
+	 * @param animatableManager		The AnimatableManager instance being used for this animation processor
 	 * @param animTime              The internal tick counter kept by the {@link AnimatableManager} for this animatable
 	 * @param event                 An {@link AnimationState} instance applied to this render frame
 	 * @param crashWhenCantFindBone Whether to crash if unable to find a required bone, or to continue with the remaining bones
