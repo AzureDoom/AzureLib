@@ -22,7 +22,7 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AnimationProcessor.class);
 
-	private final Map<String, CoreGeoBone> bones = new Object2ObjectOpenHashMap<>();
+	private final Map<String, CoreGeoBone> bonesByName = new Object2ObjectOpenHashMap<>();
 	private final CoreGeoModel<T> model;
 
 	public boolean reloadAnimations = false;
@@ -84,7 +84,7 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 			controller.isJustStarting = animatableManager.isFirstTick();
 
 			event.withController(controller);
-			controller.process(model, event, this.bones, boneSnapshots, animTime, crashWhenCantFindBone);
+			controller.process(model, event, this.bonesByName, boneSnapshots, animTime, crashWhenCantFindBone);
 
 			for (BoneAnimationQueue boneAnimation : controller.getBoneAnimationQueues().values()) {
 				CoreGeoBone bone = boneAnimation.bone();
@@ -220,7 +220,7 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 * @return the bone
 	 */
 	public CoreGeoBone getBone(String boneName) {
-		return this.bones.get(boneName);
+		return this.bonesByName.get(boneName);
 	}
 
 	/**
@@ -230,11 +230,8 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 */
 	public void registerGeoBone(CoreGeoBone bone) {
 		bone.saveInitialSnapshot();
-		this.bones.put(bone.getName(), bone);
-
-		for (CoreGeoBone child : bone.getChildBones()) {
-			registerGeoBone(child);
-		}
+		this.bonesByName.put(bone.getName(), bone);
+		bone.getChildBones().forEach(this::registerGeoBone);
 	}
 
 	/**
@@ -243,18 +240,15 @@ public class AnimationProcessor<T extends GeoAnimatable> {
 	 * Should be called whenever switching models to render/animate
 	 */
 	public void setActiveModel(CoreBakedGeoModel model) {
-		this.bones.clear();
-
-		for (CoreGeoBone bone : model.getBones()) {
-			registerGeoBone(bone);
-		}
+		this.bonesByName.clear();
+		model.getBones().forEach(this::registerGeoBone);
 	}
 
 	/**
 	 * Get an iterable collection of the {@link CoreGeoBone GeoBones} currently registered to the processor
 	 */
 	public Collection<CoreGeoBone> getRegisteredBones() {
-		return this.bones.values();
+		return this.bonesByName.values();
 	}
 
 	/**
