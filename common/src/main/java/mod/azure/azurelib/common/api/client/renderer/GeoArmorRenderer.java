@@ -172,7 +172,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getHeadBone() {
-		return this.model.getBone("armorHead").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_HEAD_NAME).orElse(null);
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getBodyBone() {
-		return this.model.getBone("armorBody").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_BODY_NAME).orElse(null);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getRightArmBone() {
-		return this.model.getBone("armorRightArm").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_RIGHT_ARM_NAME).orElse(null);
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getLeftArmBone() {
-		return this.model.getBone("armorLeftArm").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_LEFT_ARM_NAME).orElse(null);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getRightLegBone() {
-		return this.model.getBone("armorRightLeg").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_RIGHT_LEG_NAME).orElse(null);
 	}
 
 	/**
@@ -227,7 +227,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getLeftLegBone() {
-		return this.model.getBone("armorLeftLeg").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_LEFT_LEG_NAME).orElse(null);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getRightBootBone() {
-		return this.model.getBone("armorRightBoot").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_RIGHT_BOOT_NAME).orElse(null);
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 */
 	@Nullable
 	public GeoBone getLeftBootBone() {
-		return this.model.getBone("armorLeftBoot").orElse(null);
+		return this.model.getBone(GeoArmorRendererConstants.BONE_ARMOR_LEFT_BOOT_NAME).orElse(null);
 	}
 
 	/**
@@ -323,15 +323,11 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.entityRenderTranslations);
 
 			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-			bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, getRenderOffset(this.currentEntity, 1).toVector3f()));
+			bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, GeoArmorRendererConstants.ZERO));
 			bone.setWorldSpaceMatrix(RenderUtils.translateMatrix(new Matrix4f(localMatrix), this.currentEntity.position().toVector3f()));
 		}
 
 		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-	}
-
-	public Vec3 getRenderOffset(Entity entity, float f) {
-		return Vec3.ZERO;
 	}
 
 	/**
@@ -575,7 +571,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 		TODO: Find why inverted.
 		 */
 		var event = GeoRenderArmorEvent.Pre.EVENT.handle(new GeoRenderArmorEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
-		return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") ? !event : event;
+		return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") != event;
 	}
 
 	/**
