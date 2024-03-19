@@ -169,7 +169,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 */
 	default void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		updateAnimatedTextureFrame(animatable);
-		for (GeoBone group : model.topLevelBones()) {
+		for (GeoBone group : model.getTopLevelBones()) {
 			renderRecursively(poseStack, animatable, group, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 		}
 	}

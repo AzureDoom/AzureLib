@@ -71,7 +71,7 @@ public abstract class DyeableGeoArmorRenderer<T extends Item & GeoItem> extends 
         if (model != this.lastModel) {
             this.dyeableBones.clear();
             this.lastModel = model;
-            collectDyeableBones(model.topLevelBones());
+            collectDyeableBones(model.getTopLevelBones());
         }
     }
 

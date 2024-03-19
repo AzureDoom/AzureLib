@@ -1,19 +1,38 @@
 package mod.azure.azurelib.common.internal.common.cache.object;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreBakedGeoModel;
 import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.common.internal.common.loading.json.raw.ModelProperties;
 
 /**
  * Baked model object for AzureLib models.
  */
-public record BakedGeoModel(List<GeoBone> topLevelBones, ModelProperties properties) implements CoreBakedGeoModel {
+public class BakedGeoModel implements CoreBakedGeoModel {
+
+	public final Map<String, GeoBone> bonesByName;
+
+	public final List<GeoBone> topLevelBones;
+
+	public BakedGeoModel(List<GeoBone> topLevelBones) {
+		this.bonesByName = new HashMap<>();
+		this.topLevelBones = topLevelBones;
+		mapBonesByName(topLevelBones);
+	}
+
+	private void mapBonesByName(List<GeoBone> geoBones) {
+		geoBones.forEach(geoBone -> {
+			bonesByName.put(geoBone.getName(), geoBone);
+			mapBonesByName(geoBone.getChildBones());
+		});
+	}
+
 	/**
 	 * Gets the list of top-level bones for this model.
-	 * Identical to calling {@link BakedGeoModel#topLevelBones()}
+	 * Identical to calling {@link BakedGeoModel#getTopLevelBones()}
 	 */
 	@Override
 	public List<? extends CoreGeoBone> getBones() {
@@ -22,18 +41,14 @@ public record BakedGeoModel(List<GeoBone> topLevelBones, ModelProperties propert
 
 	/**
 	 * Gets a bone from this model by name.<br>
-	 * Generally not a very efficient method, should be avoided where possible.
 	 * @param name The name of the bone
 	 * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
 	 */
 	public Optional<GeoBone> getBone(String name) {
-		for (GeoBone bone : this.topLevelBones) {
-			CoreGeoBone childBone = searchForChildBone(bone, name);
+		return Optional.ofNullable(bonesByName.get(name));
+	}
 
-			if (childBone != null)
-				return Optional.of((GeoBone)childBone);
-		}
-
-		return Optional.empty();
+	public List<GeoBone> getTopLevelBones() {
+		return topLevelBones;
 	}
 }

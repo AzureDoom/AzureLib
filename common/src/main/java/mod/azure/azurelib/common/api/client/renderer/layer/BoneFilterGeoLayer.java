@@ -40,7 +40,7 @@ public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<
 
 	@Override
 	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-		for (GeoBone bone : bakedModel.topLevelBones()) {
+		for (GeoBone bone : bakedModel.getTopLevelBones()) {
 			checkChildBones(bone, animatable, partialTick);
 		}
 	}
