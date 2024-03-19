@@ -60,7 +60,7 @@ subprojects {
     processResources {
         def expandProps = [
                 "mod_version"               : project.mod_version,
-                "group"                     : project.group, //Else we target the task's group.
+                "group"                     : project.maven_group, //Else we target the task's group.
                 "minecraft_version"         : project.minecraft_version,
                 "neo_version"               : project.neo_version,
                 "loader_version_range"      : project.loader_version_range,
