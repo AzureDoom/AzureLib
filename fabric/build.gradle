@@ -31,7 +31,7 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+    compileOnly "com.google.code.findbugs:jsr305:${google_findbugs_version}"
     modApi "com.terraformersmc:modmenu:${modmenu_version}"
     compileOnly project(":common")
 }
@@ -91,8 +91,8 @@ jar {
 publishing {
     repositories {
         maven {
-            name = "azurelib"
-            url = "https://libs.azuredoom.com:4443/mods"
+            name = project.mod_id
+            url = project.maven_url
             credentials(PasswordCredentials)
             authentication {
                 basic(BasicAuthentication)
@@ -135,18 +135,18 @@ if (file('key.properties').exists()) {
         modLoaders.add("quilt")
 
         curseforge {
-            projectId = "817423"
-            projectSlug = "azurelib"
+            projectId = project.curseforge_id
+            projectSlug = project.mod_id
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.20.4")
+            minecraftVersions.add(project.minecraft_version)
             requires {
                 slug = "fabric-api"
             }
         }
         modrinth {
-            projectId = "7zlUOZvb"
+            projectId = project.modrinth_id
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.20.4")
+            minecraftVersions.add(project.minecraft_version)
         }
     }
 }

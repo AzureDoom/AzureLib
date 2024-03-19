@@ -18,7 +18,7 @@ pluginManagement {
 }
 
 // This should match the folder name of the project, or else IDEA may complain (see https://youtrack.jetbrains.com/issue/IDEA-317606)
-rootProject.name = 'AzureLib'
+rootProject.name = mod_name
 include("common")
 include("fabric")
 include("neoforge")
