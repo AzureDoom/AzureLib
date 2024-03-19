@@ -29,7 +29,7 @@ subprojects {
                     "Specification-Vendor"    : project.mod_author,
                     "Specification-Version"   : "1", // We are version 1 of ourselves
                     "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : project.mod_version,
+                    "Implementation-Version"  : project.version,
                     "Implementation-Vendor"   : project.mod_author,
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
             ])
@@ -64,7 +64,7 @@ subprojects {
         def expandProps = [
                 "fabric_loader_version"     : project.fabric_loader_version,
                 "fabric_version"            : project.fabric_version,
-                "maven_group"               : project.maven_group, //Else we target the task's group.
+                "group"                     : project.group, //Else we target the task's group.
                 "loader_version_range"      : project.loader_version_range,
                 "minecraft_version"         : project.minecraft_version,
                 "minecraft_version_range"   : project.minecraft_version_range,
@@ -78,7 +78,7 @@ subprojects {
                 "mod_name"                  : project.mod_name,
                 "mod_sources"               : project.mod_sources,
                 "mod_url"                   : project.mod_url,
-                "mod_version"               : project.mod_version,
+                "version"                   : project.version,
                 "neo_version"               : project.neo_version,
                 "neo_version_range"         : project.neo_version_range,
         ]
