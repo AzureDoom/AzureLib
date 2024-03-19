@@ -2,17 +2,20 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 plugins {
-    id 'fabric-loom' version '1.+' apply(false)
-    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT' apply(false)
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT' apply(false)
-    id 'me.modmuss50.mod-publish-plugin' version '0.4.0' apply(false)
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+    id 'fabric-loom' version "${fabric_loom_version}" apply(false)
+    id 'org.spongepowered.gradle.vanilla' version "${spongepowered_vanilla_gradle_version}" apply(false)
+    id 'org.spongepowered.mixin' version "${spongepowered_mixin_version}" apply(false)
+    id 'me.modmuss50.mod-publish-plugin' version "${modmuss50_mod_publish_version}" apply(false)
+    id "org.jetbrains.gradle.plugin.idea-ext" version "${jetbrains_gradle_idea_ext_version}"
 }
+
+def JAVA_VERSION = 17
+def MAX_DISPLAY_ERRORS = "1000"
 
 subprojects {
     apply plugin: 'java'
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+    java.toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
     java.withSourcesJar()
     java.withJavadocJar()
 
@@ -22,12 +25,12 @@ subprojects {
         }
         manifest {
             attributes([
-                    "Specification-Title"     : "AzureLib",
-                    "Specification-Vendor"    : "AzureDoom",
+                    "Specification-Title"     : project.mod_name,
+                    "Specification-Vendor"    : project.mod_author,
                     "Specification-Version"   : "1", // We are version 1 of ourselves
                     "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : project.mod_version,
-                    "Implementation-Vendor"   : "AzureDoom",
+                    "Implementation-Version"  : project.version,
+                    "Implementation-Vendor"   : project.mod_author,
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
             ])
         }
@@ -54,30 +57,30 @@ subprojects {
     tasks.withType(JavaCompile).configureEach {
 
         it.options.encoding = 'UTF-8'
-        it.options.getRelease().set(17)
+        it.options.getRelease().set(JAVA_VERSION)
     }
 
     processResources {
         def expandProps = [
-                "mod_version"               : project.mod_version,
-                "group"                     : project.group, //Else we target the task's group.
-                "minecraft_version"         : project.minecraft_version,
-                "neo_version"               : project.neo_version,
-                "loader_version_range"      : project.loader_version_range,
-                "neo_version_range"         : project.neo_version_range,
-                "minecraft_version_range"   : project.minecraft_version_range,
-                "fabric_version"            : project.fabric_version,
                 "fabric_loader_version"     : project.fabric_loader_version,
-                "mod_name"                  : project.mod_name,
+                "fabric_version"            : project.fabric_version,
+                "group"                     : project.group, //Else we target the task's group.
+                "loader_version_range"      : project.loader_version_range,
+                "minecraft_version"         : project.minecraft_version,
+                "minecraft_version_range"   : project.minecraft_version_range,
                 "mod_author"                : project.mod_author,
-                "mod_id"                    : project.mod_id,
-                "mod_license"               : project.mod_license,
-                "mod_description"           : project.mod_description,
                 "mod_credits"               : project.mod_credits,
-                "mod_logo"                  : project.mod_logo,
-                "mod_url"                   : project.mod_url,
+                "mod_description"           : project.mod_description,
+                "mod_id"                    : project.mod_id,
                 "mod_issues"                : project.mod_issues,
-                "mod_sources"               : project.mod_sources
+                "mod_license"               : project.mod_license,
+                "mod_logo"                  : project.mod_logo,
+                "mod_name"                  : project.mod_name,
+                "mod_sources"               : project.mod_sources,
+                "mod_url"                   : project.mod_url,
+                "version"                   : project.version,
+                "neo_version"               : project.neo_version,
+                "neo_version_range"         : project.neo_version_range,
         ]
 
         filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json', 'META-INF/mods.toml']) {
@@ -112,7 +115,7 @@ subprojects {
     // See: https://stackoverflow.com/a/31905248
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xmaxerrs" << "1000"
+            options.compilerArgs << "-Xmaxerrs" << MAX_DISPLAY_ERRORS
         }
     }
 }

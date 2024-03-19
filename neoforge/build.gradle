@@ -2,8 +2,8 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.+'
-    id 'net.neoforged.gradle.mixin' version '7.0.+'
+    id 'net.neoforged.gradle.userdev' version "${neo_gradle_userdev_version}"
+    id 'net.neoforged.gradle.mixin' version "${neo_gradle_mixin_version}"
     id "me.modmuss50.mod-publish-plugin"
 }
 
@@ -44,7 +44,7 @@ tasks.withType(ProcessResources).configureEach {
             minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
             neo_version         : neo_version, neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: version,
             mod_description     : mod_description,  mod_credits: mod_credits, mod_logo: mod_logo,
             mod_url             : mod_url, mod_issues: mod_issues,
     ]
@@ -71,8 +71,8 @@ processResources {
 publishing {
     repositories {
         maven {
-            name = "azurelib"
-            url = "https://libs.azuredoom.com:4443/mods"
+            name = project.mod_id
+            url = project.maven_url
             credentials(PasswordCredentials)
             authentication {
                 basic(BasicAuthentication)
@@ -99,15 +99,15 @@ if (file('key.properties').exists()) {
         modLoaders.add("neoforge")
 
         curseforge {
-            projectId = "817423"
-            projectSlug = "azurelib"
+            projectId = project.curseforge_id
+            projectSlug = project.mod_id
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.20.4")
+            minecraftVersions.add(project.minecraft_version)
         }
         modrinth {
-            projectId = "7zlUOZvb"
+            projectId = project.modrinth_id
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.20.4")
+            minecraftVersions.add(project.minecraft_version)
         }
     }
 }
