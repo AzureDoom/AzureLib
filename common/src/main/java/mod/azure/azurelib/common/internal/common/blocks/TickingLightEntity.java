@@ -1,34 +1,40 @@
 package mod.azure.azurelib.common.internal.common.blocks;
 
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import mod.azure.azurelib.common.platform.Services;
+
 public class TickingLightEntity extends BlockEntity {
-	private int lifespan = 0;
 
-	public TickingLightEntity(BlockPos blockPos, BlockState blockState) {
-		super(Services.PLATFORM.getTickingLightEntity(), blockPos, blockState);
-	}
+    private int lifespan = 0;
 
-	public void refresh(int lifeExtension) {
-		lifespan = -lifeExtension;
-	}
+    public TickingLightEntity(BlockPos blockPos, BlockState blockState) {
+        super(Services.PLATFORM.getTickingLightEntity(), blockPos, blockState);
+    }
 
-	private void tick() {
-		if (lifespan++ >= 5) {
-			if (level.getBlockState(getBlockPos()).getBlock() instanceof TickingLightBlock)
-				level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
-			else
-				setRemoved();
-		}
-	}
+    public void refresh(int lifeExtension) {
+        lifespan = -lifeExtension;
+    }
 
-	public static void tick(Level world, BlockPos blockPos, BlockState blockState,
-			TickingLightEntity blockEntity) {
-		blockEntity.tick();
-	}
+    private void tick() {
+        if (lifespan++ >= 5) {
+            if (level.getBlockState(getBlockPos()).getBlock() instanceof TickingLightBlock)
+                level.setBlockAndUpdate(getBlockPos(), Blocks.AIR.defaultBlockState());
+            else
+                setRemoved();
+        }
+    }
+
+    public static void tick(
+        Level world,
+        BlockPos blockPos,
+        BlockState blockState,
+        TickingLightEntity blockEntity
+    ) {
+        blockEntity.tick();
+    }
 }

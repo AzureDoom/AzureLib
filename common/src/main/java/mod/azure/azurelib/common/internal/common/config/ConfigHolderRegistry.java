@@ -1,15 +1,15 @@
 package mod.azure.azurelib.common.internal.common.config;
 
-import mod.azure.azurelib.common.internal.common.AzureLibMod;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
-import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import mod.azure.azurelib.common.internal.common.AzureLibMod;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
+import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 
 /**
  * @author Boston Vanseghi
@@ -20,8 +20,8 @@ public final class ConfigHolderRegistry {
     private static final Map<String, ConfigHolder<?>> REGISTERED_CONFIGS = new HashMap<>();
 
     /**
-     * Registers config to internal registry. You should never call
-     * this method. Instead, use {@link AzureLibMod#registerConfig(Class, IConfigFormatHandler)} for config registration
+     * Registers config to internal registry. You should never call this method. Instead, use
+     * {@link AzureLibMod#registerConfig(Class, IConfigFormatHandler)} for config registration
      *
      * @param holder Config holder to be registered
      */
@@ -33,7 +33,7 @@ public final class ConfigHolderRegistry {
     /**
      * Allows you to get your config holder based on ID
      *
-     * @param id    Config ID
+     * @param id  Config ID
      * @param <C> Config type
      * @return Optional with config holder when such object exists
      */
@@ -57,7 +57,8 @@ public final class ConfigHolderRegistry {
      * @return List with config holders. May be empty.
      */
     public static List<ConfigHolder<?>> getConfigsByGroup(String group) {
-        return REGISTERED_CONFIGS.values().stream()
+        return REGISTERED_CONFIGS.values()
+            .stream()
             .filter(configHolder -> configHolder.getGroup().equals(group))
             .toList();
     }

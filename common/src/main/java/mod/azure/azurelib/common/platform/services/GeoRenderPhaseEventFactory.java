@@ -5,6 +5,7 @@ import mod.azure.azurelib.common.internal.common.event.GeoRenderEvent;
 public interface GeoRenderPhaseEventFactory {
 
     interface GeoRenderPhaseEvent {
+
         boolean handle(GeoRenderEvent geoRenderEvent);
     }
 

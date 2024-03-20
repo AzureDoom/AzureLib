@@ -1,16 +1,17 @@
 package mod.azure.azurelib.common.internal.client;
 
-import mod.azure.azurelib.common.internal.client.config.screen.ConfigGroupScreen;
-import mod.azure.azurelib.common.internal.client.config.screen.ConfigScreen;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.api.common.config.Config;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+
+import mod.azure.azurelib.common.api.common.config.Config;
+import mod.azure.azurelib.common.internal.client.config.screen.ConfigGroupScreen;
+import mod.azure.azurelib.common.internal.client.config.screen.ConfigScreen;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 
 public final class AzureLibClient {
 
@@ -40,11 +41,14 @@ public final class AzureLibClient {
      */
     @Nullable
     public static Screen getConfigScreen(String configId, Screen previous) {
-        return ConfigHolderRegistry.getConfig(configId).map(holder -> getConfigScreenForHolder(holder, previous)).orElse(null);
+        return ConfigHolderRegistry.getConfig(configId)
+            .map(holder -> getConfigScreenForHolder(holder, previous))
+            .orElse(null);
     }
 
     /**
-     * Obtain group of multiple configs based on group ID. This is useful when you have multiple config files for your mod.
+     * Obtain group of multiple configs based on group ID. This is useful when you have multiple config files for your
+     * mod.
      *
      * @param group    Group ID, usually mod ID
      * @param previous Previously open screen

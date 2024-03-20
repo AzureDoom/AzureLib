@@ -1,11 +1,13 @@
 package mod.azure.azurelib.common.internal.common.util;
 
+import net.minecraft.client.Minecraft;
+
 import mod.azure.azurelib.common.internal.client.config.screen.OptifineWarningScreen;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibMod;
-import net.minecraft.client.Minecraft;
 
 public final class IncompatibleModsCheck {
+
     public static boolean optifinePresent = false;
 
     public static void run() {

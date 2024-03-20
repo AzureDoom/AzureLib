@@ -1,5 +1,7 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,15 +13,16 @@ import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
 import mod.azure.azurelib.common.internal.common.config.Configurable;
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
 import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
-public abstract class ConfigValue<T> implements Supplier<T>{
+public abstract class ConfigValue<T> implements Supplier<T> {
 
     protected final ValueData<T> valueData;
+
     private T value;
+
     private boolean synchronizeToClient;
+
     @Nullable
     private SetValueCallback<T> setValueCallback;
 
@@ -65,9 +68,7 @@ public abstract class ConfigValue<T> implements Supplier<T>{
         this.readFieldData(field);
     }
 
-    protected void readFieldData(Field field) {
-
-    }
+    protected void readFieldData(Field field) {}
 
     protected T getCorrectedValue(T in) {
         return in;

@@ -1,28 +1,27 @@
 package mod.azure.azurelib.core.math;
 
 /**
- * Constant class
- *
- * This class simply returns supplied in the constructor value
+ * Constant class This class simply returns supplied in the constructor value
  */
 public class Constant implements IValue {
-	private double value;
 
-	public Constant(double value) {
-		this.value = value;
-	}
+    private double value;
 
-	@Override
-	public double get() {
-		return this.value;
-	}
+    public Constant(double value) {
+        this.value = value;
+    }
 
-	public void set(double value) {
-		this.value = value;
-	}
+    @Override
+    public double get() {
+        return this.value;
+    }
 
-	@Override
-	public String toString() {
-		return String.valueOf(this.value);
-	}
+    public void set(double value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(this.value);
+    }
 }

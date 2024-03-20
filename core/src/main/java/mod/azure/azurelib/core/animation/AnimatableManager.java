@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.animation;
@@ -8,166 +7,183 @@ package mod.azure.azurelib.core.animation;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.object.DataTicket;
-import mod.azure.azurelib.core.state.BoneSnapshot;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.object.DataTicket;
+import mod.azure.azurelib.core.state.BoneSnapshot;
+
 /**
  * The animation data collection for a given animatable instance.<br>
- * Generally speaking, a single working-instance of an {@link GeoAnimatable Animatable}
- * will have a single instance of {@code AnimatableManager} associated with it.<br>
- *
+ * Generally speaking, a single working-instance of an {@link GeoAnimatable Animatable} will have a single instance of
+ * {@code AnimatableManager} associated with it.<br>
  */
 public class AnimatableManager<T extends GeoAnimatable> {
-	private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
-	private final Map<String, AnimationController<T>> animationControllers;
-	private Map<DataTicket<?>, Object> extraData;
 
-	private double lastUpdateTime;
-	private boolean isFirstTick = true;
-	private double firstTickTime = -1;
+    private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
 
-	/**
-	 * Instantiates a new AnimatableManager for the given animatable, calling {@link GeoAnimatable#registerControllers} to define its controllers
-	 */
-	public AnimatableManager(GeoAnimatable animatable) {
-		ControllerRegistrar registrar = new ControllerRegistrar();
+    private final Map<String, AnimationController<T>> animationControllers;
 
-		animatable.registerControllers(registrar);
+    private Map<DataTicket<?>, Object> extraData;
 
-		this.animationControllers = registrar.build();
-	}
+    private double lastUpdateTime;
 
-	/**
-	 * Add an {@link AnimationController} to this animatable's manager.<br>
-	 * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
-	 */
-	public void addController(AnimationController<T> controller) {
-		this.animationControllers.put(controller.getName(), controller);
-	}
+    private boolean isFirstTick = true;
 
-	/**
-	 * Removes an {@link AnimationController} from this manager by the given name, if present.
-	 */
-	public void removeController(String name) {
-		this.animationControllers.remove(name);
-	}
+    private double firstTickTime = -1;
 
-	public Map<String, AnimationController<T>> getAnimationControllers() {
-		return animationControllers;
-	}
+    /**
+     * Instantiates a new AnimatableManager for the given animatable, calling {@link GeoAnimatable#registerControllers}
+     * to define its controllers
+     */
+    public AnimatableManager(GeoAnimatable animatable) {
+        ControllerRegistrar registrar = new ControllerRegistrar();
 
-	public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
-		return boneSnapshotCollection;
-	}
+        animatable.registerControllers(registrar);
 
-	public void clearSnapshotCache() {
-		this.boneSnapshotCollection.clear();
-	}
+        this.animationControllers = registrar.build();
+    }
 
-	public double getLastUpdateTime() {
-		return this.lastUpdateTime;
-	}
+    /**
+     * Add an {@link AnimationController} to this animatable's manager.<br>
+     * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
+     */
+    public void addController(AnimationController<T> controller) {
+        this.animationControllers.put(controller.getName(), controller);
+    }
 
-	public void updatedAt(double updateTime) {
-		this.lastUpdateTime = updateTime;
-	}
+    /**
+     * Removes an {@link AnimationController} from this manager by the given name, if present.
+     */
+    public void removeController(String name) {
+        this.animationControllers.remove(name);
+    }
 
-	public double getFirstTickTime() {
-		return this.firstTickTime;
-	}
+    public Map<String, AnimationController<T>> getAnimationControllers() {
+        return animationControllers;
+    }
 
-	public void startedAt(double time) {
-		this.firstTickTime = time;
-	}
+    public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
+        return boneSnapshotCollection;
+    }
 
-	public boolean isFirstTick() {
-		return this.isFirstTick;
-	}
+    public void clearSnapshotCache() {
+        this.boneSnapshotCollection.clear();
+    }
 
-	protected void finishFirstTick() {
-		this.isFirstTick = false;
-	}
+    public double getLastUpdateTime() {
+        return this.lastUpdateTime;
+    }
 
-	/**
-	 * Set a custom data point to be used later
-	 * @param dataTicket The DataTicket for the data point
-	 * @param data The piece of data to store
-	 */
-	public <D> void setData(DataTicket<D> dataTicket, D data) {
-		if (this.extraData == null)
-			this.extraData = new Object2ObjectOpenHashMap<>();
+    public void updatedAt(double updateTime) {
+        this.lastUpdateTime = updateTime;
+    }
 
-		this.extraData.put(dataTicket, data);
-	}
+    public double getFirstTickTime() {
+        return this.firstTickTime;
+    }
 
-	/**
-	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
-	 */
-	public <D> D getData(DataTicket<D> dataTicket) {
-		return this.extraData != null ? dataTicket.getData(this.extraData) : null;
-	}
+    public void startedAt(double time) {
+        this.firstTickTime = time;
+    }
 
-	/**
-	 * Attempt to trigger an animation from a given controller name and registered triggerable animation name.<br>
-	 * This pseudo-overloaded method checks each controller in turn until one of them accepts the trigger.<br>
-	 * This can be sped up by specifying which controller you intend to receive the trigger in {@link AnimatableManager#tryTriggerAnimation(String, String)}
-	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
-	 */
-	public void tryTriggerAnimation(String animName) {
-		for (AnimationController<?> controller : getAnimationControllers().values()) {
-			if (controller.tryTriggerAnimation(animName))
-				return;
-		}
-	}
+    public boolean isFirstTick() {
+        return this.isFirstTick;
+    }
 
-	/**
-	 * Attempt to trigger an animation from a given controller name and registered triggerable animation name
-	 * @param controllerName The name of the controller name the animation belongs to
-	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
-	 */
-	public void tryTriggerAnimation(String controllerName, String animName) {
-		AnimationController<?> controller = getAnimationControllers().get(controllerName);
+    protected void finishFirstTick() {
+        this.isFirstTick = false;
+    }
 
-		if (controller != null)
-			controller.tryTriggerAnimation(animName);
-	}
+    /**
+     * Set a custom data point to be used later
+     *
+     * @param dataTicket The DataTicket for the data point
+     * @param data       The piece of data to store
+     */
+    public <D> void setData(DataTicket<D> dataTicket, D data) {
+        if (this.extraData == null)
+            this.extraData = new Object2ObjectOpenHashMap<>();
 
-	/**
-	 * Helper class for the AnimatableManager to cleanly register controllers in one shot at instantiation for efficiency
-	 */
-	public static final class ControllerRegistrar {
-		private final List<AnimationController<? extends GeoAnimatable>> controllers = new ObjectArrayList<>(4);
+        this.extraData.put(dataTicket, data);
+    }
 
-		/**
-		 * Add an {@link AnimationController} to this registrar
-		 */
-		public ControllerRegistrar add(AnimationController<?>... controllers) {
-			this.controllers.addAll(Arrays.asList(controllers));
+    /**
+     * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
+     */
+    public <D> D getData(DataTicket<D> dataTicket) {
+        return this.extraData != null ? dataTicket.getData(this.extraData) : null;
+    }
 
-			return this;
-		}
+    /**
+     * Attempt to trigger an animation from a given controller name and registered triggerable animation name.<br>
+     * This pseudo-overloaded method checks each controller in turn until one of them accepts the trigger.<br>
+     * This can be sped up by specifying which controller you intend to receive the trigger in
+     * {@link AnimatableManager#tryTriggerAnimation(String, String)}
+     *
+     * @param animName The name of animation to trigger. This needs to have been registered with the controller via
+     *                 {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
+     */
+    public void tryTriggerAnimation(String animName) {
+        for (AnimationController<?> controller : getAnimationControllers().values()) {
+            if (controller.tryTriggerAnimation(animName))
+                return;
+        }
+    }
 
-		/**
-		 * Remove an {@link AnimationController} from this registrar by name.<br>
-		 * This is mostly only useful if you're sub-classing an existing animatable object and want to modify the super list
-		 */
-		public ControllerRegistrar remove(String name) {
-			this.controllers.removeIf(controller -> controller.getName().equals(name));
+    /**
+     * Attempt to trigger an animation from a given controller name and registered triggerable animation name
+     *
+     * @param controllerName The name of the controller name the animation belongs to
+     * @param animName       The name of animation to trigger. This needs to have been registered with the controller
+     *                       via {@link AnimationController#triggerableAnim AnimationController.triggerableAnim}
+     */
+    public void tryTriggerAnimation(String controllerName, String animName) {
+        AnimationController<?> controller = getAnimationControllers().get(controllerName);
 
-			return this;
-		}
+        if (controller != null)
+            controller.tryTriggerAnimation(animName);
+    }
 
-		private <T extends GeoAnimatable> Object2ObjectArrayMap<String, AnimationController<T>> build() {
-			Object2ObjectArrayMap<String, AnimationController<?>> map = new Object2ObjectArrayMap<>(this.controllers.size());
+    /**
+     * Helper class for the AnimatableManager to cleanly register controllers in one shot at instantiation for
+     * efficiency
+     */
+    public static final class ControllerRegistrar {
 
-			this.controllers.forEach(controller -> map.put(controller.getName(), controller));
+        private final List<AnimationController<? extends GeoAnimatable>> controllers = new ObjectArrayList<>(4);
 
-			return (Object2ObjectArrayMap)map;
-		}
-	}
+        /**
+         * Add an {@link AnimationController} to this registrar
+         */
+        public ControllerRegistrar add(AnimationController<?>... controllers) {
+            this.controllers.addAll(Arrays.asList(controllers));
+
+            return this;
+        }
+
+        /**
+         * Remove an {@link AnimationController} from this registrar by name.<br>
+         * This is mostly only useful if you're sub-classing an existing animatable object and want to modify the super
+         * list
+         */
+        public ControllerRegistrar remove(String name) {
+            this.controllers.removeIf(controller -> controller.getName().equals(name));
+
+            return this;
+        }
+
+        private <T extends GeoAnimatable> Object2ObjectArrayMap<String, AnimationController<T>> build() {
+            Object2ObjectArrayMap<String, AnimationController<?>> map = new Object2ObjectArrayMap<>(
+                this.controllers.size()
+            );
+
+            this.controllers.forEach(controller -> map.put(controller.getName(), controller));
+
+            return (Object2ObjectArrayMap) map;
+        }
+    }
 }

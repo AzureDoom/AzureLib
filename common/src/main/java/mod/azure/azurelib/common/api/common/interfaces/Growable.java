@@ -7,9 +7,11 @@ import static java.lang.Math.min;
 
 /**
  * Interface of having entities grow into entity based a growth value.
+ *
  * @author Boston Vanseghi
  */
 public interface Growable {
+
     float getGrowth();
 
     void setGrowth(float growth);

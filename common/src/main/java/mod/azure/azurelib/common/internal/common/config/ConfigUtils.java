@@ -1,5 +1,8 @@
 package mod.azure.azurelib.common.internal.common.config;
 
+import net.minecraft.client.gui.components.EditBox;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -9,26 +12,39 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-import net.minecraft.client.gui.components.EditBox;
 
 public final class ConfigUtils {
 
     public static final char[] INTEGER_CHARS = { '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
     public static final char[] DECIMAL_CHARS = { '-', '.', 'E', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
     public static final Pattern INTEGER_PATTERN = Pattern.compile("-?[0-9]+");
+
     public static final Pattern DECIMAL_PATTERN = Pattern.compile("-?[0-9]+(\\.[0-9]+)?(E[0-9]+)?");
+
     public static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPINGS = new HashMap<>();
 
     public static void logCorrectedMessage(String field, @Nullable Object prevValue, Object corrected) {
-    	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config value '{}' from '{}' to '{}'", field, Objects.toString(prevValue), corrected);
+        AzureLib.LOGGER.warn(
+            ConfigIO.MARKER,
+            "Correcting config value '{}' from '{}' to '{}'",
+            field,
+            Objects.toString(prevValue),
+            corrected
+        );
     }
 
     public static void logArraySizeCorrectedMessage(String field, Object prevValue, Object corrected) {
-    	AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config array value '{}' due to invalid size from '{}' to '{}'", field, prevValue, corrected);
+        AzureLib.LOGGER.warn(
+            ConfigIO.MARKER,
+            "Correcting config array value '{}' due to invalid size from '{}' to '{}'",
+            field,
+            prevValue,
+            corrected
+        );
     }
 
     public static boolean[] unboxArray(Boolean[] values) {
@@ -76,7 +92,10 @@ public final class ConfigUtils {
         return primitive;
     }
 
-    public static <E extends Enum<E>> E getEnumConstant(String value, Class<E> declaringClass) throws ConfigValueMissingException {
+    public static <E extends Enum<E>> E getEnumConstant(
+        String value,
+        Class<E> declaringClass
+    ) throws ConfigValueMissingException {
         E[] constants = declaringClass.getEnumConstants();
         for (E e : constants) {
             if (e.name().equals(value)) {

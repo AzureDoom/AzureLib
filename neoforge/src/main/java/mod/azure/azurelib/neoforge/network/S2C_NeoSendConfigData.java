@@ -1,18 +1,18 @@
 package mod.azure.azurelib.neoforge.network;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.Map;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 
 public class S2C_NeoSendConfigData extends AbstractPacket implements IPacket<S2C_NeoSendConfigData> {
 
@@ -49,9 +49,7 @@ public class S2C_NeoSendConfigData extends AbstractPacket implements IPacket<S2C
     }
 
     @Override
-    public void handle() {
-
-    }
+    public void handle() {}
 
     @Override
     public ResourceLocation id() {

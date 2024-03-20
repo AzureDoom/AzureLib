@@ -1,18 +1,21 @@
 package mod.azure.azurelib.common.internal.common.cache;
 
-import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+
 /**
  * Storage class that keeps track of the last animatable id used, and provides new ones on request.<br>
- * Generally only used for {@link net.minecraft.world.item.Item Items}, but any
- * {@link SingletonAnimatableInstanceCache singleton} will likely use this.
+ * Generally only used for {@link net.minecraft.world.item.Item Items}, but any {@link SingletonAnimatableInstanceCache
+ * singleton} will likely use this.
  */
 public final class AnimatableIdCache extends SavedData {
+
     private static final String DATA_KEY = "AzureLib_id_cache";
+
     private long lastId;
 
     private AnimatableIdCache() {
@@ -24,7 +27,11 @@ public final class AnimatableIdCache extends SavedData {
     }
 
     public static SavedData.Factory<AnimatableIdCache> factory() {
-        return new SavedData.Factory<>(AnimatableIdCache::new, AnimatableIdCache::new, DataFixTypes.SAVED_DATA_MAP_DATA);
+        return new SavedData.Factory<>(
+            AnimatableIdCache::new,
+            AnimatableIdCache::new,
+            DataFixTypes.SAVED_DATA_MAP_DATA
+        );
     }
 
     /**

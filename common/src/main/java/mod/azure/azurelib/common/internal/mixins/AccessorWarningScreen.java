@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(WarningScreen.class)
 public interface AccessorWarningScreen {
+
     @Accessor("message")
     MultiLineLabel getMessageText();
 

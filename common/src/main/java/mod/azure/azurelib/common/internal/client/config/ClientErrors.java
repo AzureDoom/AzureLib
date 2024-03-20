@@ -10,10 +10,14 @@ import mod.azure.azurelib.common.internal.common.config.value.IntegerValue;
 
 public final class ClientErrors {
 
-    public static final MutableComponent CHAR_VALUE_EMPTY = Component.translatable("text.azurelib.error.character_value_empty");
+    public static final MutableComponent CHAR_VALUE_EMPTY = Component.translatable(
+        "text.azurelib.error.character_value_empty"
+    );
 
     private static final String KEY_NAN = "text.azurelib.error.nan";
+
     private static final String KEY_NUM_BOUNDS = "text.azurelib.error.num_bounds";
+
     private static final String KEY_MISMATCHED_PATTERN = "text.azurelib.error.pattern_mismatch";
 
     public static MutableComponent notANumber(String value) {

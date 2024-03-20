@@ -3,64 +3,68 @@ package mod.azure.azurelib.core.math.functions;
 import mod.azure.azurelib.core.math.IValue;
 
 /**
- * Abstract function class
- *
- * This class provides function capability (i.e. giving it arguments and upon
- * {@link #get()} method you receive output).
+ * Abstract function class This class provides function capability (i.e. giving it arguments and upon {@link #get()}
+ * method you receive output).
  */
 public abstract class Function implements IValue {
-	protected IValue[] args;
-	protected String name;
 
-	protected Function(IValue[] values, String name) throws Exception {
-		if (values.length < this.getRequiredArguments()) {
-			String message = String.format("Function '%s' requires at least %s arguments. %s are given!",
-					this.getName(), this.getRequiredArguments(), values.length);
+    protected IValue[] args;
 
-			throw new Exception(message);
-		}
+    protected String name;
 
-		this.args = values;
-		this.name = name;
-	}
+    protected Function(IValue[] values, String name) throws Exception {
+        if (values.length < this.getRequiredArguments()) {
+            String message = String.format(
+                "Function '%s' requires at least %s arguments. %s are given!",
+                this.getName(),
+                this.getRequiredArguments(),
+                values.length
+            );
 
-	/**
-	 * Get the value of nth argument
-	 */
-	public double getArg(int index) {
-		if (index < 0 || index >= this.args.length) {
-			return 0;
-		}
+            throw new Exception(message);
+        }
 
-		return this.args[index].get();
-	}
+        this.args = values;
+        this.name = name;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder argsBuilder = new StringBuilder();
+    /**
+     * Get the value of nth argument
+     */
+    public double getArg(int index) {
+        if (index < 0 || index >= this.args.length) {
+            return 0;
+        }
 
-		for (int i = 0; i < this.args.length; i++) {
-			argsBuilder.append(this.args[i].toString());
+        return this.args[index].get();
+    }
 
-			if (i < this.args.length - 1) {
-				argsBuilder.append(", ");
-			}
-		}
+    @Override
+    public String toString() {
+        StringBuilder argsBuilder = new StringBuilder();
 
-		return this.getName() + "(" + argsBuilder + ")";
-	}
+        for (int i = 0; i < this.args.length; i++) {
+            argsBuilder.append(this.args[i].toString());
 
-	/**
-	 * Get name of this function
-	 */
-	public String getName() {
-		return this.name;
-	}
+            if (i < this.args.length - 1) {
+                argsBuilder.append(", ");
+            }
+        }
 
-	/**
-	 * Get minimum count of arguments this function needs
-	 */
-	public int getRequiredArguments() {
-		return 0;
-	}
+        return this.getName() + "(" + argsBuilder + ")";
+    }
+
+    /**
+     * Get name of this function
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Get minimum count of arguments this function needs
+     */
+    public int getRequiredArguments() {
+        return 0;
+    }
 }

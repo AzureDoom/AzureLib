@@ -1,28 +1,9 @@
 package mod.azure.azurelib.common.api.client.renderer;
 
-import java.util.List;
-
-import mod.azure.azurelib.common.api.common.event.GeoRenderBlockEvent;
-import mod.azure.azurelib.common.api.client.model.GeoModel;
-import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
-import mod.azure.azurelib.common.platform.Services;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-
-import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
-import mod.azure.azurelib.common.internal.common.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.common.internal.common.constant.DataTickets;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayersContainer;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -33,213 +14,360 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+import java.util.List;
+
+import mod.azure.azurelib.common.api.client.model.GeoModel;
+import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayersContainer;
+import mod.azure.azurelib.common.api.common.event.GeoRenderBlockEvent;
+import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
+import mod.azure.azurelib.common.internal.common.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.common.internal.common.constant.DataTickets;
+import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
 
 /**
  * Base {@link GeoRenderer} class for rendering {@link BlockEntity Blocks} specifically.<br>
  * All blocks added to be rendered by AzureLib should use an instance of this class.
  */
 public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> implements GeoRenderer<T>, BlockEntityRenderer<T> {
-	protected final GeoModel<T> model;
-	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 
-	protected T animatable;
-	protected float scaleWidth = 1;
-	protected float scaleHeight = 1;
+    protected final GeoModel<T> model;
 
-	protected Matrix4f blockRenderTranslations = new Matrix4f();
-	protected Matrix4f modelRenderTranslations = new Matrix4f();
+    protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 
-	public GeoBlockRenderer(GeoModel<T> model) {
-		this.model = model;
+    protected T animatable;
 
-	}
+    protected float scaleWidth = 1;
 
-	/**
-	 * Gets the model instance for this renderer
-	 */
-	@Override
-	public GeoModel<T> getGeoModel() {
-		return this.model;
-	}
+    protected float scaleHeight = 1;
 
-	/**
-	 * Gets the {@link GeoAnimatable} instance currently being rendered
-	 */
-	@Override
-	public T getAnimatable() {
-		return this.animatable;
-	}
+    protected Matrix4f blockRenderTranslations = new Matrix4f();
 
-	/**
-	 * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for things like items, which have a single registered instance for all objects
-	 */
-	@Override
-	public long getInstanceId(T animatable) {
-		return animatable.getBlockPos().hashCode();
-	}
+    protected Matrix4f modelRenderTranslations = new Matrix4f();
 
-	/**
-	 * Returns the list of registered {@link GeoRenderLayer GeoRenderLayers} for this renderer
-	 */
-	@Override
-	public List<GeoRenderLayer<T>> getRenderLayers() {
-		return this.renderLayers.getRenderLayers();
-	}
+    public GeoBlockRenderer(GeoModel<T> model) {
+        this.model = model;
+    }
 
-	/**
-	 * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
-	 */
-	public GeoBlockRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
-		this.renderLayers.addLayer(renderLayer);
+    /**
+     * Gets the model instance for this renderer
+     */
+    @Override
+    public GeoModel<T> getGeoModel() {
+        return this.model;
+    }
 
-		return this;
-	}
+    /**
+     * Gets the {@link GeoAnimatable} instance currently being rendered
+     */
+    @Override
+    public T getAnimatable() {
+        return this.animatable;
+    }
 
-	/**
-	 * Sets a scale override for this renderer, telling AzureLib to pre-scale the model
-	 */
-	public GeoBlockRenderer<T> withScale(float scale) {
-		return withScale(scale, scale);
-	}
+    /**
+     * Gets the id that represents the current animatable's instance for animation purposes. This is mostly useful for
+     * things like items, which have a single registered instance for all objects
+     */
+    @Override
+    public long getInstanceId(T animatable) {
+        return animatable.getBlockPos().hashCode();
+    }
 
-	/**
-	 * Sets a scale override for this renderer, telling AzureLib to pre-scale the model
-	 */
-	public GeoBlockRenderer<T> withScale(float scaleWidth, float scaleHeight) {
-		this.scaleWidth = scaleWidth;
-		this.scaleHeight = scaleHeight;
+    /**
+     * Returns the list of registered {@link GeoRenderLayer GeoRenderLayers} for this renderer
+     */
+    @Override
+    public List<GeoRenderLayer<T>> getRenderLayers() {
+        return this.renderLayers.getRenderLayers();
+    }
 
-		return this;
-	}
+    /**
+     * Adds a {@link GeoRenderLayer} to this renderer, to be called after the main model is rendered each frame
+     */
+    public GeoBlockRenderer<T> addRenderLayer(GeoRenderLayer<T> renderLayer) {
+        this.renderLayers.addLayer(renderLayer);
 
-	/**
-	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
-	 * {@link PoseStack} translations made here are kept until the end of the render process
-	 */
-	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		this.blockRenderTranslations = new Matrix4f(poseStack.last().pose());
+        return this;
+    }
 
-		scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-	}
+    /**
+     * Sets a scale override for this renderer, telling AzureLib to pre-scale the model
+     */
+    public GeoBlockRenderer<T> withScale(float scale) {
+        return withScale(scale, scale);
+    }
 
-	@Override
-	public void render(T animatable, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-		this.animatable = animatable;
+    /**
+     * Sets a scale override for this renderer, telling AzureLib to pre-scale the model
+     */
+    public GeoBlockRenderer<T> withScale(float scaleWidth, float scaleHeight) {
+        this.scaleWidth = scaleWidth;
+        this.scaleHeight = scaleHeight;
 
-		defaultRender(poseStack, this.animatable, bufferSource, null, null, 0, partialTick, packedLight);
-	}
+        return this;
+    }
 
-	/**
-	 * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
-	 * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
-	 */
-	@Override
-	public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    /**
+     * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling
+     * and translating.<br>
+     * {@link PoseStack} translations made here are kept until the end of the render process
+     */
+    @Override
+    public void preRender(
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
+        this.blockRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-		if (!isReRender) {
-			AnimationState<T> animationState = new AnimationState<T>(animatable, 0, 0, partialTick, false);
-			long instanceId = getInstanceId(animatable);
+        scaleModelForRender(
+            this.scaleWidth,
+            this.scaleHeight,
+            poseStack,
+            animatable,
+            model,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay
+        );
+    }
 
-			animationState.setData(DataTickets.TICK, animatable.getTick(animatable));
-			animationState.setData(DataTickets.BLOCK_ENTITY, animatable);
-			this.model.addAdditionalStateData(animatable, instanceId, animationState::setData);
-			poseStack.translate(0.5, 0, 0.5);
-			rotateBlock(getFacing(animatable), poseStack);
-			this.model.handleAnimations(animatable, instanceId, animationState);
-		}
+    @Override
+    public void render(
+        T animatable,
+        float partialTick,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedLight,
+        int packedOverlay
+    ) {
+        this.animatable = animatable;
 
-		this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
+        defaultRender(poseStack, this.animatable, bufferSource, null, null, 0, partialTick, packedLight);
+    }
 
-		RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
-		GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-	}
+    /**
+     * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
+     * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be
+     * called directly after
+     */
+    @Override
+    public void actuallyRender(
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
+        if (!isReRender) {
+            AnimationState<T> animationState = new AnimationState<T>(animatable, 0, 0, partialTick, false);
+            long instanceId = getInstanceId(animatable);
 
-	/**
-	 * Renders the provided {@link GeoBone} and its associated child bones
-	 */
-	@Override
-	public void renderRecursively(PoseStack poseStack, T animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		if (bone.isTrackingMatrices()) {
-			Matrix4f poseState = new Matrix4f(poseStack.last().pose());
-			Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.blockRenderTranslations);
+            animationState.setData(DataTickets.TICK, animatable.getTick(animatable));
+            animationState.setData(DataTickets.BLOCK_ENTITY, animatable);
+            this.model.addAdditionalStateData(animatable, instanceId, animationState::setData);
+            poseStack.translate(0.5, 0, 0.5);
+            rotateBlock(getFacing(animatable), poseStack);
+            this.model.handleAnimations(animatable, instanceId, animationState);
+        }
 
-			bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
-			bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, getRenderOffset(this.animatable, 1).toVector3f()));
-			bone.setWorldSpaceMatrix(RenderUtils.translateMatrix(new Matrix4f(localMatrix), new Vector3f(this.animatable.getBlockPos().getX(), this.animatable.getBlockPos().getY(), this.animatable.getBlockPos().getZ())));
-		}
+        this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-		GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-	}
+        RenderSystem.setShaderTexture(0, getTextureLocation(animatable));
+        GeoRenderer.super.actuallyRender(
+            poseStack,
+            animatable,
+            model,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            red,
+            green,
+            blue,
+            alpha
+        );
+    }
 
-	public Vec3 getRenderOffset(BlockEntity entity, float f) {
-		return Vec3.ZERO;
-	}
+    /**
+     * Renders the provided {@link GeoBone} and its associated child bones
+     */
+    @Override
+    public void renderRecursively(
+        PoseStack poseStack,
+        T animatable,
+        GeoBone bone,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
+        if (bone.isTrackingMatrices()) {
+            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(poseState, this.blockRenderTranslations);
 
-	/**
-	 * Rotate the {@link PoseStack} based on the determined {@link Direction} the block is facing
-	 */
-	protected void rotateBlock(Direction facing, PoseStack poseStack) {
-		switch (facing) {
-		case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
-		case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
-		case NORTH -> poseStack.mulPose(Axis.YP.rotationDegrees(0));
-		case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270));
-		case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
-		case DOWN -> poseStack.mulPose(Axis.XN.rotationDegrees(90));
-		}
-	}
+            bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
+            bone.setLocalSpaceMatrix(
+                RenderUtils.translateMatrix(localMatrix, getRenderOffset(this.animatable, 1).toVector3f())
+            );
+            bone.setWorldSpaceMatrix(
+                RenderUtils.translateMatrix(
+                    new Matrix4f(localMatrix),
+                    new Vector3f(
+                        this.animatable.getBlockPos().getX(),
+                        this.animatable.getBlockPos().getY(),
+                        this.animatable.getBlockPos().getZ()
+                    )
+                )
+            );
+        }
 
-	/**
-	 * Attempt to extract a direction from the block so that the model can be oriented correctly
-	 */
-	protected Direction getFacing(T block) {
-		BlockState blockState = block.getBlockState();
+        GeoRenderer.super.renderRecursively(
+            poseStack,
+            animatable,
+            bone,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            red,
+            green,
+            blue,
+            alpha
+        );
+    }
 
-		if (blockState.hasProperty(HorizontalDirectionalBlock.FACING))
-			return blockState.getValue(HorizontalDirectionalBlock.FACING);
+    public Vec3 getRenderOffset(BlockEntity entity, float f) {
+        return Vec3.ZERO;
+    }
 
-		if (blockState.hasProperty(DirectionalBlock.FACING))
-			return blockState.getValue(DirectionalBlock.FACING);
+    /**
+     * Rotate the {@link PoseStack} based on the determined {@link Direction} the block is facing
+     */
+    protected void rotateBlock(Direction facing, PoseStack poseStack) {
+        switch (facing) {
+            case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
+            case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            case NORTH -> poseStack.mulPose(Axis.YP.rotationDegrees(0));
+            case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270));
+            case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
+            case DOWN -> poseStack.mulPose(Axis.XN.rotationDegrees(90));
+        }
+    }
 
-		return Direction.NORTH;
-	}
+    /**
+     * Attempt to extract a direction from the block so that the model can be oriented correctly
+     */
+    protected Direction getFacing(T block) {
+        BlockState blockState = block.getBlockState();
 
-	/**
-	 * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this GeoRenderer.<br>
-	 * This should only be called immediately prior to rendering, and only
-	 * 
-	 * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
-	 */
-	@Override
-	public void updateAnimatedTextureFrame(T animatable) {
-		AnimatableTexture.setAndUpdate(getTextureLocation(animatable), animatable.getBlockPos().getX() + animatable.getBlockPos().getY() + animatable.getBlockPos().getZ() + (int) animatable.getTick(animatable));
-	}
+        if (blockState.hasProperty(HorizontalDirectionalBlock.FACING))
+            return blockState.getValue(HorizontalDirectionalBlock.FACING);
 
-	/**
-	 * Create and fire the relevant {@code CompileLayers} event hook for this renderer
-	 */
-	@Override
-	public void fireCompileRenderLayersEvent() {
-		GeoRenderBlockEvent.CompileRenderLayers.EVENT.handle(new GeoRenderBlockEvent.CompileRenderLayers(this));
-	}
+        if (blockState.hasProperty(DirectionalBlock.FACING))
+            return blockState.getValue(DirectionalBlock.FACING);
 
-	/**
-	 * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
-	 * 
-	 * @return Whether the renderer should proceed based on the cancellation state of the event
-	 */
-	@Override
-	public boolean firePreRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		var event = GeoRenderBlockEvent.Pre.EVENT.handle(new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight));
-		return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") ? !event : event;
-	}
+        return Direction.NORTH;
+    }
 
-	/**
-	 * Create and fire the relevant {@code Post-Render} event hook for this renderer
-	 */
-	@Override
-	public void firePostRenderEvent(PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
-		GeoRenderBlockEvent.Post.EVENT.handle(new GeoRenderBlockEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight));
-	}
+    /**
+     * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this
+     * GeoRenderer.<br>
+     * This should only be called immediately prior to rendering, and only
+     *
+     * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+     */
+    @Override
+    public void updateAnimatedTextureFrame(T animatable) {
+        AnimatableTexture.setAndUpdate(
+            getTextureLocation(animatable),
+            animatable.getBlockPos().getX() + animatable.getBlockPos().getY() + animatable.getBlockPos().getZ()
+                + (int) animatable.getTick(animatable)
+        );
+    }
+
+    /**
+     * Create and fire the relevant {@code CompileLayers} event hook for this renderer
+     */
+    @Override
+    public void fireCompileRenderLayersEvent() {
+        GeoRenderBlockEvent.CompileRenderLayers.EVENT.handle(new GeoRenderBlockEvent.CompileRenderLayers(this));
+    }
+
+    /**
+     * Create and fire the relevant {@code Pre-Render} event hook for this renderer.<br>
+     *
+     * @return Whether the renderer should proceed based on the cancellation state of the event
+     */
+    @Override
+    public boolean firePreRenderEvent(
+        PoseStack poseStack,
+        BakedGeoModel model,
+        MultiBufferSource bufferSource,
+        float partialTick,
+        int packedLight
+    ) {
+        var event = GeoRenderBlockEvent.Pre.EVENT.handle(
+            new GeoRenderBlockEvent.Pre(this, poseStack, model, bufferSource, partialTick, packedLight)
+        );
+        return Services.PLATFORM.getPlatformName().equalsIgnoreCase("forge") ? !event : event;
+    }
+
+    /**
+     * Create and fire the relevant {@code Post-Render} event hook for this renderer
+     */
+    @Override
+    public void firePostRenderEvent(
+        PoseStack poseStack,
+        BakedGeoModel model,
+        MultiBufferSource bufferSource,
+        float partialTick,
+        int packedLight
+    ) {
+        GeoRenderBlockEvent.Post.EVENT.handle(
+            new GeoRenderBlockEvent.Post(this, poseStack, model, bufferSource, partialTick, packedLight)
+        );
+    }
 }

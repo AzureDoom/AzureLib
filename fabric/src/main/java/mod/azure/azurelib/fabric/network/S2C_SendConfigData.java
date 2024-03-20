@@ -1,21 +1,21 @@
 package mod.azure.azurelib.fabric.network;
 
-import java.util.Map;
-
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import mod.azure.azurelib.fabric.network.api.IClientPacket;
-import mod.azure.azurelib.common.internal.common.network.api.IPacketDecoder;
-import mod.azure.azurelib.common.internal.common.network.api.IPacketEncoder;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Map;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketDecoder;
+import mod.azure.azurelib.common.internal.common.network.api.IPacketEncoder;
+import mod.azure.azurelib.fabric.network.api.IClientPacket;
 
 public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.ConfigData> {
 
@@ -70,7 +70,7 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
                     String fieldId = buffer.readUtf();
                     ConfigValue<?> value = serialized.get(fieldId);
                     if (value == null) {
-                    	AzureLib.LOGGER.fatal(Networking.MARKER, "Received unknown config value " + fieldId);
+                        AzureLib.LOGGER.fatal(Networking.MARKER, "Received unknown config value " + fieldId);
                         throw new AzureLibException("Unknown config field: " + fieldId);
                     }
                     setValue(value, buffer);
@@ -81,8 +81,12 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
     }
 
     @Override
-    public void handleClientsidePacket(Minecraft client, ClientPacketListener listener, ConfigData packetData, PacketSender dispatcher) {
-    }
+    public void handleClientsidePacket(
+        Minecraft client,
+        ClientPacketListener listener,
+        ConfigData packetData,
+        PacketSender dispatcher
+    ) {}
 
     private <V> void setValue(ConfigValue<V> value, FriendlyByteBuf buffer) {
         TypeAdapter adapter = value.getAdapter();

@@ -1,12 +1,14 @@
 package mod.azure.azurelib.common.api.common.enchantments;
 
-import mod.azure.azurelib.common.api.common.tags.AzureTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
+import mod.azure.azurelib.common.api.common.tags.AzureTags;
+
 public class IncendiaryEnchantment extends Enchantment {
+
     public IncendiaryEnchantment(Rarity rarity, EquipmentSlot... slots) {
         super(rarity, EnchantmentCategory.BREAKABLE, slots);
     }

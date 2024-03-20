@@ -1,119 +1,120 @@
 package mod.azure.azurelib.core.animatable.model;
 
-import mod.azure.azurelib.core.state.BoneSnapshot;
-
 import java.util.List;
+
+import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Base class for AzureLib {@link CoreGeoModel model} bones.<br>
  * Mostly a placeholder to allow for splitting up core (non-Minecraft) libraries
  */
 public interface CoreGeoBone {
-	String getName();
 
-	CoreGeoBone getParent();
+    String getName();
 
-	float getRotX();
+    CoreGeoBone getParent();
 
-	float getRotY();
+    float getRotX();
 
-	float getRotZ();
+    float getRotY();
 
-	float getPosX();
+    float getRotZ();
 
-	float getPosY();
+    float getPosX();
 
-	float getPosZ();
+    float getPosY();
 
-	float getScaleX();
+    float getPosZ();
 
-	float getScaleY();
+    float getScaleX();
 
-	float getScaleZ();
+    float getScaleY();
 
-	void setRotX(float value);
+    float getScaleZ();
 
-	void setRotY(float value);
+    void setRotX(float value);
 
-	void setRotZ(float value);
+    void setRotY(float value);
 
-	default void updateRotation(float xRot, float yRot, float zRot) {
-		setRotX(xRot);
-		setRotY(yRot);
-		setRotZ(zRot);
-	}
+    void setRotZ(float value);
 
-	void setPosX(float value);
+    default void updateRotation(float xRot, float yRot, float zRot) {
+        setRotX(xRot);
+        setRotY(yRot);
+        setRotZ(zRot);
+    }
 
-	void setPosY(float value);
+    void setPosX(float value);
 
-	void setPosZ(float value);
+    void setPosY(float value);
 
-	default void updatePosition(float posX, float posY, float posZ) {
-		setPosX(posX);
-		setPosY(posY);
-		setPosZ(posZ);
-	}
+    void setPosZ(float value);
 
-	void setScaleX(float value);
+    default void updatePosition(float posX, float posY, float posZ) {
+        setPosX(posX);
+        setPosY(posY);
+        setPosZ(posZ);
+    }
 
-	void setScaleY(float value);
+    void setScaleX(float value);
 
-	void setScaleZ(float value);
+    void setScaleY(float value);
 
-	default void updateScale(float scaleX, float scaleY, float scaleZ) {
-		setScaleX(scaleX);
-		setScaleY(scaleY);
-		setScaleZ(scaleZ);
-	}
+    void setScaleZ(float value);
 
-	void setPivotX(float value);
+    default void updateScale(float scaleX, float scaleY, float scaleZ) {
+        setScaleX(scaleX);
+        setScaleY(scaleY);
+        setScaleZ(scaleZ);
+    }
 
-	void setPivotY(float value);
+    void setPivotX(float value);
 
-	void setPivotZ(float value);
+    void setPivotY(float value);
 
-	default void updatePivot(float pivotX, float pivotY, float pivotZ) {
-		setPivotX(pivotX);
-		setPivotY(pivotY);
-		setPivotZ(pivotZ);
-	}
+    void setPivotZ(float value);
 
-	float getPivotX();
+    default void updatePivot(float pivotX, float pivotY, float pivotZ) {
+        setPivotX(pivotX);
+        setPivotY(pivotY);
+        setPivotZ(pivotZ);
+    }
 
-	float getPivotY();
+    float getPivotX();
 
-	float getPivotZ();
+    float getPivotY();
 
-	boolean isHidden();
+    float getPivotZ();
 
-	boolean isHidingChildren();
+    boolean isHidden();
 
-	void setHidden(boolean hidden);
+    boolean isHidingChildren();
 
-	void setChildrenHidden(boolean hideChildren);
+    void setHidden(boolean hidden);
 
-	void saveInitialSnapshot();
+    void setChildrenHidden(boolean hideChildren);
 
-	void markScaleAsChanged();
+    void saveInitialSnapshot();
 
-	void markRotationAsChanged();
+    void markScaleAsChanged();
 
-	void markPositionAsChanged();
+    void markRotationAsChanged();
 
-	boolean hasScaleChanged();
+    void markPositionAsChanged();
 
-	boolean hasRotationChanged();
+    boolean hasScaleChanged();
 
-	boolean hasPositionChanged();
+    boolean hasRotationChanged();
 
-	void resetStateChanges();
+    boolean hasPositionChanged();
 
-	BoneSnapshot getInitialSnapshot();
+    void resetStateChanges();
 
-	List<? extends CoreGeoBone> getChildBones();
+    BoneSnapshot getInitialSnapshot();
 
-	default BoneSnapshot saveSnapshot() {
-		return new BoneSnapshot(this);
-	}
+    List<? extends CoreGeoBone> getChildBones();
+
+    default BoneSnapshot saveSnapshot() {
+        return new BoneSnapshot(this);
+    }
 }

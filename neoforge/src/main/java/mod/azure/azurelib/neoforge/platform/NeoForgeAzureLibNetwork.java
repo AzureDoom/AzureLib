@@ -1,8 +1,5 @@
 package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.neoforge.network.S2C_NeoSendConfigData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -11,6 +8,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
+import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.neoforge.network.S2C_NeoSendConfigData;
 
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
@@ -24,8 +25,7 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     }
 
     @Override
-    public void registerClientReceiverPackets() {
-    }
+    public void registerClientReceiverPackets() {}
 
     @Override
     public void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack) {

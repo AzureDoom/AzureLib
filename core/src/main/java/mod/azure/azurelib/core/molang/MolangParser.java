@@ -3,6 +3,11 @@ package mod.azure.azurelib.core.molang;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.MathBuilder;
@@ -13,262 +18,269 @@ import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.CosDegrees;
 import mod.azure.azurelib.core.molang.functions.SinDegrees;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.DoubleSupplier;
-
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
+ *
  * @see <a href="https://bedrock.dev/docs/1.19.0.0/1.19.30.23/Molang#Math%20Functions">Bedrock Dev - Molang</a>
  */
 public class MolangParser extends MathBuilder {
-	// Replace base variables map
-	public static final Map<String, LazyVariable> VARIABLES = new Object2ObjectOpenHashMap<>();
-	public static final MolangVariableHolder ZERO = new MolangVariableHolder(null, new Constant(0));
-	public static final MolangVariableHolder ONE = new MolangVariableHolder(null, new Constant(1));
-	public static final String RETURN = "return ";
 
-	public static final MolangParser INSTANCE = new MolangParser();
+    // Replace base variables map
+    public static final Map<String, LazyVariable> VARIABLES = new Object2ObjectOpenHashMap<>();
 
-	private MolangParser() {
-		super();
+    public static final MolangVariableHolder ZERO = new MolangVariableHolder(null, new Constant(0));
 
-		// Remap functions to be intact with Molang specification
-		doCoreRemaps();
-		registerAdditionalVariables();
-	}
+    public static final MolangVariableHolder ONE = new MolangVariableHolder(null, new Constant(1));
 
-	private void doCoreRemaps() {
-		// Replace radian based sin and cos with degree-based functions
-		this.functions.put("cos", CosDegrees.class);
-		this.functions.put("sin", SinDegrees.class);
+    public static final String RETURN = "return ";
 
-		remap("abs", "math.abs");
-		remap("acos", "math.acos");
-		remap("asin", "math.asin");
-		remap("atan", "math.atan");
-		remap("atan2", "math.atan2");
-		remap("ceil", "math.ceil");
-		remap("clamp", "math.clamp");
-		remap("cos", "math.cos");
-		remap("die_roll", "math.die_roll");
-		remap("die_roll_integer", "math.die_roll_integer");
-		remap("exp", "math.exp");
-		remap("floor", "math.floor");
-		remap("hermite_blend", "math.hermite_blend");
-		remap("lerp", "math.lerp");
-		remap("lerprotate", "math.lerprotate");
-		remap("ln", "math.ln");
-		remap("max", "math.max");
-		remap("min", "math.min");
-		remap("mod", "math.mod");
-		remap("pi", "math.pi");
-		remap("pow", "math.pow");
-		remap("random", "math.random");
-		remap("random_integer", "math.random_integer");
-		remap("round", "math.round");
-		remap("sin", "math.sin");
-		remap("sqrt", "math.sqrt");
-		remap("trunc", "math.trunc");
-	}
+    public static final MolangParser INSTANCE = new MolangParser();
 
-	private void registerAdditionalVariables() {
-		register(new LazyVariable(MolangQueries.ANIM_TIME, 0));
-		register(new LazyVariable(MolangQueries.LIFE_TIME, 0));
-		register(new LazyVariable(MolangQueries.ACTOR_COUNT, 0));
-		register(new LazyVariable(MolangQueries.HEALTH, 0));
-		register(new LazyVariable(MolangQueries.MAX_HEALTH, 0));
-		register(new LazyVariable(MolangQueries.DISTANCE_FROM_CAMERA, 0));
-		register(new LazyVariable(MolangQueries.YAW_SPEED, 0));
-		register(new LazyVariable(MolangQueries.IS_IN_WATER_OR_RAIN, 0));
-		register(new LazyVariable(MolangQueries.IS_IN_WATER, 0));
-		register(new LazyVariable(MolangQueries.IS_ON_GROUND, 0));
-		register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
-		register(new LazyVariable(MolangQueries.IS_ON_FIRE, 0));
-		register(new LazyVariable(MolangQueries.GROUND_SPEED, 0));
-	}
+    private MolangParser() {
+        super();
 
-	/**
-	 * Register a new {@link Variable} with the {@code MolangParser}.<br>
-	 * Ideally should be called from the mod constructor.
-	 */
-	@Override
-	public void register(Variable variable) {
-		if (!(variable instanceof LazyVariable))
-			variable = LazyVariable.from(variable);
+        // Remap functions to be intact with Molang specification
+        doCoreRemaps();
+        registerAdditionalVariables();
+    }
 
-		VARIABLES.put(variable.getName(), (LazyVariable)variable);
-	}
+    private void doCoreRemaps() {
+        // Replace radian based sin and cos with degree-based functions
+        this.functions.put("cos", CosDegrees.class);
+        this.functions.put("sin", SinDegrees.class);
 
-	/**
-	 * Remap a function to a new name, maintaining the actual functionality and removing the old registration entry
-	 */
-	public void remap(String old, String newName) {
-		this.functions.put(newName, this.functions.remove(old));
-	}
+        remap("abs", "math.abs");
+        remap("acos", "math.acos");
+        remap("asin", "math.asin");
+        remap("atan", "math.atan");
+        remap("atan2", "math.atan2");
+        remap("ceil", "math.ceil");
+        remap("clamp", "math.clamp");
+        remap("cos", "math.cos");
+        remap("die_roll", "math.die_roll");
+        remap("die_roll_integer", "math.die_roll_integer");
+        remap("exp", "math.exp");
+        remap("floor", "math.floor");
+        remap("hermite_blend", "math.hermite_blend");
+        remap("lerp", "math.lerp");
+        remap("lerprotate", "math.lerprotate");
+        remap("ln", "math.ln");
+        remap("max", "math.max");
+        remap("min", "math.min");
+        remap("mod", "math.mod");
+        remap("pi", "math.pi");
+        remap("pow", "math.pow");
+        remap("random", "math.random");
+        remap("random_integer", "math.random_integer");
+        remap("round", "math.round");
+        remap("sin", "math.sin");
+        remap("sqrt", "math.sqrt");
+        remap("trunc", "math.trunc");
+    }
 
-	/**
-	 * Set the value supplier for a variable.<br>
-	 * Consider using {@link MolangParser#setMemoizedValue} instead of you don't need per-call dynamic results
-	 * @param name The name of the variable to set the value for
-	 * @param value The value supplier to set
-	 */
-	public void setValue(String name, DoubleSupplier value) {
-		LazyVariable variable = getVariable(name);
+    private void registerAdditionalVariables() {
+        register(new LazyVariable(MolangQueries.ANIM_TIME, 0));
+        register(new LazyVariable(MolangQueries.LIFE_TIME, 0));
+        register(new LazyVariable(MolangQueries.ACTOR_COUNT, 0));
+        register(new LazyVariable(MolangQueries.HEALTH, 0));
+        register(new LazyVariable(MolangQueries.MAX_HEALTH, 0));
+        register(new LazyVariable(MolangQueries.DISTANCE_FROM_CAMERA, 0));
+        register(new LazyVariable(MolangQueries.YAW_SPEED, 0));
+        register(new LazyVariable(MolangQueries.IS_IN_WATER_OR_RAIN, 0));
+        register(new LazyVariable(MolangQueries.IS_IN_WATER, 0));
+        register(new LazyVariable(MolangQueries.IS_ON_GROUND, 0));
+        register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
+        register(new LazyVariable(MolangQueries.IS_ON_FIRE, 0));
+        register(new LazyVariable(MolangQueries.GROUND_SPEED, 0));
+    }
 
-		if (variable != null)
-			variable.set(value);
-	}
+    /**
+     * Register a new {@link Variable} with the {@code MolangParser}.<br>
+     * Ideally should be called from the mod constructor.
+     */
+    @Override
+    public void register(Variable variable) {
+        if (!(variable instanceof LazyVariable))
+            variable = LazyVariable.from(variable);
 
-	/**
-	 * Sets a memoized value supplier for a variable.<br>
-	 * This prevents re-calculation on successive calls, improving efficiency.<br>
-	 * This should be used wherever per-call accuracy is not needed.
-	 */
-	public void setMemoizedValue(String name, DoubleSupplier value) {
-		getVariable(name).set(new DoubleSupplier() {
-			private final DoubleSupplier supplier = value;
-			private double computedValue = Double.MIN_VALUE;
+        VARIABLES.put(variable.getName(), (LazyVariable) variable);
+    }
 
-			@Override
-			public double getAsDouble() {
-				if (this.computedValue == Double.MIN_VALUE)
-					this.computedValue = this.supplier.getAsDouble();
+    /**
+     * Remap a function to a new name, maintaining the actual functionality and removing the old registration entry
+     */
+    public void remap(String old, String newName) {
+        this.functions.put(newName, this.functions.remove(old));
+    }
 
-				return this.computedValue;
-			}
-		});
-	}
+    /**
+     * Set the value supplier for a variable.<br>
+     * Consider using {@link MolangParser#setMemoizedValue} instead of you don't need per-call dynamic results
+     *
+     * @param name  The name of the variable to set the value for
+     * @param value The value supplier to set
+     */
+    public void setValue(String name, DoubleSupplier value) {
+        LazyVariable variable = getVariable(name);
 
-	/**
-	 * Get the registered {@link LazyVariable} for the given name
-	 * @param name The name of the variable to get
-	 * @return The registered {@code LazyVariable} instance, or a newly registered instance if one wasn't registered previously
-	 */
-	@Override
-	public LazyVariable getVariable(String name) {
-		return VARIABLES.computeIfAbsent(name, key -> new LazyVariable(key, 0));
-	}
+        if (variable != null)
+            variable.set(value);
+    }
 
-	public LazyVariable getVariable(String name, MolangCompoundValue currentStatement) {
-		LazyVariable variable;
+    /**
+     * Sets a memoized value supplier for a variable.<br>
+     * This prevents re-calculation on successive calls, improving efficiency.<br>
+     * This should be used wherever per-call accuracy is not needed.
+     */
+    public void setMemoizedValue(String name, DoubleSupplier value) {
+        getVariable(name).set(new DoubleSupplier() {
 
-		if (currentStatement != null) {
-			variable = currentStatement.locals.get(name);
+            private final DoubleSupplier supplier = value;
 
-			if (variable != null)
-				return variable;
-		}
+            private double computedValue = Double.MIN_VALUE;
 
-		return getVariable(name);
-	}
+            @Override
+            public double getAsDouble() {
+                if (this.computedValue == Double.MIN_VALUE)
+                    this.computedValue = this.supplier.getAsDouble();
 
-	public static MolangValue parseJson(JsonElement element) throws MolangException {
-		if (!element.isJsonPrimitive())
-			return ZERO;
+                return this.computedValue;
+            }
+        });
+    }
 
-		JsonPrimitive primitive = element.getAsJsonPrimitive();
+    /**
+     * Get the registered {@link LazyVariable} for the given name
+     *
+     * @param name The name of the variable to get
+     * @return The registered {@code LazyVariable} instance, or a newly registered instance if one wasn't registered
+     *         previously
+     */
+    @Override
+    public LazyVariable getVariable(String name) {
+        return VARIABLES.computeIfAbsent(name, key -> new LazyVariable(key, 0));
+    }
 
-		if (primitive.isNumber())
-			return new MolangValue(new Constant(primitive.getAsDouble()));
+    public LazyVariable getVariable(String name, MolangCompoundValue currentStatement) {
+        LazyVariable variable;
 
-		if (primitive.isString()) {
-			String string = primitive.getAsString();
+        if (currentStatement != null) {
+            variable = currentStatement.locals.get(name);
 
-			try {
-				return new MolangValue(new Constant(Double.parseDouble(string)));
-			}
-			catch (NumberFormatException ex) {
-				return parseExpression(string);
-			}
-		}
+            if (variable != null)
+                return variable;
+        }
 
-		return ZERO;
-	}
+        return getVariable(name);
+    }
 
-	/**
-	 * Parse a molang expression
-	 */
-	public static MolangValue parseExpression(String expression) throws MolangException {
-		MolangCompoundValue result = null;
+    public static MolangValue parseJson(JsonElement element) throws MolangException {
+        if (!element.isJsonPrimitive())
+            return ZERO;
 
-		for (String split : expression.toLowerCase().trim().split(";")) {
-			String trimmed = split.trim();
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
 
-			if (!trimmed.isEmpty()) {
-				if (result == null) {
-					result = new MolangCompoundValue(parseOneLine(trimmed, result));
+        if (primitive.isNumber())
+            return new MolangValue(new Constant(primitive.getAsDouble()));
 
-					continue;
-				}
+        if (primitive.isString()) {
+            String string = primitive.getAsString();
 
-				result.values.add(parseOneLine(trimmed, result));
-			}
-		}
+            try {
+                return new MolangValue(new Constant(Double.parseDouble(string)));
+            } catch (NumberFormatException ex) {
+                return parseExpression(string);
+            }
+        }
 
-		if (result == null)
-			throw new MolangException("Molang expression cannot be blank!");
+        return ZERO;
+    }
 
-		return result;
-	}
+    /**
+     * Parse a molang expression
+     */
+    public static MolangValue parseExpression(String expression) throws MolangException {
+        MolangCompoundValue result = null;
 
-	/**
-	 * Parse a single Molang statement
-	 */
-	protected static MolangValue parseOneLine(String expression, MolangCompoundValue currentStatement) throws MolangException {
-		if (expression.startsWith(RETURN)) {
-			try {
-				return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())), true);
-			}
-			catch (Exception e) {
-				throw new MolangException("Couldn't parse return '" + expression + "' expression!");
-			}
-		}
+        for (String split : expression.toLowerCase().trim().split(";")) {
+            String trimmed = split.trim();
 
-		try {
-			List<Object> symbols = INSTANCE.breakdownChars(INSTANCE.breakdown(expression));
+            if (!trimmed.isEmpty()) {
+                if (result == null) {
+                    result = new MolangCompoundValue(parseOneLine(trimmed, result));
 
-			if (symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0)) && symbols.get(1).equals("=")) {
-				symbols = symbols.subList(2, symbols.size());
-				LazyVariable variable;
+                    continue;
+                }
 
-				if (!VARIABLES.containsKey(name) && !currentStatement.locals.containsKey(name)) {
-					currentStatement.locals.put(name, (variable = new LazyVariable(name, 0)));
-				}
-				else {
-					variable = INSTANCE.getVariable(name, currentStatement);
-				}
+                result.values.add(parseOneLine(trimmed, result));
+            }
+        }
 
-				return new MolangVariableHolder(variable, INSTANCE.parseSymbolsMolang(symbols));
-			}
+        if (result == null)
+            throw new MolangException("Molang expression cannot be blank!");
 
-			return new MolangValue(INSTANCE.parseSymbolsMolang(symbols));
-		}
-		catch (Exception e) {
-			throw new MolangException("Couldn't parse '" + expression + "' expression!");
-		}
-	}
+        return result;
+    }
 
-	/**
-	 * Wrapper around {@link #parseSymbols(List)} to throw {@link MolangException}
-	 */
-	private IValue parseSymbolsMolang(List<Object> symbols) throws MolangException {
-		try {
-			return this.parseSymbols(symbols);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+    /**
+     * Parse a single Molang statement
+     */
+    protected static MolangValue parseOneLine(
+        String expression,
+        MolangCompoundValue currentStatement
+    ) throws MolangException {
+        if (expression.startsWith(RETURN)) {
+            try {
+                return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())), true);
+            } catch (Exception e) {
+                throw new MolangException("Couldn't parse return '" + expression + "' expression!");
+            }
+        }
 
-			throw new MolangException("Couldn't parse an expression!");
-		}
-	}
+        try {
+            List<Object> symbols = INSTANCE.breakdownChars(INSTANCE.breakdown(expression));
 
-	/**
-	 * Extend this method to allow {@link #breakdownChars(String[])} to capture "="
-	 * as an operator, so it was easier to parse assignment statements
-	 */
-	@Override
-	protected boolean isOperator(String s) {
-		return super.isOperator(s) || s.equals("=");
-	}
+            if (
+                symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
+                    && symbols.get(1).equals("=")
+            ) {
+                symbols = symbols.subList(2, symbols.size());
+                LazyVariable variable;
+
+                if (!VARIABLES.containsKey(name) && !currentStatement.locals.containsKey(name)) {
+                    currentStatement.locals.put(name, (variable = new LazyVariable(name, 0)));
+                } else {
+                    variable = INSTANCE.getVariable(name, currentStatement);
+                }
+
+                return new MolangVariableHolder(variable, INSTANCE.parseSymbolsMolang(symbols));
+            }
+
+            return new MolangValue(INSTANCE.parseSymbolsMolang(symbols));
+        } catch (Exception e) {
+            throw new MolangException("Couldn't parse '" + expression + "' expression!");
+        }
+    }
+
+    /**
+     * Wrapper around {@link #parseSymbols(List)} to throw {@link MolangException}
+     */
+    private IValue parseSymbolsMolang(List<Object> symbols) throws MolangException {
+        try {
+            return this.parseSymbols(symbols);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new MolangException("Couldn't parse an expression!");
+        }
+    }
+
+    /**
+     * Extend this method to allow {@link #breakdownChars(String[])} to capture "=" as an operator, so it was easier to
+     * parse assignment statements
+     */
+    @Override
+    protected boolean isOperator(String s) {
+        return super.isOperator(s) || s.equals("=");
+    }
 }

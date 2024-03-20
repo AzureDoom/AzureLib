@@ -1,17 +1,23 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import org.jetbrains.annotations.Nullable;
 
 public final class ValueData<T> implements IDescriptionProvider {
 
     private final String id;
+
     private final String[] tooltip;
+
     private final T defaultValue;
+
     private final TypeAdapter.AdapterContext context;
+
     private final Class<T> valueType;
+
     @Nullable
     private ConfigValue<?> parent;
 

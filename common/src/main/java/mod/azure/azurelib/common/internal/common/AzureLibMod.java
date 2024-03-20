@@ -16,9 +16,11 @@ public final class AzureLibMod {
      * Registers your config class. Config will be immediately loaded upon calling.
      *
      * @param configClass   Your config class
-     * @param formatFactory File format to be used by this config class. You can use values from {@link ConfigFormats} for example.
-     * @param <C>  Config type
-     * @return Config holder containing your config instance. You obtain it by calling {@link ConfigHolder#getConfigInstance()} method.
+     * @param formatFactory File format to be used by this config class. You can use values from {@link ConfigFormats}
+     *                      for example.
+     * @param <C>           Config type
+     * @return Config holder containing your config instance. You obtain it by calling
+     *         {@link ConfigHolder#getConfigInstance()} method.
      */
     public static <C> ConfigHolder<C> registerConfig(Class<C> configClass, IConfigFormatHandler formatFactory) {
         Config config = configClass.getAnnotation(Config.class);

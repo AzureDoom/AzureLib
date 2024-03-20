@@ -1,34 +1,42 @@
 package mod.azure.azurelib.common.internal.common.network.packet;
 
-import mod.azure.azurelib.common.api.common.animatable.GeoEntity;
-import mod.azure.azurelib.common.api.common.animatable.GeoReplacedEntity;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.common.api.client.helper.ClientUtils;
+import mod.azure.azurelib.common.api.common.animatable.GeoEntity;
+import mod.azure.azurelib.common.api.common.animatable.GeoReplacedEntity;
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
+import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+
 /**
- * Packet for syncing user-definable animations that can be triggered from the
- * server for {@link net.minecraft.world.entity.Entity Entities}
+ * Packet for syncing user-definable animations that can be triggered from the server for
+ * {@link net.minecraft.world.entity.Entity Entities}
  */
 public class EntityAnimTriggerPacket extends AbstractPacket {
+
     private final int entityId;
+
     private final boolean isReplacedEntity;
 
     private final String controllerName;
+
     private final String animName;
 
     public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
         this(entityId, false, controllerName, animName);
     }
 
-    public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, @Nullable String controllerName,
-                                   String animName) {
+    public EntityAnimTriggerPacket(
+        int entityId,
+        boolean isReplacedEntity,
+        @Nullable String controllerName,
+        String animName
+    ) {
         this.entityId = entityId;
         this.isReplacedEntity = isReplacedEntity;
         this.controllerName = controllerName == null ? "" : controllerName;

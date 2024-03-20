@@ -1,13 +1,14 @@
 package mod.azure.azurelib.common.api.common.config;
 
+import net.minecraft.network.chat.Component;
+
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
+import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.config.Configurable;
 import mod.azure.azurelib.common.internal.common.config.validate.ValidationResult;
-import net.minecraft.network.chat.Component;
 
 @Config(id = AzureLib.MOD_ID)
 public final class TestingConfig {
@@ -44,22 +45,22 @@ public final class TestingConfig {
 
     @Configurable
     @Configurable.FixedSize
-    public boolean[] boolArray = {false, false, true, false};
+    public boolean[] boolArray = { false, false, true, false };
 
     @Configurable
     @Configurable.Range(min = 50, max = 160)
-    public int[] intArray = {153, 123, 54};
+    public int[] intArray = { 153, 123, 54 };
 
     @Configurable
-    public long[] longArray = {13, 56, 133};
+    public long[] longArray = { 13, 56, 133 };
 
     @Configurable
     @Configurable.DecimalRange(min = 500.0F)
-    public float[] floatArray = {135.32F, 1561.23F};
+    public float[] floatArray = { 135.32F, 1561.23F };
 
     @Configurable
     @Configurable.ValueUpdateCallback(method = "onUpdate")
-    public String[] stringArray = {"minecraft:test"};
+    public String[] stringArray = { "minecraft:test" };
 
     @Configurable
     public TestEnum testEnum = TestEnum.C;
@@ -68,12 +69,17 @@ public final class TestingConfig {
     public NestedTest nestedTest = new NestedTest();
 
     public enum TestEnum {
-        A, B, C, D
+        A,
+        B,
+        C,
+        D
     }
 
     public void onUpdate(String[] value, IValidationHandler handler) {
         AzureLib.LOGGER.debug(() -> Arrays.toString(value));
-        handler.setValidationResult(ValidationResult.warn(Component.translatable("config.azurelib.option.genericwarning")));
+        handler.setValidationResult(
+            ValidationResult.warn(Component.translatable("config.azurelib.option.genericwarning"))
+        );
     }
 
     public static class NestedTest {

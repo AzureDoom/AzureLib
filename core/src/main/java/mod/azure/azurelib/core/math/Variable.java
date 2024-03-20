@@ -1,42 +1,39 @@
 package mod.azure.azurelib.core.math;
 
 /**
- * Variable class
- *
- * This class is responsible for providing a mutable {@link IValue} which can be
- * modifier during runtime and still getting referenced in the expressions
- * parsed by {@link MathBuilder}.
- *
- * But in practice, it's simply returns stored value and provides a method to
- * modify it.
+ * Variable class This class is responsible for providing a mutable {@link IValue} which can be modifier during runtime
+ * and still getting referenced in the expressions parsed by {@link MathBuilder}. But in practice, it's simply returns
+ * stored value and provides a method to modify it.
  */
 public class Variable implements IValue {
-	private String name;
-	private double value;
 
-	public Variable(String name, double value) {
-		this.name = name;
-		this.value = value;
-	}
+    private String name;
 
-	/**
-	 * Set the value of this variable
-	 */
-	public void set(double value) {
-		this.value = value;
-	}
+    private double value;
 
-	@Override
-	public double get() {
-		return this.value;
-	}
+    public Variable(String name, double value) {
+        this.name = name;
+        this.value = value;
+    }
 
-	public String getName() {
-		return name;
-	}
+    /**
+     * Set the value of this variable
+     */
+    public void set(double value) {
+        this.value = value;
+    }
 
-	@Override
-	public String toString() {
-		return this.name;
-	}
+    @Override
+    public double get() {
+        return this.value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

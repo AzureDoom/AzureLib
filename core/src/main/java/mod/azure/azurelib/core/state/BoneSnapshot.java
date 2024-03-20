@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.state;
@@ -10,197 +9,208 @@ import mod.azure.azurelib.core.animation.AnimationProcessor;
 
 /**
  * A state monitoring class for a given {@link CoreGeoBone}.<br>
- * Transformations applied to the bone is monitored by the {@link AnimationProcessor}
- * in the course of animations, and stored here for monitoring.
+ * Transformations applied to the bone is monitored by the {@link AnimationProcessor} in the course of animations, and
+ * stored here for monitoring.
  */
 public class BoneSnapshot {
-	private final CoreGeoBone bone;
 
-	private float scaleX;
-	private float scaleY;
-	private float scaleZ;
+    private final CoreGeoBone bone;
 
-	private float offsetPosX;
-	private float offsetPosY;
-	private float offsetPosZ;
+    private float scaleX;
 
-	private float rotX;
-	private float rotY;
-	private float rotZ;
+    private float scaleY;
 
-	private double lastResetRotationTick = 0;
-	private double lastResetPositionTick = 0;
-	private double lastResetScaleTick = 0;
+    private float scaleZ;
 
-	private boolean rotAnimInProgress = true;
-	private boolean posAnimInProgress = true;
-	private boolean scaleAnimInProgress = true;
+    private float offsetPosX;
 
-	public BoneSnapshot(CoreGeoBone bone) {
-		this.rotX = bone.getRotX();
-		this.rotY = bone.getRotY();
-		this.rotZ = bone.getRotZ();
+    private float offsetPosY;
 
-		this.offsetPosX = bone.getPosX();
-		this.offsetPosY = bone.getPosY();
-		this.offsetPosZ = bone.getPosZ();
+    private float offsetPosZ;
 
-		this.scaleX = bone.getScaleX();
-		this.scaleY = bone.getScaleY();
-		this.scaleZ = bone.getScaleZ();
+    private float rotX;
 
-		this.bone = bone;
-	}
+    private float rotY;
 
-	public static BoneSnapshot copy(BoneSnapshot snapshot) {
-		BoneSnapshot newSnapshot = new BoneSnapshot(snapshot.bone);
+    private float rotZ;
 
-		newSnapshot.scaleX = snapshot.scaleX;
-		newSnapshot.scaleY = snapshot.scaleY;
-		newSnapshot.scaleZ = snapshot.scaleZ;
+    private double lastResetRotationTick = 0;
 
-		newSnapshot.offsetPosX = snapshot.offsetPosX;
-		newSnapshot.offsetPosY = snapshot.offsetPosY;
-		newSnapshot.offsetPosZ = snapshot.offsetPosZ;
+    private double lastResetPositionTick = 0;
 
-		newSnapshot.rotX = snapshot.rotX;
-		newSnapshot.rotY = snapshot.rotY;
-		newSnapshot.rotZ = snapshot.rotZ;
+    private double lastResetScaleTick = 0;
 
-		return newSnapshot;
-	}
+    private boolean rotAnimInProgress = true;
 
-	public CoreGeoBone getBone() {
-		return this.bone;
-	}
+    private boolean posAnimInProgress = true;
 
-	public float getScaleX() {
-		return this.scaleX;
-	}
+    private boolean scaleAnimInProgress = true;
 
-	public float getScaleY() {
-		return this.scaleY;
-	}
+    public BoneSnapshot(CoreGeoBone bone) {
+        this.rotX = bone.getRotX();
+        this.rotY = bone.getRotY();
+        this.rotZ = bone.getRotZ();
 
-	public float getScaleZ() {
-		return this.scaleZ;
-	}
+        this.offsetPosX = bone.getPosX();
+        this.offsetPosY = bone.getPosY();
+        this.offsetPosZ = bone.getPosZ();
 
-	public float getOffsetX() {
-		return this.offsetPosX;
-	}
+        this.scaleX = bone.getScaleX();
+        this.scaleY = bone.getScaleY();
+        this.scaleZ = bone.getScaleZ();
 
-	public float getOffsetY() {
-		return this.offsetPosY;
-	}
+        this.bone = bone;
+    }
 
-	public float getOffsetZ() {
-		return this.offsetPosZ;
-	}
+    public static BoneSnapshot copy(BoneSnapshot snapshot) {
+        BoneSnapshot newSnapshot = new BoneSnapshot(snapshot.bone);
 
-	public float getRotX() {
-		return this.rotX;
-	}
+        newSnapshot.scaleX = snapshot.scaleX;
+        newSnapshot.scaleY = snapshot.scaleY;
+        newSnapshot.scaleZ = snapshot.scaleZ;
 
-	public float getRotY() {
-		return this.rotY;
-	}
+        newSnapshot.offsetPosX = snapshot.offsetPosX;
+        newSnapshot.offsetPosY = snapshot.offsetPosY;
+        newSnapshot.offsetPosZ = snapshot.offsetPosZ;
 
-	public float getRotZ() {
-		return this.rotZ;
-	}
+        newSnapshot.rotX = snapshot.rotX;
+        newSnapshot.rotY = snapshot.rotY;
+        newSnapshot.rotZ = snapshot.rotZ;
 
-	public double getLastResetRotationTick() {
-		return this.lastResetRotationTick;
-	}
+        return newSnapshot;
+    }
 
-	public double getLastResetPositionTick() {
-		return this.lastResetPositionTick;
-	}
+    public CoreGeoBone getBone() {
+        return this.bone;
+    }
 
-	public double getLastResetScaleTick() {
-		return this.lastResetScaleTick;
-	}
+    public float getScaleX() {
+        return this.scaleX;
+    }
 
-	public boolean isRotAnimInProgress() {
-		return this.rotAnimInProgress;
-	}
+    public float getScaleY() {
+        return this.scaleY;
+    }
 
-	public boolean isPosAnimInProgress() {
-		return this.posAnimInProgress;
-	}
+    public float getScaleZ() {
+        return this.scaleZ;
+    }
 
-	public boolean isScaleAnimInProgress() {
-		return this.scaleAnimInProgress;
-	}
+    public float getOffsetX() {
+        return this.offsetPosX;
+    }
 
-	/**
-	 * Update the scale state of this snapshot
-	 */
-	public void updateScale(float scaleX, float scaleY, float scaleZ) {
-		this.scaleX = scaleX;
-		this.scaleY = scaleY;
-		this.scaleZ = scaleZ;
-	}
+    public float getOffsetY() {
+        return this.offsetPosY;
+    }
 
-	/**
-	 * Update the offset state of this snapshot
-	 */
-	public void updateOffset(float offsetX, float offsetY, float offsetZ) {
-		this.offsetPosX = offsetX;
-		this.offsetPosY = offsetY;
-		this.offsetPosZ = offsetZ;
-	}
+    public float getOffsetZ() {
+        return this.offsetPosZ;
+    }
 
-	/**
-	 * Update the rotation state of this snapshot
-	 */
-	public void updateRotation(float rotX, float rotY, float rotZ) {
-		this.rotX = rotX;
-		this.rotY = rotY;
-		this.rotZ = rotZ;
-	}
+    public float getRotX() {
+        return this.rotX;
+    }
 
-	public void startPosAnim() {
-		this.posAnimInProgress = true;
-	}
+    public float getRotY() {
+        return this.rotY;
+    }
 
-	public void stopPosAnim(double tick) {
-		this.posAnimInProgress = false;
-		this.lastResetPositionTick = tick;
-	}
+    public float getRotZ() {
+        return this.rotZ;
+    }
 
-	public void startRotAnim() {
-		this.rotAnimInProgress = true;
-	}
+    public double getLastResetRotationTick() {
+        return this.lastResetRotationTick;
+    }
 
-	public void stopRotAnim(double tick) {
-		this.rotAnimInProgress = false;
-		this.lastResetRotationTick = tick;
-	}
+    public double getLastResetPositionTick() {
+        return this.lastResetPositionTick;
+    }
 
-	public void startScaleAnim() {
-		this.scaleAnimInProgress = true;
-	}
+    public double getLastResetScaleTick() {
+        return this.lastResetScaleTick;
+    }
 
-	public void stopScaleAnim(double tick) {
-		this.scaleAnimInProgress = false;
-		this.lastResetScaleTick = tick;
-	}
+    public boolean isRotAnimInProgress() {
+        return this.rotAnimInProgress;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
+    public boolean isPosAnimInProgress() {
+        return this.posAnimInProgress;
+    }
 
-		if (obj == null || getClass() != obj.getClass())
-			return false;
+    public boolean isScaleAnimInProgress() {
+        return this.scaleAnimInProgress;
+    }
 
-		return hashCode() == obj.hashCode();
-	}
+    /**
+     * Update the scale state of this snapshot
+     */
+    public void updateScale(float scaleX, float scaleY, float scaleZ) {
+        this.scaleX = scaleX;
+        this.scaleY = scaleY;
+        this.scaleZ = scaleZ;
+    }
 
-	@Override
-	public int hashCode() {
-		return this.bone.getName().hashCode();
-	}
+    /**
+     * Update the offset state of this snapshot
+     */
+    public void updateOffset(float offsetX, float offsetY, float offsetZ) {
+        this.offsetPosX = offsetX;
+        this.offsetPosY = offsetY;
+        this.offsetPosZ = offsetZ;
+    }
+
+    /**
+     * Update the rotation state of this snapshot
+     */
+    public void updateRotation(float rotX, float rotY, float rotZ) {
+        this.rotX = rotX;
+        this.rotY = rotY;
+        this.rotZ = rotZ;
+    }
+
+    public void startPosAnim() {
+        this.posAnimInProgress = true;
+    }
+
+    public void stopPosAnim(double tick) {
+        this.posAnimInProgress = false;
+        this.lastResetPositionTick = tick;
+    }
+
+    public void startRotAnim() {
+        this.rotAnimInProgress = true;
+    }
+
+    public void stopRotAnim(double tick) {
+        this.rotAnimInProgress = false;
+        this.lastResetRotationTick = tick;
+    }
+
+    public void startScaleAnim() {
+        this.scaleAnimInProgress = true;
+    }
+
+    public void stopScaleAnim(double tick) {
+        this.scaleAnimInProgress = false;
+        this.lastResetScaleTick = tick;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        return hashCode() == obj.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.bone.getName().hashCode();
+    }
 }
