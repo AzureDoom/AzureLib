@@ -3,7 +3,7 @@ package mod.azure.azurelib.common.platform.services;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.animatable.SingletonGeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;

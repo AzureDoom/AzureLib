@@ -2,7 +2,7 @@ package mod.azure.azurelib.common.internal.common.loading;
 
 import com.google.gson.JsonObject;
 import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibException;

@@ -1,8 +1,8 @@
 package mod.azure.azurelib.common.internal.client.util;
 
 import mod.azure.azurelib.common.internal.common.cache.object.GeoCube;
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoQuad;
 import org.jetbrains.annotations.Nullable;

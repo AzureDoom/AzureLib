@@ -4,12 +4,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.common.internal.common.animatable.SingletonGeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animation.AnimationController;
+import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.common.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.common.internal.common.network.SerializableDataTicket;
 import mod.azure.azurelib.common.internal.common.network.packet.EntityAnimDataSyncPacket;
 import mod.azure.azurelib.common.internal.common.network.packet.EntityAnimTriggerPacket;

@@ -34,12 +34,11 @@ public final class ConfigHolderRegistry {
      * Allows you to get your config holder based on ID
      *
      * @param id    Config ID
-     * @param <CFG> Config type
+     * @param <C> Config type
      * @return Optional with config holder when such object exists
      */
-    public static <CFG> Optional<ConfigHolder<CFG>> getConfig(String id) {
-        ConfigHolder<CFG> value = (ConfigHolder<CFG>) REGISTERED_CONFIGS.get(id);
-        return Optional.ofNullable(value);
+    public static <C> Optional<ConfigHolder<C>> getConfig(String id) {
+        return Optional.ofNullable((ConfigHolder<C>) REGISTERED_CONFIGS.get(id));
     }
 
     /**

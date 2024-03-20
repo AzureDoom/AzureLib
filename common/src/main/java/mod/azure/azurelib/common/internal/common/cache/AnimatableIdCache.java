@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.internal.common.cache;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;

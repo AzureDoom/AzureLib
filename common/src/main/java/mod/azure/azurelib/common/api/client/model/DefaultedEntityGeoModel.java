@@ -1,9 +1,9 @@
 package mod.azure.azurelib.common.api.client.model;
 
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.common.internal.common.core.animation.AnimationState;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.common.internal.client.model.data.EntityModelData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;

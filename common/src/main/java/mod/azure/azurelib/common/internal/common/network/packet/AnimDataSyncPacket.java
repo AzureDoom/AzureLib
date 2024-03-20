@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.internal.common.network.packet;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.common.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;

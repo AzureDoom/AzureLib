@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreBakedGeoModel;
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 
 /**
  * Baked model object for AzureLib models.

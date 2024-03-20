@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.api.client.model;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import net.minecraft.resources.ResourceLocation;
 
 /**

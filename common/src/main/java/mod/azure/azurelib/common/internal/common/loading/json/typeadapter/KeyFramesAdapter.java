@@ -2,10 +2,10 @@ package mod.azure.azurelib.common.internal.common.loading.json.typeadapter;
 
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
-import mod.azure.azurelib.common.internal.common.core.keyframe.event.data.CustomInstructionKeyframeData;
-import mod.azure.azurelib.common.internal.common.core.keyframe.event.data.ParticleKeyframeData;
-import mod.azure.azurelib.common.internal.common.core.keyframe.event.data.SoundKeyframeData;
+import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
+import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
+import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 import net.minecraft.util.GsonHelper;
 

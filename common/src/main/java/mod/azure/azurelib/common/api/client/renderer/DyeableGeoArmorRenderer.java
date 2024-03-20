@@ -7,7 +7,7 @@ import mod.azure.azurelib.common.api.client.model.GeoModel;
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
-import mod.azure.azurelib.common.internal.common.core.object.Color;
+import mod.azure.azurelib.core.object.Color;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;

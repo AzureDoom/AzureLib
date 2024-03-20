@@ -3,7 +3,7 @@ package mod.azure.azurelib.common.api.client.renderer.layer;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 
 /**

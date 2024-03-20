@@ -1,6 +1,6 @@
 package mod.azure.azurelib.common.internal.common.network;
 
-import mod.azure.azurelib.common.internal.common.core.object.DataTicket;
+import mod.azure.azurelib.core.object.DataTicket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 

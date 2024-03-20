@@ -13,11 +13,11 @@ import com.google.common.base.Suppliers;
 
 import mod.azure.azurelib.common.internal.common.cache.AnimatableIdCache;
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.common.internal.common.core.animatable.instance.SingletonAnimatableInstanceCache;
-import mod.azure.azurelib.common.internal.common.core.animation.AnimatableManager;
-import mod.azure.azurelib.common.internal.common.core.animation.ContextAwareAnimatableManager;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animation.ContextAwareAnimatableManager;
 import mod.azure.azurelib.common.internal.client.util.RenderUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

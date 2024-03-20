@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import mod.azure.azurelib.common.internal.client.model.data.EntityModelData;
-import mod.azure.azurelib.common.internal.common.core.object.DataTicket;
+import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import org.jetbrains.annotations.Nullable;

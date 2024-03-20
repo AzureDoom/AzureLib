@@ -22,4 +22,5 @@ rootProject.name = mod_name
 include("common")
 include("fabric")
 include("neoforge")
+include("core")
 

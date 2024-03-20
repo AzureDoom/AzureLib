@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Animation;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.Gson;

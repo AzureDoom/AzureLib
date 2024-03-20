@@ -3,7 +3,7 @@ package mod.azure.azurelib.common.internal.common.cache.object;
 import java.util.List;
 import java.util.Objects;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -11,7 +11,7 @@ import org.joml.Vector3d;
 import org.joml.Vector4f;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.common.internal.common.core.state.BoneSnapshot;
+import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>

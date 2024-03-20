@@ -3,7 +3,7 @@ package mod.azure.azurelib.common.internal.common.loading.object;
 import java.util.Map;
 
 import mod.azure.azurelib.common.internal.common.cache.AzureLibCache;
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
+import mod.azure.azurelib.core.animation.Animation;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.resources.ResourceLocation;

@@ -2,8 +2,8 @@ package mod.azure.azurelib.common.internal.common.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoModel;
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
+import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
+import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibException;
 import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
