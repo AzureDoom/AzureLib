@@ -3,9 +3,9 @@ package mod.azure.azurelib.common.internal.common.config.exception;
 public class ConfigReadException extends Exception {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = -3140380119490334328L;
+     *
+     */
+    private static final long serialVersionUID = -3140380119490334328L;
 
     public ConfigReadException() {
         super();

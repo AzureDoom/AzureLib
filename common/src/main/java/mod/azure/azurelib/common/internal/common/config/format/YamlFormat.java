@@ -1,27 +1,28 @@
 package mod.azure.azurelib.common.internal.common.config.format;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import mod.azure.azurelib.common.internal.common.config.value.IDescriptionProvider;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
-
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.config.value.IDescriptionProvider;
+
 public class YamlFormat implements IConfigFormat {
 
     // writing
     private final StringBuilder buffer;
+
     private final int currentNesting;
 
     // reading
     private final Map<String, Object> processedData;
-    private int readerIndex;
 
+    private int readerIndex;
 
     public YamlFormat() {
         this(new HashMap<>());

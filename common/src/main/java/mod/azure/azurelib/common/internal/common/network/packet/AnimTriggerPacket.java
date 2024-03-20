@@ -1,21 +1,25 @@
 package mod.azure.azurelib.common.internal.common.network.packet;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.common.internal.common.core.animation.AnimatableManager;
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
+import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+
 /**
- * Packet for syncing user-definable animations that can be triggered from the
- * server
+ * Packet for syncing user-definable animations that can be triggered from the server
  */
 public class AnimTriggerPacket extends AbstractPacket {
+
     private final String syncableId;
+
     private final long instanceId;
+
     private final String controllerName;
+
     private final String animName;
 
     public AnimTriggerPacket(String syncableId, long instanceId, @Nullable String controllerName, String animName) {

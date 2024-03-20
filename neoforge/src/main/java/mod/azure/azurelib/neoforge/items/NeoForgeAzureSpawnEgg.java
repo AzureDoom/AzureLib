@@ -9,7 +9,11 @@ import java.util.function.Supplier;
 
 public class NeoForgeAzureSpawnEgg extends DeferredSpawnEggItem {
 
-    public NeoForgeAzureSpawnEgg(Supplier<? extends EntityType<? extends Mob>> type, int primaryColor, int secondaryColor) {
+    public NeoForgeAzureSpawnEgg(
+        Supplier<? extends EntityType<? extends Mob>> type,
+        int primaryColor,
+        int secondaryColor
+    ) {
         super(type, primaryColor, secondaryColor, new Item.Properties().stacksTo(64));
     }
 

@@ -1,13 +1,6 @@
 package mod.azure.azurelib.common.internal.common.loading;
 
 import com.google.gson.JsonObject;
-import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
-import mod.azure.azurelib.common.internal.common.core.animation.Animation;
-import mod.azure.azurelib.common.internal.common.util.JsonUtil;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
-import mod.azure.azurelib.common.internal.common.loading.json.raw.Model;
-import mod.azure.azurelib.common.internal.common.loading.object.BakedAnimations;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -16,10 +9,19 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
+import mod.azure.azurelib.common.internal.common.loading.json.raw.Model;
+import mod.azure.azurelib.common.internal.common.loading.object.BakedAnimations;
+import mod.azure.azurelib.common.internal.common.util.JsonUtil;
+import mod.azure.azurelib.core.animation.Animation;
+
 /**
  * Extracts raw information from given files, and other similar functions
  */
 public final class FileLoader {
+
     /**
      * Load up and deserialize an animation json file to its respective {@link Animation} components
      *

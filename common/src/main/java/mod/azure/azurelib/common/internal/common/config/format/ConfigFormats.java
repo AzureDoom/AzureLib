@@ -3,10 +3,9 @@ package mod.azure.azurelib.common.internal.common.config.format;
 import java.util.function.Supplier;
 
 /**
- * Collection and factory methods for config formats natively supported by
- * this library. Note that there are provided methods which allow you to
- * customize the config format, for example you can customize the GSON object
- * in for JSON configs or spacing/separators for Properties configs.
+ * Collection and factory methods for config formats natively supported by this library. Note that there are provided
+ * methods which allow you to customize the config format, for example you can customize the GSON object in for JSON
+ * configs or spacing/separators for Properties configs.
  *
  * @author Toma
  */
@@ -14,7 +13,9 @@ public final class ConfigFormats {
 
     // file extensions
     private static final String EXT_JSON = "json";
+
     private static final String EXT_YAML = "yaml";
+
     private static final String EXT_PROPERTIES = "properties";
 
     /**
@@ -57,7 +58,7 @@ public final class ConfigFormats {
 
     /**
      * Creates new Properties based config format handler with default format settings
-
+     *
      * @return new instance of config format handler for Properties configs
      */
     public static IConfigFormatHandler properties() {
@@ -67,6 +68,7 @@ public final class ConfigFormats {
     private static final class SimpleFormatImpl implements IConfigFormatHandler {
 
         private final String extension;
+
         private final Supplier<IConfigFormat> factory;
 
         public SimpleFormatImpl(String extension, Supplier<IConfigFormat> factory) {

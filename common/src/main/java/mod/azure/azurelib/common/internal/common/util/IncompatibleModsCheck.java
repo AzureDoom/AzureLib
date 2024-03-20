@@ -1,11 +1,13 @@
 package mod.azure.azurelib.common.internal.common.util;
 
+import net.minecraft.client.Minecraft;
+
 import mod.azure.azurelib.common.internal.client.config.screen.OptifineWarningScreen;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibMod;
-import net.minecraft.client.Minecraft;
 
-public class IncompatibleModsCheck {
+public final class IncompatibleModsCheck {
+
     public static boolean optifinePresent = false;
 
     public static void run() {
@@ -26,5 +28,9 @@ public class IncompatibleModsCheck {
                 AzureLib.LOGGER.fatal("Optifine Has been detected, Disabled Warning Status: true");
             }
         }
+    }
+
+    private IncompatibleModsCheck() {
+        throw new UnsupportedOperationException();
     }
 }

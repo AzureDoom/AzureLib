@@ -1,7 +1,6 @@
 package mod.azure.azurelib.common.internal.client.config.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.azure.azurelib.common.internal.common.config.value.EnumValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,8 +12,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
+import mod.azure.azurelib.common.internal.common.config.value.EnumValue;
+
 public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
-    private static final WidgetSprites SPRITES = new WidgetSprites(new ResourceLocation("widget/button"), new ResourceLocation("widget/button_disabled"), new ResourceLocation("widget/button_highlighted"));
+
+    private static final WidgetSprites SPRITES = new WidgetSprites(
+        new ResourceLocation("widget/button"),
+        new ResourceLocation("widget/button_disabled"),
+        new ResourceLocation("widget/button_highlighted")
+    );
+
     private final EnumValue<E> value;
 
     public EnumWidget(int x, int y, int w, int h, EnumValue<E> value) {
@@ -29,7 +36,13 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        graphics.blitSprite(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        graphics.blitSprite(
+            SPRITES.get(this.active, this.isHoveredOrFocused()),
+            this.getX(),
+            this.getY(),
+            this.getWidth(),
+            this.getHeight()
+        );
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderString(graphics, minecraft.font, Mth.ceil(this.alpha * 255.0F) << 24);
     }
@@ -55,8 +68,7 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
     }
 
     @Override
-    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-    }
+    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
 
     private void nextValue() {
         E e = this.value.get();

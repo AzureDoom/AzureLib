@@ -1,8 +1,6 @@
 package mod.azure.azurelib.common.internal.mixins;
 
 import com.mojang.blaze3d.platform.WindowEventHandler;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
@@ -13,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
+
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin extends ReentrantBlockableEventLoop<Runnable> implements WindowEventHandler {
 
@@ -20,12 +21,17 @@ public abstract class MinecraftMixin extends ReentrantBlockableEventLoop<Runnabl
         super(p_i50401_1_);
     }
 
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetData()V"))
+    @Inject(
+        method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(
+            value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetData()V"
+        )
+    )
     private void configuration_reloadClientConfigs(Screen screen, CallbackInfo ci) {
-        ConfigHolder.getSynchronizedConfigs().stream()
-                .map(ConfigHolder::getConfig)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(ConfigIO::reloadClientValues);
+        ConfigHolderRegistry.getSynchronizedConfigs()
+            .stream()
+            .map(ConfigHolderRegistry::getConfig)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .forEach(ConfigIO::reloadClientValues);
     }
 }

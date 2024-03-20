@@ -2,6 +2,7 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 plugins {
+    id 'com.diffplug.spotless' version "${spotless_version}" apply(false)
     id 'fabric-loom' version "${fabric_loom_version}" apply(false)
     id 'org.spongepowered.gradle.vanilla' version "${spongepowered_vanilla_gradle_version}" apply(false)
     id 'org.spongepowered.mixin' version "${spongepowered_mixin_version}" apply(false)
@@ -14,6 +15,7 @@ def MAX_DISPLAY_ERRORS = "1000"
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'com.diffplug.spotless'
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
     java.withSourcesJar()
@@ -55,9 +57,23 @@ subprojects {
     }
 
     tasks.withType(JavaCompile).configureEach {
-
         it.options.encoding = 'UTF-8'
         it.options.getRelease().set(JAVA_VERSION)
+    }
+
+    spotless {
+        java {
+            eclipse().configFile("$rootDir/eclipse-formatter.xml")
+            endWithNewline()
+            importOrder("", "java", group.toString(), "\\#")
+            indentWithSpaces(4)
+            removeUnusedImports()
+            trimTrailingWhitespace()
+        }
+    }
+
+    tasks.build {
+        dependsOn("spotlessApply")
     }
 
     processResources {

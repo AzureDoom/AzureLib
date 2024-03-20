@@ -1,12 +1,13 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.lang.reflect.Field;
+
 import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
 import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
-import net.minecraft.network.FriendlyByteBuf;
-
-import java.lang.reflect.Field;
 
 public class DoubleValue extends DecimalValue<Double> {
 
@@ -39,7 +40,13 @@ public class DoubleValue extends DecimalValue<Double> {
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new DoubleValue(ValueData.of(name, (double) value, context, comments));
         }
 

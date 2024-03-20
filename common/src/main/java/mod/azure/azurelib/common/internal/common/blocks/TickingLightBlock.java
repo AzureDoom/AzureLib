@@ -1,7 +1,6 @@
 package mod.azure.azurelib.common.internal.common.blocks;
 
 import com.mojang.serialization.MapCodec;
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,7 +19,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.function.ToIntFunction;
 
+import mod.azure.azurelib.common.platform.Services;
+
 public class TickingLightBlock extends BaseEntityBlock {
+
     public static final MapCodec<TickingLightBlock> CODEC = simpleCodec(TickingLightBlock::new);
 
     public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
@@ -48,7 +50,12 @@ public class TickingLightBlock extends BaseEntityBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState p_60555_, BlockGetter p_60556_, BlockPos p_60557_, CollisionContext p_60558_) {
+    public VoxelShape getShape(
+        BlockState p_60555_,
+        BlockGetter p_60556_,
+        BlockPos p_60557_,
+        CollisionContext p_60558_
+    ) {
         return Shapes.empty();
     }
 
@@ -68,7 +75,11 @@ public class TickingLightBlock extends BaseEntityBlock {
     }
 
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level world,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
         return createTickerHelper(type, Services.PLATFORM.getTickingLightEntity(), TickingLightEntity::tick);
     }
 

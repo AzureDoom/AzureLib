@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import java.util.UUID;
 
 public class EntityPacketOnClient {
+
     public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {
         EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.byId(byteBuf.readVarInt());
         UUID entityUUID = byteBuf.readUUID();

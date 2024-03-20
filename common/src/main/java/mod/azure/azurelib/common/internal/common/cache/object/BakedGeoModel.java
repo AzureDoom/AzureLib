@@ -1,39 +1,54 @@
 package mod.azure.azurelib.common.internal.common.cache.object;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreBakedGeoModel;
-import mod.azure.azurelib.common.internal.common.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.common.internal.common.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 
 /**
  * Baked model object for AzureLib models.
  */
-public record BakedGeoModel(List<GeoBone> topLevelBones, ModelProperties properties) implements CoreBakedGeoModel {
-	/**
-	 * Gets the list of top-level bones for this model.
-	 * Identical to calling {@link BakedGeoModel#topLevelBones()}
-	 */
-	@Override
-	public List<? extends CoreGeoBone> getBones() {
-		return this.topLevelBones;
-	}
+public class BakedGeoModel implements CoreBakedGeoModel {
 
-	/**
-	 * Gets a bone from this model by name.<br>
-	 * Generally not a very efficient method, should be avoided where possible.
-	 * @param name The name of the bone
-	 * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
-	 */
-	public Optional<GeoBone> getBone(String name) {
-		for (GeoBone bone : this.topLevelBones) {
-			CoreGeoBone childBone = searchForChildBone(bone, name);
+    public final Map<String, GeoBone> bonesByName;
 
-			if (childBone != null)
-				return Optional.of((GeoBone)childBone);
-		}
+    public final List<GeoBone> topLevelBones;
 
-		return Optional.empty();
-	}
+    public BakedGeoModel(List<GeoBone> topLevelBones) {
+        this.bonesByName = new HashMap<>();
+        this.topLevelBones = topLevelBones;
+        mapBonesByName(topLevelBones);
+    }
+
+    private void mapBonesByName(List<GeoBone> geoBones) {
+        geoBones.forEach(geoBone -> {
+            bonesByName.put(geoBone.getName(), geoBone);
+            mapBonesByName(geoBone.getChildBones());
+        });
+    }
+
+    /**
+     * Gets the list of top-level bones for this model. Identical to calling {@link BakedGeoModel#getTopLevelBones()}
+     */
+    @Override
+    public List<? extends CoreGeoBone> getBones() {
+        return this.topLevelBones;
+    }
+
+    /**
+     * Gets a bone from this model by name.<br>
+     *
+     * @param name The name of the bone
+     * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
+     */
+    public Optional<GeoBone> getBone(String name) {
+        return Optional.ofNullable(bonesByName.get(name));
+    }
+
+    public List<GeoBone> getTopLevelBones() {
+        return topLevelBones;
+    }
 }

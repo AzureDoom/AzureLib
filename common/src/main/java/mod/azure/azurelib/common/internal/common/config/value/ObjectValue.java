@@ -1,12 +1,13 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
 public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
 
@@ -33,15 +34,20 @@ public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             Class<?> type = value.getClass();
             Map<String, ConfigValue<?>> map = serializer.serialize(type, value);
             return new ObjectValue(ValueData.of(name, map, context, comments));
         }
 
         @Override
-        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
-        }
+        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {}
 
         @Override
         public Object decodeFromBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {

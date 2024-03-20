@@ -20,9 +20,13 @@ import org.jetbrains.annotations.Nullable;
  * Custom Vibration class that removes the {@link Warden} particle that usually spawns
  */
 public class AzureVibrationUser implements VibrationSystem.User {
+
     protected final Mob mob;
+
     protected final float moveSpeed;
+
     protected final int range;
+
     protected final PositionSource positionSource;
 
     public AzureVibrationUser(Mob entity, float speed, int range) {
@@ -72,19 +76,31 @@ public class AzureVibrationUser implements VibrationSystem.User {
     }
 
     @Override
-    public boolean canReceiveVibration(ServerLevel serverLevel, BlockPos blockPos, GameEvent gameEvent, GameEvent.Context context) {
-        if (mob.isNoAi() || mob.isDeadOrDying() || !mob.level().getWorldBorder().isWithinBounds(blockPos) || mob.isRemoved())
+    public boolean canReceiveVibration(
+        ServerLevel serverLevel,
+        BlockPos blockPos,
+        GameEvent gameEvent,
+        GameEvent.Context context
+    ) {
+        if (
+            mob.isNoAi() || mob.isDeadOrDying() || !mob.level().getWorldBorder().isWithinBounds(blockPos) || mob
+                .isRemoved()
+        )
             return false;
         var entity = context.sourceEntity();
-        return !(entity instanceof LivingEntity) || canTargetEntity((LivingEntity) entity);
+        return !(entity instanceof LivingEntity livingEntity) || canTargetEntity(livingEntity);
     }
 
     @Override
-    public void onReceiveVibration(ServerLevel serverLevel, BlockPos blockPos, GameEvent gameEvent, @Nullable Entity entity, @Nullable Entity entity2, float f) {
-        if (this.mob.isDeadOrDying())
-            return;
-        if (this.mob.isVehicle())
-            return;
+    public void onReceiveVibration(
+        ServerLevel serverLevel,
+        BlockPos blockPos,
+        GameEvent gameEvent,
+        @Nullable Entity entity,
+        @Nullable Entity entity2,
+        float f
+    ) {
+        // Do nothing.
     }
 
     @Contract(value = "null->false")

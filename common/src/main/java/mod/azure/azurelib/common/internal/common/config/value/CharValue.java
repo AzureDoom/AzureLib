@@ -1,11 +1,12 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
+
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
 public final class CharValue extends ConfigValue<Character> {
 
@@ -26,7 +27,13 @@ public final class CharValue extends ConfigValue<Character> {
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new CharValue(ValueData.of(name, (char) value, context, comments));
         }
 

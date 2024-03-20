@@ -1,16 +1,15 @@
 package mod.azure.azurelib.common.api.client.helper;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.lwjgl.glfw.GLFW;
+
+import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 
 /**
  * Helper class for segregating client-side code

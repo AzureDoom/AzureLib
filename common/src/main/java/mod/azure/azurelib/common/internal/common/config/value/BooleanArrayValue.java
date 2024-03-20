@@ -1,14 +1,15 @@
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
-import mod.azure.azurelib.common.internal.common.config.Configurable;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+
+import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
+import mod.azure.azurelib.common.internal.common.config.Configurable;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
 public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayValue {
 
@@ -33,7 +34,11 @@ public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayVa
         if (this.fixedSize) {
             boolean[] defaultArray = this.valueData.getDefaultValue();
             if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
                 return defaultArray;
             }
         }
@@ -68,7 +73,13 @@ public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayVa
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new BooleanArrayValue(ValueData.of(name, (boolean[]) value, context, comments));
         }
 

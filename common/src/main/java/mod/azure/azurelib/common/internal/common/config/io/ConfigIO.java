@@ -1,11 +1,5 @@
 package mod.azure.azurelib.common.internal.common.config.io;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import org.apache.logging.log4j.Marker;
@@ -14,12 +8,21 @@ import org.apache.logging.log4j.MarkerManager;
 import java.io.File;
 import java.io.IOException;
 
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
+
 public final class ConfigIO {
 
     public static final Marker MARKER = MarkerManager.getMarker("IO");
+
     public static final FileWatchManager FILE_WATCH_MANAGER = new FileWatchManager();
 
     private ConfigIO() {}
+
     public static void processConfig(ConfigHolder<?> holder) {
         AzureLib.LOGGER.debug(MARKER, "Starting processing of config {}", holder.getConfigId());
         processSafely(holder, () -> {
@@ -28,7 +31,11 @@ public final class ConfigIO {
                 try {
                     readConfig(holder);
                 } catch (IOException e) {
-                    AzureLib.LOGGER.error(MARKER, "Config read failed for config ID {}, will create default config file", holder.getConfigId());
+                    AzureLib.LOGGER.error(
+                        MARKER,
+                        "Config read failed for config ID {}, will create default config file",
+                        holder.getConfigId()
+                    );
                 }
             }
             try {
@@ -67,8 +74,15 @@ public final class ConfigIO {
                 action.run();
             }
         } catch (Exception e) {
-            AzureLib.LOGGER.fatal(MARKER, "Error loading config {} due to critical error '{}'. Report this issue to this config's owner!", holder.getConfigId(), e.getMessage());
-            throw new ReportedException(CrashReport.forThrowable(e, "Config " + holder.getConfigId() + " failed. Report issue to config owner"));
+            AzureLib.LOGGER.fatal(
+                MARKER,
+                "Error loading config {} due to critical error '{}'. Report this issue to this config's owner!",
+                holder.getConfigId(),
+                e.getMessage()
+            );
+            throw new ReportedException(
+                CrashReport.forThrowable(e, "Config " + holder.getConfigId() + " failed. Report issue to config owner")
+            );
         }
     }
 
