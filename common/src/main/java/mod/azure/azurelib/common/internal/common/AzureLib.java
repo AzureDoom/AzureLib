@@ -14,10 +14,11 @@ import org.apache.logging.log4j.MarkerManager;
  * There's not much to really see here, but feel free to stay a while and have a snack or something.
  * @see AzureLibUtil
  */
-public class AzureLib {
-	public static final Logger LOGGER = LogManager.getLogger("azurelib");
-	public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
+public final class AzureLib {
 	public static final String MOD_ID = "azurelib";
+
+	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+	public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
 	public static boolean hasInitialized;
 
 	public static void initialize() {
@@ -27,7 +28,11 @@ public class AzureLib {
 		hasInitialized = true;
 	}
 
-	public static final ResourceLocation modResource(String name) {
+	public static ResourceLocation modResource(String name) {
 		return new ResourceLocation(MOD_ID, name);
+	}
+
+	private AzureLib() {
+		throw new UnsupportedOperationException();
 	}
 }

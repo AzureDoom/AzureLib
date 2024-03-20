@@ -14,30 +14,34 @@ public final class AzureLibMod {
     /**
      * Registers your config class. Config will be immediately loaded upon calling.
      *
-     * @param cfgClass      Your config class
+     * @param configClass   Your config class
      * @param formatFactory File format to be used by this config class. You can use values from {@link ConfigFormats} for example.
-     * @param <CFG>         Config type
+     * @param <C>  Config type
      * @return Config holder containing your config instance. You obtain it by calling {@link ConfigHolder#getConfigInstance()} method.
      */
-    public static <CFG> ConfigHolder<CFG> registerConfig(Class<CFG> cfgClass, IConfigFormatHandler formatFactory) {
-        Config cfg = cfgClass.getAnnotation(Config.class);
-        if (cfg == null) {
+    public static <C> ConfigHolder<C> registerConfig(Class<C> configClass, IConfigFormatHandler formatFactory) {
+        Config config = configClass.getAnnotation(Config.class);
+        if (config == null) {
             throw new IllegalArgumentException("Config class must be annotated with '@Config' annotation");
         }
-        String id = cfg.id();
-        String filename = cfg.filename();
+        String id = config.id();
+        String filename = config.filename();
         if (filename.isEmpty()) {
             filename = id;
         }
-        String group = cfg.group();
+        String group = config.group();
         if (group.isEmpty()) {
             group = id;
         }
-        ConfigHolder<CFG> holder = new ConfigHolder<>(cfgClass, id, filename, group, formatFactory);
+        ConfigHolder<C> holder = new ConfigHolder<>(configClass, id, filename, group, formatFactory);
         ConfigHolder.registerConfig(holder);
-        if (cfgClass.getAnnotation(Config.NoAutoSync.class) == null) {
+        if (configClass.getAnnotation(Config.NoAutoSync.class) == null) {
             ConfigIO.FILE_WATCH_MANAGER.addTrackedConfig(holder);
         }
         return holder;
+    }
+
+    private AzureLibMod() {
+        throw new UnsupportedOperationException();
     }
 }
