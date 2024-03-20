@@ -3,6 +3,7 @@ package mod.azure.azurelib.common.internal.common;
 import mod.azure.azurelib.common.api.common.config.Config;
 import mod.azure.azurelib.common.internal.common.config.AzureLibConfig;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
@@ -34,7 +35,7 @@ public final class AzureLibMod {
             group = id;
         }
         ConfigHolder<C> holder = new ConfigHolder<>(configClass, id, filename, group, formatFactory);
-        ConfigHolder.registerConfig(holder);
+        ConfigHolderRegistry.registerConfig(holder);
         if (configClass.getAnnotation(Config.NoAutoSync.class) == null) {
             ConfigIO.FILE_WATCH_MANAGER.addTrackedConfig(holder);
         }

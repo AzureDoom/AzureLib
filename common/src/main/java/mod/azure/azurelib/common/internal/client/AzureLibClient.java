@@ -4,6 +4,7 @@ import mod.azure.azurelib.common.internal.client.config.screen.ConfigGroupScreen
 import mod.azure.azurelib.common.internal.client.config.screen.ConfigScreen;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.api.common.config.Config;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ public final class AzureLibClient {
      */
     @Nullable
     public static Screen getConfigScreen(String configId, Screen previous) {
-        return ConfigHolder.getConfig(configId).map(holder -> getConfigScreenForHolder(holder, previous)).orElse(null);
+        return ConfigHolderRegistry.getConfig(configId).map(holder -> getConfigScreenForHolder(holder, previous)).orElse(null);
     }
 
     /**
@@ -50,7 +51,7 @@ public final class AzureLibClient {
      * @return Either new config group screen or null when no config exists under the provided group
      */
     public static Screen getConfigScreenByGroup(String group, Screen previous) {
-        List<ConfigHolder<?>> list = ConfigHolder.getConfigsByGroup(group);
+        List<ConfigHolder<?>> list = ConfigHolderRegistry.getConfigsByGroup(group);
         if (list.isEmpty())
             return null;
         return getConfigScreenByGroup(list, group, previous);

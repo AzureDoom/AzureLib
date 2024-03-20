@@ -5,6 +5,7 @@ import java.util.Map;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibException;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
 import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import mod.azure.azurelib.fabric.network.api.IClientPacket;
@@ -44,7 +45,7 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
     public IPacketEncoder<ConfigData> getEncoder() {
         return (configData, buffer) -> {
             buffer.writeUtf(configData.configId);
-            ConfigHolder.getConfig(configData.configId).ifPresent(data -> {
+            ConfigHolderRegistry.getConfig(configData.configId).ifPresent(data -> {
                 Map<String, ConfigValue<?>> serialized = data.getNetworkSerializedFields();
                 buffer.writeInt(serialized.size());
                 for (Map.Entry<String, ConfigValue<?>> entry : serialized.entrySet()) {
@@ -63,7 +64,7 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
         return buffer -> {
             String config = buffer.readUtf();
             int i = buffer.readInt();
-            ConfigHolder.getConfig(config).ifPresent(data -> {
+            ConfigHolderRegistry.getConfig(config).ifPresent(data -> {
                 Map<String, ConfigValue<?>> serialized = data.getNetworkSerializedFields();
                 for (int j = 0; j < i; j++) {
                     String fieldId = buffer.readUtf();

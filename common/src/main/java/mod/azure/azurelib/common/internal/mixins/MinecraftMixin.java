@@ -2,6 +2,7 @@ package mod.azure.azurelib.common.internal.mixins;
 
 import com.mojang.blaze3d.platform.WindowEventHandler;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,8 +23,8 @@ public abstract class MinecraftMixin extends ReentrantBlockableEventLoop<Runnabl
 
     @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resetData()V"))
     private void configuration_reloadClientConfigs(Screen screen, CallbackInfo ci) {
-        ConfigHolder.getSynchronizedConfigs().stream()
-                .map(ConfigHolder::getConfig)
+        ConfigHolderRegistry.getSynchronizedConfigs().stream()
+                .map(ConfigHolderRegistry::getConfig)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .forEach(ConfigIO::reloadClientValues);

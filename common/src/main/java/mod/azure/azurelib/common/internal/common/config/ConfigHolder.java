@@ -3,7 +3,6 @@ package mod.azure.azurelib.common.internal.common.config;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibException;
 import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
-import mod.azure.azurelib.common.internal.common.AzureLibMod;
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
 import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapters;
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
@@ -16,19 +15,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Manages config values and stores some default parameters of your config class.
  * This class also acts as config registry.
  *
- * @param <CFG> Your config type
+ * @param <C> Your config type
  * @author Toma
  */
-public final class ConfigHolder<CFG> {
-
-    // Map of all registered configs
-    private static final Map<String, ConfigHolder<?>> REGISTERED_CONFIGS = new HashMap<>();
+public final class ConfigHolder<C> {
     // Unique config ID
     private final String configId;
     // Config filename without extension
@@ -36,9 +31,9 @@ public final class ConfigHolder<CFG> {
     // Config group, same as config ID unless changed
     private final String group;
     // Registered config instance
-    private final CFG configInstance;
+    private final C configInstance;
     // Type of config
-    private final Class<CFG> configClass;
+    private final Class<C> configClass;
     // File format used by this config
     private final IConfigFormatHandler format;
     // Mapping of all config values
@@ -46,11 +41,11 @@ public final class ConfigHolder<CFG> {
     // Map of fields which will be synced to client upon login
     private final Map<String, ConfigValue<?>> networkSerializedFields = new HashMap<>();
     // Set of file refresh listeners
-    private final Set<IFileRefreshListener<CFG>> fileRefreshListeners = new HashSet<>();
+    private final Set<IFileRefreshListener<C>> fileRefreshListeners = new HashSet<>();
     // Lock for async operations
     private final Object lock = new Object();
 
-    public ConfigHolder(Class<CFG> cfgClass, String configId, String filename, String group, IConfigFormatHandler format) {
+    public ConfigHolder(Class<C> cfgClass, String configId, String filename, String group, IConfigFormatHandler format) {
         this.configClass = cfgClass;
         this.configId = configId;
         this.filename = filename;
@@ -72,68 +67,11 @@ public final class ConfigHolder<CFG> {
     }
 
     /**
-     * Registers config to internal registry. You should never call
-     * this method. Instead, use {@link AzureLibMod#registerConfig(Class, IConfigFormatHandler)} for config registration
-     *
-     * @param holder Config holder to be registered
-     */
-    public static void registerConfig(ConfigHolder<?> holder) {
-        REGISTERED_CONFIGS.put(holder.configId, holder);
-        ConfigIO.processConfig(holder);
-    }
-
-    /**
-     * Allows you to get your config holder based on ID
-     *
-     * @param id    Config ID
-     * @param <CFG> Config type
-     * @return Optional with config holder when such object exists
-     */
-    public static <CFG> Optional<ConfigHolder<CFG>> getConfig(String id) {
-        ConfigHolder<CFG> value = (ConfigHolder<CFG>) REGISTERED_CONFIGS.get(id);
-        return value == null ? Optional.empty() : Optional.of(value);
-    }
-
-    /**
-     * Groups all configs from registry into Group-List
-     *
-     * @return Mapped values
-     */
-    public static Map<String, List<ConfigHolder<?>>> getConfigGroupingByGroup() {
-        return REGISTERED_CONFIGS.values().stream().collect(Collectors.groupingBy(ConfigHolder::getGroup));
-    }
-
-    /**
-     * Returns list of config holders for the specified group
-     *
-     * @param group Group ID
-     * @return List with config holders. May be empty.
-     */
-    public static List<ConfigHolder<?>> getConfigsByGroup(String group) {
-        return REGISTERED_CONFIGS.values().stream()
-                .filter(configHolder -> configHolder.group.equals(group))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtain all configs which have some network serialized values
-     *
-     * @return Set of config holders which need to be synchronized to client
-     */
-    public static Set<String> getSynchronizedConfigs() {
-        return REGISTERED_CONFIGS.entrySet()
-                .stream()
-                .filter(e -> e.getValue().networkSerializedFields.size() > 0)
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-    }
-
-    /**
      * Register new file refresh listener for this config holder
      *
      * @param listener The file listener
      */
-    public void addFileRefreshListener(IFileRefreshListener<CFG> listener) {
+    public void addFileRefreshListener(IFileRefreshListener<C> listener) {
         this.fileRefreshListeners.add(Objects.requireNonNull(listener));
     }
 
@@ -161,14 +99,14 @@ public final class ConfigHolder<CFG> {
     /**
      * @return Your registered config
      */
-    public CFG getConfigInstance() {
+    public C getConfigInstance() {
         return configInstance;
     }
 
     /**
      * @return Type of config
      */
-    public Class<CFG> getConfigClass() {
+    public Class<C> getConfigClass() {
         return configClass;
     }
 

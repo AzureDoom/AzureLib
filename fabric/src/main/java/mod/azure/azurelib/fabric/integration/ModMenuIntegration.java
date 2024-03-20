@@ -9,6 +9,7 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import mod.azure.azurelib.common.internal.client.AzureLibClient;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.platform.Services;
 
 public class ModMenuIntegration implements ModMenuApi {
@@ -16,7 +17,7 @@ public class ModMenuIntegration implements ModMenuApi {
     @Override
     public Map<String, ConfigScreenFactory<?>> getProvidedConfigScreenFactories() {
         Map<String, ConfigScreenFactory<?>> map = new HashMap<>();
-        Map<String, List<ConfigHolder<?>>> byGroup = ConfigHolder.getConfigGroupingByGroup();
+        Map<String, List<ConfigHolder<?>>> byGroup = ConfigHolderRegistry.getConfigGroupingByGroup();
         if (!Services.PLATFORM.isServerEnvironment())
             for (Map.Entry<String, List<ConfigHolder<?>>> entry : byGroup.entrySet()) {
                 String group = entry.getKey();

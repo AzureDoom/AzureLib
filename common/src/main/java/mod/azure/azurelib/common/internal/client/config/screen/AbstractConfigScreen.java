@@ -7,6 +7,7 @@ import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
 import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.joml.Matrix4f;
@@ -101,7 +102,7 @@ public abstract class AbstractConfigScreen extends Screen {
 		DialogScreen dialog = new DialogScreen(ConfigEntryWidget.REVERT_DEFAULTS, new Component[] { ConfigEntryWidget.REVERT_DEFAULTS_DIALOG_TEXT }, this);
 		dialog.onConfirmed(screen -> {
 			AzureLib.LOGGER.info(MARKER, "Reverting config {} to default values", this.configId);
-			ConfigHolder.getConfig(this.configId).ifPresent(holder -> {
+			ConfigHolderRegistry.getConfig(this.configId).ifPresent(holder -> {
 				revertToDefault(holder.values());
 				ConfigIO.saveClientValues(holder);
 			});
@@ -113,7 +114,7 @@ public abstract class AbstractConfigScreen extends Screen {
 	private void buttonRevertChangesClicked(Button button) {
 		DialogScreen dialog = new DialogScreen(ConfigEntryWidget.REVERT_CHANGES, new Component[] { ConfigEntryWidget.REVERT_CHANGES_DIALOG_TEXT }, this);
 		dialog.onConfirmed(screen -> {
-			ConfigHolder.getConfig(this.configId).ifPresent(ConfigIO::reloadClientValues);
+			ConfigHolderRegistry.getConfig(this.configId).ifPresent(ConfigIO::reloadClientValues);
 			this.backToConfigList();
 		});
 		minecraft.setScreen(dialog);
@@ -140,7 +141,7 @@ public abstract class AbstractConfigScreen extends Screen {
 
 	private void saveConfig(boolean force) {
 		if (force || !(last instanceof AbstractConfigScreen)) {
-			ConfigHolder.getConfig(this.configId).ifPresent(ConfigIO::saveClientValues);
+			ConfigHolderRegistry.getConfig(this.configId).ifPresent(ConfigIO::saveClientValues);
 		}
 	}
 

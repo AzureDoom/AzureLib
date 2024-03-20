@@ -5,6 +5,7 @@ import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.internal.client.AzureLibClient;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
@@ -36,7 +37,7 @@ public class ClientModListener {
 
     @SubscribeEvent
     public static void clientInit(final FMLClientSetupEvent event) {
-        Map<String, List<ConfigHolder<?>>> groups = ConfigHolder.getConfigGroupingByGroup();
+        Map<String, List<ConfigHolder<?>>> groups = ConfigHolderRegistry.getConfigGroupingByGroup();
         ModList modList = ModList.get();
         for (Map.Entry<String, List<ConfigHolder<?>>> entry : groups.entrySet()) {
             String modId = entry.getKey();
