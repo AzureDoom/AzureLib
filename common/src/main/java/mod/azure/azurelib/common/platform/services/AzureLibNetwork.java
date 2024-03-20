@@ -15,10 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-class LockHolder { // Package private class
-    public static Object LOCK = new Object();
-}
-
 public interface AzureLibNetwork {
     ResourceLocation ANIM_DATA_SYNC_PACKET_ID = AzureLib.modResource("anim_data_sync");
     ResourceLocation ANIM_TRIGGER_SYNC_PACKET_ID = AzureLib.modResource("anim_trigger_sync");
@@ -45,7 +41,7 @@ public interface AzureLibNetwork {
             GeoAnimatable existing = SYNCED_ANIMATABLES.put(animatable.getClass().toString(), animatable);
 
             if (existing == null)
-                AzureLib.LOGGER.debug("Registered SyncedAnimatable for " + animatable.getClass());
+                AzureLib.LOGGER.debug("Registered SyncedAnimatable for {}", animatable.getClass());
         }
     }
 
@@ -80,7 +76,7 @@ public interface AzureLibNetwork {
         GeoAnimatable animatable = SYNCED_ANIMATABLES.get(className);
 
         if (animatable == null)
-            AzureLib.LOGGER.error("Attempting to retrieve unregistered synced animatable! (" + className + ")");
+            AzureLib.LOGGER.error("Attempting to retrieve unregistered synced animatable! ({})", className);
 
         return animatable;
     }

@@ -27,8 +27,8 @@ import net.minecraft.world.phys.Vec3;
  * Handled by default by AzureLib, but custom implementations may be added by other mods for special needs
  */
 public interface BakedModelFactory {
-	final Map<String, BakedModelFactory> FACTORIES = new Object2ObjectOpenHashMap<>(1);
-	final BakedModelFactory DEFAULT_FACTORY = new Builtin();
+	Map<String, BakedModelFactory> FACTORIES = new Object2ObjectOpenHashMap<>(1);
+	BakedModelFactory DEFAULT_FACTORY = new Builtin();
 
 	/**
 	 * Construct the output model from the given {@link GeometryTree}.<br>

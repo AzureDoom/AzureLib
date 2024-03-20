@@ -1,7 +1,6 @@
 package mod.azure.azurelib.common.internal.mixins;
 
 import com.mojang.blaze3d.platform.WindowEventHandler;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import net.minecraft.client.Minecraft;

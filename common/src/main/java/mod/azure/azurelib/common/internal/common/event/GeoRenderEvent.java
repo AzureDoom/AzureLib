@@ -1,6 +1,11 @@
 package mod.azure.azurelib.common.internal.common.event;
 
-import mod.azure.azurelib.common.api.client.renderer.*;
+import mod.azure.azurelib.common.api.client.renderer.DynamicGeoEntityRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoBlockRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoObjectRenderer;
+import mod.azure.azurelib.common.api.client.renderer.GeoReplacedEntityRenderer;
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 

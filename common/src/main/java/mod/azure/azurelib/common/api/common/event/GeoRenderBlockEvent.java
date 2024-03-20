@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public abstract class GeoRenderBlockEvent implements GeoRenderEvent {
 	private final GeoBlockRenderer<?> renderer;
 
-	public GeoRenderBlockEvent(GeoBlockRenderer<?> renderer) {
+	protected GeoRenderBlockEvent(GeoBlockRenderer<?> renderer) {
 		this.renderer = renderer;
 	}
 

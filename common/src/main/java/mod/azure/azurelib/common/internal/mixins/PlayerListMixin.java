@@ -1,6 +1,5 @@
 package mod.azure.azurelib.common.internal.mixins;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.network.Connection;

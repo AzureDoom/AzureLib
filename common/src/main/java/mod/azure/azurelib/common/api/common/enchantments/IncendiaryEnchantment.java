@@ -36,6 +36,7 @@ public class IncendiaryEnchantment extends Enchantment {
         return true;
     }
 
+    @Override
     public boolean isDiscoverable() {
         return true;
     }

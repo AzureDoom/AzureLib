@@ -65,4 +65,8 @@ public final class AzureLibClient {
     public static Screen getConfigScreenByGroup(List<ConfigHolder<?>> group, String groupId, Screen previous) {
         return new ConfigGroupScreen(previous, groupId, group);
     }
+
+    private AzureLibClient() {
+        throw new UnsupportedOperationException();
+    }
 }

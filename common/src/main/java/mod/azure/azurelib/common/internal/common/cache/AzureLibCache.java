@@ -121,4 +121,8 @@ public final class AzureLibCache {
                     }
                 }, executor);
     }
+
+    private AzureLibCache() {
+        throw new UnsupportedOperationException();
+    }
 }

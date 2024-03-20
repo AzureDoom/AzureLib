@@ -26,12 +26,4 @@ public class SoundKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEvent<T
     public SoundKeyframeEvent(T entity, double animationTick, AnimationController<T> controller, SoundKeyframeData keyFrameData) {
         super(entity, animationTick, controller, keyFrameData);
     }
-
-    /**
-     * Get the {@link SoundKeyframeData} relevant to this event call
-     */
-    @Override
-    public SoundKeyframeData getKeyframeData() {
-        return super.getKeyframeData();
-    }
 }

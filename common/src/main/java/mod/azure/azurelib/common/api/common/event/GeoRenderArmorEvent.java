@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class GeoRenderArmorEvent implements GeoRenderEvent {
 		private final GeoArmorRenderer<?> renderer;
 
-		public GeoRenderArmorEvent(GeoArmorRenderer<?> renderer) {
+		protected GeoRenderArmorEvent(GeoArmorRenderer<?> renderer) {
 			this.renderer = renderer;
 		}
 

@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.common.internal.common.network.SerializableDataTicket;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;

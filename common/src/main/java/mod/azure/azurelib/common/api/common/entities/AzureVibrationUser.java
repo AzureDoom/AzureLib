@@ -76,15 +76,12 @@ public class AzureVibrationUser implements VibrationSystem.User {
         if (mob.isNoAi() || mob.isDeadOrDying() || !mob.level().getWorldBorder().isWithinBounds(blockPos) || mob.isRemoved())
             return false;
         var entity = context.sourceEntity();
-        return !(entity instanceof LivingEntity) || canTargetEntity((LivingEntity) entity);
+        return !(entity instanceof LivingEntity livingEntity) || canTargetEntity(livingEntity);
     }
 
     @Override
     public void onReceiveVibration(ServerLevel serverLevel, BlockPos blockPos, GameEvent gameEvent, @Nullable Entity entity, @Nullable Entity entity2, float f) {
-        if (this.mob.isDeadOrDying())
-            return;
-        if (this.mob.isVehicle())
-            return;
+        // Do nothing.
     }
 
     @Contract(value = "null->false")

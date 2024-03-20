@@ -34,12 +34,12 @@ import java.util.function.Supplier;
 
 public abstract class AzureBaseGunItem extends Item implements GeoItem {
     protected final AzureGunTypeEnum azureGunTypeEnum;
-    private static final String firing = "firing";
-    private static final String controller = "controller";
+    private static final String FIRING = "firing";
+    private static final String CONTROLLER = "controller";
     private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
-    public AzureBaseGunItem(AzureGunTypeEnum azureGunTypeEnum, int maxClipSize) {
+    protected AzureBaseGunItem(AzureGunTypeEnum azureGunTypeEnum, int maxClipSize) {
         super(new Properties().stacksTo(1).durability(maxClipSize + 1));
         this.azureGunTypeEnum = azureGunTypeEnum;
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
@@ -111,7 +111,7 @@ public abstract class AzureBaseGunItem extends Item implements GeoItem {
                 if (!user.level().isClientSide) {
                     gunBase.triggerAnim(user,
                             GeoItem.getOrAssignId(user.getItemInHand(hand), (ServerLevel) user.level()),
-                            AzureBaseGunItem.controller, "reload");
+                            AzureBaseGunItem.CONTROLLER, "reload");
                 }
             }
         }
@@ -149,9 +149,9 @@ public abstract class AzureBaseGunItem extends Item implements GeoItem {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, AzureBaseGunItem.controller,
-                event -> PlayState.CONTINUE).triggerableAnim(AzureBaseGunItem.firing,
-                RawAnimation.begin().then(AzureBaseGunItem.firing, Animation.LoopType.PLAY_ONCE)).triggerableAnim(
+        controllers.add(new AnimationController<>(this, AzureBaseGunItem.CONTROLLER,
+                event -> PlayState.CONTINUE).triggerableAnim(AzureBaseGunItem.FIRING,
+                RawAnimation.begin().then(AzureBaseGunItem.FIRING, Animation.LoopType.PLAY_ONCE)).triggerableAnim(
                 "reload", RawAnimation.begin().then("reload", Animation.LoopType.PLAY_ONCE)));
 
     }

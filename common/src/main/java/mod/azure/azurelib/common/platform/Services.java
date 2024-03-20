@@ -8,7 +8,7 @@ import mod.azure.azurelib.common.platform.services.GeoRenderPhaseEventFactory;
 
 import java.util.ServiceLoader;
 
-public class Services {
+public final class Services {
 
     public static final GeoRenderPhaseEventFactory GEO_RENDER_PHASE_EVENT_FACTORY = load(GeoRenderPhaseEventFactory.class);
     public static final AzureLibInitializer INITIALIZER = load(AzureLibInitializer.class);
@@ -22,5 +22,9 @@ public class Services {
                 .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
         AzureLib.LOGGER.debug("Loaded {} for service {}", loadedService, clazz);
         return loadedService;
+    }
+
+    private Services() {
+        throw new UnsupportedOperationException();
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 public abstract class GeoRenderItemEvent implements GeoRenderEvent {
 	private final GeoItemRenderer<?> renderer;
 
-	public GeoRenderItemEvent(GeoItemRenderer<?> renderer) {
+	protected GeoRenderItemEvent(GeoItemRenderer<?> renderer) {
 		this.renderer = renderer;
 	}
 

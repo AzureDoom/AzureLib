@@ -53,7 +53,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 				for(JsonElement animName : obj.getAsJsonArray("animations")) {
 					String ani = animName.getAsString();
 					if(includes.containsKey(ani)) {
-						AzureLib.LOGGER.warn("Animation {} is already included! File already including: {}  File trying to include from again: {}", ani, includes.get(ani).toString(), fileId.toString());
+						AzureLib.LOGGER.warn("Animation {} is already included! File already including: {}  File trying to include from again: {}", ani, includes.get(ani), fileId);
 					} else {
 						includes.put(ani, fileId);
 					}
@@ -68,7 +68,7 @@ public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations>
 				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), context));
 			}
 			catch (MolangException ex) {
-				AzureLib.LOGGER.error("Unable to parse animation: " + entry.getKey());
+				AzureLib.LOGGER.error("Unable to parse animation: {}", entry.getKey());
 				ex.printStackTrace();
 			}
 		}

@@ -24,7 +24,7 @@ public final class AnimatableIdCache extends SavedData {
     }
 
     public static SavedData.Factory<AnimatableIdCache> factory() {
-        return new SavedData.Factory<AnimatableIdCache>(AnimatableIdCache::new, AnimatableIdCache::new, DataFixTypes.SAVED_DATA_MAP_DATA);
+        return new SavedData.Factory<>(AnimatableIdCache::new, AnimatableIdCache::new, DataFixTypes.SAVED_DATA_MAP_DATA);
     }
 
     /**
