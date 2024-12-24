@@ -48,7 +48,7 @@ public abstract class AzAnimator<T> {
 
     public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
 
-    public void animate(T animatable) {
+    public void animate(T animatable, float partialTicks) {
         reusableContext.animatable = animatable;
 
         var boneCache = reusableContext.boneCache();
@@ -69,7 +69,7 @@ public abstract class AzAnimator<T> {
             boneCache.update(reusableContext);
         }
 
-        setCustomAnimations(animatable);
+        setCustomAnimations(animatable, partialTicks);
     }
 
     /**
@@ -90,12 +90,13 @@ public abstract class AzAnimator<T> {
     }
 
     /**
-     * This method is called once per render frame for each {@link T animatable} being rendered.<br>
-     * Override to set custom animations (such as head rotation, etc).
+     * Sets custom animations for the given animatable object. This method is used to define and configure specific
+     * animations unique to the context of the animatable and the current render state.
      *
-     * @param animatable The {@code GeoAnimatable} instance currently being rendered
+     * @param animatable    The object for which custom animations are being set.
+     * @param partialTicks  The partial tick time used for interpolating animations smoothly between frames.
      */
-    public void setCustomAnimations(T animatable) {}
+    public void setCustomAnimations(T animatable, float partialTicks) {}
 
     public void setActiveModel(AzBakedModel model) {
         var modelChanged = reusableContext.boneCache().setActiveModel(model);
