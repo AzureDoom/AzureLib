@@ -69,6 +69,12 @@ public class MarauderEntity extends Monster {
 
             animationRunner.run();
         } else {
+            if (this.getTarget() != null && this.isWithinMeleeAttackRange(this.getTarget())) {
+                if (this.getNavigation() instanceof AzureNavigation azureNavigation) {
+                    azureNavigation.hardStop();
+                    azureNavigation.stop();
+                }
+            }
 //            if (this.tickCount < 300 && this.isAlive()) {
 //                if (this.getNavigation() instanceof AzureNavigation azureNavigation) {
 //                    azureNavigation.hardStop();
