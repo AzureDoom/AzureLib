@@ -154,6 +154,10 @@ public abstract class AzRendererPipelineContext<T> {
         return packedOverlay;
     }
 
+    public void setPackedOverlay(int packedOverlay) {
+        this.packedOverlay = packedOverlay;
+    }
+
     public float partialTick() {
         return partialTick;
     }
