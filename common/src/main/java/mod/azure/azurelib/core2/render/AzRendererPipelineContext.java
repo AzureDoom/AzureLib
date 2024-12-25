@@ -170,6 +170,10 @@ public abstract class AzRendererPipelineContext<T> {
         return renderColor;
     }
 
+    public void setRenderColor(int renderColor) {
+        this.renderColor = renderColor;
+    }
+
     public @Nullable RenderType renderType() {
         return renderType;
     }
