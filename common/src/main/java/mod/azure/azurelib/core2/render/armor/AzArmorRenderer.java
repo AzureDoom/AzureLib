@@ -1,5 +1,7 @@
 package mod.azure.azurelib.core2.render.armor;
 
+import mod.azure.azurelib.core2.render.entity.AzEntityRendererConfig;
+import mod.azure.azurelib.core2.render.entity.AzEntityRendererPipeline;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,7 +24,11 @@ public class AzArmorRenderer {
 
     public AzArmorRenderer(AzRendererConfig<ItemStack> config) {
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
-        this.rendererPipeline = new AzArmorRendererPipeline(config, this);
+        this.rendererPipeline = createPipeline(config);
+    }
+
+    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
+        return new AzArmorRendererPipeline(config, this);
     }
 
     /**

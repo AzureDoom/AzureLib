@@ -28,7 +28,11 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
 
     protected AzBlockEntityRenderer(AzBlockEntityRendererConfig<T> config) {
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
-        this.rendererPipeline = new AzBlockEntityRendererPipeline<>(config, this);
+        this.rendererPipeline = createPipeline(config);
+    }
+
+    protected AzBlockEntityRendererPipeline<T> createPipeline(AzBlockEntityRendererConfig<T> config) {
+        return new AzBlockEntityRendererPipeline<>(config, this);
     }
 
     @Override

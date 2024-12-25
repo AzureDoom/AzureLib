@@ -34,9 +34,13 @@ public abstract class AzItemRenderer {
     protected AzItemRenderer(
         AzItemRendererConfig config
     ) {
-        this.rendererPipeline = new AzItemRendererPipeline(config, this);
+        this.rendererPipeline = createPipeline(config);
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
         this.config = config;
+    }
+
+    protected AzItemRendererPipeline createPipeline(AzItemRendererConfig config) {
+        return new AzItemRendererPipeline(config, this);
     }
 
     public void renderByGui(

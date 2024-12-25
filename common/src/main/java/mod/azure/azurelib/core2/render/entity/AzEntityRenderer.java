@@ -38,7 +38,11 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         super(context);
         this.config = config;
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
-        this.rendererPipeline = new AzEntityRendererPipeline<>(config, this);
+        this.rendererPipeline = createPipeline(config);
+    }
+
+    protected AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
+        return new AzEntityRendererPipeline<>(config, this);
     }
 
     @Override
