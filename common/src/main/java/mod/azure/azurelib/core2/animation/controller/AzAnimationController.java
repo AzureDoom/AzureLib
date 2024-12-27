@@ -136,7 +136,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      * This method is called every frame in order to populate the animation point queues, and process animation state
      * logic.
      */
-    public void update(AzAnimationContext<T> context) {
+    public void update() {
         // Adjust the tick before making any updates.
         controllerTimer.update();
         // Run state machine updates.

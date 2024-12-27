@@ -61,7 +61,7 @@ public abstract class AzAnimator<T> {
         if (!boneCache.isEmpty()) {
 
             for (var controller : animationControllerContainer.getAll()) {
-                controller.update(reusableContext);
+                controller.update();
             }
 
             this.reloadAnimations = false;
