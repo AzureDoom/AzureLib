@@ -4,13 +4,6 @@ import mod.azure.azurelib.core2.animation.controller.state.machine.AzAnimationCo
 
 public class AzPlayBehaviors {
 
-    public static final AzPlayBehavior HOLD_ON_FIRST_FRAME = AzPlayBehaviorRegistry.register(new AzPlayBehavior("hold_on_first_frame") {
-        @Override
-        public void onUpdate(AzAnimationControllerStateMachine.Context<?> context) {
-            context.stateMachine().pause();
-        }
-    });
-
     public static final AzPlayBehavior HOLD_ON_LAST_FRAME = AzPlayBehaviorRegistry.register(new AzPlayBehavior("hold_on_last_frame") {
         @Override
         public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
