@@ -19,37 +19,20 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
     @Override
     public void onEnter(AzAnimationControllerStateMachine.Context<T> context) {
         super.onEnter(context);
-        var controller = context.animationController();
-        var controllerTimer = controller.controllerTimer();
-        controllerTimer.reset();
+        prepareTransition(context);
     }
 
     @Override
     public void onUpdate(AzAnimationControllerStateMachine.Context<T> context) {
         var controller = context.animationController();
         var controllerTimer = controller.controllerTimer();
-        var boneSnapshotCache = controller.boneSnapshotCache();
         var animContext = context.animationContext();
 
         var stateMachine = context.stateMachine();
         var boneCache = animContext.boneCache();
 
-        if (controllerTimer.getAdjustedTick() == 0) {
-            controller.setCurrentAnimation(controller.animationQueue().next());
-
-            controller.keyframeManager().keyframeCallbackHandler().reset();
-
-            if (controller.currentAnimation() == null) {
-                return;
-            }
-
-            var snapshots = boneCache.getBoneSnapshotsByName();
-
-            boneSnapshotCache.put(controller.currentAnimation(), snapshots.values());
-        }
-
-        var hasFinishedTransitioning = controllerTimer.getAdjustedTick() >= controller.animationProperties()
-            .transitionLength();
+        var transitionLength = controller.animationProperties().transitionLength();
+        var hasFinishedTransitioning = controllerTimer.getAdjustedTick() >= transitionLength;
 
         if (hasFinishedTransitioning) {
             // If we've exceeded the amount of time we should be transitioning, then switch to play state.
@@ -64,5 +47,28 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
 
             keyframeTransitioner.transition(bones, crashWhenCantFindBone, controllerTimer.getAdjustedTick());
         }
+    }
+
+    private void prepareTransition(AzAnimationControllerStateMachine.Context<?> context) {
+        var animContext = context.animationContext();
+        var boneCache = animContext.boneCache();
+        var controller = context.animationController();
+        var boneSnapshotCache = controller.boneSnapshotCache();
+        var controllerTimer = controller.controllerTimer();
+
+        controllerTimer.reset();
+        controller.keyframeManager().keyframeCallbackHandler().reset();
+
+        var nextAnimation = controller.animationQueue().next();
+
+        if (nextAnimation == null) {
+            return;
+        }
+
+        controller.setCurrentAnimation(nextAnimation);
+
+        var snapshots = boneCache.getBoneSnapshotsByName();
+
+        boneSnapshotCache.put(nextAnimation, snapshots.values());
     }
 }
