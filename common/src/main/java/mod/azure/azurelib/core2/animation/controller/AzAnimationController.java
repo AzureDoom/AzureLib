@@ -165,16 +165,6 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         // Run state machine updates.
         stateMachine.update();
 
-        if (currentAnimation == null) {
-            if (animationQueue.isEmpty()) {
-                // If there is no animation to play, stop.
-                stateMachine.stop();
-                return;
-            }
-
-            controllerTimer.update();
-        }
-
         boneAnimationQueueCache.update(animationProperties.easingType());
     }
 
