@@ -1,6 +1,7 @@
 package mod.azure.azurelib.fabric;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import mod.azure.azurelib.fabric.core2.example.entities.ovamorph.OvamorphRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -90,6 +91,7 @@ public final class ClientListener implements ClientModInitializer {
         );
         EntityRendererRegistry.register(ExampleEntityTypes.DOOMHUNTER, DoomHunterRenderer::new);
         EntityRendererRegistry.register(ExampleEntityTypes.MARAUDER, MarauderRenderer::new);
+        EntityRendererRegistry.register(ExampleEntityTypes.OVAMORPH, OvamorphRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(FabricAzureLibMod.STARGATE, RenderType.translucent());
         BlockEntityRenderers.register(
             ExampleEntityTypes.STARGATE,

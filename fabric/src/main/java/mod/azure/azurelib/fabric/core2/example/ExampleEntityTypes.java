@@ -1,5 +1,6 @@
 package mod.azure.azurelib.fabric.core2.example;
 
+import mod.azure.azurelib.fabric.core2.example.entities.ovamorph.Ovamorph;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
@@ -27,6 +28,11 @@ public class ExampleEntityTypes {
         EntityType.Builder.of(MarauderEntity::new, MobCategory.MONSTER).sized(1.5f, 2.6f)
     );
 
+    public static final EntityType<Ovamorph> OVAMORPH = register(
+        "ovamorph",
+        EntityType.Builder.of(Ovamorph::new, MobCategory.MONSTER).sized(0.98f, 0.98f)
+    );
+
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
         var entityType = builder.build(name);
         var resourceLocation = AzureLib.modResource(name);
@@ -43,5 +49,6 @@ public class ExampleEntityTypes {
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(DOOMHUNTER, DoomHunter.createMonsterAttributes());
         FabricDefaultAttributeRegistry.register(MARAUDER, MarauderEntity.createMonsterAttributes());
+        FabricDefaultAttributeRegistry.register(OVAMORPH, Ovamorph.createMonsterAttributes());
     }
 }
