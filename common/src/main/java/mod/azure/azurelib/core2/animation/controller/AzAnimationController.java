@@ -104,7 +104,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                 );
                 return List.of();
             } else {
-                animations.add(new AzQueuedAnimation(animation, stage.properties().loopType()));
+                animations.add(new AzQueuedAnimation(animation, stage.properties().playBehavior()));
             }
         }
 

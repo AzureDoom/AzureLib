@@ -1,33 +1,33 @@
 package mod.azure.azurelib.fabric.core2.example.entities.marauder;
 
 import mod.azure.azurelib.core2.animation.dispatch.command.AzCommand;
-import mod.azure.azurelib.core2.animation.primitive.AzLoopType;
+import mod.azure.azurelib.core2.animation.play_behavior.AzPlayBehaviors;
 
 public class MarauderAnimationDispatcher {
 
     private static final AzCommand DEATH = AzCommand.create(
         "base_controller",
         "death",
-        AzLoopType.HOLD_ON_LAST_FRAME
+        AzPlayBehaviors.HOLD_ON_LAST_FRAME
     );
 
-    private static final AzCommand IDLE = AzCommand.create("base_controller", "idle", AzLoopType.LOOP);
+    private static final AzCommand IDLE = AzCommand.create("base_controller", "idle", AzPlayBehaviors.LOOP);
 
-    private static final AzCommand RUN = AzCommand.create("base_controller", "run", AzLoopType.LOOP);
+    private static final AzCommand RUN = AzCommand.create("base_controller", "run", AzPlayBehaviors.LOOP);
 
     private static final AzCommand SPAWN = AzCommand.create(
         "base_controller",
         "spawn",
-        AzLoopType.PLAY_ONCE
+        AzPlayBehaviors.PLAY_ONCE
     );
 
     private static final AzCommand AXE_ATTACK = AzCommand.create(
             "base_controller",
             "axe_attack",
-            AzLoopType.PLAY_ONCE
+        AzPlayBehaviors.PLAY_ONCE
     );
 
-    private static final AzCommand WALK = AzCommand.create("base_controller", "walk", AzLoopType.LOOP);
+    private static final AzCommand WALK = AzCommand.create("base_controller", "walk", AzPlayBehaviors.LOOP);
 
     private final MarauderEntity marauder;
 

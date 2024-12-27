@@ -1,5 +1,7 @@
 package mod.azure.azurelib.core2.animation.dispatch.command;
 
+import mod.azure.azurelib.core2.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.core2.animation.play_behavior.AzPlayBehaviors;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +22,6 @@ import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.core2.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.core2.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.core2.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.core2.animation.primitive.AzLoopType;
 import mod.azure.azurelib.core2.util.codec.AzListStreamCodec;
 
 /**
@@ -67,7 +68,7 @@ public record AzCommand(List<AzAction> actions) {
     }
 
     public static AzCommand create(String controllerName, String animationName) {
-        return create(controllerName, animationName, AzLoopType.PLAY_ONCE);
+        return create(controllerName, animationName, AzPlayBehaviors.PLAY_ONCE);
     }
 
     /**
@@ -75,14 +76,14 @@ public record AzCommand(List<AzAction> actions) {
      *
      * @param controllerName the name of the animation controller on which the animation should be played
      * @param animationName  the name of the animation to be played on the specified controller
-     * @param loopType       the loop type for the animation to use
+     * @param playBehavior   the play behavior for the animation to use
      * @return an instance of {@code AzCommand} representing the command to play the desired animation
      */
-    public static AzCommand create(String controllerName, String animationName, AzLoopType loopType) {
+    public static AzCommand create(String controllerName, String animationName, AzPlayBehavior playBehavior) {
         return builder()
             .playSequence(
                 controllerName,
-                sequenceBuilder -> sequenceBuilder.queue(animationName, props -> props.withLoopType(loopType))
+                sequenceBuilder -> sequenceBuilder.queue(animationName, props -> props.withPlayBehavior(playBehavior))
             )
             .build();
     }

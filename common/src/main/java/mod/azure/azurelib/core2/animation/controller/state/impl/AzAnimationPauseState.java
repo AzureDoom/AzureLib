@@ -22,9 +22,4 @@ public final class AzAnimationPauseState<T> extends AzAnimationPlayState<T> {
         super.onUpdate(context);
         // Pause state does not need to do anything.
     }
-
-    @Override
-    protected void playAgain(AzAnimationControllerStateMachine.Context<T> context) {
-        // Do nothing, because the pause state shouldn't reset before playing again.
-    }
 }

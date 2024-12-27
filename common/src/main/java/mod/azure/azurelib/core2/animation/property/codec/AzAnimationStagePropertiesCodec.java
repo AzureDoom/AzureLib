@@ -1,12 +1,13 @@
 package mod.azure.azurelib.core2.animation.property.codec;
 
+import mod.azure.azurelib.core2.animation.play_behavior.AzPlayBehaviorRegistry;
+import mod.azure.azurelib.core2.animation.play_behavior.AzPlayBehaviors;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import mod.azure.azurelib.core2.animation.easing.AzEasingTypeRegistry;
 import mod.azure.azurelib.core2.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.core2.animation.primitive.AzLoopType;
 import mod.azure.azurelib.core2.animation.property.AzAnimationStageProperties;
 
 public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByteBuf, AzAnimationStageProperties> {
@@ -27,8 +28,8 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
                     properties = properties.withEasingType(easingType);
                 }
                 case 3 -> {
-                    var loopType = AzLoopType.fromString(buf.readUtf());
-                    properties = properties.withLoopType(loopType);
+                    var playBehavior = AzPlayBehaviorRegistry.getOrDefault(buf.readUtf(), AzPlayBehaviors.PLAY_ONCE);
+                    properties = properties.withPlayBehavior(playBehavior);
                 }
             }
         }
@@ -42,7 +43,7 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
         propertyLength += properties.hasAnimationSpeed() ? 1 : 0;
         propertyLength += properties.hasTransitionLength() ? 1 : 0;
         propertyLength += properties.hasEasingType() ? 1 : 0;
-        propertyLength += properties.hasLoopType() ? 1 : 0;
+        propertyLength += properties.hasPlayBehavior() ? 1 : 0;
 
         buf.writeByte(propertyLength);
 
@@ -61,9 +62,9 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
             buf.writeUtf(properties.easingType().name());
         }
 
-        if (properties.hasLoopType()) {
+        if (properties.hasPlayBehavior()) {
             buf.writeByte(3);
-            buf.writeUtf(properties.loopType().name());
+            buf.writeUtf(properties.playBehavior().name());
         }
     }
 }
