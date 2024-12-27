@@ -34,12 +34,7 @@ public class AzAnimationControllerTimer<T> {
     public void reset() {
         var stateMachine = animationController.stateMachine();
         var animContext = stateMachine.getContext().animationContext();
-        var tick = animContext.timer().getAnimTime();
-
-        if (!stateMachine.isStopped()) {
-            this.tickOffset = tick;
-        }
-
+        this.tickOffset = animContext.timer().getAnimTime();
         this.adjustedTick = 0;
     }
 
