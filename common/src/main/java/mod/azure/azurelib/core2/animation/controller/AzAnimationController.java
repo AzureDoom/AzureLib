@@ -133,38 +133,15 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     }
 
     /**
-     * Handle a given AnimationState, alongside the current triggered animation if applicable
-     */
-    private void handleAnimationState(T animatable) {
-        if (triggeredSequence != null) {
-            if (currentSequence == null || !currentSequence.equals(triggeredSequence)) {
-                this.currentAnimation = null;
-            }
-
-            setAnimation(animatable, triggeredSequence);
-
-            if (!hasAnimationFinished()) {
-                return;
-            }
-
-            this.triggeredSequence = null;
-        }
-    }
-
-    /**
      * This method is called every frame in order to populate the animation point queues, and process animation state
      * logic.
      */
     public void update(AzAnimationContext<T> context) {
-        var animatable = context.animatable();
-
-        handleAnimationState(animatable);
-
         // Adjust the tick before making any updates.
         controllerTimer.update();
         // Run state machine updates.
         stateMachine.update();
-
+        // Update bone animation queue cache.
         boneAnimationQueueCache.update(animationProperties.easingType());
     }
 
@@ -177,10 +154,18 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         }
 
         this.currentSequenceOrigin = originSide;
-        this.triggeredSequence = sequence;
 
         if (stateMachine.isStopped()) {
             stateMachine.transition();
+        }
+
+        if (sequence != null) {
+            if (currentSequence == null || !currentSequence.equals(sequence)) {
+                this.currentAnimation = null;
+            }
+
+            var animatable = animator.context().animatable();
+            setAnimation(animatable, sequence);
         }
     }
 

@@ -12,8 +12,6 @@ public class AzAbstractAnimationController {
 
     protected AzDispatchSide currentSequenceOrigin;
 
-    protected AzAnimationSequence triggeredSequence;
-
     protected AzAbstractAnimationController(String name) {
         this.name = name;
     }
