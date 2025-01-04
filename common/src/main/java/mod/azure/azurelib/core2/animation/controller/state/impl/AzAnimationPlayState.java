@@ -73,9 +73,8 @@ public class AzAnimationPlayState<T> extends AzAnimationState<T> {
 
         var animationQueue = controller.animationQueue();
         var nextAnimation = animationQueue.peek();
-        var canPlayNextSuccessfully = nextAnimation != null;
 
-        if (!canPlayNextSuccessfully) {
+        if (nextAnimation == null) {
             // If we can't play the next animation for some reason, then there's nothing to play.
             // So we should put the state machine in the 'stop' state.
             stateMachine.stop();

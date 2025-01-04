@@ -18,7 +18,7 @@ public class MarauderAnimationDispatcher {
     private static final AzCommand SPAWN = AzCommand.create(
         "base_controller",
         "spawn",
-        AzPlayBehaviors.PLAY_ONCE
+        AzPlayBehaviors.HOLD_ON_LAST_FRAME
     );
 
     private static final AzCommand AXE_ATTACK = AzCommand.create(

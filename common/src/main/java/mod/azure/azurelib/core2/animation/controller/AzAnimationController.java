@@ -1,5 +1,6 @@
 package mod.azure.azurelib.core2.animation.controller;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.azure.azurelib.core2.animation.AzAnimationContext;
 import mod.azure.azurelib.core2.animation.AzAnimator;
 import mod.azure.azurelib.core2.animation.controller.keyframe.AzKeyframeCallbacks;
 import mod.azure.azurelib.core2.animation.controller.keyframe.AzKeyframeManager;
@@ -111,8 +111,40 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         return animations;
     }
 
-    public void setAnimation(T animatable, AzAnimationSequence sequence) {
-        if (sequence == null || sequence.stages().isEmpty()) {
+    /**
+     * This method is called every frame in order to populate the animation point queues, and process animation state
+     * logic.
+     */
+    public void update() {
+        // Adjust the tick before making any updates.
+        controllerTimer.update();
+        // Run state machine updates.
+        stateMachine.update();
+        // Update bone animation queue cache.
+        boneAnimationQueueCache.update(animationProperties.easingType());
+    }
+
+    public void run(AzDispatchSide originSide, @NotNull AzAnimationSequence sequence) {
+        if (currentSequenceOrigin == AzDispatchSide.SERVER && originSide == AzDispatchSide.CLIENT) {
+            if (!hasAnimationFinished()) {
+                // If we're playing a server-side sequence, ignore client-side sequences.
+                return;
+            }
+        }
+
+        this.currentSequenceOrigin = originSide;
+
+        if (stateMachine.isStopped()) {
+            stateMachine.transition();
+        }
+
+        if (currentSequence == null || !currentSequence.equals(sequence)) {
+            this.currentAnimation = null;
+        }
+
+        var animatable = animator.context().animatable();
+
+        if (sequence.stages().isEmpty()) {
             stateMachine.stop();
             return;
         }
@@ -129,43 +161,6 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             }
 
             stateMachine.stop();
-        }
-    }
-
-    /**
-     * This method is called every frame in order to populate the animation point queues, and process animation state
-     * logic.
-     */
-    public void update() {
-        // Adjust the tick before making any updates.
-        controllerTimer.update();
-        // Run state machine updates.
-        stateMachine.update();
-        // Update bone animation queue cache.
-        boneAnimationQueueCache.update(animationProperties.easingType());
-    }
-
-    public void run(AzDispatchSide originSide, AzAnimationSequence sequence) {
-        if (currentSequenceOrigin == AzDispatchSide.SERVER && originSide == AzDispatchSide.CLIENT) {
-            if (!hasAnimationFinished()) {
-                // If we're playing a server-side sequence, ignore client-side sequences.
-                return;
-            }
-        }
-
-        this.currentSequenceOrigin = originSide;
-
-        if (stateMachine.isStopped()) {
-            stateMachine.transition();
-        }
-
-        if (sequence != null) {
-            if (currentSequence == null || !currentSequence.equals(sequence)) {
-                this.currentAnimation = null;
-            }
-
-            var animatable = animator.context().animatable();
-            setAnimation(animatable, sequence);
         }
     }
 
