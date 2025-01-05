@@ -24,6 +24,7 @@ import mod.azure.azurelib.fabric.core2.example.armors.AzDoomArmor;
 import mod.azure.azurelib.fabric.core2.example.blocks.Stargate;
 import mod.azure.azurelib.fabric.core2.example.items.AzPistol;
 import mod.azure.azurelib.fabric.platform.FabricAzureLibNetwork;
+import mod.azure.azurelib.sblforked.SBLConstants;
 
 public final class FabricAzureLibMod implements ModInitializer {
 
@@ -43,6 +44,7 @@ public final class FabricAzureLibMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        SBLConstants.SBL_LOADER.init(null);
         ConfigIO.FILE_WATCH_MANAGER.startService();
         AzureLib.initialize();
         AzureLibMod.initRegistry();

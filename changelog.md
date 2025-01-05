@@ -46,5 +46,4 @@ public class PistolItem extends Item {
 - New system fixes Animation triggers not working with armors.
 - New system shows about a 40% drop in memory usage compared to old systems/Azurelib.
 - Move to new Az Naming scheme from Geo
-- No longer ship with a forked SBL, no longer being used in my mods moving forward.
 - MORE WIP
