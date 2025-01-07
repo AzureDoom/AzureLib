@@ -196,7 +196,7 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
     public ExampleArmorRenderer() {
         super(
             AzArmorRendererConfig.builder(GEO, TEX)
-                .setAnimatorProvider(AzDoomArmorAnimator::new)
+                .setAnimatorProvider(ExampleArmorAnimator::new)
                 .build()
         );
     }
