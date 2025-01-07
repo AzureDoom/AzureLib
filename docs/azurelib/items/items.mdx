@@ -3,6 +3,163 @@ title: Animating Armor
 hide_meta: true
 ---
 
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exportingassets.mdx)
+</Callout>
+<br></br>
+
 # How to animate Items
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+## Creating your custom AzItemAnimator
+
+For this, you will create a class which extends `AzItemAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+Example:
+```java
+public class ExampleItemAnimator extends AzItemAnimator {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/exampleitem.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ItemStack> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleItemDispatcher {
+    private static final AzCommand FIRING_COMMAND = AzCommand.create("base_controller", "firing", AzPlayBehaviors.PLAY_ONCE);
+
+    public void firing(Entity entity, ItemStack itemStack) {
+        FIRING_COMMAND.sendForItem(entity, itemStack);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleItemDispatcher from above in your Item class.
+
+```java
+public class ExampleItem extends Item {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleItemDispatcher dispatcher;
+
+    public ExampleItem(Properties properties) {
+        super(properties);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleItemDispatcher();
+    }
+}
+```
+
+Now to use the dispatcher, you would simply call it in any method where you want it trigger for, like if I want the firing to happing on use, I would do it like so:
+```java
+    @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        super.onUseTick(level, livingEntity, stack, remainingUseDuration);
+        if (livingEntity instanceof Player player && !level.isClientSide()) {
+            // This is where you now trigger an animation to play
+            dispatcher.firing(player, stack);
+        }
+    }
+```
+
+## Creating your Renderer
+
+This is where you will now register the ResourceLocation model and texture of your armor and you register your ExampleItemAnimator.
+
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/exampleitem.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/exampleitem.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(GEO, TEX)
+                .setAnimatorProvider(ExampleItemAnimator::new).build()
+        );
+    }
+}
+```
+
+### How to change things in the render early.
+
+If you wish to change things before the model is rendered, such as how the creeper does the glow and swell, you will want to use preRender from the RendererPipeline.
+
+Here is an example how to access this in your Renderer class
+```java
+    @Override
+    protected AzItemRendererPipeline<ItemStack> createPipeline(AzItemRendererConfig<ItemStack> config) {
+        return new AzItemRendererPipeline<ItemStack>(config, this){
+            @Override
+            public void preRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+                super.preRender(context, isReRender);
+
+                var swellFactor = context.animatable().getSwelling(context.partialTick());
+                var swellMod = 1 + Mth.sin(swellFactor * 100f) * swellFactor * 0.01f;
+                swellFactor = (float)Math.pow(Mth.clamp(swellFactor, 0f, 1f), 3);
+                var horizontalSwell = (1 + swellFactor * 0.4f) * swellMod;
+                var verticalSwell = (1 + swellFactor * 0.1f) / swellMod;
+
+                context.setPackedOverlay(OverlayTexture.pack(OverlayTexture.u(
+                        getSwellOverlay(context.animatable(), context.partialTick())),
+                        OverlayTexture.v(context.animatable().hurtTime > 0 || context.animatable().deathTime > 0)));
+                context.poseStack().scale(horizontalSwell, verticalSwell, horizontalSwell);
+            }
+
+            protected float getSwellOverlay(ItemStack animatable, float partialTick) {
+                var swell = animatable.getSwelling(partialTick);
+
+                return (int) (swell * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(swell, 0.5F, 1.0F);
+            }
+        };
+    }
+```
+
+## Registering your Renderer
+
+Now simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+```
+
+## Registering your Armor for proper animation triggering
+
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for NeoForge/Forge like so:
+
+```java
+AzIdentityRegistry.register(YourItemRegistry.YOUR_ITEM, ...);
+```

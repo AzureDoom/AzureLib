@@ -3,6 +3,184 @@ title: Animating Block Entities
 hide_meta: true
 ---
 
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exportingassets.mdx)
+</Callout>
+<br></br>
+
 # How to animate Block Entities
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+## Creating your custom AzBlockAnimator
+
+For this, you will create a class which extends `AzBlockAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+Example:
+```java
+public class ExampleBEAnimator extends AzBlockAnimator<ExampleBE> {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/examplebe.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleBE> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ExampleBE animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleBEDispatcher {
+    private static final AzCommand SPINNING_COMMAND = AzCommand.create(
+        "base_controller",
+        "spinning",
+        AzPlayBehaviors.LOOP
+    );
+
+    public void spin(BlockEntity entity) {
+        SPINNING_COMMAND.sendForItem(entity, itemStack);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleBEDispatcher from above in your BlockEntity class.
+
+```java
+public class ExampleBE extends BlockEntity {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleBEDispatcher dispatcher;
+
+    public ExampleBE(BlockPos pos, BlockState blockState) {
+        super(YourEntityTypes.EXAMPLE_BE, pos, blockState);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleBEDispatcher();
+    }
+}
+```
+
+Now you simply call the dispatcher wherever you want to play the animations.
+
+Example:
+
+<Callout variant="info">
+    This methed is set in your Block Entity class and registered to your Block classes getTicker method.
+</Callout>
+
+```java
+    public static void tick(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        ExampleBE blockEntity
+    ) {
+        if (blockEntity.level != null && level.isClientSide()) {
+            // This is where you now trigger an animation to play
+            blockEntity.animationDispatcher.spin(blockEntity);
+        }
+    }
+```
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom block entity is displayed in the game.
+
+It connects the block entity with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the block entity.
+2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
+3. **Animator**: Animations for the entity, provided by `ExampleBEAnimator`.
+
+The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` and provide the required configuration.
+
+Example Renderer
+```java
+public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/block/examplebe.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/block/examplebe.png"
+    );
+
+    public ExampleBERenderer() {
+        super(
+            AzBlockEntityRendererConfig.<ExampleBE>builder(GEO, TEX)
+                .setAnimatorProvider(ExampleBEAnimator::new).build()
+        );
+    }
+}
+```
+
+Highlights of the above example:
+
+- **Geometry File (`geo.json`)**
+The geometry file contains the 3D model's structure. Place this file in your mod's `resources/assets/[YOUR_MOD_ID]/geo/entity/` folder.
+
+- **Texture File (`.png`)**
+ The texture file is the 2D image that wraps around the geometry. Place this file in your mod's `resources/assets/[YOUR_MOD_ID]/textures/entity/` folder.
+
+- **Animator Class**
+  Animations for the entity are handled by the above created animator class, which you'll reference in the `setAnimatorProvider` method.
+
+### How to change things in the render early.
+
+If you wish to change things before the model is rendered, such as how the creeper does the glow and swell, you will want to use preRender from the RendererPipeline.
+
+Here is an example how to access this in your Renderer class
+```java
+    @Override
+    protected AzBlockEntityRendererPipeline<ExampleBE> createPipeline(AzBlockEntityRendererConfig<ExampleBE> config) {
+        return new AzBlockEntityRendererPipeline<ExampleBE>(config, this){
+            @Override
+            public void preRender(AzRendererPipelineContext<ExampleBE> context, boolean isReRender) {
+                super.preRender(context, isReRender);
+
+                var swellFactor = context.animatable().getSwelling(context.partialTick());
+                var swellMod = 1 + Mth.sin(swellFactor * 100f) * swellFactor * 0.01f;
+                swellFactor = (float)Math.pow(Mth.clamp(swellFactor, 0f, 1f), 3);
+                var horizontalSwell = (1 + swellFactor * 0.4f) * swellMod;
+                var verticalSwell = (1 + swellFactor * 0.1f) / swellMod;
+
+                context.setPackedOverlay(OverlayTexture.pack(OverlayTexture.u(
+                        getSwellOverlay(context.animatable(), context.partialTick())),
+                        OverlayTexture.v(context.animatable().hurtTime > 0 || context.animatable().deathTime > 0)));
+                context.poseStack().scale(horizontalSwell, verticalSwell, horizontalSwell);
+            }
+
+            protected float getSwellOverlay(ExampleBE entity, float partialTick) {
+                var swell = entity.getSwelling(partialTick);
+
+                return (int) (swell * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(swell, 0.5F, 1.0F);
+            }
+        };
+    }
+```
+
+## Registering your Renderer
+
+Nothing special is required here! Simply call render your block entity render as per the standard use case of your modloader.
