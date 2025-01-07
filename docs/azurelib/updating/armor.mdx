@@ -1,0 +1,269 @@
+---
+title: "Updating Guide: 2.x to 3.x"
+hide_meta: true
+---
+
+# Updating Armor
+
+A guide for converting AzureLib/Geckolib Armors to the new 3.x code.
+
+## Armor Item Class
+<table>
+  <tbody>
+    <tr>
+      <th>Old Armor Item class in AzureLib/Geckolib</th>
+      <th>New 3.x Armor Item class</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+public class ExampleArmor extends ArmorItem implements GeoItem {
+    // Geckolib used GeckoLibUtil
+    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
+
+    public ExampleArmor(Type type) {
+        super(ArmorMaterials.NETHERITE, type, new Properties());
+    }
+
+    @Override
+    public void createRenderer(Consumer<RenderProvider> consumer) {
+        // Where you registered your Renderer
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // Where you registered your Controllers and such
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+}
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleArmor extends ArmorItem {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleArmorDispatcher dispatcher;
+
+    public ExampleArmor(Type type) {
+        super(ArmorMaterials.NETHERITE, type, new Properties());
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleArmorDispatcher();
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> swapWithEquipmentSlot(
+        Item item,
+        Level level,
+        Player player,
+        InteractionHand hand
+    ) {
+        var result = super.swapWithEquipmentSlot(item, level, player, hand);
+
+        if (!level.isClientSide) {
+            var slot = getEquipmentSlot();
+            var itemStack = player.getItemBySlot(slot);
+            // This is where you now trigger an animation to play
+            dispatcher.equip(player, itemStack);
+        }
+
+        return result;
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+As you can see here, you no longer need to implement a Geo interface to your class anymore and no longer register your controllers or renderer here. All that is needed now is to simply implement a Dispatcher, which we will cover below.
+
+## Animations
+<table>
+  <tbody>
+    <tr>
+      <th>Old AzureLib/Geckolib Controller/Animation registration</th>
+      <th>New 3.x Controller/Animation registration</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+    private static final RawAnimation EQUIP_ANIMATION = RawAnimation.begin().thenLoop("equipping");
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // Trigger Animations on armors did not with Azurelib 2.x and older and in Geckolib
+        controllers.add(
+            new AnimationController<>(this, "base_controller", 0,
+                state -> PlayState.CONTINUE).triggerableAnim(
+                    "equipping",
+                    EQUIP_ANIMATION
+            )
+        );
+    }
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleArmorAnimator extends AzItemAnimator {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/examplearmor.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ItemStack> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Callout variant="info">
+    It is recommend to created a dedicated class for your Animation triggers as AzureLib now functions only using animation trigger calls, which is registered in your item like in the example above of the new Item class:
+</Callout>
+```java
+public class ExampleArmorDispatcher {
+    private static final AzCommand EQUIP_COMMAND = AzCommand.create(
+        "base_controller",
+        "equipping",
+        AzPlayBehaviors.LOOP
+    );
+
+    public void equip(Entity entity, ItemStack itemStack) {
+        EQUIP_COMMAND.sendForItem(entity, itemStack);
+    }
+}
+```
+
+## Rendering
+<table>
+  <tbody>
+    <tr>
+      <th>Old AzureLib/Geckolib Renderer</th>
+      <th>New 3.x Renderer</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+public class ExampleArmorRenderer<D extends ArmorItem> extends GeoArmorRenderer<ExampleArmor> {
+    public ExampleArmorRenderer() {
+        super(new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(
+            YOUR_MOD_ID, "examplearmor"
+        )));
+    }
+}
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(
+            AzArmorRendererConfig.builder(GEO, TEX)
+                .setAnimatorProvider(AzDoomArmorAnimator::new)
+                .build()
+        );
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+This is where you will now register the ResourceLocation model and texture of your armor and you register your ExampleArmorAnimator.
+
+## Registering
+<table>
+  <tbody>
+    <tr>
+      <th>Old Registering method that was done in your Item class</th>
+      <th>New 3.x Registering method</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+    @Override
+    public void createRenderer(Consumer<RenderProvider> consumer) {
+        consumer.accept(new RenderProvider() {
+            private ExampleArmorRenderer<ExampleArmor> renderer;
+
+            @Override
+            public HumanoidModel<LivingEntity> getHumanoidArmorModel(
+                LivingEntity livingEntity,
+                ItemStack itemStack,
+                EquipmentSlot equipmentSlot,
+                HumanoidModel<LivingEntity> original
+            ) {
+                if (renderer == null) {
+                    renderer = new ExampleArmorRenderer<ExampleArmor>();
+                }
+                renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+                return this.renderer;
+            }
+        });
+    }
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS);
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for NeoForge/Forge like so:
+```java
+AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS);
+```

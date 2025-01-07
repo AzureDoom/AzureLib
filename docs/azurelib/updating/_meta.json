@@ -1,0 +1,14 @@
+{
+    "armor.mdx": {
+        "name": "Updating Armors"
+    },
+    "blockentities.mdx": {
+        "name": "Updating Block Entities"
+    },
+    "entities.mdx": {
+        "name": "Updating Entities"
+    },
+    "items.mdx": {
+        "name": "Updating Items"
+    }
+}

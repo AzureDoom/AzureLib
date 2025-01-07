@@ -1,0 +1,7 @@
+{
+    "id": "azurelib",
+    "platforms": {
+        "modrinth": "azurelib",
+        "curseforge": "azurelib"
+    }
+}

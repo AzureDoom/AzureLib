@@ -1,0 +1,121 @@
+---
+title: Adding Effect Keyframes
+hide_meta: true
+---
+
+# How to add Effect Keyframes to animations
+
+In your Animation tab of Blockbench, select the animation you wish to add the keyframe to.
+
+![AnimationSelection](https://i.imgur.com/oxIQ0ls.png)
+
+Now go to the timeline of the animation and click `Animate Effects`
+
+![AnimationEffects](https://i.imgur.com/ifG0uba.png)
+
+<Callout variant="info">
+    Sound keyframes adds a JSON defined key to your animations json that when registered in code, will trigger sounds to play.
+
+    Particle keyframes adds a JSON defined key to your animations json that when registered in code, will trigger particles to spawn.
+
+    Custom Instructions keyframes help perform actions on your entity unrelated to sound or particles at specific keyframe timings.
+</Callout>
+This will open the effects tray, allowing you set the time you want a Particle, Sound, or Custom Instructions keyframe to be triggered at during the animation. All that needs set here is the Effect field for Particles and Sounds to set that keyframes name to be you will register in code for the sound, particle, or instruction.
+
+![SettingKeyframe](https://i.imgur.com/Y48knTT.png)
+
+# How to register Effect Keyframes
+
+In your `registerControllers` method found in your class that extends the various AzAnimators provided (Entity, BlockEntity, and Item are default options)
+
+## Sound Keyframes
+
+Example:
+```java
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<Entity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .setKeyframeCallbacks(
+                    AzKeyframeCallbacks.<Entity>builder()
+                        .setSoundKeyframeHandler(
+                            event -> {
+                                if (event.getKeyframeData().getSound().equals("walk")) {
+                                    event.getAnimatable()
+                                        .level()
+                                        .playLocalSound(
+                                            event.getAnimatable().getX(),
+                                            event.getAnimatable().getY(),
+                                            event.getAnimatable().getZ(),
+                                            SoundEvents.METAL_STEP,
+                                            SoundSource.HOSTILE,
+                                            1.0F, // volume
+                                            1.0F, // pitch
+                                            true // Should have distance delay
+                                        );
+                                }
+                            }
+                        )
+                        .build()
+                )
+                .build()
+        );
+    }
+```
+## Particle Keyframes
+
+Example:
+```java
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<Entity> animationControllerContainer) {
+        animationControllerContainer.add(
+                AzAnimationController.builder(this, "base_controller")
+                        .setKeyframeCallbacks(
+                                AzKeyframeCallbacks.<Entity>builder()
+                                        .setParticleKeyframeHandler(
+                                                event -> {
+                                                    if (event.getKeyframeData().getEffect().equals("walk")) {
+                                                        event.getAnimatable()
+                                                                .level()
+                                                                .addParticle(
+                                                                        ParticleTypes.BUBBLE,
+                                                                        false, // boolean if particle should always render or not
+                                                                        event.getAnimatable().getX(),
+                                                                        event.getAnimatable().getY(),
+                                                                        event.getAnimatable().getZ(),
+                                                                        0, // x axis speed
+                                                                        0, // y axis speed
+                                                                        0 // z axis speed
+                                                                );
+                                                    }
+                                                }
+                                        )
+                                        .build()
+                        )
+                        .build()
+        );
+    }
+```
+## Custom Instruction Keyframes
+
+Example:
+```java
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<Entity> animationControllerContainer) {
+        animationControllerContainer.add(
+                AzAnimationController.builder(this, "base_controller")
+                        .setKeyframeCallbacks(
+                                AzKeyframeCallbacks.<Entity>builder()
+                                        .setCustomInstructionKeyframeHandler(
+                                                event -> {
+                                                    if (event.getKeyframeData().getInstructions().equals("walk")) {
+                                                        // Do your custom instructions here
+                                                    }
+                                                }
+                                        )
+                                        .build()
+                        )
+                        .build()
+        );
+    }
+```
