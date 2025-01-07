@@ -32,12 +32,12 @@ Supported datatypes include:
 - `double`, `double[]`
 - `String`, `String[]`
 - Enums
+
 <Callout variant="info">
 Objects are used for config nesting/splitting into multiple categories. Just include some [@Configurable](https://github.com/AzureDoom/AzureLib/blob/1.20/common/src/main/java/mod/azure/azurelib/config/Configurable.java) fields in the nested object instance.
 </Callout>
-- Object
 
-You can also
+- Object
 
 Example:
 ```java
@@ -48,7 +48,6 @@ public class ModConfig {
     public boolean myBoolean = true;
 
     @Configurable
-    @Configurable.Synchronized
     public int myInt = 3;
 
     @Configurable
