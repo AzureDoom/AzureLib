@@ -1,4 +1,13 @@
 {
+    "addingazlayers.mdx": {
+        "name": "Adding Default AzLayers"
+    },
+    "addingkeyframes.mdx": {
+        "name": "Adding Effect Keyframes"
+    },
+    "usingmolang.mdx": {
+        "name": "Using Molang"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features"
     }
