@@ -1,0 +1,51 @@
+---
+title: Animating Bones In-Code
+hide_meta: true
+---
+
+# How to modify bones in-code to do animations
+
+- Open your AzAnimator class created for the targeted source you wish to do in-code animations for.
+
+- You will now want to override the method `setCustomAnimations` and start calling for your bones after the super call.
+
+Example:
+```java
+    @Override
+    public void setCustomAnimations(Creeper animatable, float partialTicks) {
+        super.setCustomAnimations(animatable, partialTicks);
+        AzBoneCache boneCache = this.context().boneCache();
+        Optional<AzBone> leftArm = boneCache.getBakedModel().getBone("your_bones_name");
+    }
+```
+
+- Now simply do a check ifPresent() and you can start changing the X, Y, Z of the bones in code!
+
+<Callout variant="info">
+    This example would move the legs and arms like players.
+</Callout>
+Example:
+```java
+    @Override
+    public void setCustomAnimations(Creeper animatable, float partialTicks) {
+        super.setCustomAnimations(animatable, partialTicks);
+        AzBoneCache boneCache = this.context().boneCache();
+        Optional<AzBone> leftArm = boneCache.getBakedModel().getBone("left_Arm");
+        Optional<AzBone> rightArm = boneCache.getBakedModel().getBone("right_Arm");
+        Optional<AzBone> leftLeg = boneCache.getBakedModel().getBone("left_Leg");
+        Optional<AzBone> rightLeg = boneCache.getBakedModel().getBone("right_Leg");
+
+        if (leftArm.isPresent())
+            leftArm.get().setRotX(
+                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
+        if (rightArm.isPresent())
+            rightArm.get().setRotX(
+                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * -2.0F * animatable.walkAnimation.speed() * 0.5F);
+        if (leftLeg.isPresent())
+            leftLeg.get().setRotX(
+                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
+        if (rightLeg.isPresent())
+            rightLeg.get().setRotX(
+                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F) * 1.4F * animatable.walkAnimation.speed() * 0.5F);
+    }
+```

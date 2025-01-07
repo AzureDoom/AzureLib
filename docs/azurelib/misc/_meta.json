@@ -5,6 +5,9 @@
     "addingkeyframes.mdx": {
         "name": "Adding Effect Keyframes"
     },
+    "animatingincode.mdx": {
+        "name": "Animating Bones In-Code"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features"
     }
