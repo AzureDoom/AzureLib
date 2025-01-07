@@ -1,0 +1,59 @@
+---
+title: How to Animate your model
+hide_meta: true
+---
+
+## How to get to the Animation window
+
+- Open your AzureLib project in Blockbench and you'll see (by default) to the far right side a tab called `Animate`
+
+- Click this and you will now now be in the Animation tab.
+
+- Create a new animation in the Animations panel on the left side by pressing the + icon and name it whatever you want. (Example: animation.idle)
+
+- You can select the bones and start animating!
+
+Here is a video guide that covers some basics of animating in Blockbench, it's not exactly for AzureLib but applies about 90%
+
+<a href="https://www.youtube.com/watch?v=TiZGtGvUla4">
+    <iframe width="760" height="515" src="https://www.youtube.com/embed/CA1NSAeQVuw?si=VQjiS6EMbc0vIb_g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</a>
+
+## How to use use Easings
+
+**What is an Easing Curve?**
+An easing curve is a mathematical function used to make animations feel more natural and dynamic. Instead of using a straight, linear transition, it controls how the animation progresses over time.
+### How Does it Work?
+Rather than moving at a constant speed, the animation's progress (or "tween") follows the shape of the easing curve. This allows for a variety of effects, such as:
+- **Smooth start and stop**: The animation gradually speeds up and slows down.
+- **Overshooting**: An object goes past its destination and slides back into place (using a "back" curve).
+- **Bouncing**: An object bounces as it reaches its target (using a "bounce" curve).
+
+Easing curves help make animations look more realistic and visually appealing.
+
+<Callout variant="info">
+    Image Credit to [Unity-EasingLibraryVisualisation](https://github.com/noisecrime/Unity-EasingLibraryVisualisation)
+</Callout>
+
+![BonesParent](https://raw.githubusercontent.com/noisecrime/Unity-EasingLibraryVisualisation/master/GraphAnimation_888.gif)
+
+## How to use Molang
+
+Molang empowers you to input mathematical expressions as keyframe values, extending beyond mere numerical inputs. You can employ mathematical functions such as `math.sin`, `math.cos`, and `math.abs`. Detailed information on these math functions can be found on the [Bedrock Wiki](https://bedrock.dev/docs/1.19.0.0/1.19.30.23/Molang#Math%20Functions).
+
+### Supported Queries
+
+- query.anim_time
+- query.actor_count
+- query.time_of_day
+- query.moon_phase
+- query.distance_from_camera
+- query.is_on_ground
+- query.is_in_water
+- query.is_in_water_or_rain
+- query.health
+- query.max_health
+- query.is_on_fire
+- query.on_fire_time
+- query.ground_speed
+- query.yaw_speed
