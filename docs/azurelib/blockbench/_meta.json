@@ -1,5 +1,8 @@
 {
     "blockbench.mdx": {
         "name": "Installing Blockbench Plugin"
+    },
+    "creatingconverting.mdx": {
+        "name": "Creating or Converting a Project"
     }
 }
