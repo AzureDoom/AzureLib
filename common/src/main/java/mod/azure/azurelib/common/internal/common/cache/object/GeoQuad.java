@@ -5,10 +5,10 @@
  */
 package mod.azure.azurelib.common.internal.common.cache.object;
 
-import net.minecraft.core.Direction;
+import mod.azure.azurelib.common.internal.common.loading.json.raw.FaceUV;
 import org.joml.Vector3f;
 
-import mod.azure.azurelib.common.internal.common.loading.json.raw.FaceUV;
+import net.minecraft.core.Direction;
 
 /**
  * Quad data holder
