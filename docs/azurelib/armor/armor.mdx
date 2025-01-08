@@ -159,8 +159,8 @@ If you wish to change things before the model is rendered, such as how the creep
 Here is an example how to access this in your Renderer class
 ```java
     @Override
-    protected AzArmorRendererPipeline<ItemStack> createPipeline(AzRendererConfig<ItemStack> config) {
-        return new AzArmorRendererPipeline<ItemStack>(config, this){
+    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
+        return new AzArmorRendererPipeline(config, this){
             @Override
             public void preRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
                 super.preRender(context, isReRender);
