@@ -8,15 +8,93 @@ hide_meta: true
 <Callout variant="info">
 Credit to AceTheEldritchKing for this tip.
 </Callout>
-<br></br>
 
 ## Adding a Conditional Bone
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+In your armor renderer, call the `createPipeline` and return a new `AzArmorRendererPipeline`. In that new `AzArmorRendererPipeline` override the `boneContext` method you can now define your bone as below
+
+```java
+    @Override
+    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
+        return new AzArmorRendererPipeline(config, this){
+            @Override
+            protected AzRendererPipelineContext<ItemStack> createContext(AzRendererPipeline<ItemStack> rendererPipeline) {
+                return  new AzArmorRendererPipelineContext(rendererPipeline){
+                    @Override
+                    public AzArmorBoneContext boneContext() {
+                        return new AzArmorBoneContext(){
+                            // Your Conditional Bone
+                            protected AzBone armorLeggingTorsoBone;
+
+                            // Your Conditional Bone name from the model
+                            public AzBone getArmorLeggingTorsoBone(AzBakedModel model) {
+                                return model.getBone("newArmorBone").orElse(null);
+                            }
+
+                            @Override
+                            public void grabRelevantBones(AzBakedModel model, AzArmorBoneProvider boneProvider) {
+                                super.grabRelevantBones(model, boneProvider);
+                                this.armorLeggingTorsoBone = this.getArmorLeggingTorsoBone(model) ;
+                            }
+                        };
+
+```
 
 ### Displaying Conditional Bones Only When Certain Armor Items are Equipped
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+Like above after you add your bone, simply override `applyBoneVisibilityBySlot` like so and first hide it then unhide in the armor peice you want it to show in.boneContext
+```java
+    @Override
+    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
+        return new AzArmorRendererPipeline(config, this){
+            @Override
+            protected AzRendererPipelineContext<ItemStack> createContext(AzRendererPipeline<ItemStack> rendererPipeline) {
+                return  new AzArmorRendererPipelineContext(rendererPipeline){
+                    @Override
+                    public AzArmorBoneContext boneContext() {
+                        return new AzArmorBoneContext(){
+                            protected AzBone armorLeggingTorsoBone;
+
+                            public AzBone getArmorLeggingTorsoBone(AzBakedModel model) {
+                                return model.getBone("newArmorBone").orElse(null);
+                            }
+
+                            @Override
+                            public void grabRelevantBones(AzBakedModel model, AzArmorBoneProvider boneProvider) {
+                                super.grabRelevantBones(model, boneProvider);
+                                this.armorLeggingTorsoBone = this.getArmorLeggingTorsoBone(model) ;
+                            }
+
+                            @Override
+                            public void applyBoneVisibilityBySlot(EquipmentSlot currentSlot) {
+                                setAllVisible(false);
+
+                                // Hide the legging torso bone initially
+                                this.setBoneVisible(this.armorLeggingTorsoBone, false);
+
+                                switch (currentSlot) {
+                                    case HEAD -> setBoneVisible(this.head, true);
+                                    case CHEST -> {
+                                        setBoneVisible(this.body, true);
+                                        setBoneVisible(this.rightArm, true);
+                                        setBoneVisible(this.leftArm, true);
+                                    }
+                                    case LEGS -> {
+                                        // Make the legging torso bone visible when the legging armor is equiped
+                                        this.setBoneVisible(this.armorLeggingTorsoBone, true);
+                                        setBoneVisible(this.rightLeg, true);
+                                        setBoneVisible(this.leftLeg, true);
+                                    }
+                                    case FEET -> {
+                                        setBoneVisible(this.rightBoot, true);
+                                        setBoneVisible(this.leftBoot, true);
+                                    }
+                                    case MAINHAND, OFFHAND -> { /* NO-OP */ }
+                                }
+                            }
+                        };
+
+```
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
