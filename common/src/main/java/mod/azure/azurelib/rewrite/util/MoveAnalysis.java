@@ -1,4 +1,4 @@
-package mod.azure.azurelib.fabric.core2.example;
+package mod.azure.azurelib.rewrite.util;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
