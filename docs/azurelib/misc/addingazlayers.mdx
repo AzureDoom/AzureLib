@@ -5,4 +5,31 @@ hide_meta: true
 
 # How to add Default AzLayers
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+AzureLib provides several default layers (`AzLayers`) that can be easily added to your entity renders. Some of the commonly available AzLayers include:
+
+- **`AzArmorLayer`**: Handles rendering of armor models for entities.
+
+<Callout variant="info">
+Create a copy of your model's texture file and rename it from `<texturefilename>.png` to `<texturefilename>_glowmask.png`. Using a photo editing tool like GIMP or Pixlr, erase all the pixels in the texture that you do not want to emit a glow or be emissive.
+</Callout>
+
+- **`AzAutoGlowingLayer`**: Adds glowing effects to specific parts of the model based on the provided textures.
+- **`AzBlockAndItemLayer`**: Manages rendering of blocks or items held by entities.
+
+You can add these layers to your renderer by customizing the `AzRendererConfig` during its setup process.
+
+## Example Usage
+
+```java
+public class MarauderRenderer extends AzEntityRenderer<MarauderEntity> {
+
+    public MarauderRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<MarauderEntity>builder(MODEL, TEXTURE)
+                .addRenderLayer(new AzAutoGlowingLayer<>()) // Adds the glowing layer
+                .build(),
+            context
+        );
+    }
+}
+```

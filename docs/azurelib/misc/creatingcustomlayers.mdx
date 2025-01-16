@@ -5,4 +5,35 @@ hide_meta: true
 
 # How to create a custom AzLayer
 
-![ComingSoon](https://i.imgur.com/oai95Ph.jpeg)
+The `AzRenderLayer` interface provides the foundation for creating custom render layers in your project. Render layers allow you to add additional visual effects or textures on top of the base model at runtime, enabling you to add dynamic features such as glowing parts, visual overlays, or unique animations.
+This guide will walk you through implementing a custom render layer using the `AzRenderLayer` interface.
+
+## Key Components of the `AzRenderLayer` Interface
+
+The `AzRenderLayer` interface defines the structure for your custom render layer with the following methods:
+1. `void preRender(AzRendererPipelineContext<T> context)`
+    - Invoked before the base model is rendered.
+    - Used for pre-render manipulations, such as modifying bone visibility or applying transformations to the model.
+
+2. `void render(AzRendererPipelineContext<T> context)`
+    - The main rendering logic for your layer. Called after the base model is rendered but before supplementary rendering (e.g., name tags).
+    - This is where your custom visual elements, such as textures or effects, are defined and rendered.
+
+3. `void renderForBone(AzRendererPipelineContext<T> context, AzBone bone)`
+    - Called once for each bone in the model.
+    - Allows you to render additional elements tied specifically to individual bones.
+    - This method is computationally expensive, so it should only be used when necessary. If it modifies the render buffer, ensure to reset it using `MultiBufferSource#getBuffer` before exiting the method.
+
+## Best Practices for Custom Layers
+
+- **Optimize Usage of `renderForBone`**:
+    - Since it is called for each bone being rendered, avoid unnecessary computations or rendering unless absolutely required.
+
+- **Reset Buffers**:
+    - If your custom layer modifies the buffers using `MultiBufferSource#getBuffer`, ensure you reset it to avoid render issues for subsequent layers.
+
+- **Leverage `preRender`**:
+    - Use this method to prepare transformations or modifications to the model’s bones before the rendering begins.
+
+- **Structure Your Code**:
+    - Consider splitting complex rendering logic into utility methods for easier maintenance and readability.
