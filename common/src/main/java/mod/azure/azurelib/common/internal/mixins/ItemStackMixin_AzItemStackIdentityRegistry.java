@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
-import mod.azure.azurelib.core2.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 
 /**
  * A mixin class for modifying the initialization behavior of the {@link ItemStack} class. This mixin specifically

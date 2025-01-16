@@ -21,8 +21,8 @@ import mod.azure.azurelib.common.internal.common.loading.json.raw.Model;
 import mod.azure.azurelib.common.internal.common.loading.object.BakedAnimations;
 import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 import mod.azure.azurelib.core.animation.Animation;
-import mod.azure.azurelib.core2.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.core2.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 
 /**
  * Extracts raw information from given files, and other similar functions

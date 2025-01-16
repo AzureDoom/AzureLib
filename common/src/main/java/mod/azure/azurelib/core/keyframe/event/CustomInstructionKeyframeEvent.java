@@ -8,12 +8,13 @@ package mod.azure.azurelib.core.keyframe.event;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
+import mod.azure.azurelib.rewrite.animation.event.AzCustomInstructionKeyframeEvent;
 
 /**
  * The {@link KeyFrameEvent} specific to the {@link AnimationController#customKeyframeHandler}.<br>
  * Called when a custom instruction keyframe is encountered
  *
- * @deprecated Use {@link mod.azure.azurelib.core2.animation.event.AzCustomInstructionKeyframeEvent} instead.
+ * @deprecated Use {@link AzCustomInstructionKeyframeEvent} instead.
  */
 @Deprecated(forRemoval = true)
 public class CustomInstructionKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEvent<T, CustomInstructionKeyframeData> {

@@ -8,12 +8,13 @@ package mod.azure.azurelib.core.keyframe.event;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
+import mod.azure.azurelib.rewrite.animation.event.AzParticleKeyframeEvent;
 
 /**
  * The {@link KeyFrameEvent} specific to the {@link AnimationController#particleKeyframeHandler}.<br>
  * Called when a particle instruction keyframe is encountered
  *
- * @deprecated Use {@link mod.azure.azurelib.core2.animation.event.AzParticleKeyframeEvent} instead.
+ * @deprecated Use {@link AzParticleKeyframeEvent} instead.
  */
 @Deprecated(forRemoval = true)
 public class ParticleKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEvent<T, ParticleKeyframeData> {

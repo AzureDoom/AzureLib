@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.RenderProvider;
-import mod.azure.azurelib.core2.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 
 /**
  * Render hook to inject AzureLib's ISTER rendering callback

@@ -12,11 +12,12 @@ import java.util.Optional;
 
 import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 
 /**
  * Baked model object for AzureLib models.
  *
- * @deprecated Use {@link mod.azure.azurelib.core2.model.AzBakedModel} instead.
+ * @deprecated Use {@link AzBakedModel} instead.
  */
 @Deprecated(forRemoval = true)
 public class BakedGeoModel implements CoreBakedGeoModel {

@@ -5,6 +5,8 @@
  */
 package mod.azure.azurelib.core.animatable.model;
 
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +14,7 @@ import java.util.Optional;
  * Baked model object for AzureLib models.<br>
  * Mostly an internal placeholder to allow for splitting up core (non-Minecraft) libraries
  *
- * @deprecated Use {@link mod.azure.azurelib.core2.model.AzBakedModel} instead.
+ * @deprecated Use {@link AzBakedModel} instead.
  */
 public interface CoreBakedGeoModel {
 

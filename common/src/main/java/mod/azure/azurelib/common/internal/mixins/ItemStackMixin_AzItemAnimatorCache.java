@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
-import mod.azure.azurelib.core2.animation.AzAnimator;
-import mod.azure.azurelib.core2.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.core2.animation.cache.AzIdentifiableItemStackAnimatorCache;
-import mod.azure.azurelib.core2.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAccessor<ItemStack> {

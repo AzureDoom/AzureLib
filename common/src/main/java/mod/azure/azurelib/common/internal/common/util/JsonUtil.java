@@ -21,10 +21,10 @@ import mod.azure.azurelib.common.internal.common.loading.json.typeadapter.BakedA
 import mod.azure.azurelib.common.internal.common.loading.json.typeadapter.KeyFramesAdapter;
 import mod.azure.azurelib.common.internal.common.loading.object.BakedAnimations;
 import mod.azure.azurelib.core.animation.Animation;
-import mod.azure.azurelib.core2.animation.parse.AzBakedAnimationsAdapter;
-import mod.azure.azurelib.core2.animation.parse.AzKeyframesAdapter;
-import mod.azure.azurelib.core2.animation.primitive.AzBakedAnimations;
-import mod.azure.azurelib.core2.animation.primitive.AzKeyframes;
+import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 
 /**
  * Json helper class for various json functions

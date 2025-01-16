@@ -34,8 +34,8 @@ import mod.azure.azurelib.common.internal.common.loading.object.BakedModelFactor
 import mod.azure.azurelib.common.internal.common.loading.object.GeometryTree;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
 import mod.azure.azurelib.core.animation.Animation;
-import mod.azure.azurelib.core2.animation.cache.AzBakedAnimationCache;
-import mod.azure.azurelib.core2.model.cache.AzBakedModelCache;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
+import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
 
 /**
  * Cache class for holding loaded {@link Animation Animations} and {@link CoreGeoModel Models}

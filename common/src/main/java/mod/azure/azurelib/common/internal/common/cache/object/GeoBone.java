@@ -6,6 +6,7 @@
 package mod.azure.azurelib.common.internal.common.cache.object;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -22,7 +23,7 @@ import mod.azure.azurelib.core.state.BoneSnapshot;
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  *
- * @deprecated Use {@link mod.azure.azurelib.core2.model.AzBone} instead.
+ * @deprecated Use {@link AzBone} instead.
  */
 @Deprecated(forRemoval = true)
 public class GeoBone implements CoreGeoBone {

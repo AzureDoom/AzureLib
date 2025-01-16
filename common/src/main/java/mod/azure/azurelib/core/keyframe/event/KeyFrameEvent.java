@@ -9,7 +9,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
-import mod.azure.azurelib.core2.animation.event.AzKeyframeEvent;
+import mod.azure.azurelib.rewrite.animation.event.AzKeyframeEvent;
 
 /**
  * The base class for {@link Keyframe} events.<br>

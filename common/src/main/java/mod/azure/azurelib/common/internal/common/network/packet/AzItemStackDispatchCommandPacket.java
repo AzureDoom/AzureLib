@@ -10,9 +10,9 @@ import java.util.UUID;
 
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
 import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.core2.animation.cache.AzIdentifiableItemStackAnimatorCache;
-import mod.azure.azurelib.core2.animation.dispatch.AzDispatchSide;
-import mod.azure.azurelib.core2.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
 
 public record AzItemStackDispatchCommandPacket(
     UUID itemStackId,

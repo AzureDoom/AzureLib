@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import mod.azure.azurelib.common.api.client.renderer.GeoArmorRenderer;
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.RenderProvider;
-import mod.azure.azurelib.core2.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
 /**
  * @deprecated
