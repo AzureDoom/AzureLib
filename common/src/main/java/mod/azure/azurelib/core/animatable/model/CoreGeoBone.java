@@ -1,19 +1,19 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animatable.model;
 
-import mod.azure.azurelib.core.state.BoneSnapshot;
-
 import java.util.List;
+
+import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Base class for AzureLib {@link CoreGeoModel model} bones.<br>
  * Mostly a placeholder to allow for splitting up core (non-Minecraft) libraries
+ *
+ * @deprecated
  */
 public interface CoreGeoBone {
 

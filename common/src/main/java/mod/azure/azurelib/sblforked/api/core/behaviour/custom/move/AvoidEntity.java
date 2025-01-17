@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -16,122 +15,134 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Try to move away from certain entities when they get too close. <br>
  * Defaults:
  * <ul>
- *     <li>3 block minimum distance</li>
- *     <li>7 block maximum distance</li>
- *     <li>1x move speed modifier</li>
+ * <li>3 block minimum distance</li>
+ * <li>7 block maximum distance</li>
+ * <li>1x move speed modifier</li>
  * </ul>
  */
 public class AvoidEntity<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
 
-	protected Predicate<LivingEntity> avoidingPredicate = target -> false;
-	protected float noCloserThanSqr = 9f;
-	protected float stopAvoidingAfterSqr = 49f;
-	protected float speedModifier = 1;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT)
+    );
 
-	private Path runPath = null;
+    protected Predicate<LivingEntity> avoidingPredicate = target -> false;
 
-	public AvoidEntity() {
-		noTimeout();
-	}
+    protected float noCloserThanSqr = 9f;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected float stopAvoidingAfterSqr = 49f;
 
-	/**
-	 * Set the minimum distance the target entity should be allowed to come before the entity starts retreating.
-	 * @param blocks The distance, in blocks
-	 * @return this
-	 */
-	public AvoidEntity<E> noCloserThan(float blocks) {
-		this.noCloserThanSqr = blocks * blocks;
+    protected float speedModifier = 1;
 
-		return this;
-	}
+    private Path runPath = null;
 
-	/**
-	 * Set the maximum distance the target entity should be before the entity stops retreating.
-	 * @param blocks The distance, in blocks
-	 * @return this
-	 */
-	public AvoidEntity<E> stopCaringAfter(float blocks) {
-		this.stopAvoidingAfterSqr = blocks * blocks;
+    public AvoidEntity() {
+        noTimeout();
+    }
 
-		return this;
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	/**
-	 * Sets the predicate for entities to avoid.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public AvoidEntity<E> avoiding(Predicate<LivingEntity> predicate) {
-		this.avoidingPredicate = predicate;
+    /**
+     * Set the minimum distance the target entity should be allowed to come before the entity starts retreating.
+     *
+     * @param blocks The distance, in blocks
+     * @return this
+     */
+    public AvoidEntity<E> noCloserThan(float blocks) {
+        this.noCloserThanSqr = blocks * blocks;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Set the movespeed modifier for when the entity is running away.
-	 * @param mod The speed multiplier modifier
-	 * @return this
-	 */
-	public AvoidEntity<E> speedModifier(float mod) {
-		this.speedModifier = mod;
+    /**
+     * Set the maximum distance the target entity should be before the entity stops retreating.
+     *
+     * @param blocks The distance, in blocks
+     * @return this
+     */
+    public AvoidEntity<E> stopCaringAfter(float blocks) {
+        this.stopAvoidingAfterSqr = blocks * blocks;
 
-		return this;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		Optional<LivingEntity> target = BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).findClosest(this.avoidingPredicate);
+    /**
+     * Sets the predicate for entities to avoid.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public AvoidEntity<E> avoiding(Predicate<LivingEntity> predicate) {
+        this.avoidingPredicate = predicate;
 
-		if (target.isEmpty())
-			return false;
+        return this;
+    }
 
-		LivingEntity avoidingEntity = target.get();
-		double distToTarget = avoidingEntity.distanceToSqr(entity);
+    /**
+     * Set the movespeed modifier for when the entity is running away.
+     *
+     * @param mod The speed multiplier modifier
+     * @return this
+     */
+    public AvoidEntity<E> speedModifier(float mod) {
+        this.speedModifier = mod;
 
-		if (distToTarget > this.noCloserThanSqr)
-			return false;
+        return this;
+    }
 
-		Vec3 runPos = DefaultRandomPos.getPosAway(entity, 16, 7, avoidingEntity.position());
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        Optional<LivingEntity> target = BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+            .findClosest(this.avoidingPredicate);
 
-		if (runPos == null || avoidingEntity.distanceToSqr(runPos.x, runPos.y, runPos.z) < distToTarget)
-			return false;
+        if (target.isEmpty())
+            return false;
 
-		this.runPath = entity.getNavigation().createPath(runPos.x, runPos.y, runPos.z, 0);
+        LivingEntity avoidingEntity = target.get();
+        double distToTarget = avoidingEntity.distanceToSqr(entity);
 
-		return this.runPath != null;
-	}
+        if (distToTarget > this.noCloserThanSqr)
+            return false;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return !this.runPath.isDone();
-	}
+        Vec3 runPos = DefaultRandomPos.getPosAway(entity, 16, 7, avoidingEntity.position());
 
-	@Override
-	protected void start(E entity) {
-		entity.getNavigation().moveTo(this.runPath, this.speedModifier);
-	}
+        if (runPos == null || avoidingEntity.distanceToSqr(runPos.x, runPos.y, runPos.z) < distToTarget)
+            return false;
 
-	@Override
-	protected void stop(E entity) {
-		this.runPath = null;
+        this.runPath = entity.getNavigation().createPath(runPos.x, runPos.y, runPos.z, 0);
 
-		entity.getNavigation().setSpeedModifier(1);
-	}
+        return this.runPath != null;
+    }
+
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return !this.runPath.isDone();
+    }
+
+    @Override
+    protected void start(E entity) {
+        entity.getNavigation().moveTo(this.runPath, this.speedModifier);
+    }
+
+    @Override
+    protected void stop(E entity) {
+        this.runPath = null;
+
+        entity.getNavigation().setSpeedModifier(1);
+    }
 }

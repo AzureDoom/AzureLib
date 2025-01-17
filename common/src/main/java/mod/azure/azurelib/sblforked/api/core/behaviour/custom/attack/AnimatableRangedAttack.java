@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.attack;
 
@@ -16,91 +15,106 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.monster.RangedAttackMob;
-import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
- * Extended behaviour for ranged attacking. Natively supports animation hit delays or other delays.
- * Defaults:
+ * Extended behaviour for ranged attacking. Natively supports animation hit delays or other delays. Defaults:
  * <ul>
- *     <li>40-tick firing interval, decreased to 20 ticks when on {@link Difficulty Hard Difficulty}</li>
- *     <li>16-block firing radius</li>
+ * <li>40-tick firing interval, decreased to 20 ticks when on {@link Difficulty Hard Difficulty}</li>
+ * <li>16-block firing radius</li>
  * </ul>
+ *
  * @param <E>
  */
 public class AnimatableRangedAttack<E extends LivingEntity & RangedAttackMob> extends DelayedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT));
 
-	protected Function<E, Integer> attackIntervalSupplier = entity -> entity.level().getDifficulty() == Difficulty.HARD ? 20 : 40;
-	protected float attackRadius;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT)
+    );
 
-	@Nullable
-	protected LivingEntity target = null;
+    protected Function<E, Integer> attackIntervalSupplier = entity -> entity.level().getDifficulty() == Difficulty.HARD
+        ? 20
+        : 40;
 
-	public AnimatableRangedAttack(int delayTicks) {
-		super(delayTicks);
+    protected float attackRadius;
 
-		attackRadius(16);
-	}
+    @Nullable
+    protected LivingEntity target = null;
 
-	/**
-	 * Set the time between attacks.
-	 * @param supplier The tick value provider
-	 * @return this
-	 */
-	public AnimatableRangedAttack<E> attackInterval(Function<E, Integer> supplier) {
-		this.attackIntervalSupplier = supplier;
+    public AnimatableRangedAttack(int delayTicks) {
+        super(delayTicks);
 
-		return this;
-	}
+        attackRadius(16);
+    }
 
-	/**
-	 * Set the radius in blocks that the entity should be able to fire on targets.
-	 * @param radius The radius, in blocks
-	 * @return this
-	 */
-	public AnimatableRangedAttack<E> attackRadius(float radius) {
-		this.attackRadius = radius * radius;
+    /**
+     * Set the time between attacks.
+     *
+     * @param supplier The tick value provider
+     * @return this
+     */
+    public AnimatableRangedAttack<E> attackInterval(Function<E, Integer> supplier) {
+        this.attackIntervalSupplier = supplier;
 
-		return this;
-	}
+        return this;
+    }
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    /**
+     * Set the radius in blocks that the entity should be able to fire on targets.
+     *
+     * @param radius The radius, in blocks
+     * @return this
+     */
+    public AnimatableRangedAttack<E> attackRadius(float radius) {
+        this.attackRadius = radius * radius;
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		this.target = BrainUtils.getTargetOfEntity(entity);
+        return this;
+    }
 
-		return BrainUtils.canSee(entity, this.target) && entity.distanceToSqr(this.target) <= this.attackRadius;
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	@Override
-	protected void start(E entity) {
-		entity.swing(InteractionHand.MAIN_HAND);
-		BehaviorUtils.lookAtEntity(entity, this.target);
-	}
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        this.target = BrainUtils.getTargetOfEntity(entity);
 
-	@Override
-	protected void stop(E entity) {
-		this.target = null;
-	}
+        return BrainUtils.canSee(entity, this.target) && entity.distanceToSqr(this.target) <= this.attackRadius;
+    }
 
-	@Override
-	protected void doDelayedAction(E entity) {
-		if (this.target == null)
-			return;
+    @Override
+    protected void start(E entity) {
+        entity.swing(InteractionHand.MAIN_HAND);
+        BehaviorUtils.lookAtEntity(entity, this.target);
+    }
 
-		if (!BrainUtils.canSee(entity, this.target) || entity.distanceToSqr(this.target) > this.attackRadius)
-			return;
+    @Override
+    protected void stop(E entity) {
+        this.target = null;
+    }
 
-		entity.performRangedAttack(this.target, 1);
-		BrainUtils.setForgettableMemory(entity, MemoryModuleType.ATTACK_COOLING_DOWN, true, this.attackIntervalSupplier.apply(entity));
-	}
+    @Override
+    protected void doDelayedAction(E entity) {
+        if (this.target == null)
+            return;
+
+        if (!BrainUtils.canSee(entity, this.target) || entity.distanceToSqr(this.target) > this.attackRadius)
+            return;
+
+        entity.performRangedAttack(this.target, 1);
+        BrainUtils.setForgettableMemory(
+            entity,
+            MemoryModuleType.ATTACK_COOLING_DOWN,
+            true,
+            this.attackIntervalSupplier.apply(entity)
+        );
+    }
 }

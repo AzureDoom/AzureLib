@@ -1,11 +1,20 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.api.client.model;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 import mod.azure.azurelib.common.internal.client.util.RenderUtils;
@@ -24,21 +33,12 @@ import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.DataTicket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
-
-import java.util.Optional;
-import java.util.function.BiConsumer;
 
 /**
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
  */
+@Deprecated(forRemoval = true)
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
 
     private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
@@ -144,8 +144,7 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
      * @param instanceId   The unique instance id of the animatable being animated
      * @param dataConsumer The DataTicket + data consumer to be added to the AnimationEvent
      */
-    public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {
-    }
+    public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {}
 
     @Override
     public void handleAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
@@ -155,15 +154,15 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
         if (currentTick == null)
             currentTick = animatable instanceof LivingEntity livingEntity
-                    ? (double) livingEntity.tickCount
-                    : RenderUtils.getCurrentTick();
+                ? (double) livingEntity.tickCount
+                : RenderUtils.getCurrentTick();
 
         if (animatableManager.getFirstTickTime() == -1)
             animatableManager.startedAt(currentTick + mc.getTimer().getGameTimeDeltaTicks());
 
         double currentFrameTime = currentTick - animatableManager.getFirstTickTime();
         boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager
-                .getLastUpdateTime();
+            .getLastUpdateTime();
 
         if (isReRender && instanceId == this.lastRenderedInstance)
             return;
@@ -187,12 +186,12 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
         if (!processor.getRegisteredBones().isEmpty())
             processor.tickAnimation(
-                    animatable,
-                    this,
-                    animatableManager,
-                    this.animTime,
-                    animationState,
-                    crashIfBoneMissing()
+                animatable,
+                this,
+                animatableManager,
+                this.animTime,
+                animationState,
+                crashIfBoneMissing()
             );
 
         setCustomAnimations(animatable, instanceId, animationState);
@@ -210,12 +209,15 @@ public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<
 
         if (animatable instanceof Entity entity) {
             parser.setMemoizedValue(
-                    MolangQueries.DISTANCE_FROM_CAMERA,
-                    () -> mc.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position())
+                MolangQueries.DISTANCE_FROM_CAMERA,
+                () -> mc.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position())
             );
             parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.onGround()));
             parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(entity.isInWater()));
-            parser.setMemoizedValue(MolangQueries.IS_IN_WATER_OR_RAIN, () -> RenderUtils.booleanToFloat(entity.isInWaterOrRain()));
+            parser.setMemoizedValue(
+                MolangQueries.IS_IN_WATER_OR_RAIN,
+                () -> RenderUtils.booleanToFloat(entity.isInWaterOrRain())
+            );
             parser.setMemoizedValue(MolangQueries.IS_ON_FIRE, () -> RenderUtils.booleanToFloat(entity.isOnFire()));
 
             if (entity instanceof LivingEntity livingEntity) {

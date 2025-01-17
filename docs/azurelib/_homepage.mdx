@@ -1,0 +1,56 @@
+# AzureLib
+
+![Header](https://www.bisecthosting.com/images/CF/AzureLib/BH_AL_header.png)
+
+## Developers
+To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
+```gradle
+repositories {
+	maven {
+		name = "AzureDoom Mods"
+		url = "https://maven.azuredoom.com/mods"
+	}
+}
+```
+
+### How AzureLib gets added to your dependencies varies based on modloader and setup.
+
+The Gradle property `MCVERSION` should be something like `3.0.0` with the Mod's version.
+
+The Gradle property `MODVERSION` should be something like `1.21.1` with Minecraft's version.
+
+Here are common dependency setups for different loaders.
+
+```gradle
+dependencies {
+	//Common 1.20.1+ Latest Only
+	compileOnly "mod.azure.azurelib:azurelib-common-MCVERSION:MODVERSION"
+
+	//Fabric or Quilt
+	modImplementation "mod.azure.azurelib:azurelib-fabric-MCVERSION:MODVERSION"
+
+	//NeoForge
+	implementation "mod.azure.azurelib:azurelib-neo-MCVERSION:MODVERSION"
+
+	//Forge (No longer supported past 1.20.1, use NeoForge)
+	implementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+
+	// Architectury Forge 1.20.1
+	modImplementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+}
+```
+
+For Forge Gradle users, you will need to enable Mixin refmaps in your client sourceset. This can be done by adding 2 lines inside of your client runs, to look like below.
+
+```gradle
+runs {
+	client {
+		// Add these two lines
+		property 'mixin.env.remapRefMap', 'true'
+		property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+		// The rest of the code that was already here
+		// ...
+	}
+}
+```

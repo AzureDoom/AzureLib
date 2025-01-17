@@ -1,0 +1,27 @@
+---
+title: Adding Animated Textures
+hide_meta: true
+---
+
+# How to use the Animated Textures feature
+
+<Callout variant="info">
+Animated textures require each frame to be square in size. For example, if your original texture is 64x32 pixels, you must resize it to 64x64 pixels for each frame in the animation.
+</Callout>
+
+Animated textures are handled in library for you and just require a simple .mcmeta file created for your texture. This works exactly the same way vanilla does it [here](https://minecraft.wiki/w/Resource_pack#Texture_animation)
+
+Example File setup:
+```
+Texture Files: yourtexture.png
+MCMeta File: yourtexture.png.mcmeta
+```
+
+Example .mcmeta file:
+```json
+{
+  "animation": {
+
+  }
+}
+```

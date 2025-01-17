@@ -1,25 +1,25 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.api.client.model;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import mod.azure.azurelib.common.internal.client.model.data.EntityModelData;
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animation.AnimationState;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 /**
  * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.entity.Entity Entities}. Using this class pre-sorts
  * provided asset paths into the "entity" subdirectory Additionally it can automatically handle head-turning if the
  * entity has a "head" bone
  */
+@Deprecated(forRemoval = true)
 public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 
     private final boolean turnsHead;

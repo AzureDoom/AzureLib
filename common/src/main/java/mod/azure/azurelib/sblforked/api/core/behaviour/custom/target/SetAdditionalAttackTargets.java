@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.target;
 
@@ -16,122 +15,152 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.player.Player;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.object.TriPredicate;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.object.TriPredicate;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Special-case behaviour for setting secondary, tertiary, etc attack targets.<br>
- * This is useful for entities that concurrently target multiple entities, and use additional memory modules to store the additional targets.<br>
- * Uses {@link MemoryModuleType#NEAREST_PLAYERS} and {@link MemoryModuleType#NEAREST_VISIBLE_LIVING_ENTITIES} for its retrieval of additional targets.<br>
- * This behaviour will skip the usual pathing and alerting functionality as it is assumed they will be handled under the primary target.<br>
+ * This is useful for entities that concurrently target multiple entities, and use additional memory modules to store
+ * the additional targets.<br>
+ * Uses {@link MemoryModuleType#NEAREST_PLAYERS} and {@link MemoryModuleType#NEAREST_VISIBLE_LIVING_ENTITIES} for its
+ * retrieval of additional targets.<br>
+ * This behaviour will skip the usual pathing and alerting functionality as it is assumed they will be handled under the
+ * primary target.<br>
  * <br>
  * Defaults:<br>
  * <ul>
- *     <li>Will target any not-invulnerable player</li>
- *     <li>Avoids setting memories if a previous memory in the list is already set to the same target, and including {@link MemoryModuleType#ATTACK_TARGET}</li>
+ * <li>Will target any not-invulnerable player</li>
+ * <li>Avoids setting memories if a previous memory in the list is already set to the same target, and including
+ * {@link MemoryModuleType#ATTACK_TARGET}</li>
  * </ul>
  */
 public class SetAdditionalAttackTargets<E extends Mob> extends ExtendedBehaviour<E> {
-	private final List<MemoryModuleType<? extends LivingEntity>> targetingMemories = new ObjectArrayList<>();
 
-	protected TriPredicate<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> canAttackPredicate = (owner, memory, target) -> target.isAlive() && target instanceof Player player && !player.getAbilities().invulnerable;
-	protected TriConsumer<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> targetCallback = (owner, memory, target) -> {};
-	protected boolean avoidDuplicateTargets = true;
+    private final List<MemoryModuleType<? extends LivingEntity>> targetingMemories = new ObjectArrayList<>();
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return List.of();
-	}
+    protected TriPredicate<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> canAttackPredicate = (
+        owner,
+        memory,
+        target
+    ) -> target.isAlive() && target instanceof Player player && !player.getAbilities().invulnerable;
 
-	/**
-	 * Set the predicate to determine whether a given entity should be targeted or not.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public SetAdditionalAttackTargets<E> attackablePredicate(TriPredicate<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> predicate) {
-		this.canAttackPredicate = predicate;
+    protected TriConsumer<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> targetCallback = (
+        owner,
+        memory,
+        target
+    ) -> {};
 
-		return this;
-	}
+    protected boolean avoidDuplicateTargets = true;
 
-	/**
-	 * Sets the callback for when a target is being successfully set to a memory.
-	 */
-	public SetAdditionalAttackTargets<E> whenTargeting(TriConsumer<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> callback) {
-		this.targetCallback = callback;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return List.of();
+    }
 
-		return this;
-	}
+    /**
+     * Set the predicate to determine whether a given entity should be targeted or not.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public SetAdditionalAttackTargets<E> attackablePredicate(
+        TriPredicate<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> predicate
+    ) {
+        this.canAttackPredicate = predicate;
 
-	/**
-	 * Add {@link MemoryModuleType memories} to the list of tertiary memories to set targets for.<br>
-	 * This appends to any existing memories already added to this behaviour, and the functionality of this behaviour is order-dependent.
-	 */
-	public SetAdditionalAttackTargets<E> withMemories(MemoryModuleType<? extends LivingEntity>... targetMemories) {
-		this.targetingMemories.addAll(List.of(targetMemories));
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Sets the callback for when a target is being successfully set to a memory.
+     */
+    public SetAdditionalAttackTargets<E> whenTargeting(
+        TriConsumer<E, MemoryModuleType<? extends LivingEntity>, LivingEntity> callback
+    ) {
+        this.targetCallback = callback;
 
-	/**
-	 * Allow for the tertiary target memories to be set to the same as the previous modules if no new target is available
-	 */
-	public SetAdditionalAttackTargets<E> allowDuplicateTargeting() {
-		this.avoidDuplicateTargets = false;
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Add {@link MemoryModuleType memories} to the list of tertiary memories to set targets for.<br>
+     * This appends to any existing memories already added to this behaviour, and the functionality of this behaviour is
+     * order-dependent.
+     */
+    public SetAdditionalAttackTargets<E> withMemories(MemoryModuleType<? extends LivingEntity>... targetMemories) {
+        this.targetingMemories.addAll(List.of(targetMemories));
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		Brain<?> brain = entity.getBrain();
+        return this;
+    }
 
-		for (MemoryModuleType<?> memory : this.targetingMemories) {
-			if (!BrainUtils.hasMemory(brain, memory))
-				return true;
-		}
+    /**
+     * Allow for the tertiary target memories to be set to the same as the previous modules if no new target is
+     * available
+     */
+    public SetAdditionalAttackTargets<E> allowDuplicateTargeting() {
+        this.avoidDuplicateTargets = false;
 
-		return BrainUtils.hasMemory(brain, MemoryModuleType.NEAREST_PLAYERS) || BrainUtils.hasMemory(brain, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(E entity) {
-		Brain<?> brain = entity.getBrain();
-		Set<LivingEntity> targetPool = new ObjectOpenHashSet<>();
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        Brain<?> brain = entity.getBrain();
 
-		BrainUtils.withMemory(brain, MemoryModuleType.NEAREST_PLAYERS, targetPool::addAll);
-		BrainUtils.withMemory(brain, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, memory -> memory.findAll(target -> true).forEach(targetPool::add));
+        for (MemoryModuleType<?> memory : this.targetingMemories) {
+            if (!BrainUtils.hasMemory(brain, memory))
+                return true;
+        }
 
-		if (targetPool.isEmpty())
-			return;
+        return BrainUtils.hasMemory(brain, MemoryModuleType.NEAREST_PLAYERS) || BrainUtils.hasMemory(
+            brain,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES
+        );
+    }
 
-		for (MemoryModuleType<? extends LivingEntity> memory : this.targetingMemories) {
-			LivingEntity target = BrainUtils.getMemory(brain, memory);
+    @Override
+    protected void start(E entity) {
+        Brain<?> brain = entity.getBrain();
+        Set<LivingEntity> targetPool = new ObjectOpenHashSet<>();
 
-			if (target == null) {
-				LivingEntity newTarget = null;
+        BrainUtils.withMemory(brain, MemoryModuleType.NEAREST_PLAYERS, targetPool::addAll);
+        BrainUtils.withMemory(
+            brain,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            memory -> memory.findAll(target -> true).forEach(targetPool::add)
+        );
 
-				for (Iterator<LivingEntity> iterator = targetPool.iterator(); iterator.hasNext(); newTarget = null) {
-					newTarget = iterator.next();
+        if (targetPool.isEmpty())
+            return;
 
-					if (this.canAttackPredicate.test(entity, memory, newTarget)) {
-						BrainUtils.setMemory(brain, (MemoryModuleType)memory, newTarget);
-						this.targetCallback.accept(entity, memory, newTarget);
-						iterator.remove();
+        for (MemoryModuleType<? extends LivingEntity> memory : this.targetingMemories) {
+            LivingEntity target = BrainUtils.getMemory(brain, memory);
 
-						break;
-					}
-				}
+            if (target == null) {
+                LivingEntity newTarget = null;
 
-				if (newTarget != null && !this.avoidDuplicateTargets)
-					targetPool.add(newTarget);
-			}
-		}
-	}
+                for (Iterator<LivingEntity> iterator = targetPool.iterator(); iterator.hasNext(); newTarget = null) {
+                    newTarget = iterator.next();
+
+                    if (this.canAttackPredicate.test(entity, memory, newTarget)) {
+                        BrainUtils.setMemory(brain, (MemoryModuleType) memory, newTarget);
+                        this.targetCallback.accept(entity, memory, newTarget);
+                        iterator.remove();
+
+                        break;
+                    }
+                }
+
+                if (newTarget != null && !this.avoidDuplicateTargets)
+                    targetPool.add(newTarget);
+            }
+        }
+    }
 }

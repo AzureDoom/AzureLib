@@ -79,14 +79,14 @@ public class AzureVibrationUser implements VibrationSystem.User {
 
     @Override
     public boolean canReceiveVibration(
-            @NotNull ServerLevel serverLevel,
-            @NotNull BlockPos blockPos,
-            @NotNull Holder<GameEvent> gameEvent,
-            GameEvent.@NotNull Context context
+        @NotNull ServerLevel serverLevel,
+        @NotNull BlockPos blockPos,
+        @NotNull Holder<GameEvent> gameEvent,
+        GameEvent.@NotNull Context context
     ) {
         if (
-                mob.isNoAi() || mob.isDeadOrDying() || !mob.level().getWorldBorder().isWithinBounds(blockPos) || mob
-                        .isRemoved()
+            mob.isNoAi() || mob.isDeadOrDying() || !mob.level().getWorldBorder().isWithinBounds(blockPos) || mob
+                .isRemoved()
         )
             return false;
         var entity = context.sourceEntity();
@@ -95,12 +95,12 @@ public class AzureVibrationUser implements VibrationSystem.User {
 
     @Override
     public void onReceiveVibration(
-            @NotNull ServerLevel serverLevel,
-            @NotNull BlockPos blockPos,
-            @NotNull Holder<GameEvent> gameEvent,
-            @Nullable Entity entity,
-            @Nullable Entity entity2,
-            float f
+        @NotNull ServerLevel serverLevel,
+        @NotNull BlockPos blockPos,
+        @NotNull Holder<GameEvent> gameEvent,
+        @Nullable Entity entity,
+        @Nullable Entity entity2,
+        float f
     ) {
         // Do nothing.
     }

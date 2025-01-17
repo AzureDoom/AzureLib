@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.loading.json.raw;
@@ -17,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
  * Container class for UV face information, only used in deserialization at startup
  */
 public record UVFaces(
-        @Nullable FaceUV north,
-        @Nullable FaceUV south,
-        @Nullable FaceUV east,
-        @Nullable FaceUV west,
-        @Nullable FaceUV up,
-        @Nullable FaceUV down
+    @Nullable FaceUV north,
+    @Nullable FaceUV south,
+    @Nullable FaceUV east,
+    @Nullable FaceUV west,
+    @Nullable FaceUV up,
+    @Nullable FaceUV down
 ) {
 
     public static JsonDeserializer<UVFaces> deserializer() {

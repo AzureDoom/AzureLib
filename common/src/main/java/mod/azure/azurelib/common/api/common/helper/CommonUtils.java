@@ -1,10 +1,5 @@
 package mod.azure.azurelib.common.api.common.helper;
 
-import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
-import mod.azure.azurelib.common.internal.common.registry.AzureBlocksRegistry;
-import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.common.platform.services.IPlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,13 +8,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
+import mod.azure.azurelib.common.internal.common.registry.AzureBlocksRegistry;
+import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 
 public record CommonUtils() {
 
@@ -36,26 +29,26 @@ public record CommonUtils() {
      * @param effectTime How long the effect should be applied for?
      */
     public static void summonAoE(
-            LivingEntity entity,
-            ParticleOptions particle,
-            int yOffset,
-            int duration,
-            float radius,
-            boolean hasEffect,
-            @Nullable Holder<MobEffect> effect,
-            int effectTime
+        LivingEntity entity,
+        ParticleOptions particle,
+        int yOffset,
+        int duration,
+        float radius,
+        boolean hasEffect,
+        @Nullable Holder<MobEffect> effect,
+        int effectTime
     ) {
         var areaEffectCloudEntity = new AreaEffectCloud(
-                entity.level(),
-                entity.getX(),
-                entity.getY() + yOffset,
-                entity.getZ()
+            entity.level(),
+            entity.getX(),
+            entity.getY() + yOffset,
+            entity.getZ()
         );
         areaEffectCloudEntity.setRadius(radius);
         areaEffectCloudEntity.setDuration(duration);
         areaEffectCloudEntity.setParticle(particle);
         areaEffectCloudEntity.setRadiusPerTick(
-                -areaEffectCloudEntity.getRadius() / areaEffectCloudEntity.getDuration()
+            -areaEffectCloudEntity.getRadius() / areaEffectCloudEntity.getDuration()
         );
         if (hasEffect && effect != null && !entity.hasEffect(effect))
             areaEffectCloudEntity.addEffect(new MobEffectInstance(effect, effectTime, 0));
@@ -63,8 +56,8 @@ public record CommonUtils() {
     }
 
     /**
-     * Spawns or refreshes a light source at the position of the firing entity. This method should
-     * only be called on the server side to place a temporary light-block.
+     * Spawns or refreshes a light source at the position of the firing entity. This method should only be called on the
+     * server side to place a temporary light-block.
      *
      * @param entity         The entity (e.g., player or mob) using the weapon.
      * @param isInWaterBlock If true, the light-block will refresh faster when in water.
@@ -82,7 +75,8 @@ public record CommonUtils() {
             tickingLightEntity.refresh(isInWaterBlock ? 20 : 0);
         } else {
             // Otherwise, place a new ticking light block
-            entity.level().setBlockAndUpdate(lightBlockPos, AzureBlocksRegistry.TICKING_LIGHT_BLOCK.get().defaultBlockState());
+            entity.level()
+                .setBlockAndUpdate(lightBlockPos, AzureBlocksRegistry.TICKING_LIGHT_BLOCK.get().defaultBlockState());
         }
     }
 

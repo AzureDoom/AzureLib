@@ -1,20 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.screen;
 
-import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
-import mod.azure.azurelib.common.internal.client.config.DisplayAdapterManager;
-import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapters;
-import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
-import mod.azure.azurelib.common.internal.common.config.value.ArrayValue;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -26,6 +15,16 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
+import mod.azure.azurelib.common.internal.client.config.DisplayAdapterManager;
+import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapters;
+import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
+import mod.azure.azurelib.common.internal.common.config.value.ArrayValue;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 
 public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends AbstractConfigScreen {
 
@@ -45,19 +44,19 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
 
     public ArrayConfigScreen(String ownerIdentifier, String configId, C array, Screen previous) {
         super(
-                Component.translatable(String.format("config.%s.option.%s", configId, ownerIdentifier)),
-                previous,
-                configId
+            Component.translatable(String.format("config.%s.option.%s", configId, ownerIdentifier)),
+            previous,
+            configId
         );
         this.array = array;
         this.fixedSize = array.isFixedSize();
     }
 
     public static <V> TypeAdapter.AdapterContext callbackCtx(
-            Field parent,
-            Class<V> componentType,
-            BiConsumer<V, Integer> callback,
-            int index
+        Field parent,
+        Class<V> componentType,
+        BiConsumer<V, Integer> callback,
+        int index
     ) {
         return new DummyCallbackAdapter<>(componentType, parent, callback, index);
     }
@@ -101,17 +100,23 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
             ConfigValue<?> dummy = valueFactory.create(array.getId(), i);
             dummy.processFieldData(owner);
             ConfigEntryWidget widget = addRenderableWidget(
-                    new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, dummy,
-                            this.configId)
+                new ConfigEntryWidget(
+                    30,
+                    viewportMin + 10 + j * 25 + offset,
+                    this.width - 60,
+                    20,
+                    dummy,
+                    this.configId
+                )
             );
             widget.setDescriptionRenderer(
-                    (graphics, widget1, severity, text) -> renderEntryDescription(graphics, widget1, severity, text)
+                (graphics, widget1, severity, text) -> renderEntryDescription(graphics, widget1, severity, text)
             );
             if (adapter == null) {
                 AzureLib.LOGGER.error(
-                        MARKER,
-                        "Missing display adapter for {} type, will not be displayed in GUI",
-                        compType.getSimpleName()
+                    MARKER,
+                    "Missing display adapter for {} type, will not be displayed in GUI",
+                    compType.getSimpleName()
                 );
                 continue;
             }
@@ -120,10 +125,10 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
                 initializeGuiValue(dummy, widget);
             } catch (ClassCastException e) {
                 AzureLib.LOGGER.error(
-                        MARKER,
-                        "Unable to create config field for {} type due to error {}",
-                        compType.getSimpleName(),
-                        e
+                    MARKER,
+                    "Unable to create config field for {} type due to error {}",
+                    compType.getSimpleName(),
+                    e
                 );
             }
             if (!fixedSize) {
@@ -142,18 +147,18 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
     }
 
     private void renderEntryDescription(
-            GuiGraphics graphics,
-            AbstractWidget widget,
-            NotificationSeverity severity,
-            List<FormattedCharSequence> text
+        GuiGraphics graphics,
+        AbstractWidget widget,
+        NotificationSeverity severity,
+        List<FormattedCharSequence> text
     ) {
         if (!severity.isOkStatus()) {
             this.renderNotification(
-                    severity,
-                    graphics,
-                    text,
-                    widget.getX() + 5,
-                    widget.getY() + widget.getHeight() + 10
+                severity,
+                graphics,
+                text,
+                widget.getX() + 5,
+                widget.getY() + widget.getHeight() + 10
             );
         }
     }
@@ -163,11 +168,26 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
         renderBackground(graphics, mouseX, mouseY, partialTicks);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        graphics.drawString(font, this.title, (this.width - titleWidth) / 2, (HEADER_HEIGHT - this.font.lineHeight) / 2, 0xFFFFFF);
+        graphics.drawString(
+            font,
+            this.title,
+            (this.width - titleWidth) / 2,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2,
+            0xFFFFFF
+        );
         graphics.fill(0, 0, width, HEADER_HEIGHT, 0x99 << 24);
         graphics.fill(0, height - FOOTER_HEIGHT, width, height, 0x99 << 24);
         graphics.fill(0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x55 << 24);
-        renderScrollbar(graphics, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, sizeSupplier.get(), pageSize);
+        renderScrollbar(
+            graphics,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            sizeSupplier.get(),
+            pageSize
+        );
         renderables.forEach(renderable -> renderable.render(graphics, mouseX, mouseY, partialTicks));
     }
 

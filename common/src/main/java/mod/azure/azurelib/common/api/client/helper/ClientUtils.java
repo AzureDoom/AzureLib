@@ -2,13 +2,14 @@ package mod.azure.azurelib.common.api.client.helper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
+import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 
 /**
  * Helper class for segregating client-side code
@@ -19,10 +20,12 @@ public record ClientUtils() {
      * Common reload KeyMapping for my various mods
      */
     public static KeyMapping RELOAD;
+
     /**
      * Common scope KeyMapping for my various mods
      */
     public static KeyMapping SCOPE;
+
     /**
      * Common scope KeyMapping for my various mods
      */

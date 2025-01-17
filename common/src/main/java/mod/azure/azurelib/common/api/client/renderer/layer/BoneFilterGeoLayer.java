@@ -1,21 +1,20 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.api.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import org.apache.logging.log4j.util.TriConsumer;
+
 import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
 import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import org.apache.logging.log4j.util.TriConsumer;
 
 /**
  * {@link GeoRenderLayer} for auto-applying some form of modification to bones of a model prior to rendering.<br>
@@ -23,13 +22,13 @@ import org.apache.logging.log4j.util.TriConsumer;
  * <br>
  * NOTE: Despite this layer existing, it is much more efficient to use {@link FastBoneFilterGeoLayer} instead
  */
+@Deprecated(forRemoval = true)
 public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
 
     protected final TriConsumer<GeoBone, T, Float> checkAndApply;
 
     public BoneFilterGeoLayer(GeoRenderer<T> renderer) {
-        this(renderer, (bone, animatable, partialTick) -> {
-        });
+        this(renderer, (bone, animatable, partialTick) -> {});
     }
 
     public BoneFilterGeoLayer(GeoRenderer<T> renderer, TriConsumer<GeoBone, T, Float> checkAndApply) {
@@ -48,15 +47,15 @@ public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<
 
     @Override
     public void preRender(
-            PoseStack poseStack,
-            T animatable,
-            BakedGeoModel bakedModel,
-            RenderType renderType,
-            MultiBufferSource bufferSource,
-            VertexConsumer buffer,
-            float partialTick,
-            int packedLight,
-            int packedOverlay
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel bakedModel,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
     ) {
         for (GeoBone bone : bakedModel.getTopLevelBones()) {
             checkChildBones(bone, animatable, partialTick);

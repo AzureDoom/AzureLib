@@ -1,72 +1,80 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import mod.azure.azurelib.sblforked.object.SBLShufflingList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.object.SBLShufflingList;
+
 /**
  * Group behaviour that runs all child behaviours in order, one after another.<br>
  * Restarts from the first behaviour upon reaching the end of the list
+ *
  * @param <E> The entity
  */
 public final class SequentialBehaviour<E extends LivingEntity> extends GroupBehaviour<E> {
-	private Predicate<ExtendedBehaviour<? super E>> earlyResetPredicate = behaviour -> false;
-	private ExtendedBehaviour<? super E> lastRun = null;
 
-	public SequentialBehaviour(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {
-		super(behaviours);
-	}
+    private Predicate<ExtendedBehaviour<? super E>> earlyResetPredicate = behaviour -> false;
 
-	public SequentialBehaviour(ExtendedBehaviour<? super E>... behaviours) {
-		super(behaviours);
-	}
+    private ExtendedBehaviour<? super E> lastRun = null;
 
-	/**
-	 * Adds an early short-circuit predicate to reset back to the start of the child behaviours at any time
-	 */
-	public SequentialBehaviour<E> resetIf(Predicate<ExtendedBehaviour<? super E>> predicate) {
-		this.earlyResetPredicate = predicate;
+    public SequentialBehaviour(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {
+        super(behaviours);
+    }
 
-		return this;
-	}
+    public SequentialBehaviour(ExtendedBehaviour<? super E>... behaviours) {
+        super(behaviours);
+    }
 
-	@Nullable
-	@Override
-	protected ExtendedBehaviour<? super E> pickBehaviour(ServerLevel level, E entity, long gameTime, SBLShufflingList<ExtendedBehaviour<? super E>> extendedBehaviours) {
-		boolean pickNext = this.lastRun == null;
+    /**
+     * Adds an early short-circuit predicate to reset back to the start of the child behaviours at any time
+     */
+    public SequentialBehaviour<E> resetIf(Predicate<ExtendedBehaviour<? super E>> predicate) {
+        this.earlyResetPredicate = predicate;
 
-		if (this.lastRun != null && this.earlyResetPredicate.test(this.lastRun)) {
-			pickNext = true;
-			this.lastRun = null;
-		}
+        return this;
+    }
 
-		for (ExtendedBehaviour<? super E> behaviour : extendedBehaviours) {
-			if (pickNext) {
-				if (behaviour.tryStart(level, entity, gameTime)) {
-					this.lastRun = behaviour;
+    @Nullable
+    @Override
+    protected ExtendedBehaviour<? super E> pickBehaviour(
+        ServerLevel level,
+        E entity,
+        long gameTime,
+        SBLShufflingList<ExtendedBehaviour<? super E>> extendedBehaviours
+    ) {
+        boolean pickNext = this.lastRun == null;
 
-					return behaviour;
-				}
+        if (this.lastRun != null && this.earlyResetPredicate.test(this.lastRun)) {
+            pickNext = true;
+            this.lastRun = null;
+        }
 
-				return null;
-			}
+        for (ExtendedBehaviour<? super E> behaviour : extendedBehaviours) {
+            if (pickNext) {
+                if (behaviour.tryStart(level, entity, gameTime)) {
+                    this.lastRun = behaviour;
 
-			if (behaviour == this.lastRun)
-				pickNext = true;
-		}
+                    return behaviour;
+                }
 
-		this.lastRun = null;
+                return null;
+            }
 
-		return null;
-	}
+            if (behaviour == this.lastRun)
+                pickNext = true;
+        }
+
+        this.lastRun = null;
+
+        return null;
+    }
 }

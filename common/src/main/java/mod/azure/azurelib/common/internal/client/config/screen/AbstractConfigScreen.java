@@ -1,21 +1,11 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
-import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import mod.azure.azurelib.common.internal.common.config.value.ObjectValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,6 +23,15 @@ import org.joml.Matrix4f;
 
 import java.util.Collection;
 import java.util.List;
+
+import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
+import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
+import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.config.value.ObjectValue;
 
 public abstract class AbstractConfigScreen extends Screen {
 
@@ -57,14 +56,14 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     public static void renderScrollbar(
-            GuiGraphics graphics,
-            int x,
-            int y,
-            int width,
-            int height,
-            int index,
-            int valueCount,
-            int paging
+        GuiGraphics graphics,
+        int x,
+        int y,
+        int width,
+        int height,
+        int index,
+        int valueCount,
+        int paging
     ) {
         if (valueCount <= paging)
             return;
@@ -89,12 +88,26 @@ public abstract class AbstractConfigScreen extends Screen {
     protected void addFooter() {
         int centerY = this.height - FOOTER_HEIGHT + (FOOTER_HEIGHT - 20) / 2;
         addRenderableWidget(
-                Button.builder(ConfigEntryWidget.BACK, this::buttonBackClicked).pos(20, centerY).size(50, 20).build());
+            Button.builder(ConfigEntryWidget.BACK, this::buttonBackClicked).pos(20, centerY).size(50, 20).build()
+        );
         addRenderableWidget(
-                Button.builder(ConfigEntryWidget.REVERT_DEFAULTS, this::buttonRevertToDefaultClicked).pos(75,
-                        centerY).size(120, 20).build());
-        addRenderableWidget(Button.builder(ConfigEntryWidget.REVERT_CHANGES, this::buttonRevertChangesClicked).pos(200,
-                centerY).size(120, 20).build());
+            Button.builder(ConfigEntryWidget.REVERT_DEFAULTS, this::buttonRevertToDefaultClicked)
+                .pos(
+                    75,
+                    centerY
+                )
+                .size(120, 20)
+                .build()
+        );
+        addRenderableWidget(
+            Button.builder(ConfigEntryWidget.REVERT_CHANGES, this::buttonRevertChangesClicked)
+                .pos(
+                    200,
+                    centerY
+                )
+                .size(120, 20)
+                .build()
+        );
     }
 
     protected void correctScrollingIndex(int count) {
@@ -118,9 +131,9 @@ public abstract class AbstractConfigScreen extends Screen {
 
     private void buttonRevertToDefaultClicked(Button button) {
         DialogScreen dialog = new DialogScreen(
-                ConfigEntryWidget.REVERT_DEFAULTS,
-                new Component[]{ConfigEntryWidget.REVERT_DEFAULTS_DIALOG_TEXT},
-                this
+            ConfigEntryWidget.REVERT_DEFAULTS,
+            new Component[] { ConfigEntryWidget.REVERT_DEFAULTS_DIALOG_TEXT },
+            this
         );
         dialog.onConfirmed(screen -> {
             AzureLib.LOGGER.info(MARKER, "Reverting config {} to default values", this.configId);
@@ -135,9 +148,9 @@ public abstract class AbstractConfigScreen extends Screen {
 
     private void buttonRevertChangesClicked(Button button) {
         DialogScreen dialog = new DialogScreen(
-                ConfigEntryWidget.REVERT_CHANGES,
-                new Component[]{ConfigEntryWidget.REVERT_CHANGES_DIALOG_TEXT},
-                this
+            ConfigEntryWidget.REVERT_CHANGES,
+            new Component[] { ConfigEntryWidget.REVERT_CHANGES_DIALOG_TEXT },
+            this
         );
         dialog.onConfirmed(screen -> {
             ConfigHolderRegistry.getConfig(this.configId).ifPresent(ConfigIO::reloadClientValues);
@@ -172,11 +185,11 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     public void renderNotification(
-            NotificationSeverity severity,
-            GuiGraphics graphics,
-            List<FormattedCharSequence> texts,
-            int mouseX,
-            int mouseY
+        NotificationSeverity severity,
+        GuiGraphics graphics,
+        List<FormattedCharSequence> texts,
+        int mouseX,
+        int mouseY
     ) {
         if (!texts.isEmpty()) {
             int maxTextWidth = 0;
@@ -213,24 +226,87 @@ public abstract class AbstractConfigScreen extends Screen {
             int fadeMax = severity.fadeMax;
             int zIndex = 400;
             Matrix4f matrix4f = stack.last().pose();
-            graphics.fillGradient(startX - 3, startY - 4, startX + maxTextWidth + 3, startY - 3, zIndex, background,
-                    background);
-            graphics.fillGradient(startX - 3, startY + heightOffset + 3, startX + maxTextWidth + 3,
-                    startY + heightOffset + 4, zIndex, background, background);
-            graphics.fillGradient(startX - 3, startY - 3, startX + maxTextWidth + 3, startY + heightOffset + 3, zIndex,
-                    background, background);
-            graphics.fillGradient(startX - 4, startY - 3, startX - 3, startY + heightOffset + 3, zIndex, background,
-                    background);
-            graphics.fillGradient(startX + maxTextWidth + 3, startY - 3, startX + maxTextWidth + 4,
-                    startY + heightOffset + 3, zIndex, background, background);
-            graphics.fillGradient(startX - 3, startY - 3 + 1, startX - 3 + 1, startY + heightOffset + 3 - 1, zIndex,
-                    fadeMin, fadeMax);
-            graphics.fillGradient(startX + maxTextWidth + 2, startY - 3 + 1, startX + maxTextWidth + 3,
-                    startY + heightOffset + 3 - 1, zIndex, fadeMin, fadeMax);
-            graphics.fillGradient(startX - 3, startY - 3, startX + maxTextWidth + 3, startY - 3 + 1, zIndex, fadeMin,
-                    fadeMin);
-            graphics.fillGradient(startX - 3, startY + heightOffset + 2, startX + maxTextWidth + 3,
-                    startY + heightOffset + 3, zIndex, fadeMax, fadeMax);
+            graphics.fillGradient(
+                startX - 3,
+                startY - 4,
+                startX + maxTextWidth + 3,
+                startY - 3,
+                zIndex,
+                background,
+                background
+            );
+            graphics.fillGradient(
+                startX - 3,
+                startY + heightOffset + 3,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 4,
+                zIndex,
+                background,
+                background
+            );
+            graphics.fillGradient(
+                startX - 3,
+                startY - 3,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            graphics.fillGradient(
+                startX - 4,
+                startY - 3,
+                startX - 3,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            graphics.fillGradient(
+                startX + maxTextWidth + 3,
+                startY - 3,
+                startX + maxTextWidth + 4,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            graphics.fillGradient(
+                startX - 3,
+                startY - 3 + 1,
+                startX - 3 + 1,
+                startY + heightOffset + 3 - 1,
+                zIndex,
+                fadeMin,
+                fadeMax
+            );
+            graphics.fillGradient(
+                startX + maxTextWidth + 2,
+                startY - 3 + 1,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3 - 1,
+                zIndex,
+                fadeMin,
+                fadeMax
+            );
+            graphics.fillGradient(
+                startX - 3,
+                startY - 3,
+                startX + maxTextWidth + 3,
+                startY - 3 + 1,
+                zIndex,
+                fadeMin,
+                fadeMin
+            );
+            graphics.fillGradient(
+                startX - 3,
+                startY + heightOffset + 2,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3,
+                zIndex,
+                fadeMax,
+                fadeMax
+            );
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -238,8 +314,10 @@ public abstract class AbstractConfigScreen extends Screen {
             if (!severity.isOkStatus()) {
                 Tesselator tessellator = Tesselator.getInstance();
                 RenderSystem.setShader(GameRenderer::getPositionColorShader);
-                BufferBuilder bufferbuilder = tessellator.begin(VertexFormat.Mode.QUADS,
-                        DefaultVertexFormat.POSITION_TEX);
+                BufferBuilder bufferbuilder = tessellator.begin(
+                    VertexFormat.Mode.QUADS,
+                    DefaultVertexFormat.POSITION_TEX
+                );
                 ResourceLocation icon = severity.getIcon();
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 RenderSystem.setShaderTexture(0, icon);
@@ -252,7 +330,6 @@ public abstract class AbstractConfigScreen extends Screen {
                 BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
             }
 
-
             RenderSystem.disableBlend();
             MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
             stack.translate(0.0D, 0.0D, zIndex);
@@ -261,8 +338,18 @@ public abstract class AbstractConfigScreen extends Screen {
             for (int i = 0; i < texts.size(); i++) {
                 FormattedCharSequence textComponent = texts.get(i);
                 if (textComponent != null) {
-                    this.font.drawInBatch(textComponent, (float) startX + textOffset, (float) startY, -1, true,
-                            matrix4f, bufferSource, Font.DisplayMode.NORMAL, 0, 0xf000f0);
+                    this.font.drawInBatch(
+                        textComponent,
+                        (float) startX + textOffset,
+                        (float) startY,
+                        -1,
+                        true,
+                        matrix4f,
+                        bufferSource,
+                        Font.DisplayMode.NORMAL,
+                        0,
+                        0xf000f0
+                    );
                 }
 
                 if (i == 0) {

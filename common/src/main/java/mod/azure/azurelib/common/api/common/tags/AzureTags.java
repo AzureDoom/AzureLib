@@ -1,9 +1,10 @@
 package mod.azure.azurelib.common.api.common.tags;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
 
 public final class AzureTags {
 

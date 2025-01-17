@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour;
 
@@ -13,53 +12,59 @@ import java.util.function.Function;
 
 /**
  * An abstract behaviour used for tasks that should have an ongoing effect, optionally with an early finish.<br>
- * This is most useful for things like attacks with multi-tick effects such as beams or flamethrowers, or other prolonged actions.
+ * This is most useful for things like attacks with multi-tick effects such as beams or flamethrowers, or other
+ * prolonged actions.
+ *
  * @param <E> The entity
  */
 public abstract class HeldBehaviour<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	protected Function<E, Boolean> tickConsumer = entity -> true;
-	protected int runningTime = 0;
 
-	public HeldBehaviour() {
-		runFor(entity -> Integer.MAX_VALUE);
-	}
+    protected Function<E, Boolean> tickConsumer = entity -> true;
 
-	/**
-	 * Set the per-tick handler for this held behaviour
-	 * @param tickConsumer The consumer to handle the per-action tick. Return false to end the behaviour, or true to continue running
-	 */
-	public HeldBehaviour<E> onTick(Function<E, Boolean> tickConsumer) {
-		this.tickConsumer = tickConsumer;
+    protected int runningTime = 0;
 
-		return this;
-	}
+    public HeldBehaviour() {
+        runFor(entity -> Integer.MAX_VALUE);
+    }
 
-	/**
-	 * Gets the amount of ticks this behaviour has been held for
-	 */
-	public int getRunningTime() {
-		return this.runningTime;
-	}
+    /**
+     * Set the per-tick handler for this held behaviour
+     *
+     * @param tickConsumer The consumer to handle the per-action tick. Return false to end the behaviour, or true to
+     *                     continue running
+     */
+    public HeldBehaviour<E> onTick(Function<E, Boolean> tickConsumer) {
+        this.tickConsumer = tickConsumer;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return true;
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(ServerLevel level, E entity, long gameTime) {
-		super.start(level, entity, gameTime);
+    /**
+     * Gets the amount of ticks this behaviour has been held for
+     */
+    public int getRunningTime() {
+        return this.runningTime;
+    }
 
-		this.runningTime = 0;
-	}
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return true;
+    }
 
-	@Override
-	protected void tick(ServerLevel level, E owner, long gameTime) {
-		super.tick(level, owner, gameTime);
+    @Override
+    protected void start(ServerLevel level, E entity, long gameTime) {
+        super.start(level, entity, gameTime);
 
-		if (!this.tickConsumer.apply(owner))
-			doStop(level, owner, gameTime);
+        this.runningTime = 0;
+    }
 
-		this.runningTime++;
-	}
+    @Override
+    protected void tick(ServerLevel level, E owner, long gameTime) {
+        super.tick(level, owner, gameTime);
+
+        if (!this.tickConsumer.apply(owner))
+            doStop(level, owner, gameTime);
+
+        this.runningTime++;
+    }
 }

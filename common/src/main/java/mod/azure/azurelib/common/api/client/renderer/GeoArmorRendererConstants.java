@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 /**
  * @author Boston Vanseghi
  */
+@Deprecated(forRemoval = true)
 public class GeoArmorRendererConstants {
 
     public static final String BONE_ARMOR_BODY_NAME = "armorBody";

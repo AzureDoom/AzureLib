@@ -1,10 +1,14 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
- package mod.azure.azurelib.common.internal.client;
+package mod.azure.azurelib.common.internal.client;
+
+import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
 
 import mod.azure.azurelib.common.api.common.config.Config;
 import mod.azure.azurelib.common.internal.client.config.screen.ConfigGroupScreen;
@@ -12,11 +16,6 @@ import mod.azure.azurelib.common.internal.client.config.screen.ConfigScreen;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import net.minecraft.client.gui.screens.Screen;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 public final class AzureLibClient {
 
@@ -51,8 +50,8 @@ public final class AzureLibClient {
     @Nullable
     public static Screen getConfigScreen(String configId, Screen previous) {
         return ConfigHolderRegistry.getConfig(configId)
-                .map(holder -> getConfigScreenForHolder(holder, previous))
-                .orElse(null);
+            .map(holder -> getConfigScreenForHolder(holder, previous))
+            .orElse(null);
     }
 
     /**

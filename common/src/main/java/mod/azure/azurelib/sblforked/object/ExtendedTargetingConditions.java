@@ -1,28 +1,34 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.object;
 
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import mod.azure.azurelib.sblforked.util.SensoryUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
+import mod.azure.azurelib.sblforked.util.SensoryUtils;
+
 /**
- * Replacement for Vanilla's {@link net.minecraft.world.entity.ai.targeting.TargetingConditions} due to its somewhat limited implementation
+ * Replacement for Vanilla's {@link net.minecraft.world.entity.ai.targeting.TargetingConditions} due to its somewhat
+ * limited implementation
  */
 public class ExtendedTargetingConditions {
+
     protected BiPredicate<LivingEntity, LivingEntity> customFilter = null;
+
     protected Function<LivingEntity, Double> rangeRetriever = null;
+
     protected boolean isAttacking = true;
+
     protected boolean checkLineOfSight = true;
+
     protected boolean ignoresInvisibility = false;
 
     public static ExtendedTargetingConditions forLookTarget() {
@@ -58,7 +64,8 @@ public class ExtendedTargetingConditions {
     }
 
     /**
-     * Filter out any targeting that occurs for entities larger than the distance provided by this function from the entity
+     * Filter out any targeting that occurs for entities larger than the distance provided by this function from the
+     * entity
      */
     public ExtendedTargetingConditions withRange(Function<LivingEntity, Double> function) {
         this.rangeRetriever = function;
@@ -67,15 +74,24 @@ public class ExtendedTargetingConditions {
     }
 
     /**
-     * Filter out any targeting that occurs for entities outside of the entity's {@link Attributes#FOLLOW_RANGE} attribute
+     * Filter out any targeting that occurs for entities outside of the entity's {@link Attributes#FOLLOW_RANGE}
+     * attribute
      */
     public ExtendedTargetingConditions withFollowRange() {
-        return withRange(entity -> entity.getAttribute(Attributes.FOLLOW_RANGE) != null ? entity.getAttributeValue(Attributes.FOLLOW_RANGE) : 16d);
+        return withRange(
+            entity -> entity.getAttribute(Attributes.FOLLOW_RANGE) != null
+                ? entity.getAttributeValue(Attributes.FOLLOW_RANGE)
+                : 16d
+        );
     }
 
     /**
-     * Additionally filter out any specific cases that may apply. This check is applied <u>before</u> any other conditions are checked
-     * <p>Note that the targeting entity may be null, for generic checks</p>
+     * Additionally filter out any specific cases that may apply. This check is applied <u>before</u> any other
+     * conditions are checked
+     * <p>
+     * Note that the targeting entity may be null, for generic checks
+     * </p>
+     *
      * @return true if the entity should be allowed to target the target, or false if not
      */
     public ExtendedTargetingConditions onlyTargeting(BiPredicate<@Nullable LivingEntity, LivingEntity> predicate) {
@@ -85,7 +101,8 @@ public class ExtendedTargetingConditions {
     }
 
     /**
-     * Skip the line of sight checks in the predicate. This can be useful for entities that track with other senses, or for other special-case situations
+     * Skip the line of sight checks in the predicate. This can be useful for entities that track with other senses, or
+     * for other special-case situations
      */
     public ExtendedTargetingConditions ignoreLineOfSight() {
         this.checkLineOfSight = false;
@@ -94,7 +111,8 @@ public class ExtendedTargetingConditions {
     }
 
     /**
-     * Skip the invisibility check for targeting. This is often used where the entity is already being targeted/tracked, and we're just checking for attackability.
+     * Skip the invisibility check for targeting. This is often used where the entity is already being targeted/tracked,
+     * and we're just checking for attackability.
      */
     public ExtendedTargetingConditions skipInvisibilityCheck() {
         this.ignoresInvisibility = true;
@@ -110,15 +128,22 @@ public class ExtendedTargetingConditions {
             return false;
 
         if (entity == null)
-            return !this.isAttacking || (target.canBeSeenAsEnemy() && target.level().getDifficulty() != Difficulty.PEACEFUL);
+            return !this.isAttacking || (target.canBeSeenAsEnemy() && target.level()
+                .getDifficulty() != Difficulty.PEACEFUL);
 
-        if (this.isAttacking && (!entity.canAttack(target) || !entity.canAttackType(target.getType()) || entity.isAlliedTo(target)))
+        if (
+            this.isAttacking && (!entity.canAttack(target) || !entity.canAttackType(target.getType()) || entity
+                .isAlliedTo(target))
+        )
             return false;
 
         double range = this.rangeRetriever.apply(entity);
 
         if (range > 0) {
-            double sightRange = Math.max(range * (this.ignoresInvisibility ? 1 : target.getVisibilityPercent(entity)), 2);
+            double sightRange = Math.max(
+                range * (this.ignoresInvisibility ? 1 : target.getVisibilityPercent(entity)),
+                2
+            );
 
             if (entity.distanceToSqr(target) > sightRange * sightRange)
                 return false;

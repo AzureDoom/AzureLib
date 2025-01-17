@@ -1,6 +1,7 @@
 plugins {
     id 'multiloader-common'
     id 'net.neoforged.moddev'
+    id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
 neoForge {

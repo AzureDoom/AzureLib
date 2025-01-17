@@ -1,15 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.widget;
 
-import mod.azure.azurelib.common.internal.client.config.WidgetAdder;
-import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
-import mod.azure.azurelib.common.internal.common.config.validate.ValidationResult;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -26,6 +20,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mod.azure.azurelib.common.internal.client.config.WidgetAdder;
+import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
+import mod.azure.azurelib.common.internal.common.config.validate.ValidationResult;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+
 public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
 
     public static final Component EDIT = Component.translatable("text.azurelib.value.edit");
@@ -35,13 +34,13 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
     public static final Component REVERT_DEFAULTS = Component.translatable("text.azurelib.value.revert.default");
 
     public static final Component REVERT_DEFAULTS_DIALOG_TEXT = Component.translatable(
-            "text.azurelib.value.revert.default.dialog"
+        "text.azurelib.value.revert.default.dialog"
     );
 
     public static final Component REVERT_CHANGES = Component.translatable("text.azurelib.value.revert.changes");
 
     public static final Component REVERT_CHANGES_DIALOG_TEXT = Component.translatable(
-            "text.azurelib.value.revert.changes.dialog"
+        "text.azurelib.value.revert.changes.dialog"
     );
 
     private final String configId;
@@ -60,8 +59,8 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
         super(x, y, w, h, Component.translatable("config." + configId + ".option." + value.getId()));
         this.configId = configId;
         this.description = Arrays.stream(value.getDescription())
-                .map(text -> Component.literal(text).withStyle(ChatFormatting.GRAY))
-                .collect(Collectors.toList());
+            .map(text -> Component.literal(text).withStyle(ChatFormatting.GRAY))
+            .collect(Collectors.toList());
     }
 
     public void setDescriptionRenderer(IDescriptionRenderer renderer) {
@@ -74,8 +73,7 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
     }
 
     @Override
-    public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
-    }
+    public void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {}
 
     @Override
     public void renderWidget(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
@@ -85,12 +83,12 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
         }
         boolean isError = !this.result.isOk();
         graphics.drawString(
-                font,
-                this.getMessage(),
-                this.getX(),
-                (int) (this.getY() + (this.height - font.lineHeight) / 2.0F),
-                0xAAAAAA,
-                true
+            font,
+            this.getMessage(),
+            this.getX(),
+            (int) (this.getY() + (this.height - font.lineHeight) / 2.0F),
+            0xAAAAAA,
+            true
         );
         super.renderWidget(graphics, mouseX, mouseY, partialTicks);
         if ((isError || isHovered) && renderer != null) {
@@ -100,8 +98,8 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
                 MutableComponent textComponent = this.result.text().withStyle(severity.getExtraFormatting());
                 List<Component> desc = isError ? Collections.singletonList(textComponent) : this.description;
                 List<FormattedCharSequence> split = desc.stream()
-                        .flatMap(text -> font.split(text, this.width / 2).stream())
-                        .collect(Collectors.toList());
+                    .flatMap(text -> font.split(text, this.width / 2).stream())
+                    .collect(Collectors.toList());
                 renderer.drawDescription(graphics, this, severity, split);
             }
         }
@@ -123,10 +121,10 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
     public interface IDescriptionRenderer {
 
         void drawDescription(
-                GuiGraphics graphics,
-                AbstractWidget widget,
-                NotificationSeverity severity,
-                List<FormattedCharSequence> text
+            GuiGraphics graphics,
+            AbstractWidget widget,
+            NotificationSeverity severity,
+            List<FormattedCharSequence> text
         );
     }
 }

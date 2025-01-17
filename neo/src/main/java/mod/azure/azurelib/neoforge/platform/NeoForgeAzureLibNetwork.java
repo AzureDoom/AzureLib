@@ -1,8 +1,5 @@
 package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.internal.common.network.packet.SendConfigDataPacket;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,18 +11,32 @@ import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
+import mod.azure.azurelib.common.internal.common.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     private static PayloadRegistrar registrar = null;
 
     @Override
-    public <B extends FriendlyByteBuf, P extends AbstractPacket> void registerPacketInternal(CustomPacketPayload.Type<P> payloadType, StreamCodec<B, P> codec, boolean isClientBound) {
+    public <B extends FriendlyByteBuf, P extends AbstractPacket> void registerPacketInternal(
+        CustomPacketPayload.Type<P> payloadType,
+        StreamCodec<B, P> codec,
+        boolean isClientBound
+    ) {
         if (isClientBound) {
-            registrar.playToClient(payloadType, (StreamCodec<FriendlyByteBuf, P>) codec,
-                    (packet, context) -> packet.handle());
+            registrar.playToClient(
+                payloadType,
+                (StreamCodec<FriendlyByteBuf, P>) codec,
+                (packet, context) -> packet.handle()
+            );
         } else {
-            registrar.playToServer(payloadType, (StreamCodec<FriendlyByteBuf, P>) codec,
-                    (packet, context) -> packet.handle());
+            registrar.playToServer(
+                payloadType,
+                (StreamCodec<FriendlyByteBuf, P>) codec,
+                (packet, context) -> packet.handle()
+            );
         }
     }
 

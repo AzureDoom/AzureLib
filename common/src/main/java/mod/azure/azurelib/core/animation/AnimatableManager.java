@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animation;
@@ -10,19 +8,23 @@ package mod.azure.azurelib.core.animation;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.object.DataTicket;
-import mod.azure.azurelib.core.state.BoneSnapshot;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.object.DataTicket;
+import mod.azure.azurelib.core.state.BoneSnapshot;
+
 /**
  * The animation data collection for a given animatable instance.<br>
  * Generally speaking, a single working-instance of an {@link GeoAnimatable Animatable} will have a single instance of
  * {@code AnimatableManager} associated with it.<br>
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public class AnimatableManager<T extends GeoAnimatable> {
 
     private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
@@ -180,7 +182,7 @@ public class AnimatableManager<T extends GeoAnimatable> {
 
         private <T extends GeoAnimatable> Object2ObjectArrayMap<String, AnimationController<T>> build() {
             Object2ObjectArrayMap<String, AnimationController<?>> map = new Object2ObjectArrayMap<>(
-                    this.controllers.size()
+                this.controllers.size()
             );
 
             this.controllers.forEach(controller -> map.put(controller.getName(), controller));

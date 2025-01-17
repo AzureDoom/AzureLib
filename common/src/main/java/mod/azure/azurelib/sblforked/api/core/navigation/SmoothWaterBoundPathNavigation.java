@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.navigation;
 
@@ -18,14 +17,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Extension of the vanilla {@link WaterBoundPathNavigation} navigator with some tweaks for smoother pathfinding:
  * <ul>
- *     <li>Smoothed unit rounding to better accommodate edge-cases</li>
- *     <li>Patched {@link Path} implementation to use proper rounding</li>
- *     <li>Extensible {@link #canBreach()} implementation for ease-of-use</li>
+ * <li>Smoothed unit rounding to better accommodate edge-cases</li>
+ * <li>Patched {@link Path} implementation to use proper rounding</li>
+ * <li>Extensible {@link #canBreach()} implementation for ease-of-use</li>
  * </ul>
  * <p>
- * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a water-based swimming entity
+ * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a water-based
+ * swimming entity
  */
 public class SmoothWaterBoundPathNavigation extends WaterBoundPathNavigation implements ExtendedNavigator {
+
     public SmoothWaterBoundPathNavigation(Mob mob, Level level) {
         super(mob, level);
     }

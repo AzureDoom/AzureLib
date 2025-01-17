@@ -1,8 +1,6 @@
 package mod.azure.azurelib.common.internal.common.blocks;
 
 import com.mojang.serialization.MapCodec;
-import mod.azure.azurelib.common.internal.common.registry.AzureBlocksEntityRegistry;
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,6 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.ToIntFunction;
+
+import mod.azure.azurelib.common.internal.common.registry.AzureBlocksEntityRegistry;
 
 public class TickingLightBlock extends BaseEntityBlock {
 
@@ -54,16 +54,20 @@ public class TickingLightBlock extends BaseEntityBlock {
 
     @Override
     public @NotNull VoxelShape getShape(
-            @NotNull BlockState blockState,
-            @NotNull BlockGetter blockGetter,
-            @NotNull BlockPos blockPos,
-            @NotNull CollisionContext collisionContext
+        @NotNull BlockState blockState,
+        @NotNull BlockGetter blockGetter,
+        @NotNull BlockPos blockPos,
+        @NotNull CollisionContext collisionContext
     ) {
         return Shapes.empty();
     }
 
     @Override
-    public boolean propagatesSkylightDown(@NotNull BlockState state, @NotNull BlockGetter world, @NotNull BlockPos pos) {
+    public boolean propagatesSkylightDown(
+        @NotNull BlockState state,
+        @NotNull BlockGetter world,
+        @NotNull BlockPos pos
+    ) {
         return true;
     }
 
@@ -79,9 +83,9 @@ public class TickingLightBlock extends BaseEntityBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            Level world,
-            BlockState state,
-            BlockEntityType<T> type
+        Level world,
+        BlockState state,
+        BlockEntityType<T> type
     ) {
         return createTickerHelper(type, AzureBlocksEntityRegistry.TICKING_LIGHT_ENTITY.get(), TickingLightEntity::tick);
     }

@@ -1,11 +1,11 @@
 package mod.azure.azurelib.common.internal.common.config;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import mod.azure.azurelib.common.internal.common.AzureLibMod;
 import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Boston Vanseghi
@@ -58,9 +58,9 @@ public final class ConfigHolderRegistry {
      */
     public static List<ConfigHolder<?>> getConfigsByGroup(String group) {
         return REGISTERED_CONFIGS.values()
-                .stream()
-                .filter(configHolder -> configHolder.getGroup().equals(group))
-                .toList();
+            .stream()
+            .filter(configHolder -> configHolder.getGroup().equals(group))
+            .toList();
     }
 
     /**
@@ -70,9 +70,9 @@ public final class ConfigHolderRegistry {
      */
     public static Set<String> getSynchronizedConfigs() {
         return REGISTERED_CONFIGS.entrySet()
-                .stream()
-                .filter(e -> !e.getValue().getNetworkSerializedFields().isEmpty())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+            .stream()
+            .filter(e -> !e.getValue().getNetworkSerializedFields().isEmpty())
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
     }
 }

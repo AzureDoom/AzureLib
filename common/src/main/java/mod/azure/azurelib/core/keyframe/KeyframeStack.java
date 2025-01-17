@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.keyframe;
@@ -15,9 +13,9 @@ import java.util.List;
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
  */
 public record KeyframeStack<T extends Keyframe<?>>(
-        List<T> xKeyframes,
-        List<T> yKeyframes,
-        List<T> zKeyframes
+    List<T> xKeyframes,
+    List<T> yKeyframes,
+    List<T> zKeyframes
 ) {
 
     public KeyframeStack() {

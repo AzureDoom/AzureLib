@@ -1,20 +1,11 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.fabric.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.common.api.client.renderer.*;
-import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.common.api.common.animatable.GeoItem;
-import mod.azure.azurelib.common.api.common.animatable.GeoReplacedEntity;
-import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
-import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,8 +14,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.common.api.client.renderer.*;
+import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.common.api.common.animatable.GeoItem;
+import mod.azure.azurelib.common.api.common.animatable.GeoReplacedEntity;
+import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
+import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+
 public interface GeoRenderEvent {
-    
+
     /**
      * Returns the renderer for this event
      *
@@ -41,6 +40,7 @@ public interface GeoRenderEvent {
      * Renderer events for armor pieces being rendered by {@link GeoArmorRenderer}
      */
     abstract class Armor implements GeoRenderEvent {
+
         private final GeoArmorRenderer<?> renderer;
 
         public Armor(GeoArmorRenderer<?> renderer) {
@@ -85,25 +85,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the armor piece will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the armor piece will not be rendered
+         * and the corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends Armor {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoArmorRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoArmorRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -140,6 +157,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -150,19 +168,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends Armor {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoArmorRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoArmorRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -197,6 +231,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -207,11 +242,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends Armor {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoArmorRenderer<?> renderer) {
                 super(renderer);
@@ -220,7 +260,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -231,6 +272,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }
@@ -240,6 +282,7 @@ public interface GeoRenderEvent {
      * Renderer events for {@link BlockEntity BlockEntities} being rendered by {@link GeoBlockRenderer}
      */
     abstract class Block implements GeoRenderEvent {
+
         private final GeoBlockRenderer<?> renderer;
 
         public Block(GeoBlockRenderer<?> renderer) {
@@ -267,25 +310,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the block entity will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the block entity will not be rendered
+         * and the corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends Block {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoBlockRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -322,6 +382,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -332,19 +393,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends Block {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoBlockRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoBlockRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -379,6 +456,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -389,11 +467,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends Block {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoBlockRenderer<?> renderer) {
                 super(renderer);
@@ -402,7 +485,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -413,15 +497,18 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }
     }
 
     /**
-     * Renderer events for {@link net.minecraft.world.entity.Entity Entities} being rendered by {@link GeoEntityRenderer}
+     * Renderer events for {@link net.minecraft.world.entity.Entity Entities} being rendered by
+     * {@link GeoEntityRenderer}
      */
     abstract class Entity implements GeoRenderEvent {
+
         private final GeoEntityRenderer<?> renderer;
 
         public Entity(GeoEntityRenderer<?> renderer) {
@@ -449,25 +536,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the entity will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the entity will not be rendered and the
+         * corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends Entity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoEntityRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoEntityRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -504,6 +608,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -514,19 +619,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends Entity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoEntityRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoEntityRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -561,6 +682,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -571,11 +693,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends Entity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoEntityRenderer<?> renderer) {
                 super(renderer);
@@ -584,7 +711,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -595,6 +723,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }
@@ -604,6 +733,7 @@ public interface GeoRenderEvent {
      * Renderer events for {@link ItemStack Items} being rendered by {@link GeoItemRenderer}
      */
     abstract class Item implements GeoRenderEvent {
+
         private final GeoItemRenderer<?> renderer;
 
         public Item(GeoItemRenderer<?> renderer) {
@@ -631,25 +761,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the ItemStack will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the ItemStack will not be rendered and
+         * the corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends Item {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoItemRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoItemRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -686,6 +833,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -696,19 +844,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends Item {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoItemRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoItemRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -743,6 +907,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -753,11 +918,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends Item {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoItemRenderer<?> renderer) {
                 super(renderer);
@@ -766,7 +936,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -777,6 +948,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }
@@ -786,6 +958,7 @@ public interface GeoRenderEvent {
      * Renderer events for miscellaneous {@link GeoAnimatable animatables} being rendered by {@link GeoObjectRenderer}
      */
     abstract class Object implements GeoRenderEvent {
+
         private final GeoObjectRenderer<?> renderer;
 
         public Object(GeoObjectRenderer<?> renderer) {
@@ -806,25 +979,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the object will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the object will not be rendered and the
+         * corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends Object {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoObjectRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -861,6 +1051,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -871,19 +1062,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends Object {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoObjectRenderer<?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoObjectRenderer<?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -918,6 +1125,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -928,11 +1136,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends Object {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoObjectRenderer<?> renderer) {
                 super(renderer);
@@ -941,7 +1154,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -952,15 +1166,21 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }
     }
 
     /**
-     * Renderer events for miscellaneous {@link GeoReplacedEntity replaced entities} being rendered by {@link GeoReplacedEntityRenderer}
+     * Renderer events for miscellaneous {@link GeoReplacedEntity replaced entities} being rendered by
+     * {@link GeoReplacedEntityRenderer}
+     *
+     * @deprecated
      */
+    @Deprecated(forRemoval = true)
     abstract class ReplacedEntity implements GeoRenderEvent {
+
         private final GeoReplacedEntityRenderer<?, ?> renderer;
 
         public ReplacedEntity(GeoReplacedEntityRenderer<?, ?> renderer) {
@@ -988,25 +1208,42 @@ public interface GeoRenderEvent {
          * This event is called before rendering, but after {@link GeoRenderer#preRender}
          * <p>
          * This event is <u>cancellable</u><br>
-         * If the event is cancelled by returning false in the {@link Listener}, the entity will not be rendered and the corresponding {@link Post} event will not be fired.
+         * If the event is cancelled by returning false in the {@link Listener}, the entity will not be rendered and the
+         * corresponding {@link Post} event will not be fired.
          */
         public static class Pre extends ReplacedEntity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, event -> true, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    if (!listener.handle(event))
-                        return false;
-                }
 
-                return true;
-            });
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                event -> true,
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        if (!listener.handle(event))
+                            return false;
+                    }
+
+                    return true;
+                }
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Pre(GeoReplacedEntityRenderer<?, ?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Pre(
+                GeoReplacedEntityRenderer<?, ?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -1043,6 +1280,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 boolean handle(Pre event);
             }
         }
@@ -1053,19 +1291,35 @@ public interface GeoRenderEvent {
          * This event is called after {@link GeoRenderer#postRender}
          */
         public static class Post extends ReplacedEntity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             private final PoseStack poseStack;
+
             private final BakedGeoModel model;
+
             private final MultiBufferSource bufferSource;
+
             private final float partialTick;
+
             private final int packedLight;
 
-            public Post(GeoReplacedEntityRenderer<?, ?> renderer, PoseStack poseStack, BakedGeoModel model, MultiBufferSource bufferSource, float partialTick, int packedLight) {
+            public Post(
+                GeoReplacedEntityRenderer<?, ?> renderer,
+                PoseStack poseStack,
+                BakedGeoModel model,
+                MultiBufferSource bufferSource,
+                float partialTick,
+                int packedLight
+            ) {
                 super(renderer);
 
                 this.poseStack = poseStack;
@@ -1100,6 +1354,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(Post event);
             }
         }
@@ -1110,11 +1365,16 @@ public interface GeoRenderEvent {
          * Use this event to add render layers to the renderer as needed
          */
         public static class CompileRenderLayers extends ReplacedEntity {
-            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(Listener.class, post -> {}, listeners -> event -> {
-                for (Listener listener : listeners) {
-                    listener.handle(event);
+
+            public static final Event<Listener> EVENT = EventFactory.createArrayBacked(
+                Listener.class,
+                post -> {},
+                listeners -> event -> {
+                    for (Listener listener : listeners) {
+                        listener.handle(event);
+                    }
                 }
-            });
+            );
 
             public CompileRenderLayers(GeoReplacedEntityRenderer<?, ?> renderer) {
                 super(renderer);
@@ -1123,7 +1383,8 @@ public interface GeoRenderEvent {
             /**
              * Adds a {@link GeoRenderLayer} to the renderer
              * <p>
-             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and renderer
+             * Type-safety is not checked here, so ensure that your layer is compatible with this animatable and
+             * renderer
              */
             public void addLayer(GeoRenderLayer renderLayer) {
                 getRenderer().addRenderLayer(renderLayer);
@@ -1134,6 +1395,7 @@ public interface GeoRenderEvent {
              */
             @FunctionalInterface
             public interface Listener {
+
                 void handle(CompileRenderLayers event);
             }
         }

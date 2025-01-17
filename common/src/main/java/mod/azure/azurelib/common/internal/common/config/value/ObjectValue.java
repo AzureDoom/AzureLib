@@ -1,18 +1,17 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
 public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
 
@@ -40,11 +39,11 @@ public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
 
         @Override
         public ConfigValue<?> serialize(
-                String name,
-                String[] comments,
-                Object value,
-                TypeSerializer serializer,
-                AdapterContext context
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
         ) throws IllegalAccessException {
             Class<?> type = value.getClass();
             Map<String, ConfigValue<?>> map = serializer.serialize(type, value);
@@ -52,8 +51,7 @@ public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
         }
 
         @Override
-        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
-        }
+        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {}
 
         @Override
         public Object decodeFromBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {

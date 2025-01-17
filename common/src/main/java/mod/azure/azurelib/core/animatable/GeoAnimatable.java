@@ -1,18 +1,17 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animatable;
+
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.AnimationProcessor;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This is the root interface for all animatable objects in AzureLib. Generally speaking you should use one of the
@@ -23,7 +22,10 @@ import org.jetbrains.annotations.Nullable;
  * <li>{@code GeoEntity}</li>
  * <li>{@code GeoItem}</li>
  * </ul>
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public interface GeoAnimatable {
 
     /**

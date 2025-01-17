@@ -24,11 +24,19 @@ import java.util.function.Supplier;
 
 public interface CommonRegistry {
 
-    <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String modID, String blockEntityName, Supplier<BlockEntityType<T>> blockEntityType);
+    <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(
+        String modID,
+        String blockEntityName,
+        Supplier<BlockEntityType<T>> blockEntityType
+    );
 
     <T extends Block> Supplier<T> registerBlock(String modID, String blockName, Supplier<T> block);
 
-    <T extends Entity> Supplier<EntityType<T>> registerEntity(String modID, String entityName, Supplier<EntityType<T>> entity);
+    <T extends Entity> Supplier<EntityType<T>> registerEntity(
+        String modID,
+        String entityName,
+        Supplier<EntityType<T>> entity
+    );
 
     <T extends ArmorMaterial> Holder<T> registerArmorMaterial(String modID, String matName, Supplier<T> armorMaterial);
 
@@ -38,13 +46,21 @@ public interface CommonRegistry {
 
     <T extends MenuType<?>> Supplier<T> registerScreen(String modID, String screenName, Supplier<T> menuType);
 
-    <T extends Structure> Supplier<StructureType<T>> registerStructure(String modID, String structureName, MapCodec<T> structure);
+    <T extends Structure> Supplier<StructureType<T>> registerStructure(
+        String modID,
+        String structureName,
+        MapCodec<T> structure
+    );
 
     <T extends ParticleType<?>> Supplier<T> registerParticle(String modID, String particleName, Supplier<T> particle);
 
     <T extends CreativeModeTab> Supplier<T> registerCreativeModeTab(String modID, String tabName, Supplier<T> tab);
 
-    default <T extends MobEffect> Holder<T> registerStatusEffect(String modID, String effectName, Supplier<T> statusEffect) {
+    default <T extends MobEffect> Holder<T> registerStatusEffect(
+        String modID,
+        String effectName,
+        Supplier<T> statusEffect
+    ) {
         return null;
     }
 
@@ -52,7 +68,12 @@ public interface CommonRegistry {
         return null;
     }
 
-    <E extends Mob> Supplier<SpawnEggItem> makeSpawnEggFor(Supplier<EntityType<E>> entityType, int primaryEggColour, int secondaryEggColour, Item.Properties itemProperties);
+    <E extends Mob> Supplier<SpawnEggItem> makeSpawnEggFor(
+        Supplier<EntityType<E>> entityType,
+        int primaryEggColour,
+        int secondaryEggColour,
+        Item.Properties itemProperties
+    );
 
     CreativeModeTab.Builder newCreativeTabBuilder();
 }

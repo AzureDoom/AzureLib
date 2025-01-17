@@ -1,17 +1,19 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.util;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import mod.azure.azurelib.common.internal.common.constant.DataTickets;
 import mod.azure.azurelib.common.internal.common.loading.object.BakedModelFactory;
 import mod.azure.azurelib.common.internal.common.network.SerializableDataTicket;
 import mod.azure.azurelib.common.internal.common.registry.AzureBlocksRegistry;
-import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
 import mod.azure.azurelib.core.animatable.instance.InstancedAnimatableInstanceCache;
@@ -19,16 +21,15 @@ import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCa
 import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.object.DataTicket;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Helper class for various AzureLib-specific functions.
  */
 public record AzureLibUtil() {
+
+    public static <T> T self(Object object) {
+        return (T) object;
+    }
 
     /**
      * Creates a new AnimatableInstanceCache for the given animatable object
@@ -39,11 +40,11 @@ public record AzureLibUtil() {
         AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
         return cache != null
-                ? cache
-                : createInstanceCache(
+            ? cache
+            : createInstanceCache(
                 animatable,
                 !(animatable instanceof Entity) && !(animatable instanceof BlockEntity)
-        );
+            );
     }
 
     /**
@@ -61,10 +62,10 @@ public record AzureLibUtil() {
             return cache;
 
         return singletonObject
-                ? new SingletonAnimatableInstanceCache(
+            ? new SingletonAnimatableInstanceCache(
                 animatable
-        )
-                : new InstancedAnimatableInstanceCache(animatable);
+            )
+            : new InstancedAnimatableInstanceCache(animatable);
     }
 
     /**
@@ -116,9 +117,9 @@ public record AzureLibUtil() {
 
     public static boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
         return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(
-                blockPosA.getY() - blockPosB.getY()
+            blockPosA.getY() - blockPosB.getY()
         ) <= distance && Math.abs(
-                blockPosA.getZ() - blockPosB.getZ()
+            blockPosA.getZ() - blockPosB.getZ()
         ) <= distance;
     }
 

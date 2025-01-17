@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.loading.json.raw;
@@ -11,15 +9,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
-import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 
 /**
  * Container class for poly union information, only used in deserialization at startup
  */
 public record PolysUnion(
-        double[][][] union,
-        @Nullable Type type
+    double[][][] union,
+    @Nullable Type type
 ) {
 
     public static JsonDeserializer<PolysUnion> deserializer() throws JsonParseException {

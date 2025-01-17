@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.object;
 
@@ -20,100 +19,106 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SBLShufflingList<T> implements Iterable<T> {
-	private final List<WeightedEntry<T>> entries;
-	private final RandomSource random = RandomSource.createNewThreadLocalInstance();
 
-	public SBLShufflingList() {
-		this.entries = new ObjectArrayList<>();
-	}
+    private final List<WeightedEntry<T>> entries;
 
-	public SBLShufflingList(int size) {
-		this.entries = new ObjectArrayList<>(size);
-	}
+    private final RandomSource random = RandomSource.createNewThreadLocalInstance();
 
-	public SBLShufflingList(Pair<T, Integer>... entries) {
-		this.entries = new ObjectArrayList<>(entries.length);
+    public SBLShufflingList() {
+        this.entries = new ObjectArrayList<>();
+    }
 
-		for (Pair<T, Integer> entry : entries) {
-			this.entries.add(new WeightedEntry<>(entry.getFirst(), entry.getSecond()));
-		}
-	}
+    public SBLShufflingList(int size) {
+        this.entries = new ObjectArrayList<>(size);
+    }
 
-	public SBLShufflingList<T> shuffle() {
-		this.entries.forEach(entry -> entry.setShuffledWeight(this.random.nextFloat()));
-		this.entries.sort(Comparator.comparingDouble(WeightedEntry::getShuffledWeight));
+    public SBLShufflingList(Pair<T, Integer>... entries) {
+        this.entries = new ObjectArrayList<>(entries.length);
 
-		return this;
-	}
+        for (Pair<T, Integer> entry : entries) {
+            this.entries.add(new WeightedEntry<>(entry.getFirst(), entry.getSecond()));
+        }
+    }
 
-	public boolean add(T entry, int weight) {
-		return this.entries.add(new WeightedEntry<>(entry, weight));
-	}
+    public SBLShufflingList<T> shuffle() {
+        this.entries.forEach(entry -> entry.setShuffledWeight(this.random.nextFloat()));
+        this.entries.sort(Comparator.comparingDouble(WeightedEntry::getShuffledWeight));
 
-	@Nullable
-	public T get(int index) {
-		return this.entries.get(index).get();
-	}
+        return this;
+    }
 
-	@NotNull
-	@Override
-	public Iterator<T> iterator() {
-		return new ObjectIterators.AbstractIndexBasedIterator<>(0, 0) {
-			@Override
-			protected T get(int location) {
-				return SBLShufflingList.this.entries.get(location).get();
-			}
+    public boolean add(T entry, int weight) {
+        return this.entries.add(new WeightedEntry<>(entry, weight));
+    }
 
-			@Override
-			protected void remove(int location) {
-				SBLShufflingList.this.entries.remove(location);
-			}
+    @Nullable
+    public T get(int index) {
+        return this.entries.get(index).get();
+    }
 
-			@Override
-			protected int getMaxPos() {
-				return SBLShufflingList.this.entries.size();
-			}
-		};
-	}
+    @NotNull
+    @Override
+    public Iterator<T> iterator() {
+        return new ObjectIterators.AbstractIndexBasedIterator<>(0, 0) {
 
-	@Override
-	public void forEach(Consumer<? super T> action) {
-		this.entries.forEach(entry -> action.accept(entry.get()));
-	}
+            @Override
+            protected T get(int location) {
+                return SBLShufflingList.this.entries.get(location).get();
+            }
 
-	public Stream<T> stream() {
-		return this.entries.stream().map(WeightedEntry::get);
-	}
+            @Override
+            protected void remove(int location) {
+                SBLShufflingList.this.entries.remove(location);
+            }
 
-	public static class WeightedEntry<T> {
-		private final T object;
-		private final int weight;
-		private double shuffledWeight;
+            @Override
+            protected int getMaxPos() {
+                return SBLShufflingList.this.entries.size();
+            }
+        };
+    }
 
-		WeightedEntry(T object, int weight) {
-			this.object = object;
-			this.weight = weight;
-		}
+    @Override
+    public void forEach(Consumer<? super T> action) {
+        this.entries.forEach(entry -> action.accept(entry.get()));
+    }
 
-		double getShuffledWeight() {
-			return this.shuffledWeight;
-		}
+    public Stream<T> stream() {
+        return this.entries.stream().map(WeightedEntry::get);
+    }
 
-		T get() {
-			return this.object;
-		}
+    public static class WeightedEntry<T> {
 
-		int getWeight() {
-			return this.weight;
-		}
+        private final T object;
 
-		void setShuffledWeight(float mod) {
-			this.shuffledWeight = -Math.pow(mod, 1f / this.weight);
-		}
+        private final int weight;
 
-		@Override
-		public String toString() {
-			return this.object + ":" + this.weight;
-		}
-	}
+        private double shuffledWeight;
+
+        WeightedEntry(T object, int weight) {
+            this.object = object;
+            this.weight = weight;
+        }
+
+        double getShuffledWeight() {
+            return this.shuffledWeight;
+        }
+
+        T get() {
+            return this.object;
+        }
+
+        int getWeight() {
+            return this.weight;
+        }
+
+        void setShuffledWeight(float mod) {
+            this.shuffledWeight = -Math.pow(mod, 1f / this.weight);
+        }
+
+        @Override
+        public String toString() {
+            return this.object + ":" + this.weight;
+        }
+    }
 }

@@ -1,18 +1,12 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.loading.object;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
-import mod.azure.azurelib.common.internal.common.cache.object.*;
-import mod.azure.azurelib.common.internal.common.loading.json.raw.*;
-import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -20,9 +14,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.cache.object.*;
+import mod.azure.azurelib.common.internal.common.loading.json.raw.*;
+import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
+
 /**
  * Base interface for a factory of {@link BakedGeoModel} objects. Handled by default by AzureLib, but custom
  * implementations may be added by other mods for special needs
+ *
+ * @deprecated
  */
 public interface BakedModelFactory {
 
@@ -75,12 +76,12 @@ public interface BakedModelFactory {
      * Vertices have already been mirrored here if {@code mirror} is true
      */
     default GeoQuad[] buildQuads(
-            UVUnion uvUnion,
-            VertexSet vertices,
-            Cube cube,
-            float textureWidth,
-            float textureHeight,
-            boolean mirror
+        UVUnion uvUnion,
+        VertexSet vertices,
+        Cube cube,
+        float textureWidth,
+        float textureHeight,
+        boolean mirror
     ) {
         GeoQuad[] quads = new GeoQuad[6];
 
@@ -98,13 +99,13 @@ public interface BakedModelFactory {
      * Build an individual quad
      */
     default GeoQuad buildQuad(
-            VertexSet vertices,
-            Cube cube,
-            UVUnion uvUnion,
-            float textureWidth,
-            float textureHeight,
-            boolean mirror,
-            Direction direction
+        VertexSet vertices,
+        Cube cube,
+        UVUnion uvUnion,
+        float textureWidth,
+        float textureHeight,
+        boolean mirror,
+        Direction direction
     ) {
         if (!uvUnion.isBoxUV()) {
             FaceUV faceUV = uvUnion.faceUV().fromDirection(direction);
@@ -113,14 +114,14 @@ public interface BakedModelFactory {
                 return null;
 
             return GeoQuad.build(
-                    vertices.verticesForQuad(direction, false, mirror || cube.mirror() == Boolean.TRUE),
-                    faceUV.uv(),
-                    faceUV.uvSize(),
-                    faceUV.uvRotation(),
-                    textureWidth,
-                    textureHeight,
-                    mirror,
-                    direction
+                vertices.verticesForQuad(direction, false, mirror || cube.mirror() == Boolean.TRUE),
+                faceUV.uv(),
+                faceUV.uvSize(),
+                faceUV.uvRotation(),
+                textureWidth,
+                textureHeight,
+                mirror,
+                direction
             );
         }
 
@@ -128,41 +129,41 @@ public interface BakedModelFactory {
         double[] uvSize = cube.size();
         Vec3 uvSizeVec = new Vec3(Math.floor(uvSize[0]), Math.floor(uvSize[1]), Math.floor(uvSize[2]));
         double[][] uvData = switch (direction) {
-            case WEST -> new double[][]{
-                    new double[]{uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z},
-                    new double[]{uvSizeVec.z, uvSizeVec.y}
+            case WEST -> new double[][] {
+                new double[] { uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z },
+                new double[] { uvSizeVec.z, uvSizeVec.y }
             };
-            case EAST -> new double[][]{
-                    new double[]{uv[0], uv[1] + uvSizeVec.z},
-                    new double[]{uvSizeVec.z, uvSizeVec.y}
+            case EAST -> new double[][] {
+                new double[] { uv[0], uv[1] + uvSizeVec.z },
+                new double[] { uvSizeVec.z, uvSizeVec.y }
             };
-            case NORTH -> new double[][]{
-                    new double[]{uv[0] + uvSizeVec.z, uv[1] + uvSizeVec.z},
-                    new double[]{uvSizeVec.x, uvSizeVec.y}
+            case NORTH -> new double[][] {
+                new double[] { uv[0] + uvSizeVec.z, uv[1] + uvSizeVec.z },
+                new double[] { uvSizeVec.x, uvSizeVec.y }
             };
-            case SOUTH -> new double[][]{
-                    new double[]{uv[0] + uvSizeVec.z + uvSizeVec.x + uvSizeVec.z, uv[1] + uvSizeVec.z},
-                    new double[]{uvSizeVec.x, uvSizeVec.y}
+            case SOUTH -> new double[][] {
+                new double[] { uv[0] + uvSizeVec.z + uvSizeVec.x + uvSizeVec.z, uv[1] + uvSizeVec.z },
+                new double[] { uvSizeVec.x, uvSizeVec.y }
             };
-            case UP -> new double[][]{
-                    new double[]{uv[0] + uvSizeVec.z, uv[1]},
-                    new double[]{uvSizeVec.x, uvSizeVec.z}
+            case UP -> new double[][] {
+                new double[] { uv[0] + uvSizeVec.z, uv[1] },
+                new double[] { uvSizeVec.x, uvSizeVec.z }
             };
-            case DOWN -> new double[][]{
-                    new double[]{uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z},
-                    new double[]{uvSizeVec.x, -uvSizeVec.z}
+            case DOWN -> new double[][] {
+                new double[] { uv[0] + uvSizeVec.z + uvSizeVec.x, uv[1] + uvSizeVec.z },
+                new double[] { uvSizeVec.x, -uvSizeVec.z }
             };
         };
 
         return GeoQuad.build(
-                vertices.verticesForQuad(direction, true, mirror || cube.mirror() == Boolean.TRUE),
-                uvData[0],
-                uvData[1],
-                FaceUV.Rotation.NONE,
-                textureWidth,
-                textureHeight,
-                mirror,
-                direction
+            vertices.verticesForQuad(direction, true, mirror || cube.mirror() == Boolean.TRUE),
+            uvData[0],
+            uvData[1],
+            FaceUV.Rotation.NONE,
+            textureWidth,
+            textureHeight,
+            mirror,
+            direction
         );
     }
 
@@ -183,20 +184,20 @@ public interface BakedModelFactory {
         public GeoBone constructBone(BoneStructure boneStructure, ModelProperties properties, GeoBone parent) {
             Bone bone = boneStructure.self();
             GeoBone newBone = new GeoBone(
-                    parent,
-                    bone.name(),
-                    bone.mirror(),
-                    bone.inflate(),
-                    bone.neverRender(),
-                    bone.reset()
+                parent,
+                bone.name(),
+                bone.mirror(),
+                bone.inflate(),
+                bone.neverRender(),
+                bone.reset()
             );
             Vec3 rotation = RenderUtils.arrayToVec(bone.rotation());
             Vec3 pivot = RenderUtils.arrayToVec(bone.pivot());
 
             newBone.updateRotation(
-                    (float) Math.toRadians(-rotation.x),
-                    (float) Math.toRadians(-rotation.y),
-                    (float) Math.toRadians(rotation.z)
+                (float) Math.toRadians(-rotation.x),
+                (float) Math.toRadians(-rotation.y),
+                (float) Math.toRadians(rotation.z)
             );
             newBone.updatePivot((float) -pivot.x, (float) pivot.y, (float) pivot.z);
 
@@ -215,8 +216,8 @@ public interface BakedModelFactory {
         public GeoCube constructCube(Cube cube, ModelProperties properties, GeoBone bone) {
             boolean mirror = cube.mirror() == Boolean.TRUE;
             double inflate = cube.inflate() != null
-                    ? cube.inflate() / 16f
-                    : (bone.getInflate() == null ? 0 : bone.getInflate() / 16f);
+                ? cube.inflate() / 16f
+                : (bone.getInflate() == null ? 0 : bone.getInflate() / 16f);
             Vec3 size = RenderUtils.arrayToVec(cube.size());
             Vec3 origin = RenderUtils.arrayToVec(cube.origin());
             Vec3 rotation = RenderUtils.arrayToVec(cube.rotation());
@@ -227,12 +228,12 @@ public interface BakedModelFactory {
             pivot = pivot.multiply(-1, 1, 1);
             rotation = new Vec3(Math.toRadians(-rotation.x), Math.toRadians(-rotation.y), Math.toRadians(rotation.z));
             GeoQuad[] quads = buildQuads(
-                    cube.uv(),
-                    new VertexSet(origin, vertexSize, inflate),
-                    cube,
-                    (float) properties.textureWidth(),
-                    (float) properties.textureHeight(),
-                    mirror
+                cube.uv(),
+                new VertexSet(origin, vertexSize, inflate),
+                cube,
+                (float) properties.textureWidth(),
+                (float) properties.textureHeight(),
+                mirror
             );
 
             return new GeoCube(quads, pivot, rotation, size, inflate, mirror);
@@ -243,42 +244,42 @@ public interface BakedModelFactory {
      * Holder class to make it easier to store and refer to vertices for a given cube
      */
     record VertexSet(
-            GeoVertex bottomLeftBack,
-            GeoVertex bottomRightBack,
-            GeoVertex topLeftBack,
-            GeoVertex topRightBack,
-            GeoVertex topLeftFront,
-            GeoVertex topRightFront,
-            GeoVertex bottomLeftFront,
-            GeoVertex bottomRightFront
+        GeoVertex bottomLeftBack,
+        GeoVertex bottomRightBack,
+        GeoVertex topLeftBack,
+        GeoVertex topRightBack,
+        GeoVertex topLeftFront,
+        GeoVertex topRightFront,
+        GeoVertex bottomLeftFront,
+        GeoVertex bottomRightFront
     ) {
 
         public VertexSet(Vec3 origin, Vec3 vertexSize, double inflation) {
             this(
-                    new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z - inflation),
-                    new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z + vertexSize.z + inflation),
-                    new GeoVertex(origin.x - inflation, origin.y + vertexSize.y + inflation, origin.z - inflation),
-                    new GeoVertex(
-                            origin.x - inflation,
-                            origin.y + vertexSize.y + inflation,
-                            origin.z + vertexSize.z + inflation
-                    ),
-                    new GeoVertex(
-                            origin.x + vertexSize.x + inflation,
-                            origin.y + vertexSize.y + inflation,
-                            origin.z - inflation
-                    ),
-                    new GeoVertex(
-                            origin.x + vertexSize.x + inflation,
-                            origin.y + vertexSize.y + inflation,
-                            origin.z + vertexSize.z + inflation
-                    ),
-                    new GeoVertex(origin.x + vertexSize.x + inflation, origin.y - inflation, origin.z - inflation),
-                    new GeoVertex(
-                            origin.x + vertexSize.x + inflation,
-                            origin.y - inflation,
-                            origin.z + vertexSize.z + inflation
-                    )
+                new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z - inflation),
+                new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z + vertexSize.z + inflation),
+                new GeoVertex(origin.x - inflation, origin.y + vertexSize.y + inflation, origin.z - inflation),
+                new GeoVertex(
+                    origin.x - inflation,
+                    origin.y + vertexSize.y + inflation,
+                    origin.z + vertexSize.z + inflation
+                ),
+                new GeoVertex(
+                    origin.x + vertexSize.x + inflation,
+                    origin.y + vertexSize.y + inflation,
+                    origin.z - inflation
+                ),
+                new GeoVertex(
+                    origin.x + vertexSize.x + inflation,
+                    origin.y + vertexSize.y + inflation,
+                    origin.z + vertexSize.z + inflation
+                ),
+                new GeoVertex(origin.x + vertexSize.x + inflation, origin.y - inflation, origin.z - inflation),
+                new GeoVertex(
+                    origin.x + vertexSize.x + inflation,
+                    origin.y - inflation,
+                    origin.z + vertexSize.z + inflation
+                )
             );
         }
 
@@ -286,54 +287,54 @@ public interface BakedModelFactory {
          * Returns the normal vertex array for a west-facing quad
          */
         public GeoVertex[] quadWest() {
-            return new GeoVertex[]{this.topRightBack, this.topLeftBack, this.bottomLeftBack, this.bottomRightBack};
+            return new GeoVertex[] { this.topRightBack, this.topLeftBack, this.bottomLeftBack, this.bottomRightBack };
         }
 
         /**
          * Returns the normal vertex array for an east-facing quad
          */
         public GeoVertex[] quadEast() {
-            return new GeoVertex[]{
-                    this.topLeftFront,
-                    this.topRightFront,
-                    this.bottomRightFront,
-                    this.bottomLeftFront};
+            return new GeoVertex[] {
+                this.topLeftFront,
+                this.topRightFront,
+                this.bottomRightFront,
+                this.bottomLeftFront };
         }
 
         /**
          * Returns the normal vertex array for a north-facing quad
          */
         public GeoVertex[] quadNorth() {
-            return new GeoVertex[]{this.topLeftBack, this.topLeftFront, this.bottomLeftFront, this.bottomLeftBack};
+            return new GeoVertex[] { this.topLeftBack, this.topLeftFront, this.bottomLeftFront, this.bottomLeftBack };
         }
 
         /**
          * Returns the normal vertex array for a south-facing quad
          */
         public GeoVertex[] quadSouth() {
-            return new GeoVertex[]{
-                    this.topRightFront,
-                    this.topRightBack,
-                    this.bottomRightBack,
-                    this.bottomRightFront};
+            return new GeoVertex[] {
+                this.topRightFront,
+                this.topRightBack,
+                this.bottomRightBack,
+                this.bottomRightFront };
         }
 
         /**
          * Returns the normal vertex array for a top-facing quad
          */
         public GeoVertex[] quadUp() {
-            return new GeoVertex[]{this.topRightBack, this.topRightFront, this.topLeftFront, this.topLeftBack};
+            return new GeoVertex[] { this.topRightBack, this.topRightFront, this.topLeftFront, this.topLeftBack };
         }
 
         /**
          * Returns the normal vertex array for a bottom-facing quad
          */
         public GeoVertex[] quadDown() {
-            return new GeoVertex[]{
-                    this.bottomLeftBack,
-                    this.bottomLeftFront,
-                    this.bottomRightFront,
-                    this.bottomRightBack};
+            return new GeoVertex[] {
+                this.bottomLeftBack,
+                this.bottomLeftFront,
+                this.bottomRightFront,
+                this.bottomRightBack };
         }
 
         /**

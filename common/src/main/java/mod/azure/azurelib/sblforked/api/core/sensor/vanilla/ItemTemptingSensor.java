@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.sensor.vanilla;
 
@@ -14,6 +13,11 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.BiPredicate;
+
 import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
 import mod.azure.azurelib.sblforked.api.core.sensor.PredicateSensor;
 import mod.azure.azurelib.sblforked.object.SquareRadius;
@@ -21,112 +25,117 @@ import mod.azure.azurelib.sblforked.registry.SBLSensors;
 import mod.azure.azurelib.sblforked.util.BrainUtils;
 import mod.azure.azurelib.sblforked.util.EntityRetrievalUtil;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.BiPredicate;
-
 /**
- * Find the nearest player that is holding out a tempting item for the entity.
- * Defaults:
+ * Find the nearest player that is holding out a tempting item for the entity. Defaults:
  * <ul>
  * <li>10x10x10 Radius</li>
  * <li>No spectators</li>
  * </ul>
- * 
+ *
  * @see net.minecraft.world.entity.ai.sensing.TemptingSensor
  * @param <E> The entity
  */
 public class ItemTemptingSensor<E extends LivingEntity> extends PredicateSensor<Player, E> {
-	private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.TEMPTING_PLAYER);
 
-	protected BiPredicate<E, ItemStack> temptPredicate = (entity, stack) -> false;
-	protected SquareRadius radius = new SquareRadius(10, 10);
+    private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.TEMPTING_PLAYER);
 
-	public ItemTemptingSensor() {
-		setPredicate((target, entity) -> {
-			if (target.isSpectator() || !target.isAlive())
-				return false;
+    protected BiPredicate<E, ItemStack> temptPredicate = (entity, stack) -> false;
 
-			return this.temptPredicate.test(entity, target.getMainHandItem()) || this.temptPredicate.test(entity, target.getOffhandItem());
-		});
-	}
+    protected SquareRadius radius = new SquareRadius(10, 10);
 
-	@Override
-	public List<MemoryModuleType<?>> memoriesUsed() {
-		return MEMORIES;
-	}
+    public ItemTemptingSensor() {
+        setPredicate((target, entity) -> {
+            if (target.isSpectator() || !target.isAlive())
+                return false;
 
-	@Override
-	public SensorType<? extends ExtendedSensor<?>> type() {
-		return SBLSensors.ITEM_TEMPTING.get();
-	}
+            return this.temptPredicate.test(entity, target.getMainHandItem()) || this.temptPredicate.test(
+                entity,
+                target.getOffhandItem()
+            );
+        });
+    }
 
-	/**
-	 * Set the items to temptable items for the entity.
-	 *
-	 * @param temptingItems An ingredient representing the temptations for the
-	 *                      entity
-	 * @deprecated Use {@link ItemTemptingSensor#temptedWith}
-	 * @return this
-	 */
-	@Deprecated(forRemoval = true)
-	public ItemTemptingSensor<E> setTemptingItems(Ingredient temptingItems) {
-		return temptedWith((entity, stack) -> temptingItems.test(stack));
-	}
+    @Override
+    public List<MemoryModuleType<?>> memoriesUsed() {
+        return MEMORIES;
+    }
 
-	/**
-	 * Set the items to temptable items for the entity.
-	 *
-	 * @param predicate An ingredient representing the temptations for the
-	 *                      entity
-	 * @return this
-	 */
-	public ItemTemptingSensor<E> temptedWith(final BiPredicate<E, ItemStack> predicate) {
-		this.temptPredicate = predicate;
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return SBLSensors.ITEM_TEMPTING.get();
+    }
 
-		return this;
-	}
+    /**
+     * Set the items to temptable items for the entity.
+     *
+     * @param temptingItems An ingredient representing the temptations for the entity
+     * @deprecated Use {@link ItemTemptingSensor#temptedWith}
+     * @return this
+     */
+    @Deprecated(forRemoval = true)
+    public ItemTemptingSensor<E> setTemptingItems(Ingredient temptingItems) {
+        return temptedWith((entity, stack) -> temptingItems.test(stack));
+    }
 
-	/**
-	 * Set the radius for the player sensor to scan
-	 * 
-	 * @param radius The coordinate radius, in blocks
-	 * @return this
-	 */
-	public ItemTemptingSensor<E> setRadius(double radius) {
-		return setRadius(radius, radius);
-	}
+    /**
+     * Set the items to temptable items for the entity.
+     *
+     * @param predicate An ingredient representing the temptations for the entity
+     * @return this
+     */
+    public ItemTemptingSensor<E> temptedWith(final BiPredicate<E, ItemStack> predicate) {
+        this.temptPredicate = predicate;
 
-	/**
-	 * Set the radius for the player sensor to scan.
-	 * 
-	 * @param xz The X/Z coordinate radius, in blocks
-	 * @param y  The Y coordinate radius, in blocks
-	 * @return this
-	 */
-	public ItemTemptingSensor<E> setRadius(double xz, double y) {
-		this.radius = new SquareRadius(xz, y);
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Set the radius for the player sensor to scan
+     *
+     * @param radius The coordinate radius, in blocks
+     * @return this
+     */
+    public ItemTemptingSensor<E> setRadius(double radius) {
+        return setRadius(radius, radius);
+    }
 
-	@Override
-	protected void doTick(ServerLevel level, E entity) {
-		Player player;
-		final List<Player> nearbyPlayers = BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_PLAYERS);
+    /**
+     * Set the radius for the player sensor to scan.
+     *
+     * @param xz The X/Z coordinate radius, in blocks
+     * @param y  The Y coordinate radius, in blocks
+     * @return this
+     */
+    public ItemTemptingSensor<E> setRadius(double xz, double y) {
+        this.radius = new SquareRadius(xz, y);
 
-		if (nearbyPlayers != null) {
-			player = nearbyPlayers.stream().filter(pl -> predicate().test(pl, entity)).min(Comparator.comparing(pl -> pl.distanceToSqr(entity))).orElse(null);
-		}
-		else {
-			player = EntityRetrievalUtil.getNearestPlayer(entity, this.radius.xzRadius(), this.radius.yRadius(), this.radius.xzRadius(), target -> predicate().test(target, entity));
-		}
+        return this;
+    }
 
-		if (player == null) {
-			BrainUtils.clearMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
-		}
-		else {
-			BrainUtils.setMemory(entity, MemoryModuleType.TEMPTING_PLAYER, player);
-		}
-	}
+    @Override
+    protected void doTick(ServerLevel level, E entity) {
+        Player player;
+        final List<Player> nearbyPlayers = BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_PLAYERS);
+
+        if (nearbyPlayers != null) {
+            player = nearbyPlayers.stream()
+                .filter(pl -> predicate().test(pl, entity))
+                .min(Comparator.comparing(pl -> pl.distanceToSqr(entity)))
+                .orElse(null);
+        } else {
+            player = EntityRetrievalUtil.getNearestPlayer(
+                entity,
+                this.radius.xzRadius(),
+                this.radius.yRadius(),
+                this.radius.xzRadius(),
+                target -> predicate().test(target, entity)
+            );
+        }
+
+        if (player == null) {
+            BrainUtils.clearMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
+        } else {
+            BrainUtils.setMemory(entity, MemoryModuleType.TEMPTING_PLAYER, player);
+        }
+    }
 }

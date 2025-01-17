@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.object;
@@ -12,7 +10,10 @@ import java.util.Objects;
 
 /**
  * Ticket object to define a typed data object
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public class DataTicket<D> {
 
     private final String id;

@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -16,89 +15,97 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
+
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 /**
  * Flee the current attack target. <br>
  * Defaults:
  * <ul>
- *     <li>20 block flee distance</li>
- *     <li>1x move speed modifier</li>
+ * <li>20 block flee distance</li>
+ * <li>1x move speed modifier</li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class FleeTarget<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT));
 
-	protected int fleeDistance = 20;
-	protected float speedModifier = 1;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
+    );
 
-	protected Path runPath = null;
+    protected int fleeDistance = 20;
 
-	public FleeTarget() {
-		noTimeout();
-	}
+    protected float speedModifier = 1;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected Path runPath = null;
 
-	/**
-	 * Set the maximum distance the entity should try to flee to
-	 * @param blocks The distance, in blocks
-	 * @return this
-	 */
-	public FleeTarget<E> fleeDistance(int blocks) {
-		this.fleeDistance = blocks;
+    public FleeTarget() {
+        noTimeout();
+    }
 
-		return this;
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	/**
-	 * Set the movespeed modifier for when the entity is running away.
-	 * @param mod The speed multiplier modifier
-	 * @return this
-	 */
-	public FleeTarget<E> speedModifier(float mod) {
-		this.speedModifier = mod;
+    /**
+     * Set the maximum distance the entity should try to flee to
+     *
+     * @param blocks The distance, in blocks
+     * @return this
+     */
+    public FleeTarget<E> fleeDistance(int blocks) {
+        this.fleeDistance = blocks;
 
-		return this;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
-		double distToTarget = entity.distanceToSqr(target);
-		Vec3 runPos = DefaultRandomPos.getPosAway(entity, this.fleeDistance, 10, target.position());
+    /**
+     * Set the movespeed modifier for when the entity is running away.
+     *
+     * @param mod The speed multiplier modifier
+     * @return this
+     */
+    public FleeTarget<E> speedModifier(float mod) {
+        this.speedModifier = mod;
 
-		if (runPos == null || target.distanceToSqr(runPos.x, runPos.y, runPos.z) < distToTarget)
-			return false;
+        return this;
+    }
 
-		this.runPath = entity.getNavigation().createPath(runPos.x, runPos.y, runPos.z, 0);
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+        double distToTarget = entity.distanceToSqr(target);
+        Vec3 runPos = DefaultRandomPos.getPosAway(entity, this.fleeDistance, 10, target.position());
 
-		return this.runPath != null;
-	}
+        if (runPos == null || target.distanceToSqr(runPos.x, runPos.y, runPos.z) < distToTarget)
+            return false;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return entity.getNavigation().getPath() == this.runPath && !entity.getNavigation().isDone();
-	}
+        this.runPath = entity.getNavigation().createPath(runPos.x, runPos.y, runPos.z, 0);
 
-	@Override
-	protected void start(E entity) {
-		entity.getNavigation().moveTo(this.runPath, this.speedModifier);
-		BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
-	}
+        return this.runPath != null;
+    }
 
-	@Override
-	protected void stop(E entity) {
-		if (entity.getNavigation().getPath() == this.runPath)
-			entity.getNavigation().setSpeedModifier(1);
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return entity.getNavigation().getPath() == this.runPath && !entity.getNavigation().isDone();
+    }
 
-		this.runPath = null;
-	}
+    @Override
+    protected void start(E entity) {
+        entity.getNavigation().moveTo(this.runPath, this.speedModifier);
+        BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
+    }
+
+    @Override
+    protected void stop(E entity) {
+        if (entity.getNavigation().getPath() == this.runPath)
+            entity.getNavigation().setSpeedModifier(1);
+
+        this.runPath = null;
+    }
 }

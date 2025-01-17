@@ -2,6 +2,7 @@ plugins {
     id 'multiloader-loader'
     id 'fabric-loom' version "${fabric_loom_version}"
     id 'me.modmuss50.mod-publish-plugin'
+    id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
 dependencies {

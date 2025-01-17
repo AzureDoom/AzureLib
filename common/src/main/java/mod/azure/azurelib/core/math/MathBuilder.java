@@ -1,11 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.math;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import mod.azure.azurelib.common.internal.common.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
@@ -19,19 +23,12 @@ import mod.azure.azurelib.core.math.functions.rounding.Round;
 import mod.azure.azurelib.core.math.functions.rounding.Trunc;
 import mod.azure.azurelib.core.math.functions.utility.*;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Math builder This class is responsible for parsing math expressions provided by user in a string to an {@link IValue}
  * which can be used to compute some value dynamically using different math operators, variables and functions. It works
  * by first breaking down given string into a list of tokens and then putting them together in a binary tree-like
- * {@link IValue}.
- * TODO: maybe implement constant pool (to reuse same values)?
- * TODO: maybe pre-compute constant expressions?
+ * {@link IValue}. TODO: maybe implement constant pool (to reuse same values)? TODO: maybe pre-compute constant
+ * expressions?
  */
 public class MathBuilder {
 
@@ -127,8 +124,8 @@ public class MathBuilder {
         /* Amount of left and right brackets should be the same */
         if (left != right) {
             throw new AzureLibException(
-                    "Given expression '" + expression
-                            + "' has more uneven amount of parenthesis, there are " + left + " open and " + right + " closed!"
+                "Given expression '" + expression
+                    + "' has more uneven amount of parenthesis, there are " + left + " open and " + right + " closed!"
             );
         }
 
@@ -156,8 +153,8 @@ public class MathBuilder {
 
                     boolean isFirst = size == 0 && buffer.isEmpty();
                     boolean isOperatorBehind = size > 0
-                            && (this.isOperator(symbols.get(size - 1)) || symbols.get(size - 1).equals(","))
-                            && buffer.isEmpty();
+                        && (this.isOperator(symbols.get(size - 1)) || symbols.get(size - 1).equals(","))
+                        && buffer.isEmpty();
 
                     if (isFirst || isOperatorBehind) {
                         buffer += s;
@@ -289,9 +286,9 @@ public class MathBuilder {
         Operation operation = this.operationForOperator((String) symbols.get(lastOp));
 
         return new Operator(
-                operation,
-                this.parseSymbols(symbols.subList(0, lastOp)),
-                this.parseSymbols(symbols.subList(lastOp + 1, size))
+            operation,
+            this.parseSymbols(symbols.subList(0, lastOp)),
+            this.parseSymbols(symbols.subList(lastOp + 1, size))
         );
     }
 
@@ -366,9 +363,9 @@ public class MathBuilder {
 
         if (questions == colons && question > 0 && question + 1 < colon && colon < size - 1) {
             return new Ternary(
-                    this.parseSymbols(symbols.subList(0, question)),
-                    this.parseSymbols(symbols.subList(question + 1, colon)),
-                    this.parseSymbols(symbols.subList(colon + 1, size))
+                this.parseSymbols(symbols.subList(0, question)),
+                this.parseSymbols(symbols.subList(question + 1, colon)),
+                this.parseSymbols(symbols.subList(colon + 1, size))
             );
         }
 

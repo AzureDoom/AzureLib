@@ -6,10 +6,14 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "ItemStackMixin_AzItemStackIdentityRegistry",
     "PlayerListMixin"
   ],
   "client": [
+    "BlockEntityMixin_AzBlockEntityAnimatorCache",
+    "EntityMixin_AzEntityAnimatorCache",
     "ItemRendererAccessor",
+    "ItemStackMixin_AzItemAnimatorCache",
     "MinecraftMixin",
     "MixinHumanoidArmorLayer",
     "MixinItemRenderer",

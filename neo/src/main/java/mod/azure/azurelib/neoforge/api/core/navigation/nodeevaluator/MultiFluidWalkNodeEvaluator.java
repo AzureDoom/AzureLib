@@ -1,12 +1,9 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under the MIT License.
  */
 package mod.azure.azurelib.neoforge.api.core.navigation.nodeevaluator;
 
-import mod.azure.azurelib.neoforge.api.core.navigation.MultiFluidNavigationElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
@@ -18,27 +15,42 @@ import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
+import mod.azure.azurelib.neoforge.api.core.navigation.MultiFluidNavigationElement;
+
 /**
- * An extension of {@link WalkNodeEvaluator} to allow for fluid-agnostic pathfinding based on (Neo)Forge's fluid API overhaul
+ * An extension of {@link WalkNodeEvaluator} to allow for fluid-agnostic pathfinding based on (Neo)Forge's fluid API
+ * overhaul
  * <p>
  * This allows for entities to pathfind in fluids other than water as necessary
  *
  * @see MultiFluidNavigationElement
  */
 public class MultiFluidWalkNodeEvaluator extends WalkNodeEvaluator implements MultiFluidNavigationElement {
+
     /**
      * Determine and create a path node for the current starting position based on the surrounding environment
      */
     @Override
     public @NotNull Node getStart() {
         int groundY = this.mob.getBlockY();
-        final BlockPos.MutableBlockPos testPos = new BlockPos.MutableBlockPos(this.mob.getX(), groundY, this.mob.getZ());
+        final BlockPos.MutableBlockPos testPos = new BlockPos.MutableBlockPos(
+            this.mob.getX(),
+            groundY,
+            this.mob.getZ()
+        );
         BlockState groundState = this.currentContext.getBlockState(testPos);
 
         if (!this.mob.canStandOnFluid(groundState.getFluidState())) {
-            if (canFloat() && this.mob.isInFluidType((fluidType, height) -> canSwimInFluid(this.mob, fluidType, height))) {
+            if (
+                canFloat() && this.mob.isInFluidType((fluidType, height) -> canSwimInFluid(this.mob, fluidType, height))
+            ) {
                 while (true) {
-                    if (groundState.getFluidState().isEmpty() || !canSwimInFluid(this.mob, groundState.getFluidState().getFluidType())) {
+                    if (
+                        groundState.getFluidState().isEmpty() || !canSwimInFluid(
+                            this.mob,
+                            groundState.getFluidState().getFluidType()
+                        )
+                    ) {
                         groundY--;
 
                         break;
@@ -46,11 +58,9 @@ public class MultiFluidWalkNodeEvaluator extends WalkNodeEvaluator implements Mu
 
                     groundState = this.currentContext.getBlockState(testPos.setY(++groundY));
                 }
-            }
-            else if (this.mob.onGround()) {
+            } else if (this.mob.onGround()) {
                 groundY = Mth.floor(this.mob.getY() + 0.5d);
-            }
-            else {
+            } else {
                 testPos.setY(Mth.floor(this.mob.getY() + 1));
 
                 while (testPos.getY() > this.currentContext.level().getMinBuildHeight()) {
@@ -62,8 +72,7 @@ public class MultiFluidWalkNodeEvaluator extends WalkNodeEvaluator implements Mu
                         break;
                 }
             }
-        }
-        else {
+        } else {
             while (this.mob.canStandOnFluid(groundState.getFluidState())) {
                 groundState = this.currentContext.getBlockState(testPos.setY(++groundY));
             }
@@ -74,10 +83,12 @@ public class MultiFluidWalkNodeEvaluator extends WalkNodeEvaluator implements Mu
         if (!canStartAt(testPos.setY(groundY))) {
             AABB entityBounds = this.mob.getBoundingBox();
 
-            if (canStartAt(testPos.set(entityBounds.minX, groundY, entityBounds.minZ))
+            if (
+                canStartAt(testPos.set(entityBounds.minX, groundY, entityBounds.minZ))
                     || canStartAt(testPos.set(entityBounds.minX, groundY, entityBounds.maxZ))
                     || canStartAt(testPos.set(entityBounds.maxX, groundY, entityBounds.minZ))
-                    || canStartAt(testPos.set(entityBounds.maxX, groundY, entityBounds.maxZ))) {
+                    || canStartAt(testPos.set(entityBounds.maxX, groundY, entityBounds.maxZ))
+            ) {
                 return getStartNode(testPos);
             }
         }
@@ -93,8 +104,12 @@ public class MultiFluidWalkNodeEvaluator extends WalkNodeEvaluator implements Mu
         final BlockGetter blockGetter = this.currentContext.level();
         FluidState fluidState = blockGetter.getFluidState(pos);
 
-        return (canFloat() || isAmphibious()) && canSwimInFluid(this.mob, fluidState.getFluidType(), fluidState.getHeight(blockGetter, pos))
-                ? pos.getY() + 0.5d
-                : getFloorLevel(blockGetter, pos);
+        return (canFloat() || isAmphibious()) && canSwimInFluid(
+            this.mob,
+            fluidState.getFluidType(),
+            fluidState.getHeight(blockGetter, pos)
+        )
+            ? pos.getY() + 0.5d
+            : getFloorLevel(blockGetter, pos);
     }
 }

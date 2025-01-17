@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.sensor.vanilla;
 
@@ -13,92 +12,93 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.SensorType;
-import mod.azure.azurelib.sblforked.api.core.sensor.EntityFilteringSensor;
-import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
-import mod.azure.azurelib.sblforked.registry.SBLSensors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.BiPredicate;
 
+import mod.azure.azurelib.sblforked.api.core.sensor.EntityFilteringSensor;
+import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
+import mod.azure.azurelib.sblforked.registry.SBLSensors;
+
 /**
- * A sensor that sets the {@link MemoryModuleType#NEAREST_HOSTILE} memory by
- * checking the existing visible entities for nearby hostiles. <br>
- * By default, this is used for villager hostile detection, but it can be
- * configured at instantiation for any types.
- * 
+ * A sensor that sets the {@link MemoryModuleType#NEAREST_HOSTILE} memory by checking the existing visible entities for
+ * nearby hostiles. <br>
+ * By default, this is used for villager hostile detection, but it can be configured at instantiation for any types.
+ *
  * @see net.minecraft.world.entity.ai.sensing.VillagerHostilesSensor
  * @param <E> The entity
  */
 public class NearbyHostileSensor<E extends LivingEntity> extends EntityFilteringSensor<LivingEntity, E> {
-	private final Map<EntityType<?>, Float> hostileDistanceMap = new Object2FloatOpenHashMap<>(11);
 
-	public NearbyHostileSensor() {
-		setHostiles(
-				Pair.of(EntityType.DROWNED, 8f),
-				Pair.of(EntityType.HUSK, 8f),
-				Pair.of(EntityType.VEX, 8f),
-				Pair.of(EntityType.ZOMBIE, 8f),
-				Pair.of(EntityType.ZOMBIE_VILLAGER, 8f),
-				Pair.of(EntityType.VINDICATOR, 10f),
-				Pair.of(EntityType.ZOGLIN, 10f),
-				Pair.of(EntityType.EVOKER, 12f),
-				Pair.of(EntityType.ILLUSIONER, 12f),
-				Pair.of(EntityType.RAVAGER, 12f),
-				Pair.of(EntityType.PILLAGER, 15f));
-	}
+    private final Map<EntityType<?>, Float> hostileDistanceMap = new Object2FloatOpenHashMap<>(11);
 
-	/**
-	 * Clear the hostile types map, and add all of the given entries.
-	 * 
-	 * @param entries The collection of entity types and distances to set the
-	 *                hostile types map to
-	 * @return this
-	 */
-	public NearbyHostileSensor<E> setHostiles(Pair<EntityType<?>, Float>... entries) {
-		this.hostileDistanceMap.clear();
+    public NearbyHostileSensor() {
+        setHostiles(
+            Pair.of(EntityType.DROWNED, 8f),
+            Pair.of(EntityType.HUSK, 8f),
+            Pair.of(EntityType.VEX, 8f),
+            Pair.of(EntityType.ZOMBIE, 8f),
+            Pair.of(EntityType.ZOMBIE_VILLAGER, 8f),
+            Pair.of(EntityType.VINDICATOR, 10f),
+            Pair.of(EntityType.ZOGLIN, 10f),
+            Pair.of(EntityType.EVOKER, 12f),
+            Pair.of(EntityType.ILLUSIONER, 12f),
+            Pair.of(EntityType.RAVAGER, 12f),
+            Pair.of(EntityType.PILLAGER, 15f)
+        );
+    }
 
-		for (Pair<EntityType<?>, Float> entry : entries) {
-			this.hostileDistanceMap.put(entry.getFirst(), entry.getSecond());
-		}
+    /**
+     * Clear the hostile types map, and add all of the given entries.
+     *
+     * @param entries The collection of entity types and distances to set the hostile types map to
+     * @return this
+     */
+    public NearbyHostileSensor<E> setHostiles(Pair<EntityType<?>, Float>... entries) {
+        this.hostileDistanceMap.clear();
 
-		return this;
-	}
+        for (Pair<EntityType<?>, Float> entry : entries) {
+            this.hostileDistanceMap.put(entry.getFirst(), entry.getSecond());
+        }
 
-	/**
-	 * Add an entity type to the hostile types map.
-	 *
-	 * @param entry The entity type and distance to which it should be considered.
-	 * @return this
-	 */
-	public NearbyHostileSensor<E> addHostile(Pair<EntityType<?>, Float> entry) {
-		this.hostileDistanceMap.put(entry.getFirst(), entry.getSecond());
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Add an entity type to the hostile types map.
+     *
+     * @param entry The entity type and distance to which it should be considered.
+     * @return this
+     */
+    public NearbyHostileSensor<E> addHostile(Pair<EntityType<?>, Float> entry) {
+        this.hostileDistanceMap.put(entry.getFirst(), entry.getSecond());
 
-	@Override
-	public MemoryModuleType<LivingEntity> getMemory() {
-		return MemoryModuleType.NEAREST_HOSTILE;
-	}
+        return this;
+    }
 
-	@Override
-	public SensorType<? extends ExtendedSensor<?>> type() {
-		return SBLSensors.NEARBY_HOSTILE.get();
-	}
+    @Override
+    public MemoryModuleType<LivingEntity> getMemory() {
+        return MemoryModuleType.NEAREST_HOSTILE;
+    }
 
-	@Override
-	protected BiPredicate<LivingEntity, E> predicate() {
-		return (target, entity) -> {
-			Float distance = this.hostileDistanceMap.get(target.getType());
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return SBLSensors.NEARBY_HOSTILE.get();
+    }
 
-			return distance != null && target.distanceToSqr(entity) <= distance * distance;
-		};
-	}
+    @Override
+    protected BiPredicate<LivingEntity, E> predicate() {
+        return (target, entity) -> {
+            Float distance = this.hostileDistanceMap.get(target.getType());
 
-	@Nullable
-	@Override
-	protected LivingEntity findMatches(E entity, NearestVisibleLivingEntities matcher) {
-		return matcher.findClosest(target -> predicate().test(target, entity)).orElse(null);
-	}
+            return distance != null && target.distanceToSqr(entity) <= distance * distance;
+        };
+    }
+
+    @Nullable
+    @Override
+    protected LivingEntity findMatches(E entity, NearestVisibleLivingEntities matcher) {
+        return matcher.findClosest(target -> predicate().test(target, entity)).orElse(null);
+    }
 }

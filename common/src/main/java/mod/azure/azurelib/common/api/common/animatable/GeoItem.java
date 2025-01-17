@@ -1,24 +1,11 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.api.common.animatable;
 
 import com.google.common.base.Suppliers;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.animatable.SingletonGeoAnimatable;
-import mod.azure.azurelib.common.internal.common.cache.AnimatableIdCache;
-import mod.azure.azurelib.common.internal.common.constant.DataTickets;
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.core.animation.ContextAwareAnimatableManager;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -31,9 +18,23 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.animatable.SingletonGeoAnimatable;
+import mod.azure.azurelib.common.internal.common.cache.AnimatableIdCache;
+import mod.azure.azurelib.common.internal.common.constant.DataTickets;
+import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animation.ContextAwareAnimatableManager;
+
 /**
  * The {@link GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also
  * applies to armor, as they are just items too.
+ *
+ * @deprecated
  */
 public interface GeoItem extends SingletonGeoAnimatable {
 
@@ -69,9 +70,9 @@ public interface GeoItem extends SingletonGeoAnimatable {
      */
     static long getId(ItemStack stack) {
         return Optional.ofNullable(stack.getComponentsPatch().get(AzureLib.STACK_ANIMATABLE_ID_COMPONENT.get()))
-                .filter(Optional::isPresent)
-                .<Long>map(Optional::get)
-                .orElse(Long.MAX_VALUE);
+            .filter(Optional::isPresent)
+            .<Long>map(Optional::get)
+            .orElse(Long.MAX_VALUE);
     }
 
     /**
@@ -142,31 +143,31 @@ public interface GeoItem extends SingletonGeoAnimatable {
         public AnimatableManager<?> getManagerForId(long uniqueId) {
             if (!this.managers.containsKey(uniqueId))
                 this.managers.put(
-                        uniqueId,
-                        new ContextAwareAnimatableManager<GeoItem, ItemDisplayContext>(this.animatable) {
+                    uniqueId,
+                    new ContextAwareAnimatableManager<GeoItem, ItemDisplayContext>(this.animatable) {
 
-                            @Override
-                            protected Map<ItemDisplayContext, AnimatableManager<GeoItem>> buildContextOptions(
-                                    GeoAnimatable animatable
-                            ) {
-                                Map<ItemDisplayContext, AnimatableManager<GeoItem>> map = new EnumMap<>(
-                                        ItemDisplayContext.class
-                                );
+                        @Override
+                        protected Map<ItemDisplayContext, AnimatableManager<GeoItem>> buildContextOptions(
+                            GeoAnimatable animatable
+                        ) {
+                            Map<ItemDisplayContext, AnimatableManager<GeoItem>> map = new EnumMap<>(
+                                ItemDisplayContext.class
+                            );
 
-                                for (ItemDisplayContext context : ItemDisplayContext.values()) {
-                                    map.put(context, new AnimatableManager<>(animatable));
-                                }
-
-                                return map;
+                            for (ItemDisplayContext context : ItemDisplayContext.values()) {
+                                map.put(context, new AnimatableManager<>(animatable));
                             }
 
-                            @Override
-                            public ItemDisplayContext getCurrentContext() {
-                                ItemDisplayContext context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
-
-                                return context == null ? ItemDisplayContext.NONE : context;
-                            }
+                            return map;
                         }
+
+                        @Override
+                        public ItemDisplayContext getCurrentContext() {
+                            ItemDisplayContext context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
+
+                            return context == null ? ItemDisplayContext.NONE : context;
+                        }
+                    }
                 );
 
             return this.managers.get(uniqueId);

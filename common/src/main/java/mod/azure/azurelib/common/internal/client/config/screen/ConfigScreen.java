@@ -1,18 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.screen;
 
-import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
-import mod.azure.azurelib.common.internal.client.config.DisplayAdapterManager;
-import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -25,15 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
+import mod.azure.azurelib.common.internal.client.config.DisplayAdapterManager;
+import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.validate.NotificationSeverity;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+
 public class ConfigScreen extends AbstractConfigScreen {
 
     private final Map<String, ConfigValue<?>> valueMap;
 
     public ConfigScreen(
-            String ownerIdentifier,
-            String configId,
-            Map<String, ConfigValue<?>> valueMap,
-            Screen previous
+        String ownerIdentifier,
+        String configId,
+        Map<String, ConfigValue<?>> valueMap,
+        Screen previous
     ) {
         this(Component.translatable("config.screen." + ownerIdentifier), configId, valueMap, previous);
     }
@@ -45,7 +44,6 @@ public class ConfigScreen extends AbstractConfigScreen {
 
     @Override
     protected void init() {
-
         final int viewportMin = HEADER_HEIGHT;
         final int viewportHeight = this.height - viewportMin - FOOTER_HEIGHT;
         this.pageSize = (viewportHeight - 20) / 25;
@@ -61,16 +59,20 @@ public class ConfigScreen extends AbstractConfigScreen {
             errorOffset -= correct;
             offset += correct;
             ConfigValue<?> value = values.get(i);
-            ConfigEntryWidget widget = addRenderableWidget(new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, value, this.configId));
-            widget.setDescriptionRenderer((graphics, widget1, severity, text) -> renderEntryDescription(graphics, widget1, severity, text));
+            ConfigEntryWidget widget = addRenderableWidget(
+                new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, value, this.configId)
+            );
+            widget.setDescriptionRenderer(
+                (graphics, widget1, severity, text) -> renderEntryDescription(graphics, widget1, severity, text)
+            );
             TypeAdapter.AdapterContext context = value.getSerializationContext();
             Field field = context.getOwner();
             DisplayAdapter adapter = DisplayAdapterManager.forType(field.getType());
             if (adapter == null) {
                 AzureLib.LOGGER.error(
-                        MARKER,
-                        "Missing display adapter for {} type, will not be displayed in GUI",
-                        field.getType().getSimpleName()
+                    MARKER,
+                    "Missing display adapter for {} type, will not be displayed in GUI",
+                    field.getType().getSimpleName()
                 );
                 continue;
             }
@@ -79,10 +81,10 @@ public class ConfigScreen extends AbstractConfigScreen {
                 initializeGuiValue(value, widget);
             } catch (ClassCastException e) {
                 AzureLib.LOGGER.error(
-                        MARKER,
-                        "Unable to create config field for {} type due to error {}",
-                        field.getType().getSimpleName(),
-                        e
+                    MARKER,
+                    "Unable to create config field for {} type due to error {}",
+                    field.getType().getSimpleName(),
+                    e
                 );
             }
         }
@@ -90,10 +92,10 @@ public class ConfigScreen extends AbstractConfigScreen {
     }
 
     private void renderEntryDescription(
-            GuiGraphics graphics,
-            AbstractWidget widget,
-            NotificationSeverity severity,
-            List<FormattedCharSequence> text
+        GuiGraphics graphics,
+        AbstractWidget widget,
+        NotificationSeverity severity,
+        List<FormattedCharSequence> text
     ) {
         int x = widget.getX() + 5;
         int y = widget.getY() + widget.getHeight() + 10;
@@ -109,12 +111,28 @@ public class ConfigScreen extends AbstractConfigScreen {
         renderBackground(graphics, mouseX, mouseY, partialTicks);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        graphics.drawString(font, this.title, (this.width - titleWidth) / 2, (HEADER_HEIGHT - this.font.lineHeight) / 2, 0xFFFFFF, true);
+        graphics.drawString(
+            font,
+            this.title,
+            (this.width - titleWidth) / 2,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2,
+            0xFFFFFF,
+            true
+        );
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         graphics.fill(0, 0, width, HEADER_HEIGHT, 0x99 << 24);
         graphics.fill(0, height - FOOTER_HEIGHT, width, height, 0x99 << 24);
         graphics.fill(0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x55 << 24);
-        renderScrollbar(graphics, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, valueMap.size(), pageSize);
+        renderScrollbar(
+            graphics,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            valueMap.size(),
+            pageSize
+        );
         renderables.forEach(renderable -> renderable.render(graphics, mouseX, mouseY, partialTicks));
     }
 

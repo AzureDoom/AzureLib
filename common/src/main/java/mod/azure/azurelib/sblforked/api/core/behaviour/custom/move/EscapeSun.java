@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -17,96 +16,109 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 /**
  * Sets the {@link MemoryModuleType#WALK_TARGET walk target} to a safe position if caught in the sun. <br>
  * Defaults:
  * <ul>
- *     <li>Only if not currently fighting something</li>
- *     <li>Only if already burning from the sun</li>
+ * <li>Only if not currently fighting something</li>
+ * <li>Only if already burning from the sun</li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class EscapeSun<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED));
 
-	protected float speedModifier = 1;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED)
+    );
 
-	protected Vec3 hidePos = null;
+    protected float speedModifier = 1;
 
-	public EscapeSun() {
-		noTimeout();
-	}
+    protected Vec3 hidePos = null;
 
-	/**
-	 * Set the movespeed modifier for when the entity tries to escape the sun
-	 * @param speedMod The speed modifier
-	 * @return this
-	 */
-	public EscapeSun<E> speedModifier(float speedMod) {
-		this.speedModifier = speedMod;
+    public EscapeSun() {
+        noTimeout();
+    }
 
-		return this;
-	}
+    /**
+     * Set the movespeed modifier for when the entity tries to escape the sun
+     *
+     * @param speedMod The speed modifier
+     * @return this
+     */
+    public EscapeSun<E> speedModifier(float speedMod) {
+        this.speedModifier = speedMod;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		if (!level.isDay() || !entity.isOnFire() || !level.canSeeSky(entity.blockPosition()))
-			return false;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		if (!entity.getItemBySlot(EquipmentSlot.HEAD).isEmpty())
-			return false;
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        if (!level.isDay() || !entity.isOnFire() || !level.canSeeSky(entity.blockPosition()))
+            return false;
 
-		this.hidePos = getHidePos(entity);
+        if (!entity.getItemBySlot(EquipmentSlot.HEAD).isEmpty())
+            return false;
 
-		return this.hidePos != null;
-	}
+        this.hidePos = getHidePos(entity);
 
-	@Override
-	protected void start(E entity) {
-		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(this.hidePos, this.speedModifier, 0));
-	}
+        return this.hidePos != null;
+    }
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		if (this.hidePos == null)
-			return false;
+    @Override
+    protected void start(E entity) {
+        BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(this.hidePos, this.speedModifier, 0));
+    }
 
-		WalkTarget walkTarget = BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET);
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        if (this.hidePos == null)
+            return false;
 
-		if (walkTarget == null)
-			return false;
+        WalkTarget walkTarget = BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET);
 
-		return walkTarget.getTarget().currentBlockPosition().equals(BlockPos.containing(this.hidePos)) && !entity.getNavigation().isDone();
-	}
+        if (walkTarget == null)
+            return false;
 
-	@Override
-	protected void stop(E entity) {
-		this.hidePos = null;
-	}
+        return walkTarget.getTarget().currentBlockPosition().equals(BlockPos.containing(this.hidePos)) && !entity
+            .getNavigation()
+            .isDone();
+    }
 
-	@Nullable
-	protected Vec3 getHidePos(E entity) {
-		RandomSource randomsource = entity.getRandom();
-		BlockPos entityPos = entity.blockPosition();
+    @Override
+    protected void stop(E entity) {
+        this.hidePos = null;
+    }
 
-		for(int i = 0; i < 10; ++i) {
-			BlockPos hidePos = entityPos.offset(randomsource.nextInt(20) - 10, randomsource.nextInt(6) - 3, randomsource.nextInt(20) - 10);
+    @Nullable
+    protected Vec3 getHidePos(E entity) {
+        RandomSource randomsource = entity.getRandom();
+        BlockPos entityPos = entity.blockPosition();
 
-			if (!entity.level().canSeeSky(hidePos) && entity.getWalkTargetValue(hidePos) < 0.0F)
-				return Vec3.atBottomCenterOf(hidePos);
-		}
+        for (int i = 0; i < 10; ++i) {
+            BlockPos hidePos = entityPos.offset(
+                randomsource.nextInt(20) - 10,
+                randomsource.nextInt(6) - 3,
+                randomsource.nextInt(20) - 10
+            );
 
-		return null;
-	}
+            if (!entity.level().canSeeSky(hidePos) && entity.getWalkTargetValue(hidePos) < 0.0F)
+                return Vec3.atBottomCenterOf(hidePos);
+        }
+
+        return null;
+    }
 }

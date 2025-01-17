@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.target;
 
@@ -14,59 +13,66 @@ import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.player.Player;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Set the {@link MemoryModuleType#LOOK_TARGET} of the brain owner from {@link MemoryModuleType#NEAREST_PLAYERS}
+ *
  * @param <E> The entity
  */
 public class SetPlayerLookTarget<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.NEAREST_PLAYERS, MemoryStatus.VALUE_PRESENT));
 
-	protected Predicate<Player> predicate = pl -> true;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.NEAREST_PLAYERS, MemoryStatus.VALUE_PRESENT)
+    );
 
-	protected Player target = null;
+    protected Predicate<Player> predicate = pl -> true;
 
-	/**
-	 * Set the predicate for the player to look at.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public SetPlayerLookTarget<E> predicate(Predicate<Player> predicate) {
-		this.predicate = predicate;
+    protected Player target = null;
 
-		return this;
-	}
+    /**
+     * Set the predicate for the player to look at.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public SetPlayerLookTarget<E> predicate(Predicate<Player> predicate) {
+        this.predicate = predicate;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		for (Player player : BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_PLAYERS)) {
-			if (this.predicate.test(player)) {
-				this.target = player;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-				break;
-			}
-		}
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        for (Player player : BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_PLAYERS)) {
+            if (this.predicate.test(player)) {
+                this.target = player;
 
-		return this.target != null;
-	}
+                break;
+            }
+        }
 
-	@Override
-	protected void start(E entity) {
-		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.target, true));
-	}
+        return this.target != null;
+    }
 
-	@Override
-	protected void stop(E entity) {
-		this.target = null;
-	}
+    @Override
+    protected void start(E entity) {
+        BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(this.target, true));
+    }
+
+    @Override
+    protected void stop(E entity) {
+        this.target = null;
+    }
 }

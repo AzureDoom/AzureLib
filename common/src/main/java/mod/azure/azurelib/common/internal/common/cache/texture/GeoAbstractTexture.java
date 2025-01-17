@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.cache.texture;
@@ -28,6 +26,8 @@ import mod.azure.azurelib.common.platform.Services;
 /**
  * Abstract texture wrapper for AzureLib textures.<br>
  * Mostly just handles boilerplate
+ *
+ * @deprecated
  */
 public abstract class GeoAbstractTexture extends AbstractTexture {
 
@@ -35,21 +35,21 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
      * Generates the texture instance for the given path with the given appendix if it hasn't already been generated
      */
     protected static void generateTexture(
-            ResourceLocation texturePath,
-            Consumer<TextureManager> textureManagerConsumer
+        ResourceLocation texturePath,
+        Consumer<TextureManager> textureManagerConsumer
     ) {
         if (!RenderSystem.isOnRenderThreadOrInit())
             throw new IllegalThreadStateException(
-                    "Texture loading called outside of the render thread! This should DEFINITELY not be happening."
+                "Texture loading called outside of the render thread! This should DEFINITELY not be happening."
             );
 
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
         if (
-                !(textureManager.getTexture(
-                        texturePath,
-                        MissingTextureAtlasSprite.getTexture()
-                ) instanceof GeoAbstractTexture)
+            !(textureManager.getTexture(
+                texturePath,
+                MissingTextureAtlasSprite.getTexture()
+            ) instanceof GeoAbstractTexture)
         )
             textureManagerConsumer.accept(textureManager);
     }
@@ -66,7 +66,10 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
         String path = location.getPath();
         int i = path.lastIndexOf('.');
 
-        return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), path.substring(0, i) + suffix + path.substring(i));
+        return ResourceLocation.fromNamespaceAndPath(
+            location.getNamespace(),
+            path.substring(0, i) + suffix + path.substring(i)
+        );
     }
 
     @Override

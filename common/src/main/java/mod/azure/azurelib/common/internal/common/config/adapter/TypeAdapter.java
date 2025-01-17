@@ -1,25 +1,24 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.adapter;
 
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+
 public abstract class TypeAdapter {
 
     public abstract ConfigValue<?> serialize(
-            String name,
-            String[] comments,
-            Object value,
-            TypeSerializer serializer,
-            AdapterContext context
+        String name,
+        String[] comments,
+        Object value,
+        TypeSerializer serializer,
+        AdapterContext context
     ) throws IllegalAccessException;
 
     public abstract void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer);

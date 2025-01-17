@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.navigation;
 
@@ -24,9 +23,11 @@ import java.util.Set;
 /**
  * Extracted interface to act as a helper utility for cleaner navigator implementations
  * <p>
- * This expands on Vanilla's navigator functionality, fixing some issues, optimising it, and splitting it out to be properly extensible
+ * This expands on Vanilla's navigator functionality, fixing some issues, optimising it, and splitting it out to be
+ * properly extensible
  */
 public interface ExtendedNavigator {
+
     /**
      * Minimum threshold representing a rounding error for the purposes of bounds collision
      */
@@ -63,7 +64,8 @@ public interface ExtendedNavigator {
     }
 
     /**
-     * Determine whether the entity should be considered close enough to the next node to be counted as having reached it
+     * Determine whether the entity should be considered close enough to the next node to be counted as having reached
+     * it
      *
      * @param distance The distance threshold which counts as 'close enough' to the next node
      * @return Whether the entity is within reach of the next node in the path
@@ -75,12 +77,13 @@ public interface ExtendedNavigator {
         final Vec3 nextNodePos = getEntityPosAtNode(path.getNextNodeIndex());
 
         return Math.abs(mob.getX() - nextNodePos.x) < distance &&
-                Math.abs(mob.getZ() - nextNodePos.z) < distance &&
-                Math.abs(mob.getY() - nextNodePos.y) < 1;
+            Math.abs(mob.getZ() - nextNodePos.z) < distance &&
+            Math.abs(mob.getY() - nextNodePos.y) < 1;
     }
 
     /**
-     * @return Whether the path the mob is following is about to cause a change in elevation (either up or down), accounting for potentially skippable nodes based on the entity's stride size
+     * @return Whether the path the mob is following is about to cause a change in elevation (either up or down),
+     *         accounting for potentially skippable nodes based on the entity's stride size
      */
     default boolean isAboutToTraverseVertically() {
         final Mob mob = getMob();
@@ -98,13 +101,15 @@ public interface ExtendedNavigator {
     }
 
     /**
-     * Wrap a Path instance in a new instance, patching out the {@link Path#getEntityPosAtNode(Entity, int)} implementation for smoother pathing
+     * Wrap a Path instance in a new instance, patching out the {@link Path#getEntityPosAtNode(Entity, int)}
+     * implementation for smoother pathing
      *
      * @return A new Path instance, or null if the input Path was null
      */
     @Nullable
     default Path patchPath(@Nullable Path path) {
         return path == null ? null : new Path(path.nodes, path.getTarget(), path.canReach()) {
+
             @Override
             public Vec3 getEntityPosAtNode(Entity entity, int nodeIndex) {
                 return ExtendedNavigator.this.getEntityPosAtNode(nodeIndex);
@@ -113,25 +118,39 @@ public interface ExtendedNavigator {
     }
 
     /**
-     * Create a PathFinder instance patching out the {@link Path#getEntityPosAtNode(Entity, int)} implementation for smoother pathing
+     * Create a PathFinder instance patching out the {@link Path#getEntityPosAtNode(Entity, int)} implementation for
+     * smoother pathing
      */
     default PathFinder createSmoothPathFinder(NodeEvaluator nodeEvaluator, int maxVisitedNodes) {
         return new PathFinder(nodeEvaluator, maxVisitedNodes) {
+
             @Nullable
             @Override
-            public Path findPath(PathNavigationRegion navigationRegion, Mob mob, Set<BlockPos> targetPositions, float maxRange, int accuracy, float searchDepthMultiplier) {
-                return patchPath(super.findPath(navigationRegion, mob, targetPositions, maxRange, accuracy, searchDepthMultiplier));
+            public Path findPath(
+                PathNavigationRegion navigationRegion,
+                Mob mob,
+                Set<BlockPos> targetPositions,
+                float maxRange,
+                int accuracy,
+                float searchDepthMultiplier
+            ) {
+                return patchPath(
+                    super.findPath(navigationRegion, mob, targetPositions, maxRange, accuracy, searchDepthMultiplier)
+                );
             }
         };
     }
 
     /**
-     * Attempt to skip to the target node, bypassing the intermediate notes depending on bounds collision for the intervening distance
+     * Attempt to skip to the target node, bypassing the intermediate notes depending on bounds collision for the
+     * intervening distance
      * <p>
-     * Typically, the target node should already have been checked for proximal relevance, as otherwise this could cause node skips to act strangely
+     * Typically, the target node should already have been checked for proximal relevance, as otherwise this could cause
+     * node skips to act strangely
      *
      * @param targetNode     The target node index to shortcut to
-     * @param safeSurfacePos The baseline position of where the mob should traverse to (usually the nearest ground pos or surface of the fluid it's submerged in)
+     * @param safeSurfacePos The baseline position of where the mob should traverse to (usually the nearest ground pos
+     *                       or surface of the fluid it's submerged in)
      * @return Whether the shortcut was successful or not
      */
     default boolean attemptShortcut(int targetNode, Vec3 safeSurfacePos) {
@@ -171,10 +190,12 @@ public interface ExtendedNavigator {
     }
 
     /**
-     * Recursively sweep the edges of a given area, identifying collisions for colliding faces of a pseudo-bounds determined by ray-casts
-     * projected from the bounds leading edge, then cross-checking interceptions for the relevant face.
+     * Recursively sweep the edges of a given area, identifying collisions for colliding faces of a pseudo-bounds
+     * determined by ray-casts projected from the bounds leading edge, then cross-checking interceptions for the
+     * relevant face.
      * <p>
-     * This is a quick algorithm based on Andy Hall's <a href="https://github.com/fenomas/voxel-aabb-sweep/tree/d3ef85b19c10e4c9d2395c186f9661b052c50dc7">voxel-aabb-sweep</a>
+     * This is a quick algorithm based on Andy Hall's <a href=
+     * "https://github.com/fenomas/voxel-aabb-sweep/tree/d3ef85b19c10e4c9d2395c186f9661b052c50dc7">voxel-aabb-sweep</a>
      *
      * @param traversalVector The vector that represents the angle and length of traversal to cover
      * @param minBoundsPos    The negative-most position representing the minimum corner of the bounds
@@ -182,7 +203,7 @@ public interface ExtendedNavigator {
      * @return Whether the given traversal is free from collisions
      */
     default boolean isCollisionFreeTraversal(Vec3 traversalVector, Vec3 minBoundsPos, Vec3 leadingEdgePos) {
-        final float traversalDistance = (float)traversalVector.length();
+        final float traversalDistance = (float) traversalVector.length();
 
         if (traversalDistance < EPSILON)
             return true;
@@ -201,15 +222,19 @@ public interface ExtendedNavigator {
             ray.trailingEdgeBound[index] = Mth.floor(ray.minPos[index] + ray.absStep[index] * EPSILON);
             ray.axisLengthNormalised[index] = axisLength / traversalDistance;
             ray.axisSteps[index] = Mth.abs(traversalDistance / axisLength);
-            final float dist = isPositive ? (ray.leadingEdgeBound[index] + 1 - maxPos) : (maxPos - ray.leadingEdgeBound[index]);
-            ray.rayTargetLength[index] = ray.axisSteps[index] < Float.POSITIVE_INFINITY ? ray.axisSteps[index] * dist : Float.POSITIVE_INFINITY;
+            final float dist = isPositive
+                ? (ray.leadingEdgeBound[index] + 1 - maxPos)
+                : (maxPos - ray.leadingEdgeBound[index]);
+            ray.rayTargetLength[index] = ray.axisSteps[index] < Float.POSITIVE_INFINITY
+                ? ray.axisSteps[index] * dist
+                : Float.POSITIVE_INFINITY;
         }
 
         return collidesWhileTraversing(ray, traversalDistance);
     }
 
     /**
-     * @param ray The details container for the ray traversal
+     * @param ray               The details container for the ray traversal
      * @param traversalDistance The direct length of the traversal vector
      * @return Whether the given bounds would collide for the given trajectory
      */
@@ -223,9 +248,9 @@ public interface ExtendedNavigator {
             float target = 0;
 
             do {
-                final Direction.Axis longestEdge = ray.rayTargetLength[0] < ray.rayTargetLength[1] ?
-                        ray.rayTargetLength[0] < ray.rayTargetLength[2] ? Direction.Axis.X : Direction.Axis.Z :
-                        ray.rayTargetLength[1] < ray.rayTargetLength[2] ? Direction.Axis.Y : Direction.Axis.Z;
+                final Direction.Axis longestEdge = ray.rayTargetLength[0] < ray.rayTargetLength[1]
+                    ? ray.rayTargetLength[0] < ray.rayTargetLength[2] ? Direction.Axis.X : Direction.Axis.Z
+                    : ray.rayTargetLength[1] < ray.rayTargetLength[2] ? Direction.Axis.Y : Direction.Axis.Z;
                 final int index = longestEdge.ordinal();
                 final float rayDelta = ray.rayTargetLength[index] - target;
                 target = ray.rayTargetLength[index];
@@ -255,10 +280,19 @@ public interface ExtendedNavigator {
                                 return false;
                         }
 
-                        if (!canPathOnto(nodeEvaluator.getPathType(new PathfindingContext(level, mob), x, yBound - 1, z)))
+                        if (
+                            !canPathOnto(
+                                nodeEvaluator.getPathType(new PathfindingContext(level, mob), x, yBound - 1, z)
+                            )
+                        )
                             return false;
 
-                        final PathType insidePathType = nodeEvaluator.getPathType(new PathfindingContext(level, mob), x, yBound, z);
+                        final PathType insidePathType = nodeEvaluator.getPathType(
+                            new PathfindingContext(level, mob),
+                            x,
+                            yBound,
+                            z
+                        );
                         final float pathMalus = mob.getPathfindingMalus(insidePathType);
 
                         if (pathMalus < 0 || pathMalus >= 8)
@@ -287,7 +321,16 @@ public interface ExtendedNavigator {
      * @param rayTargetLength      How long the ray should be to account for traversal
      * @param axisLengthNormalised Fraction of the full distance the given length of this axis represents
      */
-    record VoxelRayDetails(float[] minPos, int[] leadingEdgeBound, int[] trailingEdgeBound, int[] absStep, float[] axisSteps, float[] rayTargetLength, float[] axisLengthNormalised) {
+    record VoxelRayDetails(
+        float[] minPos,
+        int[] leadingEdgeBound,
+        int[] trailingEdgeBound,
+        int[] absStep,
+        float[] axisSteps,
+        float[] rayTargetLength,
+        float[] axisLengthNormalised
+    ) {
+
         public VoxelRayDetails() {
             this(new float[3], new int[3], new int[3], new int[3], new float[3], new float[3], new float[3]);
         }
@@ -297,6 +340,6 @@ public interface ExtendedNavigator {
      * @return The vector length for the given axis
      */
     default float lengthForAxis(Vec3 vector, Direction.Axis axis) {
-        return (float)axis.choose(vector.x, vector.y, vector.z);
+        return (float) axis.choose(vector.x, vector.y, vector.z);
     }
 }

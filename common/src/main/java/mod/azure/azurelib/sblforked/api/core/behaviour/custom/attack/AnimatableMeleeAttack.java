@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.attack;
 
@@ -15,77 +14,89 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Extended behaviour for melee attacking. Natively supports animation hit delays or other delays. <br>
  * Defaults:
  * <ul>
- *     <li>20 tick attack interval</li>
+ * <li>20 tick attack interval</li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class AnimatableMeleeAttack<E extends Mob> extends DelayedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT));
 
-	protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT)
+    );
 
-	@Nullable
-	protected LivingEntity target = null;
+    protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
 
-	public AnimatableMeleeAttack(int delayTicks) {
-		super(delayTicks);
-	}
+    @Nullable
+    protected LivingEntity target = null;
 
-	/**
-	 * Set the time between attacks.
-	 * @param supplier The tick value provider
-	 * @return this
-	 */
-	public AnimatableMeleeAttack<E> attackInterval(Function<E, Integer> supplier) {
-		this.attackIntervalSupplier = supplier;
+    public AnimatableMeleeAttack(int delayTicks) {
+        super(delayTicks);
+    }
 
-		return this;
-	}
+    /**
+     * Set the time between attacks.
+     *
+     * @param supplier The tick value provider
+     * @return this
+     */
+    public AnimatableMeleeAttack<E> attackInterval(Function<E, Integer> supplier) {
+        this.attackIntervalSupplier = supplier;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		this.target = BrainUtils.getTargetOfEntity(entity);
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		return entity.getSensing().hasLineOfSight(this.target) && entity.isWithinMeleeAttackRange(this.target);
-	}
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        this.target = BrainUtils.getTargetOfEntity(entity);
 
-	@Override
-	protected void start(E entity) {
-		entity.swing(InteractionHand.MAIN_HAND);
-		BehaviorUtils.lookAtEntity(entity, this.target);
-	}
+        return entity.getSensing().hasLineOfSight(this.target) && entity.isWithinMeleeAttackRange(this.target);
+    }
 
-	@Override
-	protected void stop(E entity) {
-		this.target = null;
-	}
+    @Override
+    protected void start(E entity) {
+        entity.swing(InteractionHand.MAIN_HAND);
+        BehaviorUtils.lookAtEntity(entity, this.target);
+    }
 
-	@Override
-	protected void doDelayedAction(E entity) {
-		BrainUtils.setForgettableMemory(entity, MemoryModuleType.ATTACK_COOLING_DOWN, true, this.attackIntervalSupplier.apply(entity));
+    @Override
+    protected void stop(E entity) {
+        this.target = null;
+    }
 
-		if (this.target == null)
-			return;
+    @Override
+    protected void doDelayedAction(E entity) {
+        BrainUtils.setForgettableMemory(
+            entity,
+            MemoryModuleType.ATTACK_COOLING_DOWN,
+            true,
+            this.attackIntervalSupplier.apply(entity)
+        );
 
-		if (!entity.getSensing().hasLineOfSight(this.target) || !entity.isWithinMeleeAttackRange(this.target))
-			return;
+        if (this.target == null)
+            return;
 
-		entity.doHurtTarget(this.target);
-	}
+        if (!entity.getSensing().hasLineOfSight(this.target) || !entity.isWithinMeleeAttackRange(this.target))
+            return;
+
+        entity.doHurtTarget(this.target);
+    }
 }

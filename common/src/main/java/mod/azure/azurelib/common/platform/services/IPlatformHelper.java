@@ -1,10 +1,6 @@
 package mod.azure.azurelib.common.platform.services;
 
-import mod.azure.azurelib.common.internal.common.blocks.TickingLightBlock;
-import mod.azure.azurelib.common.internal.common.blocks.TickingLightEntity;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.nio.file.Path;
 import java.util.function.Supplier;
@@ -22,5 +18,8 @@ public interface IPlatformHelper {
 
     boolean isEnvironmentClient();
 
-    <T> Supplier<DataComponentType<T>> registerDataComponent(String id, UnaryOperator<DataComponentType.Builder<T>> builder);
+    <T> Supplier<DataComponentType<T>> registerDataComponent(
+        String id,
+        UnaryOperator<DataComponentType.Builder<T>> builder
+    );
 }

@@ -1,0 +1,158 @@
+---
+title: AzCommands 101
+hide_meta: true
+---
+
+# Everything you need to know about AzCommands
+
+`AzCommand` is a highly flexible class for controlling animations in AzureLib by dispatching a sequence of animation-related actions. It simplifies animation management by allowing you to manipulate the animation system at three hierarchical levels: **root**, **controller**, and **animation**. This guide will walk you through the basics of using `AzCommand` and how to replace the traditional `AnimationController` approach with it.
+
+### **The Three Configuration Layers**:
+    - **Root**: Manages all controllers globally.
+    - **Controller**: Configures specific animation controllers.
+    - **Animation**: Configures per-animation properties, automatically reverting to the previous state after the animation finishes.
+
+## Getting Started with `AzCommand`
+
+### 1. **Creating an AzCommand**
+Creating an AzCommand involves specifying the controller name, the animation name, and optionally the playback behavior (e.g., loop, play once). Here's how:
+``` java
+AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+```
+In this example:
+- `"Walk"` is the controller name.
+- `"WALK_ANIMATION"` is the animation to play.
+- By default, the play behavior is set to `PLAY_ONCE`. You can customize it like this:
+``` java
+AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+```
+### 2. **Composing Multiple Commands**
+If you need to merge several commands into one, you can use the `compose` method. This is helpful for combining animations across multiple controllers:
+``` java
+AzCommand combinedCommand = AzCommand.compose(walkCommand, idleCommand);
+```
+All actions from the two commands are merged into a single unified command.
+
+## Sending AzCommands
+Once you've created an AzCommand, you can dispatch it to an entity, block entity, or item stack using the provided methods.
+
+### Send to an Entity
+To trigger an animation on an entity, use the `sendForEntity` method:
+``` java
+walkCommand.sendForEntity(myEntity);
+```
+- The command will determine the proper dispatch based on the client or server side.
+
+### Send to a Block Entity
+To send a command to a `BlockEntity`:
+``` java
+idleCommand.sendForBlockEntity(myBlockEntity);
+```
+This sends the command to all clients tracking the relevant chunk.
+
+### Send to an Item/Armor
+To animate an item, use the `sendForItem` method:
+``` java
+combinedCommand.sendForItem(myEntity, myItemStack);
+```
+This requires the item stack to have a registered UUID, which is covered in the Item and Armor guides.
+
+## Advanced Use Cases for `AzCommand`
+
+### Using Builders for Complex Sequences
+To configure sequences with multiple animations:
+``` java
+AzCommand sequenceCommand = AzCommand.builder()
+    .playSequence("Walk", sequence -> {
+        // Queue up animations in the sequence
+        sequence.queue("WALK_ANIMATION");
+        sequence.queue("RUN_ANIMATION");
+    })
+    .build();
+
+sequenceCommand.sendForEntity(myEntity);
+```
+This will play `WALK_ANIMATION` followed by `RUN_ANIMATION` on the same controller.
+
+## Best Practices
+1. **Use Command Builders**:
+    - Builders make creating complex commands intuitive and reduce errors.
+    - Example:
+``` java
+     AzCommand.builder()
+         .playSequence("Walk", sequence -> {
+             sequence.queue("WALK");
+             sequence.queue("RUN");
+         })
+         .build()
+         .sendForEntity(entity);
+```
+
+2. **Reuse Commands**:
+    - Define reusable commands for common animations to simplify your rendering logic.
+
+
+## Converting from `AnimationController` to `AzCommand`
+
+If you previously managed animations using `AnimationController`, you can streamline and simplify your code using `AzCommand`. This approach eliminates the need for directly managing `AnimationController` states by leveraging `AzCommand` to dispatch animations dynamically.
+
+---
+
+### Old Approach (Using `AnimationController`)
+
+```java
+@Override
+public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+    controllers.add(new AnimationController<>(this, "Walk", 5, state -> {
+        if (state.isMoving()) {
+            return state.setAndContinue(WALK_ANIMATION);
+        }
+        return state.setAndContinue(IDLE_ANIMATION);
+    }));
+}
+```
+
+In this example:
+- The `AnimationController` dynamically switches between a walking animation and an idle animation based on whether the entity is moving.
+
+---
+
+### New Approach (Using `AzCommand` and `MoveAnalysis`)
+
+With `AzCommand`, you can dynamically dispatch animation commands based on the entity's state. Instead of continuously managing `AnimationController` state updates, you simply send the appropriate `AzCommand` when needed.
+
+To enhance the new `AzCommand` approach and replace the `isMoving` logic from the old `AnimationController` example, you can use the `MoveAnalysis` utility class. This class provides advanced functionalities, such as detecting horizontal movement and checking whether the entity is on the ground. Here's how you can implement this:
+
+```java
+public class ExampleEntity extends Monster {
+    private final AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+    private final AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+    private final MoveAnalysis moveAnalysis;
+
+    public ExampleEntity(EntityType<? extends Monster> entityType, Level level) {
+        super(entityType, level);
+        this.moveAnalysis = new MoveAnalysis(this);
+    }
+
+    @Override
+    public void tick() {
+        super.tick(); // Update base entity behavior
+        moveAnalysis.update(); // Analyze the entity's movement state
+
+        if (this.level().isClientSide) { // Only execute animation logic on the client
+            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
+
+            if (isMovingOnGround) {
+                walkCommand.sendForEntity(this); // Send the walk animation if moving
+            } else {
+                idleCommand.sendForEntity(this); // Otherwise, send the idle animation
+            }
+        }
+    }
+}
+```
+
+- **`MoveAnalysis`**: Provides a reliable method to check if the entity is moving horizontally.
+- **Benefits**:
+  - Improves code readability and reusability by moving movement logic into `MoveAnalysis`.
+  - Cleanly separates movement detection from animation dispatch.

@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.attack;
 
@@ -14,9 +13,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -24,86 +20,105 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.DelayedBehaviour;
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
- * Attack behaviour that doesn't require line of sight or proximity to target, or to even have a target at all. This is useful for special attacks. <br>
+ * Attack behaviour that doesn't require line of sight or proximity to target, or to even have a target at all. This is
+ * useful for special attacks. <br>
  * Set the actual condition for activation via {@link ExtendedBehaviour#startCondition(Predicate)}
+ *
  * @param <E> The entity
  */
 public class ConditionlessAttack<E extends LivingEntity> extends DelayedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT));
 
-	protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
-	protected boolean requireTarget = false;
-	protected Consumer<E> effect = entity -> {};
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT)
+    );
 
-	@Nullable
-	protected LivingEntity target = null;
+    protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
 
-	public ConditionlessAttack(int delayTicks) {
-		super(delayTicks);
-	}
+    protected boolean requireTarget = false;
 
-	/**
-	 * Set the time between attacks.
-	 * @param supplier The tick value provider
-	 * @return this
-	 */
-	public ConditionlessAttack<E> attackInterval(Function<E, Integer> supplier) {
-		this.attackIntervalSupplier = supplier;
+    protected Consumer<E> effect = entity -> {};
 
-		return this;
-	}
+    @Nullable
+    protected LivingEntity target = null;
 
-	/**
-	 * Set that the attack requires that the entity have an attack target set to activate.
-	 * @return this
-	 */
-	public ConditionlessAttack<E> requiresTarget() {
-		this.requireTarget = true;
+    public ConditionlessAttack(int delayTicks) {
+        super(delayTicks);
+    }
 
-		return this;
-	}
+    /**
+     * Set the time between attacks.
+     *
+     * @param supplier The tick value provider
+     * @return this
+     */
+    public ConditionlessAttack<E> attackInterval(Function<E, Integer> supplier) {
+        this.attackIntervalSupplier = supplier;
 
-	/**
-	 * Set the callback for the actual attack when the delay time has elapsed
-	 * @param consumer The callback
-	 * @return this
-	 */
-	public ConditionlessAttack<E> attack(Consumer<E> consumer) {
-		this.effect = consumer;
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Set that the attack requires that the entity have an attack target set to activate.
+     *
+     * @return this
+     */
+    public ConditionlessAttack<E> requiresTarget() {
+        this.requireTarget = true;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		if (!this.requireTarget)
-			return true;
+    /**
+     * Set the callback for the actual attack when the delay time has elapsed
+     *
+     * @param consumer The callback
+     * @return this
+     */
+    public ConditionlessAttack<E> attack(Consumer<E> consumer) {
+        this.effect = consumer;
 
-		this.target = BrainUtils.getTargetOfEntity(entity);
+        return this;
+    }
 
-		return this.target != null;
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	@Override
-	protected void start(E entity) {
-		entity.swing(InteractionHand.MAIN_HAND);
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        if (!this.requireTarget)
+            return true;
 
-		if (this.requireTarget)
-			BehaviorUtils.lookAtEntity(entity, this.target);
-	}
+        this.target = BrainUtils.getTargetOfEntity(entity);
 
-	@Override
-	protected void doDelayedAction(E entity) {
-		if (this.requireTarget && this.target == null)
-			return;
+        return this.target != null;
+    }
 
-		this.effect.accept(entity);
-		BrainUtils.setForgettableMemory(entity, MemoryModuleType.ATTACK_COOLING_DOWN, true, this.attackIntervalSupplier.apply(entity));
-	}
+    @Override
+    protected void start(E entity) {
+        entity.swing(InteractionHand.MAIN_HAND);
+
+        if (this.requireTarget)
+            BehaviorUtils.lookAtEntity(entity, this.target);
+    }
+
+    @Override
+    protected void doDelayedAction(E entity) {
+        if (this.requireTarget && this.target == null)
+            return;
+
+        this.effect.accept(entity);
+        BrainUtils.setForgettableMemory(
+            entity,
+            MemoryModuleType.ATTACK_COOLING_DOWN,
+            true,
+            this.attackIntervalSupplier.apply(entity)
+        );
+    }
 }

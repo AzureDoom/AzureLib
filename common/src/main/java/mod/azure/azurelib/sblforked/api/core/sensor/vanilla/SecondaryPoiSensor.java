@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.sensor.vanilla;
 
@@ -17,87 +16,96 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
+import java.util.List;
+
 import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
 import mod.azure.azurelib.sblforked.object.SquareRadius;
 import mod.azure.azurelib.sblforked.registry.SBLSensors;
 import mod.azure.azurelib.sblforked.util.BrainUtils;
 
-import java.util.List;
-
 /**
- * A sensor that looks for a nearby
- * {@link net.minecraft.world.entity.ai.village.poi.PoiTypes POI} block that
- * matches a villager's secondary profession.<br>
+ * A sensor that looks for a nearby {@link net.minecraft.world.entity.ai.village.poi.PoiTypes POI} block that matches a
+ * villager's secondary profession.<br>
  * Defaults:
  * <ul>
  * <li>40-tick scan rate</li>
  * <li>8x4x8 radius</li>
  * </ul>
- * 
+ *
  * @param <E> The entity
  */
 public class SecondaryPoiSensor<E extends Villager> extends ExtendedSensor<E> {
-	private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.SECONDARY_JOB_SITE);
 
-	protected SquareRadius radius = new SquareRadius(8, 4);
+    private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.SECONDARY_JOB_SITE);
 
-	public SecondaryPoiSensor() {
-		setScanRate(entity -> 40);
-	}
+    protected SquareRadius radius = new SquareRadius(8, 4);
 
-	/**
-	 * Set the radius for the sensor to scan.
-	 * 
-	 * @param radius The coordinate radius, in blocks
-	 * @return this
-	 */
-	public SecondaryPoiSensor<E> setRadius(int radius) {
-		return setRadius(radius, radius);
-	}
+    public SecondaryPoiSensor() {
+        setScanRate(entity -> 40);
+    }
 
-	/**
-	 * Set the radius for the sensor to scan
-	 * 
-	 * @param xz The X/Z coordinate radius, in blocks
-	 * @param y  The Y coordinate radius, in blocks
-	 * @return this
-	 */
-	public SecondaryPoiSensor<E> setRadius(double xz, double y) {
-		this.radius = new SquareRadius(xz, y);
+    /**
+     * Set the radius for the sensor to scan.
+     *
+     * @param radius The coordinate radius, in blocks
+     * @return this
+     */
+    public SecondaryPoiSensor<E> setRadius(int radius) {
+        return setRadius(radius, radius);
+    }
 
-		return this;
-	}
+    /**
+     * Set the radius for the sensor to scan
+     *
+     * @param xz The X/Z coordinate radius, in blocks
+     * @param y  The Y coordinate radius, in blocks
+     * @return this
+     */
+    public SecondaryPoiSensor<E> setRadius(double xz, double y) {
+        this.radius = new SquareRadius(xz, y);
 
-	@Override
-	public List<MemoryModuleType<?>> memoriesUsed() {
-		return MEMORIES;
-	}
+        return this;
+    }
 
-	@Override
-	public SensorType<? extends ExtendedSensor<?>> type() {
-		return SBLSensors.SECONDARY_POI.get();
-	}
+    @Override
+    public List<MemoryModuleType<?>> memoriesUsed() {
+        return MEMORIES;
+    }
 
-	@Override
-	protected void doTick(ServerLevel level, E entity) {
-		ResourceKey<Level> dimension = level.dimension();
-		BlockPos pos = entity.blockPosition();
-		ImmutableSet<Block> testPoiBlocks = entity.getVillagerData().getProfession().secondaryPoi();
-		List<GlobalPos> poiPositions = new ObjectArrayList<>();
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return SBLSensors.SECONDARY_POI.get();
+    }
 
-		if (testPoiBlocks.isEmpty())
-			return;
+    @Override
+    protected void doTick(ServerLevel level, E entity) {
+        ResourceKey<Level> dimension = level.dimension();
+        BlockPos pos = entity.blockPosition();
+        ImmutableSet<Block> testPoiBlocks = entity.getVillagerData().getProfession().secondaryPoi();
+        List<GlobalPos> poiPositions = new ObjectArrayList<>();
 
-		for (BlockPos testPos : BlockPos.betweenClosed(pos.getX() - (int) this.radius.xzRadius() / 2, pos.getY() - (int) this.radius.yRadius() / 2, pos.getZ() - (int) this.radius.xzRadius() / 2, pos.getX() + (int) this.radius.xzRadius() / 2, pos.getY() + (int) this.radius.yRadius() / 2, pos.getZ() + (int) this.radius.xzRadius() / 2)) {
-			if (testPoiBlocks.contains(level.getBlockState(testPos).getBlock()))
-				poiPositions.add(GlobalPos.of(dimension, testPos.immutable()));
-		}
+        if (testPoiBlocks.isEmpty())
+            return;
 
-		if (poiPositions.isEmpty()) {
-			BrainUtils.clearMemory(entity, MemoryModuleType.SECONDARY_JOB_SITE);
-		}
-		else {
-			BrainUtils.setMemory(entity, MemoryModuleType.SECONDARY_JOB_SITE, poiPositions);
-		}
-	}
+        for (
+            BlockPos testPos : BlockPos.betweenClosed(
+                pos.getX() - (int) this.radius.xzRadius() / 2,
+                pos.getY() - (int) this.radius.yRadius() / 2,
+                pos.getZ() - (int) this.radius.xzRadius() / 2,
+                pos.getX() + (int) this.radius.xzRadius() / 2,
+                pos.getY() + (int) this.radius.yRadius() / 2,
+                pos.getZ() + (int) this.radius.xzRadius() / 2
+            )
+        ) {
+            if (testPoiBlocks.contains(level.getBlockState(testPos).getBlock()))
+                poiPositions.add(GlobalPos.of(dimension, testPos.immutable()));
+        }
+
+        if (poiPositions.isEmpty()) {
+            BrainUtils.clearMemory(entity, MemoryModuleType.SECONDARY_JOB_SITE);
+        } else {
+            BrainUtils.setMemory(entity, MemoryModuleType.SECONDARY_JOB_SITE, poiPositions);
+        }
+    }
 }

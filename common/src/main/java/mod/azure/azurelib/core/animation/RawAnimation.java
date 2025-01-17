@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animation;
@@ -25,14 +23,16 @@ import java.util.Objects;
  * <pre>{@code
  * RawAnimation.begin().thenPlay("action.open_box").thenLoop("state.stay_open")
  * }</pre>
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public final class RawAnimation {
 
     private final List<Stage> animationList = new ObjectArrayList<>();
 
     // Private constructor to force usage of factory for logical operations
-    private RawAnimation() {
-    }
+    private RawAnimation() {}
 
     /**
      * Start a new RawAnimation instance. This is the start point for creating an animation chain.
@@ -155,12 +155,12 @@ public final class RawAnimation {
      * This is an entry object representing a single animation stage of the final compiled animation.
      */
     public record Stage(
-            String animationName,
-            Animation.LoopType loopType,
-            int additionalTicks
+        String animationName,
+        Animation.LoopType loopType,
+        int additionalTicks
     ) {
 
-        static final String WAIT = "internal.wait";
+        public static final String WAIT = "internal.wait";
 
         public Stage(String animationName, Animation.LoopType loopType) {
             this(animationName, loopType, 0);

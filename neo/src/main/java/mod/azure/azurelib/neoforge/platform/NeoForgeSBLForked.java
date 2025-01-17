@@ -1,17 +1,11 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.neoforge.platform;
 
 import com.mojang.serialization.Codec;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.sblforked.SBLLoader;
-import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
-import mod.azure.azurelib.sblforked.registry.SBLMemoryTypes;
-import mod.azure.azurelib.sblforked.registry.SBLSensors;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -23,13 +17,31 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.sblforked.SBLLoader;
+import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
+import mod.azure.azurelib.sblforked.registry.SBLMemoryTypes;
+import mod.azure.azurelib.sblforked.registry.SBLSensors;
+
 public class NeoForgeSBLForked implements SBLLoader {
-    public static final DeferredRegister<MemoryModuleType<?>> MEMORY_TYPES = DeferredRegister.create(Registries.MEMORY_MODULE_TYPE, AzureLib.MOD_ID);
-    public static final DeferredRegister<SensorType<?>> SENSORS = DeferredRegister.create(Registries.SENSOR_TYPE, AzureLib.MOD_ID);
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, AzureLib.MOD_ID);
+
+    public static final DeferredRegister<MemoryModuleType<?>> MEMORY_TYPES = DeferredRegister.create(
+        Registries.MEMORY_MODULE_TYPE,
+        AzureLib.MOD_ID
+    );
+
+    public static final DeferredRegister<SensorType<?>> SENSORS = DeferredRegister.create(
+        Registries.SENSOR_TYPE,
+        AzureLib.MOD_ID
+    );
+
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(
+        Registries.ENTITY_TYPE,
+        AzureLib.MOD_ID
+    );
 
     public void init(Object eventBus) {
-        final IEventBus modEventBus = (IEventBus)eventBus;
+        final IEventBus modEventBus = (IEventBus) eventBus;
 
         MEMORY_TYPES.register(modEventBus);
         SENSORS.register(modEventBus);

@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common;
 
@@ -37,7 +35,7 @@ public final class AzureLibMod {
      *                      for example.
      * @param <C>           Config type
      * @return Config holder containing your config instance. You obtain it by calling
-     * {@link ConfigHolder#getConfigInstance()} method.
+     *         {@link ConfigHolder#getConfigInstance()} method.
      */
     public static <C> ConfigHolder<C> registerConfig(Class<C> configClass, IConfigFormatHandler formatFactory) {
         var config = configClass.getAnnotation(Config.class);

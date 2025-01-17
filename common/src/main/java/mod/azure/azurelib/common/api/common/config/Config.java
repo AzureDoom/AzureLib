@@ -1,17 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.api.common.config;
-
-import mod.azure.azurelib.common.internal.common.config.Configurable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import mod.azure.azurelib.common.internal.common.config.Configurable;
 
 /**
  * Config marker annotation. Every registered config class must have this annotation. Inside this class you should
@@ -54,6 +52,5 @@ public @interface Config {
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface NoAutoSync {
-    }
+    @interface NoAutoSync {}
 }

@@ -18,28 +18,28 @@ public record Color(int argbInt) {
 
     public static Codec<Color> RGBA_CODEC = RecordCodecBuilder.create((instance) -> { // float?
         return instance.group(
-                Codec.INT.fieldOf("r").forGetter(Color::getRed),
-                Codec.INT.fieldOf("g").forGetter(Color::getGreen),
-                Codec.INT.fieldOf("b").forGetter(Color::getBlue),
-                Codec.INT.fieldOf("a").orElse(255).forGetter(Color::getAlpha)
+            Codec.INT.fieldOf("r").forGetter(Color::getRed),
+            Codec.INT.fieldOf("g").forGetter(Color::getGreen),
+            Codec.INT.fieldOf("b").forGetter(Color::getBlue),
+            Codec.INT.fieldOf("a").orElse(255).forGetter(Color::getAlpha)
         ).apply(instance, Color::ofRGBA);
     });
 
     public static Codec<Color> STRING_CODEC = Codec.STRING.comapFlatMap(
-            Color::tryHexString,
-            Color::toString
+        Color::tryHexString,
+        Color::toString
     );
 
     public static final Codec<Color> INT_CODEC = Codec.INT.xmap(
-            Color::new,
-            color -> color.argbInt
+        Color::new,
+        color -> color.argbInt
     );
 
     public static final Codec<Color> CODEC = Codec.either(STRING_CODEC, RGBA_CODEC)
-            .comapFlatMap(
-                    either -> either.map(DataResult::success, DataResult::success),
-                    Either::left
-            );
+        .comapFlatMap(
+            either -> either.map(DataResult::success, DataResult::success),
+            Either::left
+        );
 
     public static final Color WHITE = new Color(0xFFFFFFFF);
 
@@ -93,10 +93,10 @@ public record Color(int argbInt) {
      */
     public static Color ofRGBA(float r, float g, float b, float a) {
         return ofRGBA(
-                (int) (r * 255f + 0.5),
-                (int) (g * 255f + 0.5f),
-                (int) (b * 255f + 0.5f),
-                (int) (a * 255f + 0.5f)
+            (int) (r * 255f + 0.5),
+            (int) (g * 255f + 0.5f),
+            (int) (b * 255f + 0.5f),
+            (int) (a * 255f + 0.5f)
         );
     }
 
@@ -260,10 +260,10 @@ public record Color(int argbInt) {
             b = i;
 
         return ofRGBA(
-                Math.min((int) (r / (1 / factor)), 255),
-                Math.min((int) (g / (1 / factor)), 255),
-                Math.min((int) (b / (1 / factor)), 255),
-                getAlpha()
+            Math.min((int) (r / (1 / factor)), 255),
+            Math.min((int) (g / (1 / factor)), 255),
+            Math.min((int) (b / (1 / factor)), 255),
+            getAlpha()
         );
     }
 
@@ -276,10 +276,10 @@ public record Color(int argbInt) {
      */
     public Color darker(float factor) {
         return ofRGBA(
-                Math.max((int) (getRed() * (1 / factor)), 0),
-                Math.max((int) (getGreen() * (1 / factor)), 0),
-                Math.max((int) (getBlue() * (1 / factor)), 0),
-                getAlpha()
+            Math.max((int) (getRed() * (1 / factor)), 0),
+            Math.max((int) (getGreen() * (1 / factor)), 0),
+            Math.max((int) (getBlue() * (1 / factor)), 0),
+            getAlpha()
         );
     }
 

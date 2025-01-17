@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.target;
 
@@ -12,87 +11,96 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.player.Player;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.BiPredicate;
+
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 /**
  * Invalidates the current {@link MemoryModuleType#ATTACK_TARGET attack target} if the given conditions are met.<br>
  * Defaults:
  * <ul>
- *     <li>Will give up trying to path to the target if it hasn't been able to reach it in 200 ticks</li>
- *     <li>Invalidates the target if it's a creative or spectator mode player</li>
+ * <li>Will give up trying to path to the target if it hasn't been able to reach it in 200 ticks</li>
+ * <li>Invalidates the target if it's a creative or spectator mode player</li>
  * </ul>
  */
 public class InvalidateAttackTarget<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED));
 
-	protected BiPredicate<E, LivingEntity> customPredicate = (entity, target) -> target instanceof Player pl && (pl.isCreative() || pl.isSpectator());
-	protected long pathfindingAttentionSpan = 200;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED)
+    );
 
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected BiPredicate<E, LivingEntity> customPredicate = (entity, target) -> target instanceof Player pl && (pl
+        .isCreative() || pl.isSpectator());
 
-	/**
-	 * Sets a custom predicate to invalidate the attack target if none of the previous checks invalidate it first.<br>
-	 * Overrides the default player gamemode check
-	 */
-	public InvalidateAttackTarget<E> invalidateIf(BiPredicate<E, LivingEntity> predicate) {
-		this.customPredicate = predicate;
+    protected long pathfindingAttentionSpan = 200;
 
-		return this;
-	}
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	/**
-	 * Skips the check to see if the entity has been unable to path to its target for a while
-	 */
-	public InvalidateAttackTarget<E> ignoreFailedPathfinding() {
-		return stopTryingToPathAfter(0);
-	}
+    /**
+     * Sets a custom predicate to invalidate the attack target if none of the previous checks invalidate it first.<br>
+     * Overrides the default player gamemode check
+     */
+    public InvalidateAttackTarget<E> invalidateIf(BiPredicate<E, LivingEntity> predicate) {
+        this.customPredicate = predicate;
 
-	/**
-	 * Sets the attention span for the brain owner's pathfinding. If the entity has been unable to find a good path to
-	 * the target after this time, it will invalidate the target.
-	 */
-	public InvalidateAttackTarget<E> stopTryingToPathAfter(long ticks) {
-		this.pathfindingAttentionSpan = ticks;
+        return this;
+    }
 
-		return this;
-	}
+    /**
+     * Skips the check to see if the entity has been unable to path to its target for a while
+     */
+    public InvalidateAttackTarget<E> ignoreFailedPathfinding() {
+        return stopTryingToPathAfter(0);
+    }
 
-	@Override
-	protected void start(E entity) {
-		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+    /**
+     * Sets the attention span for the brain owner's pathfinding. If the entity has been unable to find a good path to
+     * the target after this time, it will invalidate the target.
+     */
+    public InvalidateAttackTarget<E> stopTryingToPathAfter(long ticks) {
+        this.pathfindingAttentionSpan = ticks;
 
-		if (target == null)
-			return;
+        return this;
+    }
 
-		if (isTargetInvalid(entity, target) || !canAttack(entity, target) ||
-				isTiredOfPathing(entity) || this.customPredicate.test(entity, target)) {
-			BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
-		}
-	}
+    @Override
+    protected void start(E entity) {
+        LivingEntity target = BrainUtils.getTargetOfEntity(entity);
 
-	protected boolean isTargetInvalid(E entity, LivingEntity target) {
-		if (entity.level() != target.level())
-			return true;
+        if (target == null)
+            return;
 
-		return target.isDeadOrDying() || target.isRemoved();
-	}
+        if (
+            isTargetInvalid(entity, target) || !canAttack(entity, target) ||
+                isTiredOfPathing(entity) || this.customPredicate.test(entity, target)
+        ) {
+            BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
+        }
+    }
 
-	protected boolean canAttack(E entity, LivingEntity target) {
-		return entity.canAttack(target);
-	}
+    protected boolean isTargetInvalid(E entity, LivingEntity target) {
+        if (entity.level() != target.level())
+            return true;
 
-	protected boolean isTiredOfPathing(E entity) {
-		if (this.pathfindingAttentionSpan <= 0)
-			return false;
+        return target.isDeadOrDying() || target.isRemoved();
+    }
 
-		Long time = BrainUtils.getMemory(entity, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+    protected boolean canAttack(E entity, LivingEntity target) {
+        return entity.canAttack(target);
+    }
 
-		return time != null && entity.level().getGameTime() - time > this.pathfindingAttentionSpan;
-	}
+    protected boolean isTiredOfPathing(E entity) {
+        if (this.pathfindingAttentionSpan <= 0)
+            return false;
+
+        Long time = BrainUtils.getMemory(entity, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+
+        return time != null && entity.level().getGameTime() - time > this.pathfindingAttentionSpan;
+    }
 }

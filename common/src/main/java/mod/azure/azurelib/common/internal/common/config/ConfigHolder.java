@@ -1,10 +1,14 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
 import mod.azure.azurelib.common.internal.common.AzureLib;
@@ -15,12 +19,6 @@ import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHand
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
 import mod.azure.azurelib.common.internal.common.config.value.ObjectValue;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
 
 /**
  * Manages config values and stores some default parameters of your config class. This class also acts as config
@@ -62,11 +60,11 @@ public final class ConfigHolder<C> {
     private final Object lock = new Object();
 
     public ConfigHolder(
-            Class<C> cfgClass,
-            String configId,
-            String filename,
-            String group,
-            IConfigFormatHandler format
+        Class<C> cfgClass,
+        String configId,
+        String filename,
+        String group,
+        IConfigFormatHandler format
     ) {
         this.configClass = cfgClass;
         this.configId = configId;
@@ -75,7 +73,7 @@ public final class ConfigHolder<C> {
         try {
             this.configInstance = cfgClass.getDeclaredConstructor().newInstance();
         } catch (
-                NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e
+            NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException e
         ) {
             AzureLib.LOGGER.fatal(AzureLib.MAIN_MARKER, "Failed to instantiate config class for {} config", configId);
             throw new AzureLibException("Config create failed", e);
@@ -176,9 +174,9 @@ public final class ConfigHolder<C> {
     }
 
     private Map<String, ConfigValue<?>> serializeType(
-            Class<?> type,
-            Object instance,
-            boolean saveValue
+        Class<?> type,
+        Object instance,
+        boolean saveValue
     ) throws IllegalAccessException {
         Map<String, ConfigValue<?>> map = new LinkedHashMap<>();
         Field[] fields = type.getFields();
@@ -189,18 +187,18 @@ public final class ConfigHolder<C> {
             int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
                 AzureLib.LOGGER.warn(
-                        ConfigIO.MARKER,
-                        "Skipping config field {}, only instance non-final types are supported",
-                        field
+                    ConfigIO.MARKER,
+                    "Skipping config field {}, only instance non-final types are supported",
+                    field
                 );
                 continue;
             }
             TypeAdapter adapter = TypeAdapters.forType(field.getType());
             if (adapter == null) {
                 AzureLib.LOGGER.warn(
-                        ConfigIO.MARKER,
-                        "Missing adapter for type {}, skipping serialization",
-                        field.getType()
+                    ConfigIO.MARKER,
+                    "Missing adapter for type {}, skipping serialization",
+                    field.getType()
                 );
                 continue;
             }
@@ -211,39 +209,39 @@ public final class ConfigHolder<C> {
             }
             field.setAccessible(true);
             ConfigValue<?> cfgValue = adapter.serialize(
-                    field.getName(),
-                    comments,
-                    field.get(instance),
-                    (type1, instance1) -> serializeType(type1, instance1, false),
-                    new TypeAdapter.AdapterContext() {
+                field.getName(),
+                comments,
+                field.get(instance),
+                (type1, instance1) -> serializeType(type1, instance1, false),
+                new TypeAdapter.AdapterContext() {
 
-                        @Override
-                        public TypeAdapter getAdapter() {
-                            return adapter;
-                        }
+                    @Override
+                    public TypeAdapter getAdapter() {
+                        return adapter;
+                    }
 
-                        @Override
-                        public Field getOwner() {
-                            return field;
-                        }
+                    @Override
+                    public Field getOwner() {
+                        return field;
+                    }
 
-                        @Override
-                        public void setFieldValue(Object value) {
-                            field.setAccessible(true);
-                            try {
-                                adapter.setFieldValue(field, instance, value);
-                            } catch (IllegalAccessException e) {
-                                AzureLib.LOGGER.error(
-                                        ConfigIO.MARKER,
-                                        "Failed to update config value for field {} from {} to a new value {} due to error {}",
-                                        field.getName(),
-                                        type,
-                                        value,
-                                        e
-                                );
-                            }
+                    @Override
+                    public void setFieldValue(Object value) {
+                        field.setAccessible(true);
+                        try {
+                            adapter.setFieldValue(field, instance, value);
+                        } catch (IllegalAccessException e) {
+                            AzureLib.LOGGER.error(
+                                ConfigIO.MARKER,
+                                "Failed to update config value for field {} from {} to a new value {} due to error {}",
+                                field.getName(),
+                                type,
+                                value,
+                                e
+                            );
                         }
                     }
+                }
             );
             Configurable.ValueUpdateCallback callback = field.getAnnotation(Configurable.ValueUpdateCallback.class);
             if (callback != null) {
@@ -259,10 +257,10 @@ public final class ConfigHolder<C> {
     }
 
     private <T> void processCallback(
-            Configurable.ValueUpdateCallback callback,
-            Class<?> type,
-            Object instance,
-            ConfigValue<T> value
+        Configurable.ValueUpdateCallback callback,
+        Class<?> type,
+        Object instance,
+        ConfigValue<T> value
     ) {
         String methodName = callback.method();
         try {
@@ -281,24 +279,24 @@ public final class ConfigHolder<C> {
             };
             value.setValueValidator(setValueCallback);
             AzureLib.LOGGER.debug(
-                    ConfigIO.MARKER,
-                    "Attached new value listener method '{}' for config value {}",
-                    methodName,
-                    value.getId()
+                ConfigIO.MARKER,
+                "Attached new value listener method '{}' for config value {}",
+                methodName,
+                value.getId()
             );
         } catch (NoSuchMethodException e) {
             AzureLib.LOGGER.error(
-                    ConfigIO.MARKER,
-                    "Unable to map method {} for config value {} due to {}",
-                    methodName,
-                    value.getId(),
-                    e
+                ConfigIO.MARKER,
+                "Unable to map method {} for config value {} due to {}",
+                methodName,
+                value.getId(),
+                e
             );
         } catch (Exception e) {
             AzureLib.LOGGER.fatal(
-                    ConfigIO.MARKER,
-                    "Fatal error occurred while trying to map value listener for {} method",
-                    methodName
+                ConfigIO.MARKER,
+                "Fatal error occurred while trying to map value listener for {} method",
+                methodName
             );
             throw new AzureLibException("Value listener map failed", e);
         }

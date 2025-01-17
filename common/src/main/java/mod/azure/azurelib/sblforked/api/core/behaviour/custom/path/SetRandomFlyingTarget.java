@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.path;
 
@@ -17,9 +16,12 @@ import java.util.function.ToIntFunction;
 
 /**
  * Extension of {@link SetRandomHoverTarget}, with a configurable weight to allow for more 'flying'-like movement
- * <p>Additionally expands the vertical path search radius to 10, over the default of 7</p>
+ * <p>
+ * Additionally expands the vertical path search radius to 10, over the default of 7
+ * </p>
  */
 public class SetRandomFlyingTarget<E extends PathfinderMob> extends SetRandomHoverTarget<E> {
+
     protected ToIntFunction<E> verticalWeight = entity -> -2;
 
     public SetRandomFlyingTarget() {
@@ -29,6 +31,7 @@ public class SetRandomFlyingTarget<E extends PathfinderMob> extends SetRandomHov
     /**
      * Sets the function that determines a vertical position offset for target positions.<br>
      * Flight patterns will tend towards this direction, with bigger values pulling more strongly
+     *
      * @param function The function
      * @return this
      */
@@ -42,11 +45,28 @@ public class SetRandomFlyingTarget<E extends PathfinderMob> extends SetRandomHov
     @Override
     protected Vec3 getTargetPos(E entity) {
         Vec3 entityFacing = entity.getViewVector(0);
-        Vec3 hoverPos = HoverRandomPos.getPos(entity, (int)(Math.ceil(this.radius.xzRadius())), (int)Math.ceil(this.radius.yRadius()), entityFacing.x, entityFacing.z, Mth.HALF_PI, 3, 1);
+        Vec3 hoverPos = HoverRandomPos.getPos(
+            entity,
+            (int) (Math.ceil(this.radius.xzRadius())),
+            (int) Math.ceil(this.radius.yRadius()),
+            entityFacing.x,
+            entityFacing.z,
+            Mth.HALF_PI,
+            3,
+            1
+        );
 
         if (hoverPos != null)
             return hoverPos;
 
-        return AirAndWaterRandomPos.getPos(entity, (int)(Math.ceil(this.radius.xzRadius())), (int)Math.ceil(this.radius.yRadius()), this.verticalWeight.applyAsInt(entity), entityFacing.x, entityFacing.z, Mth.HALF_PI);
+        return AirAndWaterRandomPos.getPos(
+            entity,
+            (int) (Math.ceil(this.radius.xzRadius())),
+            (int) Math.ceil(this.radius.yRadius()),
+            this.verticalWeight.applyAsInt(entity),
+            entityFacing.x,
+            entityFacing.z,
+            Mth.HALF_PI
+        );
     }
 }

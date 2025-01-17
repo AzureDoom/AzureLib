@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.schedule;
 
@@ -13,7 +12,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
-import mod.azure.azurelib.sblforked.api.SmartBrainOwner;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -21,177 +19,193 @@ import java.util.function.Consumer;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 
+import mod.azure.azurelib.sblforked.api.SmartBrainOwner;
+
 /**
  * SBL-implementation of the vanilla {@link net.minecraft.world.entity.schedule.Schedule Schedule}.<br>
- * It extends the vanilla {@link Schedule} purely for compatibility reasons, but does not utilise any of its functionality.<br>
+ * It extends the vanilla {@link Schedule} purely for compatibility reasons, but does not utilise any of its
+ * functionality.<br>
  * <br>
- * This segment of the Brain system is used to timeline activities, allowing you to run activity groups and tasks on a tick-based schedule.<br>
+ * This segment of the Brain system is used to timeline activities, allowing you to run activity groups and tasks on a
+ * tick-based schedule.<br>
  * <br>
- * Activities scheduled using this system will <b>override</b> the activity priorities from {@link SmartBrainOwner#getActivityPriorities()} at tick time
+ * Activities scheduled using this system will <b>override</b> the activity priorities from
+ * {@link SmartBrainOwner#getActivityPriorities()} at tick time
  */
 public class SmartBrainSchedule extends Schedule {
-	private final Type type;
-	private final Int2ObjectArrayMap<Activity> timeline = new Int2ObjectArrayMap<>(0);
-	private final ListMultimap<Integer, Consumer<LivingEntity>> callbacks = MultimapBuilder.hashKeys(0).arrayListValues().build();
 
-	private boolean sortedTimeline = true;
+    private final Type type;
 
-	public SmartBrainSchedule() {
-		this(Type.DAYTIME);
-	}
+    private final Int2ObjectArrayMap<Activity> timeline = new Int2ObjectArrayMap<>(0);
 
-	public SmartBrainSchedule(Type type) {
-		this.type = type;
-	}
+    private final ListMultimap<Integer, Consumer<LivingEntity>> callbacks = MultimapBuilder.hashKeys(0)
+        .arrayListValues()
+        .build();
 
-	/**
-	 * Set the active {@link Activity} for the brain at the given tick/time
-	 * @param tick The tick/time to activate the activity
-	 * @param activity The activity to set as active at the given time
-	 * @return this
-	 */
-	public SmartBrainSchedule activityAt(int tick, Activity activity) {
-		this.timeline.put(tick, activity);
+    private boolean sortedTimeline = true;
 
-		this.sortedTimeline = false;
+    public SmartBrainSchedule() {
+        this(Type.DAYTIME);
+    }
 
-		return this;
-	}
+    public SmartBrainSchedule(Type type) {
+        this.type = type;
+    }
 
-	/**
-	 * Add a callback to run at the given tick
-	 * @param tick The tick/time to run the callback at
-	 * @param callback The callback to run at the given time
-	 * @return this
-	 */
-	public SmartBrainSchedule doAt(int tick, Consumer<LivingEntity> callback) {
-		this.callbacks.put(tick, callback);
+    /**
+     * Set the active {@link Activity} for the brain at the given tick/time
+     *
+     * @param tick     The tick/time to activate the activity
+     * @param activity The activity to set as active at the given time
+     * @return this
+     */
+    public SmartBrainSchedule activityAt(int tick, Activity activity) {
+        this.timeline.put(tick, activity);
 
-		return this;
-	}
+        this.sortedTimeline = false;
 
-	/**
-	 * Adds a dynamically-scheduled task for a given tick-time in the future
-	 * @param brainOwner The owner of the brain
-	 * @param delay The delay time (in ticks) before the task should be called
-	 * @param task The task to run after the given delay
-	 */
-	public void scheduleTask(LivingEntity brainOwner, int delay, Consumer<LivingEntity> task) {
-		this.callbacks.put(this.type.resolveDelay(brainOwner, delay), entity -> task.accept(brainOwner));
-	}
+        return this;
+    }
 
-	/**
-	 * Remove all entries from the schedule, clearing it out
-	 */
-	public void clearSchedule() {
-		this.callbacks.clear();
-		this.timeline.clear();
-	}
+    /**
+     * Add a callback to run at the given tick
+     *
+     * @param tick     The tick/time to run the callback at
+     * @param callback The callback to run at the given time
+     * @return this
+     */
+    public SmartBrainSchedule doAt(int tick, Consumer<LivingEntity> callback) {
+        this.callbacks.put(tick, callback);
 
-	/**
-	 * Tick the schedule and return the activity to switch the entity to, if applicable
-	 * @param brainOwner The owner of the brain that contains this schedule
-	 * @return The activity to set as active based on the current tick, or null if none to set
-	 */
-	@Nullable
-	public Activity tick(LivingEntity brainOwner) {
-		int tick = this.type.resolve(brainOwner);
+        return this;
+    }
 
-		if (!this.callbacks.isEmpty()) {
-			this.callbacks.get(tick).forEach(consumer -> consumer.accept(brainOwner));
+    /**
+     * Adds a dynamically-scheduled task for a given tick-time in the future
+     *
+     * @param brainOwner The owner of the brain
+     * @param delay      The delay time (in ticks) before the task should be called
+     * @param task       The task to run after the given delay
+     */
+    public void scheduleTask(LivingEntity brainOwner, int delay, Consumer<LivingEntity> task) {
+        this.callbacks.put(this.type.resolveDelay(brainOwner, delay), entity -> task.accept(brainOwner));
+    }
 
-			if (this.type == Type.AGE)
-				this.callbacks.removeAll(tick);
-		}
+    /**
+     * Remove all entries from the schedule, clearing it out
+     */
+    public void clearSchedule() {
+        this.callbacks.clear();
+        this.timeline.clear();
+    }
 
-		if (!this.timeline.isEmpty()) {
-			if (!this.sortedTimeline)
-				sortTimeline();
+    /**
+     * Tick the schedule and return the activity to switch the entity to, if applicable
+     *
+     * @param brainOwner The owner of the brain that contains this schedule
+     * @return The activity to set as active based on the current tick, or null if none to set
+     */
+    @Nullable
+    public Activity tick(LivingEntity brainOwner) {
+        int tick = this.type.resolve(brainOwner);
 
-			int index = -1;
-			Activity activity = null;
+        if (!this.callbacks.isEmpty()) {
+            this.callbacks.get(tick).forEach(consumer -> consumer.accept(brainOwner));
 
-			for (Int2ObjectMap.Entry<Activity> entry : this.timeline.int2ObjectEntrySet()) {
-				index++;
+            if (this.type == Type.AGE)
+                this.callbacks.removeAll(tick);
+        }
 
-				if (entry.getIntKey() >= tick) {
-					if (entry.getIntKey() == tick)
-						activity = entry.getValue();
+        if (!this.timeline.isEmpty()) {
+            if (!this.sortedTimeline)
+                sortTimeline();
 
-					break;
-				}
+            int index = -1;
+            Activity activity = null;
 
-				activity = entry.getValue();
-			}
+            for (Int2ObjectMap.Entry<Activity> entry : this.timeline.int2ObjectEntrySet()) {
+                index++;
 
-			if (this.type == Type.AGE && index + 1 >= this.timeline.size())
-				this.timeline.clear();
+                if (entry.getIntKey() >= tick) {
+                    if (entry.getIntKey() == tick)
+                        activity = entry.getValue();
 
-			return activity;
-		}
+                    break;
+                }
 
-		return null;
-	}
+                activity = entry.getValue();
+            }
 
-	private void sortTimeline() {
-		Int2ObjectArrayMap<Activity> copy = new Int2ObjectArrayMap<>(this.timeline);
-		int[] keys = copy.keySet().toArray(new int[0]);
+            if (this.type == Type.AGE && index + 1 >= this.timeline.size())
+                this.timeline.clear();
 
-		Arrays.sort(keys);
-		this.timeline.clear();
+            return activity;
+        }
 
-		for (int key : keys) {
-			this.timeline.put(key, copy.get(key));
-		}
+        return null;
+    }
 
-		this.sortedTimeline = true;
-	}
+    private void sortTimeline() {
+        Int2ObjectArrayMap<Activity> copy = new Int2ObjectArrayMap<>(this.timeline);
+        int[] keys = copy.keySet().toArray(new int[0]);
 
-	@Override
-	public final Activity getActivityAt(int tick) {
-		if (this.type == Type.AGE)
-			return Activity.IDLE;
+        Arrays.sort(keys);
+        this.timeline.clear();
 
-		Activity activity = Activity.IDLE;
+        for (int key : keys) {
+            this.timeline.put(key, copy.get(key));
+        }
 
-		for (Int2ObjectMap.Entry<Activity> entry : this.timeline.int2ObjectEntrySet()) {
-			if (entry.getIntKey() >= tick)
-				return activity;
+        this.sortedTimeline = true;
+    }
 
-			activity = entry.getValue();
-		}
+    @Override
+    public final Activity getActivityAt(int tick) {
+        if (this.type == Type.AGE)
+            return Activity.IDLE;
 
-		return activity;
-	}
+        Activity activity = Activity.IDLE;
 
-	/**
-	 * The type of scheduling this scheduler is using (I.E. how it determines the input tick)
-	 */
-	public enum Type {
-		/**
-		 * Time of day (0-24000 ticks)
-		 */
-		DAYTIME(e -> (int)(e.level().getDayTime() % 24000L), (e, t) -> (int)((e.level().getDayTime() + t) % 24000L)),
-		/**
-		 * Age of the brain owner (0+).<br>
-		 * This makes the schedule a 'run-once' per entity
-		 */
-		AGE(e -> e.tickCount, (e, t) -> e.tickCount + t);
+        for (Int2ObjectMap.Entry<Activity> entry : this.timeline.int2ObjectEntrySet()) {
+            if (entry.getIntKey() >= tick)
+                return activity;
 
-		final ToIntFunction<LivingEntity> tickResolver;
-		final ToIntBiFunction<LivingEntity, Integer> delayResolver;
+            activity = entry.getValue();
+        }
 
-		Type(ToIntFunction<LivingEntity> tickResolver, ToIntBiFunction<LivingEntity, Integer> delayResolver) {
-			this.tickResolver = tickResolver;
-			this.delayResolver = delayResolver;
-		}
+        return activity;
+    }
 
-		public int resolve(LivingEntity entity) {
-			return this.tickResolver.applyAsInt(entity);
-		}
+    /**
+     * The type of scheduling this scheduler is using (I.E. how it determines the input tick)
+     */
+    public enum Type {
 
-		public int resolveDelay(LivingEntity entity, int delay) {
-			return this.delayResolver.applyAsInt(entity, delay);
-		}
-	}
+        /**
+         * Time of day (0-24000 ticks)
+         */
+        DAYTIME(e -> (int) (e.level().getDayTime() % 24000L), (e, t) -> (int) ((e.level().getDayTime() + t) % 24000L)),
+        /**
+         * Age of the brain owner (0+).<br>
+         * This makes the schedule a 'run-once' per entity
+         */
+        AGE(e -> e.tickCount, (e, t) -> e.tickCount + t);
+
+        final ToIntFunction<LivingEntity> tickResolver;
+
+        final ToIntBiFunction<LivingEntity, Integer> delayResolver;
+
+        Type(ToIntFunction<LivingEntity> tickResolver, ToIntBiFunction<LivingEntity, Integer> delayResolver) {
+            this.tickResolver = tickResolver;
+            this.delayResolver = delayResolver;
+        }
+
+        public int resolve(LivingEntity entity) {
+            return this.tickResolver.applyAsInt(entity);
+        }
+
+        public int resolveDelay(LivingEntity entity, int delay) {
+            return this.delayResolver.applyAsInt(entity, delay);
+        }
+    }
 }

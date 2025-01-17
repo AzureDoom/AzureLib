@@ -1,44 +1,49 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animation;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.keyframe.BoneAnimation;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * A compiled animation instance for use by the {@link AnimationController}<br>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of
  * <code>Animation</code> is considered final and immutable.
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public record Animation(
-        String name,
-        double length,
-        LoopType loopType,
-        BoneAnimation[] boneAnimations,
-        Keyframes keyFrames
+    String name,
+    double length,
+    LoopType loopType,
+    BoneAnimation[] boneAnimations,
+    Keyframes keyFrames
 ) {
 
-    static Animation generateWaitAnimation(double length) {
+    public static Animation generateWaitAnimation(double length) {
         return new Animation(
-                RawAnimation.Stage.WAIT,
-                length,
-                LoopType.PLAY_ONCE,
-                new BoneAnimation[0],
-                new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0],
-                        new CustomInstructionKeyframeData[0])
+            RawAnimation.Stage.WAIT,
+            length,
+            LoopType.PLAY_ONCE,
+            new BoneAnimation[0],
+            new Keyframes(
+                new SoundKeyframeData[0],
+                new ParticleKeyframeData[0],
+                new CustomInstructionKeyframeData[0]
+            )
         );
     }
 
@@ -53,11 +58,11 @@ public record Animation(
         final Map<String, LoopType> LOOP_TYPES = new ConcurrentHashMap<>(4);
 
         LoopType DEFAULT = (animatable, controller, currentAnimation) -> currentAnimation.loopType()
-                .shouldPlayAgain(animatable, controller, currentAnimation);
+            .shouldPlayAgain(animatable, controller, currentAnimation);
 
         LoopType PLAY_ONCE = register(
-                "play_once",
-                register("false", (animatable, controller, currentAnimation) -> false)
+            "play_once",
+            register("false", (animatable, controller, currentAnimation) -> false)
         );
 
         LoopType HOLD_ON_LAST_FRAME = register("hold_on_last_frame", (animatable, controller, currentAnimation) -> {
@@ -120,16 +125,15 @@ public record Animation(
          * @return Whether the animation should play again, or stop
          */
         boolean shouldPlayAgain(
-                GeoAnimatable animatable,
-                AnimationController<? extends GeoAnimatable> controller,
-                Animation currentAnimation
+            GeoAnimatable animatable,
+            AnimationController<? extends GeoAnimatable> controller,
+            Animation currentAnimation
         );
     }
 
     public record Keyframes(
-            SoundKeyframeData[] sounds,
-            ParticleKeyframeData[] particles,
-            CustomInstructionKeyframeData[] customInstructions
-    ) {
-    }
+        SoundKeyframeData[] sounds,
+        ParticleKeyframeData[] particles,
+        CustomInstructionKeyframeData[] customInstructions
+    ) {}
 }

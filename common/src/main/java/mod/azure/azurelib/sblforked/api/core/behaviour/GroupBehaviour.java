@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour;
 
@@ -11,97 +10,112 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import mod.azure.azurelib.sblforked.object.SBLShufflingList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
 
+import mod.azure.azurelib.sblforked.object.SBLShufflingList;
+
 /**
- * Functional replacement to {@link net.minecraft.world.entity.ai.behavior.GateBehavior} due to the very poor way it is implemented. <br>
+ * Functional replacement to {@link net.minecraft.world.entity.ai.behavior.GateBehavior} due to the very poor way it is
+ * implemented. <br>
  * In particular, this allows nesting of group behaviours without breaking behaviour flow entirely. <br>
  * It also allows for utilising the various callbacks and conditions that {@link ExtendedBehaviour} offers. <br>
- * NOTE: Only supports ExtendedBehaviour implementations as sub-behaviours. This is due to access-modifiers on the vanilla behaviours making this prohibitively annoying to work with.
+ * NOTE: Only supports ExtendedBehaviour implementations as sub-behaviours. This is due to access-modifiers on the
+ * vanilla behaviours making this prohibitively annoying to work with.
  */
 public abstract class GroupBehaviour<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	protected final SBLShufflingList<ExtendedBehaviour<? super E>> behaviours;
 
-	@Nullable
-	protected ExtendedBehaviour<? super E> runningBehaviour = null;
+    protected final SBLShufflingList<ExtendedBehaviour<? super E>> behaviours;
 
-	public GroupBehaviour(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {
-		this.behaviours = new SBLShufflingList<>(behaviours);
-	}
+    @Nullable
+    protected ExtendedBehaviour<? super E> runningBehaviour = null;
 
-	public GroupBehaviour(ExtendedBehaviour<? super E>... behaviours) {
-		this.behaviours = new SBLShufflingList<>();
+    public GroupBehaviour(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {
+        this.behaviours = new SBLShufflingList<>(behaviours);
+    }
 
-		for (ExtendedBehaviour<? super E> behaviour : behaviours) {
-			this.behaviours.add(behaviour, 1);
-		}
-	}
+    public GroupBehaviour(ExtendedBehaviour<? super E>... behaviours) {
+        this.behaviours = new SBLShufflingList<>();
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return List.of();
-	}
+        for (ExtendedBehaviour<? super E> behaviour : behaviours) {
+            this.behaviours.add(behaviour, 1);
+        }
+    }
 
-	public Iterator<ExtendedBehaviour<? super E>> getBehaviours() {
-		return this.behaviours.iterator();
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return List.of();
+    }
 
-	@Nullable
-	protected abstract ExtendedBehaviour<? super E> pickBehaviour(ServerLevel level, E entity, long gameTime, SBLShufflingList<ExtendedBehaviour<? super E>> behaviours);
+    public Iterator<ExtendedBehaviour<? super E>> getBehaviours() {
+        return this.behaviours.iterator();
+    }
 
-	@Override
-	protected boolean doStartCheck(ServerLevel level, E entity, long gameTime) {
-		if (!super.doStartCheck(level, entity, gameTime))
-			return false;
+    @Nullable
+    protected abstract ExtendedBehaviour<? super E> pickBehaviour(
+        ServerLevel level,
+        E entity,
+        long gameTime,
+        SBLShufflingList<ExtendedBehaviour<? super E>> behaviours
+    );
 
-		return (this.runningBehaviour = pickBehaviour(level, entity, gameTime, this.behaviours)) != null;
-	}
+    @Override
+    protected boolean doStartCheck(ServerLevel level, E entity, long gameTime) {
+        if (!super.doStartCheck(level, entity, gameTime))
+            return false;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return this.runningBehaviour != null && this.runningBehaviour.canStillUse((ServerLevel)entity.level(), entity, entity.level().getGameTime());
-	}
+        return (this.runningBehaviour = pickBehaviour(level, entity, gameTime, this.behaviours)) != null;
+    }
 
-	@Override
-	protected boolean timedOut(long gameTime) {
-		return this.runningBehaviour == null || this.runningBehaviour.timedOut(gameTime);
-	}
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return this.runningBehaviour != null && this.runningBehaviour.canStillUse(
+            (ServerLevel) entity.level(),
+            entity,
+            entity.level().getGameTime()
+        );
+    }
 
-	@Override
-	protected void tick(ServerLevel level, E owner, long gameTime) {
-		this.runningBehaviour.tickOrStop(level, owner, gameTime);
+    @Override
+    protected boolean timedOut(long gameTime) {
+        return this.runningBehaviour == null || this.runningBehaviour.timedOut(gameTime);
+    }
 
-		if (this.runningBehaviour.getStatus() == Status.STOPPED) {
-			this.runningBehaviour = null;
+    @Override
+    protected void tick(ServerLevel level, E owner, long gameTime) {
+        this.runningBehaviour.tickOrStop(level, owner, gameTime);
 
-			doStop(level, owner, gameTime);
-		}
-	}
+        if (this.runningBehaviour.getStatus() == Status.STOPPED) {
+            this.runningBehaviour = null;
 
-	@Override
-	protected void stop(ServerLevel level, E entity, long gameTime) {
-		super.stop(level, entity, gameTime);
+            doStop(level, owner, gameTime);
+        }
+    }
 
-		if (this.runningBehaviour != null)
-			this.runningBehaviour.stop(level, entity, gameTime);
+    @Override
+    protected void stop(ServerLevel level, E entity, long gameTime) {
+        super.stop(level, entity, gameTime);
 
-		this.runningBehaviour = null;
-	}
+        if (this.runningBehaviour != null)
+            this.runningBehaviour.stop(level, entity, gameTime);
 
-	@Override
-	public Status getStatus() {
-		if (this.runningBehaviour == null)
-			return Status.STOPPED;
+        this.runningBehaviour = null;
+    }
 
-		return this.runningBehaviour.getStatus();
-	}
+    @Override
+    public Status getStatus() {
+        if (this.runningBehaviour == null)
+            return Status.STOPPED;
 
-	@Override
-	public String toString() {
-		return "(" + getClass().getSimpleName() + "): " + (this.runningBehaviour == null ? this.runningBehaviour.getClass().getSimpleName() : "{}");
-	}
+        return this.runningBehaviour.getStatus();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + getClass().getSimpleName() + "): " + (this.runningBehaviour == null
+            ? this.runningBehaviour.getClass().getSimpleName()
+            : "{}");
+    }
 }

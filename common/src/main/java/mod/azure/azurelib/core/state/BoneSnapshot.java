@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 
@@ -15,6 +13,8 @@ import mod.azure.azurelib.core.animation.AnimationProcessor;
  * A state monitoring class for a given {@link CoreGeoBone}.<br>
  * Transformations applied to the bone is monitored by the {@link AnimationProcessor} in the course of animations, and
  * stored here for monitoring.
+ *
+ * @deprecated
  */
 public class BoneSnapshot {
 

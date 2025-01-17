@@ -1,14 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.io;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +16,10 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 
 public final class FileWatchManager {
 
@@ -43,9 +42,9 @@ public final class FileWatchManager {
             watchService = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
             AzureLib.LOGGER.error(
-                    MARKER,
-                    "Failed to initialize file watch service due to error, configs won't be automatically refreshed",
-                    e
+                MARKER,
+                "Failed to initialize file watch service due to error, configs won't be automatically refreshed",
+                e
             );
         } finally {
             this.service = watchService;
@@ -108,9 +107,9 @@ public final class FileWatchManager {
             }, 0L, 1000L, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
             AzureLib.LOGGER.error(
-                    MARKER,
-                    "Unable to create watch key for config directory, disabling auto-sync function",
-                    e
+                MARKER,
+                "Unable to create watch key for config directory, disabling auto-sync function",
+                e
             );
         }
     }

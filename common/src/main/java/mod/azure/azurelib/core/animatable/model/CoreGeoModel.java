@@ -1,11 +1,11 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animatable.model;
+
+import java.util.Optional;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
@@ -13,11 +13,11 @@ import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.AnimationProcessor;
 import mod.azure.azurelib.core.animation.AnimationState;
 
-import java.util.Optional;
-
 /**
  * Base class for AzureLib models.<br>
  * Mostly an internal placeholder to allow for splitting up core (non-Minecraft) libraries
+ *
+ * @deprecated
  */
 public interface CoreGeoModel<E extends GeoAnimatable> {
 
@@ -70,8 +70,7 @@ public interface CoreGeoModel<E extends GeoAnimatable> {
      * @param animationState An {@link AnimationState} instance created to hold animation data for the
      *                       {@code animatable} for this method call
      */
-    default void setCustomAnimations(E animatable, long instanceId, AnimationState<E> animationState) {
-    }
+    default void setCustomAnimations(E animatable, long instanceId, AnimationState<E> animationState) {}
 
     /**
      * This method is called once per render frame for each {@link GeoAnimatable} being rendered.<br>
@@ -81,6 +80,5 @@ public interface CoreGeoModel<E extends GeoAnimatable> {
      * @param animatable The {@code GeoAnimatable} instance currently being rendered
      * @param animTime   The internal tick counter kept by the {@link AnimatableManager manager} for this animatable
      */
-    default void applyMolangQueries(E animatable, double animTime) {
-    }
+    default void applyMolangQueries(E animatable, double animTime) {}
 }

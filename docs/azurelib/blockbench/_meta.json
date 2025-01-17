@@ -1,0 +1,17 @@
+{
+    "blockbench.mdx": {
+        "name": "Installing Blockbench Plugin"
+    },
+    "creatingconverting.mdx": {
+        "name": "Creating or Converting a Project"
+    },
+    "rigginginbb.mdx": {
+        "name": "How to Rig your Model for Animations"
+    },
+    "animatinginbb.mdx": {
+        "name": "How to Animate your model"
+    },
+    "exportingassets.mdx": {
+        "name": "How to Export Your Project"
+    }
+}

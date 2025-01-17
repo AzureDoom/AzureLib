@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.widget;
 
@@ -75,18 +73,18 @@ public abstract class ContainerWidget extends AbstractWidget implements Containe
 
     @Override
     public boolean mouseDragged(
-            double p_231045_1_,
-            double p_231045_3_,
-            int p_231045_5_,
-            double p_231045_6_,
-            double p_231045_8_
+        double p_231045_1_,
+        double p_231045_3_,
+        int p_231045_5_,
+        double p_231045_6_,
+        double p_231045_8_
     ) {
         return ContainerEventHandler.super.mouseDragged(
-                p_231045_1_,
-                p_231045_3_,
-                p_231045_5_,
-                p_231045_6_,
-                p_231045_8_
+            p_231045_1_,
+            p_231045_3_,
+            p_231045_5_,
+            p_231045_6_,
+            p_231045_8_
         );
     }
 

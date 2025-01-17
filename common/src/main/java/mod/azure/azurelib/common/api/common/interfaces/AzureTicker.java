@@ -1,7 +1,5 @@
 package mod.azure.azurelib.common.api.common.interfaces;
 
-import mod.azure.azurelib.common.api.common.entities.AzureVibrationUser;
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +9,9 @@ import net.minecraft.world.level.gameevent.vibrations.VibrationInfo;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.Data;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.Listener;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem.User;
+
+import mod.azure.azurelib.common.api.common.entities.AzureVibrationUser;
+import mod.azure.azurelib.common.platform.Services;
 
 /**
  * Custom class for use with {@link AzureVibrationUser}
@@ -45,15 +46,15 @@ public interface AzureTicker {
             data.setTravelTimeInTicks(user.calculateTravelTimeInTicks(vibrationInfo.distance()));
             if (Services.PLATFORM.isDevelopmentEnvironment())
                 serverLevel.sendParticles(
-                        new VibrationParticleOption(user.getPositionSource(), data.getTravelTimeInTicks()),
-                        vec3.x,
-                        vec3.y,
-                        vec3.z,
-                        1,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0
+                    new VibrationParticleOption(user.getPositionSource(), data.getTravelTimeInTicks()),
+                    vec3.x,
+                    vec3.y,
+                    vec3.z,
+                    1,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
                 );
             user.onDataChanged();
             data.getSelectionStrategy().startOver();
@@ -61,10 +62,10 @@ public interface AzureTicker {
     }
 
     private static boolean receiveVibration(
-            ServerLevel serverLevel,
-            Data data,
-            User user,
-            VibrationInfo vibrationInfo
+        ServerLevel serverLevel,
+        Data data,
+        User user,
+        VibrationInfo vibrationInfo
     ) {
         var blockPos = BlockPos.containing(vibrationInfo.pos());
         var blockPos2 = user.getPositionSource().getPosition(serverLevel).map(BlockPos::containing).orElse(blockPos);
@@ -72,12 +73,12 @@ public interface AzureTicker {
             return false;
         }
         user.onReceiveVibration(
-                serverLevel,
-                blockPos,
-                vibrationInfo.gameEvent(),
-                vibrationInfo.getEntity(serverLevel).orElse(null),
-                vibrationInfo.getProjectileOwner(serverLevel).orElse(null),
-                Listener.distanceBetweenInBlocks(blockPos, blockPos2)
+            serverLevel,
+            blockPos,
+            vibrationInfo.gameEvent(),
+            vibrationInfo.getEntity(serverLevel).orElse(null),
+            vibrationInfo.getProjectileOwner(serverLevel).orElse(null),
+            Listener.distanceBetweenInBlocks(blockPos, blockPos2)
         );
         data.setCurrentVibration(null);
         return true;

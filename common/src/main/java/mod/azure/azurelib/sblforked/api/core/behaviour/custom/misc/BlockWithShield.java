@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.misc;
 
@@ -13,72 +12,74 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.UseAnim;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
 
 import java.util.List;
 import java.util.function.Predicate;
+
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
 
 /**
  * Makes the entity use (block) using a shield if it's currently in the entity's hands
  */
 public class BlockWithShield<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	protected InteractionHand hand = InteractionHand.MAIN_HAND;
 
-	protected Predicate<E> stopCondition = entity -> false;
+    protected InteractionHand hand = InteractionHand.MAIN_HAND;
 
-	/**
-	 * Sets the condition for when the entity should stop blocking.<br>
-	 * Deprecated, use {@link ExtendedBehaviour#stopIf}
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	@Deprecated(forRemoval = true)
-	public BlockWithShield<E> stopWhen(Predicate<E> predicate) {
-		this.stopCondition = predicate;
+    protected Predicate<E> stopCondition = entity -> false;
 
-		return this;
-	}
+    /**
+     * Sets the condition for when the entity should stop blocking.<br>
+     * Deprecated, use {@link ExtendedBehaviour#stopIf}
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    @Deprecated(forRemoval = true)
+    public BlockWithShield<E> stopWhen(Predicate<E> predicate) {
+        this.stopCondition = predicate;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return List.of();
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		if (entity.getMainHandItem().getUseAnimation() == UseAnim.BLOCK) {
-			this.hand = InteractionHand.MAIN_HAND;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return List.of();
+    }
 
-			return true;
-		}
-		else if (entity.getOffhandItem().getUseAnimation() == UseAnim.BLOCK) {
-			this.hand = InteractionHand.OFF_HAND;
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        if (entity.getMainHandItem().getUseAnimation() == UseAnim.BLOCK) {
+            this.hand = InteractionHand.MAIN_HAND;
 
-			return true;
-		}
+            return true;
+        } else if (entity.getOffhandItem().getUseAnimation() == UseAnim.BLOCK) {
+            this.hand = InteractionHand.OFF_HAND;
 
-		return false;
-	}
+            return true;
+        }
 
-	@Override
-	protected void start(E entity) {
-		entity.startUsingItem(this.hand);
-	}
+        return false;
+    }
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		if (!entity.isUsingItem())
-			return false;
+    @Override
+    protected void start(E entity) {
+        entity.startUsingItem(this.hand);
+    }
 
-		if (!(entity.getUseItem().getUseAnimation() == UseAnim.BLOCK))
-			return false;
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        if (!entity.isUsingItem())
+            return false;
 
-		return !this.stopCondition.test(entity);
-	}
+        if (!(entity.getUseItem().getUseAnimation() == UseAnim.BLOCK))
+            return false;
 
-	@Override
-	protected void stop(E entity) {
-		if (entity.getUseItem().getUseAnimation() == UseAnim.BLOCK)
-			entity.stopUsingItem();
-	}
+        return !this.stopCondition.test(entity);
+    }
+
+    @Override
+    protected void stop(E entity) {
+        if (entity.getUseItem().getUseAnimation() == UseAnim.BLOCK)
+            entity.stopUsingItem();
+    }
 }

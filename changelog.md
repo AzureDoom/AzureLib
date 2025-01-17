@@ -1,5 +1,33 @@
-v2.3.29
+v3.0.0
 
-- Revert GeoGlowingTextureMeta change.
+- Rewrite Entity animation system. See guide for converting here: https://moddedmc.wiki/en/project/azurelib/docs/updating/entities
+  - No longer have to supply a cache.
+  - No longer have to use a GeoEnity interface.
+- Rewrite Item animation system. See guide for converting here: https://moddedmc.wiki/en/project/azurelib/docs/updating/items
+  - Fixes issue with Item animations not working the first time due to missing NBT tag check.
+  - No longer have to supply a cache.
+  - No longer have to use a GeoItem interface.
+  - "Item" rendering/animating is now considered "ItemStack" rendering/animating.
+  - No longer register the render in the Item.
+    - This is done in your clients onInitializeClient for Fabric and NeoForges FMLClientSetupEvent using AzItemRendererRegistry#register. 
+- Rewrite Block Entity animation system. See guide for converting here: https://moddedmc.wiki/en/project/azurelib/docs/updating/blockentities
+  - No longer have to supply a cache.
+  - No longer have to use a GeoEntity interface.
+- Rewrite Armor animation system. See guide for converting here: https://moddedmc.wiki/en/project/azurelib/docs/updating/armor
+  - No longer have to supply a cache.
+  - No longer have to use a GeoItem interface.
+  - "Item" rendering/animating is now considered "ItemStack" rendering/animating.
+  - No longer register the render in the Item.
+    - This is done in your clients onInitializeClient for Fabric and NeoForges FMLClientSetupEvent using AzArmorRendererRegistry#register.
+- Animations are now done fully using a trigger animation call from the Az<Type>Animator.
+- New system fixes Animations not firing properly on Items on first use. 
+  - You have to now register your item in your mods onInitialize for Fabric and NeoForges FMLCommonSetupEvent using AzIdentityRegistry#register
+    - AzIdentityRegistry#register can take 1 item or multiple if you have a lot of item. 
+- New system fixes Aniamtions not pausing correctly when in singleplayer. (Old system/Geckolib "pauses" it but it still ticks so doesn't hold the animations spot properly)
+- New system fixes Animation triggers not working with armors.
+- New system shows about a 40% drop in memory usage compared to old systems/Azurelib.
+- Move to new Az Naming scheme from Geo
+- Fixes crash with Minecolonies when using new render.
 
-**WARNING 1.21.1 IS CURRENTLY UNDERGOING A HEAVY REWRITE THAT WILL BE RELEASED AS ALPHA FOR TESTING, DO NOT UPDATE TO THAT ALPHA UNLESS THE MODS USING AZURELIB REQUIRE IT**
+# Known issues
+- PLAY_ONCE animations have an odd bug with bones resetting in between triggers.

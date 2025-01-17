@@ -1,13 +1,9 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under the MIT License.
  */
 package mod.azure.azurelib.neoforge.api.core.navigation;
 
-import mod.azure.azurelib.neoforge.api.core.navigation.nodeevaluator.MultiFluidWalkNodeEvaluator;
-import mod.azure.azurelib.sblforked.api.core.navigation.SmoothGroundNavigation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -18,14 +14,19 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
 
+import mod.azure.azurelib.neoforge.api.core.navigation.nodeevaluator.MultiFluidWalkNodeEvaluator;
+import mod.azure.azurelib.sblforked.api.core.navigation.SmoothGroundNavigation;
+
 /**
- * An extension of {@link SmoothGroundNavigation} to allow for fluid-agnostic pathfinding based on (Neo)Forge's fluid API overhaul
+ * An extension of {@link SmoothGroundNavigation} to allow for fluid-agnostic pathfinding based on (Neo)Forge's fluid
+ * API overhaul
  * <p>
  * This allows for entities to pathfind in fluids other than water as necessary
  *
  * @see MultiFluidNavigationElement
  */
 public class MultiFluidSmoothGroundNavigation extends SmoothGroundNavigation implements MultiFluidNavigationElement {
+
     public MultiFluidSmoothGroundNavigation(Mob mob, Level level) {
         super(mob, level);
     }
@@ -44,23 +45,32 @@ public class MultiFluidSmoothGroundNavigation extends SmoothGroundNavigation imp
     /**
      * Whether the navigator should consider the entity's current state valid for navigating through a path
      * <p>
-     * Note that this does not specifically apply to any given path (and the entity's path may even be null at times when this is called)
+     * Note that this does not specifically apply to any given path (and the entity's path may even be null at times
+     * when this is called)
      */
     @Override
     protected boolean canUpdatePath() {
-        return this.mob.onGround() || this.mob.isInFluidType((fluidType, height) -> canSwimInFluid(this.mob, fluidType, height), true) || this.mob.isPassenger();
+        return this.mob.onGround() || this.mob.isInFluidType(
+            (fluidType, height) -> canSwimInFluid(this.mob, fluidType, height),
+            true
+        ) || this.mob.isPassenger();
     }
 
     /**
-     * Helper override to allow end-users to modify the fluids an entity can swim in, extensibly patching in (Neo)Forge's fluid API
+     * Helper override to allow end-users to modify the fluids an entity can swim in, extensibly patching in
+     * (Neo)Forge's fluid API
      * <p>
-     * Don't use this method to adjust which fluids are 'swimmable', use {@link MultiFluidNavigationElement#canSwimInFluid}
+     * Don't use this method to adjust which fluids are 'swimmable', use
+     * {@link MultiFluidNavigationElement#canSwimInFluid}
      *
      * @return The nearest safe surface height for the entity
      */
     @Override
     public int getSurfaceY() {
-        if (this.mob.isInFluidType((fluidType, height) -> canSwimInFluid(this.mob, fluidType, height), true) && canFloat()) {
+        if (
+            this.mob.isInFluidType((fluidType, height) -> canSwimInFluid(this.mob, fluidType, height), true)
+                && canFloat()
+        ) {
             final int basePos = this.mob.getBlockY();
             BlockPos.MutableBlockPos pos = BlockPos.containing(this.mob.getX(), basePos, this.mob.getZ()).mutable();
             BlockState state = this.level.getBlockState(pos);

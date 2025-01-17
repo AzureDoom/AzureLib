@@ -1,25 +1,27 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animation;
 
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.object.DataTicket;
-import mod.azure.azurelib.core.state.BoneSnapshot;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.object.DataTicket;
+import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Context-aware wrapper for {@link AnimatableManager}.<br>
  * This can be used for things like perspective-dependent animation handling and other similar functionality.<br>
  * This relies entirely on data present in {@link AnimatableManager#extraData} saved to this manager to determine
  * context
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> extends AnimatableManager<T> {
 
     private final Map<C, AnimatableManager<T>> managers;

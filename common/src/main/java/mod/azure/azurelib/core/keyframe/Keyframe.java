@@ -1,18 +1,17 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.keyframe;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animation.EasingType;
-import mod.azure.azurelib.core.math.IValue;
 
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.core.animation.EasingType;
+import mod.azure.azurelib.core.math.IValue;
 
 /**
  * Animation keyframe data
@@ -24,11 +23,11 @@ import java.util.Objects;
  * @param easingArgs The arguments to provide to the easing calculation
  */
 public record Keyframe<T extends IValue>(
-        double length,
-        T startValue,
-        T endValue,
-        EasingType easingType,
-        List<T> easingArgs
+    double length,
+    T startValue,
+    T endValue,
+    EasingType easingType,
+    List<T> easingArgs
 ) {
 
     public Keyframe(double length, T startValue, T endValue) {

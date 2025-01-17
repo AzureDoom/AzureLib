@@ -1,12 +1,12 @@
 package mod.azure.azurelib.common.internal.common.blocks;
 
-import mod.azure.azurelib.common.internal.common.registry.AzureBlocksEntityRegistry;
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import mod.azure.azurelib.common.internal.common.registry.AzureBlocksEntityRegistry;
 
 public class TickingLightEntity extends BlockEntity {
 
@@ -17,10 +17,10 @@ public class TickingLightEntity extends BlockEntity {
     }
 
     public static void tick(
-            Level world,
-            BlockPos blockPos,
-            BlockState blockState,
-            TickingLightEntity blockEntity
+        Level world,
+        BlockPos blockPos,
+        BlockState blockState,
+        TickingLightEntity blockEntity
     ) {
         blockEntity.tick();
     }

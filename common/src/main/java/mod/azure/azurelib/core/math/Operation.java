@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.math;
@@ -12,30 +10,34 @@ import java.util.Set;
 
 /**
  * Operation enumeration This enumeration provides different hardcoded enumerations of default math operators such
- * addition, substraction, multiplication, division, modulo and power.
- * TODO: maybe convert to classes (for the sake of API)?
+ * addition, substraction, multiplication, division, modulo and power. TODO: maybe convert to classes (for the sake of
+ * API)?
  */
 public enum Operation {
 
     ADD("+", 1) {
+
         @Override
         public double calculate(double a, double b) {
             return a + b;
         }
     },
     SUB("-", 1) {
+
         @Override
         public double calculate(double a, double b) {
             return a - b;
         }
     },
     MUL("*", 2) {
+
         @Override
         public double calculate(double a, double b) {
             return a * b;
         }
     },
     DIV("/", 2) {
+
         @Override
         public double calculate(double a, double b) {
             /* To avoid any exceptions */
@@ -43,60 +45,70 @@ public enum Operation {
         }
     },
     MOD("%", 2) {
+
         @Override
         public double calculate(double a, double b) {
             return a % b;
         }
     },
     POW("^", 3) {
+
         @Override
         public double calculate(double a, double b) {
             return Math.pow(a, b);
         }
     },
     AND("&&", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a != 0 && b != 0 ? 1 : 0;
         }
     },
     OR("||", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a != 0 || b != 0 ? 1 : 0;
         }
     },
     LESS("<", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a < b ? 1 : 0;
         }
     },
     LESS_THAN("<=", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a <= b ? 1 : 0;
         }
     },
     GREATER_THAN(">=", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a >= b ? 1 : 0;
         }
     },
     GREATER(">", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return a > b ? 1 : 0;
         }
     },
     EQUALS("==", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return equals(a, b) ? 1 : 0;
         }
     },
     NOT_EQUALS("!=", 5) {
+
         @Override
         public double calculate(double a, double b) {
             return !equals(a, b) ? 1 : 0;
@@ -115,6 +127,7 @@ public enum Operation {
      * String-ified name of this operation
      */
     public final String sign;
+
     /**
      * Value of this operation in relation to other operations (i.e precedence importance)
      */

@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.math.functions;
@@ -22,10 +20,10 @@ public abstract class Function implements IValue {
     protected Function(IValue[] values, String name) throws Exception {
         if (values.length < this.getRequiredArguments()) {
             String message = String.format(
-                    "Function '%s' requires at least %s arguments. %s are given!",
-                    this.getName(),
-                    this.getRequiredArguments(),
-                    values.length
+                "Function '%s' requires at least %s arguments. %s are given!",
+                this.getName(),
+                this.getRequiredArguments(),
+                values.length
             );
 
             throw new Exception(message);

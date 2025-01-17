@@ -1,14 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.screen;
 
-import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
-import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -18,6 +13,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+
+import mod.azure.azurelib.common.internal.client.config.DisplayAdapter;
+import mod.azure.azurelib.common.internal.client.config.widget.ConfigEntryWidget;
+import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 
 import static mod.azure.azurelib.common.internal.client.config.screen.AbstractConfigScreen.FOOTER_HEIGHT;
 import static mod.azure.azurelib.common.internal.client.config.screen.AbstractConfigScreen.HEADER_HEIGHT;
@@ -62,22 +61,22 @@ public class ConfigGroupScreen extends Screen {
             int y = viewportMin + 10 + j * 25 + offset;
             String configId = value.getConfigId();
             this.addRenderableWidget(
-                    new LeftAlignedLabel(
-                            posX,
-                            y,
-                            componentWidth,
-                            20,
-                            Component.translatable("config.screen." + configId),
-                            this.font
-                    )
+                new LeftAlignedLabel(
+                    posX,
+                    y,
+                    componentWidth,
+                    20,
+                    Component.translatable("config.screen." + configId),
+                    this.font
+                )
             );
             this.addRenderableWidget(Button.builder(ConfigEntryWidget.EDIT, btn -> {
-                        ConfigScreen screen = new ConfigScreen(configId, configId, value.getValueMap(), this);
-                        minecraft.setScreen(screen);
-                    })
-                    .pos(DisplayAdapter.getValueX(posX, componentWidth), y)
-                    .size(DisplayAdapter.getValueWidth(componentWidth), 20)
-                    .build());
+                ConfigScreen screen = new ConfigScreen(configId, configId, value.getValueMap(), this);
+                minecraft.setScreen(screen);
+            })
+                .pos(DisplayAdapter.getValueX(posX, componentWidth), y)
+                .size(DisplayAdapter.getValueWidth(componentWidth), 20)
+                .build());
         }
         initFooter();
     }
@@ -87,21 +86,36 @@ public class ConfigGroupScreen extends Screen {
         renderBackground(graphics, mouseX, mouseY, partialTicks);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        graphics.drawString(font, this.title, (this.width - titleWidth) / 2, (HEADER_HEIGHT - this.font.lineHeight) / 2, 0xFFFFFF);
+        graphics.drawString(
+            font,
+            this.title,
+            (this.width - titleWidth) / 2,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2,
+            0xFFFFFF
+        );
         graphics.fill(0, 0, width, HEADER_HEIGHT, 0x99 << 24);
         graphics.fill(0, height - FOOTER_HEIGHT, width, height, 0x99 << 24);
         graphics.fill(0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x55 << 24);
-        AbstractConfigScreen.renderScrollbar(graphics, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, configHolders.size(), pageSize);
+        AbstractConfigScreen.renderScrollbar(
+            graphics,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            configHolders.size(),
+            pageSize
+        );
         renderables.forEach(renderable -> renderable.render(graphics, mouseX, mouseY, partialTicks));
     }
 
     protected void initFooter() {
         int centerY = this.height - FOOTER_HEIGHT + (FOOTER_HEIGHT - 20) / 2;
         addRenderableWidget(
-                Button.builder(ConfigEntryWidget.BACK, btn -> minecraft.setScreen(last))
-                        .pos(20, centerY)
-                        .size(50, 20)
-                        .build()
+            Button.builder(ConfigEntryWidget.BACK, btn -> minecraft.setScreen(last))
+                .pos(20, centerY)
+                .size(50, 20)
+                .build()
         );
     }
 
@@ -133,17 +147,16 @@ public class ConfigGroupScreen extends Screen {
         }
 
         @Override
-        public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        }
+        public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             graphics.drawString(
-                    font,
-                    this.getMessage(),
-                    this.getX(),
-                    this.getY() + (this.height - this.font.lineHeight) / 2,
-                    0xAAAAAA
+                font,
+                this.getMessage(),
+                this.getX(),
+                this.getY() + (this.height - this.font.lineHeight) / 2,
+                0xAAAAAA
             );
         }
 

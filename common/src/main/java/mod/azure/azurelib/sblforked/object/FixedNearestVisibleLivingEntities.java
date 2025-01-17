@@ -1,23 +1,25 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.object;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
-import mod.azure.azurelib.sblforked.util.SensoryUtils;
 
 import java.util.List;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.util.SensoryUtils;
+
 /**
- * Wrapper for {@link NearestVisibleLivingEntities} that supports follow range for entities rather than a hardcoded 16-block limit
+ * Wrapper for {@link NearestVisibleLivingEntities} that supports follow range for entities rather than a hardcoded
+ * 16-block limit
  */
 public class FixedNearestVisibleLivingEntities extends NearestVisibleLivingEntities {
+
     private FixedNearestVisibleLivingEntities() {
         super();
     }
@@ -27,11 +29,15 @@ public class FixedNearestVisibleLivingEntities extends NearestVisibleLivingEntit
 
         this.nearbyEntities = entities;
         this.lineOfSightTest = new Predicate<>() {
+
             final Object2BooleanOpenHashMap<LivingEntity> cache = new Object2BooleanOpenHashMap<>(entities.size());
 
             @Override
             public boolean test(LivingEntity target) {
-                return this.cache.computeIfAbsent(target, (Predicate<LivingEntity>)target1 -> SensoryUtils.isEntityTargetable(entity, target1));
+                return this.cache.computeIfAbsent(
+                    target,
+                    (Predicate<LivingEntity>) target1 -> SensoryUtils.isEntityTargetable(entity, target1)
+                );
             }
         };
     }

@@ -1,13 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.mixins;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.platform.Services;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -19,15 +15,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
 
+import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.platform.Services;
+
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     private void configuration_sendServerConfigs(
-            Connection connection,
-            ServerPlayer player,
-            CommonListenerCookie commonListenerCookie,
-            CallbackInfo ci
+        Connection connection,
+        ServerPlayer player,
+        CommonListenerCookie commonListenerCookie,
+        CallbackInfo ci
     ) {
         Set<String> set = ConfigHolderRegistry.getSynchronizedConfigs();
         set.forEach(id -> Services.NETWORK.sendClientPacket(player, id));

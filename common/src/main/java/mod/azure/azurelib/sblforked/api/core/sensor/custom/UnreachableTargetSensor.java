@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.sensor.custom;
 
@@ -12,75 +11,82 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
+
+import java.util.List;
+
 import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
 import mod.azure.azurelib.sblforked.registry.SBLMemoryTypes;
 import mod.azure.azurelib.sblforked.registry.SBLSensors;
 import mod.azure.azurelib.sblforked.util.BrainUtils;
 
-import java.util.List;
-
 /**
- * A sensor to attempt to track whether the entity's target is currently obstructed either by blocks or a wall/tower of blocks. <br>
- * This is differentiated from {@link MemoryModuleType#CANT_REACH_WALK_TARGET_SINCE} in that it only stores state if the entity is actively blocked, and not just completing a previous path that may have been blocked. <br>
+ * A sensor to attempt to track whether the entity's target is currently obstructed either by blocks or a wall/tower of
+ * blocks. <br>
+ * This is differentiated from {@link MemoryModuleType#CANT_REACH_WALK_TARGET_SINCE} in that it only stores state if the
+ * entity is actively blocked, and not just completing a previous path that may have been blocked. <br>
  * The contract of the memory (when this sensor is used) is as follows:<br>
  * <ul>
- *     <li>If not present: <i>entity is not blocked</i></li>
- *     <li>If false: <i>entity is blocked at a similar or lower y-coordinate (wall-blocked)</i></li>
- *     <li>If true: <i>entity is blocked at a higher y-coordinate (target has towered up, or is on cliff)</i></li>
+ * <li>If not present: <i>entity is not blocked</i></li>
+ * <li>If false: <i>entity is blocked at a similar or lower y-coordinate (wall-blocked)</i></li>
+ * <li>If true: <i>entity is blocked at a higher y-coordinate (target has towered up, or is on cliff)</i></li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class UnreachableTargetSensor<E extends LivingEntity> extends ExtendedSensor<E> {
-	private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, SBLMemoryTypes.TARGET_UNREACHABLE.get());
 
-	protected long lastUnpathableTime = 0;
+    private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(
+        MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+        MemoryModuleType.ATTACK_TARGET,
+        SBLMemoryTypes.TARGET_UNREACHABLE.get()
+    );
 
-	@Override
-	public List<MemoryModuleType<?>> memoriesUsed() {
-		return MEMORIES;
-	}
+    protected long lastUnpathableTime = 0;
 
-	@Override
-	public SensorType<? extends ExtendedSensor<?>> type() {
-		return SBLSensors.UNREACHABLE_TARGET.get();
-	}
+    @Override
+    public List<MemoryModuleType<?>> memoriesUsed() {
+        return MEMORIES;
+    }
 
-	@Override
-	protected void doTick(ServerLevel level, E entity) {
-		Brain<?> brain = entity.getBrain();
-		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return SBLSensors.UNREACHABLE_TARGET.get();
+    }
 
-		if (target == null) {
-			resetState(brain);
+    @Override
+    protected void doTick(ServerLevel level, E entity) {
+        Brain<?> brain = entity.getBrain();
+        LivingEntity target = BrainUtils.getTargetOfEntity(entity);
 
-			return;
-		}
+        if (target == null) {
+            resetState(brain);
 
-		Long unpathableTime = BrainUtils.getMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+            return;
+        }
 
-		if (unpathableTime == null) {
-			resetState(brain);
+        Long unpathableTime = BrainUtils.getMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 
-			return;
-		}
+        if (unpathableTime == null) {
+            resetState(brain);
 
-		if (this.lastUnpathableTime == 0) {
-			this.lastUnpathableTime = unpathableTime;
-		}
-		else if (this.lastUnpathableTime == unpathableTime) {
-			BrainUtils.clearMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get());
-		}
-		else if (this.lastUnpathableTime < unpathableTime) {
-			this.lastUnpathableTime = unpathableTime;
+            return;
+        }
 
-			BrainUtils.setMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get(), target.getY() > entity.getEyeY());
-		}
-	}
+        if (this.lastUnpathableTime == 0) {
+            this.lastUnpathableTime = unpathableTime;
+        } else if (this.lastUnpathableTime == unpathableTime) {
+            BrainUtils.clearMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get());
+        } else if (this.lastUnpathableTime < unpathableTime) {
+            this.lastUnpathableTime = unpathableTime;
 
-	private void resetState(Brain<?> brain) {
-		if (this.lastUnpathableTime > 0)
-			BrainUtils.clearMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get());
+            BrainUtils.setMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get(), target.getY() > entity.getEyeY());
+        }
+    }
 
-		this.lastUnpathableTime = 0;
-	}
+    private void resetState(Brain<?> brain) {
+        if (this.lastUnpathableTime > 0)
+            BrainUtils.clearMemory(brain, SBLMemoryTypes.TARGET_UNREACHABLE.get());
+
+        this.lastUnpathableTime = 0;
+    }
 }

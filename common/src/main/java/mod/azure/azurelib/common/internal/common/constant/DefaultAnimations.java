@@ -1,11 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.constant;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 import mod.azure.azurelib.common.api.common.animatable.GeoBlockEntity;
 import mod.azure.azurelib.common.api.common.animatable.GeoEntity;
@@ -16,18 +20,15 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.core.object.PlayState;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 /**
  * Optionally usable class that holds constants for recommended animation paths.<br>
  * Using these won't affect much, but it may help keep some consistency in animation namings.<br>
  * Additionally, it encourages use of cached {@link RawAnimation RawAnimations}, to reduce overheads.
+ *
+ * @deprecated
  */
+@Deprecated(forRemoval = true)
 public record DefaultAnimations() {
 
     public static final RawAnimation ITEM_ON_USE = RawAnimation.begin().thenPlay("item.use");
@@ -101,10 +102,10 @@ public record DefaultAnimations() {
      * </pre>
      */
     public static <T extends GeoAnimatable> AnimationController<T> basicPredicateController(
-            T animatable,
-            RawAnimation optionA,
-            RawAnimation optionB,
-            BiPredicate<T, AnimationState<?>> predicate
+        T animatable,
+        RawAnimation optionA,
+        RawAnimation optionB,
+        BiPredicate<T, AnimationState<?>> predicate
     ) {
         return new AnimationController<>(animatable, "Generic", 10, state -> {
             var result = predicate.test(animatable, state);
@@ -148,9 +149,9 @@ public record DefaultAnimations() {
      *                       animation will no longer play
      */
     public static <T extends GeoAnimatable> AnimationController<T> getSpawnController(
-            T animatable,
-            Function<AnimationState<T>, Object> objectSupplier,
-            int ticks
+        T animatable,
+        Function<AnimationState<T>, Object> objectSupplier,
+        int ticks
     ) {
         return new AnimationController<>(animatable, "Spawn", 0, state -> {
             if (animatable.getTick(objectSupplier.apply(state)) <= ticks)
@@ -183,8 +184,8 @@ public record DefaultAnimations() {
      * @return A new {@link AnimationController} instance to use
      */
     public static <T extends LivingEntity & GeoAnimatable> AnimationController<T> genericAttackAnimation(
-            T animatable,
-            RawAnimation attackAnimation
+        T animatable,
+        RawAnimation attackAnimation
     ) {
         return new AnimationController<>(animatable, "Attack", 5, state -> {
             if (animatable.swinging)
@@ -202,10 +203,10 @@ public record DefaultAnimations() {
      */
     public static <T extends GeoAnimatable> AnimationController<T> genericWalkIdleController(T animatable) {
         return new AnimationController<>(
-                animatable,
-                "Walk/Idle",
-                0,
-                state -> state.setAndContinue(state.isMoving() ? WALK : IDLE)
+            animatable,
+            "Walk/Idle",
+            0,
+            state -> state.setAndContinue(state.isMoving() ? WALK : IDLE)
         );
     }
 
@@ -228,10 +229,10 @@ public record DefaultAnimations() {
      */
     public static <T extends GeoAnimatable> AnimationController<T> genericSwimIdleController(T animatable) {
         return new AnimationController<>(
-                animatable,
-                "Swim/Idle",
-                0,
-                state -> state.setAndContinue(state.isMoving() ? SWIM : IDLE)
+            animatable,
+            "Swim/Idle",
+            0,
+            state -> state.setAndContinue(state.isMoving() ? SWIM : IDLE)
         );
     }
 
@@ -249,10 +250,10 @@ public record DefaultAnimations() {
      */
     public static <T extends GeoAnimatable> AnimationController<T> genericFlyIdleController(T animatable) {
         return new AnimationController<>(
-                animatable,
-                "Fly/Idle",
-                0,
-                state -> state.setAndContinue(state.isMoving() ? FLY : IDLE)
+            animatable,
+            "Fly/Idle",
+            0,
+            state -> state.setAndContinue(state.isMoving() ? FLY : IDLE)
         );
     }
 

@@ -1,16 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.adapter;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
 
 public interface TypeMatcher extends Predicate<Class<?>> {
 
@@ -76,7 +75,7 @@ public interface TypeMatcher extends Predicate<Class<?>> {
 
     static TypeMatcher matchObject() {
         return NamedMatcherImpl.vanilla("object", type -> !type.isArray())
-                .withPriority(Integer.MAX_VALUE);
+            .withPriority(Integer.MAX_VALUE);
     }
 
     ResourceLocation getIdentifier();

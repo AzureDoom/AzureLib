@@ -1,23 +1,25 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.cache.object;
-
-import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import mod.azure.azurelib.core.animatable.model.CoreBakedGeoModel;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+
 /**
  * Baked model object for AzureLib models.
+ *
+ * @deprecated Use {@link AzBakedModel} instead.
  */
+@Deprecated(forRemoval = true)
 public class BakedGeoModel implements CoreBakedGeoModel {
 
     public final Map<String, GeoBone> bonesByName;

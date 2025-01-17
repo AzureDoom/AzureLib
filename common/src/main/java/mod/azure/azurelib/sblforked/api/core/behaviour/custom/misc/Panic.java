@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.misc;
 
@@ -21,165 +20,210 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.object.SquareRadius;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.object.SquareRadius;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Functional equivalent of the goal system's {@link net.minecraft.world.entity.ai.goal.PanicGoal panic goal}.<br>
  * Rapidly sets a runaway position based on its last damage.<br>
  * Defaults:
  * <ul>
- *     <li>1.25x Speed modifier when panicking</li>
- *     <li>Panics if freezing, on fire, or was recently hurt by a living entity</li>
- *     <li>Runs to a nearby location within 5x4 blocks radius</li>
- *     <li>Panics for a minimum of 5-6 seconds</li>
+ * <li>1.25x Speed modifier when panicking</li>
+ * <li>Panics if freezing, on fire, or was recently hurt by a living entity</li>
+ * <li>Runs to a nearby location within 5x4 blocks radius</li>
+ * <li>Panics for a minimum of 5-6 seconds</li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class Panic<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.HURT_BY, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.IS_PANICKING, MemoryStatus.REGISTERED));
 
-	protected BiPredicate<E, DamageSource> shouldPanicPredicate = (entity, damageSource) -> entity.isFreezing() || entity.isOnFire() || damageSource.getEntity() instanceof LivingEntity;
-	protected Object2FloatFunction<E> speedMod = entity -> 1.25f;
-	protected SquareRadius radius = new SquareRadius(5, 4);
-	protected BiFunction<E, DamageSource, Integer> panicFor = (entity, damageSource) -> entity.getRandom().nextInt(100, 120);
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.HURT_BY, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.IS_PANICKING, MemoryStatus.REGISTERED)
+    );
 
-	protected Vec3 targetPos = null;
-	protected int panicEndTime = 0;
+    protected BiPredicate<E, DamageSource> shouldPanicPredicate = (entity, damageSource) -> entity.isFreezing()
+        || entity.isOnFire() || damageSource.getEntity() instanceof LivingEntity;
 
-	public Panic() {
-		noTimeout();
-	}
+    protected Object2FloatFunction<E> speedMod = entity -> 1.25f;
 
-	/**
-	 * Set a custom predicate for if the entity should panic based on its current conditions.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public Panic<E> panicIf(final BiPredicate<E, DamageSource> predicate) {
-		this.shouldPanicPredicate = predicate;
+    protected SquareRadius radius = new SquareRadius(5, 4);
 
-		return this;
-	}
+    protected BiFunction<E, DamageSource, Integer> panicFor = (entity, damageSource) -> entity.getRandom()
+        .nextInt(100, 120);
 
-	/**
-	 * Determine the length of time (in ticks) that the entity should panic for once starting
-	 * @param function The predicate
-	 * @return this
-	 */
-	public Panic<E> panicFor(final BiFunction<E, DamageSource, Integer> function) {
-		this.panicFor = function;
+    protected Vec3 targetPos = null;
 
-		return this;
-	}
+    protected int panicEndTime = 0;
 
-	/**
-	 * Set the movespeed modifier for the entity when panicking.
-	 * @param speedModifier The movespeed modifier/multiplier
-	 * @return this
-	 */
-	public Panic<E> speedMod(final Object2FloatFunction<E> speedModifier) {
-		this.speedMod = speedModifier;
+    public Panic() {
+        noTimeout();
+    }
 
-		return this;
-	}
+    /**
+     * Set a custom predicate for if the entity should panic based on its current conditions.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public Panic<E> panicIf(final BiPredicate<E, DamageSource> predicate) {
+        this.shouldPanicPredicate = predicate;
 
-	/**
-	 * Set the radius in which to look for walk positions.
-	 * @param radius The coordinate radius, in blocks
-	 * @return this
-	 */
-	public Panic<E> setRadius(double radius) {
-		return setRadius(radius, radius);
-	}
+        return this;
+    }
 
-	/**
-	 * Set the radius in which to look for walk positions.
-	 * @param xz The X/Z coordinate radius, in blocks
-	 * @param y The Y coordinate radius, in blocks
-	 * @return this
-	 */
-	public Panic<E> setRadius(double xz, double y) {
-		this.radius = new SquareRadius(xz, y);
+    /**
+     * Determine the length of time (in ticks) that the entity should panic for once starting
+     *
+     * @param function The predicate
+     * @return this
+     */
+    public Panic<E> panicFor(final BiFunction<E, DamageSource, Integer> function) {
+        this.panicFor = function;
 
-		return this;
-	}
+        return this;
+    }
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    /**
+     * Set the movespeed modifier for the entity when panicking.
+     *
+     * @param speedModifier The movespeed modifier/multiplier
+     * @return this
+     */
+    public Panic<E> speedMod(final Object2FloatFunction<E> speedModifier) {
+        this.speedMod = speedModifier;
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		if (!this.shouldPanicPredicate.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY)))
-			return false;
+        return this;
+    }
 
-		setPanicTarget(entity);
+    /**
+     * Set the radius in which to look for walk positions.
+     *
+     * @param radius The coordinate radius, in blocks
+     * @return this
+     */
+    public Panic<E> setRadius(double radius) {
+        return setRadius(radius, radius);
+    }
 
-		return this.targetPos != null;
-	}
+    /**
+     * Set the radius in which to look for walk positions.
+     *
+     * @param xz The X/Z coordinate radius, in blocks
+     * @param y  The Y coordinate radius, in blocks
+     * @return this
+     */
+    public Panic<E> setRadius(double xz, double y) {
+        this.radius = new SquareRadius(xz, y);
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return entity.tickCount < this.panicEndTime;
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(E entity) {
-		BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(this.targetPos, this.speedMod.apply(entity), 0));
-		BrainUtils.setMemory(entity, MemoryModuleType.IS_PANICKING, true);
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		this.panicEndTime = entity.tickCount + this.panicFor.apply(entity, BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY));
-	}
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        if (!this.shouldPanicPredicate.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY)))
+            return false;
 
-	@Override
-	protected void tick(E entity) {
-		if (entity.getNavigation().isDone()) {
-			this.targetPos = null;
-			setPanicTarget(entity);
+        setPanicTarget(entity);
 
-			if (this.targetPos != null) {
-				BrainUtils.clearMemory(entity, MemoryModuleType.PATH);
-				BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(this.targetPos, this.speedMod.apply(entity), 1));
-			}
-		}
-	}
+        return this.targetPos != null;
+    }
 
-	@Override
-	protected void stop(E entity) {
-		this.targetPos = null;
-		this.panicEndTime = 0;
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return entity.tickCount < this.panicEndTime;
+    }
 
-		BrainUtils.setMemory(entity, MemoryModuleType.IS_PANICKING, false);
-	}
+    @Override
+    protected void start(E entity) {
+        BrainUtils.setMemory(
+            entity,
+            MemoryModuleType.WALK_TARGET,
+            new WalkTarget(this.targetPos, this.speedMod.apply(entity), 0)
+        );
+        BrainUtils.setMemory(entity, MemoryModuleType.IS_PANICKING, true);
 
-	@Nullable
-	protected Vec3 findNearbyWater(E entity) {
-		final BlockPos pos = entity.blockPosition();
-		final Level level = entity.level();
+        this.panicEndTime = entity.tickCount + this.panicFor.apply(
+            entity,
+            BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY)
+        );
+    }
 
-		return !level.getBlockState(pos).getCollisionShape(level, pos).isEmpty() ? null : BlockPos.findClosestMatch(entity.blockPosition(), (int)this.radius.xzRadius(), (int)this.radius.yRadius(), checkPos -> level.getFluidState(checkPos).is(FluidTags.WATER)).map(Vec3::atBottomCenterOf).orElse(null);
-	}
+    @Override
+    protected void tick(E entity) {
+        if (entity.getNavigation().isDone()) {
+            this.targetPos = null;
+            setPanicTarget(entity);
 
-	protected void setPanicTarget(E entity) {
-		if (entity.isOnFire())
-			this.targetPos = findNearbyWater(entity);
+            if (this.targetPos != null) {
+                BrainUtils.clearMemory(entity, MemoryModuleType.PATH);
+                BrainUtils.setMemory(
+                    entity,
+                    MemoryModuleType.WALK_TARGET,
+                    new WalkTarget(this.targetPos, this.speedMod.apply(entity), 1)
+                );
+            }
+        }
+    }
 
-		if (this.targetPos == null) {
-			final DamageSource lastDamage = BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY);
+    @Override
+    protected void stop(E entity) {
+        this.targetPos = null;
+        this.panicEndTime = 0;
 
-			if (lastDamage != null && lastDamage.getEntity() instanceof LivingEntity attacker)
-				this.targetPos = DefaultRandomPos.getPosAway(entity, (int)this.radius.xzRadius(), (int)this.radius.yRadius(), attacker.position());
+        BrainUtils.setMemory(entity, MemoryModuleType.IS_PANICKING, false);
+    }
 
-			if (this.targetPos == null)
-				this.targetPos = DefaultRandomPos.getPos(entity, (int)this.radius.xzRadius(), (int)this.radius.yRadius());
-		}
-	}
+    @Nullable
+    protected Vec3 findNearbyWater(E entity) {
+        final BlockPos pos = entity.blockPosition();
+        final Level level = entity.level();
+
+        return !level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
+            ? null
+            : BlockPos.findClosestMatch(
+                entity.blockPosition(),
+                (int) this.radius.xzRadius(),
+                (int) this.radius.yRadius(),
+                checkPos -> level.getFluidState(checkPos).is(FluidTags.WATER)
+            ).map(Vec3::atBottomCenterOf).orElse(null);
+    }
+
+    protected void setPanicTarget(E entity) {
+        if (entity.isOnFire())
+            this.targetPos = findNearbyWater(entity);
+
+        if (this.targetPos == null) {
+            final DamageSource lastDamage = BrainUtils.getMemory(entity, MemoryModuleType.HURT_BY);
+
+            if (lastDamage != null && lastDamage.getEntity() instanceof LivingEntity attacker)
+                this.targetPos = DefaultRandomPos.getPosAway(
+                    entity,
+                    (int) this.radius.xzRadius(),
+                    (int) this.radius.yRadius(),
+                    attacker.position()
+                );
+
+            if (this.targetPos == null)
+                this.targetPos = DefaultRandomPos.getPos(
+                    entity,
+                    (int) this.radius.xzRadius(),
+                    (int) this.radius.yRadius()
+                );
+        }
+    }
 }

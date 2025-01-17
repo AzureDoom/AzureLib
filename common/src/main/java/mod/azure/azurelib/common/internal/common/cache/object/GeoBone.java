@@ -1,15 +1,12 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.cache.object;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.core.state.BoneSnapshot;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -19,10 +16,16 @@ import org.joml.Vector4f;
 import java.util.List;
 import java.util.Objects;
 
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.state.BoneSnapshot;
+
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
+ *
+ * @deprecated Use {@link AzBone} instead.
  */
+@Deprecated(forRemoval = true)
 public class GeoBone implements CoreGeoBone {
 
     private final GeoBone parent;
@@ -40,38 +43,60 @@ public class GeoBone implements CoreGeoBone {
     private final Boolean dontRender;
 
     private final Boolean reset;
+
     private final Matrix4f modelSpaceMatrix = new Matrix4f();
+
     private final Matrix4f localSpaceMatrix = new Matrix4f();
+
     private final Matrix4f worldSpaceMatrix = new Matrix4f();
+
     private BoneSnapshot initialSnapshot;
+
     private boolean hidden;
+
     private boolean childrenHidden = false;
+
     private float scaleX = 1;
+
     private float scaleY = 1;
+
     private float scaleZ = 1;
+
     private float positionX;
+
     private float positionY;
+
     private float positionZ;
+
     private float pivotX;
+
     private float pivotY;
+
     private float pivotZ;
+
     private float rotX;
+
     private float rotY;
+
     private float rotZ;
+
     private boolean positionChanged = false;
+
     private boolean rotationChanged = false;
+
     private boolean scaleChanged = false;
+
     private Matrix3f worldSpaceNormal = new Matrix3f();
 
     private boolean trackingMatrices;
 
     public GeoBone(
-            @Nullable GeoBone parent,
-            String name,
-            Boolean mirror,
-            @Nullable Double inflate,
-            @Nullable Boolean dontRender,
-            @Nullable Boolean reset
+        @Nullable GeoBone parent,
+        String name,
+        Boolean mirror,
+        @Nullable Double inflate,
+        @Nullable Boolean dontRender,
+        @Nullable Boolean reset
     ) {
         this.parent = parent;
         this.name = name;
@@ -399,9 +424,9 @@ public class GeoBone implements CoreGeoBone {
         // Doesn't work on bones with parent transforms
         GeoBone parent = getParent();
         Matrix4f matrix = (parent == null ? new Matrix4f().identity() : new Matrix4f(parent.getModelSpaceMatrix()))
-                .invert();
+            .invert();
         Vector4f vec = matrix.transform(
-                new Vector4f(-(float) pos.x / 16f, (float) pos.y / 16f, (float) pos.z / 16f, 1)
+            new Vector4f(-(float) pos.x / 16f, (float) pos.y / 16f, (float) pos.z / 16f, 1)
         );
 
         updatePosition(-vec.x() * 16f, vec.y() * 16f, vec.z() * 16f);
@@ -457,10 +482,10 @@ public class GeoBone implements CoreGeoBone {
     @Override
     public int hashCode() {
         return Objects.hash(
-                getName(),
-                (getParent() != null ? getParent().getName() : 0),
-                getCubes().size(),
-                getChildBones().size()
+            getName(),
+            (getParent() != null ? getParent().getName() : 0),
+            getCubes().size(),
+            getChildBones().size()
         );
     }
 }

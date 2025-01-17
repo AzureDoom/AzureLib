@@ -1,15 +1,13 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.common.config.Configurable;
-
 import java.lang.reflect.Field;
 import java.util.Objects;
+
+import mod.azure.azurelib.common.internal.common.config.Configurable;
 
 public abstract class IntegerValue<N extends Number> extends ConfigValue<N> {
 
@@ -48,8 +46,11 @@ public abstract class IntegerValue<N extends Number> extends ConfigValue<N> {
         public static Range newBoundedRange(long min, long max) {
             if (min > max) {
                 throw new IllegalArgumentException(
-                        String.format("Invalid number range: Min value (%d) cannot be bigger than max value (%d)", min,
-                                max)
+                    String.format(
+                        "Invalid number range: Min value (%d) cannot be bigger than max value (%d)",
+                        min,
+                        max
+                    )
                 );
             }
             return new Range(min, max);

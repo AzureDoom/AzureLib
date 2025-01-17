@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.sensor.vanilla;
 
@@ -20,90 +19,98 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.pathfinder.Path;
-import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
-import mod.azure.azurelib.sblforked.api.core.sensor.PredicateSensor;
-import mod.azure.azurelib.sblforked.registry.SBLSensors;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
+import mod.azure.azurelib.sblforked.api.core.sensor.PredicateSensor;
+import mod.azure.azurelib.sblforked.registry.SBLSensors;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
- * A sensor that looks for the nearest home point of interest in the surrounding
- * area.<br>
+ * A sensor that looks for the nearest home point of interest in the surrounding area.<br>
  * Defaults:
  * <ul>
  * <li>48 block radius</li>
  * <li>Only runs if the owner of the brain is a baby</li>
  * </ul>
- * 
+ *
  * @param <E> The entity
  */
 public class NearestHomeSensor<E extends Mob> extends PredicateSensor<E, E> {
-	private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.NEAREST_BED);
 
-	protected int radius = 48;
+    private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.NEAREST_BED);
 
-	private final Object2LongOpenHashMap<BlockPos> homesMap = new Object2LongOpenHashMap<>(5);
-	private int tries = 0;
+    protected int radius = 48;
 
-	public NearestHomeSensor() {
-		super((brainOwner, entity) -> brainOwner.isBaby());
-	}
+    private final Object2LongOpenHashMap<BlockPos> homesMap = new Object2LongOpenHashMap<>(5);
 
-	/**
-	 * Set the radius for the item sensor to scan
-	 *
-	 * @param radius The radius
-	 * @return this
-	 */
-	public NearestHomeSensor<E> setRadius(int radius) {
-		this.radius = radius;
+    private int tries = 0;
 
-		return this;
-	}
+    public NearestHomeSensor() {
+        super((brainOwner, entity) -> brainOwner.isBaby());
+    }
 
-	@Override
-	public List<MemoryModuleType<?>> memoriesUsed() {
-		return MEMORIES;
-	}
+    /**
+     * Set the radius for the item sensor to scan
+     *
+     * @param radius The radius
+     * @return this
+     */
+    public NearestHomeSensor<E> setRadius(int radius) {
+        this.radius = radius;
 
-	@Override
-	public SensorType<? extends ExtendedSensor<?>> type() {
-		return SBLSensors.NEAREST_HOME.get();
-	}
+        return this;
+    }
 
-	@Override
-	protected void doTick(ServerLevel level, E entity) {
-		if (!predicate().test(entity, entity))
-			return;
+    @Override
+    public List<MemoryModuleType<?>> memoriesUsed() {
+        return MEMORIES;
+    }
 
-		this.tries = 0;
-		long nodeExpiryTime = level.getGameTime() + level.getRandom().nextInt(20);
-		PoiManager poiManager = level.getPoiManager();
-		Predicate<BlockPos> predicate = pos -> {
-			if (this.homesMap.containsKey(pos))
-				return false;
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return SBLSensors.NEAREST_HOME.get();
+    }
 
-			if (++this.tries >= 5)
-				return false;
+    @Override
+    protected void doTick(ServerLevel level, E entity) {
+        if (!predicate().test(entity, entity))
+            return;
 
-			this.homesMap.put(pos, nodeExpiryTime + 40);
+        this.tries = 0;
+        long nodeExpiryTime = level.getGameTime() + level.getRandom().nextInt(20);
+        PoiManager poiManager = level.getPoiManager();
+        Predicate<BlockPos> predicate = pos -> {
+            if (this.homesMap.containsKey(pos))
+                return false;
 
-			return true;
-		};
-		Set<Pair<Holder<PoiType>, BlockPos>> poiLocations = poiManager.findAllWithType(poiType -> poiType.is(PoiTypes.HOME), predicate, entity.blockPosition(), this.radius, PoiManager.Occupancy.ANY).collect(Collectors.toSet());
-		Path pathToHome = AcquirePoi.findPathToPois(entity, poiLocations);
+            if (++this.tries >= 5)
+                return false;
 
-		if (pathToHome != null && pathToHome.canReach()) {
-			BlockPos targetPos = pathToHome.getTarget();
+            this.homesMap.put(pos, nodeExpiryTime + 40);
 
-			poiManager.getType(targetPos).ifPresent(poiType -> BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_BED, targetPos));
-		}
-		else if (this.tries < 5) {
-			this.homesMap.object2LongEntrySet().removeIf(pos -> pos.getLongValue() < nodeExpiryTime);
-		}
-	}
+            return true;
+        };
+        Set<Pair<Holder<PoiType>, BlockPos>> poiLocations = poiManager.findAllWithType(
+            poiType -> poiType.is(PoiTypes.HOME),
+            predicate,
+            entity.blockPosition(),
+            this.radius,
+            PoiManager.Occupancy.ANY
+        ).collect(Collectors.toSet());
+        Path pathToHome = AcquirePoi.findPathToPois(entity, poiLocations);
+
+        if (pathToHome != null && pathToHome.canReach()) {
+            BlockPos targetPos = pathToHome.getTarget();
+
+            poiManager.getType(targetPos)
+                .ifPresent(poiType -> BrainUtils.setMemory(entity, MemoryModuleType.NEAREST_BED, targetPos));
+        } else if (this.tries < 5) {
+            this.homesMap.object2LongEntrySet().removeIf(pos -> pos.getLongValue() < nodeExpiryTime);
+        }
+    }
 }

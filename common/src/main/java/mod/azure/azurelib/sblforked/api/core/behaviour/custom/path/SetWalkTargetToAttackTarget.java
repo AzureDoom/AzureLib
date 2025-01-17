@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.path;
 
@@ -16,73 +15,93 @@ import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.ToIntBiFunction;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Set the walk target of the entity to its current attack target.
+ *
  * @param <E> The entity
  */
 public class SetWalkTargetToAttackTarget<E extends Mob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT));
 
-	@Deprecated(forRemoval = true)
-	protected float speedModifier = 1;
-	protected BiFunction<E, LivingEntity, Float> speedMod = (owner, target) -> 1f;
-	protected ToIntBiFunction<E, LivingEntity> closeEnoughWhen = (owner, target) -> 0;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
+    );
 
-	/**
-	 * Set the movespeed modifier for the entity when moving to the target.
-	 * @param speedModifier The movespeed modifier/multiplier
-	 * @return this
-	 */
-	@Deprecated(forRemoval = true)
-	public SetWalkTargetToAttackTarget<E> speedMod(float speedModifier) {
-		return speedMod((owner, target) -> speedModifier);
-	}
+    @Deprecated(forRemoval = true)
+    protected float speedModifier = 1;
 
-	/**
-	 * Set the movespeed modifier for the entity when moving to the target.
-	 * @param speedModifier The movespeed modifier/multiplier
-	 * @return this
-	 */
-	public SetWalkTargetToAttackTarget<E> speedMod(BiFunction<E, LivingEntity, Float> speedModifier) {
-		this.speedMod = speedModifier;
+    protected BiFunction<E, LivingEntity, Float> speedMod = (owner, target) -> 1f;
 
-		return this;
-	}
+    protected ToIntBiFunction<E, LivingEntity> closeEnoughWhen = (owner, target) -> 0;
 
-	/**
-	 * Sets the amount (in blocks) that the mob can be considered 'close enough' to their target that they can stop pathfinding
-	 * @param closeEnoughMod The distance modifier
-	 * @return this
-	 */
-	public SetWalkTargetToAttackTarget<E> closeEnoughDist(ToIntBiFunction<E, LivingEntity> closeEnoughMod) {
-		this.closeEnoughWhen = closeEnoughMod;
+    /**
+     * Set the movespeed modifier for the entity when moving to the target.
+     *
+     * @param speedModifier The movespeed modifier/multiplier
+     * @return this
+     */
+    @Deprecated(forRemoval = true)
+    public SetWalkTargetToAttackTarget<E> speedMod(float speedModifier) {
+        return speedMod((owner, target) -> speedModifier);
+    }
 
-		return this;
-	}
+    /**
+     * Set the movespeed modifier for the entity when moving to the target.
+     *
+     * @param speedModifier The movespeed modifier/multiplier
+     * @return this
+     */
+    public SetWalkTargetToAttackTarget<E> speedMod(BiFunction<E, LivingEntity, Float> speedModifier) {
+        this.speedMod = speedModifier;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(E entity) {
-		Brain<?> brain = entity.getBrain();
-		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+    /**
+     * Sets the amount (in blocks) that the mob can be considered 'close enough' to their target that they can stop
+     * pathfinding
+     *
+     * @param closeEnoughMod The distance modifier
+     * @return this
+     */
+    public SetWalkTargetToAttackTarget<E> closeEnoughDist(ToIntBiFunction<E, LivingEntity> closeEnoughMod) {
+        this.closeEnoughWhen = closeEnoughMod;
 
-		if (entity.getSensing().hasLineOfSight(target) && BehaviorUtils.isWithinAttackRange(entity, target, 1)) {
-			BrainUtils.clearMemory(brain, MemoryModuleType.WALK_TARGET);
-		}
-		else {
-			BrainUtils.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
-			BrainUtils.setMemory(brain, MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(target, false), this.speedMod.apply(entity, target), this.closeEnoughWhen.applyAsInt(entity, target)));
-		}
-	}
+        return this;
+    }
+
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
+
+    @Override
+    protected void start(E entity) {
+        Brain<?> brain = entity.getBrain();
+        LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+
+        if (entity.getSensing().hasLineOfSight(target) && BehaviorUtils.isWithinAttackRange(entity, target, 1)) {
+            BrainUtils.clearMemory(brain, MemoryModuleType.WALK_TARGET);
+        } else {
+            BrainUtils.setMemory(brain, MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
+            BrainUtils.setMemory(
+                brain,
+                MemoryModuleType.WALK_TARGET,
+                new WalkTarget(
+                    new EntityTracker(target, false),
+                    this.speedMod.apply(entity, target),
+                    this.closeEnoughWhen.applyAsInt(entity, target)
+                )
+            );
+        }
+    }
 }

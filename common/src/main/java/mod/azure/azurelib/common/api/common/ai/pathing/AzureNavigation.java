@@ -1,6 +1,5 @@
 package mod.azure.azurelib.common.api.common.ai.pathing;
 
-import mod.azure.azurelib.common.internal.common.ai.pathing.AzurePathFinder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -16,6 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+import mod.azure.azurelib.common.internal.common.ai.pathing.AzurePathFinder;
+
 /*
  * Credit to Bob Mowzie and pau101 for most of the code, code source for the base class can be found here:
  * https://github.com/BobMowzie/MowziesMobs/blob/master/src/main/java/com/bobmowzie/mowziesmobs/server/ai/
@@ -24,6 +25,7 @@ import java.util.Objects;
 public class AzureNavigation extends GroundPathNavigation {
 
     static final float EPSILON = 1.0E-8F;
+
     @Nullable
     protected BlockPos pathToPosition;
 
@@ -40,8 +42,8 @@ public class AzureNavigation extends GroundPathNavigation {
 
     /**
      * Forces the entity to stop its current pathfinding by clearing both the {@code path} and {@code pathToPosition}.
-     * Unlike the normal {@code stop()} method, this ensures that {@code pathToPosition} is cleared as well,
-     * preventing potential pathfinding issues caused by lingering path data.
+     * Unlike the normal {@code stop()} method, this ensures that {@code pathToPosition} is cleared as well, preventing
+     * potential pathfinding issues caused by lingering path data.
      * <p>
      * Special thanks to JayZX535 for contributing this method.
      */
@@ -79,8 +81,12 @@ public class AzureNavigation extends GroundPathNavigation {
         }
         final Vec3 base = entityPos.add(-this.mob.getBbWidth() * 0.5F, 0.0F, -this.mob.getBbWidth() * 0.5F);
         final Vec3 max = base.add(this.mob.getBbWidth(), this.mob.getBbHeight(), this.mob.getBbWidth());
-        if (this.tryShortcut(path, new Vec3(this.mob.getX(), this.mob.getY(), this.mob.getZ()), pathLength, base, max)) {
-            if (this.isAt(path, 0.5F) || this.atElevationChange(path) && this.isAt(path, this.mob.getBbWidth() * 0.5F)) {
+        if (
+            this.tryShortcut(path, new Vec3(this.mob.getX(), this.mob.getY(), this.mob.getZ()), pathLength, base, max)
+        ) {
+            if (
+                this.isAt(path, 0.5F) || this.atElevationChange(path) && this.isAt(path, this.mob.getBbWidth() * 0.5F)
+            ) {
                 path.setNextNodeIndex(path.getNextNodeIndex() + 1);
             }
         }
@@ -116,35 +122,35 @@ public class AzureNavigation extends GroundPathNavigation {
         if (this.isDone()) {
             if (this.pathToPosition != null) {
                 if (
-                        this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob
-                                .getY() > (double) this.pathToPosition.getY() && BlockPos.containing(
-                                this.pathToPosition.getX(),
-                                this.mob.getY(),
-                                this.pathToPosition.getZ()
+                    this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob
+                        .getY() > (double) this.pathToPosition.getY() && BlockPos.containing(
+                            this.pathToPosition.getX(),
+                            this.mob.getY(),
+                            this.pathToPosition.getZ()
                         ).closerToCenterThan(this.mob.position(), this.mob.getBbWidth())
                 ) {
                     this.pathToPosition = null;
                 } else {
                     this.mob.getMoveControl()
-                            .setWantedPosition(
-                                    this.pathToPosition.getX(),
-                                    this.pathToPosition.getY(),
-                                    this.pathToPosition.getZ(),
-                                    this.speedModifier
-                            );
+                        .setWantedPosition(
+                            this.pathToPosition.getX(),
+                            this.pathToPosition.getY(),
+                            this.pathToPosition.getZ(),
+                            this.speedModifier
+                        );
                 }
             }
             return;
         }
         if (this.getTargetPos() != null)
             this.mob.getLookControl()
-                    .setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
+                .setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
     }
 
     private boolean isAt(Path path, float threshold) {
         final Vec3 pathPos = path.getNextEntityPos(this.mob);
         return Mth.abs((float) (this.mob.getX() - pathPos.x)) < threshold && Mth.abs(
-                (float) (this.mob.getZ() - pathPos.z)
+            (float) (this.mob.getZ() - pathPos.z)
         ) < threshold && Math.abs(this.mob.getY() - pathPos.y) < 1.0D;
     }
 
@@ -161,7 +167,7 @@ public class AzureNavigation extends GroundPathNavigation {
     }
 
     private boolean tryShortcut(Path path, Vec3 entityPos, int pathLength, Vec3 base, Vec3 max) {
-        for (int i = pathLength; --i > path.getNextNodeIndex(); ) {
+        for (int i = pathLength; --i > path.getNextNodeIndex();) {
             final Vec3 vec = path.getEntityPosAtNode(this.mob, i).subtract(entityPos);
             if (this.sweep(vec, base, max)) {
                 path.setNextNodeIndex(i);
@@ -176,7 +182,8 @@ public class AzureNavigation extends GroundPathNavigation {
     private boolean sweep(Vec3 vec, Vec3 base, Vec3 max) {
         float t = 0.0F;
         float max_t = (float) vec.length();
-        if (max_t < EPSILON) return true;
+        if (max_t < EPSILON)
+            return true;
         final float[] tr = new float[3];
         final int[] ldi = new int[3];
         final int[] tri = new int[3];
@@ -200,9 +207,7 @@ public class AzureNavigation extends GroundPathNavigation {
         final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         do {
             // stepForward
-            int axis = (tNext[0] < tNext[1]) ?
-                    ((tNext[0] < tNext[2]) ? 0 : 2) :
-                    ((tNext[1] < tNext[2]) ? 1 : 2);
+            int axis = (tNext[0] < tNext[1]) ? ((tNext[0] < tNext[2]) ? 0 : 2) : ((tNext[1] < tNext[2]) ? 1 : 2);
             float dt = tNext[axis] - t;
             t = tNext[axis];
             ldi[axis] += step[axis];
@@ -225,14 +230,23 @@ public class AzureNavigation extends GroundPathNavigation {
                 for (int z = z0; z != z1; z += stepz) {
                     for (int y = y0; y != y1; y += stepy) {
                         BlockState block = this.level.getBlockState(pos.set(x, y, z));
-                        if (!block.isPathfindable(PathComputationType.LAND)) return false;
+                        if (!block.isPathfindable(PathComputationType.LAND))
+                            return false;
                     }
-                    PathType below = this.nodeEvaluator.getPathType(new PathfindingContext(mob.level(), mob), x, y0 - 1, z);
-                    if (below == PathType.WATER || below == PathType.LAVA || below == PathType.OPEN) return false;
+                    PathType below = this.nodeEvaluator.getPathType(
+                        new PathfindingContext(mob.level(), mob),
+                        x,
+                        y0 - 1,
+                        z
+                    );
+                    if (below == PathType.WATER || below == PathType.LAVA || below == PathType.OPEN)
+                        return false;
                     PathType in = this.nodeEvaluator.getPathType(new PathfindingContext(mob.level(), mob), x, y0, z);
                     float priority = this.mob.getPathfindingMalus(in);
-                    if (priority < 0.0F || priority >= 8.0F) return false;
-                    if (in == PathType.DAMAGE_FIRE || in == PathType.DANGER_FIRE || in == PathType.DAMAGE_OTHER) return false;
+                    if (priority < 0.0F || priority >= 8.0F)
+                        return false;
+                    if (in == PathType.DAMAGE_FIRE || in == PathType.DANGER_FIRE || in == PathType.DAMAGE_OTHER)
+                        return false;
                 }
             }
         } while (t <= max_t);
@@ -249,10 +263,14 @@ public class AzureNavigation extends GroundPathNavigation {
 
     static float element(Vec3 v, int i) {
         switch (i) {
-            case 0: return (float) v.x;
-            case 1: return (float) v.y;
-            case 2: return (float) v.z;
-            default: return 0.0F;
+            case 0:
+                return (float) v.x;
+            case 1:
+                return (float) v.y;
+            case 2:
+                return (float) v.z;
+            default:
+                return 0.0F;
         }
     }
 }

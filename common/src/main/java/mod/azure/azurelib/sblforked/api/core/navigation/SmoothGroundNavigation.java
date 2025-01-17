@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.navigation;
 
@@ -20,17 +19,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Extension of the vanilla {@link GroundPathNavigation} with some tweaks for smoother pathfinding:
  * <ul>
- *     <li>Smoothed unit rounding to better accommodate edge-cases</li>
- *     <li>Patched {@link Path} implementation to use proper rounding</li>
- *     <li>Skip to vertical traversal first before continuing path nodes if appropriate</li>
- *     <li>Accessible {@link GroundPathNavigation#getSurfaceY()} override for extensibility</li>
+ * <li>Smoothed unit rounding to better accommodate edge-cases</li>
+ * <li>Patched {@link Path} implementation to use proper rounding</li>
+ * <li>Skip to vertical traversal first before continuing path nodes if appropriate</li>
+ * <li>Accessible {@link GroundPathNavigation#getSurfaceY()} override for extensibility</li>
  * </ul>
  * <p>
- * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a ground-based walking entity
+ * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a ground-based
+ * walking entity
+ *
  * @see ExtendedNavigator#canPathOnto
  * @see ExtendedNavigator#canPathInto
  */
 public class SmoothGroundNavigation extends GroundPathNavigation implements ExtendedNavigator {
+
     public SmoothGroundNavigation(Mob mob, Level level) {
         super(mob, level);
     }
@@ -61,10 +63,16 @@ public class SmoothGroundNavigation extends GroundPathNavigation implements Exte
     protected void followThePath() {
         final Vec3 safeSurfacePos = getTempMobPos();
         final int shortcutNode = getClosestVerticalTraversal(Mth.floor(safeSurfacePos.y));
-        this.maxDistanceToWaypoint = this.mob.getBbWidth() > 0.75f ? this.mob.getBbWidth() / 2f : 0.75f - this.mob.getBbWidth() / 2f;
+        this.maxDistanceToWaypoint = this.mob.getBbWidth() > 0.75f
+            ? this.mob.getBbWidth() / 2f
+            : 0.75f - this.mob.getBbWidth() / 2f;
 
         if (!attemptShortcut(shortcutNode, safeSurfacePos)) {
-            if (isCloseToNextNode(0.5f) || isAboutToTraverseVertically() && isCloseToNextNode(getMaxDistanceToWaypoint()))
+            if (
+                isCloseToNextNode(0.5f) || isAboutToTraverseVertically() && isCloseToNextNode(
+                    getMaxDistanceToWaypoint()
+                )
+            )
                 this.path.advance();
         }
 
@@ -86,10 +94,11 @@ public class SmoothGroundNavigation extends GroundPathNavigation implements Exte
     /**
      * Find the nearest node in the path that accounts for a vertical traversal (either up or down)
      * <p>
-     * This can then be used to test if a collision-free traversal can be made, skipping the intermediate nodes as appropriate
+     * This can then be used to test if a collision-free traversal can be made, skipping the intermediate nodes as
+     * appropriate
      *
-     * @param safeSurfaceHeight The baseline floored y-pos of where the mob should traverse to (usually the nearest ground pos or surface of the fluid it's submerged in)
-     *
+     * @param safeSurfaceHeight The baseline floored y-pos of where the mob should traverse to (usually the nearest
+     *                          ground pos or surface of the fluid it's submerged in)
      * @return The node index for the nearest node representing a vertical traversal
      */
     protected int getClosestVerticalTraversal(int safeSurfaceHeight) {

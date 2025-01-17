@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -17,129 +16,161 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
- * {@link ExtendedBehaviour ExtendedBehaviour} equivalent of vanilla's {@link net.minecraft.world.entity.ai.behavior.FollowTemptation FollowTemptation}.<br>
+ * {@link ExtendedBehaviour ExtendedBehaviour} equivalent of vanilla's
+ * {@link net.minecraft.world.entity.ai.behavior.FollowTemptation FollowTemptation}.<br>
  * Has the entity follow a relevant temptation target (I.E. a player holding a tempting item).<br>
  * Will continue running for as long as the entity is being tempted.<br>
  * Defaults:
  * <ul>
- *     <li>Follows the temptation target indefinitely</li>
- *     <li>Will stop following if panicked or if it has an active breed target</li>
- *     <li>Will not follow a temptation target again for 5 seconds after stopping</li>
- *     <li>Considers 2.5 blocks 'close enough' for the purposes of following temptation</li>
- *     <li>1x speed modifier while following</li>
+ * <li>Follows the temptation target indefinitely</li>
+ * <li>Will stop following if panicked or if it has an active breed target</li>
+ * <li>Will not follow a temptation target again for 5 seconds after stopping</li>
+ * <li>Considers 2.5 blocks 'close enough' for the purposes of following temptation</li>
+ * <li>1x speed modifier while following</li>
  * </ul>
  */
 public class FollowTemptation<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.IS_TEMPTED, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.IS_PANICKING, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.BREED_TARGET, MemoryStatus.REGISTERED));
 
-	protected BiFunction<E, Player, Float> speedMod = (entity, temptingPlayer) -> 1f;
-	protected BiPredicate<E, Player> shouldFollow = (entity, temptingPlayer) -> (!(entity instanceof Animal animal) || animal.getAge() == 0) && !BrainUtils.memoryOrDefault(entity, MemoryModuleType.IS_PANICKING, () -> false);
-	protected BiFunction<E, Player, Float> closeEnoughWhen = (owner, temptingPlayer) -> 2.5f;
-	protected Object2IntFunction<E> temptationCooldown = entity -> 100;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.IS_TEMPTED, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.TEMPTING_PLAYER, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.IS_PANICKING, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.BREED_TARGET, MemoryStatus.REGISTERED)
+    );
 
-	public FollowTemptation() {
-		super();
+    protected BiFunction<E, Player, Float> speedMod = (entity, temptingPlayer) -> 1f;
 
-		this.runFor(entity -> Integer.MAX_VALUE);
-	}
+    protected BiPredicate<E, Player> shouldFollow = (entity, temptingPlayer) -> (!(entity instanceof Animal animal)
+        || animal.getAge() == 0) && !BrainUtils.memoryOrDefault(entity, MemoryModuleType.IS_PANICKING, () -> false);
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected BiFunction<E, Player, Float> closeEnoughWhen = (owner, temptingPlayer) -> 2.5f;
 
-	/**
-	 * Set the movespeed modifier for the entity when following the tempting player.
-	 * @param speedModifier The movespeed modifier/multiplier
-	 * @return this
-	 */
-	public FollowTemptation<E> speedMod(final BiFunction<E, Player, Float> speedModifier) {
-		this.speedMod = speedModifier;
+    protected Object2IntFunction<E> temptationCooldown = entity -> 100;
 
-		return this;
-	}
+    public FollowTemptation() {
+        super();
 
-	/**
-	 * Determine whether the entity should follow the tempting player or not
-	 * @param predicate The temptation predicate
-	 * @return this
-	 */
-	public FollowTemptation<E> followIf(final BiPredicate<E, Player> predicate) {
-		this.shouldFollow = predicate;
+        this.runFor(entity -> Integer.MAX_VALUE);
+    }
 
-		return this;
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	/**
-	 * Sets the amount (in blocks) that the mob can be considered 'close enough' to their temptation that they can stop pathfinding
-	 * @param closeEnoughMod The distance modifier
-	 * @return this
-	 */
-	public FollowTemptation<E> closeEnoughDist(final BiFunction<E, Player, Float> closeEnoughMod) {
-		this.closeEnoughWhen = closeEnoughMod;
+    /**
+     * Set the movespeed modifier for the entity when following the tempting player.
+     *
+     * @param speedModifier The movespeed modifier/multiplier
+     * @return this
+     */
+    public FollowTemptation<E> speedMod(final BiFunction<E, Player, Float> speedModifier) {
+        this.speedMod = speedModifier;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Sets the length of time (in ticks) the entity should ignore temptation after having previously been tempted.<br>
-	 * NOTE: This could be ignored if the {@link FollowTemptation#followIf} predicate has been overriden
-	 * @param cooldownFunction The cooldown function
-	 * @return this
-	 */
-	public FollowTemptation<E> temptationCooldown(final Object2IntFunction<E> cooldownFunction) {
-		this.temptationCooldown = cooldownFunction;
+    /**
+     * Determine whether the entity should follow the tempting player or not
+     *
+     * @param predicate The temptation predicate
+     * @return this
+     */
+    public FollowTemptation<E> followIf(final BiPredicate<E, Player> predicate) {
+        this.shouldFollow = predicate;
 
-		return this;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		return this.shouldFollow.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER));
-	}
+    /**
+     * Sets the amount (in blocks) that the mob can be considered 'close enough' to their temptation that they can stop
+     * pathfinding
+     *
+     * @param closeEnoughMod The distance modifier
+     * @return this
+     */
+    public FollowTemptation<E> closeEnoughDist(final BiFunction<E, Player, Float> closeEnoughMod) {
+        this.closeEnoughWhen = closeEnoughMod;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTING_PLAYER) &&
-				!BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTATION_COOLDOWN_TICKS) &&
-				!BrainUtils.hasMemory(entity, MemoryModuleType.BREED_TARGET) &&
-				this.shouldFollow.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER));
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(E entity) {
-		BrainUtils.setMemory(entity, MemoryModuleType.IS_TEMPTED, true);
-	}
+    /**
+     * Sets the length of time (in ticks) the entity should ignore temptation after having previously been tempted.<br>
+     * NOTE: This could be ignored if the {@link FollowTemptation#followIf} predicate has been overriden
+     *
+     * @param cooldownFunction The cooldown function
+     * @return this
+     */
+    public FollowTemptation<E> temptationCooldown(final Object2IntFunction<E> cooldownFunction) {
+        this.temptationCooldown = cooldownFunction;
 
-	@Override
-	protected void tick(E entity) {
-		final Player temptingPlayer = BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
-		final float closeEnough = this.closeEnoughWhen.apply(entity, temptingPlayer);
+        return this;
+    }
 
-		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(temptingPlayer, true));
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        return this.shouldFollow.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER));
+    }
 
-		if (entity.distanceToSqr(temptingPlayer) < closeEnough * closeEnough) {
-			BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
-		}
-		else {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(temptingPlayer, false), this.speedMod.apply(entity, temptingPlayer), (int)closeEnough));
-		}
-	}
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTING_PLAYER) &&
+            !BrainUtils.hasMemory(entity, MemoryModuleType.TEMPTATION_COOLDOWN_TICKS) &&
+            !BrainUtils.hasMemory(entity, MemoryModuleType.BREED_TARGET) &&
+            this.shouldFollow.test(entity, BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER));
+    }
 
-	@Override
-	protected void stop(E entity) {
-		final int cooldownTicks = this.temptationCooldown.apply(entity);
+    @Override
+    protected void start(E entity) {
+        BrainUtils.setMemory(entity, MemoryModuleType.IS_TEMPTED, true);
+    }
 
-		BrainUtils.setForgettableMemory(entity, MemoryModuleType.TEMPTATION_COOLDOWN_TICKS, cooldownTicks, cooldownTicks);
-		BrainUtils.setMemory(entity, MemoryModuleType.IS_TEMPTED, false);
-		BrainUtils.clearMemories(entity, MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET);
-	}
+    @Override
+    protected void tick(E entity) {
+        final Player temptingPlayer = BrainUtils.getMemory(entity, MemoryModuleType.TEMPTING_PLAYER);
+        final float closeEnough = this.closeEnoughWhen.apply(entity, temptingPlayer);
+
+        BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(temptingPlayer, true));
+
+        if (entity.distanceToSqr(temptingPlayer) < closeEnough * closeEnough) {
+            BrainUtils.clearMemory(entity, MemoryModuleType.WALK_TARGET);
+        } else {
+            BrainUtils.setMemory(
+                entity,
+                MemoryModuleType.WALK_TARGET,
+                new WalkTarget(
+                    new EntityTracker(temptingPlayer, false),
+                    this.speedMod.apply(entity, temptingPlayer),
+                    (int) closeEnough
+                )
+            );
+        }
+    }
+
+    @Override
+    protected void stop(E entity) {
+        final int cooldownTicks = this.temptationCooldown.apply(entity);
+
+        BrainUtils.setForgettableMemory(
+            entity,
+            MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
+            cooldownTicks,
+            cooldownTicks
+        );
+        BrainUtils.setMemory(entity, MemoryModuleType.IS_TEMPTED, false);
+        BrainUtils.clearMemories(entity, MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET);
+    }
 }

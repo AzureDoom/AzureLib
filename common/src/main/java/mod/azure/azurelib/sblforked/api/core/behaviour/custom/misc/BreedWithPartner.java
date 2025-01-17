@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.misc;
 
@@ -13,8 +12,6 @@ import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.animal.Animal;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,105 +19,151 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.ToIntBiFunction;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Functional replacement for vanilla's {@link net.minecraft.world.entity.ai.behavior.AnimalMakeLove AnimalMakeLove}.
- * <p>Makes the entity find, move to, and breed with its target mate, producing offspring.</p>
+ * <p>
+ * Makes the entity find, move to, and breed with its target mate, producing offspring.
+ * </p>
  * Defaults:
  * <ul>
- *     <li>1x walk speed modifier when moving to its breeding partner</li>
- *     <li>Spend between 3 and 5.5 seconds to create the offspring</li>
+ * <li>1x walk speed modifier when moving to its breeding partner</li>
+ * <li>Spend between 3 and 5.5 seconds to create the offspring</li>
  * </ul>
  */
 public class BreedWithPartner<E extends Animal> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
 
-	protected BiFunction<E, Animal, Float> speedMod = (entity, partner) -> 1f;
-	protected ToIntBiFunction<E, Animal> closeEnoughDist = (entity, partner) -> 2;
-	protected BiFunction<E, Animal, Integer> breedTime = (entity, partner) -> entity.getRandom().nextInt(60, 110);
-	protected BiPredicate<E, Animal> partnerPredicate = (entity, partner) -> entity.getType() == partner.getType() && entity.canMate(partner);
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT)
+    );
 
-	protected int childBreedTick = -1;
-	protected Animal partner = null;
+    protected BiFunction<E, Animal, Float> speedMod = (entity, partner) -> 1f;
 
-	public BreedWithPartner() {
-		runFor(entity -> Integer.MAX_VALUE);
-	}
+    protected ToIntBiFunction<E, Animal> closeEnoughDist = (entity, partner) -> 2;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected BiFunction<E, Animal, Integer> breedTime = (entity, partner) -> entity.getRandom().nextInt(60, 110);
 
-	/**
-	 * Set the movespeed modifier for the entity when moving to their partner.
-	 * @param speedModifier The movespeed modifier/multiplier
-	 * @return this
-	 */
-	public BreedWithPartner<E> speedMod(final BiFunction<E, Animal, Float> speedModifier) {
-		this.speedMod = speedModifier;
+    protected BiPredicate<E, Animal> partnerPredicate = (entity, partner) -> entity.getType() == partner.getType()
+        && entity.canMate(partner);
 
-		return this;
-	}
+    protected int childBreedTick = -1;
 
-	/**
-	 * Sets the amount (in blocks) that the animal can be considered 'close enough' to their partner that they can stop pathfinding
-	 * @param closeEnoughDist The distance function
-	 * @return this
-	 */
-	public BreedWithPartner<E> closeEnoughDist(final ToIntBiFunction<E, Animal> closeEnoughDist) {
-		this.closeEnoughDist = closeEnoughDist;
+    protected Animal partner = null;
 
-		return this;
-	}
+    public BreedWithPartner() {
+        runFor(entity -> Integer.MAX_VALUE);
+    }
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		if (!entity.isInLove())
-			return false;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		this.partner = findPartner(entity);
+    /**
+     * Set the movespeed modifier for the entity when moving to their partner.
+     *
+     * @param speedModifier The movespeed modifier/multiplier
+     * @return this
+     */
+    public BreedWithPartner<E> speedMod(final BiFunction<E, Animal, Float> speedModifier) {
+        this.speedMod = speedModifier;
 
-		return this.partner != null;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return this.partner != null && this.partner.isAlive() && entity.tickCount <= this.childBreedTick && BehaviorUtils.entityIsVisible(entity.getBrain(), this.partner) && this.partnerPredicate.test(entity, this.partner);
-	}
+    /**
+     * Sets the amount (in blocks) that the animal can be considered 'close enough' to their partner that they can stop
+     * pathfinding
+     *
+     * @param closeEnoughDist The distance function
+     * @return this
+     */
+    public BreedWithPartner<E> closeEnoughDist(final ToIntBiFunction<E, Animal> closeEnoughDist) {
+        this.closeEnoughDist = closeEnoughDist;
 
-	@Override
-	protected void start(E entity) {
-		this.childBreedTick = entity.tickCount + this.breedTime.apply(entity, this.partner);
+        return this;
+    }
 
-		BrainUtils.setMemory(entity, MemoryModuleType.BREED_TARGET, this.partner);
-		BrainUtils.setMemory(this.partner, MemoryModuleType.BREED_TARGET, entity);
-		BehaviorUtils.lockGazeAndWalkToEachOther(entity, this.partner, this.speedMod.apply(entity, this.partner), this.closeEnoughDist.applyAsInt(entity, this.partner));
-	}
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        if (!entity.isInLove())
+            return false;
 
-	@Override
-	protected void tick(E entity) {
-		BehaviorUtils.lockGazeAndWalkToEachOther(entity, this.partner, this.speedMod.apply(entity, this.partner), this.closeEnoughDist.applyAsInt(entity, this.partner));
+        this.partner = findPartner(entity);
 
-		if (entity.closerThan(this.partner, 3) && entity.tickCount == this.childBreedTick) {
-			entity.spawnChildFromBreeding((ServerLevel)entity.level(), this.partner);
-			BrainUtils.clearMemory(entity, MemoryModuleType.BREED_TARGET);
-			BrainUtils.clearMemory(this.partner, MemoryModuleType.BREED_TARGET);
-		}
-	}
+        return this.partner != null;
+    }
 
-	@Override
-	protected void stop(E entity) {
-		BrainUtils.clearMemories(entity, MemoryModuleType.BREED_TARGET, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET);
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return this.partner != null && this.partner.isAlive() && entity.tickCount <= this.childBreedTick
+            && BehaviorUtils.entityIsVisible(entity.getBrain(), this.partner) && this.partnerPredicate.test(
+                entity,
+                this.partner
+            );
+    }
 
-		if (this.partner != null)
-			BrainUtils.clearMemories(this.partner, MemoryModuleType.BREED_TARGET, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET);
+    @Override
+    protected void start(E entity) {
+        this.childBreedTick = entity.tickCount + this.breedTime.apply(entity, this.partner);
 
-		this.childBreedTick = -1;
-		this.partner = null;
-	}
+        BrainUtils.setMemory(entity, MemoryModuleType.BREED_TARGET, this.partner);
+        BrainUtils.setMemory(this.partner, MemoryModuleType.BREED_TARGET, entity);
+        BehaviorUtils.lockGazeAndWalkToEachOther(
+            entity,
+            this.partner,
+            this.speedMod.apply(entity, this.partner),
+            this.closeEnoughDist.applyAsInt(entity, this.partner)
+        );
+    }
 
-	@Nullable
-	protected Animal findPartner(E entity) {
-		return BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).findClosest(entity2 -> entity2 instanceof Animal partner && this.partnerPredicate.test(entity, partner)).map(Animal.class::cast).orElse(null);
-	}
+    @Override
+    protected void tick(E entity) {
+        BehaviorUtils.lockGazeAndWalkToEachOther(
+            entity,
+            this.partner,
+            this.speedMod.apply(entity, this.partner),
+            this.closeEnoughDist.applyAsInt(entity, this.partner)
+        );
+
+        if (entity.closerThan(this.partner, 3) && entity.tickCount == this.childBreedTick) {
+            entity.spawnChildFromBreeding((ServerLevel) entity.level(), this.partner);
+            BrainUtils.clearMemory(entity, MemoryModuleType.BREED_TARGET);
+            BrainUtils.clearMemory(this.partner, MemoryModuleType.BREED_TARGET);
+        }
+    }
+
+    @Override
+    protected void stop(E entity) {
+        BrainUtils.clearMemories(
+            entity,
+            MemoryModuleType.BREED_TARGET,
+            MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.WALK_TARGET
+        );
+
+        if (this.partner != null)
+            BrainUtils.clearMemories(
+                this.partner,
+                MemoryModuleType.BREED_TARGET,
+                MemoryModuleType.LOOK_TARGET,
+                MemoryModuleType.WALK_TARGET
+            );
+
+        this.childBreedTick = -1;
+        this.partner = null;
+    }
+
+    @Nullable
+    protected Animal findPartner(E entity) {
+        return BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+            .findClosest(entity2 -> entity2 instanceof Animal partner && this.partnerPredicate.test(entity, partner))
+            .map(Animal.class::cast)
+            .orElse(null);
+    }
 }

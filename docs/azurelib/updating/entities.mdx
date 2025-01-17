@@ -1,0 +1,204 @@
+---
+title: "Updating Guide: 2.x to 3.x"
+hide_meta: true
+---
+
+# Updating Entities
+
+A guide for converting AzureLib/Geckolib Entities to the new 3.x code.
+
+## Entity Class
+
+<table>
+  <tbody>
+    <tr>
+      <th>Old Entity class in AzureLib/Geckolib</th>
+      <th>New 3.x Entity class</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+public class ExampleEntity extends Entity implements GeoEntity  {
+    // Geckolib used GeckoLibUtil
+    private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
+
+    public ExampleEntity(EntityType<? extends Entity> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // Where you registered your Controllers and such
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+}
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleEntity extends Entity {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleEntityDispatcher dispatcher;
+
+    public ExampleEntity(EntityType<? extends Entity> entityType, Level level) {
+        super(entityType, level);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleEntityDispatcher(this);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.level().isClientSide) {
+            animationDispatcher.idle();
+        }
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+As you can see here, you no longer need to implement a Geo interface to your class anymore and no longer register your controllers here. All that is needed now is to simply implement a Dispatcher, which we will cover below.
+
+## Animations
+
+<table>
+  <tbody>
+    <tr>
+      <th>Old AzureLib/Geckolib Controller/Animation registration</th>
+      <th>New 3.x Controller/Animation registration</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+            ```java
+                private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+
+                @Override
+                public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+                    controllers.add(
+                        new AnimationController<>(this, "base_controller", 0,
+                            state -> state.setAndContinue(IDLE))
+                    );
+                }
+            ```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/entity/example_entity.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleEntity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ExampleEntity animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Callout variant="info">
+    It is recommend to created a dedicated class for your Animation triggers as AzureLib now functions only using animation trigger calls, which is registered in your item like in the example above of the new Item class:
+</Callout>
+```java
+public class ExampleEntityDispatcher {
+    private static final AzCommand IDLE_COMMAND = AzCommand.create(
+        "base_controller",
+        "idle",
+        AzPlayBehaviors.LOOP
+    );
+
+    private final ExampleEntity example_entity;
+
+    public DoomHunterAnimationDispatcher(ExampleEntity animatable) {
+        this.example_entity = animatable;
+    }
+
+    public void idle() {
+        IDLE_COMMAND.sendForEntity(example_entity);
+    }
+}
+```
+
+## Rendering
+
+<table>
+  <tbody>
+    <tr>
+      <th>Old AzureLib/Geckolib Renderer</th>
+      <th>New 3.x Renderer</th>
+    </tr>
+    <tr>
+      <td>
+        <pre>
+```java
+public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
+    public ExampleEntityRenderer() {
+        super(new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(
+            YOUR_MOD_ID, "example_entity"
+        )));
+    }
+}
+```
+        </pre>
+      </td>
+      <td>
+        <pre>
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/entity/example_entity.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/entity/example_entity.png"
+    );
+
+    public ExampleEntityRenderer() {
+        super(
+            AzBlockEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
+                .setAnimatorProvider(ExampleEntityAnimator::new).build()
+        );
+    }
+}
+```
+        </pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+This is where you will now register the ResourceLocation model and texture of your armor and you register your ExampleEntityAnimator.
+
+## Registering
+
+This has not changed for Entities, please refer to your mod loader for how to register entities and the entities renderer.

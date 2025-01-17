@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.target;
 
@@ -12,79 +11,94 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 /**
  * Sets the attack target of the entity if one is available. <br>
  * Defaults:
  * <ul>
- *     <li>Will target anything set as the {@link MemoryModuleType#NEAREST_ATTACKABLE} memory</li>
+ * <li>Will target anything set as the {@link MemoryModuleType#NEAREST_ATTACKABLE} memory</li>
  * </ul>
+ *
  * @see net.minecraft.world.entity.ai.behavior.StartAttacking
  */
 public class SetAttackTarget<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.NEAREST_ATTACKABLE, MemoryStatus.VALUE_PRESENT));
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> CUSTOM_TARGETING_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT));
 
-	protected final boolean usingNearestAttackable;
-	protected Predicate<E> canAttackPredicate = entity -> true;
-	protected Function<E, ? extends LivingEntity> targetFinder = entity -> BrainUtils.getMemory(entity, MemoryModuleType.NEAREST_ATTACKABLE);
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.NEAREST_ATTACKABLE, MemoryStatus.VALUE_PRESENT)
+    );
 
-	public SetAttackTarget() {
-		this(true);
-	}
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> CUSTOM_TARGETING_REQUIREMENTS = ObjectArrayList
+        .of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT));
 
-	public SetAttackTarget(boolean usingNearestAttackable) {
-		this.usingNearestAttackable = usingNearestAttackable;
-	}
+    protected final boolean usingNearestAttackable;
 
-	/**
-	 * Set the predicate to determine whether the entity is ready to attack or not.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public SetAttackTarget<E> attackPredicate(Predicate<E> predicate) {
-		this.canAttackPredicate = predicate;
+    protected Predicate<E> canAttackPredicate = entity -> true;
 
-		return this;
-	}
+    protected Function<E, ? extends LivingEntity> targetFinder = entity -> BrainUtils.getMemory(
+        entity,
+        MemoryModuleType.NEAREST_ATTACKABLE
+    );
 
-	/**
-	 * Set the target finding function. If replacing the {@link MemoryModuleType#NEAREST_ATTACKABLE} memory retrieval, set false in the constructor of the behaviour.
-	 * @param targetFindingFunction The function
-	 * @return this
-	 */
-	public SetAttackTarget<E> targetFinder(Function<E, ? extends LivingEntity> targetFindingFunction) {
-		this.targetFinder = targetFindingFunction;
+    public SetAttackTarget() {
+        this(true);
+    }
 
-		return this;
-	}
+    public SetAttackTarget(boolean usingNearestAttackable) {
+        this.usingNearestAttackable = usingNearestAttackable;
+    }
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return this.usingNearestAttackable ? MEMORY_REQUIREMENTS : CUSTOM_TARGETING_REQUIREMENTS;
-	}
+    /**
+     * Set the predicate to determine whether the entity is ready to attack or not.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public SetAttackTarget<E> attackPredicate(Predicate<E> predicate) {
+        this.canAttackPredicate = predicate;
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		return this.canAttackPredicate.test(entity);
-	}
+        return this;
+    }
 
-	@Override
-	protected void start(E entity) {
-		LivingEntity target = this.targetFinder.apply(entity);
+    /**
+     * Set the target finding function. If replacing the {@link MemoryModuleType#NEAREST_ATTACKABLE} memory retrieval,
+     * set false in the constructor of the behaviour.
+     *
+     * @param targetFindingFunction The function
+     * @return this
+     */
+    public SetAttackTarget<E> targetFinder(Function<E, ? extends LivingEntity> targetFindingFunction) {
+        this.targetFinder = targetFindingFunction;
 
-		if (target == null) {
-			BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
-		}
-		else {
-			BrainUtils.setMemory(entity, MemoryModuleType.ATTACK_TARGET, target);
-			BrainUtils.clearMemory(entity, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-		}
-	}
+        return this;
+    }
+
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return this.usingNearestAttackable ? MEMORY_REQUIREMENTS : CUSTOM_TARGETING_REQUIREMENTS;
+    }
+
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        return this.canAttackPredicate.test(entity);
+    }
+
+    @Override
+    protected void start(E entity) {
+        LivingEntity target = this.targetFinder.apply(entity);
+
+        if (target == null) {
+            BrainUtils.clearMemory(entity, MemoryModuleType.ATTACK_TARGET);
+        } else {
+            BrainUtils.setMemory(entity, MemoryModuleType.ATTACK_TARGET, target);
+            BrainUtils.clearMemory(entity, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        }
+    }
 }

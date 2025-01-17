@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.navigation;
 
@@ -17,12 +16,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Extension of the vanilla {@link FlyingPathNavigation} with some tweaks for smoother pathfinding:
  * <ul>
- *     <li>Patched {@link Path} implementation to use proper rounding</li>
+ * <li>Patched {@link Path} implementation to use proper rounding</li>
  * </ul>
  * <p>
- * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a ground-based walking entity
+ * Override {@link Mob#createNavigation(Level)} and return a new instance of this if your entity is a ground-based
+ * walking entity
  */
 public class SmoothFlyingPathNavigation extends FlyingPathNavigation implements ExtendedNavigator {
+
     public SmoothFlyingPathNavigation(Mob mob, Level level) {
         super(mob, level);
     }

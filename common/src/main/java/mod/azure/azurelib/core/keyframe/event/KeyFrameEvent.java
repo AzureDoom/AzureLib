@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.keyframe.event;
@@ -11,6 +9,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
+import mod.azure.azurelib.rewrite.animation.event.AzKeyframeEvent;
 
 /**
  * The base class for {@link Keyframe} events.<br>
@@ -19,7 +18,9 @@ import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
  * @see CustomInstructionKeyframeEvent
  * @see ParticleKeyframeEvent
  * @see SoundKeyframeEvent
+ * @deprecated Use {@link AzKeyframeEvent} instead.
  */
+@Deprecated(forRemoval = true)
 public abstract class KeyFrameEvent<T extends GeoAnimatable, E extends KeyFrameData> {
 
     private final T animatable;

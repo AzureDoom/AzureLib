@@ -1,19 +1,10 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.format;
 
 import com.google.gson.*;
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
-import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
-import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
-import mod.azure.azurelib.common.internal.common.config.value.IDescriptionProvider;
 
 import java.io.File;
 import java.io.FileReader;
@@ -26,6 +17,14 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigReadException;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
+import mod.azure.azurelib.common.internal.common.config.value.ConfigValue;
+import mod.azure.azurelib.common.internal.common.config.value.IDescriptionProvider;
 
 public final class GsonFormat implements IConfigFormat {
 
@@ -294,9 +293,9 @@ public final class GsonFormat implements IConfigFormat {
     }
 
     private <T> T[] readArray(
-            String field,
-            Function<Integer, T[]> arrayFactory,
-            Function<JsonElement, T> function
+        String field,
+        Function<Integer, T[]> arrayFactory,
+        Function<JsonElement, T> function
     ) throws ConfigValueMissingException {
         JsonElement element = this.root.get(field);
         if (element == null || !element.isJsonArray()) {

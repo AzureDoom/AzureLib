@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -19,140 +18,157 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
+
 public class MoveToWalkTarget<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED), Pair.of(MemoryModuleType.PATH, MemoryStatus.VALUE_ABSENT), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_PRESENT));
 
-	@Nullable
-	protected Path path;
-	@Nullable
-	protected BlockPos lastTargetPos;
-	protected float speedModifier;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryStatus.REGISTERED),
+        Pair.of(MemoryModuleType.PATH, MemoryStatus.VALUE_ABSENT),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_PRESENT)
+    );
 
-	public MoveToWalkTarget() {
-		runFor(entity -> entity.getRandom().nextInt(100) + 150);
-		cooldownFor(entity -> entity.getRandom().nextInt(40));
-	}
+    @Nullable
+    protected Path path;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    @Nullable
+    protected BlockPos lastTargetPos;
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		Brain<?> brain = entity.getBrain();
-		WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
+    protected float speedModifier;
 
-		if (!hasReachedTarget(entity, walkTarget) && attemptNewPath(entity, walkTarget, false)) {
-			this.lastTargetPos = walkTarget.getTarget().currentBlockPosition();
+    public MoveToWalkTarget() {
+        runFor(entity -> entity.getRandom().nextInt(100) + 150);
+        cooldownFor(entity -> entity.getRandom().nextInt(40));
+    }
 
-			return true;
-		}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		BrainUtils.clearMemory(brain, MemoryModuleType.WALK_TARGET);
-		BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        Brain<?> brain = entity.getBrain();
+        WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
 
-		return false;
-	}
+        if (!hasReachedTarget(entity, walkTarget) && attemptNewPath(entity, walkTarget, false)) {
+            this.lastTargetPos = walkTarget.getTarget().currentBlockPosition();
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		if (this.path == null || this.lastTargetPos == null)
-			return false;
+            return true;
+        }
 
-		if (entity.getNavigation().isDone())
-			return false;
+        BrainUtils.clearMemory(brain, MemoryModuleType.WALK_TARGET);
+        BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 
-		WalkTarget walkTarget = BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET);
+        return false;
+    }
 
-		return walkTarget != null && !hasReachedTarget(entity, walkTarget);
-	}
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        if (this.path == null || this.lastTargetPos == null)
+            return false;
 
-	@Override
-	protected void start(E entity) {
-		startOnNewPath(entity);
-	}
+        if (entity.getNavigation().isDone())
+            return false;
 
-	@Override
-	protected void tick(E entity) {
-		Path path = entity.getNavigation().getPath();
-		Brain<?> brain = entity.getBrain();
+        WalkTarget walkTarget = BrainUtils.getMemory(entity, MemoryModuleType.WALK_TARGET);
 
-		if (this.path != path) {
-			this.path = path;
+        return walkTarget != null && !hasReachedTarget(entity, walkTarget);
+    }
 
-			BrainUtils.setMemory(brain, MemoryModuleType.PATH, path);
-		}
+    @Override
+    protected void start(E entity) {
+        startOnNewPath(entity);
+    }
 
-		if (path != null && this.lastTargetPos != null) {
-			WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
+    @Override
+    protected void tick(E entity) {
+        Path path = entity.getNavigation().getPath();
+        Brain<?> brain = entity.getBrain();
 
-			if (walkTarget.getTarget().currentBlockPosition().distSqr(this.lastTargetPos) > 4 && attemptNewPath(entity, walkTarget, hasReachedTarget(entity, walkTarget))) {
-				this.lastTargetPos = walkTarget.getTarget().currentBlockPosition();
+        if (this.path != path) {
+            this.path = path;
 
-				startOnNewPath(entity);
-			}
-		}
-	}
+            BrainUtils.setMemory(brain, MemoryModuleType.PATH, path);
+        }
 
-	@Override
-	protected void stop(E entity) {
-		Brain<?> brain = entity.getBrain();
+        if (path != null && this.lastTargetPos != null) {
+            WalkTarget walkTarget = BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET);
 
-		if (!entity.getNavigation().isStuck() || !BrainUtils.hasMemory(brain, MemoryModuleType.WALK_TARGET) || hasReachedTarget(entity, BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET)))
-			this.cooldownFinishedAt = 0;
+            if (
+                walkTarget.getTarget().currentBlockPosition().distSqr(this.lastTargetPos) > 4 && attemptNewPath(
+                    entity,
+                    walkTarget,
+                    hasReachedTarget(entity, walkTarget)
+                )
+            ) {
+                this.lastTargetPos = walkTarget.getTarget().currentBlockPosition();
 
-		entity.getNavigation().stop();
-		BrainUtils.clearMemories(brain, MemoryModuleType.WALK_TARGET, MemoryModuleType.PATH);
+                startOnNewPath(entity);
+            }
+        }
+    }
 
-		this.path = null;
-	}
+    @Override
+    protected void stop(E entity) {
+        Brain<?> brain = entity.getBrain();
 
-	protected boolean attemptNewPath(E entity, WalkTarget walkTarget, boolean reachedCurrentTarget) {
-		Brain<?> brain = entity.getBrain();
-		BlockPos pos = walkTarget.getTarget().currentBlockPosition();
-		this.path = entity.getNavigation().createPath(pos, 0);
-		this.speedModifier = walkTarget.getSpeedModifier();
+        if (
+            !entity.getNavigation().isStuck() || !BrainUtils.hasMemory(brain, MemoryModuleType.WALK_TARGET)
+                || hasReachedTarget(entity, BrainUtils.getMemory(brain, MemoryModuleType.WALK_TARGET))
+        )
+            this.cooldownFinishedAt = 0;
 
-		if (reachedCurrentTarget) {
-			BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        entity.getNavigation().stop();
+        BrainUtils.clearMemories(brain, MemoryModuleType.WALK_TARGET, MemoryModuleType.PATH);
 
-			return false;
-		}
+        this.path = null;
+    }
 
-		if (this.path != null && this.path.canReach()) {
-			BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-		}
-		else {
-			BrainUtils.setMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, entity.level().getGameTime());
-		}
+    protected boolean attemptNewPath(E entity, WalkTarget walkTarget, boolean reachedCurrentTarget) {
+        Brain<?> brain = entity.getBrain();
+        BlockPos pos = walkTarget.getTarget().currentBlockPosition();
+        this.path = entity.getNavigation().createPath(pos, 0);
+        this.speedModifier = walkTarget.getSpeedModifier();
 
-		if (this.path != null)
-			return true;
+        if (reachedCurrentTarget) {
+            BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
 
-		Vec3 newTargetPos = DefaultRandomPos.getPosTowards(entity, 10, 7, Vec3.atBottomCenterOf(pos), Mth.HALF_PI);
+            return false;
+        }
 
-		if (newTargetPos != null) {
-			this.path = entity.getNavigation().createPath(newTargetPos.x(), newTargetPos.y(), newTargetPos.z(), 0);
+        if (this.path != null && this.path.canReach()) {
+            BrainUtils.clearMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+        } else {
+            BrainUtils.setMemory(brain, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, entity.level().getGameTime());
+        }
 
-			return this.path != null;
-		}
+        if (this.path != null)
+            return true;
 
-		return false;
-	}
+        Vec3 newTargetPos = DefaultRandomPos.getPosTowards(entity, 10, 7, Vec3.atBottomCenterOf(pos), Mth.HALF_PI);
 
-	protected boolean hasReachedTarget(E entity, WalkTarget target) {
-		return target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target.getCloseEnoughDist();
-	}
+        if (newTargetPos != null) {
+            this.path = entity.getNavigation().createPath(newTargetPos.x(), newTargetPos.y(), newTargetPos.z(), 0);
 
-	protected void startOnNewPath(E entity) {
-		BrainUtils.setMemory(entity, MemoryModuleType.PATH, this.path);
-		entity.getNavigation().moveTo(this.path, this.speedModifier);
-	}
+            return this.path != null;
+        }
+
+        return false;
+    }
+
+    protected boolean hasReachedTarget(E entity, WalkTarget target) {
+        return target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target
+            .getCloseEnoughDist();
+    }
+
+    protected void startOnNewPath(E entity) {
+        BrainUtils.setMemory(entity, MemoryModuleType.PATH, this.path);
+        entity.getNavigation().moveTo(this.path, this.speedModifier);
+    }
 }

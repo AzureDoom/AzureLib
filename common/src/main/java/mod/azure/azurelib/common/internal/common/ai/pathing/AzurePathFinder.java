@@ -26,12 +26,12 @@ public class AzurePathFinder extends PathFinder {
     @Nullable
     @Override
     public Path findPath(
-            @NotNull PathNavigationRegion regionIn,
-            @NotNull Mob mob,
-            @NotNull Set<BlockPos> targetPositions,
-            float maxRange,
-            int accuracy,
-            float searchDepthMultiplier
+        @NotNull PathNavigationRegion regionIn,
+        @NotNull Mob mob,
+        @NotNull Set<BlockPos> targetPositions,
+        float maxRange,
+        int accuracy,
+        float searchDepthMultiplier
     ) {
         Path path = super.findPath(regionIn, mob, targetPositions, maxRange, accuracy, searchDepthMultiplier);
         return path == null ? null : new PatchedPath(path);

@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.client.config.screen;
 
@@ -20,14 +18,23 @@ public class DialogScreen extends Screen {
     public static final Component TEXT_CONFIRM = Component.translatable("text.azurelib.screen.dialog.confirm");
 
     public static final Component TEXT_CANCEL = Component.translatable("text.azurelib.screen.dialog.cancel");
+
     protected final Component[] text;
+
     private final Screen background;
+
     protected int dialogWidth;
+
     protected int dialogHeight;
+
     protected int dialogLeft;
+
     protected int dialogTop;
+
     private DialogRespondEvent onCancel;
+
     private DialogRespondEvent onConfirm;
+
     private List<FormattedCharSequence> splitText = new ArrayList<>();
 
     public DialogScreen(Component title, Component[] text, Screen background) {
@@ -53,9 +60,9 @@ public class DialogScreen extends Screen {
         this.dialogLeft = (this.width - this.dialogWidth) / 2;
         this.dialogTop = (this.height - this.dialogHeight) / 2;
         this.splitText = Arrays.stream(this.text)
-                .map(line -> this.font.split(line, this.dialogWidth - 10))
-                .flatMap(Collection::stream)
-                .toList();
+            .map(line -> this.font.split(line, this.dialogWidth - 10))
+            .flatMap(Collection::stream)
+            .toList();
     }
 
     @Override
@@ -71,8 +78,22 @@ public class DialogScreen extends Screen {
         this.background.render(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 400);
-        graphics.fillGradient(this.dialogLeft - 1, this.dialogTop - 1, this.dialogLeft + this.dialogWidth + 1, this.dialogTop + this.dialogHeight + 1, 0xFFFFFFFF, 0xFFFFFFFF);
-        graphics.fillGradient(this.dialogLeft, this.dialogTop, this.dialogLeft + this.dialogWidth, this.dialogTop + this.dialogHeight, backgroundColor, backgroundColor);
+        graphics.fillGradient(
+            this.dialogLeft - 1,
+            this.dialogTop - 1,
+            this.dialogLeft + this.dialogWidth + 1,
+            this.dialogTop + this.dialogHeight + 1,
+            0xFFFFFFFF,
+            0xFFFFFFFF
+        );
+        graphics.fillGradient(
+            this.dialogLeft,
+            this.dialogTop,
+            this.dialogLeft + this.dialogWidth,
+            this.dialogTop + this.dialogHeight,
+            backgroundColor,
+            backgroundColor
+        );
         this.renderForeground(graphics, mouseX, mouseY, partialTicks);
         renderables.forEach(renderable -> renderable.render(graphics, mouseX, mouseY, partialTicks));
         graphics.pose().popPose();
@@ -96,22 +117,22 @@ public class DialogScreen extends Screen {
     protected void renderForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         int headerWidth = this.font.width(this.title);
         graphics.drawString(
-                this.font,
-                this.title,
-                (int) (this.dialogLeft + (this.dialogWidth - headerWidth) / 2.0F),
-                this.dialogTop + 5,
-                0xFFFFFF,
-                true
+            this.font,
+            this.title,
+            (int) (this.dialogLeft + (this.dialogWidth - headerWidth) / 2.0F),
+            this.dialogTop + 5,
+            0xFFFFFF,
+            true
         );
         int line = 0;
         for (FormattedCharSequence textLine : this.splitText) {
             graphics.drawString(
-                    this.font,
-                    textLine,
-                    this.dialogLeft + 5,
-                    this.dialogTop + 20 + line * 10,
-                    0xFFFFFF,
-                    true
+                this.font,
+                textLine,
+                this.dialogLeft + 5,
+                this.dialogTop + 20 + line * 10,
+                0xFFFFFF,
+                true
             );
             ++line;
         }
@@ -125,11 +146,16 @@ public class DialogScreen extends Screen {
         int componentY = this.dialogTop + this.dialogHeight - 25;
 
         this.addRenderableWidget(
-                Button.builder(TEXT_CANCEL, btn -> cancel()).pos(cancelX, componentY).size(componentWidth, 20).build()
+            Button.builder(TEXT_CANCEL, btn -> cancel()).pos(cancelX, componentY).size(componentWidth, 20).build()
         );
         this.addRenderableWidget(
-                Button.builder(TEXT_CONFIRM, btn -> confirm()).pos(confirmX, componentY).size(componentWidth,
-                        20).build()
+            Button.builder(TEXT_CONFIRM, btn -> confirm())
+                .pos(confirmX, componentY)
+                .size(
+                    componentWidth,
+                    20
+                )
+                .build()
         );
     }
 

@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.animation;
@@ -10,13 +8,14 @@ package mod.azure.azurelib.core.animation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.keyframe.AnimationPoint;
-import mod.azure.azurelib.core.keyframe.Keyframe;
-import mod.azure.azurelib.core.utils.Interpolations;
 
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import mod.azure.azurelib.core.keyframe.AnimationPoint;
+import mod.azure.azurelib.core.keyframe.Keyframe;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 /**
  * Functional interface defining an easing function.<br>
@@ -25,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * For more information on easings, see:<br>
  * <a href="https://easings.net/">Easings.net</a><br>
  * <a href="https://cubic-bezier.com">Cubic-Bezier.com</a><br>
+ *
+ * @deprecated
  */
 @FunctionalInterface
 public interface EasingType {
@@ -158,8 +159,8 @@ public interface EasingType {
      */
     static double catmullRom(double n) {
         return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1
-                + (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
-                + (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
+            + (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
+            + (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
     }
 
     /**
@@ -393,9 +394,9 @@ public interface EasingType {
             return (float) animationPoint.animationEndValue();
 
         return Interpolations.lerp(
-                animationPoint.animationStartValue(),
-                animationPoint.animationEndValue(),
-                buildTransformer(easingValue).apply(lerpValue)
+            animationPoint.animationStartValue(),
+            animationPoint.animationEndValue(),
+            buildTransformer(easingValue).apply(lerpValue)
         );
     }
 }

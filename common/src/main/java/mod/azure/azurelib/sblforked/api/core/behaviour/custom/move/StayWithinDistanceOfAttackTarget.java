@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.move;
 
@@ -18,145 +17,160 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
-import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
-import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+
+import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
+import mod.azure.azurelib.sblforked.util.BrainUtils;
 
 /**
  * Movement behaviour to handle proximal strafing. Will run away if too close, or run towards if too far. <br>
  * Useful for ranged attackers. <br>
  * Defaults:
  * <ul>
- *     <li>Continues strafing until the target is no longer in memory</li>
- *     <li>Stays between 5 and 20 blocks of the target</li>
- *     <li>Normal strafing speed</li>
- *     <li>30% speed boost to repositioning</li>
+ * <li>Continues strafing until the target is no longer in memory</li>
+ * <li>Stays between 5 and 20 blocks of the target</li>
+ * <li>Normal strafing speed</li>
+ * <li>30% speed boost to repositioning</li>
  * </ul>
+ *
  * @param <E> The entity
  */
 public class StayWithinDistanceOfAttackTarget<E extends PathfinderMob> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
 
-	protected BiFunction<E, LivingEntity, Float> distMax = (entity, target) -> 20f;
-	protected BiFunction<E, LivingEntity, Float> distMin = (entity, target) -> 5f;
-	protected Predicate<E> stopWhen = entity -> false;
-	protected float speedMod = 1;
-	protected float repositionSpeedMod = 1.3f;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT),
+        Pair.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT)
+    );
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected BiFunction<E, LivingEntity, Float> distMax = (entity, target) -> 20f;
 
-	/**
-	 * Set how far the entity should attempt to stay away from the target at a minimum.
-	 * @param distance The distance, in blocks
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> minDistance(float distance) {
-		return minDistance((entity, target) -> distance);
-	}
+    protected BiFunction<E, LivingEntity, Float> distMin = (entity, target) -> 5f;
 
-	/**
-	 * Set how far the entity should attempt to stay away from the target at a minimum.
-	 * @param distance The distance function, in blocks
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> minDistance(BiFunction<E, LivingEntity, Float> distance) {
-		this.distMin = distance;
+    protected Predicate<E> stopWhen = entity -> false;
 
-		return this;
-	}
+    protected float speedMod = 1;
 
-	/**
-	 * Set how far the entity should attempt to stay away from the target at most.
-	 * @param distance The distance, in blocks
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> maxDistance(float distance) {
-		return maxDistance((entity, target) -> distance);
-	}
+    protected float repositionSpeedMod = 1.3f;
 
-	/**
-	 * Set how far the entity should attempt to stay away from the target at most.
-	 * @param distance The distance function, in blocks
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> maxDistance(BiFunction<E, LivingEntity, Float> distance) {
-		this.distMax = distance;
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-		return this;
-	}
+    /**
+     * Set how far the entity should attempt to stay away from the target at a minimum.
+     *
+     * @param distance The distance, in blocks
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> minDistance(float distance) {
+        return minDistance((entity, target) -> distance);
+    }
 
-	/**
-	 * Set the movespeed modifier for when the entity is strafing.
-	 * @param modifier The multiplier for movement speed
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> speedMod(float modifier) {
-		this.speedMod = modifier;
+    /**
+     * Set how far the entity should attempt to stay away from the target at a minimum.
+     *
+     * @param distance The distance function, in blocks
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> minDistance(BiFunction<E, LivingEntity, Float> distance) {
+        this.distMin = distance;
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Set the movespeed modifier for when the entity is repositioning due to being too close or too far.
-	 * @param modifier The multiplier for movement speed
-	 * @return this
-	 */
-	public StayWithinDistanceOfAttackTarget<E> repositionSpeedMod(float modifier) {
-		this.speedMod = modifier;
+    /**
+     * Set how far the entity should attempt to stay away from the target at most.
+     *
+     * @param distance The distance, in blocks
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> maxDistance(float distance) {
+        return maxDistance((entity, target) -> distance);
+    }
 
-		return this;
-	}
+    /**
+     * Set how far the entity should attempt to stay away from the target at most.
+     *
+     * @param distance The distance function, in blocks
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> maxDistance(BiFunction<E, LivingEntity, Float> distance) {
+        this.distMax = distance;
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return BrainUtils.hasMemory(entity, MemoryModuleType.ATTACK_TARGET) && !this.stopWhen.test(entity);
-	}
+        return this;
+    }
 
-	@Override
-	protected void tick(E entity) {
-		LivingEntity target = BrainUtils.getTargetOfEntity(entity);
-		double distanceToTarget = target.distanceToSqr(entity);
-		float maxDist = this.distMax.apply(entity, target);
-		double maxDistSq = Math.pow(maxDist, 2);
-		double minDistSq = Math.pow(this.distMin.apply(entity, target), 2);
-		PathNavigation navigation = entity.getNavigation();
+    /**
+     * Set the movespeed modifier for when the entity is strafing.
+     *
+     * @param modifier The multiplier for movement speed
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> speedMod(float modifier) {
+        this.speedMod = modifier;
 
-		if (distanceToTarget > maxDistSq || !entity.hasLineOfSight(target)) {
-			if (navigation.isDone())
-				navigation.moveTo(target, this.repositionSpeedMod);
+        return this;
+    }
 
-			return;
-		}
+    /**
+     * Set the movespeed modifier for when the entity is repositioning due to being too close or too far.
+     *
+     * @param modifier The multiplier for movement speed
+     * @return this
+     */
+    public StayWithinDistanceOfAttackTarget<E> repositionSpeedMod(float modifier) {
+        this.speedMod = modifier;
 
-		if (distanceToTarget < minDistSq) {
-			if (navigation.isDone()) {
-				Vec3 runPos = DefaultRandomPos.getPosAway(entity, (int)maxDist, 5, target.position());
+        return this;
+    }
 
-				if (runPos != null)
-					navigation.moveTo(navigation.createPath(BlockPos.containing(runPos), 1), this.repositionSpeedMod);
-			}
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return BrainUtils.hasMemory(entity, MemoryModuleType.ATTACK_TARGET) && !this.stopWhen.test(entity);
+    }
 
-			return;
-		}
+    @Override
+    protected void tick(E entity) {
+        LivingEntity target = BrainUtils.getTargetOfEntity(entity);
+        double distanceToTarget = target.distanceToSqr(entity);
+        float maxDist = this.distMax.apply(entity, target);
+        double maxDistSq = Math.pow(maxDist, 2);
+        double minDistSq = Math.pow(this.distMin.apply(entity, target), 2);
+        PathNavigation navigation = entity.getNavigation();
 
-		if (navigation instanceof GroundPathNavigation)
-			navigation.stop();
+        if (distanceToTarget > maxDistSq || !entity.hasLineOfSight(target)) {
+            if (navigation.isDone())
+                navigation.moveTo(target, this.repositionSpeedMod);
 
-		BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
+            return;
+        }
 
-		if (distanceToTarget > maxDistSq * 0.5f) {
-			entity.lookAt(target, 30, 30);
-			entity.getMoveControl().strafe(0.5f * this.speedMod, 0);
-		}
-		else if (distanceToTarget < minDistSq * 3f) {
-			entity.lookAt(target, 30, 30);
-			entity.getMoveControl().strafe(-0.5f * this.speedMod, 0);
-		}
-	}
+        if (distanceToTarget < minDistSq) {
+            if (navigation.isDone()) {
+                Vec3 runPos = DefaultRandomPos.getPosAway(entity, (int) maxDist, 5, target.position());
+
+                if (runPos != null)
+                    navigation.moveTo(navigation.createPath(BlockPos.containing(runPos), 1), this.repositionSpeedMod);
+            }
+
+            return;
+        }
+
+        if (navigation instanceof GroundPathNavigation)
+            navigation.stop();
+
+        BrainUtils.setMemory(entity, MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
+
+        if (distanceToTarget > maxDistSq * 0.5f) {
+            entity.lookAt(target, 30, 30);
+            entity.getMoveControl().strafe(0.5f * this.speedMod, 0);
+        } else if (distanceToTarget < minDistSq * 3f) {
+            entity.lookAt(target, 30, 30);
+            entity.getMoveControl().strafe(-0.5f * this.speedMod, 0);
+        }
+    }
 }

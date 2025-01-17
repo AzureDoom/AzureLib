@@ -1,8 +1,7 @@
 /**
- * This class is a fork of the matching class found in the SmartBrainLib repository.
- * Original source: https://github.com/Tslat/SmartBrainLib
- * Copyright © 2024 Tslat.
- * Licensed under Mozilla Public License 2.0: https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
+ * This class is a fork of the matching class found in the SmartBrainLib repository. Original source:
+ * https://github.com/Tslat/SmartBrainLib Copyright © 2024 Tslat. Licensed under Mozilla Public License 2.0:
+ * https://github.com/Tslat/SmartBrainLib/blob/1.21/LICENSE.
  */
 package mod.azure.azurelib.sblforked.api.core.behaviour.custom.misc;
 
@@ -17,126 +16,150 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.function.TriFunction;
+
+import java.util.List;
+
 import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
 import mod.azure.azurelib.sblforked.object.TriPredicate;
 import mod.azure.azurelib.sblforked.registry.SBLMemoryTypes;
 import mod.azure.azurelib.sblforked.util.BrainUtils;
-import org.apache.commons.lang3.function.TriFunction;
-
-import java.util.List;
 
 /**
  * Gradually breaks then destroys a block. <br>
  * Finds blocks based on the {@link SBLMemoryTypes#NEARBY_BLOCKS} memory module. <br>
  * Defaults:
  * <ul>
- *     <li>Breaks doors</li>
- *     <li>Takes 240 ticks to break the block</li>
+ * <li>Breaks doors</li>
+ * <li>Takes 240 ticks to break the block</li>
  * </ul>
  */
 public class BreakBlock<E extends LivingEntity> extends ExtendedBehaviour<E> {
-	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(SBLMemoryTypes.NEARBY_BLOCKS.get(), MemoryStatus.VALUE_PRESENT));
 
-	protected TriPredicate<E, BlockPos, BlockState> targetBlockPredicate = (entity, pos, state) -> state.is(BlockTags.DOORS);
-	protected TriPredicate<E, BlockPos, BlockState> stopPredicate = (entity, pos, state) -> false;
-	protected TriFunction<E, BlockPos, BlockState, Integer> digTimePredicate = (entity, pos, state) -> 240;
+    private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(
+        Pair.of(SBLMemoryTypes.NEARBY_BLOCKS.get(), MemoryStatus.VALUE_PRESENT)
+    );
 
-	protected BlockPos pos = null;
-	protected BlockState state = null;
-	protected int timeToBreak = 0;
-	protected int breakTime = 0;
-	protected int breakProgress = -1;
+    protected TriPredicate<E, BlockPos, BlockState> targetBlockPredicate = (entity, pos, state) -> state.is(
+        BlockTags.DOORS
+    );
 
-	/**
-	 * Set the condition for when the entity should stop breaking the block.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public BreakBlock<E> stopBreakingIf(TriPredicate<E, BlockPos, BlockState> predicate) {
-		this.stopPredicate = predicate;
+    protected TriPredicate<E, BlockPos, BlockState> stopPredicate = (entity, pos, state) -> false;
 
-		return this;
-	}
+    protected TriFunction<E, BlockPos, BlockState, Integer> digTimePredicate = (entity, pos, state) -> 240;
 
-	/**
-	 * Sets the predicate for valid blocks to break.
-	 * @param predicate The predicate
-	 * @return this
-	 */
-	public BreakBlock<E> forBlocks(TriPredicate<E, BlockPos, BlockState> predicate) {
-		this.targetBlockPredicate = predicate;
+    protected BlockPos pos = null;
 
-		return this;
-	}
+    protected BlockState state = null;
 
-	/**
-	 * Determines the amount of time (in ticks) it takes to break the given block.
-	 * @param function The function
-	 * @return this
-	 */
-	public BreakBlock<E> timeToBreak(TriFunction<E, BlockPos, BlockState, Integer> function) {
-		this.digTimePredicate = function;
+    protected int timeToBreak = 0;
 
-		return this;
-	}
+    protected int breakTime = 0;
 
-	@Override
-	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
-		return MEMORY_REQUIREMENTS;
-	}
+    protected int breakProgress = -1;
 
-	@Override
-	protected boolean timedOut(long gameTime) {
-		return this.breakProgress < 0 && super.timedOut(gameTime);
-	}
+    /**
+     * Set the condition for when the entity should stop breaking the block.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public BreakBlock<E> stopBreakingIf(TriPredicate<E, BlockPos, BlockState> predicate) {
+        this.stopPredicate = predicate;
 
-	@Override
-	protected void stop(E entity) {
-		entity.level().destroyBlockProgress(entity.getId(), this.pos, -1);
+        return this;
+    }
 
-		this.state = null;
-		this.pos = null;
-		this.timeToBreak = 0;
-		this.breakTime = 0;
-		this.breakProgress = -1;
-	}
+    /**
+     * Sets the predicate for valid blocks to break.
+     *
+     * @param predicate The predicate
+     * @return this
+     */
+    public BreakBlock<E> forBlocks(TriPredicate<E, BlockPos, BlockState> predicate) {
+        this.targetBlockPredicate = predicate;
 
-	@Override
-	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-		for (Pair<BlockPos, BlockState> pair : BrainUtils.getMemory(entity, SBLMemoryTypes.NEARBY_BLOCKS.get())) {
-			if (this.targetBlockPredicate.test(entity, pair.getFirst(), pair.getSecond())) {
-				this.pos = pair.getFirst();
-				this.state = pair.getSecond();
-				this.timeToBreak = this.digTimePredicate.apply(entity, this.pos, this.state);
+        return this;
+    }
 
-				return true;
-			}
-		}
+    /**
+     * Determines the amount of time (in ticks) it takes to break the given block.
+     *
+     * @param function The function
+     * @return this
+     */
+    public BreakBlock<E> timeToBreak(TriFunction<E, BlockPos, BlockState, Integer> function) {
+        this.digTimePredicate = function;
 
-		return false;
-	}
+        return this;
+    }
 
-	@Override
-	protected boolean shouldKeepRunning(E entity) {
-		return this.breakTime <= this.timeToBreak && this.targetBlockPredicate.test(entity, this.pos, entity.level().getBlockState(this.pos)) && !this.stopPredicate.test(entity, this.pos, this.state);
-	}
+    @Override
+    protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
+        return MEMORY_REQUIREMENTS;
+    }
 
-	@Override
-	protected void tick(E entity) {
-		this.breakTime++;
-		int progress = (int)(this.breakTime / (float)this.timeToBreak * 10);
+    @Override
+    protected boolean timedOut(long gameTime) {
+        return this.breakProgress < 0 && super.timedOut(gameTime);
+    }
 
-		if (progress != this.breakProgress) {
-			entity.level().destroyBlockProgress(entity.getId(), this.pos, progress);
+    @Override
+    protected void stop(E entity) {
+        entity.level().destroyBlockProgress(entity.getId(), this.pos, -1);
 
-			this.breakProgress = progress;
-		}
+        this.state = null;
+        this.pos = null;
+        this.timeToBreak = 0;
+        this.breakTime = 0;
+        this.breakProgress = -1;
+    }
 
-		if (this.breakTime >= this.timeToBreak) {
-			entity.level().removeBlock(this.pos, false);
-			entity.level().levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, this.pos, Block.getId(entity.level().getBlockState(this.pos)));
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
+        for (Pair<BlockPos, BlockState> pair : BrainUtils.getMemory(entity, SBLMemoryTypes.NEARBY_BLOCKS.get())) {
+            if (this.targetBlockPredicate.test(entity, pair.getFirst(), pair.getSecond())) {
+                this.pos = pair.getFirst();
+                this.state = pair.getSecond();
+                this.timeToBreak = this.digTimePredicate.apply(entity, this.pos, this.state);
 
-			doStop((ServerLevel)entity.level(), entity, entity.level().getGameTime());
-		}
-	}
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return this.breakTime <= this.timeToBreak && this.targetBlockPredicate.test(
+            entity,
+            this.pos,
+            entity.level().getBlockState(this.pos)
+        ) && !this.stopPredicate.test(entity, this.pos, this.state);
+    }
+
+    @Override
+    protected void tick(E entity) {
+        this.breakTime++;
+        int progress = (int) (this.breakTime / (float) this.timeToBreak * 10);
+
+        if (progress != this.breakProgress) {
+            entity.level().destroyBlockProgress(entity.getId(), this.pos, progress);
+
+            this.breakProgress = progress;
+        }
+
+        if (this.breakTime >= this.timeToBreak) {
+            entity.level().removeBlock(this.pos, false);
+            entity.level()
+                .levelEvent(
+                    LevelEvent.PARTICLES_DESTROY_BLOCK,
+                    this.pos,
+                    Block.getId(entity.level().getBlockState(this.pos))
+                );
+
+            doStop((ServerLevel) entity.level(), entity, entity.level().getGameTime());
+        }
+    }
 }

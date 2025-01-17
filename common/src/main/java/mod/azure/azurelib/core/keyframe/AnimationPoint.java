@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.keyframe;
@@ -17,18 +15,18 @@ package mod.azure.azurelib.core.keyframe;
  * @param keyFrame            The {@code Nullable} Keyframe
  */
 public record AnimationPoint(
-        Keyframe<?> keyFrame,
-        double currentTick,
-        double transitionLength,
-        double animationStartValue,
-        double animationEndValue
+    Keyframe<?> keyFrame,
+    double currentTick,
+    double transitionLength,
+    double animationStartValue,
+    double animationEndValue
 ) {
 
     @Override
     public String toString() {
         return "Tick: " + this.currentTick +
-                " | Transition Length: " + this.transitionLength +
-                " | Start Value: " + this.animationStartValue +
-                " | End Value: " + this.animationEndValue;
+            " | Transition Length: " + this.transitionLength +
+            " | Start Value: " + this.animationStartValue +
+            " | End Value: " + this.animationEndValue;
     }
 }

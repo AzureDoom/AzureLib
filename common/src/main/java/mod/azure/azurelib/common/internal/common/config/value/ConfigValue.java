@@ -1,17 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.value;
 
-import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
-import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
-import mod.azure.azurelib.common.internal.common.config.Configurable;
-import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
-import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
-import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -19,6 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.common.internal.client.config.IValidationHandler;
+import mod.azure.azurelib.common.internal.common.config.ConfigUtils;
+import mod.azure.azurelib.common.internal.common.config.Configurable;
+import mod.azure.azurelib.common.internal.common.config.adapter.TypeAdapter;
+import mod.azure.azurelib.common.internal.common.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.common.internal.common.config.format.IConfigFormat;
 
 public abstract class ConfigValue<T> implements Supplier<T> {
 
@@ -73,8 +72,7 @@ public abstract class ConfigValue<T> implements Supplier<T> {
         this.readFieldData(field);
     }
 
-    protected void readFieldData(Field field) {
-    }
+    protected void readFieldData(Field field) {}
 
     protected T getCorrectedValue(T in) {
         return in;

@@ -1,14 +1,13 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.common.internal.common.config.validate;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
+
+import mod.azure.azurelib.common.internal.common.AzureLib;
 
 public enum NotificationSeverity {
 
@@ -17,9 +16,13 @@ public enum NotificationSeverity {
     ERROR("error", ChatFormatting.RED, 0xF0270006, 0x50FF0000, 0x50880000);
 
     public final int background;
+
     public final int fadeMin;
+
     public final int fadeMax;
+
     private final ResourceLocation icon;
+
     private final ChatFormatting extraFormatting;
 
     NotificationSeverity(String iconName, ChatFormatting formatting, int background, int fadeMin, int fadeMax) {

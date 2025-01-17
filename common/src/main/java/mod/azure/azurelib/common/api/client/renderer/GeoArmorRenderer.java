@@ -1,28 +1,12 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.api.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.azure.azurelib.common.api.client.model.GeoModel;
-import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayersContainer;
-import mod.azure.azurelib.common.api.common.animatable.GeoItem;
-import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
-import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
-import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
-import mod.azure.azurelib.common.internal.common.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.common.internal.common.constant.DataTickets;
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.core.object.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -43,6 +27,21 @@ import org.joml.Matrix4f;
 
 import java.util.List;
 
+import mod.azure.azurelib.common.api.client.model.GeoModel;
+import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.common.api.client.renderer.layer.GeoRenderLayersContainer;
+import mod.azure.azurelib.common.api.common.animatable.GeoItem;
+import mod.azure.azurelib.common.internal.client.renderer.GeoRenderer;
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.common.internal.common.cache.object.BakedGeoModel;
+import mod.azure.azurelib.common.internal.common.cache.object.GeoBone;
+import mod.azure.azurelib.common.internal.common.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.common.internal.common.constant.DataTickets;
+import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.core.object.Color;
+
 /**
  * Base {@link GeoRenderer} for rendering in-world armor specifically.<br>
  * All custom armor added to be rendered in-world by AzureLib should use an instance of this class.
@@ -50,18 +49,27 @@ import java.util.List;
  * @param <T>
  * @see GeoItem
  */
+@Deprecated(forRemoval = true)
 public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel implements GeoRenderer<T> {
 
     protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 
     protected final GeoModel<T> model;
+
     public BakedGeoModel lastModel = null;
+
     protected T animatable;
+
     protected HumanoidModel<?> baseModel;
+
     protected float scaleWidth = 1;
+
     protected float scaleHeight = 1;
+
     protected Matrix4f entityRenderTranslations = new Matrix4f();
+
     protected Matrix4f modelRenderTranslations = new Matrix4f();
+
     protected GeoBone head = null;
 
     protected GeoBone body = null;
@@ -143,10 +151,10 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public RenderType getRenderType(
-            T animatable,
-            ResourceLocation texture,
-            @org.jetbrains.annotations.Nullable MultiBufferSource bufferSource,
-            float partialTick
+        T animatable,
+        ResourceLocation texture,
+        @org.jetbrains.annotations.Nullable MultiBufferSource bufferSource,
+        float partialTick
     ) {
         return RenderType.armorCutoutNoCull(texture);
     }
@@ -280,16 +288,16 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public void preRender(
-            PoseStack poseStack,
-            T animatable,
-            BakedGeoModel model,
-            @Nullable MultiBufferSource bufferSource,
-            @Nullable VertexConsumer buffer,
-            boolean isReRender,
-            float partialTick,
-            int packedLight,
-            int packedOverlay,
-            int colour
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        @Nullable MultiBufferSource bufferSource,
+        @Nullable VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        int colour
     ) {
         this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
 
@@ -298,15 +306,15 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
         applyBaseTransformations(this.baseModel);
         scaleModelForBaby(poseStack, animatable, partialTick, isReRender);
         scaleModelForRender(
-                this.scaleWidth,
-                this.scaleHeight,
-                poseStack,
-                animatable,
-                model,
-                isReRender,
-                partialTick,
-                packedLight,
-                packedOverlay
+            this.scaleWidth,
+            this.scaleHeight,
+            poseStack,
+            animatable,
+            model,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay
         );
 
         if (!(this.currentEntity instanceof GeoAnimatable))
@@ -320,34 +328,37 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
-        return this.currentStack.is(ItemTags.DYEABLE) ? Color.ofOpaque(
-                DyedItemColor.getOrDefault(this.currentStack, -6265536)) : Color.WHITE;
+        return this.currentStack.is(ItemTags.DYEABLE)
+            ? Color.ofOpaque(
+                DyedItemColor.getOrDefault(this.currentStack, -6265536)
+            )
+            : Color.WHITE;
     }
 
     @Override
     public void renderToBuffer(
-            @NotNull PoseStack poseStack,
-            VertexConsumer buffer,
-            int packedLight,
-            int packedOverlay,
-            int var5
+        @NotNull PoseStack poseStack,
+        VertexConsumer buffer,
+        int packedLight,
+        int packedOverlay,
+        int var5
     ) {
         Minecraft mc = Minecraft.getInstance();
         MultiBufferSource bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
 
         if (
-                Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(
-                        this.currentEntity
-                )
+            Minecraft.getInstance().levelRenderer.shouldShowEntityOutlines() && mc.shouldEntityAppearGlowing(
+                this.currentEntity
+            )
         )
             bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
 
         float partialTick = mc.getTimer().getGameTimeDeltaTicks();
         RenderType renderType = getRenderType(
-                this.animatable,
-                getTextureLocation(this.animatable),
-                bufferSource,
-                partialTick
+            this.animatable,
+            getTextureLocation(this.animatable),
+            bufferSource,
+            partialTick
         );
         buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, this.currentStack.hasFoil());
 
@@ -361,17 +372,17 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public void actuallyRender(
-            PoseStack poseStack,
-            T animatable,
-            BakedGeoModel model,
-            RenderType renderType,
-            MultiBufferSource bufferSource,
-            VertexConsumer buffer,
-            boolean isReRender,
-            float partialTick,
-            int packedLight,
-            int packedOverlay,
-            int colour
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        int colour
     ) {
         poseStack.pushPose();
         poseStack.translate(0, 24 / 16f, 0);
@@ -392,17 +403,17 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
         this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
         GeoRenderer.super.actuallyRender(
-                poseStack,
-                animatable,
-                model,
-                renderType,
-                bufferSource,
-                buffer,
-                isReRender,
-                partialTick,
-                packedLight,
-                packedOverlay,
-                colour
+            poseStack,
+            animatable,
+            model,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            colour
         );
         poseStack.popPose();
     }
@@ -412,17 +423,17 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public void renderRecursively(
-            PoseStack poseStack,
-            T animatable,
-            GeoBone bone,
-            RenderType renderType,
-            MultiBufferSource bufferSource,
-            VertexConsumer buffer,
-            boolean isReRender,
-            float partialTick,
-            int packedLight,
-            int packedOverlay,
-            int colour
+        PoseStack poseStack,
+        T animatable,
+        GeoBone bone,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        int colour
     ) {
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.last().pose());
@@ -431,22 +442,22 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
             bone.setModelSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.modelRenderTranslations));
             bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, GeoArmorRendererConstants.ZERO));
             bone.setWorldSpaceMatrix(
-                    RenderUtils.translateMatrix(new Matrix4f(localMatrix), this.currentEntity.position().toVector3f())
+                RenderUtils.translateMatrix(new Matrix4f(localMatrix), this.currentEntity.position().toVector3f())
             );
         }
 
         GeoRenderer.super.renderRecursively(
-                poseStack,
-                animatable,
-                bone,
-                renderType,
-                bufferSource,
-                buffer,
-                isReRender,
-                partialTick,
-                packedLight,
-                packedOverlay,
-                colour
+            poseStack,
+            animatable,
+            bone,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            colour
         );
     }
 
@@ -480,10 +491,10 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      * @param baseModel The default (vanilla) model that would have been rendered if this model hadn't replaced it
      */
     public void prepForRender(
-            @Nullable Entity entity,
-            ItemStack stack,
-            @Nullable EquipmentSlot slot,
-            @Nullable HumanoidModel<?> baseModel
+        @Nullable Entity entity,
+        ItemStack stack,
+        @Nullable EquipmentSlot slot,
+        @Nullable HumanoidModel<?> baseModel
     ) {
         if (entity == null || slot == null || baseModel == null)
             return;
@@ -680,8 +691,8 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
     public void updateAnimatedTextureFrame(T animatable) {
         if (this.currentEntity != null)
             AnimatableTexture.setAndUpdate(
-                    getTextureLocation(animatable),
-                    this.currentEntity.getId() + this.currentEntity.tickCount
+                getTextureLocation(animatable),
+                this.currentEntity.getId() + this.currentEntity.tickCount
             );
     }
 
@@ -700,13 +711,20 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public boolean firePreRenderEvent(
-            PoseStack poseStack,
-            BakedGeoModel model,
-            MultiBufferSource bufferSource,
-            float partialTick,
-            int packedLight
+        PoseStack poseStack,
+        BakedGeoModel model,
+        MultiBufferSource bufferSource,
+        float partialTick,
+        int packedLight
     ) {
-        return Services.GEO_RENDER_PHASE_EVENT_FACTORY.fireArmorPreRender(this, poseStack, model, bufferSource, partialTick, packedLight);
+        return Services.GEO_RENDER_PHASE_EVENT_FACTORY.fireArmorPreRender(
+            this,
+            poseStack,
+            model,
+            bufferSource,
+            partialTick,
+            packedLight
+        );
     }
 
     /**
@@ -714,12 +732,19 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
      */
     @Override
     public void firePostRenderEvent(
-            PoseStack poseStack,
-            BakedGeoModel model,
-            MultiBufferSource bufferSource,
-            float partialTick,
-            int packedLight
+        PoseStack poseStack,
+        BakedGeoModel model,
+        MultiBufferSource bufferSource,
+        float partialTick,
+        int packedLight
     ) {
-        Services.GEO_RENDER_PHASE_EVENT_FACTORY.fireArmorPostRender(this, poseStack, model, bufferSource, partialTick, packedLight);
+        Services.GEO_RENDER_PHASE_EVENT_FACTORY.fireArmorPostRender(
+            this,
+            poseStack,
+            model,
+            bufferSource,
+            partialTick,
+            packedLight
+        );
     }
 }

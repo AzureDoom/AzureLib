@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.common.internal.common.loading.json.raw;
@@ -10,31 +8,32 @@ package mod.azure.azurelib.common.internal.common.loading.json.raw;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.common.internal.common.util.JsonUtil;
 
 /**
  * Container class for model property information, only used in deserialization at startup
  */
 public record ModelProperties(
-        @Nullable Boolean animationArmsDown,
-        @Nullable Boolean animationArmsOutFront,
-        @Nullable Boolean animationDontShowArmor,
-        @Nullable Boolean animationInvertedCrouch,
-        @Nullable Boolean animationNoHeadBob,
-        @Nullable Boolean animationSingleArmAnimation,
-        @Nullable Boolean animationSingleLegAnimation,
-        @Nullable Boolean animationStationaryLegs,
-        @Nullable Boolean animationStatueOfLibertyArms,
-        @Nullable Boolean animationUpsideDown,
-        @Nullable String identifier,
-        @Nullable Boolean preserveModelPose,
-        double textureHeight,
-        double textureWidth,
-        @Nullable Double visibleBoundsHeight,
-        double[] visibleBoundsOffset,
-        @Nullable Double visibleBoundsWidth
+    @Nullable Boolean animationArmsDown,
+    @Nullable Boolean animationArmsOutFront,
+    @Nullable Boolean animationDontShowArmor,
+    @Nullable Boolean animationInvertedCrouch,
+    @Nullable Boolean animationNoHeadBob,
+    @Nullable Boolean animationSingleArmAnimation,
+    @Nullable Boolean animationSingleLegAnimation,
+    @Nullable Boolean animationStationaryLegs,
+    @Nullable Boolean animationStatueOfLibertyArms,
+    @Nullable Boolean animationUpsideDown,
+    @Nullable String identifier,
+    @Nullable Boolean preserveModelPose,
+    double textureHeight,
+    double textureWidth,
+    @Nullable Double visibleBoundsHeight,
+    double[] visibleBoundsOffset,
+    @Nullable Double visibleBoundsWidth
 ) {
 
     public static JsonDeserializer<ModelProperties> deserializer() throws JsonParseException {
@@ -56,28 +55,28 @@ public record ModelProperties(
             double textureWidth = GsonHelper.getAsDouble(obj, "texture_width");
             Double visibleBoundsHeight = JsonUtil.getOptionalDouble(obj, "visible_bounds_height");
             double[] visibleBoundsOffset = JsonUtil.jsonArrayToDoubleArray(
-                    GsonHelper.getAsJsonArray(obj, "visible_bounds_offset", null)
+                GsonHelper.getAsJsonArray(obj, "visible_bounds_offset", null)
             );
             Double visibleBoundsWidth = JsonUtil.getOptionalDouble(obj, "visible_bounds_width");
 
             return new ModelProperties(
-                    animationArmsDown,
-                    animationArmsOutFront,
-                    animationDontShowArmor,
-                    animationInvertedCrouch,
-                    animationNoHeadBob,
-                    animationSingleArmAnimation,
-                    animationSingleLegAnimation,
-                    animationStationaryLegs,
-                    animationStatueOfLibertyArms,
-                    animationUpsideDown,
-                    identifier,
-                    preserveModelPose,
-                    textureHeight,
-                    textureWidth,
-                    visibleBoundsHeight,
-                    visibleBoundsOffset,
-                    visibleBoundsWidth
+                animationArmsDown,
+                animationArmsOutFront,
+                animationDontShowArmor,
+                animationInvertedCrouch,
+                animationNoHeadBob,
+                animationSingleArmAnimation,
+                animationSingleLegAnimation,
+                animationStationaryLegs,
+                animationStatueOfLibertyArms,
+                animationUpsideDown,
+                identifier,
+                preserveModelPose,
+                textureHeight,
+                textureWidth,
+                visibleBoundsHeight,
+                visibleBoundsOffset,
+                visibleBoundsWidth
             );
         };
     }
