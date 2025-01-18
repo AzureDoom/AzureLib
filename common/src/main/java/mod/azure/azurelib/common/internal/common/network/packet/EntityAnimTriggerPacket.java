@@ -25,6 +25,7 @@ import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
  *
  * @deprecated
  */
+@Deprecated(forRemoval = true)
 public record EntityAnimTriggerPacket(
     int entityId,
     boolean isReplacedEntity,
