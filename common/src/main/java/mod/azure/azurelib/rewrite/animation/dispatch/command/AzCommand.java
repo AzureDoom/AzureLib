@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +20,8 @@ import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 
 /**

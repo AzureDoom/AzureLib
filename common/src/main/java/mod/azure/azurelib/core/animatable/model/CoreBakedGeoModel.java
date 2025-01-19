@@ -5,10 +5,10 @@
  */
 package mod.azure.azurelib.core.animatable.model;
 
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-
 import java.util.List;
 import java.util.Optional;
+
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 
 /**
  * Baked model object for AzureLib models.<br>
