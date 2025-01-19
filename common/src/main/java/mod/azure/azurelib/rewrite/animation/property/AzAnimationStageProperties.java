@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.property;
 
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,6 +7,8 @@ import java.util.Objects;
 
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationStagePropertiesCodec;
 
 public class AzAnimationStageProperties extends AzAnimationProperties {

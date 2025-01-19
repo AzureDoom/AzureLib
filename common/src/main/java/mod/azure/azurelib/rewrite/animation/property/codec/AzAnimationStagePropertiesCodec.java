@@ -1,13 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.property.codec;
 
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviorRegistry;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypeRegistry;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviorRegistry;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 
 public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByteBuf, AzAnimationStageProperties> {

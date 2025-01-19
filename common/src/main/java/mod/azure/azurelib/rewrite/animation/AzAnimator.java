@@ -93,8 +93,8 @@ public abstract class AzAnimator<T> {
      * Sets custom animations for the given animatable object. This method is used to define and configure specific
      * animations unique to the context of the animatable and the current render state.
      *
-     * @param animatable    The object for which custom animations are being set.
-     * @param partialTicks  The partial tick time used for interpolating animations smoothly between frames.
+     * @param animatable   The object for which custom animations are being set.
+     * @param partialTicks The partial tick time used for interpolating animations smoothly between frames.
      */
     public void setCustomAnimations(T animatable, float partialTicks) {}
 
