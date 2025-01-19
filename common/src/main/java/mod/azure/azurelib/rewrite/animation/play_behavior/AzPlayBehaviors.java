@@ -4,14 +4,18 @@ import mod.azure.azurelib.rewrite.animation.controller.state.machine.AzAnimation
 
 public class AzPlayBehaviors {
 
-    public static final AzPlayBehavior HOLD_ON_LAST_FRAME = AzPlayBehaviorRegistry.register(new AzPlayBehavior("hold_on_last_frame") {
-        @Override
-        public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
-            context.stateMachine().pause();
+    public static final AzPlayBehavior HOLD_ON_LAST_FRAME = AzPlayBehaviorRegistry.register(
+        new AzPlayBehavior("hold_on_last_frame") {
+
+            @Override
+            public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
+                context.stateMachine().pause();
+            }
         }
-    });
+    );
 
     public static final AzPlayBehavior LOOP = AzPlayBehaviorRegistry.register(new AzPlayBehavior("loop") {
+
         @Override
         public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
             var controller = context.animationController();
@@ -25,6 +29,7 @@ public class AzPlayBehaviors {
     });
 
     public static final AzPlayBehavior PLAY_ONCE = AzPlayBehaviorRegistry.register(new AzPlayBehavior("play_once") {
+
         @Override
         public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
             context.stateMachine().stop();

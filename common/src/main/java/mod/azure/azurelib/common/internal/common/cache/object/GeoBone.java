@@ -6,7 +6,6 @@
 package mod.azure.azurelib.common.internal.common.cache.object;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.rewrite.model.AzBone;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -18,6 +17,7 @@ import java.util.Objects;
 
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.state.BoneSnapshot;
+import mod.azure.azurelib.rewrite.model.AzBone;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
