@@ -1,5 +1,8 @@
 {
     "armor.mdx": {
         "name": "Animating Armor"
+    },
+    "staticarmor.mdx": {
+        "name": "Creating Static (No Animations) Armor"
     }
 }
