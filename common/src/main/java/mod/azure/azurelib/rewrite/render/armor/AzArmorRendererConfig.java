@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -21,13 +22,22 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
     private AzArmorRendererConfig(
         Supplier<AzAnimator<ItemStack>> animatorProvider,
         AzArmorBoneProvider boneProvider,
+        Function<ItemStack, RenderType> renderTypeProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth
     ) {
-        super(animatorProvider, modelLocationProvider, renderLayers, textureLocationProvider, scaleHeight, scaleWidth);
+        super(
+            animatorProvider,
+            modelLocationProvider,
+            renderTypeProvider,
+            renderLayers,
+            textureLocationProvider,
+            scaleHeight,
+            scaleWidth
+        );
         this.boneProvider = boneProvider;
     }
 
@@ -59,6 +69,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.boneProvider = new AzDefaultArmorBoneProvider();
+            this.renderTypeProvider = $ -> RenderType.armorCutoutNoCull(textureLocationProvider.apply($));
         }
 
         @Override
@@ -76,12 +87,19 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             return this;
         }
 
+        public Builder setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        @Override
         public AzArmorRendererConfig build() {
             var baseConfig = super.build();
 
             return new AzArmorRendererConfig(
                 baseConfig::createAnimator,
                 boneProvider,
+                renderTypeProvider,
                 baseConfig::modelLocation,
                 baseConfig.renderLayers(),
                 baseConfig::textureLocation,

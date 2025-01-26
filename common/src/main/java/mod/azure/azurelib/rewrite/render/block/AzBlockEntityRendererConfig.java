@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.block;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -24,12 +25,21 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     private AzBlockEntityRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, ResourceLocation> modelLocationProvider,
+        Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
         Function<T, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth
     ) {
-        super(animatorProvider, modelLocationProvider, renderLayers, textureLocationProvider, scaleHeight, scaleWidth);
+        super(
+            animatorProvider,
+            modelLocationProvider,
+            renderTypeFunction,
+            renderLayers,
+            textureLocationProvider,
+            scaleHeight,
+            scaleWidth
+        );
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
@@ -65,12 +75,14 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
         }
 
+        @Override
         public AzBlockEntityRendererConfig<T> build() {
             var baseConfig = super.build();
 
             return new AzBlockEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 baseConfig::modelLocation,
+                baseConfig::getRenderType,
                 baseConfig.renderLayers(),
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),

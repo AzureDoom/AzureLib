@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +26,22 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
     private AzEntityRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
+        Function<T, RenderType> renderTypeFunction,
         Function<T, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<T>> renderLayers,
         Function<T, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth
     ) {
-        super(animatorProvider, modelLocationProvider, renderLayers, textureLocationProvider, scaleHeight, scaleWidth);
+        super(
+            animatorProvider,
+            modelLocationProvider,
+            renderTypeFunction,
+            renderLayers,
+            textureLocationProvider,
+            scaleHeight,
+            scaleWidth
+        );
         this.deathMaxRotationProvider = deathMaxRotationProvider;
     }
 
@@ -75,6 +85,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
         }
 
+        public Builder<T> setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
+        }
+
         public Builder<T> setDeathMaxRotation(float angle) {
             this.deathMaxRotationProvider = $ -> angle;
             return this;
@@ -91,12 +111,14 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return this;
         }
 
+        @Override
         public AzEntityRendererConfig<T> build() {
             var baseConfig = super.build();
 
             return new AzEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
+                renderTypeProvider,
                 baseConfig::modelLocation,
                 baseConfig.renderLayers(),
                 baseConfig::textureLocation,

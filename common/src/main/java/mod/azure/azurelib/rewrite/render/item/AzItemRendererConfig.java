@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.item;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
     private AzItemRendererConfig(
         Supplier<AzAnimator<ItemStack>> animatorProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         float scaleHeight,
@@ -33,7 +35,15 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         boolean useEntityGuiLighting,
         boolean useNewOffset
     ) {
-        super(animatorProvider, modelLocationProvider, renderLayers, textureLocationProvider, scaleHeight, scaleWidth);
+        super(
+            animatorProvider,
+            modelLocationProvider,
+            renderTypeProvider,
+            renderLayers,
+            textureLocationProvider,
+            scaleHeight,
+            scaleWidth
+        );
         this.useEntityGuiLighting = useEntityGuiLighting;
         this.useNewOffset = useNewOffset;
     }
@@ -99,12 +109,14 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             return this;
         }
 
+        @Override
         public AzItemRendererConfig build() {
             var baseConfig = super.build();
 
             return new AzItemRendererConfig(
                 baseConfig::createAnimator,
                 baseConfig::modelLocation,
+                baseConfig::getRenderType,
                 baseConfig.renderLayers(),
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
