@@ -1,3 +1,8 @@
+v3.0.1
+
+- Fixes a packet issue with calling cancelAll on an AzCommand from the server.
+- Implement getRenderType to RenderConfigs, as to make changing the render type easier.
+
 v3.0.0
 
 - Rewrite Entity animation system. See guide for converting here: https://moddedmc.wiki/en/project/azurelib/docs/updating/entities
