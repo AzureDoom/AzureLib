@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
@@ -46,7 +45,6 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             renderLayers,
             preRenderEntry,
             postRenderEntry,
-            modelRendererProvider,
             textureLocationProvider,
             scaleHeight,
             scaleWidth
@@ -112,13 +110,6 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setModelRendererProvider(
-            Function<AzModelRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
-        ) {
-            return (Builder) super.setModelRendererProvider(modelRendererProvider);
-        }
-
-        @Override
         public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
         }
@@ -148,7 +139,6 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
-                baseConfig::modelRendererProvider,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth(),
