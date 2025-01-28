@@ -1,11 +1,8 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.block.AzBlockEntityRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
@@ -88,8 +86,17 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         }
 
         @Override
-        public Builder<T> setPrerenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry) {
+        public Builder<T> setPrerenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+        ) {
             return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setPostRenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+        ) {
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override

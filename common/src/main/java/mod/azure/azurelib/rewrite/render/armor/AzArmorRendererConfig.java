@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +11,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
@@ -84,8 +83,17 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setPrerenderEntry(Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry) {
+        public Builder setPrerenderEntry(
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setPostRenderEntry(
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override

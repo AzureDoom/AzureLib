@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.item;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +10,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
@@ -45,6 +46,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             renderLayers,
             preRenderEntry,
             postRenderEntry,
+            modelRendererProvider,
             textureLocationProvider,
             scaleHeight,
             scaleWidth
@@ -96,8 +98,24 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setPrerenderEntry(Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry) {
+        public Builder setPrerenderEntry(
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setPostRenderEntry(
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setModelRendererProvider(
+            Function<AzModelRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
+        ) {
+            return (Builder) super.setModelRendererProvider(modelRendererProvider);
         }
 
         @Override
@@ -130,6 +148,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
+                baseConfig::modelRendererProvider,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth(),

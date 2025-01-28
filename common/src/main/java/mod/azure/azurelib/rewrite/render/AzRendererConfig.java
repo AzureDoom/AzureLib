@@ -1,7 +1,6 @@
 package mod.azure.azurelib.rewrite.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.rewrite.render.entity.AzEntityRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -101,23 +100,23 @@ public class AzRendererConfig<T> {
 
     public static class Builder<T> {
 
-        private final Function<T, ResourceLocation> modelLocationProvider;
+        protected final Function<T, ResourceLocation> modelLocationProvider;
 
         protected Function<T, RenderType> renderTypeProvider;
 
-        private final List<AzRenderLayer<T>> renderLayers;
+        protected final List<AzRenderLayer<T>> renderLayers;
 
-        private Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
-        private Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
 
-        private final Function<T, ResourceLocation> textureLocationProvider;
+        protected final Function<T, ResourceLocation> textureLocationProvider;
 
-        private Supplier<@Nullable AzAnimator<T>> animatorProvider;
+        protected Supplier<@Nullable AzAnimator<T>> animatorProvider;
 
-        private float scaleHeight;
+        protected float scaleHeight;
 
-        private float scaleWidth;
+        protected float scaleWidth;
 
         protected Builder(
             Function<T, ResourceLocation> modelLocationProvider,
@@ -134,12 +133,16 @@ public class AzRendererConfig<T> {
             this.scaleWidth = 1;
         }
 
-        public Builder<T> setPrerenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry) {
+        public Builder<T> setPrerenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+        ) {
             this.preRenderEntry = preRenderEntry;
             return this;
         }
 
-        public Builder<T> setPostRenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry) {
+        public Builder<T> setPostRenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry
+        ) {
             this.postRenderEntry = postRenderEntry;
             return this;
         }

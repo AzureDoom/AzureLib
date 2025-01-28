@@ -212,20 +212,6 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
     /**
      * Applies rotation transformations to the renderer prior to render time to account for various entity states,
-     * default scale of 1
-     */
-    protected void applyRotations(
-        T animatable,
-        PoseStack poseStack,
-        float ageInTicks,
-        float rotationYaw,
-        float partialTick
-    ) {
-        applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, 1);
-    }
-
-    /**
-     * Applies rotation transformations to the renderer prior to render time to account for various entity states,
      * scalable
      */
     protected void applyRotations(
