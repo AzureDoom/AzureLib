@@ -1,3 +1,7 @@
+v3.0.2
+
+- Implement preRenderEntry and postRenderEntry call backs to RenderConfigs, allowing you to inject code into the preRender and postRender stages.
+
 v3.0.1
 
 - Fixes a packet issue with calling cancelAll on an AzCommand from the server.
