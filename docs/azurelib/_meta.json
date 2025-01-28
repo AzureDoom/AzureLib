@@ -5,6 +5,8 @@
     "blockentities": "Blocks Entities",
     "entities": "Entities",
     "items": "Items",
+    "layers": "Layers",
+    "effectkeyframes": "Effect Keyframes",
     "generaltips": "General Tips",
     "configs": "Config API",
     "misc": "Miscellaneous Features"

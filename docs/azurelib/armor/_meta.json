@@ -4,5 +4,8 @@
     },
     "staticarmor.mdx": {
         "name": "Creating Static (No Animations) Armor"
+    },
+    "boneprovider.mdx": {
+        "name": "Creating a Custom AzDefaultArmorBoneProvider"
     }
 }

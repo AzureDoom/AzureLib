@@ -1,24 +1,9 @@
 {
-    "addinganimatedtextures.mdx": {
-        "name": "Adding Animated Textures"
-    },
     "azcommands101.mdx": {
         "name": "AzCommands 101"
     },
-    "addingazlayers.mdx": {
-        "name": "Adding Default AzLayers"
-    },
-    "creatingcustomlayers.mdx": {
-        "name": "Creating Custom AzLayers"
-    },
-    "addingkeyframes.mdx": {
-        "name": "Adding Effect Keyframes"
-    },
     "animatingincode.mdx": {
         "name": "Animating Bones In-Code"
-    },
-    "boneprovider.mdx": {
-        "name": "Creating a Custom AzDefaultArmorBoneProvider"
     },
     "azurenavigation101.mdx": {
         "name": "AzureNavigation 101"
