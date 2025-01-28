@@ -1,7 +1,9 @@
 package mod.azure.azurelib.rewrite.render.block;
 
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +29,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth
@@ -36,6 +40,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
             modelLocationProvider,
             renderTypeFunction,
             renderLayers,
+            preRenderEntry,
+            postRenderEntry,
             textureLocationProvider,
             scaleHeight,
             scaleWidth
@@ -71,6 +77,11 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         @Override
+        public Builder<T> setPrerenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry) {
+            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
         public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<T>> animatorProvider) {
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
         }
@@ -84,6 +95,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
+                baseConfig::preRenderEntry,
+                baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth()

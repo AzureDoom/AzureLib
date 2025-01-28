@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.item;
 
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +30,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth,
@@ -40,6 +43,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             modelLocationProvider,
             renderTypeProvider,
             renderLayers,
+            preRenderEntry,
+            postRenderEntry,
             textureLocationProvider,
             scaleHeight,
             scaleWidth
@@ -91,6 +96,11 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
+        public Builder setPrerenderEntry(Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry) {
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
         public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
         }
@@ -118,6 +128,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
+                baseConfig::preRenderEntry,
+                baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth(),

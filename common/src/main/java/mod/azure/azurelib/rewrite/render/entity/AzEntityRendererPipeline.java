@@ -78,10 +78,13 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
         var scaleHeight = config.scaleHeight();
 
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
+        config.preRenderEntry(context);
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {}
+    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+        config.postRenderEntry(context);
+    }
 
     /**
      * Renders the final frame of the entity, including handling special cases such as entities with leashes.

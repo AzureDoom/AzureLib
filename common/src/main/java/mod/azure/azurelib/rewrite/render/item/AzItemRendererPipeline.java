@@ -65,10 +65,13 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
             var useNewOffset = config.useNewOffset();
             poseStack.translate(0.5f, useNewOffset ? 0.0f : 0.51f, 0.5f);
         }
+        config.preRenderEntry(context);
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {}
+    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+        config.postRenderEntry(context);
+    }
 
     /**
      * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this
