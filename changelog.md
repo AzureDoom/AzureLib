@@ -1,3 +1,7 @@
+v3.0.3
+
+- Fixes setRenderType issue caused by last update.
+
 v3.0.2
 
 - Implement preRenderEntry and postRenderEntry call backs to RenderConfigs, allowing you to inject code into the preRender and postRender stages.
