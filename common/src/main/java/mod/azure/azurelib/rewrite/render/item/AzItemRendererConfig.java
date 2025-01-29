@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.item;
 
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -93,6 +94,16 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         @Override
         public Builder addRenderLayer(AzRenderLayer<ItemStack> renderLayer) {
             return (Builder) super.addRenderLayer(renderLayer);
+        }
+
+        public Builder setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
         }
 
         @Override

@@ -168,16 +168,6 @@ public class AzRendererConfig<T> {
             return this;
         }
 
-        public Builder<T> setRenderType(RenderType renderType) {
-            this.renderTypeProvider = $ -> renderType;
-            return this;
-        }
-
-        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
-            this.renderTypeProvider = renderTypeProvider;
-            return this;
-        }
-
         /**
          * Sets the scaling factor uniformly for both width and height dimensions.
          *

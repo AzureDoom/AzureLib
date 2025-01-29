@@ -85,6 +85,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return (Builder<T>) super.addRenderLayer(renderLayer);
         }
 
+        public Builder<T> setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
+        }
+
         @Override
         public Builder<T> setPrerenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry

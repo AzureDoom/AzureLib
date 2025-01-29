@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.block;
 
+import mod.azure.azurelib.rewrite.render.entity.AzEntityRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -73,6 +74,16 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         @Override
         public Builder<T> addRenderLayer(AzRenderLayer<T> renderLayer) {
             return (Builder<T>) super.addRenderLayer(renderLayer);
+        }
+
+        public Builder<T> setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
+import mod.azure.azurelib.rewrite.render.block.AzBlockEntityRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -82,6 +83,16 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             return (Builder) super.addRenderLayer(renderLayer);
         }
 
+        public Builder setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
+        }
+
         @Override
         public Builder setPrerenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
@@ -103,11 +114,6 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 
         public Builder setBoneProvider(AzArmorBoneProvider boneProvider) {
             this.boneProvider = boneProvider;
-            return this;
-        }
-
-        public Builder setRenderType(RenderType renderType) {
-            this.renderTypeProvider = $ -> renderType;
             return this;
         }
 
