@@ -35,64 +35,14 @@ import mod.azure.azurelib.common.platform.Services;
 /**
  * Texture object type responsible for AzureLib's emissive render textures
  */
-public class AutoGlowingTexture extends GeoAbstractTexture {
-
-    private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(
-        GameRenderer::getRendertypeEntityTranslucentEmissiveShader
-    );
-
-    private static final RenderStateShard.TransparencyStateShard TRANSPARENCY_STATE =
-        new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-            );
-        }, () -> {
-            RenderSystem.disableBlend();
-            RenderSystem.defaultBlendFunc();
-        });
-
-    private static final RenderStateShard.WriteMaskStateShard WRITE_MASK = new RenderStateShard.WriteMaskStateShard(
-        true,
-        true
-    );
-
-    private static final BiFunction<ResourceLocation, Boolean, RenderType> GLOWING_RENDER_TYPE = Util.memoize(
-        (texture, isGlowing) -> {
-            RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(
-                texture,
-                false,
-                false
-            );
-
-            return RenderType.create(
-                "geo_glowing_layer",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                    .setShaderState(SHADER_STATE)
-                    .setTextureState(textureState)
-                    .setTransparencyState(TRANSPARENCY_STATE)
-                    .setOverlayState(new RenderStateShard.OverlayStateShard(true))
-                    .setWriteMaskState(WRITE_MASK)
-                    .createCompositeState(isGlowing)
-            );
-        }
-    );
-
-    private static final String APPENDIX = "_glowmask";
+public class AutoGlowingTexture extends AzAbstractTexture {
 
     protected final ResourceLocation textureBase;
 
     protected final ResourceLocation glowLayer;
 
     public AutoGlowingTexture(ResourceLocation originalLocation, ResourceLocation location) {
+        super(originalLocation);
         this.textureBase = originalLocation;
         this.glowLayer = location;
     }
