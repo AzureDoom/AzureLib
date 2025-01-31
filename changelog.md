@@ -1,3 +1,7 @@
+v3.0.4
+
+- Fixes useNewOffset for items not working when used.
+
 v3.0.3
 
 - Fixes setRenderType issue caused by last update.
