@@ -134,7 +134,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
          * @param useNewOffset Determines whether to apply the y offset for a model due to the change in BlockBench
          *                     4.11.
          */
-        public AzRendererConfig.Builder<ItemStack> useNewOffset(boolean useNewOffset) {
+        public Builder useNewOffset(boolean useNewOffset) {
             this.useNewOffset = useNewOffset;
             return this;
         }
