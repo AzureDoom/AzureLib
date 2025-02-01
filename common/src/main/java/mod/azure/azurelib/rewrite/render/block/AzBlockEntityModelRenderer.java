@@ -49,9 +49,9 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         var poseStack = context.poseStack();
 
         if (!isReRender) {
-            rotateBlock(getFacing(entity), poseStack);
 
             poseStack.translate(0.5, 0, 0.5);
+            rotateBlock(getFacing(entity), poseStack);
             var animator = blockEntityRendererPipeline.getRenderer().getAnimator();
 
             if (animator != null) {
