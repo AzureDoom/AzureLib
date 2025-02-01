@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.block;
 
-import mod.azure.azurelib.rewrite.render.entity.AzEntityRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.item;
 
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererConfig;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
