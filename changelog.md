@@ -1,3 +1,7 @@
+v3.0.6
+
+- Fixes Block Entity render being off centered.
+
 v3.0.5
 
 - Changes a few Builder options from protected to public
