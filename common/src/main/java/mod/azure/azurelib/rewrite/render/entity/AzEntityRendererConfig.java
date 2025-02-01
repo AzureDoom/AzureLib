@@ -72,7 +72,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         private Function<T, Float> deathMaxRotationProvider;
 
-        protected Builder(
+        public Builder(
             Function<T, ResourceLocation> modelLocationProvider,
             Function<T, ResourceLocation> textureLocationProvider
         ) {

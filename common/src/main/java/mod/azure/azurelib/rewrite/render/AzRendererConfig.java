@@ -104,7 +104,7 @@ public class AzRendererConfig<T> {
 
         protected Function<T, RenderType> renderTypeProvider;
 
-        protected final List<AzRenderLayer<T>> renderLayers;
+        public final List<AzRenderLayer<T>> renderLayers;
 
         protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
