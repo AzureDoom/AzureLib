@@ -1,3 +1,8 @@
+v3.0.5
+
+- Changes a few Builder options from protected to public
+- Adds support for q.* Molang.
+
 v3.0.4
 
 - Fixes useNewOffset for items not working when used.
