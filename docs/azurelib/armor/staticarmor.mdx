@@ -13,6 +13,10 @@ hide_meta: true
 
 This is where you will now register the ResourceLocation model and texture of your armor.
 
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzArmorRendererConfig.builder options.
+</Callout>
+
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
     private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
@@ -29,40 +33,6 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
         super(AzArmorRendererConfig.builder(GEO, TEX).build());
     }
 }
-```
-
-### How to change things in the render early.
-
-If you wish to change things before the model is rendered, such as how the creeper does the glow and swell, you will want to use preRender from the RendererPipeline.
-
-Here is an example how to access this in your Renderer class
-```java
-    @Override
-    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
-        return new AzArmorRendererPipeline(config, this){
-            @Override
-            public void preRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
-                super.preRender(context, isReRender);
-
-                var swellFactor = context.animatable().getSwelling(context.partialTick());
-                var swellMod = 1 + Mth.sin(swellFactor * 100f) * swellFactor * 0.01f;
-                swellFactor = (float)Math.pow(Mth.clamp(swellFactor, 0f, 1f), 3);
-                var horizontalSwell = (1 + swellFactor * 0.4f) * swellMod;
-                var verticalSwell = (1 + swellFactor * 0.1f) / swellMod;
-
-                context.setPackedOverlay(OverlayTexture.pack(OverlayTexture.u(
-                        getSwellOverlay(context.animatable(), context.partialTick())),
-                        OverlayTexture.v(context.animatable().hurtTime > 0 || context.animatable().deathTime > 0)));
-                context.poseStack().scale(horizontalSwell, verticalSwell, horizontalSwell);
-            }
-
-            protected float getSwellOverlay(ItemStack animatable, float partialTick) {
-                var swell = animatable.getSwelling(partialTick);
-
-                return (int) (swell * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(swell, 0.5F, 1.0F);
-            }
-        };
-    }
 ```
 
 ## Registering your Renderer
