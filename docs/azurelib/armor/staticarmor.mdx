@@ -11,7 +11,11 @@ hide_meta: true
 
 ## Creating your Renderer
 
-This is where you will now register the ResourceLocation model and texture of your armor.
+This renderer is responsible for how your armor is displayed in the game.
+
+It connects the armor with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the armor.
+2. **Texture file (`.png`)**: The visual appearance of the armor (applies over the geometry).
 
 <Callout variant="info">
     See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzArmorRendererConfig.builder options.
