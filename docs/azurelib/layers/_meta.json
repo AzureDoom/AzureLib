@@ -11,6 +11,9 @@
     "addingblockitemlayer.mdx": {
         "name": "Adding Block and Item Layer"
     },
+    "addingarmorlayer.mdx": {
+        "name": "Adding Armor Layer"
+    },
     "creatingcustomlayers.mdx": {
         "name": "Creating Custom AzLayers"
     }

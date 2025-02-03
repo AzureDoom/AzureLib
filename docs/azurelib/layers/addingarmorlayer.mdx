@@ -1,0 +1,150 @@
+---
+title: Adding Armor Layer
+hide_meta: true
+---
+
+# Adding and Using the Armor Layer
+
+## Overview
+
+The **AzArmorLayer** is a built-in render layer designed for **per-bone dynamic armor rendering**. It supports rendering both vanilla-style armor and custom armor models registered via AzureLib's `AzArmorRendererRegistry`. This layer works seamlessly with animated models, allowing armor or skull blocks to be rendered on specific bones of an entity, providing incredible flexibility for custom animations and render configurations.
+
+Key features include:
+- Support for **vanilla armor models** and **custom armor models**.
+- Dynamic rendering of **custom per-bone armor pieces**.
+- Per-bone rendering of skull blocks using Mojang's `SkullBlockRenderer`.
+
+This guide will walk you through setting up and customizing the `AzArmorLayer`.
+
+## Setup Instructions
+
+### Step 1: Understanding the Basics
+
+The `AzArmorLayer` works by:
+1. Collecting armor or head equipment from an entity's inventory for each bone.
+2. Automatically determining which equipment slot's item stack belongs to a specific bone using the bone names.
+3. Rendering the appropriate model for vanilla or custom armor while applying transformations to match your model's animation.
+
+### Step 2: Adding the Armor Layer to Your Renderer
+
+To use the `AzArmorLayer`, you need to add it as a render layer in your entity's renderer configuration. Below is an example:
+
+```java
+import mod.azure.azurelib.rewrite.render.layer.AzArmorLayer;
+
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+                AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                        .addRenderLayer(new AzArmorLayer<>() {
+                            // Override methods here
+                        }) // Add the armor layer
+                        .build(),
+                context
+        );
+    }
+}
+```
+
+This configuration adds the `AzArmorLayer` to your entity's renderer pipeline, allowing it to automatically render armor and head equipment dynamically.
+
+### Step 3: Customizing Per-Bone Armor Rendering
+
+The `AzArmorLayer` provides methods to allow customization of how armor is rendered for specific bones. Below are a few key methods to override and customize.
+
+#### 1. **Determine Armor Items for Bones**
+
+You can customize which armor items are rendered for specific bones by overriding `getArmorItemForBone`. For example:
+
+```java
+@Override
+protected ItemStack getArmorItemForBone(AzRendererPipelineContext<ExampleEntity> context, AzBone bone) {
+    return switch (bone.getName()) {
+        case "helmetBone" -> context.animatable().getItemBySlot(EquipmentSlot.HEAD);
+        case "chestPlateBone" -> context.animatable().getItemBySlot(EquipmentSlot.CHEST);
+        case "leggingsBone" -> context.animatable().getItemBySlot(EquipmentSlot.LEGS);
+        case "bootsBone" -> context.animatable().getItemBySlot(EquipmentSlot.FEET);
+        default -> null;
+    };
+}
+```
+
+This ensures items are associated with specific bones based on their name and corresponding equipment slot.
+
+#### 2. **Custom Transformations for Armor Rendering**
+
+If you need to adjust transformations (such as scaling or positioning) for any armor piece before it's rendered, you can override the `prepModelPartForRender` method:
+
+```java
+@Override
+protected void prepModelPartForRender(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ModelPart sourcePart) {
+    context.poseStack().translate(0.0F, 0.2F, 0.0F);
+    context.poseStack().scale(1.2F, 1.2F, 1.2F);
+    super.prepModelPartForRender(context, bone, sourcePart);
+}
+```
+
+This applies custom adjustments, such as translating the armor upwards slightly or scaling it larger before rendering.
+
+#### 3. **Customize Skull Blocks as Helmets**
+
+The `AzArmorLayer` also supports rendering skull blocks (e.g., player heads) dynamically for specific bones. You can override the `renderSkullAsArmor` method to fine-tune how skulls are positioned and scaled:
+
+```java
+@Override
+protected void renderSkullAsArmor(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
+    context.poseStack().scale(1.5F, 1.5F, 1.5F); // Make the skull larger
+    context.poseStack().translate(0.0D, 0.25D, 0.0D); // Adjust position
+    super.renderSkullAsArmor(context, bone, stack, skullBlock);
+}
+```
+
+### Troubleshooting
+
+1. **Armor Doesn't Display:**
+   - Make sure the bone name in `getArmorItemForBone` matches the bone names in your `.geo` model file.
+   - Check that the entity has items equipped in the corresponding armor slots.
+
+2. **Incorrect Scaling/Positioning:**
+   - Use `prepModelPartForRender` to fix scaling or positioning issues.
+   - Make sure vanilla armor models (like leggings or boots) are not overriding any custom behaviors.
+
+3. **Custom Models Not Used:**
+   - Verify the armor renderer is registered in `AzArmorRendererRegistry`.
+   - Ensure your custom model classes implement the necessary interfaces for dynamic rendering.
+
+### Example Use Case
+
+**Scenario**: You have a custom animated model for an entity, where:
+- A helmet must be rendered on the `helmetBone`.
+- A player head (skull block) should be rendered dynamically if equipped as a helmet.
+
+Here’s how you would set it up in the `AzArmorLayer`:
+
+```java
+@Override
+protected ItemStack getArmorItemForBone(AzRendererPipelineContext<ExampleEntity> context, AzBone bone) {
+    return switch (bone.getName()) {
+        case "helmetBone" -> context.animatable().getItemBySlot(EquipmentSlot.HEAD);
+        case "chestPlateBone" -> context.animatable().getItemBySlot(EquipmentSlot.CHEST);
+        default -> null;
+    };
+}
+
+@Override
+protected void renderSkullAsArmor(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
+    context.poseStack().scale(1.2F, 1.2F, 1.2F);
+    context.poseStack().translate(0.0D, 0.4D, 0.0D);
+    super.renderSkullAsArmor(context, bone, stack, skullBlock);
+}
+```
+
+With this setup:
+- For the `helmetBone`, either a helmet or a skull block will render dynamically.
+- Additional custom scaling and translation is applied to ensure the skull looks correct on the animated model.
