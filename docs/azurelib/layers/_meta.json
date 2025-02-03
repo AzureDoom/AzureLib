@@ -5,6 +5,8 @@
     "addinganimatedtextures.mdx": {
         "name": "Adding Animated Textures"
     },
+    "addingglowlayer.mdx": {
+        "name": "Adding Auto Glow Texture"
     },
     "creatingcustomlayers.mdx": {
         "name": "Creating Custom AzLayers"

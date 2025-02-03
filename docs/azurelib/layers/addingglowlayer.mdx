@@ -1,0 +1,78 @@
+---
+title: Adding Auto Glow Texture
+hide_meta: true
+---
+
+# How to use the Auto Glow Texture feature
+
+<Callout variant="warning">
+Can not be used with Animated Textures at this time.
+</Callout>
+
+## Overview
+
+The **Auto Glow Texture** feature allows you to easily apply glowing effects to textures specific to your model without requiring additional code for handling emissive layers. AzureLib achieves this by using a second texture file with the `_glowing` suffix in its name, which defines the emissive parts of your model.
+
+For instance, if your base texture is:
+
+`example_model.png`
+
+The glow layer texture would be:
+
+`example_model_glowing.png`
+
+The `AzAutoGlowingLayer` handles applying the glow automatically, saving time and effort for developers.
+
+## Setup Instructions
+
+### Step 1: Prepare Your Textures
+
+1. **Base Texture**: Prepare a normal texture for your model as you usually would (e.g., `example_model.png`).
+
+2. **Glow Layer Texture**: Create the glow texture by duplicating your base texture and blacking out any areas that shouldn’t glow. Keep the glowing parts visible (e.g., `example_model_glowing.png`).
+
+   - Only the parts in the glow texture that are visible will glow in-game.
+   - Make sure the `_glowing` texture matches the dimensions of the base texture.
+
+
+### Step 2: Add the Auto Glow Layer to Your Renderer
+
+The `AzAutoGlowingLayer` is designed to be added to your renderer’s pipeline to apply the glowing effect automatically.
+
+Here’s how you can integrate it into your custom renderer:
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                .addRenderLayer(new AzAutoGlowingLayer<>()) // Add the auto glow layer
+                .build(), context
+        );
+    }
+}
+```
+
+### Troubleshooting
+
+1. **Glow Effect Not Visible:**
+   - Verify that your `_glowing` texture is in the correct file path.
+   - Ensure the glow texture is named correctly (must include `_glowing`).
+
+2. **Texture Not Found:**
+   - Double-check that your main texture file is correctly registered in the renderer.
+   - Confirm the model uses a texture location that matches your `_glowing` texture pairing logic.
+
+3. **Render Issues:**
+   - Make sure your glow texture dimensions match the base texture.
+   - Test with a simple texture first to isolate potential issues.
+
+### Advanced Configuration (Optional)
+
+The `AzAutoGlowingLayer` uses a packed light value of `0xF00000` by default for the glow layer render. If you want to customize the glow intensity or modify other behaviors, consider creating a custom layer by extending `AzAutoGlowingLayer`.
