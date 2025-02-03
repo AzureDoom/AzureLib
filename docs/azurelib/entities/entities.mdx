@@ -159,6 +159,10 @@ It connects the entity with the following:
 
 The renderer class must extend `AzEntityRenderer<ExampleEntity>` and provide the required configuration.
 
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzBlockEntityRendererConfig#builder options.
+</Callout>
+
 Example Renderer
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
@@ -179,30 +183,6 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
         );
     }
 }
-```
-
-Highlights of the above example:
-
-This renderer is responsible for how your custom entity is displayed in the game.
-
-It connects the entity with the following:
-1. **Geometry file (`geo.json`)**: Defines the 3D model of the entity.
-2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
-3. **Animator**: Animations for the entity, provided by `ExampleEntityAnimator`.
-
-<Callout variant="info">
-    See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzBlockEntityRendererConfig#builder options.
-</Callout>
-
-Example:
-```java
-    public ExampleEntityRenderer() {
-        super(
-            AzBlockEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
-                .setAnimatorProvider(ExampleEntityAnimator::new)
-                .setDeathMaxRotation(0F).build()
-        );
-    }
 ```
 
 ## Registering your Renderer
