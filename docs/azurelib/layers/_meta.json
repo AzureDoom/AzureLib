@@ -1,9 +1,10 @@
 {
+    "addingazlayers.mdx": {
+        "name": "Adding Default AzLayers"
+    },
     "addinganimatedtextures.mdx": {
         "name": "Adding Animated Textures"
     },
-    "addingazlayers.mdx": {
-        "name": "Adding Default AzLayers"
     },
     "creatingcustomlayers.mdx": {
         "name": "Creating Custom AzLayers"
