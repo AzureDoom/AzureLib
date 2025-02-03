@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.layer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -58,8 +59,9 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      */
     @Override
     public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {
-        var stack = itemStackForBone(bone);
-        var blockState = blockStateForBone(bone);
+        var animatable = context.animatable();
+        var stack = itemStackForBone(bone, animatable);
+        var blockState = blockStateForBone(bone, animatable);
 
         if (stack == null && blockState == null)
             return;
@@ -68,10 +70,10 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
         RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
 
         if (stack != null)
-            renderItemForBone(context, bone, stack);
+            renderItemForBone(context, bone, stack, animatable);
 
         if (blockState != null)
-            renderBlockForBone(context, bone, blockState);
+            renderBlockForBone(context, bone, blockState, animatable);
 
         context.poseStack().popPose();
     }
@@ -83,7 +85,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone the bone for which to retrieve the {@link ItemStack}
      * @return the {@link ItemStack} relevant to the specified bone, or {@code null} if none exists
      */
-    public ItemStack itemStackForBone(AzBone bone) {
+    public ItemStack itemStackForBone(AzBone bone, T animatable) {
         return itemStackProvider.apply(bone);
     }
 
@@ -94,7 +96,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone the bone for which to retrieve the {@link BlockState}
      * @return the {@link BlockState} relevant to the specified bone, or {@code null} if none exists
      */
-    public BlockState blockStateForBone(AzBone bone) {
+    public BlockState blockStateForBone(AzBone bone, T animatable) {
         return blockStateProvider.apply(bone);
     }
 
@@ -106,7 +108,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param stack the {@link ItemStack} to render
      * @return the {@link ItemDisplayContext} to use for rendering
      */
-    protected ItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack) {
+    protected ItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack, T animatable) {
         return ItemDisplayContext.NONE;
     }
 
@@ -118,14 +120,14 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone      the bone where the {@link ItemStack} will be rendered
      * @param itemStack the {@link ItemStack} to render
      */
-    protected void renderItemForBone(AzRendererPipelineContext<T> context, AzBone bone, ItemStack itemStack) {
+    protected void renderItemForBone(AzRendererPipelineContext<T> context, AzBone bone, ItemStack itemStack, T animatable) {
         if (context.animatable() instanceof LivingEntity livingEntity) {
             Minecraft.getInstance()
                 .getItemRenderer()
                 .renderStatic(
                     livingEntity,
                     itemStack,
-                    getTransformTypeForStack(bone, itemStack),
+                    getTransformTypeForStack(bone, itemStack, animatable),
                     false,
                     context.poseStack(),
                     context.multiBufferSource(),
@@ -139,7 +141,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
                 .getItemRenderer()
                 .renderStatic(
                     itemStack,
-                    getTransformTypeForStack(bone, itemStack),
+                    getTransformTypeForStack(bone, itemStack, animatable),
                     context.packedLight(),
                     context.packedOverlay(),
                     context.poseStack(),
@@ -158,7 +160,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone       the bone where the {@link BlockState} will be rendered
      * @param blockState the {@link BlockState} to render
      */
-    protected void renderBlockForBone(AzRendererPipelineContext<T> context, AzBone bone, BlockState blockState) {
+    protected void renderBlockForBone(AzRendererPipelineContext<T> context, AzBone bone, BlockState blockState, T animatable) {
         context.poseStack().pushPose();
 
         context.poseStack().translate(-0.25f, -0.25f, -0.25f);
