@@ -33,8 +33,8 @@ If your model is one that will be used an item or reused as an Item, you will wa
 <Callout variant="danger">
     This file **MUST** be saved as the same as items resource name, so if it's called yourmodid:superitem in game, it must be saved as `superitem.json` in your `/assets/modid/models/item/` folder
 </Callout>
-<Callout variant="danger">
-    There is currently a bug in the plugin which exports the displays with an offset applied, we are unsure why this is but a fix being worked on and this note removed when fixed.
+<Callout variant="warning">
+    There is currently a bug in the plugin which exports the displays with an offset applied, please use useNewOffset(true) in your AzItemRendererConfig builder to fix this.
 </Callout>
 
 - Open `File` and then select `Export` and choose `Export Azurelib Display Settings`
