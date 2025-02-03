@@ -8,6 +8,9 @@
     "addingglowlayer.mdx": {
         "name": "Adding Auto Glow Texture"
     },
+    "addingblockitemlayer.mdx": {
+        "name": "Adding Block and Item Layer"
+    },
     "creatingcustomlayers.mdx": {
         "name": "Creating Custom AzLayers"
     }
