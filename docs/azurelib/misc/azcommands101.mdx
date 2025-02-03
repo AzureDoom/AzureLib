@@ -57,38 +57,8 @@ combinedCommand.sendForItem(myEntity, myItemStack);
 ```
 This requires the item stack to have a registered UUID, which is covered in the Item and Armor guides.
 
-## Advanced Use Cases for `AzCommand`
-
-### Using Builders for Complex Sequences
-To configure sequences with multiple animations:
-``` java
-AzCommand sequenceCommand = AzCommand.builder()
-    .playSequence("Walk", sequence -> {
-        // Queue up animations in the sequence
-        sequence.queue("WALK_ANIMATION");
-        sequence.queue("RUN_ANIMATION");
-    })
-    .build();
-
-sequenceCommand.sendForEntity(myEntity);
-```
-This will play `WALK_ANIMATION` followed by `RUN_ANIMATION` on the same controller.
-
 ## Best Practices
-1. **Use Command Builders**:
-    - Builders make creating complex commands intuitive and reduce errors.
-    - Example:
-``` java
-     AzCommand.builder()
-         .playSequence("Walk", sequence -> {
-             sequence.queue("WALK");
-             sequence.queue("RUN");
-         })
-         .build()
-         .sendForEntity(entity);
-```
-
-2. **Reuse Commands**:
+1. **Reuse Commands**:
     - Define reusable commands for common animations to simplify your rendering logic.
 
 
