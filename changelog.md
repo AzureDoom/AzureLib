@@ -1,3 +1,7 @@
+v3.0.7
+
+- Add animatable to various methods in AzBlockAndItemLayer for better support.
+
 v3.0.6
 
 - Fixes Block Entity render being off centered.
