@@ -68,17 +68,10 @@ public class ModConfig {
 
 ## Registering the Config
 
-<table>
-  <tbody>
-    <tr>
-      <th>NeoForge/Forge</th>
-      <th>Fabric</th>
-    </tr>
-    <tr>
-      <td>
-        <pre>
+<CodeTabs>
+
+```java !!tabs NeoForge/Forge
 In your mods constructor, add the following:
-```java
 public static ModConfig config;
 
 public YourMod() {
@@ -87,12 +80,9 @@ public YourMod() {
         ConfigFormats.json()).getConfigInstance();
 }
 ```
-        </pre>
-      </td>
-      <td>
-        <pre>
+
+```java !!tabs Fabric
 In your mods Initializer class, add the following:
-```java
 public static ModConfig config;
 
 @Override
@@ -102,11 +92,8 @@ public void onInitialize() {
         ConfigFormats.json()).getConfigInstance();
 }
 ```
-        </pre>
-      </td>
-    </tr>
-  </tbody>
-</table>
+
+</CodeTabs>
 
 ## Calling your Config class
 
