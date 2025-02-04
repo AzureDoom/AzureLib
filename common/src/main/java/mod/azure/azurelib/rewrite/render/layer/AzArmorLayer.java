@@ -353,7 +353,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
     /**
      * Prepares the given {@link ModelPart} for render by setting its translation, position, and rotation values based
-     * on the provided {@link AzBone}
+     * on the provided {@link AzBone}.
+     * <br>
+     * This implementation uses the <b><u>FIRST</u></b> cube in the source part
+     * to determine the scale and position of the GeoArmor to be rendered
      *
      * @param context
      * @param bone       The AzBone to base the translations on
