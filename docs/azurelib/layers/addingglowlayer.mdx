@@ -44,10 +44,10 @@ Here’s how you can integrate it into your custom renderer:
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL_LOCATION =
-        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
     private static final ResourceLocation TEXTURE_LOCATION =
-        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(

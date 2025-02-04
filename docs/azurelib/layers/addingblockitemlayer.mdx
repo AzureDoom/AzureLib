@@ -22,10 +22,10 @@ Adding the `AzBlockAndItemLayer` to your renderer is straightforward. Use the `a
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL_LOCATION =
-        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
     private static final ResourceLocation TEXTURE_LOCATION =
-        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
@@ -120,10 +120,10 @@ By following these steps, the entity model will dynamically render the correct i
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL_LOCATION =
-        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
     private static final ResourceLocation TEXTURE_LOCATION =
-        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
