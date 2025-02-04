@@ -8,7 +8,10 @@
 
 ## Developers
 To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
-```gradle
+
+<CodeTabs>
+
+```markdown !!tabs build.gradle
 repositories {
 	maven {
 		name = "AzureDoom Mods"
@@ -16,6 +19,8 @@ repositories {
 	}
 }
 ```
+
+</CodeTabs>
 
 ### How AzureLib gets added to your dependencies varies based on modloader and setup.
 
@@ -25,28 +30,45 @@ The Gradle property `MODVERSION` should be something like `1.21.1` with Minecraf
 
 Here are common dependency setups for different loaders.
 
-```gradle
+<CodeTabs>
+
+```markdown !!tabs Common 1.20.1+ Latest Only
 dependencies {
-	//Common 1.20.1+ Latest Only
 	compileOnly "mod.azure.azurelib:azurelib-common-MCVERSION:MODVERSION"
+}
+```
 
-	//Fabric or Quilt
+```markdown !!tabs Fabric/Quilt
+dependencies {
 	modImplementation "mod.azure.azurelib:azurelib-fabric-MCVERSION:MODVERSION"
+}
+```
 
-	//NeoForge
+```markdown !!tabs NeoForge
+dependencies {
 	implementation "mod.azure.azurelib:azurelib-neo-MCVERSION:MODVERSION"
+}
+```
 
-	//Forge (No longer supported past 1.20.1, use NeoForge)
+```markdown !!tabs Forge (1.20.1 and lower)
+dependencies {
 	implementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+}
+```
 
-	// Architectury Forge 1.20.1
+```markdown !!tabs Architectury Forge 1.20.1
+dependencies {
 	modImplementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
 }
 ```
 
+</CodeTabs>
+
 For Forge Gradle users, you will need to enable Mixin refmaps in your client sourceset. This can be done by adding 2 lines inside of your client runs, to look like below.
 
-```gradle
+<CodeTabs>
+
+```markdown !!tabs build.gradle
 runs {
 	client {
 		// Add these two lines
@@ -58,3 +80,5 @@ runs {
 	}
 }
 ```
+
+</CodeTabs>
