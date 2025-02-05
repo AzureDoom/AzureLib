@@ -26,9 +26,6 @@ public class AzureNavigation extends GroundPathNavigation {
 
     static final float EPSILON = 1.0E-8F;
 
-    @Nullable
-    protected BlockPos pathToPosition;
-
     public AzureNavigation(Mob entity, Level world) {
         super(entity, world);
     }
@@ -47,25 +44,9 @@ public class AzureNavigation extends GroundPathNavigation {
      * <p>
      * Special thanks to JayZX535 for contributing this method.
      */
+    @Deprecated
     public void hardStop() {
         this.path = null;
-        this.pathToPosition = null;
-    }
-
-    @Override
-    protected void trimPath() {
-        super.trimPath();
-        for (int i = 0; i < this.path.getNodeCount(); ++i) {
-            Node node = this.path.getNode(i);
-            Node node2 = i + 1 < this.path.getNodeCount() ? this.path.getNode(i + 1) : null;
-            BlockState blockState = this.level.getBlockState(new BlockPos(node.x, node.y, node.z));
-            if (!blockState.is(BlockTags.STAIRS))
-                continue;
-            this.path.replaceNode(i, node.cloneAndMove(node.x, node.y + 1, node.z));
-            if (node2 == null || node.y < node2.y)
-                continue;
-            this.path.replaceNode(i + 1, node.cloneAndMove(node2.x, node.y + 1, node2.z));
-        }
     }
 
     @Override
@@ -94,54 +75,8 @@ public class AzureNavigation extends GroundPathNavigation {
     }
 
     @Override
-    public Path createPath(BlockPos blockPos, int i) {
-        this.pathToPosition = blockPos;
-        return super.createPath(blockPos, i);
-    }
-
-    @Override
-    public Path createPath(Entity entity, int i) {
-        this.pathToPosition = entity.blockPosition();
-        return super.createPath(entity, i);
-    }
-
-    @Override
-    public boolean moveTo(Entity entity, double d) {
-        Path path = this.createPath(entity, 0);
-        if (path != null) {
-            return this.moveTo(path, d);
-        }
-        this.pathToPosition = entity.blockPosition();
-        this.speedModifier = d;
-        return true;
-    }
-
-    @Override
     public void tick() {
         super.tick();
-        if (this.isDone()) {
-            if (this.pathToPosition != null) {
-                if (
-                    this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob
-                        .getY() > (double) this.pathToPosition.getY() && BlockPos.containing(
-                            this.pathToPosition.getX(),
-                            this.mob.getY(),
-                            this.pathToPosition.getZ()
-                        ).closerToCenterThan(this.mob.position(), this.mob.getBbWidth())
-                ) {
-                    this.pathToPosition = null;
-                } else {
-                    this.mob.getMoveControl()
-                        .setWantedPosition(
-                            this.pathToPosition.getX(),
-                            this.pathToPosition.getY(),
-                            this.pathToPosition.getZ(),
-                            this.speedModifier
-                        );
-                }
-            }
-            return;
-        }
         if (this.getTargetPos() != null)
             this.mob.getLookControl()
                 .setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
