@@ -1,3 +1,7 @@
+v3.0.8
+
+- Fixed AzureNavigation causing stuck pathfinding.
+
 v3.0.7
 
 - Add animatable to various methods in AzBlockAndItemLayer for better support.
