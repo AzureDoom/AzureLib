@@ -15,6 +15,7 @@ package mod.azure.azurelib.network.api;
 import net.minecraft.network.FriendlyByteBuf;
 
 @FunctionalInterface
+@Deprecated(forRemoval = true)
 public interface IPacketDecoder<T> {
 
     T decode(FriendlyByteBuf buffer);

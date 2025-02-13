@@ -34,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also applies to armor, as they are just items too.
  */
+@Deprecated(forRemoval = true)
 public interface GeoItem extends SingletonGeoAnimatable {
 	String ID_NBT_KEY = "AzureLibID";
 

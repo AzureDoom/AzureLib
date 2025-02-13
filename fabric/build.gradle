@@ -33,6 +33,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     compileOnly group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     modApi "com.terraformersmc:modmenu:${modmenu_version}"
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")))
     compileOnly project(":common")
 }
 

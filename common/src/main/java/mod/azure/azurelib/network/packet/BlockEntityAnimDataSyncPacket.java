@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * Packet for syncing user-definable animation data for {@link BlockEntity
  * BlockEntities}
  */
+@Deprecated(forRemoval = true)
 public class BlockEntityAnimDataSyncPacket<D> extends AbstractPacket {
 	private final BlockPos blockPos;
 	private final SerializableDataTicket<D> dataTicket;

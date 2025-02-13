@@ -22,6 +22,7 @@ import net.minecraft.world.entity.Entity;
  * The {@link GeoAnimatable} interface specific to {@link net.minecraft.world.entity.Entity Entities}. This also applies to Projectiles and other Entity subclasses.<br>
  * <b>NOTE:</b> This <u>cannot</u> be used for entities using the {@link mod.azure.azurelib.renderer.GeoReplacedEntityRenderer} as you aren't extending {@code Entity}. Use {@link GeoReplacedEntity} instead.
  */
+@Deprecated(forRemoval = true)
 public interface GeoEntity extends GeoAnimatable {
 	/**
 	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>

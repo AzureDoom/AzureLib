@@ -26,6 +26,7 @@ import java.util.Set;
 /**
  * A dyeable armour renderer for AzureLib armor models.
  */
+@Deprecated(forRemoval = true)
 public abstract class DyeableGeoArmorRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> {
     protected final Set<GeoBone> dyeableBones = new ObjectArraySet<>();
     protected BakedGeoModel lastModel = null;

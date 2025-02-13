@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
  * Packet for syncing user-definable animation data for
  * {@link net.minecraft.world.entity.Entity Entities}
  */
+@Deprecated(forRemoval = true)
 public class EntityAnimDataSyncPacket<D> extends AbstractPacket {
 	private final int entityId;
 	private final SerializableDataTicket<D> dataTicket;

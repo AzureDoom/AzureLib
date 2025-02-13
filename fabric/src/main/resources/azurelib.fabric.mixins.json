@@ -10,6 +10,10 @@
   ],
   "client": [
     "AccessorWarningScreen",
+    "BlockEntityMixin_AzBlockEntityAnimatorCache",
+    "EntityMixin_AzEntityAnimatorCache",
+    "ItemStackMixin_AzItemAnimatorCache",
+    "ItemStackMixin_AzItemStackIdentityRegistry",
     "FabricMixinHumanoidArmorLayer",
     "ItemRendererAccessor",
     "MinecraftMixin",

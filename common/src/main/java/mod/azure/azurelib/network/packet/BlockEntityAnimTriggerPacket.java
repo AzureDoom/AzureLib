@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  * server for {@link net.minecraft.world.level.block.entity.BlockEntity
  * BlockEntities}
  */
+@Deprecated(forRemoval = true)
 public class BlockEntityAnimTriggerPacket extends AbstractPacket {
     private final BlockPos blockPos;
     private final String controllerName;

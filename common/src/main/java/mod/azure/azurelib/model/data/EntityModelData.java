@@ -10,4 +10,5 @@ package mod.azure.azurelib.model.data;
 /**
  * Container class for various pieces of data relating to a model's current state.
  */
+@Deprecated(forRemoval = true)
 public record EntityModelData(boolean isSitting, boolean isChild, float netHeadYaw, float headPitch) {}

@@ -14,6 +14,7 @@ package mod.azure.azurelib.network.api;
 
 import net.minecraft.resources.ResourceLocation;
 
+@Deprecated(forRemoval = true)
 public interface IPacket<T> {
 
     ResourceLocation getPacketId();
