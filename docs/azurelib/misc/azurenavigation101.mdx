@@ -28,19 +28,13 @@ The `AzureNavigation` class extends the vanilla pathfinding behavior to account 
 
 ## Key Features of `AzureNavigation`
 
-### 1. **Custom Pathfinding via AzurePathFinder**
+### 1. **Custom Pathfinding via `AzurePathFinder`**
 The `AzureNavigation` system overrides the default `createPathFinder` with the custom `AzurePathFinder`. This custom pathfinder considers not only the center position of a mob but also its full bounding box when calculating valid paths.
 Compared to vanilla, this provides:
 - Improved path calculations for wide mobs to avoid clipping into walls.
 - Adjustments to account for both horizontal and vertical movement more accurately.
 
-### 2. **Custom Pathfinding via AzurePathFinder**
-The `AzureNavigation` system overrides the default `createPathFinder` with the custom `AzurePathFinder`. This custom pathfinder considers not only the center position of a mob but also its full bounding box when calculating valid paths.
-Compared to vanilla, this provides:
-- Improved path calculations for wide mobs to avoid clipping into walls.
-- Adjustments to account for both horizontal and vertical movement more accurately.
-
-### 3. **Bounding Box Awareness in Movement**
+### 2. **Bounding Box Awareness in Movement**
 
 One significant improvement of `AzureNavigation` is the **bounding box-based path validation**. The `followThePath` and `tryShortcut` methods take the full collision box of the entity into account, not just its center point. This is especially useful for large mobs that may otherwise clip into walls or narrow pathways.
 
@@ -49,11 +43,11 @@ One significant improvement of `AzureNavigation` is the **bounding box-based pat
 - Before moving to the next path node, the system checks if the mob can fit in the space without collisions.
 - If a smaller/shorter route is available, it adjusts the path dynamically.
 
-### 4. **Efficient Path Shortcuts**
+### 3. **Efficient Path Shortcuts**
 
 The `tryShortcut` method improves pathfinding efficiency by finding shorter routes when possible. This is particularly useful for large mobs where traversing long, winding paths can waste time. By sweeping the space ahead of the mob, the navigation system identifies valid path nodes closer to the destination and adjusts accordingly.
 
-### 5. **Accurate Sweeping for Large Entities**
+### 4. **Accurate Sweeping for Large Entities**
 
 The `sweep` method ensures a large entity can fit through spaces along its path. It checks the bounding box at every potential step along the entity's path using 3D collision tests. This prevents scenarios where:
 - The entity hits terrain while navigating elevations.
