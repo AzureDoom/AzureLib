@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mod.azure.azurelib.core.object.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -9,6 +10,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FastColor;
@@ -16,6 +20,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +98,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      */
     @Override
     public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {
-        var poseStack = context.poseStack();
         var armorStack = getArmorItemForBone(context, bone);
 
         if (armorStack == null) {
@@ -106,7 +110,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ) {
             renderSkullAsArmor(context, bone, armorStack, skullBlock);
         } else {
-            renderArmor(context, bone, armorStack, poseStack);
+            renderArmor(context, bone, armorStack);
         }
     }
 
@@ -118,50 +122,30 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      *                   rendering.
      * @param bone       The specific bone of the model where the armor piece will be rendered.
      * @param armorStack The ItemStack representing the armor item to render.
-     * @param poseStack  The matrix stack used to apply transformations during rendering.
      */
-    private void renderArmor(
+    public void renderArmor(
         AzRendererPipelineContext<T> context,
         AzBone bone,
-        ItemStack armorStack,
-        PoseStack poseStack
+        ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = getRendererForItem(armorStack);
+        var renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
         var model = getModelForItem(armorStack, slot);
-        var modelPart = getModelPartForBone(context, model);
+        var modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
-            poseStack.pushPose();
-            poseStack.scale(-1, -1, 1);
+            context.poseStack().pushPose();
+            context.poseStack().scale(-1, -1, 1);
 
-            if (renderer != null && context.animatable() instanceof Entity entity) {
-                var boneContext = renderer.rendererPipeline().context().boneContext();
-
+            if (renderer != null && context.animatable() instanceof LivingEntity entity) {
                 prepModelPartForRender(context, bone, modelPart);
-                renderer.prepForRender(entity, armorStack, slot, model);
-                boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
-                model.renderToBuffer(
-                    poseStack,
-                    null,
-                    context.packedLight(),
-                    context.packedOverlay(),
-                    armorStack.is(
-                        ItemTags.DYEABLE
-                    ) ? FastColor.ARGB32.opaque(DyedItemColor.getOrDefault(armorStack, -6265536)) : -1
-                );
+                renderAzArmorPiece(context, slot, armorStack, renderer, entity, model, modelPart);
             } else if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
-                renderVanillaArmorPiece(
-                    context,
-                    bone,
-                    slot,
-                    armorStack,
-                    modelPart
-                );
+                renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
             }
 
-            poseStack.popPose();
+            context.poseStack().popPose();
         }
     }
 
@@ -194,7 +178,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * This is then transformed into position for the final render
      */
     @NotNull
-    protected ModelPart getModelPartForBone(AzRendererPipelineContext<T> context, HumanoidModel<?> baseModel) {
+    protected ModelPart getModelPartForBone(AzRendererPipelineContext<T> context, AzBone bone, HumanoidModel<?> baseModel) {
         return baseModel.body;
     }
 
@@ -205,6 +189,26 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     @Nullable
     protected ItemStack getArmorItemForBone(AzRendererPipelineContext<T> context, AzBone bone) {
         return null;
+    }
+
+    protected void renderAzArmorPiece(
+            AzRendererPipelineContext<T> context,
+            EquipmentSlot slot,
+            ItemStack armorStack,
+            AzArmorRenderer renderer,
+            LivingEntity entity,
+            HumanoidModel<T> model,
+            ModelPart modelPart) {
+        var renderPipelines = renderer.rendererPipeline();
+        var boneContext = renderPipelines.context().boneContext();
+        var armorModel = renderPipelines.armorModel();
+        var i2 = armorStack.is(
+                ItemTags.DYEABLE
+        ) ? FastColor.ARGB32.opaque(DyedItemColor.getOrDefault(armorStack, -6265536)) : -1;
+
+        renderer.prepForRender(entity, armorStack, slot, model);
+        boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
+        armorModel.renderToBuffer(context.poseStack(), null, context.packedLight(), OverlayTexture.NO_OVERLAY, i2);
     }
 
     /**
@@ -220,47 +224,23 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         var material = ((ArmorItem) armorStack.getItem()).getMaterial();
 
         for (var layer : material.value().layers()) {
-            var buffer = getVanillaArmorBuffer(
-                context,
-                armorStack,
-                slot,
-                bone,
-                layer,
-                false
-            );
+            var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
+            var buffer = getVanillaArmorBuffer(context, armorStack, slot, bone, layer, false);
 
-            modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay());
+            modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay(), color);
         }
 
         var trim = armorStack.get(DataComponents.TRIM);
 
         if (trim != null) {
-            var spriteLocation = slot == EquipmentSlot.LEGS ? trim.innerTexture(material) : trim.outerTexture(material);
-            var consumer = context.multiBufferSource()
-                .getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal()));
-            var sprite = Minecraft.getInstance()
-                .getModelManager()
-                .getAtlas(Sheets.ARMOR_TRIMS_SHEET)
-                .getSprite(spriteLocation);
-            var buffer = sprite.wrap(consumer);
+            var sprite = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET).getSprite(slot == EquipmentSlot.LEGS ? trim.innerTexture(material) : trim.outerTexture(material));
+            var buffer = sprite.wrap(context.multiBufferSource().getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal())));
+
             modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay());
         }
 
         if (armorStack.hasFoil())
-            modelPart.render(
-                context.poseStack(),
-                getVanillaArmorBuffer(
-                    context,
-                    armorStack,
-                    slot,
-                    bone,
-                    null,
-                    true
-                ),
-                context.packedLight(),
-                context.packedOverlay(),
-                1
-            );
+            modelPart.render(context.poseStack(), getVanillaArmorBuffer(context, armorStack, slot, bone, null, true), context.packedLight(), context.packedOverlay(), Color.WHITE.argbInt());
     }
 
     /**
@@ -310,14 +290,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided
      * {@link ItemStack}
      */
-    protected HumanoidModel<?> getModelForItem(ItemStack stack, EquipmentSlot slot) {
+    protected HumanoidModel<T> getModelForItem(ItemStack stack, EquipmentSlot slot) {
         var renderer = getRendererForItem(stack);
 
         if (renderer == null) {
-            return slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
+            return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
         }
 
-        return renderer.rendererPipeline().armorModel();
+        return (HumanoidModel<T>) renderer.rendererPipeline().armorModel();
     }
 
     /**
@@ -363,8 +343,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @param sourcePart The ModelPart to translate
      */
     protected void prepModelPartForRender(AzRendererPipelineContext<T> context, AzBone bone, ModelPart sourcePart) {
-        var firstCube = bone.getCubes().get(0);
-        var armorCube = sourcePart.cubes.get(0);
+        var firstCube = bone.getCubes().getFirst();
+        var armorCube = sourcePart.cubes.getFirst();
         var armorBoneSizeX = firstCube.size().x();
         var armorBoneSizeY = firstCube.size().y();
         var armorBoneSizeZ = firstCube.size().z();

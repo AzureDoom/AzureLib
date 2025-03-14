@@ -5,6 +5,7 @@
  */
 package mod.azure.azurelib.neoforge.mixins;
 
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -35,5 +36,13 @@ public class ClientHooksMixin {
                 RenderProvider.of(itemStack)
                     .getGenericArmorModel(entityLiving, itemStack, slot, (HumanoidModel<LivingEntity>) _default)
             );
+
+        var renderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
+
+        if (renderer != null) {
+            var rendererPipeline = renderer.rendererPipeline();
+            var armorModel = rendererPipeline.armorModel();
+            cir.setReturnValue(armorModel);
+        }
     }
 }
