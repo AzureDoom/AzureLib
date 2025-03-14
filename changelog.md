@@ -1,3 +1,7 @@
+v3.0.9
+
+- Fixed AzArmorLayer for vanilla armor rendering. WIP on AzArmor rendering as it's being weird
+
 v3.0.8
 
 - Fixed AzureNavigation causing stuck pathfinding.
