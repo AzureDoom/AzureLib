@@ -11,7 +11,7 @@ Can not be used with Animated Textures at this time.
 
 ## Overview
 
-The **Auto Glow Texture** feature allows you to easily apply glowing effects to textures specific to your model without requiring additional code for handling emissive layers. AzureLib achieves this by using a second texture file with the `_glowing` suffix in its name, which defines the emissive parts of your model.
+The **Auto Glow Texture** feature allows you to easily apply glowing effects to textures specific to your model without requiring additional code for handling emissive layers. AzureLib achieves this by using a second texture file with the `_glowmask` suffix in its name, which defines the emissive parts of your model.
 
 For instance, if your base texture is:
 
@@ -19,7 +19,7 @@ For instance, if your base texture is:
 
 The glow layer texture would be:
 
-`example_model_glowing.png`
+`example_model_glowmask.png`
 
 The `AzAutoGlowingLayer` handles applying the glow automatically, saving time and effort for developers.
 
