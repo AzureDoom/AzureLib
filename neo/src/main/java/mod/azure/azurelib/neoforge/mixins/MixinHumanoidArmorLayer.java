@@ -96,7 +96,7 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
             ci.cancel();
         }
 
-        var renderer = AzArmorRendererRegistry.getOrNull(stack.getItem());
+        var renderer = AzArmorRendererRegistry.getOrNull(stack);
 
         if (renderer != null) {
             var rendererPipeline = renderer.rendererPipeline();
