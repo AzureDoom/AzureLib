@@ -1,3 +1,8 @@
+v3.0.10
+
+- Creates ru_ru translation - mpustovoi
+- Add CustomModelData support to AzArmorRendererRegistry - RazorPlay01
+
 v3.0.9
 
 - Fixed AzArmorLayer for vanilla armor rendering. WIP on AzArmor rendering as it's being weird
