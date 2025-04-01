@@ -37,7 +37,7 @@ public class ClientHooksMixin {
                     .getGenericArmorModel(entityLiving, itemStack, slot, (HumanoidModel<LivingEntity>) _default)
             );
 
-        var renderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
+        var renderer = AzArmorRendererRegistry.getOrNull(itemStack);
 
         if (renderer != null) {
             var rendererPipeline = renderer.rendererPipeline();

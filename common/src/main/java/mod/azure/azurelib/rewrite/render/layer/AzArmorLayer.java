@@ -124,7 +124,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
+        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
         var model = getModelForItem(armorStack, slot);
         var modelPart = getModelPartForBone(context, bone, model);
 
@@ -293,8 +293,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @return The {@link AzArmorRenderer} associated with the item in the stack, or null if no renderer exists.
      */
     protected @Nullable AzArmorRenderer getRendererForItem(ItemStack stack) {
-        var item = stack.getItem();
-        return AzArmorRendererRegistry.getOrNull(item);
+        return AzArmorRendererRegistry.getOrNull(stack);
     }
 
     /**
