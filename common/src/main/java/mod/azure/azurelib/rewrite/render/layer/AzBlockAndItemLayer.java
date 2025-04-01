@@ -2,7 +2,6 @@ package mod.azure.azurelib.rewrite.render.layer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -120,7 +119,12 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone      the bone where the {@link ItemStack} will be rendered
      * @param itemStack the {@link ItemStack} to render
      */
-    protected void renderItemForBone(AzRendererPipelineContext<T> context, AzBone bone, ItemStack itemStack, T animatable) {
+    protected void renderItemForBone(
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        ItemStack itemStack,
+        T animatable
+    ) {
         if (context.animatable() instanceof LivingEntity livingEntity) {
             Minecraft.getInstance()
                 .getItemRenderer()
@@ -160,7 +164,12 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone       the bone where the {@link BlockState} will be rendered
      * @param blockState the {@link BlockState} to render
      */
-    protected void renderBlockForBone(AzRendererPipelineContext<T> context, AzBone bone, BlockState blockState, T animatable) {
+    protected void renderBlockForBone(
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        BlockState blockState,
+        T animatable
+    ) {
         context.poseStack().pushPose();
 
         context.poseStack().translate(-0.25f, -0.25f, -0.25f);

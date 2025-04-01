@@ -5,7 +5,6 @@
  */
 package mod.azure.azurelib.neoforge.mixins;
 
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.RenderProvider;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
 @Mixin(ClientHooks.class)
 public class ClientHooksMixin {

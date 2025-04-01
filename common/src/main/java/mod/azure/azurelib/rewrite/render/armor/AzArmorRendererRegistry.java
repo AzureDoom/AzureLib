@@ -1,7 +1,7 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import net.minecraft.world.item.Item;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,10 +17,13 @@ import java.util.function.Supplier;
 public class AzArmorRendererRegistry {
 
     /**
-     * Internal record representing a unique combination of an item and its CustomModelData value.
-     * Used as a key in the renderer maps.
+     * Internal record representing a unique combination of an item and its CustomModelData value. Used as a key in the
+     * renderer maps.
      */
-    private record ArmorKey(Item item, int customModelData) {}
+    private record ArmorKey(
+        Item item,
+        int customModelData
+    ) {}
 
     /** Map storing instantiated renderers for quick lookup. */
     private static final Map<ArmorKey, AzArmorRenderer> ITEM_TO_RENDERER = new HashMap<>();
@@ -29,10 +32,10 @@ public class AzArmorRendererRegistry {
     private static final Map<ArmorKey, Supplier<AzArmorRenderer>> ITEM_TO_RENDERER_SUPPLIER = new HashMap<>();
 
     /**
-     * Registers a renderer supplier for an item without a specific CustomModelData constraint.
-     * The renderer will apply to the item regardless of its CustomModelData value.
+     * Registers a renderer supplier for an item without a specific CustomModelData constraint. The renderer will apply
+     * to the item regardless of its CustomModelData value.
      *
-     * @param item The item to associate with the renderer.
+     * @param item                  The item to associate with the renderer.
      * @param armorRendererSupplier A supplier providing the {@link AzArmorRenderer} instance.
      */
     public static void register(Item item, Supplier<AzArmorRenderer> armorRendererSupplier) {
@@ -40,11 +43,11 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Registers a renderer supplier for an item with a specific CustomModelData value.
-     * The renderer will only apply when the item's CustomModelData matches the specified value.
+     * Registers a renderer supplier for an item with a specific CustomModelData value. The renderer will only apply
+     * when the item's CustomModelData matches the specified value.
      *
-     * @param item The item to associate with the renderer.
-     * @param customModelData The specific CustomModelData value to match, or -1 for any value.
+     * @param item                  The item to associate with the renderer.
+     * @param customModelData       The specific CustomModelData value to match, or -1 for any value.
      * @param armorRendererSupplier A supplier providing the {@link AzArmorRenderer} instance.
      */
     public static void register(Item item, int customModelData, Supplier<AzArmorRenderer> armorRendererSupplier) {
@@ -52,12 +55,12 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Registers a renderer supplier for multiple items without a specific CustomModelData constraint.
-     * The renderer will apply to all specified items regardless of their CustomModelData values.
+     * Registers a renderer supplier for multiple items without a specific CustomModelData constraint. The renderer will
+     * apply to all specified items regardless of their CustomModelData values.
      *
      * @param armorRendererSupplier A supplier providing the {@link AzArmorRenderer} instance.
-     * @param item The first item to associate with the renderer.
-     * @param items Additional items to associate with the same renderer.
+     * @param item                  The first item to associate with the renderer.
+     * @param items                 Additional items to associate with the same renderer.
      */
     public static void register(Supplier<AzArmorRenderer> armorRendererSupplier, Item item, Item... items) {
         register(item, armorRendererSupplier);
@@ -67,15 +70,20 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Registers a renderer supplier for multiple items with a specific CustomModelData value.
-     * The renderer will only apply when the items' CustomModelData matches the specified value.
+     * Registers a renderer supplier for multiple items with a specific CustomModelData value. The renderer will only
+     * apply when the items' CustomModelData matches the specified value.
      *
-     * @param customModelData The specific CustomModelData value to match, or -1 for any value.
+     * @param customModelData       The specific CustomModelData value to match, or -1 for any value.
      * @param armorRendererSupplier A supplier providing the {@link AzArmorRenderer} instance.
-     * @param item The first item to associate with the renderer.
-     * @param items Additional items to associate with the same renderer.
+     * @param item                  The first item to associate with the renderer.
+     * @param items                 Additional items to associate with the same renderer.
      */
-    public static void register(int customModelData, Supplier<AzArmorRenderer> armorRendererSupplier, Item item, Item... items) {
+    public static void register(
+        int customModelData,
+        Supplier<AzArmorRenderer> armorRendererSupplier,
+        Item item,
+        Item... items
+    ) {
         register(item, customModelData, armorRendererSupplier);
         for (var otherItem : items) {
             register(otherItem, customModelData, armorRendererSupplier);
@@ -83,11 +91,11 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Retrieves the renderer for an item with a specific CustomModelData value, or null if none is registered.
-     * If no renderer is found for the exact CustomModelData, it falls back to a renderer registered for the item
-     * without a specific CustomModelData (-1).
+     * Retrieves the renderer for an item with a specific CustomModelData value, or null if none is registered. If no
+     * renderer is found for the exact CustomModelData, it falls back to a renderer registered for the item without a
+     * specific CustomModelData (-1).
      *
-     * @param item The item to look up.
+     * @param item            The item to look up.
      * @param customModelData The CustomModelData value to match.
      * @return The associated {@link AzArmorRenderer}, or null if none is found.
      */
@@ -106,8 +114,8 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Retrieves the renderer for an ItemStack, considering its CustomModelData value.
-     * Delegates to {@link #getOrNull(Item, int)} after extracting the CustomModelData.
+     * Retrieves the renderer for an ItemStack, considering its CustomModelData value. Delegates to
+     * {@link #getOrNull(Item, int)} after extracting the CustomModelData.
      *
      * @param stack The ItemStack to look up.
      * @return The associated {@link AzArmorRenderer}, or null if none is found.
@@ -118,8 +126,7 @@ public class AzArmorRendererRegistry {
     }
 
     /**
-     * Extracts the CustomModelData value from an ItemStack.
-     * Returns 0 if no CustomModelData is present.
+     * Extracts the CustomModelData value from an ItemStack. Returns 0 if no CustomModelData is present.
      *
      * @param itemStack The ItemStack to inspect.
      * @return The CustomModelData value, or 0 if not set.

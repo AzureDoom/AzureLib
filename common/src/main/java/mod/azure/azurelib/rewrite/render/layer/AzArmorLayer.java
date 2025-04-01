@@ -1,8 +1,6 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.azure.azurelib.core.object.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -11,22 +9,19 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.armortrim.ArmorTrim;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
@@ -178,7 +173,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * This is then transformed into position for the final render
      */
     @NotNull
-    protected ModelPart getModelPartForBone(AzRendererPipelineContext<T> context, AzBone bone, HumanoidModel<?> baseModel) {
+    protected ModelPart getModelPartForBone(
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        HumanoidModel<?> baseModel
+    ) {
         return baseModel.body;
     }
 
@@ -192,18 +191,19 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     }
 
     protected void renderAzArmorPiece(
-            AzRendererPipelineContext<T> context,
-            EquipmentSlot slot,
-            ItemStack armorStack,
-            AzArmorRenderer renderer,
-            LivingEntity entity,
-            HumanoidModel<T> model,
-            ModelPart modelPart) {
+        AzRendererPipelineContext<T> context,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        AzArmorRenderer renderer,
+        LivingEntity entity,
+        HumanoidModel<T> model,
+        ModelPart modelPart
+    ) {
         var renderPipelines = renderer.rendererPipeline();
         var boneContext = renderPipelines.context().boneContext();
         var armorModel = renderPipelines.armorModel();
         var i2 = armorStack.is(
-                ItemTags.DYEABLE
+            ItemTags.DYEABLE
         ) ? FastColor.ARGB32.opaque(DyedItemColor.getOrDefault(armorStack, -6265536)) : -1;
 
         renderer.prepForRender(entity, armorStack, slot, model);
@@ -233,14 +233,25 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         var trim = armorStack.get(DataComponents.TRIM);
 
         if (trim != null) {
-            var sprite = Minecraft.getInstance().getModelManager().getAtlas(Sheets.ARMOR_TRIMS_SHEET).getSprite(slot == EquipmentSlot.LEGS ? trim.innerTexture(material) : trim.outerTexture(material));
-            var buffer = sprite.wrap(context.multiBufferSource().getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal())));
+            var sprite = Minecraft.getInstance()
+                .getModelManager()
+                .getAtlas(Sheets.ARMOR_TRIMS_SHEET)
+                .getSprite(slot == EquipmentSlot.LEGS ? trim.innerTexture(material) : trim.outerTexture(material));
+            var buffer = sprite.wrap(
+                context.multiBufferSource().getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal()))
+            );
 
             modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay());
         }
 
         if (armorStack.hasFoil())
-            modelPart.render(context.poseStack(), getVanillaArmorBuffer(context, armorStack, slot, bone, null, true), context.packedLight(), context.packedOverlay(), Color.WHITE.argbInt());
+            modelPart.render(
+                context.poseStack(),
+                getVanillaArmorBuffer(context, armorStack, slot, bone, null, true),
+                context.packedLight(),
+                context.packedOverlay(),
+                Color.WHITE.argbInt()
+            );
     }
 
     /**
@@ -333,10 +344,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
     /**
      * Prepares the given {@link ModelPart} for render by setting its translation, position, and rotation values based
-     * on the provided {@link AzBone}.
-     * <br>
-     * This implementation uses the <b><u>FIRST</u></b> cube in the source part
-     * to determine the scale and position of the GeoArmor to be rendered
+     * on the provided {@link AzBone}. <br>
+     * This implementation uses the <b><u>FIRST</u></b> cube in the source part to determine the scale and position of
+     * the GeoArmor to be rendered
      *
      * @param context
      * @param bone       The AzBone to base the translations on
