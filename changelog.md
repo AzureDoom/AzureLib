@@ -1,3 +1,7 @@
+v3.0.11
+
+- Fixes https://github.com/Sinytra/ItemAssetExporterMod/issues/4
+
 v3.0.10
 
 - Creates ru_ru translation - mpustovoi
