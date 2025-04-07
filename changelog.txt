@@ -1,3 +1,19 @@
-v2.0.41
-
-- Revert GeoGlowingTextureMeta change.
+TODO for 3.x port
+- mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket
+- mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket
+- mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket
+- mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide
+- mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec.AzActionCodec
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAction
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootPlayAnimationSequenceAction
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetAnimationSpeedAction
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetEasingTypeAction
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetTransitionSpeedAction
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry
+- mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence
+- mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage
+- mod.azure.azurelib.rewrite.animation.easing.AzEasingType
+- mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec
+- mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationStagePropertiesCodec
+- mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec
