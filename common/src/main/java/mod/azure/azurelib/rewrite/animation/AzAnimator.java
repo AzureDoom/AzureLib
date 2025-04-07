@@ -79,8 +79,12 @@ public abstract class AzAnimator<T> {
     }
 
     protected void applyMolangQueries(T animatable, double animTime) {
-        var level = Objects.requireNonNull(Minecraft.getInstance().level);
+        var level = Minecraft.getInstance().level;
         var parser = MolangParser.INSTANCE;
+
+        if (level == null) {
+            return;
+        }
 
         parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
         parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, level::getEntityCount);

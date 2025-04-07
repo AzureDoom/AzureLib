@@ -13,17 +13,10 @@ public interface AzEasingType {
 
     Double2DoubleFunction buildTransformer(Double value);
 
-    static void encode(FriendlyByteBuf buf, AzEasingType value) {
-        buf.writeUtf(value.name());
-    }
-
-    static AzEasingType decode(FriendlyByteBuf buf) {
-        return Objects.requireNonNull(
-                AzEasingTypeRegistry.getOrNull(buf.readUtf()),
-                "Invalid or unknown AzEasingType received"
-        );
-    }
-
+    StreamCodec<FriendlyByteBuf, AzEasingType> STREAM_CODEC = StreamCodec.of(
+        (buf, val) -> buf.writeUtf(val.name()),
+        buf -> Objects.requireNonNull(AzEasingTypeRegistry.getOrNull(buf.readUtf()))
+    );
 
     default double apply(AzAnimationPoint animationPoint) {
         Double easingVariable = null;

@@ -3,7 +3,6 @@ package mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,41 +15,34 @@ import org.jetbrains.annotations.NotNull;
  * Use this implementation in scenarios where AzAction objects need to be serialized or deserialized for efficient data
  * transmission or storage.
  */
-public class AzActionCodec {
+public class AzActionCodec implements StreamCodec<FriendlyByteBuf, AzAction> {
 
-    public static AzAction decode(FriendlyByteBuf byteBuf) {
-        // Read the ID of the action
+    @Override
+    public @NotNull AzAction decode(@NotNull FriendlyByteBuf byteBuf) {
         var id = byteBuf.readShort();
-
-        // Retrieve the corresponding codec from the registry
         var codec = AzActionRegistry
-                .<AzAction, AzActionCodec>getActionClassOrNull(id);
+            .<AzAction, StreamCodec<FriendlyByteBuf, AzAction>>getCodecOrNull(id);
 
-        // Throw an error if the codec is not found
         if (codec == null) {
             throw new NullPointerException(
-                    "Could not find action codec for a given action id while decoding data. ID: " + id
+                "Could not find action codec for a given action id while decoding data. ID: " + id
             );
         }
 
-        // Use the codec to decode the action
         return codec.decode(byteBuf);
     }
 
-    public static void encode(FriendlyByteBuf byteBuf, AzAction action) {
-        // Get the resource location of the action
+    @Override
+    public void encode(@NotNull FriendlyByteBuf byteBuf, @NotNull AzAction action) {
         var resourceLocation = action.getResourceLocation();
-
-        // Retrieve the ID and the corresponding codec for the action
         var id = AzActionRegistry.getIdOrNull(resourceLocation);
         var codec = AzActionRegistry
-                .<AzAction, AzActionCodec>getCodecOrNull(resourceLocation);
+            .<AzAction, StreamCodec<FriendlyByteBuf, AzAction>>getCodecOrNull(resourceLocation);
 
-        // Throw an error if either the ID or the codec is not found
         if (id == null) {
             throw new NullPointerException(
-                    "Could not find action id for a given resource location while encoding data. Resource Location: "
-                            + resourceLocation
+                "Could not find action id for a given resource location while encoding data. Resource Location: "
+                    + resourceLocation
             );
         }
 
@@ -58,13 +50,11 @@ public class AzActionCodec {
 
         if (codec == null) {
             throw new NullPointerException(
-                    "Could not find action codec for a given resource location while encoding data. Resource Location: "
-                            + resourceLocation + ", ID: " + id
+                "Could not find action codec for a given resource location while encoding data. Resource Location: "
+                    + resourceLocation + ", ID: " + id
             );
         }
 
-        // Use the codec to encode the action
         codec.encode(byteBuf, action);
     }
-
 }

@@ -7,12 +7,19 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public record AzRootPlayAnimationSequenceAction(
     String controllerName,
     AzAnimationSequence sequence
 ) implements AzAction {
+
+    public static final StreamCodec<FriendlyByteBuf, AzRootPlayAnimationSequenceAction> CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8,
+        AzRootPlayAnimationSequenceAction::controllerName,
+        AzAnimationSequence.CODEC,
+        AzRootPlayAnimationSequenceAction::sequence,
+        AzRootPlayAnimationSequenceAction::new
+    );
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/play_animation_sequence");
 
@@ -28,25 +35,5 @@ public record AzRootPlayAnimationSequenceAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-        var rootAction = (AzRootPlayAnimationSequenceAction) action;
-        buf.writeUtf(rootAction.controllerName());
-        AzAnimationSequence.encode(buf, rootAction.sequence());
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf, @NotNull Class<T> actionClass) {
-        if (!AzRootPlayAnimationSequenceAction.class.equals(actionClass)) {
-            throw new IllegalArgumentException("Unsupported action class: " + actionClass.getName());
-        }
-
-        var controllerName = buf.readUtf();
-
-        @SuppressWarnings("unchecked")
-        T action = (T) new AzRootPlayAnimationSequenceAction(controllerName, sequence);
-        return action;
     }
 }

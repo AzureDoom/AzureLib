@@ -34,18 +34,10 @@ public enum AzDispatchSide implements StringRepresentable {
         this.id = id;
     }
 
-    public void encode(@NotNull FriendlyByteBuf buf, @NotNull AzDispatchSide val) {
-        buf.writeByte(val.id);
-    }
-
-    public AzDispatchSide decode(@NotNull FriendlyByteBuf buf) {
-        int id = buf.readByte();
-        AzDispatchSide side = ID_TO_ENUM_MAP.get(id);
-        if (side == null) {
-            throw new IllegalArgumentException("Invalid AzDispatchSide ID: " + id);
-        }
-        return side;
-    }
+    public static final StreamCodec<FriendlyByteBuf, AzDispatchSide> CODEC = StreamCodec.of(
+        (buf, val) -> buf.writeByte(val.id),
+        buf -> ID_TO_ENUM_MAP.get((int) buf.readByte())
+    );
 
     @Override
     public @NotNull String getSerializedName() {

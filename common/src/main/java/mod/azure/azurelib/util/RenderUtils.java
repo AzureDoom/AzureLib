@@ -177,7 +177,10 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Returns the current time (in ticks) that the {@link org.lwjgl.glfw.GLFW GLFW} instance has been running. This is effectively a permanent timer that counts up since the game was launched.
+	 * Calculates and retrieves the current game tick.
+	 * The value is determined by multiplying the current rendering time by 20.
+	 *
+	 * @return The current tick as a double value.
 	 */
 	public static double getCurrentTick() {
 		return Blaze3D.getTime() * 20d;

@@ -10,6 +10,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
+import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -30,29 +31,11 @@ import java.util.List;
  */
 public record AzCommand(List<AzAction> actions) {
 
-    public void encode(FriendlyByteBuf buf, AzCommand command) {
-        // Write the size of the actions list
-        buf.writeInt(actions.size());
-
-        // Encode each AzAction in the list
-        for (AzAction action : actions) {
-            actions.encode(buf, action);
-        }
-    }
-
-    public static AzCommand decode(FriendlyByteBuf buf) {
-        // Read the size of the actions list
-        int size = buf.readInt();
-
-        // Decode each AzAction and collect them into a list
-        for (int i = 0; i < size; i++) {
-            actions.add(AzAction.decode(buf));
-        }
-
-        // Return the new AzCommand with the decoded actions
-        return new AzCommand(actions);
-    }
-
+    public static final StreamCodec<FriendlyByteBuf, AzCommand> CODEC = StreamCodec.composite(
+        new AzListStreamCodec<>(AzAction.CODEC),
+        AzCommand::actions,
+        AzCommand::new
+    );
 
     public static AzRootCommandBuilder builder() {
         return new AzRootCommandBuilder();
@@ -149,7 +132,7 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level().isClientSide()) {
             dispatchFromClient(entity);
         } else {
-            var uuid = itemStack.getTag().getUUID("az_id");
+            var uuid = itemStack.get(AzureLib.AZ_ID.get());
 
             if (uuid == null) {
                 AzureLib.LOGGER.warn(

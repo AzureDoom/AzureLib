@@ -14,7 +14,7 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     public AzRootCommandBuilder cancelAll() {
-        actions.add(new AzRootCancelAllAction());
+        actions.add(AzRootCancelAllAction.INSTANCE);
         return this;
     }
 

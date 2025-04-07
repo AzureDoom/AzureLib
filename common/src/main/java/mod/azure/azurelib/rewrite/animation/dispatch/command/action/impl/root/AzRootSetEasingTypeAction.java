@@ -7,11 +7,16 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public record AzRootSetEasingTypeAction(
     AzEasingType easingType
 ) implements AzAction {
+
+    public static final StreamCodec<FriendlyByteBuf, AzRootSetEasingTypeAction> CODEC = StreamCodec.composite(
+        AzEasingType.STREAM_CODEC,
+        AzRootSetEasingTypeAction::easingType,
+        AzRootSetEasingTypeAction::new
+    );
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_easing_type");
 
@@ -29,23 +34,5 @@ public record AzRootSetEasingTypeAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-        var easingAction = (AzRootSetEasingTypeAction) action;
-        AzEasingType.encode(buf, easingAction.easingType());
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf, @NotNull Class<T> actionClass) {
-        if (!AzRootSetEasingTypeAction.class.equals(actionClass)) {
-            throw new IllegalArgumentException("Unsupported action class: " + actionClass.getName());
-        }
-
-        @SuppressWarnings("unchecked")
-        T action = (T) new AzRootSetEasingTypeAction(easingType);
-        return action;
-
     }
 }

@@ -15,11 +15,14 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -96,7 +99,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      */
     @Override
     public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {
-        var poseStack = context.poseStack();
         var armorStack = getArmorItemForBone(context, bone);
 
         if (armorStack == null) {
@@ -109,7 +111,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ) {
             renderSkullAsArmor(context, bone, armorStack, skullBlock);
         } else {
-            renderArmor(context, bone, armorStack, poseStack);
+            renderArmor(context, bone, armorStack);
         }
     }
 
@@ -121,51 +123,31 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      *                   rendering.
      * @param bone       The specific bone of the model where the armor piece will be rendered.
      * @param armorStack The ItemStack representing the armor item to render.
-     * @param poseStack  The matrix stack used to apply transformations during rendering.
      */
-    private void renderArmor(
+    public void renderArmor(
         AzRendererPipelineContext<T> context,
         AzBone bone,
-        ItemStack armorStack,
-        PoseStack poseStack
+        ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = getRendererForItem(armorStack);
+        var renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
         var model = getModelForItem(armorStack, slot);
-        var modelPart = getModelPartForBone(context, model);
+        var modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
-            poseStack.pushPose();
-            poseStack.scale(-1, -1, 1);
+            context.poseStack().pushPose();
+            context.poseStack().scale(-1, -1, 1);
+
 
             if (renderer != null) {
-                var boneContext = renderer.rendererPipeline().context().boneContext();
-
                 prepModelPartForRender(context, bone, modelPart);
-                renderer.prepForRender(context.animatable(), armorStack, slot, model);
-                boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
-                model.renderToBuffer(
-                    poseStack,
-                    null,
-                    context.packedLight(),
-                    context.packedOverlay(),
-                    context.red(),
-                    context.green(),
-                    context.blue(),
-                    context.alpha()
-                );
+                renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
             } else if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
-                renderVanillaArmorPiece(
-                    context,
-                    bone,
-                    slot,
-                    armorStack,
-                    modelPart
-                );
+                renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
             }
 
-            poseStack.popPose();
+            context.poseStack().popPose();
         }
     }
 
@@ -196,7 +178,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * This is then transformed into position for the final render
      */
     @NotNull
-    protected ModelPart getModelPartForBone(AzRendererPipelineContext<T> context, HumanoidModel<?> baseModel) {
+    protected ModelPart getModelPartForBone(
+            AzRendererPipelineContext<T> context,
+            AzBone bone,
+            HumanoidModel<?> baseModel
+    ) {
         return baseModel.body;
     }
 
@@ -207,6 +193,24 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     @Nullable
     protected ItemStack getArmorItemForBone(AzRendererPipelineContext<T> context, AzBone bone) {
         return null;
+    }
+
+    protected void renderAzArmorPiece(
+            AzRendererPipelineContext<T> context,
+            EquipmentSlot slot,
+            ItemStack armorStack,
+            AzArmorRenderer renderer,
+            LivingEntity entity,
+            HumanoidModel<T> model,
+            ModelPart modelPart
+    ) {
+        var renderPipelines = renderer.rendererPipeline();
+        var boneContext = renderPipelines.context().boneContext();
+        var armorModel = renderPipelines.armorModel();
+
+        renderer.prepForRender(entity, armorStack, slot, model);
+        boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
+        armorModel.renderToBuffer(context.poseStack(), null, context.packedLight(), OverlayTexture.NO_OVERLAY, context.red(), context.green(), context.blue(), context.alpha());
     }
 
     /**
@@ -293,14 +297,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided
      * {@link ItemStack}
      */
-    protected HumanoidModel<?> getModelForItem(ItemStack stack, EquipmentSlot slot) {
+    protected HumanoidModel<T> getModelForItem(ItemStack stack, EquipmentSlot slot) {
         var renderer = getRendererForItem(stack);
 
         if (renderer == null) {
-            return slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
+            return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
         }
 
-        return renderer.rendererPipeline().armorModel();
+        return (HumanoidModel<T>) renderer.rendererPipeline().armorModel();
     }
 
     /**

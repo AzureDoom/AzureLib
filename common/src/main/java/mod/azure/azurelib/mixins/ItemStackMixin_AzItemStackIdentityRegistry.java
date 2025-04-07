@@ -12,14 +12,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
 
 /**
- * A mixin class for modifying the initialization behavior of the {@link ItemStack} class. This mixin specifically
- * ensures that a unique identity component is added to an {@link ItemStack} upon creation, provided that the associated
- * item has been registered in the {@link AzIdentityRegistry}. When an {@link ItemStack} is instantiated, the mixin
- * checks if: - The item has an identity registered in {@link AzIdentityRegistry}. - The provided
- * {@link PatchedDataComponentMap} does not already contain an `az_id` component. If both conditions are met, the mixin
- * assigns a universally unique identifier (UUID) as the `az_id` component to the associated
- * {@link PatchedDataComponentMap}. This mechanism enables unique identification and tracking of specific item stacks in
- * the game.
+ * A mixin class for injecting additional functionality into the {@link ItemStack}
+ * constructor to handle identity registration via AzureLib.
+ *
+ * This mixin ensures that every {@link ItemStack} is assigned a unique identifier
+ * when its corresponding item has been registered in the {@link AzIdentityRegistry} and
+ * no existing UUID is present in the item's {@link CompoundTag}.
+ *
+ * The mixin method `az_addIdentityComponent` is invoked at the "TAIL" of the
+ * {@link ItemStack} constructor, which takes a {@link CompoundTag} as a parameter.
  */
 @Mixin(ItemStack.class)
 public class ItemStackMixin_AzItemStackIdentityRegistry {

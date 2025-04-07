@@ -11,10 +11,22 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
+    // TODO: Updated encode/receive methods for AzCommand.CODEC/dispatchCommand
+    public static final StreamCodec<FriendlyByteBuf, AzEntityDispatchCommandPacket> CODEC = StreamCodec.composite(
+        ByteBufCodecs.VAR_INT,
+        AzEntityDispatchCommandPacket::entityId,
+        AzCommand.CODEC,
+        AzEntityDispatchCommandPacket::dispatchCommand,
+        AzEntityDispatchCommandPacket::new
+    );
+
     private final int entityId;
     private final AzCommand dispatchCommand;
 
-    public AzEntityDispatchCommandPacket(int entityId, AzCommand dispatchCommand) {
+    public AzEntityDispatchCommandPacket(
+            int entityId,
+            AzCommand dispatchCommand
+    ) {
         this.entityId = entityId;
         this.dispatchCommand = dispatchCommand;
     }
@@ -22,11 +34,23 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(this.entityId);
-        // TODO: Fix this, as I don't believe this is correct.
-        //buf.writeByte(dispatchCommand.actions().size());
+        // TODO: Needs fixed
+        // AzCommand.CODEC
     }
 
     @Override
+    public ResourceLocation getPacketID() {
+        return AzureLibNetwork.AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
+    }
+
+    public static AzItemStackDispatchCommandPacket receive(FriendlyByteBuf buf) {
+        var entityId = buf.readInt();
+        // TODO: Needs fixed
+        // AzCommand azCommand = buf.readUtf();
+
+        return new AzItemStackDispatchCommandPacket(entityId, azCommand);
+    }
+
     public void handle() {
         var entity = ClientUtils.getLevel().getEntity(this.entityId);
 
@@ -39,10 +63,5 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         }
-    }
-
-    @Override
-    public ResourceLocation getPacketID() {
-        return AzureLibNetwork.AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 }

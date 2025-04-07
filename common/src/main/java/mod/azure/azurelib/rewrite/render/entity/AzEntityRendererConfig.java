@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.entity;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth
@@ -37,6 +40,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
                 modelLocationProvider,
                 renderTypeFunction,
                 renderLayers,
+                preRenderEntry,
+                postRenderEntry,
                 textureLocationProvider,
                 scaleHeight,
                 scaleWidth
@@ -79,6 +84,30 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return (Builder<T>) super.addRenderLayer(renderLayer);
         }
 
+        public Builder<T> setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
+        }
+
+        @Override
+        public Builder<T> setPrerenderEntry(
+                Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+        ) {
+            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setPostRenderEntry(
+                Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+        ) {
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
+        }
+
         @Override
         public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<T>> animatorProvider) {
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
@@ -110,6 +139,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
+                baseConfig::preRenderEntry,
+                baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth()

@@ -2,6 +2,7 @@ package mod.azure.azurelib.mixins;
 
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,6 +20,17 @@ public class ClientHooksMixin {
     @Inject(method = "getArmorModel", at = @At("RETURN"), remap = false, cancellable = true)
     private static void injectAzureArmors(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlot slot, HumanoidModel<?> _default, CallbackInfoReturnable<Model> cir) {
         if (itemStack.getItem() instanceof GeoItem)
-            cir.setReturnValue((Model) RenderProvider.of(itemStack).getGenericArmorModel(entityLiving, itemStack, slot, (HumanoidModel<LivingEntity>) _default));
+            cir.setReturnValue(
+                    RenderProvider.of(itemStack)
+                            .getGenericArmorModel(entityLiving, itemStack, slot, (HumanoidModel<LivingEntity>) _default)
+            );
+
+        var renderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
+
+        if (renderer != null) {
+            var rendererPipeline = renderer.rendererPipeline();
+            var armorModel = rendererPipeline.armorModel();
+            cir.setReturnValue(armorModel);
+        }
     }
 }

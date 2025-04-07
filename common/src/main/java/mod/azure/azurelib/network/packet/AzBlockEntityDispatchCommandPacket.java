@@ -12,45 +12,45 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
+    // TODO: Updated encode/receive methods for AzCommand.CODEC/dispatchCommand
+    public static final StreamCodec<FriendlyByteBuf, AzBlockEntityDispatchCommandPacket> CODEC = StreamCodec.composite(
+        BlockPos.STREAM_CODEC,
+        AzBlockEntityDispatchCommandPacket::blockPos,
+        AzCommand.CODEC,
+        AzBlockEntityDispatchCommandPacket::dispatchCommand,
+        AzBlockEntityDispatchCommandPacket::new
+    );
+
     private final BlockPos blockPos;
     private final AzCommand dispatchCommand;
 
-    public static final StreamCodec<FriendlyByteBuf, AzBlockEntityDispatchCommandPacket> CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            AzBlockEntityDispatchCommandPacket::blockPos,
-            AzCommand.CODEC,
-            AzBlockEntityDispatchCommandPacket::dispatchCommand,
-            AzBlockEntityDispatchCommandPacket::new
-    );
-
-    public AzBlockEntityDispatchCommandPacket(BlockPos blockPos, AzCommand dispatchCommand) {
+    public AzBlockEntityDispatchCommandPacket(
+            BlockPos blockPos,
+            AzCommand dispatchCommand
+    ) {
         this.blockPos = blockPos;
         this.dispatchCommand = dispatchCommand;
-    }
-
-    public BlockPos blockPos() {
-        return blockPos;
-    }
-
-    public AzCommand dispatchCommand() {
-        return dispatchCommand;
     }
 
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeBlockPos(this.blockPos);
-        AzCommand.encode(buf, dispatchCommand());
+        // TODO: Needs fixed
+        // AzCommand.CODEC
     }
 
-    public static AzBlockEntityDispatchCommandPacket decode(FriendlyByteBuf buf) {
-        var blockPos = buf.readBlockPos();
-
-        // Deserialize the AzCommand
-        AzCommand command = AzCommand.decode(buf);
-
-        return new AzBlockEntityDispatchCommandPacket(blockPos, dispatchCommand());
+    @Override
+    public ResourceLocation getPacketID() {
+        return AzureLibNetwork.AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 
+    public static AzBlockEntityDispatchCommandPacket receive(FriendlyByteBuf buf) {
+        var pos = buf.readBlockPos();
+        // TODO: Needs fixed
+        // AzCommand azCommand = buf.readUtf();
+
+        return new AzBlockEntityDispatchCommandPacket(pos, azCommand);
+    }
 
     @Override
     public void handle() {
@@ -65,10 +65,5 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         }
-    }
-
-    @Override
-    public ResourceLocation getPacketID() {
-        return AzureLibNetwork.AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 }

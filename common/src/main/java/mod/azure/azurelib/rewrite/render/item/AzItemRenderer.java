@@ -25,7 +25,7 @@ public abstract class AzItemRenderer {
 
     private final AzProvider<ItemStack> provider;
 
-    private final AzItemRendererPipeline rendererPipeline;
+    public final AzItemRendererPipeline rendererPipeline;
 
     @Nullable
     private AzItemAnimator reusedAzItemAnimator;

@@ -75,10 +75,13 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
         var scaleWidth = config.scaleWidth();
         var scaleHeight = config.scaleHeight();
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
+        config.preRenderEntry(context);
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {}
+    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+        config.postRenderEntry(context);
+    }
 
     public AzBlockEntityRenderer<T> getRenderer() {
         return blockEntityRenderer;

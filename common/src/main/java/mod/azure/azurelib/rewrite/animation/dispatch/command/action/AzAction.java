@@ -2,10 +2,8 @@ package mod.azure.azurelib.rewrite.animation.dispatch.command.action;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAction;
-import net.minecraft.network.FriendlyByteBuf;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec.AzActionCodec;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The AzAction interface serves as a base contract for defining actions that can be dispatched within the animation
@@ -15,11 +13,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface AzAction {
 
+    AzActionCodec CODEC = new AzActionCodec();
+
     void handle(AzDispatchSide originSide, AzAnimator<?> animator);
 
     ResourceLocation getResourceLocation();
-
-    <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action);
-
-    <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf);
 }

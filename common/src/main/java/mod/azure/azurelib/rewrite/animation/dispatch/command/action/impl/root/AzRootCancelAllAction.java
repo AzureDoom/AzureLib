@@ -6,18 +6,23 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
-
+/**
+ * The AzRootCancelAllAction class implements the AzAction interface and defines an action that cancels all ongoing
+ * animations within an animator by setting the current animation of all controllers to null. <br>
+ * This class is designed to work within a system that manages animations for objects using animation controllers. Once
+ * this action is handled, all animation controllers associated with a specific animator will have their current
+ * animations cleared.
+ */
 public class AzRootCancelAllAction implements AzAction {
 
     public static final AzRootCancelAllAction INSTANCE = new AzRootCancelAllAction();
 
+    public static final StreamCodec<FriendlyByteBuf, AzRootCancelAllAction> CODEC = StreamCodec.unit(INSTANCE);
+
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/cancel_all");
 
-    public static AzRootCancelAllAction getInstance() {
-        return INSTANCE;
-    }
+    private AzRootCancelAllAction() {}
 
     @Override
     public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
@@ -30,23 +35,5 @@ public class AzRootCancelAllAction implements AzAction {
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf, @NotNull Class<T> actionClass) {
-        if (!AzRootCancelAllAction.class.equals(actionClass)) {
-            throw new IllegalArgumentException("Unsupported action class: " + actionClass.getName());
-        }
-
-        // Safe cast because we ensured the class type is AzRootCancelAllAction
-        @SuppressWarnings("unchecked")
-        T action = (T) INSTANCE;
-
-        return action;
     }
 }

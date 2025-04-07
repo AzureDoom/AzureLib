@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         float scaleHeight,
         float scaleWidth,
@@ -39,6 +42,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 modelLocationProvider,
                 renderTypeProvider,
                 renderLayers,
+                preRenderEntry,
+                postRenderEntry,
                 textureLocationProvider,
                 scaleHeight,
                 scaleWidth
@@ -89,6 +94,30 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             return (Builder) super.addRenderLayer(renderLayer);
         }
 
+        public Builder setRenderType(RenderType renderType) {
+            this.renderTypeProvider = $ -> renderType;
+            return this;
+        }
+
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = renderTypeProvider;
+            return this;
+        }
+
+        @Override
+        public Builder setPrerenderEntry(
+                Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder setPostRenderEntry(
+                Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        ) {
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
+        }
+
         @Override
         public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
@@ -103,7 +132,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
          * @param useNewOffset Determines whether to apply the y offset for a model due to the change in BlockBench
          *                     4.11.
          */
-        public AzRendererConfig.Builder<ItemStack> useNewOffset(boolean useNewOffset) {
+        public Builder useNewOffset(boolean useNewOffset) {
             this.useNewOffset = useNewOffset;
             return this;
         }
@@ -117,6 +146,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
+                baseConfig::preRenderEntry,
+                baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig.scaleHeight(),
                 baseConfig.scaleWidth(),

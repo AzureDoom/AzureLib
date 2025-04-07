@@ -6,11 +6,16 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 public record AzRootSetAnimationSpeedAction(
     double animationSpeed
 ) implements AzAction {
+
+    public static final StreamCodec<FriendlyByteBuf, AzRootSetAnimationSpeedAction> CODEC = StreamCodec.composite(
+        ByteBufCodecs.DOUBLE,
+        AzRootSetAnimationSpeedAction::animationSpeed,
+        AzRootSetAnimationSpeedAction::new
+    );
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_animation_speed");
 
@@ -23,21 +28,6 @@ public record AzRootSetAnimationSpeedAction(
                     controller.animationProperties().withAnimationSpeed(animationSpeed)
                 )
             );
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-        buf.writeDouble(animationSpeed);
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf, @NotNull Class<T> actionClass) {
-        Double animationSpeed = buf.readDouble();
-        try {
-            return actionClass.getDeclaredConstructor(Double.class).newInstance(animationSpeed);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to decode action for class: " + actionClass.getName(), e);
-        }
     }
 
     @Override

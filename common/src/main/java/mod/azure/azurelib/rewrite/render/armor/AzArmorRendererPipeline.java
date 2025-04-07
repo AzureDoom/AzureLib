@@ -72,10 +72,13 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
 
         boneContext.applyBoneVisibilityBySlot(currentSlot);
+        config.preRenderEntry(context);
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {}
+    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+        config.postRenderEntry(context);
+    }
 
     /**
      * Apply custom scaling to account for {@link net.minecraft.client.model.AgeableListModel AgeableListModel} baby

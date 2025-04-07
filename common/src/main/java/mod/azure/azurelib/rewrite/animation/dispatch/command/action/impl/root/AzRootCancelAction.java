@@ -6,21 +6,52 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an action to cancel the current animation, associated with a specific animation controller by its name.
- * This action is part of the AzureLib animation framework and is used to stop an ongoing animation
- * by clearing the current animation state of the specified controller.
- * <br>
- * This class implements the {@link AzAction} interface, allowing it to be dispatched
- * to modify animation states within an {@link AzAnimator}.
- * <br>
- * The action can be serialized and deserialized for network communication or storage purposes.
+ * Represents an action that cancels the current animation of a specified animation controller in the animation system.
+ * This action is part of the root-level dispatch actions and interacts with a specific animation controller by name.
+ * <br/>
+ * <br/>
+ * An instance of this record is serialized and deserialized using the {@code CODEC}, and it is associated with a unique
+ * resource location defined by {@code RESOURCE_LOCATION}. <br/>
+ * <br/>
+ * When executed, the {@code handle} method ensures that the animation of the targeted controller is stopped by setting
+ * its current animation to {@code null}. <br/>
+ * <br/>
+ * This class is primarily used within the {@code AzAnimator} context where each animation controller is part of the
+ * animator's controller container. <br/>
+ * <br/>
+ * Implements: - {@link AzAction}: Allows the action to be dispatched within the animation system. <br/>
+ * <br/>
+ * Fields:
+ * <ul>
+ * <li>{@code controllerName}: The name of the animation controller which this action targets.</li>
+ * </ul>
+ * <br/>
+ * <br/>
+ * Constants:
+ * <ul>
+ * <li>{@code CODEC}: A codec for encoding and decoding this action during network communication.</li>
+ * <li>{@code RESOURCE_LOCATION}: A unique identifier for this action.</li>
+ * </ul>
+ * <br/>
+ * <br/>
+ * Methods:
+ * <ul>
+ * <li>{@code handle(AzAnimator<?> animator)}: Stops the current animation of the specified controller within the
+ * animator's animation controller container.</li>
+ * <li>{@code getResourceLocation()}: Returns the unique resource location associated with this action.</li>
+ * </ul>
  */
 public record AzRootCancelAction(
     String controllerName
 ) implements AzAction {
+
+    public static final StreamCodec<FriendlyByteBuf, AzRootCancelAction> CODEC = StreamCodec.composite(
+        ByteBufCodecs.STRING_UTF8,
+        AzRootCancelAction::controllerName,
+        AzRootCancelAction::new
+    );
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/cancel");
 
@@ -36,21 +67,5 @@ public record AzRootCancelAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-        var cancelAction = (AzRootCancelAction) action;
-        buf.writeUtf(cancelAction.controllerName);
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf) {
-        String controllerName = buf.readUtf();
-        try {
-            return actionClass.getDeclaredConstructor(String.class).newInstance(controllerName);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("Failed to decode action for class: " + actionClass.getName(), e);
-        }
     }
 }

@@ -6,11 +6,23 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 
+/**
+ * The {@code AzRootSetTransitionSpeedAction} class implements the {@link AzAction} interface and represents an action
+ * that modifies the transition speed for an animator during an animation state. This action is intended for use within
+ * the animation system to adjust the transition timing of animations. This class provides a unique resource location
+ * identifier for this specific action and handles the logic required to apply the transition speed modification to the
+ * target {@link AzAnimator}. It utilizes {@link StreamCodec} for serialization and deserialization of this action.
+ */
 public record AzRootSetTransitionSpeedAction(
     float transitionSpeed
 ) implements AzAction {
+
+    public static final StreamCodec<FriendlyByteBuf, AzRootSetTransitionSpeedAction> CODEC = StreamCodec.composite(
+        ByteBufCodecs.FLOAT,
+        AzRootSetTransitionSpeedAction::transitionSpeed,
+        AzRootSetTransitionSpeedAction::new
+    );
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_transition_speed");
 
@@ -28,25 +40,5 @@ public record AzRootSetTransitionSpeedAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
-    }
-
-    @Override
-    public <T extends AzAction> void encode(@NotNull FriendlyByteBuf buf, @NotNull T action) {
-        var speedAction = (AzRootSetTransitionSpeedAction) action;
-        buf.writeFloat(speedAction.transitionSpeed());
-    }
-
-    @Override
-    public <T extends AzAction> T decode(@NotNull FriendlyByteBuf buf, @NotNull Class<T> actionClass) {
-        if (!AzRootSetTransitionSpeedAction.class.equals(actionClass)) {
-            throw new IllegalArgumentException("Unsupported action class: " + actionClass.getName());
-        }
-
-        var transitionSpeed = buf.readFloat();
-
-        @SuppressWarnings("unchecked")
-        T action = (T) new AzRootSetTransitionSpeedAction(transitionSpeed);
-        return action;
-
     }
 }

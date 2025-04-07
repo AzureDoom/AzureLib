@@ -7,7 +7,6 @@ import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
 import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.loading.json.FormatVersion;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
@@ -57,7 +56,7 @@ public final class AzureLibCache {
     }
 
     public static void registerReloadListener() {
-        Minecraft mc = Minecraft.getInstance();
+        var mc = Minecraft.getInstance();
 
         if (mc == null) return;
 

@@ -7,9 +7,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -46,7 +43,7 @@ public abstract class AzRendererPipelineContext<T> {
 
     private float alpha;
 
-    private @Nullable RenderType renderType;
+    private RenderType renderType;
 
     private VertexConsumer vertexConsumer;
 
@@ -114,10 +111,10 @@ public abstract class AzRendererPipelineContext<T> {
      * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
      * Override this to change the way a model will render (such as translucent models, etc)
      */
-    public abstract @NotNull RenderType getDefaultRenderType(
+    public abstract RenderType getDefaultRenderType(
         T animatable,
         ResourceLocation texture,
-        @Nullable MultiBufferSource bufferSource,
+        MultiBufferSource bufferSource,
         float partialTick
     );
 
@@ -186,11 +183,11 @@ public abstract class AzRendererPipelineContext<T> {
         return poseStack;
     }
 
-    public @Nullable RenderType renderType() {
+    public RenderType renderType() {
         return renderType;
     }
 
-    public void setRenderType(@Nullable RenderType renderType) {
+    public void setRenderType(RenderType renderType) {
         this.renderType = renderType;
     }
 

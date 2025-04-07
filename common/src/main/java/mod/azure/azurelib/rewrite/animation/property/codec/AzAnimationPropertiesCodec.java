@@ -6,8 +6,9 @@ import mod.azure.azurelib.rewrite.animation.property.AzAnimationProperties;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-public class AzAnimationPropertiesCodec {
+public class AzAnimationPropertiesCodec implements StreamCodec<FriendlyByteBuf, AzAnimationProperties> {
 
+    @Override
     public @NotNull AzAnimationProperties decode(FriendlyByteBuf buf) {
         var propertyLength = buf.readByte();
         var properties = AzAnimationProperties.EMPTY;
@@ -28,6 +29,7 @@ public class AzAnimationPropertiesCodec {
         return properties;
     }
 
+    @Override
     public void encode(FriendlyByteBuf buf, AzAnimationProperties properties) {
         var propertyLength = 0;
         propertyLength += properties.hasAnimationSpeed() ? 1 : 0;
