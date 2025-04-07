@@ -132,7 +132,7 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level().isClientSide()) {
             dispatchFromClient(entity);
         } else {
-            var uuid = itemStack.get(AzureLib.AZ_ID.get());
+            var uuid = itemStack.getTag().getUUID("az_id");
 
             if (uuid == null) {
                 AzureLib.LOGGER.warn(
