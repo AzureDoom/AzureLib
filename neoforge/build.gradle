@@ -138,7 +138,7 @@ if (file('key.properties').exists()) {
         File secretPropsFile = file("key.properties")
         releaseProp.load(secretPropsFile.newInputStream())
         file = jar.archiveFile
-        changelog = rootProject.file("changelog.txt").text
+        changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("neoforge")
         modLoaders.add("forge")
