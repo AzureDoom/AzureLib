@@ -15,6 +15,8 @@ TODO for 3.x port
 - mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence
 - mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage
 - mod.azure.azurelib.rewrite.animation.easing.AzEasingType
+- mod.azure.azurelib.rewrite.animation.property.AzAnimationProperties
+- mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties
 - mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec
 - mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationStagePropertiesCodec
 - mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec
