@@ -4,6 +4,7 @@ TODO for 3.x port
 - mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket
 - mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide
 - mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand
+- mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction
 - mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec.AzActionCodec
 - mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAction
 - mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootPlayAnimationSequenceAction
