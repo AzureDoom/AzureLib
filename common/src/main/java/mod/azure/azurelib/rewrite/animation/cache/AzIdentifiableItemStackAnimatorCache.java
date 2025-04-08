@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
 import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,12 @@ public class AzIdentifiableItemStackAnimatorCache {
     private AzIdentifiableItemStackAnimatorCache() {}
 
     public void add(ItemStack itemStack, AzItemAnimator animator) {
-        var uuid = itemStack.getTag().getUUID("az_id");
+        if (!itemStack.hasTag()) {
+            itemStack.setTag(new CompoundTag());
+        }
+
+        var tag = itemStack.getTag();
+        var uuid = tag.getUUID("az_id");
 
         if (uuid != null) {
             ANIMATORS_BY_UUID.computeIfAbsent(uuid, ($) -> animator);

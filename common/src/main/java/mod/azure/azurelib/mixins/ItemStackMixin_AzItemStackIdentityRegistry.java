@@ -3,8 +3,10 @@ package mod.azure.azurelib.mixins;
 import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,9 +32,42 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
         at = @At("TAIL")
     )
     public void az_addIdentityComponent(CompoundTag compoundTag, CallbackInfo ci) {
-        var self = AzureLibUtil.<ItemStack>self(this);
-        if (AzIdentityRegistry.hasIdentity(self.getItem()) && !compoundTag.hasUUID("az_id")) {
-            compoundTag.putUUID("az_id", UUID.randomUUID());
+        initializeAzIdOnStack(this, compoundTag);
+    }
+
+    @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;)V", at = @At("TAIL"))
+    public void az_addIdentityComponentItemConstructor2(CallbackInfo ci) {
+        initializeAzIdOnStack(this, null);
+    }
+
+    @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/core/Holder;)V", at = @At("TAIL"))
+    public void az_addIdentityComponentItemConstructor3(CallbackInfo ci) {
+        initializeAzIdOnStack(this, null);
+    }
+
+    @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;ILjava/util/Optional;)V", at = @At("TAIL"))
+    public void az_addIdentityComponentItemConstructor4(CallbackInfo ci) {
+        initializeAzIdOnStack(this, null);
+    }
+
+    @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;I)V", at = @At("TAIL"))
+    public void az_addIdentityComponentItemConstructor5(CallbackInfo ci) {
+        initializeAzIdOnStack(this, null);
+    }
+
+    @Unique
+    private void initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
+        var self = AzureLibUtil.<ItemStack>self(stackObject);
+
+        if (!self.hasTag()) {
+            self.setTag(new CompoundTag());
+        }
+
+        var stackTag = self.getTag();
+
+        if (stackTag != null && AzIdentityRegistry.hasIdentity(self.getItem()) && !stackTag.hasUUID("az_id")) {
+            stackTag.putUUID("az_id", UUID.randomUUID());
         }
     }
+
 }
