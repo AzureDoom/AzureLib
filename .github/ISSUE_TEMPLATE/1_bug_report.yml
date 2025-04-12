@@ -1,0 +1,58 @@
+name: Bug Report
+description: Create a report to help us improve.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: mod_version
+    attributes:
+      label: Mod Version
+      description: What version of the mod are you running?
+      value: "DO NOT PUT LATEST"
+    validations:
+      required: true
+  - type: dropdown
+    id: mod_loader
+    attributes:
+      label: Mod Loader
+      description: What mod loader version of the mod are you using?
+      options:
+        - Fabric
+        - Forge (1.20.1 and older)
+        - NeoForge
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: modloader_version
+    attributes:
+      label: Mod Loader Version
+      description: What version of Fabric Loader/Forge/NeoForge are you running?
+      value: "Fabric Loader x.x.x"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Describe the bug
+      description: Also tell us, what did you expect to happen?
+      placeholder: A clear and concise description of what the bug is.
+      value: "If applicable, add screenshots to help explain your problem."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce_steps
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior
+      value: |
+        1.
+        2.
+        3.
+        ...
+    validations:
+      required: true
