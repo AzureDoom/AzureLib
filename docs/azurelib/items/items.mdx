@@ -1,5 +1,5 @@
 ---
-title: Animating Armor
+title: Animating Items
 hide_meta: true
 ---
 
@@ -131,7 +131,7 @@ Now simply call the `AzItemRendererRegistry#register()` in your `onInitializeCli
 AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
 ```
 
-## Registering your Armor for proper animation triggering
+## Registering your Item for proper animation triggering
 
 To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for NeoForge/Forge like so:
 
