@@ -7,12 +7,20 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-  - type: textarea
+  - type: input
     id: mod_version
     attributes:
       label: Mod Version
       description: What version of the mod are you running?
-      value: "DO NOT PUT LATEST"
+      placeholder: DO NOT PUT LATEST ex. 3.0.10
+    validations:
+      required: true
+  - type: input
+    id: mc_version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you running?
+      placeholder: DO NOT PUT LATEST! ex. 1.21.1
     validations:
       required: true
   - type: dropdown
