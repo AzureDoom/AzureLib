@@ -1,8 +1,8 @@
 {
-    "configapi.mdx": {
+    "config_api.mdx": {
         "name": "Config API"
     },
-    "advancedconfigoptions.mdx": {
+    "advanced_config_options.mdx": {
         "name": "Advanced Config Options"
     }
 }

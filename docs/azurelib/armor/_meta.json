@@ -2,10 +2,10 @@
     "armor.mdx": {
         "name": "Animating Armor"
     },
-    "staticarmor.mdx": {
+    "static_armor.mdx": {
         "name": "Creating Static (No Animations) Armor"
     },
-    "boneprovider.mdx": {
+    "bone_provider.mdx": {
         "name": "Creating a Custom AzDefaultArmorBoneProvider"
     }
 }

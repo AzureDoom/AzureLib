@@ -1,14 +1,14 @@
 {
-    "azrendererconfig.mdx": {
+    "azrenderer_config.mdx": {
         "name": "AzRendererConfigs 101"
     },
-    "azcommands101.mdx": {
+    "azcommands_101.mdx": {
         "name": "AzCommands 101"
     },
-    "animatingincode.mdx": {
+    "animating_in_code.mdx": {
         "name": "Animating Bones In-Code"
     },
-    "azurenavigation101.mdx": {
+    "azurenavigation_101.mdx": {
         "name": "AzureNavigation 101"
     },
     "misc.mdx": {
