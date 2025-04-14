@@ -1,5 +1,8 @@
 {
     "items.mdx": {
         "name": "Animating Items"
+    },
+    "static_items.mdx": {
+        "name": "Creating Static (No Animations) Items"
     }
 }

@@ -1,0 +1,49 @@
+---
+title: Creating Static (No Animations) Items
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exportingassets)
+</Callout>
+<br></br>
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom item is displayed in the game.
+
+It connects the item with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the item.
+2. **Texture file (`.png`)**: The visual appearance of the item (applies over the geometry).
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzItemRendererConfig#builder options.
+</Callout>
+
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/exampleitem.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/exampleitem.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(GEO, TEX).build()
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Now simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+```
