@@ -1,5 +1,12 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.utils.Interpolations;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
+
+import java.util.List;
+
 public class AzEasingTypes {
 
     public static final AzEasingType NONE = AzEasingTypeRegistry.register(
@@ -166,7 +173,42 @@ public class AzEasingTypes {
 
     public static final AzEasingType CATMULLROM = AzEasingTypeRegistry.register(
         "catmullrom",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::catmullRom)
+            new AzEasingType() {
+                @Override
+                public String name() {
+                    return "Catmull-Rom";
+                }
+
+                @Override
+                public Double2DoubleFunction buildTransformer(Double value) {
+                    return AzEasingUtil.easeInOut(AzEasingUtil::catmullRom);
+                }
+
+                @Override
+                public double apply(AzAnimationPoint animationPoint, Double easingValue, double lerpValue) {
+                    if (animationPoint.currentTick() >= animationPoint.transitionLength()) {
+                        return animationPoint.animationEndValue();
+                    }
+
+                    var easingArgs = animationPoint.keyframe().easingArgs();
+
+                    if (easingArgs.size() < 2)
+                        return Interpolations.lerp(
+                                buildTransformer(easingValue).apply(lerpValue),
+                                animationPoint.animationStartValue(),
+                                animationPoint.animationEndValue()
+                        );
+
+                    return AzEasingUtil.catmullRom(
+                            lerpValue,
+                            easingArgs.get(0).get(),
+                            animationPoint.animationStartValue(),
+                            animationPoint.animationEndValue(),
+                            easingArgs.get(1).get()
+                    );
+                }
+            }
+
     );
 
     public static AzEasingType random() {

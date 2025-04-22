@@ -16,11 +16,28 @@ public class AzEasingUtil {
     /**
      * Performs a Catmull-Rom interpolation, used to get smooth interpolated motion between keyframes.<br>
      * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
+     *
+     * @param delta The interpolation parameter (between 0 and 1)
+     * @param p0 First control point (anchor)
+     * @param p1 Second control point (start point)
+     * @param p2 Third control point (end point)
+     * @param p3 Fourth control point (anchor)
+     * @return The interpolated value
+     */
+    public static double catmullRom(double delta, double p0, double p1, double p2, double p3) {
+        return 0.5d * (2d * p1 + (p2 - p0) * delta +
+                (2d * p0 - 5d * p1 + 4d * p2 - p3) * delta * delta +
+                (3d * p1 - p0 - 3d * p2 + p3) * delta * delta * delta);
+    }
+
+    /**
+     * Simplified Catmull-Rom interpolation for single parameter
+     * @param n The interpolation parameter
+     * @return The interpolated value
      */
     public static double catmullRom(double n) {
-        return (0.5f * (2.0f * (n + 1) + ((n + 2) - n) * 1
-            + (2.0f * n - 5.0f * (n + 1) + 4.0f * (n + 2) - (n + 3)) * 1
-            + (3.0f * (n + 1) - n - 3.0f * (n + 2) + (n + 3)) * 1));
+        // Using default control points for simple interpolation
+        return catmullRom(n, 0, 0, 1, 1);
     }
 
     /**

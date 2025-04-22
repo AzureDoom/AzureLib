@@ -51,7 +51,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      *         {@link JsonElement}. This list represents the processed structure of the input JSON element.
      * @throws JsonParseException If the provided JSON element is of an unsupported type or is invalid.
      */
-    private static List<Pair<String, JsonElement>> getTripletObj(JsonElement element) {
+    private static List<Pair<String, JsonElement>> getKeyframes(JsonElement element) {
         if (element == null)
             return List.of();
 
@@ -69,16 +69,24 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             return ObjectArrayList.of(Pair.of("0", array));
 
         if (element instanceof JsonObject obj) {
+            if (obj.has("vector"))
+                return ObjectArrayList.of(Pair.of("0", obj));
+
             List<Pair<String, JsonElement>> list = new ObjectArrayList<>();
 
             for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                double timestamp = readTimestamp(entry.getKey());
+
+                if (timestamp == 0 && !list.isEmpty())
+                    throw new JsonParseException("Invalid keyframe data - multiple starting keyframes?" + entry.getKey());
+
                 if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
-                    list.add(getTripletObjBedrock(entry.getKey(), entryObj));
+                    addBedrockKeyframes(timestamp, entryObj, list);
 
                     continue;
                 }
 
-                list.add(Pair.of(entry.getKey(), entry.getValue()));
+                list.add(Pair.of(String.valueOf(timestamp), entry.getValue()));
             }
 
             return list;
@@ -87,39 +95,40 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
         throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
     }
 
-    /**
-     * Extracts and processes keyframe data from a given JSON object, returning a pair consisting of a timestamp and
-     * associated JSON element data. The method focuses on retrieving either the "pre" or "post" keyframe data from the
-     * input JSON object, applying specific handling for array or object-based representations.
-     *
-     * @param timestamp The string representation of the timestamp for the keyframe data. If the input value is not
-     *                  valid as a numeric string, it defaults to "0".
-     * @param keyframe  A {@link JsonObject} containing the keyframe data. Expected keys include "pre" or "post" with
-     *                  their associated values either as JSON arrays or nested objects containing a "vector" element.
-     * @return A {@link Pair} where the first element is the processed timestamp as a string, and the second element is
-     *         a {@link JsonArray} representing the keyframe values.
-     * @throws JsonParseException If the provided keyframe data is invalid or does not meet the expected structure, such
-     *                            as missing or incorrectly formatted "pre" or "post" keys.
-     */
-    private static Pair<String, JsonElement> getTripletObjBedrock(String timestamp, JsonObject keyframe) {
-        JsonArray keyframeValues = null;
+    private static void addBedrockKeyframes(double timestamp, JsonObject keyframe, List<Pair<String, JsonElement>> keyframes) {
+        boolean addedFrame = false;
 
         if (keyframe.has("pre")) {
             JsonElement pre = keyframe.get("pre");
-            keyframeValues = pre.isJsonArray()
-                ? pre.getAsJsonArray()
-                : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector");
-        } else if (keyframe.has("post")) {
-            JsonElement post = keyframe.get("post");
-            keyframeValues = post.isJsonArray()
-                ? post.getAsJsonArray()
-                : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
+            addedFrame = true;
+
+            keyframes.add(Pair.of(
+                    String.valueOf(timestamp == 0 ? timestamp : timestamp - 0.001d),
+                    pre.isJsonArray() ? pre.getAsJsonArray() : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector")
+            ));
         }
 
-        if (keyframeValues != null)
-            return Pair.of(NumberUtils.isCreatable(timestamp) ? timestamp : "0", keyframeValues);
+        if (keyframe.has("post")) {
+            JsonElement post = keyframe.get("post");
+            JsonArray values = post.isJsonArray() ? post.getAsJsonArray() : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
 
-        throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
+            if (keyframe.has("lerp_mode")) {
+                var keyframeObj = new JsonObject();
+
+                keyframeObj.add("vector", values);
+                keyframeObj.add("easing", keyframe.get("lerp_mode"));
+
+                keyframes.add(Pair.of(String.valueOf(timestamp), keyframeObj));
+            }
+            else {
+                keyframes.add(Pair.of(String.valueOf(timestamp), values));
+            }
+
+            return;
+        }
+
+        if (!addedFrame)
+            throw new JsonParseException("Invalid keyframe data - expected array, found " + keyframe);
     }
 
     /**
@@ -255,15 +264,15 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
         for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
             JsonObject entryObj = entry.getValue().getAsJsonObject();
             AzKeyframeStack<AzKeyframe<IValue>> scaleFrames = buildKeyframeStack(
-                getTripletObj(entryObj.get("scale")),
+                getKeyframes(entryObj.get("scale")),
                 false
             );
             AzKeyframeStack<AzKeyframe<IValue>> positionFrames = buildKeyframeStack(
-                getTripletObj(entryObj.get("position")),
+                getKeyframes(entryObj.get("position")),
                 false
             );
             AzKeyframeStack<AzKeyframe<IValue>> rotationFrames = buildKeyframeStack(
-                getTripletObj(entryObj.get("rotation")),
+                getKeyframes(entryObj.get("rotation")),
                 true
             );
 
@@ -361,5 +370,9 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
         }
 
         return new AzKeyframeStack<>(xFrames, yFrames, zFrames);
+    }
+
+    private static double readTimestamp(String timestamp) {
+        return NumberUtils.isCreatable(timestamp) ? Double.parseDouble(timestamp) : 0;
     }
 }
