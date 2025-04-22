@@ -43,7 +43,7 @@ public final class MolangQueries {
 
     public static final String YAW_SPEED = normalize("query.yaw_speed");
 
-    private static String normalize(String queryName) {
+    public static String normalize(String queryName) {
         if (queryName.startsWith(QUERY_PREFIX)) {
             return queryName;
         } else if (queryName.startsWith(SHORT_PREFIX)) {
