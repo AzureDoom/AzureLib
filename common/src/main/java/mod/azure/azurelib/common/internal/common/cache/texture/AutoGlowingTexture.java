@@ -131,8 +131,11 @@ public class AutoGlowingTexture extends AzAbstractTexture {
 
         NativeImage mask = glowImage;
 
-        if (mask == null)
+        if (mask == null) {
+            String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
+            AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
             return null;
+        }
 
         return () -> {
             uploadSimple(getId(), mask, blur, clamp);
