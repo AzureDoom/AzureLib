@@ -1,10 +1,13 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
+import mod.azure.azurelib.common.api.client.helper.ClientUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 
 import mod.azure.azurelib.common.internal.common.cache.texture.AutoGlowingTexture;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import net.minecraft.world.entity.Entity;
 
 /**
  * A {@link AzRenderLayer} dedicated to rendering the auto-generated glow layer functionality provided by AzureLib. This
@@ -31,6 +34,17 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
         var renderPipeline = context.rendererPipeline();
         var textureLocation = renderPipeline.config().textureLocation(animatable);
         var renderType = AutoGlowingTexture.getRenderType(textureLocation);
+
+        if (context.animatable() instanceof Entity entity) {
+            var isInvisibleButVisibleToPlayer = entity.isInvisible() && !entity.isInvisibleTo(ClientUtils.getClientPlayer());
+            var shouldAppearGlowing = Minecraft.getInstance().shouldEntityAppearGlowing(entity);
+
+            if (isInvisibleButVisibleToPlayer) {
+                renderType = RenderType.outline(textureLocation);
+            } else if (shouldAppearGlowing) {
+                renderType = AutoGlowingTexture.getOutlineRenderType(textureLocation);
+            }
+        }
 
         if (context.renderType() != null) {
             var prevRenderType = context.renderType();
