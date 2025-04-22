@@ -195,11 +195,6 @@ public abstract class AzAbstractTexture extends SimpleTexture {
             textureManager -> textureManager.register(path, new AutoGlowingTexture(baseResource, path))
         );
 
-        generateTexture(
-            path,
-            textureManager -> textureManager.register(path, new CombinedGlowingAnimatableTexture(baseResource))
-        );
-
         return path;
     }
 

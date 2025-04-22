@@ -1,10 +1,10 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import mod.azure.azurelib.common.api.client.helper.ClientUtils;
+import mod.azure.azurelib.common.internal.common.cache.texture.AzAbstractTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 
-import mod.azure.azurelib.common.internal.common.cache.texture.AutoGlowingTexture;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +33,7 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
         var animatable = context.animatable();
         var renderPipeline = context.rendererPipeline();
         var textureLocation = renderPipeline.config().textureLocation(animatable);
-        var renderType = AutoGlowingTexture.getRenderType(textureLocation);
+        var renderType = AzAbstractTexture.getRenderType(textureLocation);
 
         if (context.animatable() instanceof Entity entity) {
             var isInvisibleButVisibleToPlayer = entity.isInvisible() && !entity.isInvisibleTo(ClientUtils.getClientPlayer());
@@ -42,7 +42,7 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
             if (isInvisibleButVisibleToPlayer) {
                 renderType = RenderType.outline(textureLocation);
             } else if (shouldAppearGlowing) {
-                renderType = AutoGlowingTexture.getOutlineRenderType(textureLocation);
+                renderType = AzAbstractTexture.getOutlineRenderType(textureLocation);
             }
         }
 

@@ -57,25 +57,6 @@ public class AutoGlowingTexture extends AzAbstractTexture {
     }
 
     /**
-     * Return a cached instance of the RenderType for the given texture for GeoGlowingLayer rendering.
-     *
-     * @param texture The texture of the resource to apply a glow layer to
-     */
-    public static RenderType getRenderType(ResourceLocation texture) {
-        return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), false);
-    }
-
-    /**
-     * Return a cached instance of the RenderType for the given texture for AutoGlowingGeoLayer rendering, while the
-     * entity has an outline
-     *
-     * @param texture The texture of the resource to apply a glow layer to
-     */
-    public static RenderType getOutlineRenderType(ResourceLocation texture) {
-        return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), true);
-    }
-
-    /**
      * Generates the glow layer {@link NativeImage} and appropriately modifies the base texture for use in glow render
      * layers
      */
