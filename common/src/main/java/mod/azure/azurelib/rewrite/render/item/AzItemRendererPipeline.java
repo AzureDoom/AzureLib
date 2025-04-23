@@ -6,9 +6,7 @@ import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
@@ -81,10 +79,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
      */
     @Override
     public void updateAnimatedTextureFrame(ItemStack animatable) {
-        AnimatableTexture.setAndUpdate(
-            config.textureLocation(animatable),
-            Item.getId(animatable.getItem()) + (int) RenderUtils.getCurrentTick()
-        );
+        AnimatableTexture.setAndUpdate(config.textureLocation(animatable));
     }
 
     public AzItemRenderer getRenderer() {

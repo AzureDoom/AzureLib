@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -47,11 +48,31 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		RenderSystem.defaultBlendFunc();
 	});
 	private static final RenderStateShard.WriteMaskStateShard WRITE_MASK = new RenderStateShard.WriteMaskStateShard(true, true);
-	private static final Function<ResourceLocation, RenderType> RENDER_TYPE_FUNCTION = Util.memoize(texture -> {
-		RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(texture, false, false);
 
-		return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder().setShaderState(SHADER_STATE).setTextureState(textureState).setTransparencyState(TRANSPARENCY_STATE).setWriteMaskState(WRITE_MASK).createCompositeState(false));
-	});
+	protected static final BiFunction<ResourceLocation, Boolean, RenderType> GLOWING_RENDER_TYPE = Util.memoize(
+			(texture, isGlowing) -> {
+				RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(
+						texture,
+						false,
+						false
+				);
+
+				return RenderType.create(
+						"az_glowing_layer",
+						DefaultVertexFormat.NEW_ENTITY,
+						VertexFormat.Mode.QUADS,
+						256,
+						false,
+						true,
+						RenderType.CompositeState.builder()
+								.setShaderState(SHADER_STATE)
+								.setTextureState(textureState)
+								.setTransparencyState(TRANSPARENCY_STATE)
+								.setWriteMaskState(WRITE_MASK)
+								.createCompositeState(isGlowing)
+				);
+			}
+	);
 
 	private static final String APPENDIX = "_glowmask";
 
@@ -128,11 +149,20 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 		NativeImage mask = glowImage;
 
-		if (mask == null)
+		if (mask == null) {
+			String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
+			AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
 			return null;
+		}
+
+		boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated();
+
+		if (animated)
+			((AnimatableTexture)originalTexture).animationContents.animatedTexture.setGlowMaskTexture(this, baseImage, mask);
 
 		return () -> {
-			uploadSimple(getId(), mask, blur, clamp);
+			if (!animated)
+				uploadSimple(getId(), mask, blur, clamp);
 
 			if (originalTexture instanceof DynamicTexture dynamicTexture) {
 				dynamicTexture.upload();
@@ -148,6 +178,16 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 	 * @param texture The texture of the resource to apply a glow layer to
 	 */
 	public static RenderType getRenderType(ResourceLocation texture) {
-		return RENDER_TYPE_FUNCTION.apply(getEmissiveResource(texture));
+		return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), false);
+	}
+
+	/**
+	 * Return a cached instance of the RenderType for the given texture for AutoGlowingGeoLayer rendering, while the
+	 * entity has an outline
+	 *
+	 * @param texture The texture of the resource to apply a glow layer to
+	 */
+	public static RenderType getOutlineRenderType(ResourceLocation texture) {
+		return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), true);
 	}
 }

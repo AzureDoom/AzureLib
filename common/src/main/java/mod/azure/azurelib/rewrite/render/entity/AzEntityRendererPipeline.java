@@ -52,10 +52,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
      */
     @Override
     public void updateAnimatedTextureFrame(T entity) {
-        AnimatableTexture.setAndUpdate(
-            config.textureLocation(entity),
-            entity.getId() + entity.tickCount
-        );
+        AnimatableTexture.setAndUpdate(config.textureLocation(entity));
     }
 
     /**
