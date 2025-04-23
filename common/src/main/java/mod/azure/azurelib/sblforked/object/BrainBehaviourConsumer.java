@@ -14,6 +14,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.GroupBehaviour;
 /**
  * Functional consumer for brain activity related functions
  */
+@Deprecated
 @FunctionalInterface
 public interface BrainBehaviourConsumer {
 

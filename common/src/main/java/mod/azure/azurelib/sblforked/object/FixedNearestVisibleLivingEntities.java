@@ -18,6 +18,7 @@ import mod.azure.azurelib.sblforked.util.SensoryUtils;
  * Wrapper for {@link NearestVisibleLivingEntities} that supports follow range for entities rather than a hardcoded
  * 16-block limit
  */
+@Deprecated
 public class FixedNearestVisibleLivingEntities extends NearestVisibleLivingEntities {
 
     private FixedNearestVisibleLivingEntities() {

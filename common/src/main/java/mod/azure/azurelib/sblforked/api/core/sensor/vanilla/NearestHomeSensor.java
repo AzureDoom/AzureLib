@@ -40,6 +40,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class NearestHomeSensor<E extends Mob> extends PredicateSensor<E, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.NEAREST_BED);

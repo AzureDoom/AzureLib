@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * Methods marked with this annotation should only be used internally, or by abstract-subclasses. This is usually done
  * to avoid accidentally overriding methods handled in the super class.
  */
+@Deprecated
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface APIOnly {}

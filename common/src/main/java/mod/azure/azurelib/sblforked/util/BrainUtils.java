@@ -42,6 +42,7 @@ import mod.azure.azurelib.sblforked.registry.SBLMemoryTypes;
 /**
  * Utility class for various brain functions. Try to utilise this where possible to ensure consistency and safety.
  */
+@Deprecated
 public final class BrainUtils {
 
     /**

@@ -35,6 +35,7 @@ import mod.azure.azurelib.sblforked.util.EntityRetrievalUtil;
  * @see net.minecraft.world.entity.ai.sensing.TemptingSensor
  * @param <E> The entity
  */
+@Deprecated
 public class ItemTemptingSensor<E extends LivingEntity> extends PredicateSensor<Player, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.TEMPTING_PLAYER);

@@ -20,6 +20,7 @@ import mod.azure.azurelib.sblforked.object.SBLShufflingList;
  *
  * @param <E> The entity
  */
+@Deprecated
 public final class SequentialBehaviour<E extends LivingEntity> extends GroupBehaviour<E> {
 
     private Predicate<ExtendedBehaviour<? super E>> earlyResetPredicate = behaviour -> false;

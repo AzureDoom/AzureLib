@@ -27,6 +27,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
  * <li>Deletes the item it was holding prior to equipping the new item</li>
  * </ul>
  */
+@Deprecated
 public class HoldItem<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     protected Function<E, ItemStack> stackFunction = entity -> ItemStack.EMPTY;

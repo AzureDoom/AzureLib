@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.SwimNodeEvaluator;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -55,7 +56,7 @@ public class SmoothWaterBoundPathNavigation extends WaterBoundPathNavigation imp
      * Patch {@link Path#getEntityPosAtNode} to use a proper rounding check
      */
     @Override
-    protected PathFinder createPathFinder(int maxVisitedNodes) {
+    protected @NotNull PathFinder createPathFinder(int maxVisitedNodes) {
         this.nodeEvaluator = new SwimNodeEvaluator(this.allowBreaching = canBreach());
         this.nodeEvaluator.setCanPassDoors(true);
 

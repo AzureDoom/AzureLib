@@ -16,6 +16,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E>
  */
+@Deprecated
 public class WalkOrRunToWalkTarget<E extends PathfinderMob> extends MoveToWalkTarget<E> {
 
     @Override

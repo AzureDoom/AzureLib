@@ -10,6 +10,7 @@ import java.util.Objects;
 /**
  * Triple-argument variant of {@link java.util.function.Predicate}
  */
+@Deprecated
 @FunctionalInterface
 public interface TriPredicate<A, B, C> {
 

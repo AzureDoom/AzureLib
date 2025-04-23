@@ -33,6 +33,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>Spend between 3 and 5.5 seconds to create the offspring</li>
  * </ul>
  */
+@Deprecated
 public class BreedWithPartner<E extends Animal> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

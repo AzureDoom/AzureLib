@@ -22,6 +22,7 @@ import mod.azure.azurelib.sblforked.SBLConstants;
 /**
  * Registry class for custom {@link MemoryModuleType Memory Types}
  */
+@Deprecated
 public final class SBLMemoryTypes {
 
     public static void init() {}

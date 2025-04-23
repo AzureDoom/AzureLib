@@ -33,6 +33,7 @@ import mod.azure.azurelib.sblforked.APIOnly;
  *
  * @param <E> Your entity
  */
+@Deprecated
 public abstract class ExtendedBehaviour<E extends LivingEntity> extends Behavior<E> {
 
     protected Predicate<E> startCondition = entity -> true;

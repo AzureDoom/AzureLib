@@ -28,6 +28,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @see net.minecraft.world.entity.ai.behavior.StartAttacking
  */
+@Deprecated
 public class SetAttackTarget<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

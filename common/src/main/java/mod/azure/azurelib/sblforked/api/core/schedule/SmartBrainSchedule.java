@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.api.SmartBrainOwner;
  * Activities scheduled using this system will <b>override</b> the activity priorities from
  * {@link SmartBrainOwner#getActivityPriorities()} at tick time
  */
+@Deprecated
 public class SmartBrainSchedule extends Schedule {
 
     private final Type type;

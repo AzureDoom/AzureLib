@@ -19,6 +19,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class Idle<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     @Override

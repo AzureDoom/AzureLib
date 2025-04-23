@@ -30,6 +30,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class PiglinBruteSpecificSensor<E extends LivingEntity> extends ExtendedSensor<E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.NEARBY_ADULT_PIGLINS);

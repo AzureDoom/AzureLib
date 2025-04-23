@@ -16,6 +16,7 @@ import java.util.function.BiPredicate;
  * @param <P> The predicate, used for whatever the sensor might need
  * @param <E> The entity
  */
+@Deprecated
 public abstract class PredicateSensor<P, E extends LivingEntity> extends ExtendedSensor<E> {
 
     private BiPredicate<P, E> predicate;

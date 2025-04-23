@@ -34,6 +34,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>Takes 240 ticks to break the block</li>
  * </ul>
  */
+@Deprecated
 public class BreakBlock<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

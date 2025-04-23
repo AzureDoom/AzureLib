@@ -40,6 +40,7 @@ import mod.azure.azurelib.sblforked.util.RandomUtil;
  * @param <E> The owner of the brain
  * @param <T> The minimum common class of the entity expected to be following
  */
+@Deprecated
 public class FollowEntity<E extends PathfinderMob, T extends Entity> extends ExtendedBehaviour<E> {
 
     protected Function<E, T> followingEntityProvider = entity -> null;

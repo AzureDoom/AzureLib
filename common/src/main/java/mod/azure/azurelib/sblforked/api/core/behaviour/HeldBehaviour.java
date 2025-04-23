@@ -17,6 +17,7 @@ import java.util.function.Function;
  *
  * @param <E> The entity
  */
+@Deprecated
 public abstract class HeldBehaviour<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     protected Function<E, Boolean> tickConsumer = entity -> true;

@@ -21,6 +21,7 @@ import java.util.function.BiPredicate;
 /**
  * Utility class for easy and legible random functionality.
  */
+@Deprecated
 public final class RandomUtil {
 
     public static final EasyRandom RANDOM = new EasyRandom(RandomSource.createThreadSafe());

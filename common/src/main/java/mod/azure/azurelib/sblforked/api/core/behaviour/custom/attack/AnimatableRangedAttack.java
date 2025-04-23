@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E>
  */
+@Deprecated
 public class AnimatableRangedAttack<E extends LivingEntity & RangedAttackMob> extends DelayedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

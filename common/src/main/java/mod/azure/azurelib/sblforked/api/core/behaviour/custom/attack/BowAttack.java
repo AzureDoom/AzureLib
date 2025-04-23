@@ -20,6 +20,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E>
  */
+@Deprecated
 public class BowAttack<E extends LivingEntity & RangedAttackMob> extends AnimatableRangedAttack<E> {
 
     public BowAttack(int delayTicks) {

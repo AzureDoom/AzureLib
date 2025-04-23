@@ -25,6 +25,7 @@ import java.util.List;
 import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
 import mod.azure.azurelib.sblforked.util.BrainUtils;
 
+@Deprecated
 public class MoveToWalkTarget<E extends PathfinderMob> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

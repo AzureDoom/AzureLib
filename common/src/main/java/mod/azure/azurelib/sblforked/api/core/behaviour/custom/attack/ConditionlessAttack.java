@@ -31,6 +31,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class ConditionlessAttack<E extends LivingEntity> extends DelayedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

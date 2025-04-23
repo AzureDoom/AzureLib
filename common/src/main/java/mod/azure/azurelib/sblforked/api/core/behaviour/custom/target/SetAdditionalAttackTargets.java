@@ -41,6 +41,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * {@link MemoryModuleType#ATTACK_TARGET}</li>
  * </ul>
  */
+@Deprecated
 public class SetAdditionalAttackTargets<E extends Mob> extends ExtendedBehaviour<E> {
 
     private final List<MemoryModuleType<? extends LivingEntity>> targetingMemories = new ObjectArrayList<>();

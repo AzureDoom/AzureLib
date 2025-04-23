@@ -14,6 +14,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.GroupBehaviour;
 /**
  * Functional interface to handle passing multiple arguments back for behaviour-predication handling
  */
+@Deprecated
 @FunctionalInterface
 public interface BrainBehaviourPredicate {
 

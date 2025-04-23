@@ -17,6 +17,7 @@ import java.util.function.Consumer;
  *
  * @param <E> The entity
  */
+@Deprecated
 public abstract class DelayedBehaviour<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     protected final int delayTime;

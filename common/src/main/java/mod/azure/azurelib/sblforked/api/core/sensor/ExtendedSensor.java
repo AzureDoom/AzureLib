@@ -24,6 +24,7 @@ import java.util.function.Function;
  *
  * @param <E> The entity
  */
+@Deprecated
 public abstract class ExtendedSensor<E extends LivingEntity> extends Sensor<E> {
 
     protected Function<E, Integer> scanRate = entity -> 20;

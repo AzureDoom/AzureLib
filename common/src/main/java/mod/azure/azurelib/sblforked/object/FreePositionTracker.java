@@ -10,6 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.PositionTracker;
 import net.minecraft.world.phys.Vec3;
 
+@Deprecated
 public class FreePositionTracker implements PositionTracker {
 
     private final Vec3 pos;

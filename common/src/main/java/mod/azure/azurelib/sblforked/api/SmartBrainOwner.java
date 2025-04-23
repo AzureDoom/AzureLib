@@ -31,6 +31,7 @@ import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
  *
  * @param <T> Your entity
  */
+@Deprecated
 public interface SmartBrainOwner<T extends LivingEntity & SmartBrainOwner<T>> {
 
     /**

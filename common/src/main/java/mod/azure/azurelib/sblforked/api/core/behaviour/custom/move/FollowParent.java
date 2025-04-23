@@ -25,6 +25,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * grabs the nearest animal of the same class and presumes it is the parent.
  * </p>
  */
+@Deprecated
 public class FollowParent<E extends AgeableMob> extends FollowEntity<E, AgeableMob> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

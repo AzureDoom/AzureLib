@@ -28,6 +28,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class SetWalkTargetToAttackTarget<E extends Mob> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

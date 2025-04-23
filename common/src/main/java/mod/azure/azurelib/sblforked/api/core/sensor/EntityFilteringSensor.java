@@ -25,6 +25,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * @param <P> The target entity
  * @param <E> The entity
  */
+@Deprecated
 public abstract class EntityFilteringSensor<P, E extends LivingEntity> extends PredicateSensor<LivingEntity, E> {
 
     /**

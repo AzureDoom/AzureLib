@@ -26,6 +26,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>Invalidates the target if it's a creative or spectator mode player</li>
  * </ul>
  */
+@Deprecated
 public class InvalidateAttackTarget<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

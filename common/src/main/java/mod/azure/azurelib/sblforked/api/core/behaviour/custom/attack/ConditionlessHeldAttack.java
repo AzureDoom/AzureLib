@@ -29,6 +29,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class ConditionlessHeldAttack<E extends LivingEntity> extends HeldBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

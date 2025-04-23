@@ -38,6 +38,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>1x speed modifier while following</li>
  * </ul>
  */
+@Deprecated
 public class FollowTemptation<E extends PathfinderMob> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

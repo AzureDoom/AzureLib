@@ -17,6 +17,7 @@ import mod.azure.azurelib.sblforked.api.core.sensor.vanilla.*;
 /**
  * Registry class for {@link ExtendedSensor} implementations
  */
+@Deprecated
 public final class SBLSensors {
 
     public static void init() {}

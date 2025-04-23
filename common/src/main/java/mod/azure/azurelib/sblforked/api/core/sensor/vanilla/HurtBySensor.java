@@ -26,6 +26,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class HurtBySensor<E extends Mob> extends PredicateSensor<DamageSource, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(

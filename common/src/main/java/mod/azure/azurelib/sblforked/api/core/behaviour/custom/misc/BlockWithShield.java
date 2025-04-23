@@ -21,6 +21,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
 /**
  * Makes the entity use (block) using a shield if it's currently in the entity's hands
  */
+@Deprecated
 public class BlockWithShield<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     protected InteractionHand hand = InteractionHand.MAIN_HAND;

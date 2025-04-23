@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
 
+@Deprecated
 public interface SBLLoader {
 
     void init(Object eventBus);

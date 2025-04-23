@@ -24,6 +24,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.HeldBehaviour;
  * Set the condition for running via {@link ExtendedBehaviour#startCondition(Predicate)}<br>
  * Set the condition for stopping via {@link ExtendedBehaviour#stopIf(Predicate)}
  */
+@Deprecated
 public final class CustomHeldBehaviour<E extends LivingEntity> extends HeldBehaviour<E> {
 
     private Consumer<E> callback;

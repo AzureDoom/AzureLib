@@ -25,6 +25,7 @@ import mod.azure.azurelib.sblforked.object.SBLShufflingList;
  * NOTE: Only supports ExtendedBehaviour implementations as sub-behaviours. This is due to access-modifiers on the
  * vanilla behaviours making this prohibitively annoying to work with.
  */
+@Deprecated
 public abstract class GroupBehaviour<E extends LivingEntity> extends ExtendedBehaviour<E> {
 
     protected final SBLShufflingList<ExtendedBehaviour<? super E>> behaviours;

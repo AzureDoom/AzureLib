@@ -26,6 +26,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * @param <E> The brain owner
  * @param <M> The data type of the memory
  */
+@Deprecated
 public class InvalidateMemory<E extends LivingEntity, M> extends ExtendedBehaviour<E> {
 
     private List<Pair<MemoryModuleType<?>, MemoryStatus>> memoryRequirements;

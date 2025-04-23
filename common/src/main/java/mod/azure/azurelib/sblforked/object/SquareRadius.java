@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
  * @param xzRadius The lateral radius value (X/Z direction)
  * @param yRadius  The vertical radius value (Y direction)
  */
+@Deprecated
 public record SquareRadius(
     double xzRadius,
     double yRadius

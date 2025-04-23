@@ -23,6 +23,7 @@ import java.util.function.Predicate;
  * type-checking and redundant stream-collection. Ultimately this leaves casting up to the end-user, and streamlines the
  * actual retrieval functions to their most optimised form.
  */
+@Deprecated
 public final class EntityRetrievalUtil {
 
     /**

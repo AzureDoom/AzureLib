@@ -35,6 +35,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class SecondaryPoiSensor<E extends Villager> extends ExtendedSensor<E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(MemoryModuleType.SECONDARY_JOB_SITE);

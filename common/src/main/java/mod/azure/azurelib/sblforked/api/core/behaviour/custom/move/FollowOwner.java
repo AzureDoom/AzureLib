@@ -13,6 +13,7 @@ import net.minecraft.world.entity.TamableAnimal;
  *
  * @param <E> The owner of the brain
  */
+@Deprecated
 public class FollowOwner<E extends TamableAnimal> extends FollowEntity<E, LivingEntity> {
 
     protected LivingEntity owner = null;

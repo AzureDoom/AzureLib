@@ -25,6 +25,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
  * <li>Applies to water</li>
  * </ul>
  */
+@Deprecated
 public class FloatToSurfaceOfFluid<E extends Mob> extends ExtendedBehaviour<E> {
 
     protected float riseChance = 0.8f;

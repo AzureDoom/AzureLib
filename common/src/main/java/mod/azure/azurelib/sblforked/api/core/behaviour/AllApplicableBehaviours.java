@@ -23,6 +23,7 @@ import mod.azure.azurelib.sblforked.object.SBLShufflingList;
  *
  * @param <E> The entity
  */
+@Deprecated
 public final class AllApplicableBehaviours<E extends LivingEntity> extends GroupBehaviour<E> {
 
     public AllApplicableBehaviours(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {

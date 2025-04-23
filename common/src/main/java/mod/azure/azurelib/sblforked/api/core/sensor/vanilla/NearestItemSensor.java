@@ -34,6 +34,7 @@ import mod.azure.azurelib.sblforked.util.EntityRetrievalUtil;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class NearestItemSensor<E extends Mob> extends PredicateSensor<ItemEntity, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(

@@ -35,6 +35,7 @@ import mod.azure.azurelib.sblforked.api.core.sensor.ExtendedSensor;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class SmartBrainProvider<E extends LivingEntity & SmartBrainOwner<E>> extends Brain.Provider<E> {
 
     private static final Map<EntityType<? extends LivingEntity>, ImmutableList<MemoryModuleType<?>>> BRAIN_MEMORY_CACHE =

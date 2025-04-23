@@ -22,6 +22,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
  * implementing into a full behaviour. <br>
  * Set the condition for running via {@link ExtendedBehaviour#startCondition(Predicate)}
  */
+@Deprecated
 public final class CustomDelayedBehaviour<E extends LivingEntity> extends DelayedBehaviour<E> {
 
     public CustomDelayedBehaviour(int delayTicks) {

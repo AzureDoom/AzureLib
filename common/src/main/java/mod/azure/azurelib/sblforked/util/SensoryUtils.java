@@ -17,6 +17,7 @@ import mod.azure.azurelib.sblforked.object.ExtendedTargetingConditions;
  * Mostly this just replaces the poorly implemented methods in {@link net.minecraft.world.entity.ai.sensing.Sensor}
  * </p>
  */
+@Deprecated
 public class SensoryUtils {
 
     /**

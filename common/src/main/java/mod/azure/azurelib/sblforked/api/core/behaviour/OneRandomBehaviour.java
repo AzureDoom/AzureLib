@@ -17,6 +17,7 @@ import mod.azure.azurelib.sblforked.object.SBLShufflingList;
  *
  * @param <E> The entity
  */
+@Deprecated
 public final class OneRandomBehaviour<E extends LivingEntity> extends GroupBehaviour<E> {
 
     public OneRandomBehaviour(Pair<ExtendedBehaviour<? super E>, Integer>... behaviours) {

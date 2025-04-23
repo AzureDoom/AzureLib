@@ -20,6 +20,7 @@ import java.util.function.ToIntFunction;
  * Additionally expands the vertical path search radius to 10, over the default of 7
  * </p>
  */
+@Deprecated
 public class SetRandomFlyingTarget<E extends PathfinderMob> extends SetRandomHoverTarget<E> {
 
     protected ToIntFunction<E> verticalWeight = entity -> -2;

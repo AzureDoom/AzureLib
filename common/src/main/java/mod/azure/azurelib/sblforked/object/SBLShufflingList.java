@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+@Deprecated
 public class SBLShufflingList<T> implements Iterable<T> {
 
     private final List<WeightedEntry<T>> entries;

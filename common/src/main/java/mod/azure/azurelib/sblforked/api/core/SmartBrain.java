@@ -45,6 +45,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class SmartBrain<E extends LivingEntity & SmartBrainOwner<E>> extends Brain<E> {
 
     private final List<MemoryModuleType<?>> expirableMemories = new ObjectArrayList<>();

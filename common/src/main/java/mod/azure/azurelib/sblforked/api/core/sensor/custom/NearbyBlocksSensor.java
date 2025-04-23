@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>Ignores air blocks</li>
  * </ul>
  */
+@Deprecated
 public class NearbyBlocksSensor<E extends LivingEntity> extends PredicateSensor<BlockState, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(SBLMemoryTypes.NEARBY_BLOCKS.get());

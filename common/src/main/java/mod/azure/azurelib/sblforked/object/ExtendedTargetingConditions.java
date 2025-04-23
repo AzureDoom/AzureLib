@@ -19,6 +19,7 @@ import mod.azure.azurelib.sblforked.util.SensoryUtils;
  * Replacement for Vanilla's {@link net.minecraft.world.entity.ai.targeting.TargetingConditions} due to its somewhat
  * limited implementation
  */
+@Deprecated
 public class ExtendedTargetingConditions {
 
     protected BiPredicate<LivingEntity, LivingEntity> customFilter = null;

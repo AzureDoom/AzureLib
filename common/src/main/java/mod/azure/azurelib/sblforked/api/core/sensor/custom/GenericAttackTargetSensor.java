@@ -27,6 +27,7 @@ import mod.azure.azurelib.sblforked.registry.SBLSensors;
  *
  * @param <E>
  */
+@Deprecated
 public class GenericAttackTargetSensor<E extends LivingEntity> extends EntityFilteringSensor<LivingEntity, E> {
 
     @Override

@@ -25,6 +25,7 @@ import mod.azure.azurelib.sblforked.registry.SBLSensors;
  * @see net.minecraft.world.entity.ai.sensing.AdultSensor
  * @param <E> The entity
  */
+@Deprecated
 public class NearbyAdultSensor<E extends AgeableMob> extends EntityFilteringSensor<AgeableMob, E> {
 
     @Override

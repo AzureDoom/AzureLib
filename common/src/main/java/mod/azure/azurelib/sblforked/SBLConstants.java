@@ -7,6 +7,7 @@ package mod.azure.azurelib.sblforked;
 
 import java.util.ServiceLoader;
 
+@Deprecated
 public class SBLConstants {
 
     public static final SBLLoader SBL_LOADER = ServiceLoader.load(SBLLoader.class).findFirst().get();

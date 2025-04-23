@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.util.EntityRetrievalUtil;
  *
  * @param <E>
  */
+@Deprecated
 public class IncomingProjectilesSensor<E extends LivingEntity> extends PredicateSensor<Projectile, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(

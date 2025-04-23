@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * <li>1x move speed modifier</li>
  * </ul>
  */
+@Deprecated
 public class AvoidEntity<E extends PathfinderMob> extends ExtendedBehaviour<E> {
 
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(

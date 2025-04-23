@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,7 +54,7 @@ public class SmoothAmphibiousPathNavigation extends AmphibiousPathNavigation imp
      * Patch {@link Path#getEntityPosAtNode} to use a proper rounding check
      */
     @Override
-    protected PathFinder createPathFinder(int maxVisitedNodes) {
+    protected @NotNull PathFinder createPathFinder(int maxVisitedNodes) {
         this.nodeEvaluator = new AmphibiousNodeEvaluator(prefersShallowSwimming());
         this.nodeEvaluator.setCanPassDoors(true);
 

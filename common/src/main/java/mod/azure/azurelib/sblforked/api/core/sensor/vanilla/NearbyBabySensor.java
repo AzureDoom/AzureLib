@@ -26,6 +26,7 @@ import mod.azure.azurelib.sblforked.registry.SBLSensors;
  * @see net.minecraft.world.entity.ai.sensing.VillagerBabiesSensor
  * @param <E> The entity
  */
+@Deprecated
 public class NearbyBabySensor<E extends LivingEntity> extends EntityFilteringSensor<List<LivingEntity>, E> {
 
     @Override

@@ -32,6 +32,7 @@ import mod.azure.azurelib.sblforked.util.BrainUtils;
  * @see net.minecraft.world.entity.ai.sensing.GolemSensor
  * @param <E> The entity
  */
+@Deprecated
 public class NearbyGolemSensor<E extends LivingEntity> extends PredicateSensor<LivingEntity, E> {
 
     private static final List<MemoryModuleType<?>> MEMORIES = ObjectArrayList.of(

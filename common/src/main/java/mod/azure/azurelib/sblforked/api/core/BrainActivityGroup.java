@@ -20,6 +20,7 @@ import java.util.Set;
 
 import mod.azure.azurelib.sblforked.api.SmartBrainOwner;
 
+@Deprecated
 public class BrainActivityGroup<T extends LivingEntity & SmartBrainOwner<T>> {
 
     private final Activity activity;

@@ -22,6 +22,7 @@ import mod.azure.azurelib.sblforked.api.core.behaviour.ExtendedBehaviour;
  *
  * @param <E> The entity
  */
+@Deprecated
 public class AvoidSun<E extends PathfinderMob> extends ExtendedBehaviour<E> {
 
     @Override
