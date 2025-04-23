@@ -61,7 +61,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
             );
 
             return RenderType.create(
-                "geo_glowing_layer",
+                "az_glowing_layer",
                 DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.QUADS,
                 256,
@@ -71,7 +71,6 @@ public abstract class AzAbstractTexture extends SimpleTexture {
                     .setShaderState(SHADER_STATE)
                     .setTextureState(textureState)
                     .setTransparencyState(TRANSPARENCY_STATE)
-                    .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .setWriteMaskState(WRITE_MASK)
                     .createCompositeState(isGlowing)
             );

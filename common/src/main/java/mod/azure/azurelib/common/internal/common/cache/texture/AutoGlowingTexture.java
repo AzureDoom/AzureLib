@@ -8,7 +8,6 @@ package mod.azure.azurelib.common.internal.common.cache.texture;
 import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
@@ -37,23 +36,6 @@ public class AutoGlowingTexture extends AzAbstractTexture {
         super(originalLocation);
         this.textureBase = originalLocation;
         this.glowLayer = location;
-    }
-
-    /**
-     * Get the emissive resource equivalent of the input resource path.<br>
-     * Additionally prepares the texture manager for the missing texture if the resource is not present
-     *
-     * @return The glowlayer resourcepath for the provided input path
-     */
-    protected static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
-        ResourceLocation path = appendToPath(baseResource, APPENDIX);
-
-        generateTexture(
-            path,
-            textureManager -> textureManager.register(path, new AutoGlowingTexture(baseResource, path))
-        );
-
-        return path;
     }
 
     /**
@@ -118,8 +100,14 @@ public class AutoGlowingTexture extends AzAbstractTexture {
             return null;
         }
 
+        boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated();
+
+        if (animated)
+            ((AnimatableTexture)originalTexture).animationContents.animatedTexture.setGlowMaskTexture(this, baseImage, mask);
+
         return () -> {
-            uploadSimple(getId(), mask, blur, clamp);
+            if (!animated)
+                uploadSimple(getId(), mask, blur, clamp);
 
             if (originalTexture instanceof DynamicTexture dynamicTexture) {
                 dynamicTexture.upload();

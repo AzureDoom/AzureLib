@@ -47,10 +47,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         var currentEntity = context().currentEntity();
 
         if (currentEntity != null) {
-            var textureLocation = config().textureLocation(animatable);
-            var frameTick = currentEntity.getId() + currentEntity.tickCount;
-
-            AnimatableTexture.setAndUpdate(textureLocation, frameTick);
+            AnimatableTexture.setAndUpdate(config.textureLocation(animatable));
         }
     }
 

@@ -60,11 +60,7 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
      */
     @Override
     public void updateAnimatedTextureFrame(T entity) {
-        AnimatableTexture.setAndUpdate(
-            config.textureLocation(entity),
-            entity.getBlockPos().getX() + entity.getBlockPos().getY() + entity.getBlockPos().getZ()
-                + (int) RenderUtils.getCurrentTick()
-        );
+        AnimatableTexture.setAndUpdate(config.textureLocation(entity));
     }
 
     /**

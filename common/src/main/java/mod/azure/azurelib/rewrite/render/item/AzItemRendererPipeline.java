@@ -82,10 +82,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
      */
     @Override
     public void updateAnimatedTextureFrame(ItemStack animatable) {
-        AnimatableTexture.setAndUpdate(
-            config.textureLocation(animatable),
-            Item.getId(animatable.getItem()) + (int) RenderUtils.getCurrentTick()
-        );
+        AnimatableTexture.setAndUpdate(config.textureLocation(animatable));
     }
 
     public AzItemRenderer getRenderer() {
