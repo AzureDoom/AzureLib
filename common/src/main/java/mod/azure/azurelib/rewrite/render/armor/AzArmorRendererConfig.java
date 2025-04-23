@@ -74,7 +74,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.boneProvider = new AzDefaultArmorBoneProvider();
-            this.renderTypeProvider = $ -> RenderType.armorCutoutNoCull(textureLocationProvider.apply($));
+            this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
         }
 
         @Override
@@ -123,7 +123,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             return new AzArmorRendererConfig(
                 baseConfig::createAnimator,
                 boneProvider,
-                renderTypeProvider,
+                baseConfig::getRenderType,
                 baseConfig::modelLocation,
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
