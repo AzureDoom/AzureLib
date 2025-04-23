@@ -29,11 +29,7 @@ import mod.azure.azurelib.common.api.common.animatable.GeoItem;
 import mod.azure.azurelib.common.internal.client.RenderProvider;
 import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
-/**
- * @deprecated
- */
 @Mixin(HumanoidArmorLayer.class)
-@Deprecated(forRemoval = true)
 public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
 
     @ModifyExpressionValue(
