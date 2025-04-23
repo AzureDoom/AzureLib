@@ -78,7 +78,9 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                 double timestamp = readTimestamp(entry.getKey());
 
                 if (timestamp == 0 && !list.isEmpty())
-                    throw new JsonParseException("Invalid keyframe data - multiple starting keyframes?" + entry.getKey());
+                    throw new JsonParseException(
+                        "Invalid keyframe data - multiple starting keyframes?" + entry.getKey()
+                    );
 
                 if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
                     addBedrockKeyframes(timestamp, entryObj, list);
@@ -95,22 +97,32 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
         throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
     }
 
-    private static void addBedrockKeyframes(double timestamp, JsonObject keyframe, List<Pair<String, JsonElement>> keyframes) {
+    private static void addBedrockKeyframes(
+        double timestamp,
+        JsonObject keyframe,
+        List<Pair<String, JsonElement>> keyframes
+    ) {
         boolean addedFrame = false;
 
         if (keyframe.has("pre")) {
             JsonElement pre = keyframe.get("pre");
             addedFrame = true;
 
-            keyframes.add(Pair.of(
+            keyframes.add(
+                Pair.of(
                     String.valueOf(timestamp == 0 ? timestamp : timestamp - 0.001d),
-                    pre.isJsonArray() ? pre.getAsJsonArray() : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector")
-            ));
+                    pre.isJsonArray()
+                        ? pre.getAsJsonArray()
+                        : GsonHelper.getAsJsonArray(pre.getAsJsonObject(), "vector")
+                )
+            );
         }
 
         if (keyframe.has("post")) {
             JsonElement post = keyframe.get("post");
-            JsonArray values = post.isJsonArray() ? post.getAsJsonArray() : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
+            JsonArray values = post.isJsonArray()
+                ? post.getAsJsonArray()
+                : GsonHelper.getAsJsonArray(post.getAsJsonObject(), "vector");
 
             if (keyframe.has("lerp_mode")) {
                 var keyframeObj = new JsonObject();
@@ -119,8 +131,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                 keyframeObj.add("easing", keyframe.get("lerp_mode"));
 
                 keyframes.add(Pair.of(String.valueOf(timestamp), keyframeObj));
-            }
-            else {
+            } else {
                 keyframes.add(Pair.of(String.valueOf(timestamp), values));
             }
 

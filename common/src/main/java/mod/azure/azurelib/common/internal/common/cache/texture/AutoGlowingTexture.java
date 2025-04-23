@@ -96,14 +96,23 @@ public class AutoGlowingTexture extends AzAbstractTexture {
 
         if (mask == null) {
             String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
-            AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
+            AzureLib.LOGGER.warn(
+                "Missing glowmask texture. Base texture: {}, Expected glowmask: {}",
+                this.textureBase,
+                expectedGlowmask
+            );
             return null;
         }
 
-        boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated();
+        boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture
+            .isAnimated();
 
         if (animated)
-            ((AnimatableTexture)originalTexture).animationContents.animatedTexture.setGlowMaskTexture(this, baseImage, mask);
+            ((AnimatableTexture) originalTexture).animationContents.animatedTexture.setGlowMaskTexture(
+                this,
+                baseImage,
+                mask
+            );
 
         return () -> {
             if (!animated)
