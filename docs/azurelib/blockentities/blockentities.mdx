@@ -58,8 +58,14 @@ public class ExampleBEDispatcher {
         AzPlayBehaviors.LOOP
     );
 
-    public void spin(BlockEntity entity) {
-        SPINNING_COMMAND.sendForItem(entity, itemStack);
+    private final BlockEntity blockEntity;
+
+    public StargateBlockAnimationDispatcher(BlockEntity blockEntity) {
+        this.blockEntity = blockEntity;
+    }
+
+    public void spin(BlockEntity BlockEntity) {
+        SPINNING_COMMAND.sendForBlockEntity(BlockEntity);
     }
 }
 ```
