@@ -43,7 +43,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 		}
 
 		public static RenderType emissive(ResourceLocation texture) {
-			return RenderType.create("geo_glowing_layer", DefaultVertexFormat.NEW_ENTITY, GL11.GL_QUADS, 256, RenderType.CompositeState.builder().setAlphaState(RenderType.DEFAULT_ALPHA).setCullState(RenderType.NO_CULL).setTextureState(new TextureStateShard(texture, false, false)).setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY).setOverlayState(RenderType.OVERLAY).createCompositeState(true));
+			return RenderType.create("az_glowing_layer", DefaultVertexFormat.NEW_ENTITY, GL11.GL_QUADS, 256, RenderType.CompositeState.builder().setAlphaState(RenderType.DEFAULT_ALPHA).setCullState(RenderType.NO_CULL).setTextureState(new TextureStateShard(texture, false, false)).setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY).setOverlayState(RenderType.OVERLAY).createCompositeState(true));
 		}
 	}
 
@@ -121,11 +121,20 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 		NativeImage mask = glowImage;
 
-		if (mask == null)
+		if (mask == null) {
+			String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
+			AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
 			return null;
+		}
+
+		boolean animated = originalTexture instanceof AnimatableTexture && ((AnimatableTexture)originalTexture).isAnimated();
+
+		if (animated)
+			((AnimatableTexture)originalTexture).animationContents.animatedTexture.setGlowMaskTexture(this, baseImage, mask);
 
 		return () -> {
-			uploadSimple(getId(), mask, blur, clamp);
+			if (!animated)
+				uploadSimple(getId(), mask, blur, clamp);
 
 			if (originalTexture instanceof DynamicTexture) {
 				((DynamicTexture) originalTexture).upload();
