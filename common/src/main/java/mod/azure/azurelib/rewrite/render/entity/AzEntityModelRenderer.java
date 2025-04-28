@@ -117,27 +117,6 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
         }
 
         if (!isReRender) {
-            // FIXME: Figure out what to do with this data stuff.
-            // float headPitch = Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot());
-            // var velocity = animatable.getDeltaMovement();
-            // float avgVelocity = (float) (Math.abs(velocity.x) + Math.abs(velocity.z) / 2f);
-            //
-            // long instanceId = getInstanceId(animatable);
-            //
-            // animationState.setData(DataTickets.TICK, animatable.getTick(animatable));
-            // animationState.setData(DataTickets.ENTITY, animatable);
-            // animationState.setData(
-            // DataTickets.ENTITY_MODEL_DATA,
-            // new EntityModelData(
-            // shouldSit,
-            // livingEntity != null && livingEntity.isBaby(),
-            // -netHeadYaw,
-            // -headPitch
-            // )
-            // );
-            //
-            // this.model.addAdditionalStateData(animatable, instanceId, animationState::setData);
-
             var animator = entityRendererPipeline.getRenderer().getAnimator();
 
             if (animator != null) {
