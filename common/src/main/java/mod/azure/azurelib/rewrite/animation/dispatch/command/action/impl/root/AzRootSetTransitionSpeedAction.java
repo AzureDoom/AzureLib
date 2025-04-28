@@ -7,6 +7,9 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 /**
  * The {@code AzRootSetTransitionSpeedAction} class implements the {@link AzAction} interface and represents an action
  * that modifies the transition speed for an animator during an animation state. This action is intended for use within
@@ -18,11 +21,14 @@ public record AzRootSetTransitionSpeedAction(
     float transitionSpeed
 ) implements AzAction {
 
-    public static final StreamCodec<FriendlyByteBuf, AzRootSetTransitionSpeedAction> CODEC = StreamCodec.composite(
-        ByteBufCodecs.FLOAT,
-        AzRootSetTransitionSpeedAction::transitionSpeed,
-        AzRootSetTransitionSpeedAction::new
-    );
+    public static final Function<FriendlyByteBuf, AzRootSetTransitionSpeedAction> DECODER = buf -> {
+        float transitionSpeed = buf.readFloat(); // Read float from the buffer
+        return new AzRootSetTransitionSpeedAction(transitionSpeed); // Create a new instance
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzRootSetTransitionSpeedAction> ENCODER = (buf, action) -> {
+        buf.writeFloat(action.transitionSpeed()); // Write the transition speed to the buffer
+    };
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_transition_speed");
 
@@ -40,5 +46,13 @@ public record AzRootSetTransitionSpeedAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
+    }
+
+    public static AzRootSetTransitionSpeedAction decode(FriendlyByteBuf buf) {
+        return DECODER.apply(buf); // Delegate decoding to DECODER
+    }
+
+    public static void encode(FriendlyByteBuf buf, AzRootSetTransitionSpeedAction action) {
+        ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

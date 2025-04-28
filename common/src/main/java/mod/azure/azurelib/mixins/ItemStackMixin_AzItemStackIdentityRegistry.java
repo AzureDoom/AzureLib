@@ -3,7 +3,6 @@ package mod.azure.azurelib.mixins;
 import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,31 +31,31 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
         at = @At("TAIL")
     )
     public void az_addIdentityComponent(CompoundTag compoundTag, CallbackInfo ci) {
-        initializeAzIdOnStack(this, compoundTag);
+        azureLib$initializeAzIdOnStack(this, compoundTag);
     }
 
     @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;)V", at = @At("TAIL"))
     public void az_addIdentityComponentItemConstructor2(CallbackInfo ci) {
-        initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this, null);
     }
 
     @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/core/Holder;)V", at = @At("TAIL"))
     public void az_addIdentityComponentItemConstructor3(CallbackInfo ci) {
-        initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this, null);
     }
 
     @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;ILjava/util/Optional;)V", at = @At("TAIL"))
     public void az_addIdentityComponentItemConstructor4(CallbackInfo ci) {
-        initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this, null);
     }
 
     @Inject(method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;I)V", at = @At("TAIL"))
     public void az_addIdentityComponentItemConstructor5(CallbackInfo ci) {
-        initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this, null);
     }
 
     @Unique
-    private void initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
+    private void azureLib$initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
 
         if (!self.hasTag()) {

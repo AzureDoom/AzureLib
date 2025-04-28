@@ -7,6 +7,9 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 /**
  * Represents an action that cancels the current animation of a specified animation controller in the animation system.
  * This action is part of the root-level dispatch actions and interacts with a specific animation controller by name.
@@ -47,11 +50,14 @@ public record AzRootCancelAction(
     String controllerName
 ) implements AzAction {
 
-    public static final StreamCodec<FriendlyByteBuf, AzRootCancelAction> CODEC = StreamCodec.composite(
-        ByteBufCodecs.STRING_UTF8,
-        AzRootCancelAction::controllerName,
-        AzRootCancelAction::new
-    );
+    public static final Function<FriendlyByteBuf, AzRootCancelAction> DECODER = buf -> {
+        String controllerName = buf.readUtf(); // Read UTF-8 string for the controller's name
+        return new AzRootCancelAction(controllerName);
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzRootCancelAction> ENCODER = (buf, action) -> {
+        buf.writeUtf(action.controllerName()); // Write UTF-8 string for the controller's name
+    };
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/cancel");
 
@@ -67,5 +73,13 @@ public record AzRootCancelAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
+    }
+
+    public static AzRootCancelAction decode(FriendlyByteBuf buf) {
+        return DECODER.apply(buf); // Delegate to the DECODER functional interface
+    }
+
+    public static void encode(FriendlyByteBuf buf, AzRootCancelAction action) {
+        ENCODER.accept(buf, action); // Delegate to the ENCODER functional interface
     }
 }

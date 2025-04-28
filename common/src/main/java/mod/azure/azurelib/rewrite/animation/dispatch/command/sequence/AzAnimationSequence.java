@@ -5,14 +5,23 @@ import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public record AzAnimationSequence(
     List<AzAnimationStage> stages
 ) {
 
-    public static final StreamCodec<FriendlyByteBuf, AzAnimationSequence> CODEC = StreamCodec.composite(
-        new AzListStreamCodec<>(AzAnimationStage.CODEC),
-        AzAnimationSequence::stages,
-        AzAnimationSequence::new
-    );
+    private static final AzListStreamCodec<AzAnimationStage> STAGE_LIST_CODEC =
+            new AzListStreamCodec<>(AzAnimationStage.DECODER, AzAnimationStage.ENCODER);
+
+    public static final Function<FriendlyByteBuf, AzAnimationSequence> DECODER = buf -> {
+        List<AzAnimationStage> stages = STAGE_LIST_CODEC.decode(buf);
+        return new AzAnimationSequence(stages);
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzAnimationSequence> ENCODER = (buf, sequence) -> {
+        STAGE_LIST_CODEC.encode(buf, sequence.stages());
+    };
+
 }

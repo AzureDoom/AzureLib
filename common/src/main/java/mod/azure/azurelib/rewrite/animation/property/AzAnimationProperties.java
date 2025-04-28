@@ -3,14 +3,19 @@ package mod.azure.azurelib.rewrite.animation.property;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
 import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class AzAnimationProperties {
 
-    public static final AzAnimationPropertiesCodec CODEC = new AzAnimationPropertiesCodec();
+    public static final Function<FriendlyByteBuf, AzAnimationProperties> DECODER = AzAnimationPropertiesCodec.DECODER;
+
+    public static final BiConsumer<FriendlyByteBuf, AzAnimationProperties> ENCODER = AzAnimationPropertiesCodec.ENCODER;
 
     public static final AzAnimationProperties DEFAULT = new AzAnimationProperties(1D, AzEasingTypes.NONE, 0F);
 

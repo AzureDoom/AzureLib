@@ -12,16 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
-    // TODO: Updated encode/receive methods for AzCommand.CODEC/dispatchCommand
-    public static final StreamCodec<FriendlyByteBuf, AzBlockEntityDispatchCommandPacket> CODEC = StreamCodec.composite(
-        BlockPos.STREAM_CODEC,
-        AzBlockEntityDispatchCommandPacket::blockPos,
-        AzCommand.CODEC,
-        AzBlockEntityDispatchCommandPacket::dispatchCommand,
-        AzBlockEntityDispatchCommandPacket::new
-    );
-
     private final BlockPos blockPos;
+
     private final AzCommand dispatchCommand;
 
     public AzBlockEntityDispatchCommandPacket(
@@ -35,8 +27,7 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeBlockPos(this.blockPos);
-        // TODO: Needs fixed
-        // AzCommand.CODEC
+        AzCommand.ENCODER.accept(buf, this.dispatchCommand);
     }
 
     @Override
@@ -45,11 +36,9 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
     }
 
     public static AzBlockEntityDispatchCommandPacket receive(FriendlyByteBuf buf) {
-        var pos = buf.readBlockPos();
-        // TODO: Needs fixed
-        // AzCommand azCommand = buf.readUtf();
-
-        return new AzBlockEntityDispatchCommandPacket(pos, azCommand);
+        BlockPos blockPos = buf.readBlockPos(); // Decode block position
+        AzCommand dispatchCommand = AzCommand.DECODER.apply(buf); // Decode AzCommand
+        return new AzBlockEntityDispatchCommandPacket(blockPos, dispatchCommand); // Create a new packet instance
     }
 
     @Override

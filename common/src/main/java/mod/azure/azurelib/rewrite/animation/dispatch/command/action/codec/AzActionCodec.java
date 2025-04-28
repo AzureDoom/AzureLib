@@ -15,46 +15,55 @@ import org.jetbrains.annotations.NotNull;
  * Use this implementation in scenarios where AzAction objects need to be serialized or deserialized for efficient data
  * transmission or storage.
  */
-public class AzActionCodec implements StreamCodec<FriendlyByteBuf, AzAction> {
+/**
+ * The AzActionCodec class is responsible for encoding and decoding {@link AzAction} instances in 1.20.1,
+ * using the {@link FriendlyByteBuf} and the {@link AzActionRegistry} for maintaining associations
+ * between resource locations and their respective action codecs.
+ */
+public class AzActionCodec {
 
-    @Override
     public @NotNull AzAction decode(@NotNull FriendlyByteBuf byteBuf) {
+        // Decode the ID for the corresponding AzAction
         var id = byteBuf.readShort();
-        var codec = AzActionRegistry
-            .<AzAction, StreamCodec<FriendlyByteBuf, AzAction>>getCodecOrNull(id);
+        // Retrieve the action's codec using its ID from the registry
+        var codec = AzActionRegistry.getDecoderOrNull(id);
 
         if (codec == null) {
             throw new NullPointerException(
-                "Could not find action codec for a given action id while decoding data. ID: " + id
+                    "Could not find action decoder for a given action ID while decoding data. ID: " + id
             );
         }
 
-        return codec.decode(byteBuf);
+        // Use the codec to decode the AzAction
+        return codec.apply(byteBuf);
     }
 
-    @Override
     public void encode(@NotNull FriendlyByteBuf byteBuf, @NotNull AzAction action) {
+        // Get the resource location for the AzAction
         var resourceLocation = action.getResourceLocation();
+        // Retrieve the corresponding ID and codec for the resource location
         var id = AzActionRegistry.getIdOrNull(resourceLocation);
-        var codec = AzActionRegistry
-            .<AzAction, StreamCodec<FriendlyByteBuf, AzAction>>getCodecOrNull(resourceLocation);
+        var encoder = AzActionRegistry.getEncoderOrNull(resourceLocation);
 
         if (id == null) {
             throw new NullPointerException(
-                "Could not find action id for a given resource location while encoding data. Resource Location: "
-                    + resourceLocation
+                    "Could not find action ID for a given resource location while encoding data. Resource Location: "
+                            + resourceLocation
             );
         }
 
+        // Write the ID to the buffer
         byteBuf.writeShort(id);
 
-        if (codec == null) {
+        if (encoder == null) {
             throw new NullPointerException(
-                "Could not find action codec for a given resource location while encoding data. Resource Location: "
-                    + resourceLocation + ", ID: " + id
+                    "Could not find action encoder for a given resource location while encoding data. Resource Location: "
+                            + resourceLocation + ", ID: " + id
             );
         }
 
-        codec.encode(byteBuf, action);
+        // Use the encoder to encode the AzAction
+        encoder.accept(byteBuf, action);
     }
 }
+

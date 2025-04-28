@@ -4,74 +4,118 @@ import it.unimi.dsi.fastutil.objects.Object2ShortArrayMap;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
- * associated {@link ResourceLocation} identifiers and codecs. This registry enables efficient encoding, decoding, and
- * dispatching of animation-related actions within the animation system. <br>
+ * associated {@link ResourceLocation} identifiers and corresponding encoders/decoders. This registry enables efficient
+ * encoding, decoding, and dispatching of animation-related actions within the animation system. <br>
  * Key Responsibilities:
  * <ul>
  * <li>Maintain a bidirectional mapping between {@link ResourceLocation} identifiers and short integer IDs for efficient
  * serialization/deserialization.</li>
- * <li>Register {@link AzAction} implementations and their corresponding {@link StreamCodec} instances.</li>
- * <li>Provide methods for retrieving codecs and IDs based on resource locations or integer IDs.
+ * <li>Register {@link AzAction} implementations and their corresponding encoders and decoders.</li>
+ * <li>Provide methods for retrieving encoders/decoders and IDs based on resource locations or integer IDs.
  * </ul>
  */
 public class AzActionRegistry {
 
+    // Mappings for resource location to ID and encoders/decoders by ID
     private static final Map<ResourceLocation, Short> RESOURCE_LOCATION_TO_ID = new Object2ShortArrayMap<>();
 
-    private static final Map<Short, StreamCodec<FriendlyByteBuf, ? extends AzAction>> CODEC_BY_ID =
-        new HashMap<>();
+    private static final Map<Short, Function<FriendlyByteBuf, AzAction>> DECODERS_BY_ID = new HashMap<>();
+
+    private static final Map<Short, BiConsumer<FriendlyByteBuf, AzAction>> ENCODERS_BY_ID = new HashMap<>();
 
     private static short NEXT_FREE_ID = 0;
 
     static {
-        // Root actions
-        register(AzRootCancelAction.RESOURCE_LOCATION, AzRootCancelAction.CODEC);
-        register(AzRootCancelAllAction.RESOURCE_LOCATION, AzRootCancelAllAction.CODEC);
-        register(AzRootPlayAnimationSequenceAction.RESOURCE_LOCATION, AzRootPlayAnimationSequenceAction.CODEC);
-        register(AzRootSetAnimationSpeedAction.RESOURCE_LOCATION, AzRootSetAnimationSpeedAction.CODEC);
-        register(AzRootSetEasingTypeAction.RESOURCE_LOCATION, AzRootSetEasingTypeAction.CODEC);
-        register(AzRootSetTransitionSpeedAction.RESOURCE_LOCATION, AzRootSetTransitionSpeedAction.CODEC);
-
-        // Controller actions
-        // TODO:
-
-        // Animation actions
-        // TODO:
+        // Register root actions
+        register(
+                AzRootCancelAction.RESOURCE_LOCATION,
+                AzRootCancelAction::decode, // Decoder function
+                AzRootCancelAction::encode  // Encoder function
+        );
+        register(
+                AzRootCancelAllAction.RESOURCE_LOCATION,
+                AzRootCancelAllAction::decode,
+                AzRootCancelAllAction::encode
+        );
+        register(
+                AzRootPlayAnimationSequenceAction.RESOURCE_LOCATION,
+                AzRootPlayAnimationSequenceAction::decode,
+                AzRootPlayAnimationSequenceAction::encode
+        );
+        register(
+                AzRootSetAnimationSpeedAction.RESOURCE_LOCATION,
+                AzRootSetAnimationSpeedAction::decode,
+                AzRootSetAnimationSpeedAction::encode
+        );
+        register(
+                AzRootSetEasingTypeAction.RESOURCE_LOCATION,
+                AzRootSetEasingTypeAction::decode,
+                AzRootSetEasingTypeAction::encode
+        );
+        register(
+                AzRootSetTransitionSpeedAction.RESOURCE_LOCATION,
+                AzRootSetTransitionSpeedAction::decode,
+                AzRootSetTransitionSpeedAction::encode
+        );
     }
 
-    public static @Nullable <A, T extends StreamCodec<FriendlyByteBuf, A>> T getCodecOrNull(
-        ResourceLocation resourceLocation
-    ) {
+    /**
+     * Returns a decoder function for the given {@link ResourceLocation}.
+     */
+    public static @Nullable Function<FriendlyByteBuf, ? extends AzAction> getDecoderOrNull(ResourceLocation resourceLocation) {
         var id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
-        @SuppressWarnings("unchecked")
-        var codec = (T) CODEC_BY_ID.get(id);
-        return codec;
+        return DECODERS_BY_ID.get(id);
     }
 
-    public static @Nullable <A, T extends StreamCodec<FriendlyByteBuf, A>> T getCodecOrNull(short id) {
-        @SuppressWarnings("unchecked")
-        var codec = (T) CODEC_BY_ID.get(id);
-        return codec;
+    /**
+     * Returns a decoder function for the given ID.
+     */
+    public static @Nullable Function<FriendlyByteBuf, AzAction> getDecoderOrNull(short id) {
+        return DECODERS_BY_ID.get(id);
     }
 
+    /**
+     * Returns an encoder function for the given {@link ResourceLocation}.
+     */
+    public static @Nullable BiConsumer<FriendlyByteBuf, AzAction> getEncoderOrNull(ResourceLocation resourceLocation) {
+        var id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
+        return ENCODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns an encoder function for the given ID.
+     */
+    public static @Nullable BiConsumer<FriendlyByteBuf, AzAction> getEncoderOrNull(short id) {
+        return ENCODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns the ID associated with a given {@link ResourceLocation}.
+     */
     public static @Nullable Short getIdOrNull(ResourceLocation resourceLocation) {
         return RESOURCE_LOCATION_TO_ID.get(resourceLocation);
     }
 
+    /**
+     * Registers a new action with its resource location, decoder, and encoder.
+     */
     private static <A extends AzAction> void register(
-        ResourceLocation resourceLocation,
-        StreamCodec<FriendlyByteBuf, A> codec
+            ResourceLocation resourceLocation,
+            Function<FriendlyByteBuf, A> decoder,
+            BiConsumer<FriendlyByteBuf, A> encoder
     ) {
         var id = RESOURCE_LOCATION_TO_ID.computeIfAbsent(resourceLocation, ($) -> NEXT_FREE_ID++);
-        CODEC_BY_ID.put(id, codec);
+        DECODERS_BY_ID.put(id, (Function<FriendlyByteBuf, AzAction>) decoder);
+        ENCODERS_BY_ID.put(id, (BiConsumer<FriendlyByteBuf, AzAction>) encoder);
     }
 }

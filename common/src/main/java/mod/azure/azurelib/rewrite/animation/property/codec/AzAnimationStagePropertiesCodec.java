@@ -8,10 +8,12 @@ import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByteBuf, AzAnimationStageProperties> {
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-    @Override
-    public @NotNull AzAnimationStageProperties decode(FriendlyByteBuf buf) {
+public class AzAnimationStagePropertiesCodec {
+
+    public static final Function<FriendlyByteBuf, AzAnimationStageProperties> DECODER = buf -> {
         var propertyLength = buf.readByte();
         var properties = AzAnimationStageProperties.EMPTY;
 
@@ -33,10 +35,9 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
         }
 
         return properties;
-    }
+    };
 
-    @Override
-    public void encode(FriendlyByteBuf buf, AzAnimationStageProperties properties) {
+    public static final BiConsumer<FriendlyByteBuf, AzAnimationStageProperties> ENCODER = (buf, properties) -> {
         var propertyLength = 0;
         propertyLength += properties.hasAnimationSpeed() ? 1 : 0;
         propertyLength += properties.hasTransitionLength() ? 1 : 0;
@@ -64,5 +65,5 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
             buf.writeByte(3);
             buf.writeUtf(properties.playBehavior().name());
         }
-    }
+    };
 }

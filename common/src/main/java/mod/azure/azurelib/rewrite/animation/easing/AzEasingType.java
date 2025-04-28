@@ -6,6 +6,8 @@ import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public interface AzEasingType {
 
@@ -13,10 +15,10 @@ public interface AzEasingType {
 
     Double2DoubleFunction buildTransformer(Double value);
 
-    StreamCodec<FriendlyByteBuf, AzEasingType> STREAM_CODEC = StreamCodec.of(
-        (buf, val) -> buf.writeUtf(val.name()),
-        buf -> Objects.requireNonNull(AzEasingTypeRegistry.getOrNull(buf.readUtf()))
-    );
+    Function<FriendlyByteBuf, AzEasingType> DECODER = buf ->
+            Objects.requireNonNull(AzEasingTypeRegistry.getOrNull(buf.readUtf()));
+
+    BiConsumer<FriendlyByteBuf, AzEasingType> ENCODER = (buf, val) -> buf.writeUtf(val.name());
 
     default double apply(AzAnimationPoint animationPoint) {
         Double easingVariable = null;

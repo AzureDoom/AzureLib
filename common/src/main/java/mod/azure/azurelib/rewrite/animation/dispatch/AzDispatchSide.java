@@ -6,6 +6,8 @@ import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * This enum represents the dispatch side for animation commands, which can either be client-side or server-side. It is
@@ -34,10 +36,14 @@ public enum AzDispatchSide implements StringRepresentable {
         this.id = id;
     }
 
-    public static final StreamCodec<FriendlyByteBuf, AzDispatchSide> CODEC = StreamCodec.of(
-        (buf, val) -> buf.writeByte(val.id),
-        buf -> ID_TO_ENUM_MAP.get((int) buf.readByte())
-    );
+    public static final Function<FriendlyByteBuf, AzDispatchSide> DECODER = buf -> {
+        int id = buf.readByte(); // Read byte and convert to int
+        return ID_TO_ENUM_MAP.get(id); // Get enum from ID
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzDispatchSide> ENCODER = (buf, val) -> {
+        buf.writeByte(val.id); // Write the integer ID to the buffer
+    };
 
     @Override
     public @NotNull String getSerializedName() {

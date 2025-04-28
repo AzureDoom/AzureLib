@@ -11,15 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
-    // TODO: Updated encode/receive methods for AzCommand.CODEC/dispatchCommand
-    public static final StreamCodec<FriendlyByteBuf, AzEntityDispatchCommandPacket> CODEC = StreamCodec.composite(
-        ByteBufCodecs.VAR_INT,
-        AzEntityDispatchCommandPacket::entityId,
-        AzCommand.CODEC,
-        AzEntityDispatchCommandPacket::dispatchCommand,
-        AzEntityDispatchCommandPacket::new
-    );
-
     private final int entityId;
     private final AzCommand dispatchCommand;
 
@@ -34,8 +25,7 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
     @Override
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(this.entityId);
-        // TODO: Needs fixed
-        // AzCommand.CODEC
+        AzCommand.ENCODER.accept(buf, this.dispatchCommand);
     }
 
     @Override
@@ -43,12 +33,10 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
         return AzureLibNetwork.AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 
-    public static AzItemStackDispatchCommandPacket receive(FriendlyByteBuf buf) {
-        var entityId = buf.readInt();
-        // TODO: Needs fixed
-        // AzCommand azCommand = buf.readUtf();
-
-        return new AzItemStackDispatchCommandPacket(entityId, azCommand);
+    public static AzEntityDispatchCommandPacket receive(FriendlyByteBuf buf) {
+        int entityId = buf.readInt(); // Decode integer entity ID
+        AzCommand dispatchCommand = AzCommand.DECODER.apply(buf); // Decode AzCommand
+        return new AzEntityDispatchCommandPacket(entityId, dispatchCommand); // Create and return the packet instance
     }
 
     public void handle() {

@@ -7,15 +7,21 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 public record AzRootSetAnimationSpeedAction(
     double animationSpeed
 ) implements AzAction {
 
-    public static final StreamCodec<FriendlyByteBuf, AzRootSetAnimationSpeedAction> CODEC = StreamCodec.composite(
-        ByteBufCodecs.DOUBLE,
-        AzRootSetAnimationSpeedAction::animationSpeed,
-        AzRootSetAnimationSpeedAction::new
-    );
+    public static final Function<FriendlyByteBuf, AzRootSetAnimationSpeedAction> DECODER = buf -> {
+        double animationSpeed = buf.readDouble(); // Read double from the buffer
+        return new AzRootSetAnimationSpeedAction(animationSpeed); // Create a new instance
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzRootSetAnimationSpeedAction> ENCODER = (buf, action) -> {
+        buf.writeDouble(action.animationSpeed()); // Write the animation speed to the buffer
+    };
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_animation_speed");
 
@@ -33,5 +39,13 @@ public record AzRootSetAnimationSpeedAction(
     @Override
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
+    }
+
+    public static AzRootSetAnimationSpeedAction decode(FriendlyByteBuf buf) {
+        return DECODER.apply(buf); // Delegate decoding to DECODER
+    }
+
+    public static void encode(FriendlyByteBuf buf, AzRootSetAnimationSpeedAction action) {
+        ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

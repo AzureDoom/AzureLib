@@ -8,15 +8,21 @@ import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 public record AzRootSetEasingTypeAction(
     AzEasingType easingType
 ) implements AzAction {
 
-    public static final StreamCodec<FriendlyByteBuf, AzRootSetEasingTypeAction> CODEC = StreamCodec.composite(
-        AzEasingType.STREAM_CODEC,
-        AzRootSetEasingTypeAction::easingType,
-        AzRootSetEasingTypeAction::new
-    );
+    public static final Function<FriendlyByteBuf, AzRootSetEasingTypeAction> DECODER = buf -> {
+        AzEasingType easingType = AzEasingType.DECODER.apply(buf);
+        return new AzRootSetEasingTypeAction(easingType);
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzRootSetEasingTypeAction> ENCODER = (buf, action) -> {
+        AzEasingType.ENCODER.accept(buf, action.easingType());
+    };
 
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_easing_type");
 
@@ -35,4 +41,13 @@ public record AzRootSetEasingTypeAction(
     public ResourceLocation getResourceLocation() {
         return RESOURCE_LOCATION;
     }
+
+    public static AzRootSetEasingTypeAction decode(FriendlyByteBuf buf) {
+        return DECODER.apply(buf);
+    }
+
+    public static void encode(FriendlyByteBuf buf, AzRootSetEasingTypeAction action) {
+        ENCODER.accept(buf, action);
+    }
+
 }

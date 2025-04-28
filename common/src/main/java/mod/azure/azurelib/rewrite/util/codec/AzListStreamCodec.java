@@ -5,30 +5,33 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class AzListStreamCodec<T> implements StreamCodec<FriendlyByteBuf, List<T>> {
+public class AzListStreamCodec<T> {
 
-    private final StreamCodec<FriendlyByteBuf, T> codec;
+    private final Function<FriendlyByteBuf, T> decoder; // Function to decode an element from the buffer
+    private final BiConsumer<FriendlyByteBuf, T> encoder; // BiConsumer to encode an element into the buffer
 
-    public AzListStreamCodec(StreamCodec<FriendlyByteBuf, T> codec) {
-        this.codec = codec;
+    public AzListStreamCodec(Function<FriendlyByteBuf, T> decoder, BiConsumer<FriendlyByteBuf, T> encoder) {
+        this.decoder = decoder;
+        this.encoder = encoder;
     }
 
-    @Override
     public @NotNull List<T> decode(FriendlyByteBuf buf) {
-        var size = buf.readByte();
-        var list = new ArrayList<T>(size);
+        int size = buf.readByte(); // Read the size of the list
+        List<T> list = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
-            list.add(codec.decode(buf));
+            list.add(decoder.apply(buf)); // Decode each element using the provided decoder
         }
 
         return list;
     }
 
-    @Override
     public void encode(FriendlyByteBuf buf, List<T> elements) {
-        buf.writeByte(elements.size());
-        elements.forEach(element -> codec.encode(buf, element));
+        buf.writeByte(elements.size()); // Write the size of the list
+        elements.forEach(element -> encoder.accept(buf, element)); // Encode each element using the provided encoder
     }
+
 }

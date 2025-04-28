@@ -5,6 +5,7 @@ import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
+import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerTimer;
 import mod.azure.azurelib.rewrite.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import org.jetbrains.annotations.NotNull;
@@ -41,16 +42,16 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
      *                              bone, or continue with the remaining bones
      */
     public void execute(@NotNull AzQueuedAnimation currentAnimation, T animatable, boolean crashWhenCantFindBone) {
-        var keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
-        var controllerTimer = animationController.controllerTimer();
-        var transitionLength = animationController.animationProperties().transitionLength();
+        AzKeyframeCallbackHandler<T> keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
+        AzAnimationControllerTimer<T> controllerTimer = animationController.controllerTimer();
+        float transitionLength = animationController.animationProperties().transitionLength();
 
         final double finalAdjustedTick = controllerTimer.getAdjustedTick();
 
         MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
 
-        for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
-            var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
+        for (AzBoneAnimation boneAnimation : currentAnimation.animation().boneAnimations()) {
+            AzBoneAnimationQueue boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
 
             if (boneAnimationQueue == null) {
                 if (crashWhenCantFindBone) {
@@ -60,10 +61,10 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
-            var rotationKeyframes = boneAnimation.rotationKeyframes();
-            var positionKeyframes = boneAnimation.positionKeyframes();
-            var scaleKeyframes = boneAnimation.scaleKeyframes();
-            var adjustedTick = controllerTimer.getAdjustedTick();
+            AzKeyframeStack<AzKeyframe<IValue>> rotationKeyframes = boneAnimation.rotationKeyframes();
+            AzKeyframeStack<AzKeyframe<IValue>> positionKeyframes = boneAnimation.positionKeyframes();
+            AzKeyframeStack<AzKeyframe<IValue>> scaleKeyframes = boneAnimation.scaleKeyframes();
+            double adjustedTick = controllerTimer.getAdjustedTick();
 
             updateRotation(rotationKeyframes, boneAnimationQueue, adjustedTick);
             updatePosition(positionKeyframes, boneAnimationQueue, adjustedTick);
@@ -85,9 +86,9 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             return;
         }
 
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, true, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, true, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, true, Axis.Z);
+        AzAnimationPoint x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, true, Axis.X);
+        AzAnimationPoint y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, true, Axis.Y);
+        AzAnimationPoint z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, true, Axis.Z);
 
         queue.addRotations(x, y, z);
     }
@@ -101,9 +102,9 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             return;
         }
 
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
+        AzAnimationPoint x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
+        AzAnimationPoint y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
+        AzAnimationPoint z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
 
         queue.addPositions(x, y, z);
     }
@@ -117,9 +118,9 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             return;
         }
 
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
+        AzAnimationPoint x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
+        AzAnimationPoint y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
+        AzAnimationPoint z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
 
         queue.addScales(x, y, z);
     }

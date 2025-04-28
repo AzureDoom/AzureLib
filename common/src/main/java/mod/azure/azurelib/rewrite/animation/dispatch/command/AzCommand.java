@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily
@@ -31,11 +33,19 @@ import java.util.List;
  */
 public record AzCommand(List<AzAction> actions) {
 
-    public static final StreamCodec<FriendlyByteBuf, AzCommand> CODEC = StreamCodec.composite(
-        new AzListStreamCodec<>(AzAction.CODEC),
-        AzCommand::actions,
-        AzCommand::new
-    );
+    public static final AzListStreamCodec<AzAction> ACTION_LIST_CODEC =
+            new AzListStreamCodec<>(AzAction::decode, (buf, action) -> action.encode(buf));
+
+    public static final Function<FriendlyByteBuf, AzCommand> DECODER = buf -> {
+        // Decode the list of actions using the AzListStreamCodec
+        List<AzAction> actions = ACTION_LIST_CODEC.decode(buf);
+        return new AzCommand(actions);
+    };
+
+    public static final BiConsumer<FriendlyByteBuf, AzCommand> ENCODER = (buf, command) -> {
+        // Encode the list of actions using the AzListStreamCodec
+        ACTION_LIST_CODEC.encode(buf, command.actions());
+    };
 
     public static AzRootCommandBuilder builder() {
         return new AzRootCommandBuilder();
