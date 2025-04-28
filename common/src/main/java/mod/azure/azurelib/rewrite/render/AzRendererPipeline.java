@@ -3,6 +3,7 @@ package mod.azure.azurelib.rewrite.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -89,14 +90,10 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
         @Nullable VertexConsumer buffer,
         float yaw,
         float partialTick,
-        int packedLight,
-        float red,
-        float green,
-        float blue,
-        float alpha
+        int packedLight
     ) {
         renderType = config.getRenderType(animatable);
-        context.populate(animatable, model, bufferSource, packedLight, partialTick, poseStack, renderType, buffer, red, blue, green, alpha);
+        context.populate(animatable, model, bufferSource, packedLight, partialTick, poseStack, renderType, buffer);
 
         poseStack.pushPose();
 

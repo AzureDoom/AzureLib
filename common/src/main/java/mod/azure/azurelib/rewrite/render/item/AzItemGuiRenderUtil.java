@@ -3,6 +3,7 @@ package mod.azure.azurelib.rewrite.render.item;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -45,7 +46,7 @@ public class AzItemGuiRenderUtil {
 
         poseStack.pushPose();
 
-        rendererPipeline.render(poseStack, model, stack, bSource, renderType, buffer, 0, partialTick, packedLight, 1, 1, 1, 1);
+        rendererPipeline.render(poseStack, model, stack, bSource, renderType, buffer, 0, partialTick, packedLight);
 
         bSource.endBatch();
         RenderSystem.enableDepthTest();

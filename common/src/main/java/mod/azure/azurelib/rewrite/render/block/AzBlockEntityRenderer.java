@@ -55,7 +55,7 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
         reusedAzBlockAnimator = cachedEntityAnimator;
 
         // Execute the render pipeline.
-        rendererPipeline.render(poseStack, model, entity, source, null, null, 0, partialTick, packedLight, context.red(), context.green(), context.blue(), context.alpha());
+        rendererPipeline.render(poseStack, model, entity, source, null, null, 0, partialTick, packedLight);
     }
 
     public AzBlockAnimator<T> getAnimator() {

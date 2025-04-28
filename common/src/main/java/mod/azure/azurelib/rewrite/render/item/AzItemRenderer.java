@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.AzProvider;
@@ -72,7 +73,7 @@ public abstract class AzItemRenderer {
 
         prepareAnimator(stack, model);
 
-        rendererPipeline.render(poseStack, model, stack, source, renderType, buffer, 0, partialTick, packedLight, 1, 1, 1, 1);
+        rendererPipeline.render(poseStack, model, stack, source, renderType, buffer, 0, partialTick, packedLight);
     }
 
     private void prepareAnimator(ItemStack stack, AzBakedModel model) {

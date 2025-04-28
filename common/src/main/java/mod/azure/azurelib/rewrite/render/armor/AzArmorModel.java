@@ -54,7 +54,7 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
         buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, currentStack.hasFoil());
 
         var model = rendererPipeline.renderer().provider().provideBakedModel(animatable);
-        rendererPipeline.render(poseStack, model, animatable, bufferSource, null, buffer, 0, partialTick, packedLight, red, green, blue, alpha);
+        rendererPipeline.render(poseStack, model, animatable, bufferSource, null, buffer, 0, partialTick, packedLight);
     }
 
     /**

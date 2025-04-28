@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -74,11 +75,7 @@ public abstract class AzRendererPipelineContext<T> {
         float partialTick,
         PoseStack poseStack,
         RenderType renderType,
-        VertexConsumer vertexConsumer,
-        float red,
-        float green,
-        float blue,
-        float alpha
+        VertexConsumer vertexConsumer
     ) {
         this.animatable = animatable;
         this.bakedModel = bakedModel;
@@ -89,10 +86,11 @@ public abstract class AzRendererPipelineContext<T> {
         this.poseStack = poseStack;
         this.renderType = renderType;
         this.vertexConsumer = vertexConsumer;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
-        this.alpha = alpha;
+        Color renderColor = getRenderColor(animatable, partialTick, packedLight);
+        this.red = renderColor.getRedFloat();
+        this.green = renderColor.getGreenFloat();
+        this.blue = renderColor.getBlueFloat();
+        this.alpha = renderColor.getAlphaFloat();
 
         if (renderType == null) {
             var textureLocation = rendererPipeline.config().textureLocation(animatable);
@@ -117,6 +115,14 @@ public abstract class AzRendererPipelineContext<T> {
         MultiBufferSource bufferSource,
         float partialTick
     );
+
+    /**
+     * Gets a tint-applying color to render the given animatable with.<br>
+     * Returns {@link Color#WHITE} by default
+     */
+    public Color getRenderColor(T animatable, float partialTick, int packedLight) {
+        return Color.WHITE;
+    }
 
     /**
      * Gets a packed overlay coordinate pair for rendering.<br>

@@ -71,7 +71,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     ) {
         var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity);
         var azBakedModel = provider.provideBakedModel(entity);
-        var context = rendererPipeline.context();
 
         if (cachedEntityAnimator != null && azBakedModel != null) {
             cachedEntityAnimator.setActiveModel(azBakedModel);
@@ -90,11 +89,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             null,
             entityYaw,
             partialTick,
-            packedLight,
-            context.red(),
-            context.green(),
-            context.blue(),
-            context.alpha()
+            packedLight
         );
     }
 
