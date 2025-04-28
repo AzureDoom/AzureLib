@@ -1,7 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
-    id "me.modmuss50.mod-publish-plugin" version "0.4.0"
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
 import groovy.json.JsonSlurper
@@ -119,15 +119,27 @@ if (file('key.properties').exists()) {
         File secretPropsFile = file("key.properties")
         releaseProp.load(secretPropsFile.newInputStream())
         file = remapJar.archiveFile
-        changelog = rootProject.file("changelog.txt").text
+        changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("fabric")
 
+        discord {
+            webhookUrl = releaseProp.getProperty("discordKey")
+            dryRunWebhookUrl = releaseProp.getProperty("discordKey")
+            username = "AzureBot"
+            avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
+            content = changelog.map { "# A new version of AzureLib for Fabric has been released for 1.18.2 \n" + it}
+            setPlatforms(publishMods.platforms.curseforge, publishMods.platforms.modrinth)
+            style {
+                look = "MODERN"
+                thumbnailUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
+            }
+        }
         curseforge {
             projectId = "817423"
             projectSlug = "azurelib"
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.18.2")
+            minecraftVersions.add(project.minecraft_version)
             requires {
                 slug = "fabric-api"
             }
@@ -135,7 +147,7 @@ if (file('key.properties').exists()) {
         modrinth {
             projectId = "7zlUOZvb"
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.18.2")
+            minecraftVersions.add(project.minecraft_version)
             requires {
                 slug = "fabric-api"
             }
