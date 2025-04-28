@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle'
     id 'org.spongepowered.mixin'
-    id "me.modmuss50.mod-publish-plugin" version "0.4.0"
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
 base {
@@ -143,16 +143,28 @@ if (file('key.properties').exists()) {
         modLoaders.add("neoforge")
         modLoaders.add("forge")
 
+        discord {
+            webhookUrl = releaseProp.getProperty("discordKey")
+            dryRunWebhookUrl = releaseProp.getProperty("discordKey")
+            username = "AzureBot"
+            avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
+            content = changelog.map { "# A new version of AzureLib for Forge has been released for 1.20.1 \n" + it}
+            setPlatforms(publishMods.platforms.curseforge, publishMods.platforms.modrinth)
+            style {
+                look = "MODERN"
+                thumbnailUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
+            }
+        }
         curseforge {
             projectId = "817423"
             projectSlug = "azurelib"
             accessToken = releaseProp.getProperty("curseKey")
-            minecraftVersions.add("1.20.1")
+            minecraftVersions.add(project.minecraft_version)
         }
         modrinth {
             projectId = "7zlUOZvb"
             accessToken = releaseProp.getProperty('modrinthKey')
-            minecraftVersions.add("1.20.1")
+            minecraftVersions.add(project.minecraft_version)
         }
     }
 }
