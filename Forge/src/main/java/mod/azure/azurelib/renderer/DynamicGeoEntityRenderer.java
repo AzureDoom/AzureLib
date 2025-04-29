@@ -37,6 +37,7 @@ import net.minecraft.world.entity.Entity;
  * Extended special-entity renderer for more dynamic entity rendering.<br>
  * Primarily handles per-bone textures and/or {@link RenderType RenderTypes} Because of the extra performance cost of this renderer, it is advised to avoid using it unnecessarily, and consider whether the benefits are worth the cost for your needs.
  */
+@Deprecated()
 public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable> extends GeoEntityRenderer<T> {
 	protected static Map<ResourceLocation, Tuple<Integer, Integer>> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
 

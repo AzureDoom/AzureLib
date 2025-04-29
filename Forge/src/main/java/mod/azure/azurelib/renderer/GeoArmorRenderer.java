@@ -49,6 +49,7 @@ import net.minecraftforge.common.MinecraftForge;
  * @see GeoItem
  * @param <T>
  */
+@Deprecated()
 public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel implements GeoRenderer<T> {
 	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;

@@ -12,6 +12,7 @@ import mod.azure.azurelib.core.object.PlayState;
  * Animation state handler for end-users.<br>
  * This is where users would set their selected animation to play, stop the controller, or any number of other animation-related actions.
  */
+@Deprecated()
 public class AnimationState<T extends GeoAnimatable> {
 	private final T animatable;
 	private final float limbSwing;

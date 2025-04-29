@@ -28,6 +28,7 @@ import java.util.function.Consumer;
  * Abstract texture wrapper for AzureLib textures.<br>
  * Mostly just handles boilerplate
  */
+@Deprecated()
 public abstract class GeoAbstractTexture extends AbstractTexture {
 	/**
 	 * Generates the texture instance for the given path with the given appendix if it hasn't already been generated

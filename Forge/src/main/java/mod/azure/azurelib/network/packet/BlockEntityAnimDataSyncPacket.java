@@ -21,6 +21,7 @@ import net.minecraftforge.fmllegacy.network.NetworkEvent;
 /**
  * Packet for syncing user-definable animation data for {@link BlockEntity BlockEntities}
  */
+@Deprecated()
 public class BlockEntityAnimDataSyncPacket<D> {
 	private final BlockPos pos;
 	private final SerializableDataTicket<D> dataTicket;

@@ -9,6 +9,10 @@ package mod.azure.azurelib.animatable;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
+import com.google.common.base.Suppliers;
 
 import mod.azure.azurelib.cache.AnimatableIdCache;
 import mod.azure.azurelib.constant.DataTickets;
@@ -23,12 +27,40 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fml.loading.FMLLoader;
+
+import javax.annotation.Nullable;
 
 /**
  * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link net.minecraft.world.item.Item Items}. This also applies to armor, as they are just items too.
  */
+@Deprecated()
 public interface GeoItem extends SingletonGeoAnimatable {
-	static final String ID_NBT_KEY = "AzureLibID";
+	String ID_NBT_KEY = "AzureLibID";
+
+	/**
+	 * Safety wrapper to distance the client-side code from common code.<br>
+	 * This should be cached in your {@link net.minecraft.world.item.Item Item} class
+	 */
+	static Supplier<Object> makeRenderer(GeoItem item) {
+		if (FMLLoader.getDist().isDedicatedServer())
+			return () -> null;
+
+		return Suppliers.memoize(() -> {
+			AtomicReference<Object> renderProvider = new AtomicReference<>();
+			item.createRenderer(renderProvider::set);
+			return renderProvider.get();
+		});
+	}
+
+	/**
+	 * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions
+	 * <p>
+	 * This should be called inside the constructor of your object.
+	 */
+	static void registerSyncedAnimatable(GeoAnimatable animatable) {
+		SingletonGeoAnimatable.registerSyncedAnimatable(animatable);
+	}
 
 	/**
 	 * Gets the unique identifying number from this ItemStack's {@link net.minecraft.nbt.Tag NBT}, or {@link Long#MAX_VALUE} if one hasn't been assigned
@@ -40,15 +72,6 @@ public interface GeoItem extends SingletonGeoAnimatable {
 			return Long.MAX_VALUE;
 
 		return tag.getLong(ID_NBT_KEY);
-	}
-
-	/**
-	 * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions
-	 * <p>
-	 * This should be called inside the constructor of your object.
-	 */
-	static void registerSyncedAnimatable(GeoAnimatable animatable) {
-		SingletonGeoAnimatable.registerSyncedAnimatable(animatable);
 	}
 
 	/**
@@ -72,7 +95,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 	/**
 	 * Returns the current age/tick of the animatable instance.<br>
 	 * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables to provide their own values
-	 * 
+	 *
 	 * @param itemStack The ItemStack representing this animatable
 	 * @return The current tick/age of the animatable, for animation purposes
 	 */
@@ -91,6 +114,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 	/**
 	 * Replaces the default AnimatableInstanceCache for GeoItems if {@link GeoItem#isPerspectiveAware()} is true, for perspective-dependent handling
 	 */
+	@Nullable
 	@Override
 	default AnimatableInstanceCache animatableCacheOverride() {
 		if (isPerspectiveAware())
@@ -128,6 +152,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 
 					@Override
 					public TransformType getCurrentContext() {
+						@Nullable
 						TransformType context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
 
 						return context == null ? TransformType.NONE : context;

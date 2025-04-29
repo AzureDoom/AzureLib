@@ -1,14 +1,7 @@
-/**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
- * https://github.com/bernie-g/geckolib/blob/main/LICENSE
- */
 package mod.azure.azurelib.animatable.client;
 
 import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.mixins.fabric.ItemRendererAccessor;
+import mod.azure.azurelib.mixin.ItemRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -31,15 +24,15 @@ public interface RenderProvider {
     }
 
     static RenderProvider of(Item item) {
-        if(item instanceof GeoItem geoItem){
+        if (item instanceof GeoItem geoItem) {
             return (RenderProvider)geoItem.getRenderProvider().get();
         }
 
         return DEFAULT;
     }
 
-    default BlockEntityWithoutLevelRenderer getCustomRenderer(){
-        return ((ItemRendererAccessor)Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
+    default BlockEntityWithoutLevelRenderer getCustomRenderer() {
+        return ((ItemRendererAccessor) Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
     }
 
     default Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {

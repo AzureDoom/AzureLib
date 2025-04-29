@@ -54,6 +54,7 @@ import net.minecraftforge.common.MinecraftForge;
  * All entities added to be rendered by AzureLib should use an instance of this class.<br>
  * This also includes {@link net.minecraft.world.entity.projectile.Projectile Projectiles}
  */
+@Deprecated()
 public class GeoEntityRenderer<T extends Entity & GeoAnimatable> extends EntityRenderer<T> implements GeoRenderer<T> {
 	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;

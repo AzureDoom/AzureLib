@@ -23,6 +23,7 @@ import mod.azure.azurelib.renderer.GeoRenderer;
  * <br>
  * NOTE: Despite this layer existing, it is much more efficient to use {@link FastBoneFilterGeoLayer} instead
  */
+@Deprecated()
 public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
 	protected final TriConsumer<GeoBone, T, Float> checkAndApply;
 

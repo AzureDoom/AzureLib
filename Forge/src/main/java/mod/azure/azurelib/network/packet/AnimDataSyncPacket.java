@@ -21,6 +21,7 @@ import net.minecraftforge.fmllegacy.network.NetworkEvent;
 /**
  * Packet for syncing user-definable animation data for {@link SingletonGeoAnimatable} instances
  */
+@Deprecated()
 public class AnimDataSyncPacket<D> {
 	private final String syncableId;
 	private final long instanceId;

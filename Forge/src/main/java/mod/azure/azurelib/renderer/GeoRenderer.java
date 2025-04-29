@@ -39,6 +39,7 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Base interface for all AzureLib renderers.<br>
  */
+@Deprecated()
 public interface GeoRenderer<T extends GeoAnimatable> {
 	/**
 	 * Gets the model instance for this renderer
