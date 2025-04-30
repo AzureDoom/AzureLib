@@ -8,6 +8,7 @@ import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
  * The {@link KeyFrameEvent} specific to the {@link AnimationController#particleKeyframeHandler}.<br>
  * Called when a particle instruction keyframe is encountered
  */
+@Deprecated()
 public class ParticleKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEvent<T, ParticleKeyframeData> {
 	public ParticleKeyframeEvent(T animatable, double animationTick, AnimationController<T> controller, ParticleKeyframeData particleKeyFrameData) {
 		super(animatable, animationTick, controller, particleKeyFrameData);

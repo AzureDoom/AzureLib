@@ -5,14 +5,7 @@
 
 package mod.azure.azurelib.core.keyframe;
 
-/**
- * Animation state record that holds the state of an animation at a given point
- * @param currentTick The lerped tick time (current tick + partial tick) of the point
- * @param transitionLength The length of time (in ticks) that the point should take to transition
- * @param animationStartValue The start value to provide to the animation handling system
- * @param animationEndValue The end value to provide to the animation handling system
- * @param keyFrame The {@code Nullable} Keyframe
- */
+@Deprecated()
 public class AnimationPoint {
 	private Keyframe<?> keyFrame;
 	private double currentTick;

@@ -13,6 +13,7 @@ import net.minecraft.util.math.Vec3d;
 /**
  * Baked cuboid for a {@link GeoBone}
  */
+@Deprecated()
 public class GeoCube {
     private final GeoQuad[] quads;
     private final Vec3d pivot;

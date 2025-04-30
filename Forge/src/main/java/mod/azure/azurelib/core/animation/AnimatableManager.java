@@ -22,6 +22,7 @@ import java.util.Map;
  * will have a single instance of {@code AnimatableManager} associated with it.<br>
  *
  */
+@Deprecated()
 public class AnimatableManager<T extends GeoAnimatable> {
 	private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
 	private final Map<String, AnimationController<T>> animationControllers;

@@ -27,6 +27,7 @@ import net.minecraft.util.ResourceLocation;
 /**
  * Extracts raw information from given files, and other similar functions
  */
+@Deprecated()
 public final class FileLoader {
 	/**
 	 * Load up and deserialize an animation json file to its respective {@link mod.azure.azurelib.core.animation.Animation} components

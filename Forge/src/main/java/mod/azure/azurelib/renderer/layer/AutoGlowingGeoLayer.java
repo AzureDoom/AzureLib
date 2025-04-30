@@ -21,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 /**
  * {@link GeoRenderLayer} for rendering the auto-generated glowlayer functionality implemented by AzureLib using the <i>_glowing</i> appendixed texture files.
  */
+@Deprecated()
 public class AutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
     public AutoGlowingGeoLayer(GeoRenderer<T> renderer) {
         super(renderer);

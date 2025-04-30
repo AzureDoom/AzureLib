@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
  * Internal interface for safely providing a custom renderer instances at runtime.<br>
  * This can be safely instantiated as a new anonymous class inside your {@link Item} class
  */
+@Deprecated()
 public interface RenderProvider {
     RenderProvider DEFAULT = new RenderProvider() {};
 

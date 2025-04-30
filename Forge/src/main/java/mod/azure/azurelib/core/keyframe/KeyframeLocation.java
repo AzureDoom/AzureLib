@@ -5,6 +5,7 @@
 
 package mod.azure.azurelib.core.keyframe;
 
+@Deprecated()
 public class KeyframeLocation<T extends Keyframe<?>> {
     T keyframe;
     double startTick;

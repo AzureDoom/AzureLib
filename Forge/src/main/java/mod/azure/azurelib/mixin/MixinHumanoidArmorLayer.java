@@ -29,7 +29,7 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
     public abstract A getModelFromSlot(EquipmentSlotType slotIn);
 
     @Inject(method = "renderArmorPart", at = @At(value = "RETURN", target = "Lnet/minecraft/client/renderer/entity/layers/ArmorLayer;isLegSlot(Lnet/minecraft/inventory/EquipmentSlotType;)Z"), cancellable = true)
-    public void geckolib$renderGeckoLibModel(MatrixStack poseStack, IRenderTypeBuffer bufferSource, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, EquipmentSlotType equipmentSlot, int packedLight, CallbackInfo ci) {
+    public void azurelib$renderGeckoLibModel(MatrixStack poseStack, IRenderTypeBuffer bufferSource, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, EquipmentSlotType equipmentSlot, int packedLight, CallbackInfo ci) {
         final ItemStack stack = entity.getItemStackFromSlot(equipmentSlot);
         if (stack.getItem() instanceof ArmorItem) {
             A baseModel = this.getModelFromSlot(equipmentSlot);

@@ -8,6 +8,7 @@ package mod.azure.azurelib.core.keyframe;
 import mod.azure.azurelib.core.math.IValue;
 
 
+@Deprecated()
 public class BoneAnimation {
 	String boneName;
 	KeyframeStack<Keyframe<IValue>> rotationKeyFrames;

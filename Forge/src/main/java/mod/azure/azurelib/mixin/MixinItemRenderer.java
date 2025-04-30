@@ -20,7 +20,7 @@ import mod.azure.azurelib.animatable.client.RenderProvider;
 @Mixin(ItemRenderer.class)
 public class MixinItemRenderer {
 	@Inject(method = "renderItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/tileentity/ItemStackTileEntityRenderer;render(Lnet/minecraft/item/ItemStack;Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;II)V"), cancellable = true)
-	public void itemModelHook(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, boolean bl, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, int i, int j, IBakedModel bakedModel, CallbackInfo ci) {
+	public void azurelib$itemModelHook(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, boolean bl, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, int i, int j, IBakedModel bakedModel, CallbackInfo ci) {
 		if (itemStack.getItem() instanceof GeoItem)
 			RenderProvider.of(itemStack).getCustomRenderer().render(itemStack, poseStack, multiBufferSource, i, j);
 	}

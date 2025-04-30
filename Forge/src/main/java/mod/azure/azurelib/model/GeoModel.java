@@ -39,6 +39,7 @@ import net.minecraft.util.math.Vec3d;
  * Base class for all code-based model objects.<br>
  * All models to registered to a {@link GeoRenderer} should be an instance of this or one of its subclasses.
  */
+@Deprecated()
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
 	private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
 

@@ -27,6 +27,7 @@ import java.util.function.BiFunction;
 /**
  * {@link GeoRenderLayer} for rendering {@link BlockState BlockStates} or {@link ItemStack ItemStacks} on a given {@link GeoAnimatable}
  */
+@Deprecated()
 public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
     protected final BiFunction<GeoBone, T, ItemStack> stackForBone;
     protected final BiFunction<GeoBone, T, BlockState> blockForBone;
