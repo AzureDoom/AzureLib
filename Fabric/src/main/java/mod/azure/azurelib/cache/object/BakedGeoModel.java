@@ -17,6 +17,7 @@ import mod.azure.azurelib.loading.json.raw.ModelProperties;
 /**
  * Baked model object for AzureLib models.
  */
+@Deprecated()
 public class BakedGeoModel implements CoreBakedGeoModel {
 	public List<GeoBone> topLevelBones;
 	public ModelProperties properties;

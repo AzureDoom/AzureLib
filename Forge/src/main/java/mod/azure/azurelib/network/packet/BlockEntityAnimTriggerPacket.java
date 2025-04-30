@@ -21,6 +21,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link TileEntity BlockEntities}
  */
+@Deprecated()
 public class BlockEntityAnimTriggerPacket<D> {
 	private final BlockPos pos;
 	private final String controllerName;

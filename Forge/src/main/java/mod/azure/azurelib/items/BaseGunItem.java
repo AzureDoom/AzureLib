@@ -26,6 +26,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
+@Deprecated()
 public abstract class BaseGunItem extends Item implements GeoItem {
 
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);

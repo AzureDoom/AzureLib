@@ -5,6 +5,7 @@
 
 package mod.azure.azurelib.core.keyframe;
 
+@Deprecated()
 public class AnimationPoint {
 	/**
 	 * The current tick in the animation to lerp from

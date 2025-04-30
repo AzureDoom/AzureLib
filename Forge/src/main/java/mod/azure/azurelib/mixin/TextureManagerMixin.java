@@ -28,7 +28,7 @@ public abstract class TextureManagerMixin {
 	@Shadow public abstract void register(ResourceLocation resourceLocation, Texture abstractTexture);
 	
 	@Inject(method = "getTexture(Lnet/minecraft/util/ResourceLocation;)Lnet/minecraft/client/renderer/texture/Texture;", at = @At("HEAD"))
-	private void wrapAnimatableTexture(ResourceLocation path, CallbackInfoReturnable<Texture> callback) {
+	private void azurelib$wrapAnimatableTexture(ResourceLocation path, CallbackInfoReturnable<Texture> callback) {
 		Texture existing = this.byPath.get(path);
 
 		if (existing == null && !path.getNamespace().equals("minecraft")) {

@@ -5,6 +5,7 @@
 
 package mod.azure.azurelib.core.keyframe;
 
+@Deprecated()
 public class KeyframeLocation<T extends Keyframe> {
 	/**
 	 * The curent frame.
@@ -19,8 +20,8 @@ public class KeyframeLocation<T extends Keyframe> {
 	/**
 	 * Instantiates a new Key frame location.
 	 *
-	 * @param currentFrame the current frame
-	 * @param currentTick  the current animation tick
+	 * @param keyframe the current frame
+	 * @param startTick  the current animation tick
 	 */
 	public KeyframeLocation(T keyframe, double startTick) {
 		this.currentFrame = keyframe;

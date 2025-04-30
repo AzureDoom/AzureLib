@@ -26,6 +26,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
  * The {@link GeoAnimatable} interface specific to {@link TileEntity BlockEntities}
  * 
  */
+@Deprecated()
 public interface GeoBlockEntity extends GeoAnimatable {
 	/**
 	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>

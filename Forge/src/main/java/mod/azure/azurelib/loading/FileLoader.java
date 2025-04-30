@@ -34,6 +34,7 @@ public final class FileLoader {
 	 * @param location The resource path of the animations file
 	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
+	@Deprecated()
 	public static BakedAnimations loadAnimationsFile(ResourceLocation location, IResourceManager manager) {
 		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
 	}
@@ -44,6 +45,7 @@ public final class FileLoader {
 	 * @param location The resource path of the model file
 	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
+	@Deprecated()
 	public static Model loadModelFile(ResourceLocation location, IResourceManager manager) {
 		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
 	}

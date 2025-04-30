@@ -20,6 +20,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
  * <li>{@code GeoItem}</li>
  * </ul>
  */
+@Deprecated()
 public interface GeoAnimatable {
 	/**
 	 * Register your {@link AnimationController AnimationControllers} and their respective animations and conditions. Override this method in your animatable object and add your controllers via {@link mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar#add ControllerRegistrar.add}. You may add as many controllers as wanted. <br>

@@ -46,6 +46,7 @@ import net.minecraft.util.GsonHelper;
  * {@link com.google.gson.Gson} {@link JsonDeserializer} for {@link mod.azure.azurelib.loading.object.BakedAnimations}.<br>
  * Acts as the deserialization interface for {@code BakedAnimations}
  */
+@Deprecated()
 public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations> {
 	@Override
 	public BakedAnimations deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {

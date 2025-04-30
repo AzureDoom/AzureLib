@@ -20,6 +20,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 /**
  * Packet for syncing user-definable animation data for {@link Entity Entities}
  */
+@Deprecated()
 public class EntityAnimDataSyncPacket<D> {
 	private final int entityId;
 	private final SerializableDataTicket<D> dataTicket;

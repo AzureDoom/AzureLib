@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
+@Deprecated()
 public abstract class BaseGunItem extends Item implements GeoItem {
 
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);

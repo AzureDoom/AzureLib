@@ -23,6 +23,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link Entity Entities}
  */
+@Deprecated()
 public class EntityAnimTriggerPacket<D> {
 	private final int entityId;
 	private final boolean isReplacedEntity;

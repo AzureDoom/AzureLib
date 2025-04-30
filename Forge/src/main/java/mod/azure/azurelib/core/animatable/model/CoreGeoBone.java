@@ -8,6 +8,7 @@ import mod.azure.azurelib.core.state.BoneSnapshot;
  * Base class for AzureLib {@link CoreGeoModel model} bones.<br>
  * Mostly a placeholder to allow for splitting up core (non-Minecraft) libraries
  */
+@Deprecated()
 public interface CoreGeoBone {
 	String getName();
 

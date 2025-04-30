@@ -37,6 +37,7 @@ import java.util.List;
  * Base {@link GeoRenderer} class for rendering {@link TileEntity Blocks} specifically.<br>
  * All blocks added to be rendered by AzureLib should use an instance of this class.
  */
+@Deprecated()
 public class GeoBlockRenderer<T extends TileEntity & GeoAnimatable> extends TileEntityRenderer<T> implements GeoRenderer<T> {
     protected final GeoModel<T> model;
     protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);

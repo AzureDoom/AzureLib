@@ -25,6 +25,7 @@ import mod.azure.azurelib.core.state.BoneSnapshot;
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  */
+@Deprecated()
 public class GeoBone implements CoreGeoBone {
 	private final GeoBone parent;
 	private final String name;

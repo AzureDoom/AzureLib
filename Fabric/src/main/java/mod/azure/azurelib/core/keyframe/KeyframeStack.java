@@ -9,6 +9,7 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+@Deprecated()
 public class KeyframeStack<T extends Keyframe> {
 	/**
 	 * The X key frames.

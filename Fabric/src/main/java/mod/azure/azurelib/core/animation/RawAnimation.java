@@ -23,6 +23,7 @@ import mod.azure.azurelib.core.animation.Animation.LoopType;
  * {@code RawAnimation.begin().thenPlay("action.open_box").thenLoop("state.stay_open")}
  * </pre>
  */
+@Deprecated()
 public final class RawAnimation {
 	private final List<Stage> animationList = new ObjectArrayList<>();
 

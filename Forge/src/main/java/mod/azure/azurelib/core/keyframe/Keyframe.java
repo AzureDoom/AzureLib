@@ -13,6 +13,7 @@ import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.math.IValue;
 
 
+@Deprecated()
 public class Keyframe<T extends IValue> {
 	double length;
 	T startValue;

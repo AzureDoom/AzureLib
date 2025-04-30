@@ -14,6 +14,7 @@ import net.minecraft.util.math.vector.Vector3f;
 /**
  * Quad data holder
  */
+@Deprecated()
 public class GeoQuad {
 
 	private GeoVertex[] vertices;

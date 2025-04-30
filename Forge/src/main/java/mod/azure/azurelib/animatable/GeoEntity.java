@@ -23,6 +23,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
  * The {@link GeoAnimatable} interface specific to {@link Entity Entities}. This also applies to Projectiles and other Entity subclasses.<br>
  * <b>NOTE:</b> This <u>cannot</u> be used for entities using the {@link mod.azure.azurelib.renderer.GeoReplacedEntityRenderer} as you aren't extending {@code Entity}. Use {@link GeoReplacedEntity} instead.
  */
+@Deprecated()
 public interface GeoEntity extends GeoAnimatable {
 	/**
 	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>

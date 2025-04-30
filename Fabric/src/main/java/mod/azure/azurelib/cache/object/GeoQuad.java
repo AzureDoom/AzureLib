@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 /**
  * Quad data holder
  */
+@Deprecated()
 public class GeoQuad {
 
 	private GeoVertex[] vertices;

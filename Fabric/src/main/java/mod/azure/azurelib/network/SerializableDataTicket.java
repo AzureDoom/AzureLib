@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Network-compatible {@link mod.azure.azurelib.core.object.DataTicket} implementation. Used for sending data from server -> client in an easy manner
  */
+@Deprecated()
 public abstract class SerializableDataTicket<D> extends DataTicket<D> {
 	public SerializableDataTicket(String id, Class<? extends D> objectType) {
 		super(id, objectType);

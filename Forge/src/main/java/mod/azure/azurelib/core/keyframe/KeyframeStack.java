@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
  */
+@Deprecated()
 public class KeyframeStack<T extends Keyframe<?>> {
     List<T> xKeyframes;
     List<T> yKeyframes;

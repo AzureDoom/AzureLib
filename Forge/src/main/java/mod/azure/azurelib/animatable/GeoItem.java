@@ -35,6 +35,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 /**
  * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link Item Items}. This also applies to armor, as they are just items too.
  */
+@Deprecated()
 public interface GeoItem extends SingletonGeoAnimatable {
 	static final String ID_NBT_KEY = "AzureLibID";
 

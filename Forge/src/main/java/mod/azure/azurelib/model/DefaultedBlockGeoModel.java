@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 /**
  * {@link DefaultedGeoModel} specific to {@link Block Blocks}. Using this class pre-sorts provided asset paths into the "block" subdirectory
  */
+@Deprecated()
 public class DefaultedBlockGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 	/**
 	 * Create a new instance of this model class.<br>

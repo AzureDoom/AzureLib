@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 /**
  * {@link DefaultedGeoModel} specific to {@link Entity Entities}. Using this class pre-sorts provided asset paths into the "entity" subdirectory Additionally it can automatically handle head-turning if the entity has a "head" bone
  */
+@Deprecated()
 public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
 	private final boolean turnsHead;
 

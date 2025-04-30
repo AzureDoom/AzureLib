@@ -16,6 +16,7 @@ import java.util.function.Supplier;
  * The base cache class responsible for returning the {@link AnimatableManager} for a given instanceof of a {@link GeoAnimatable}.
  * This class is abstracted and not intended for direct use. See either {@link SingletonAnimatableInstanceCache} or {@link InstancedAnimatableInstanceCache}
  */
+@Deprecated()
 public abstract class AnimatableInstanceCache {
 	protected final GeoAnimatable animatable;
 	protected final Supplier<RenderProvider> renderProvider;

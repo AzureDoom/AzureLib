@@ -29,6 +29,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
  * Abstract texture wrapper for AzureLib textures.<br>
  * Mostly just handles boilerplate
  */
+@Deprecated()
 public abstract class GeoAbstractTexture extends Texture {
 	/**
 	 * Generates the texture instance for the given path with the given appendix if it hasn't already been generated

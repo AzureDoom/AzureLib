@@ -9,6 +9,7 @@ package mod.azure.azurelib.cache.object;
 
 import com.mojang.math.Vector3f;
 
+@Deprecated()
 public class GeoVertex {
 	protected final Vector3f position;
 	protected final float texU;

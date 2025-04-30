@@ -9,6 +9,7 @@ import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.state.BoneSnapshot;
 
 
+@Deprecated()
 public class BoneAnimationQueue {
 	public final CoreGeoBone bone;
 	public AnimationPointQueue rotationXQueue = new AnimationPointQueue();

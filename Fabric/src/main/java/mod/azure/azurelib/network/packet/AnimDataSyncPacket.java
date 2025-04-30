@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
  * Packet for syncing user-definable animation data for
  * {@link SingletonGeoAnimatable} instances
  */
+@Deprecated()
 public class AnimDataSyncPacket<D> extends AbstractPacket {
 	private final String syncableId;
 	private final long instanceId;

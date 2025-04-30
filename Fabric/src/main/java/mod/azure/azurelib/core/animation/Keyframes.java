@@ -4,6 +4,7 @@ import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 
+@Deprecated()
 public class Keyframes {
 
 	public SoundKeyframeData[] sounds;

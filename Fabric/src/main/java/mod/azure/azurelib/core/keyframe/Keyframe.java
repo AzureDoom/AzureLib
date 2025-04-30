@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.math.IValue;
 
+@Deprecated()
 public class Keyframe<T> {
 	private double length;
 	private IValue startValue;

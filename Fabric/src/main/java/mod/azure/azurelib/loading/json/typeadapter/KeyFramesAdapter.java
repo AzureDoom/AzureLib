@@ -31,6 +31,7 @@ import net.minecraft.util.GsonHelper;
  * {@link Gson} {@link JsonDeserializer} for {@link Keyframes}.<br>
  * Acts as the deserialization interface for {@code Keyframes}
  */
+@Deprecated()
 public class KeyFramesAdapter implements JsonDeserializer<Keyframes> {
 	@Override
 	public Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {

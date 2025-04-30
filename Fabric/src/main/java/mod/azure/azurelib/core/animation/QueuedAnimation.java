@@ -6,6 +6,7 @@ import mod.azure.azurelib.core.animation.Animation.LoopType;
 /**
  * {@link Animation} and {@link mod.azure.azurelib.core.animation.Animation.LoopType} override pair, used to define a playable animation stage for a {@link GeoAnimatable}
  */
+@Deprecated()
 public class QueuedAnimation {
 	public Animation animation;
 	public Animation.LoopType loopType;

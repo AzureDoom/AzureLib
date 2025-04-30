@@ -28,6 +28,7 @@ public final class AzureLibUtil {
 	 * 
 	 * @param animatable The animatable object
 	 */
+	@Deprecated()
 	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
 		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
@@ -41,6 +42,7 @@ public final class AzureLibUtil {
 	 * @param animatable      The animatable object
 	 * @param singletonObject Whether the object is a singleton/flyweight object, and uses ints to differentiate animatable instances
 	 */
+	@Deprecated()
 	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable, boolean singletonObject) {
 		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
@@ -57,6 +59,7 @@ public final class AzureLibUtil {
 	 * @param name     The name of the {@code LoopType} handler
 	 * @param loopType The {@code LoopType} implementation to use for the given name
 	 */
+	@Deprecated()
 	synchronized public static Animation.LoopType addCustomLoopType(String name, Animation.LoopType loopType) {
 		return Animation.LoopType.register(name, loopType);
 	}
@@ -68,6 +71,7 @@ public final class AzureLibUtil {
 	 * @param name       The name of the {@code EasingType} handler
 	 * @param easingType The {@code EasingType} implementation to use for the given name
 	 */
+	@Deprecated()
 	synchronized public static EasingType addCustomEasingType(String name, EasingType easingType) {
 		return EasingType.register(name, easingType);
 	}
@@ -79,6 +83,7 @@ public final class AzureLibUtil {
 	 * @param namespace The namespace (modid) to register the factory for
 	 * @param factory   The factory responsible for model loading under the given namespace
 	 */
+	@Deprecated()
 	synchronized public static void addCustomBakedModelFactory(String namespace, BakedModelFactory factory) {
 		BakedModelFactory.register(namespace, factory);
 	}
@@ -90,6 +95,7 @@ public final class AzureLibUtil {
 	 * @param dataTicket The SerializableDataTicket to register
 	 * @return The dataTicket you passed in
 	 */
+	@Deprecated()
 	synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
 		return DataTickets.registerSerializable(dataTicket);
 	}

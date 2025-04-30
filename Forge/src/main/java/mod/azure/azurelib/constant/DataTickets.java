@@ -27,6 +27,7 @@ import net.minecraft.util.Direction;
  * Stores the default (builtin) {@link DataTicket DataTickets} used in AzureLib.<br>
  * Additionally handles registration of {@link mod.azure.azurelib.network.SerializableDataTicket SerializableDataTickets}
  */
+@Deprecated()
 public final class DataTickets {
 	private static final Map<String, SerializableDataTicket<?>> SERIALIZABLE_TICKETS = new ConcurrentHashMap<>();
 

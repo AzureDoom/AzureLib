@@ -41,6 +41,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * Base {@link GeoRenderer} class for rendering {@link BlockEntity Blocks} specifically.<br>
  * All blocks added to be rendered by AzureLib should use an instance of this class.
  */
+@Deprecated()
 public class GeoBlockRenderer<T extends BlockEntity & GeoAnimatable> extends BlockEntityRenderer<T> implements GeoRenderer<T> {
 	protected final GeoModel<T> model;
 	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);

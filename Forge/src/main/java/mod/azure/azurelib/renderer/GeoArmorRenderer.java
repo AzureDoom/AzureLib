@@ -43,6 +43,7 @@ import java.util.List;
  * @param <T>
  * @see GeoItem
  */
+@Deprecated()
 public class GeoArmorRenderer<T extends Item & GeoItem> extends BipedModel implements GeoRenderer<T> {
     protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
     protected final GeoModel<T> model;
