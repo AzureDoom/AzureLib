@@ -48,6 +48,7 @@ public final class NeoForgeAzureLibMod {
             AzureEnchantments.ENCHANTMENTS.register(modEventBus);
         AzureBlocks.BLOCKS.register(modEventBus);
         AzureEntities.TILE_TYPES.register(modEventBus);
+        AzureEntities.ENTITY_TYPES.register(modEventBus);
         AzureItems.ITEMS.register(modEventBus);
         modEventBus.addListener(this::createEntityAttributes);
         modEventBus.addListener(this::commonSetup);
