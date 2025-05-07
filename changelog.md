@@ -1,5 +1,3 @@
-v3.0.13
+v3.0.14
 
-- Added log for when missing _glowmask texture when using auto glow layer.
-- Fixes animated textures being broken.
-- Fixes animated textures not working with glowmask layers.
+- Fixed AzID being copied to a new stack on menu creation, now ensures each item stack has it's own Az_ID.
