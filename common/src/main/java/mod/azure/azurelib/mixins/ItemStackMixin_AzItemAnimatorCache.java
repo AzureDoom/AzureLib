@@ -1,5 +1,6 @@
 package mod.azure.azurelib.mixins;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
@@ -21,7 +22,7 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     @Override
     public @Nullable AzAnimator<ItemStack> getAnimatorOrNull() {
         var self = AzureLibUtil.<ItemStack>self(this);
-        var uuid = self.getOrCreateTag().getUUID("az_id");
+        var uuid = self.getOrCreateTag().getUUID(AzureLib.ITEM_UUID_TAG);
         return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid);
     }
 }
