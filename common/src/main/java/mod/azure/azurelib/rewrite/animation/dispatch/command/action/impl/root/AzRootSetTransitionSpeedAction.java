@@ -11,11 +11,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
- * The {@code AzRootSetTransitionSpeedAction} class implements the {@link AzAction} interface and represents an action
- * that modifies the transition speed for an animator during an animation state. This action is intended for use within
- * the animation system to adjust the transition timing of animations. This class provides a unique resource location
- * identifier for this specific action and handles the logic required to apply the transition speed modification to the
- * target {@link AzAnimator}. It utilizes {@link StreamCodec} for serialization and deserialization of this action.
+ * Represents an action that sets the transition speed of animation controllers within an {@link AzAnimator}.
+ * This action is part of the AzureLib animation system and provides a means to modify the transition length
+ * property of all animation controllers contained in the target animator.
+ *
+ * The {@link AzRootSetTransitionSpeedAction} encapsulates a single `transitionSpeed` value, which determines
+ * the length of animation transition in seconds when applied during animation state changes.
  */
 public record AzRootSetTransitionSpeedAction(
     float transitionSpeed
