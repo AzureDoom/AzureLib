@@ -4,6 +4,7 @@ accessible field net/minecraft/world/entity/Entity yRot F
 accessible field net/minecraft/world/entity/Entity xRot F
 accessible method net/minecraft/world/entity/Entity getLeashOffset ()Lnet/minecraft/world/phys/Vec3;
 
+accessible class net/minecraft/client/model/geom/ModelPart$Cube
 accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
 accessible method net/minecraft/client/renderer/LevelRenderer shouldShowEntityOutlines ()Z
 accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher renderers Ljava/util/Map;
