@@ -40,17 +40,16 @@ loom {
     }
 }
 
-if (file('key.properties').exists()) {
+def keyPropsFile = new File(rootProject.projectDir, "key.properties")
+if (keyPropsFile.exists()) {
     publishMods {
         def releaseProp = new Properties()
-        File secretPropsFile = file("key.properties")
-        releaseProp.load(secretPropsFile.newInputStream())
+        releaseProp.load(new FileInputStream(keyPropsFile))
         file = remapJar.archiveFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("fabric")
         modLoaders.add("quilt")
-        dryRun = true;
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
