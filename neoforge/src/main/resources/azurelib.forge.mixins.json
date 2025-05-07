@@ -12,7 +12,6 @@
     "PlayerListMixin"
   ],
   "client": [
-    "AccessorWarningScreen",
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",

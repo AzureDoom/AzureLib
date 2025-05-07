@@ -9,10 +9,8 @@ import mod.azure.azurelib.testing.armor.DoomicornArmorRenderer;
 import mod.azure.azurelib.testing.block.be.StargateBlockRenderer;
 import mod.azure.azurelib.testing.entity.MarauderRenderer;
 import mod.azure.azurelib.testing.item.PistolRenderer;
-import mod.azure.azurelib.util.IncompatibleModsCheck;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
@@ -25,7 +23,6 @@ public final class ClientListener implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientLifecycleEvents.CLIENT_STARTED.register(IncompatibleModsCheck::warnings);
         Keybindings.RELOAD = new KeyMapping("key.azurelib.reload", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R,
                 "category.azurelib.binds");
         KeyBindingHelper.registerKeyBinding(Keybindings.RELOAD);
