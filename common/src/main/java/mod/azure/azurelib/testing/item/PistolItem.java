@@ -15,7 +15,7 @@ public class PistolItem extends Item {
     private final PistolAnimationDispatcher dispatcher;
 
     public PistolItem() {
-        super(new Properties());
+        super(new Properties().stacksTo(1));
         this.dispatcher = new PistolAnimationDispatcher();
     }
 
