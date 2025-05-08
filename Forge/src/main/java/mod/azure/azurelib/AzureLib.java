@@ -17,6 +17,7 @@ import mod.azure.azurelib.cache.AzureLibCache;
 public class AzureLib {
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final String MOD_ID = "azurelib";
+	public static final String ITEM_UUID_TAG = "az_id";
 	public static volatile boolean hasInitialized;
 
 	public static synchronized void initialize() {

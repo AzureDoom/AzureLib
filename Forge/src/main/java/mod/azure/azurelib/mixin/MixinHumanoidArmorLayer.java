@@ -1,5 +1,8 @@
 package mod.azure.azurelib.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
@@ -28,23 +31,62 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
     @Shadow
     public abstract A getModelFromSlot(EquipmentSlotType slotIn);
 
-    @Inject(method = "renderArmorPart", at = @At(value = "RETURN", target = "Lnet/minecraft/client/renderer/entity/layers/ArmorLayer;isLegSlot(Lnet/minecraft/inventory/EquipmentSlotType;)Z"), cancellable = true)
-    public void azurelib$renderGeckoLibModel(MatrixStack poseStack, IRenderTypeBuffer bufferSource, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, EquipmentSlotType equipmentSlot, int packedLight, CallbackInfo ci) {
-        final ItemStack stack = entity.getItemStackFromSlot(equipmentSlot);
-        if (stack.getItem() instanceof ArmorItem) {
-            A baseModel = this.getModelFromSlot(equipmentSlot);
-            final Model geckolibModel = RenderProvider.of(stack).getGenericArmorModel(entity, stack, equipmentSlot,
-                    (BipedModel<LivingEntity>) baseModel);
+    @ModifyExpressionValue(
+        method = "renderArmorPart",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/entity/LivingEntity;getItemStackFromSlot(Lnet/minecraft/inventory/EquipmentSlotType;)Lnet/minecraft/item/ItemStack;"
+        )
+    )
+    private ItemStack azurelib$captureItemBySlot(
+        ItemStack original,
+        @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
+    ) {
+        itemBySlotRef.set(original);
+        return original;
+    }
 
-            if (geckolibModel != null && stack.getItem() instanceof GeoItem) {
-                if (geckolibModel instanceof GeoArmorRenderer) {
-                    GeoArmorRenderer geoArmorRenderer = (GeoArmorRenderer) geckolibModel;
-                    geoArmorRenderer.prepForRender(entity, stack, equipmentSlot, baseModel);
-                }
+    @Inject(
+        method = "renderArmorPart", at = @At(
+        value = "INVOKE",
+        target = "Lnet/minecraft/client/renderer/entity/layers/ArmorLayer;renderArmor(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;IZLnet/minecraft/client/renderer/entity/model/BipedModel;FFFLnet/minecraft/util/ResourceLocation;)V"
+    ), cancellable = true
+    )
+    public void azurelib$renderAzurelibModel(
+        MatrixStack poseStack, IRenderTypeBuffer bufferSource, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, EquipmentSlotType equipmentSlot, int packedLight, CallbackInfo ci, @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
+    ) {
+        ItemStack stack = itemBySlotRef.get();
+        A baseModel = this.getModelFromSlot(equipmentSlot);
+        RenderProvider renderProvider = RenderProvider.of(stack);
+        @SuppressWarnings("unchecked")
+        BipedModel<LivingEntity> humanoidModel = (BipedModel<LivingEntity>) baseModel;
+        Model geckolibModel = renderProvider
+                                  .getGenericArmorModel(entity, stack, equipmentSlot, humanoidModel);
 
-                baseModel.setModelAttributes((A) geckolibModel);
-                geckolibModel.render(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        if (geckolibModel != null && stack.getItem() instanceof GeoItem) {
+            if (geckolibModel instanceof GeoArmorRenderer) {
+                GeoArmorRenderer geoArmorRenderer = (GeoArmorRenderer) geckolibModel;
+                geoArmorRenderer.prepForRender(entity, stack, equipmentSlot, baseModel);
             }
+
+            baseModel.setModelAttributes((A) geckolibModel);
+
+            geckolibModel.render(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            ci.cancel();
+        }
+
+        AzArmorRenderer renderer = AzArmorRendererRegistry.getOrNull(stack.getItem());
+
+        if (renderer != null) {
+            AzArmorRendererPipeline rendererPipeline = renderer.rendererPipeline();
+            AzArmorModel<?> armorModel = rendererPipeline.armorModel();
+            @SuppressWarnings("unchecked")
+            BipedModel<T> typedHumanoidModel = (BipedModel<T>) armorModel;
+
+            renderer.prepForRender(entity, stack, equipmentSlot, baseModel);
+            baseModel.setModelAttributes(typedHumanoidModel);
+            armorModel.renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            ci.cancel();
         }
     }
 }

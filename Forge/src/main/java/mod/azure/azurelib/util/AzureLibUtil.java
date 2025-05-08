@@ -23,6 +23,11 @@ import net.minecraft.tileentity.TileEntity;
  * Helper class for various AzureLib-specific functions.
  */
 public final class AzureLibUtil {
+
+	public static <T> T self(Object object) {
+		return (T) object;
+	}
+
 	/**
 	 * Creates a new AnimatableInstanceCache for the given animatable object
 	 * @param animatable The animatable object

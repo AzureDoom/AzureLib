@@ -27,7 +27,6 @@ import net.minecraft.util.ResourceLocation;
 /**
  * Extracts raw information from given files, and other similar functions
  */
-@Deprecated()
 public final class FileLoader {
 	/**
 	 * Load up and deserialize an animation json file to its respective {@link mod.azure.azurelib.core.animation.Animation} components
@@ -35,8 +34,19 @@ public final class FileLoader {
 	 * @param location The resource path of the animations file
 	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
+	@Deprecated()
 	public static BakedAnimations loadAnimationsFile(ResourceLocation location, IResourceManager manager) {
 		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
+	}
+
+	/**
+	 * Load up and deserialize an animation json file to its respective {@link AzBakedAnimation} components
+	 *
+	 * @param location The resource path of the animations file
+	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
+	 */
+	public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, IResourceManager manager) {
+		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
 	}
 
 	/**
@@ -45,6 +55,7 @@ public final class FileLoader {
 	 * @param location The resource path of the model file
 	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
 	 */
+	@Deprecated()
 	public static Model loadModelFile(ResourceLocation location, IResourceManager manager) {
 		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
 	}

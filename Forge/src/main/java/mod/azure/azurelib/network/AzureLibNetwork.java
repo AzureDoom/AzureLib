@@ -1,18 +1,15 @@
 package mod.azure.azurelib.network;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.network.packet.AnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.AnimTriggerPacket;
-import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.BlockEntityAnimTriggerPacket;
-import mod.azure.azurelib.network.packet.EntityAnimDataSyncPacket;
-import mod.azure.azurelib.network.packet.EntityAnimTriggerPacket;
+import mod.azure.azurelib.network.packet.*;
+import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -36,6 +33,10 @@ public final class AzureLibNetwork {
 		PACKET_CHANNEL.registerMessage(id++, EntityAnimTriggerPacket.class, EntityAnimTriggerPacket::encode, EntityAnimTriggerPacket::decode, EntityAnimTriggerPacket::receivePacket);
 		PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimDataSyncPacket.class, BlockEntityAnimDataSyncPacket::encode, BlockEntityAnimDataSyncPacket::decode, BlockEntityAnimDataSyncPacket::receivePacket);
 		PACKET_CHANNEL.registerMessage(id++, BlockEntityAnimTriggerPacket.class, BlockEntityAnimTriggerPacket::encode, BlockEntityAnimTriggerPacket::decode, BlockEntityAnimTriggerPacket::receivePacket);
+
+		PACKET_CHANNEL.registerMessage(id++, AzBlockEntityDispatchCommandPacket.class, AzBlockEntityDispatchCommandPacket::encode, AzBlockEntityDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
+		PACKET_CHANNEL.registerMessage(id++, AzItemStackDispatchCommandPacket.class, AzItemStackDispatchCommandPacket::encode, AzItemStackDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
+		PACKET_CHANNEL.registerMessage(id++, AzEntityDispatchCommandPacket.class, AzEntityDispatchCommandPacket::encode, AzEntityDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
 	}
 
 	/**
@@ -69,5 +70,11 @@ public final class AzureLibNetwork {
 	 */
 	public static <M> void send(M packet, PacketDistributor.PacketTarget distributor) {
 		PACKET_CHANNEL.send(distributor, packet);
+	}
+
+	private static void handlePacket(AbstractPacket packet, Supplier<NetworkEvent.Context> context) {
+		NetworkEvent.Context handler = context.get();
+		handler.enqueueWork(packet::handle);
+		handler.setPacketHandled(true);
 	}
 }
