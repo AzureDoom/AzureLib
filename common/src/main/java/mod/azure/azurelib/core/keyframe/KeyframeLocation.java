@@ -19,5 +19,6 @@ import mod.azure.azurelib.core.math.IValue;
  * @param keyframe The {@code Keyframe} at the tick time
  * @param startTick The animation tick time at the start of this {@code Keyframe}
  */
+@Deprecated(forRemoval = true)
 public record KeyframeLocation<T extends Keyframe<?>>(T keyframe, double startTick) { }
 //TODO: public record KeyframeLocation<T extends IValue>(Keyframe<T> keyframe, double startTick) { }

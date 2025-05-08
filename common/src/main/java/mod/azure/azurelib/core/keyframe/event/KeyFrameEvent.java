@@ -24,6 +24,7 @@ import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
  * @see ParticleKeyframeEvent
  * @see SoundKeyframeEvent
  */
+@Deprecated(forRemoval = true)
 public abstract class KeyFrameEvent<T extends GeoAnimatable, E extends KeyFrameData> {
 	private final T animatable;
 	private final double animationTick;

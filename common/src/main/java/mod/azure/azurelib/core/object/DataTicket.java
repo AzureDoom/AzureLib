@@ -13,6 +13,7 @@ import java.util.Objects;
 /**
  * Ticket object to define a typed data object
  */
+@Deprecated(forRemoval = true)
 public class DataTicket<D> {
 	private final String id;
 	private final Class<? extends D> objectType;

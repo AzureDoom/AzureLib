@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author AzureDoom/Boston Vanseghi
  */
+@Deprecated(forRemoval = true)
 public class AzureGunProperties {
     private AzureGunProperties properties;
     private int ammoCount;

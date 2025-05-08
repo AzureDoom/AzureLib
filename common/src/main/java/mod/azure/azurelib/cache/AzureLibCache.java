@@ -35,6 +35,7 @@ import java.util.function.Function;
  * {@link mod.azure.azurelib.core.animation.Animation Animations} and
  * {@link CoreGeoModel Models}
  */
+@Deprecated(forRemoval = true)
 public final class AzureLibCache {
     private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of("moreplayermodels", "customnpcs", "gunsrpg", "born_in_chaos_v1");
 
