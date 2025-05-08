@@ -86,6 +86,8 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.17.1-37.1.1'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    jarJar(implementation("io.github.llamalad7:mixinextras-forge:0.4.1"))
 }
 
 tasks.named('jar', Jar).configure {
