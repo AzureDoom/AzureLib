@@ -1,16 +1,23 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "mod.azure.azurelib.mixins",
+  "package": "mod.azure.azurelib.mixins.fabric",
   "compatibilityLevel": "JAVA_8",
   "injectors": {
     "defaultRequire": 1
   },
   "mixins": [
+    "AbstractContainerMenuMixin_AzItemIDFix",
+    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "PlayerListMixin"
   ],
   "client": [
-    "fabric.MixinItemRenderer",
-    "fabric.MixinHumanoidArmorLayer",
-    "fabric.TextureManagerMixin"
+    "BlockEntityMixin_AzBlockEntityAnimatorCache",
+    "EntityMixin_AzEntityAnimatorCache",
+    "ItemStackMixin_AzItemAnimatorCache",
+    "MinecraftMixin",
+    "MixinHumanoidArmorLayer",
+    "MixinItemRenderer",
+    "TextureManagerMixin"
   ]
 }

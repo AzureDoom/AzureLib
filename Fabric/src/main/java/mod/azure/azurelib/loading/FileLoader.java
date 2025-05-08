@@ -41,6 +41,17 @@ public final class FileLoader {
 	}
 
 	/**
+	 * Load up and deserialize an animation json file to its respective {@link AzBakedAnimation} components
+	 *
+	 * @param location The resource path of the animations file
+	 * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
+	 */
+	@Deprecated()
+	public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, ResourceManager manager) {
+		return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
+	}
+
+	/**
 	 * Load up and deserialize a geo model json file to its respective {@link BakedGeoModel} format
 	 * 
 	 * @param location The resource path of the model file

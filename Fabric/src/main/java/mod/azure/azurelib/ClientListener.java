@@ -10,5 +10,6 @@ public final class ClientListener implements ClientModInitializer {
 	public void onInitializeClient() {
 		KeyBindingHelper.registerKeyBinding(Keybindings.RELOAD);
 		AzureLibNetwork.registerClientReceiverPackets();
+		AzureLibNetwork.PacketRegistry.registerClient();
 	}
 }

@@ -23,7 +23,7 @@ public interface RenderProvider {
 
     static RenderProvider of(Item item) {
         if (item instanceof GeoItem) {
-            return (RenderProvider) ((GeoItem) item).getRenderProvider().get();
+            return ((GeoItem) item).getRenderProvider().get();
         }
 
         return DEFAULT;

@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
  * Storage class that keeps track of the last animatable id used, and provides new ones on request.<br>
  * Generally only used for {@link net.minecraft.world.item.Item Items}, but any {@link SingletonAnimatableInstanceCache singleton} will likely use this.
  */
+@Deprecated()
 public final class AnimatableIdCache extends SavedData {
 	private static final String DATA_KEY = "AzureLib_id_cache";
 	private long lastId;

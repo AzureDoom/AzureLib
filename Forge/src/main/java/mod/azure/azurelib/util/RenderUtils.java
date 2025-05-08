@@ -46,6 +46,7 @@ import net.minecraft.util.math.vector.Vector3f;
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtils {
+
 	public static void translateMatrixToBone(MatrixStack poseStack, CoreGeoBone bone) {
 		poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
 	}

@@ -6,6 +6,7 @@ import mod.azure.azurelib.config.TestingConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
+import mod.azure.azurelib.network.AzureLibNetwork;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -28,6 +29,7 @@ public final class AzureLibMod {
 	}
 
 	private void init(FMLCommonSetupEvent event) {
+		AzureLibNetwork.PacketRegistry.register();
 		ConfigIO.FILE_WATCH_MANAGER.startService();
 	}
 

@@ -6,8 +6,17 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [],
+  "mixins": [
+    "AbstractContainerMenuMixin_AzItemIDFix",
+    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "PlayerListMixin"
+  ],
   "client": [
+    "BlockEntityMixin_AzBlockEntityAnimatorCache",
+    "ClientHooksMixin",
+    "EntityMixin_AzEntityAnimatorCache",
+    "ItemStackMixin_AzItemAnimatorCache",
+    "MinecraftMixin",
     "MixinHumanoidArmorLayer",
     "MixinItemRenderer",
     "TextureManagerMixin"

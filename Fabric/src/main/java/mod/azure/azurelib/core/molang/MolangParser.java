@@ -33,7 +33,7 @@ public class MolangParser extends MathBuilder {
 
 	public static final MolangParser INSTANCE = new MolangParser();
 
-	private MolangParser() {
+	public MolangParser() {
 		super();
 
 		// Remap functions to be intact with Molang specification
