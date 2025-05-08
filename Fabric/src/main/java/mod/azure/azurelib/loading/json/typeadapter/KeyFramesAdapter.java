@@ -23,6 +23,7 @@ import java.util.Map;
  * {@link Gson} {@link JsonDeserializer} for {@link Animation.Keyframes}.<br>
  * Acts as the deserialization interface for {@code Keyframes}
  */
+@Deprecated()
 public class KeyFramesAdapter implements JsonDeserializer<Animation.Keyframes> {
 	@Override
 	public Animation.Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {

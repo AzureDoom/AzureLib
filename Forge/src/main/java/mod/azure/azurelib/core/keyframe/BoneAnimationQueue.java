@@ -12,6 +12,7 @@ import mod.azure.azurelib.core.state.BoneSnapshot;
  * A bone pseudo-stack for bone animation positions, scales, and rotations.
  * Animation points are calculated then pushed onto their respective queues to be used for transformations in rendering
  */
+@Deprecated()
 public record BoneAnimationQueue(CoreGeoBone bone, AnimationPointQueue rotationXQueue, AnimationPointQueue rotationYQueue,
 								 AnimationPointQueue rotationZQueue, AnimationPointQueue positionXQueue, AnimationPointQueue positionYQueue,
 								 AnimationPointQueue positionZQueue, AnimationPointQueue scaleXQueue, AnimationPointQueue scaleYQueue,

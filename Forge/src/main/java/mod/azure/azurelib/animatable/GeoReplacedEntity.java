@@ -22,6 +22,7 @@ import net.minecraftforge.network.PacketDistributor;
 /**
  * The {@link GeoAnimatable} interface specific to {@link Entity Entities}. This interface is <u>specifically</u> for entities replacing the rendering of other, existing entities.
  */
+@Deprecated()
 public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 	/**
 	 * Returns the {@link EntityType} this entity is intending to replace.<br>

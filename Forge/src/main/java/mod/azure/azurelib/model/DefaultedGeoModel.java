@@ -15,6 +15,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
  * This class allows for minimal boilerplate when implementing basic models, and saves on new classes.<br>
  * Additionally, it encourages consistency and sorting of asset paths.
  */
+@Deprecated()
 public abstract class DefaultedGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
 	private ResourceLocation modelPath;
 	private ResourceLocation texturePath;

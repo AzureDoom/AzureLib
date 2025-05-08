@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A compiled animation instance for use by the {@link AnimationController}<br>
  * Modifications or extensions of a compiled Animation are not supported, and therefore an instance of <code>Animation</code> is considered final and immutable.
  */
+@Deprecated()
 public record Animation(String name, double length, LoopType loopType, BoneAnimation[] boneAnimations, Keyframes keyFrames) {
 	public record Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {}
 

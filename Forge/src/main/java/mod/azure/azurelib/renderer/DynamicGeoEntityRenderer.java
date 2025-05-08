@@ -39,6 +39,7 @@ import net.minecraft.world.entity.Entity;
  * Because of the extra performance cost of this renderer, it is advised to avoid using it unnecessarily,
  * and consider whether the benefits are worth the cost for your needs.
  */
+@Deprecated()
 public abstract class DynamicGeoEntityRenderer<T extends Entity & GeoAnimatable> extends GeoEntityRenderer<T> {
 	protected static Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE = new Object2ObjectOpenHashMap<>();
 

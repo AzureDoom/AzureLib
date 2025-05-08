@@ -23,6 +23,7 @@ import mod.azure.azurelib.renderer.GeoRenderer;
  * Render layer base class for rendering additional layers of effects or textures over an existing model at runtime.<br>
  * Contains the base boilerplate and helper code for various render layer features
  */
+@Deprecated()
 public abstract class GeoRenderLayer<T extends GeoAnimatable> {
 	protected final GeoRenderer<T> renderer;
 

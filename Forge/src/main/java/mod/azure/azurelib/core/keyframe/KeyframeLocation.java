@@ -10,4 +10,5 @@ package mod.azure.azurelib.core.keyframe;
  * @param keyframe The {@code Keyframe} at the tick time
  * @param startTick The animation tick time at the start of this {@code Keyframe}
  */
+@Deprecated()
 public record KeyframeLocation<T extends Keyframe<?>>(T keyframe, double startTick) { }
