@@ -31,6 +31,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly "com.terraformersmc:modmenu:6.2.2"
+    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")))
 }
 
 jar {
