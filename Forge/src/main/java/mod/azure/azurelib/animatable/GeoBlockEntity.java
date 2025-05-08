@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
  * The {@link GeoAnimatable} interface specific to {@link BlockEntity BlockEntities}
  * @see <a href="https://github.com/bernie-g/AzureLib/wiki/Block-Animations">AzureLib Wiki - Block Animations</a>
  */
+@Deprecated()
 public interface GeoBlockEntity extends GeoAnimatable {
 	/**
 	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>

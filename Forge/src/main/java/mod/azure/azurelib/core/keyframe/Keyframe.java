@@ -27,6 +27,7 @@ import mod.azure.azurelib.core.math.IValue;
  * @param easingType The {@code EasingType} to use for transformations
  * @param easingArgs The arguments to provide to the easing calculation
  */
+@Deprecated()
 public record Keyframe<T extends IValue>(double length, T startValue, T endValue, EasingType easingType, List<T> easingArgs) {
 	public Keyframe(double length, T startValue, T endValue) {
 		this(length, startValue, endValue, EasingType.LINEAR);

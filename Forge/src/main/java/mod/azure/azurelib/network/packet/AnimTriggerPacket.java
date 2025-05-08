@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server
  */
+@Deprecated()
 public class AnimTriggerPacket<D> {
 	private final String syncableId;
 	private final long instanceId;

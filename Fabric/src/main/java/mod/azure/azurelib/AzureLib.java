@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import mod.azure.azurelib.cache.AzureLibCache;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -23,6 +24,7 @@ public class AzureLib {
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final org.apache.logging.log4j.Marker MAIN_MARKER = org.apache.logging.log4j.MarkerManager.getMarker("main");
 	public static final String MOD_ID = "azurelib";
+	public static final String ITEM_UUID_TAG = "az_id";
 	public static boolean hasInitialized;
 
 	public static void initialize() {
@@ -35,9 +37,9 @@ public class AzureLib {
 						}
 
 						@Override
-						public CompletableFuture<Void> reload(PreparationBarrier synchronizer, ResourceManager manager,
-								ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor,
-								Executor applyExecutor) {
+						public @NotNull CompletableFuture<Void> reload(PreparationBarrier synchronizer, ResourceManager manager,
+						                                               ProfilerFiller prepareProfiler, ProfilerFiller applyProfiler, Executor prepareExecutor,
+						                                               Executor applyExecutor) {
 							return AzureLibCache.reload(synchronizer, manager, prepareProfiler,
 									applyProfiler, prepareExecutor, applyExecutor);
 						}

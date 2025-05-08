@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * The {@link GeoAnimatable} interface specific to {@link BlockEntity BlockEntities}
  */
+@Deprecated()
 public interface GeoBlockEntity extends GeoAnimatable {
 	/**
 	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>

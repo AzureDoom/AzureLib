@@ -8,6 +8,7 @@ import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.entities.TickingLightEntity;
+import mod.azure.azurelib.network.AzureLibNetwork;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,6 +38,7 @@ public final class AzureLibMod {
 	}
 
 	private void init(FMLCommonSetupEvent event) {
+		AzureLibNetwork.PacketRegistry.register();
 		ConfigIO.FILE_WATCH_MANAGER.startService();
 	}
 

@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.level.block.entity.BlockEntity BlockEntities}
  */
+@Deprecated()
 public class BlockEntityAnimTriggerPacket<D> {
 	private final BlockPos pos;
 	private final String controllerName;

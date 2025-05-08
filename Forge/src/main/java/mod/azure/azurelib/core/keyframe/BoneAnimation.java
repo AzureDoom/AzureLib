@@ -22,6 +22,7 @@ import mod.azure.azurelib.core.math.IValue;
  * @param positionKeyFrames The deserialized position {@code Keyframe} stack
  * @param scaleKeyFrames The deserialized scale {@code Keyframe} stack
  */
+@Deprecated()
 public record BoneAnimation(String boneName,
 							KeyframeStack<Keyframe<IValue>> rotationKeyFrames,
 							KeyframeStack<Keyframe<IValue>> positionKeyFrames,

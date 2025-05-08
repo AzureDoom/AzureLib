@@ -16,6 +16,7 @@ import java.util.function.Function;
  * Using these won't affect much, but it may help keep some consistency in animation namings.<br>
  * Additionally, it encourages use of cached {@link mod.azure.azurelib.core.animation.RawAnimation RawAnimations}, to reduce overheads.
  */
+@Deprecated()
 public final class DefaultAnimations {
 	public static final RawAnimation ITEM_ON_USE = RawAnimation.begin().thenPlay("item.use");
 

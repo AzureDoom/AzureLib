@@ -16,6 +16,7 @@ import net.minecraftforge.network.PacketDistributor;
 /**
  * The {@link GeoAnimatable} interface specific to singleton objects. This primarily applies to armor and items
  */
+@Deprecated()
 public interface SingletonGeoAnimatable extends GeoAnimatable {
 	/**
 	 * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions.<br>

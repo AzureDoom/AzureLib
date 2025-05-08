@@ -19,6 +19,7 @@ public class AzureLib {
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
 	public static final String MOD_ID = "azurelib";
+	public static final String ITEM_UUID_TAG = "az_id";
 	public static volatile boolean hasInitialized;
 
 	synchronized public static void initialize() {
