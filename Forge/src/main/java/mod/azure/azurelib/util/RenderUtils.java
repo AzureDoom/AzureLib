@@ -241,6 +241,7 @@ public final class RenderUtils {
 	 * @param entityType The {@code EntityType} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoModel<?> getGeoModelForEntityType(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
@@ -254,6 +255,7 @@ public final class RenderUtils {
 	 * @param entityType The {@code EntityType} to retrieve the replaced {@link GeoAnimatable} for
 	 * @return The {@code GeoAnimatable} instance, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
@@ -269,6 +271,7 @@ public final class RenderUtils {
 	 * @param entity The {@code Entity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoModel<?> getGeoModelForEntity(Entity entity) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
@@ -284,6 +287,7 @@ public final class RenderUtils {
 	 * @param item The {@code Item} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoModel<?> getGeoModelForItem(Item item) {
 		if (IClientItemExtensions.of(item).getCustomRenderer()instanceof GeoRenderer<?> geoRenderer)
@@ -300,6 +304,7 @@ public final class RenderUtils {
 	 * @param blockEntity The {@code BlockEntity} to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoModel<?> getGeoModelForBlock(BlockEntity blockEntity) {
 		BlockEntityRenderer<?> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
@@ -315,6 +320,7 @@ public final class RenderUtils {
 	 * @param stack The ItemStack to retrieve the GeoModel for
 	 * @return The GeoModel, or null if one isn't found
 	 */
+	@Deprecated()
 	@Nullable
 	public static GeoModel<?> getGeoModelForArmor(ItemStack stack) {
 		if (IClientItemExtensions.of(stack).getHumanoidArmorModel(null, stack, null, null)instanceof GeoArmorRenderer<?> armorRenderer)

@@ -72,8 +72,13 @@ public final class AzureLibCache {
 		Map<ResourceLocation, BakedGeoModel> models = new Object2ObjectOpenHashMap<>();
 
 		return CompletableFuture
-				.allOf(loadAnimations(backgroundExecutor, resourceManager, animations::put),
-						loadModels(backgroundExecutor, resourceManager, models::put))
+				.allOf(
+					// TODO: Remove these.
+					loadAnimations(backgroundExecutor, resourceManager, animations::put),
+					loadModels(backgroundExecutor, resourceManager, models::put),
+					// Forward-support for new cache components
+					AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
+					AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
 				.thenCompose(stage::wait).thenAcceptAsync(empty -> {
 					AzureLibCache.ANIMATIONS = animations;
 					AzureLibCache.MODELS = models;

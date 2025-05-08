@@ -22,6 +22,7 @@ import mod.azure.azurelib.core.keyframe.BoneAnimationQueue;
 import mod.azure.azurelib.core.state.BoneSnapshot;
 import mod.azure.azurelib.core.utils.Interpolations;
 
+@Deprecated()
 public class AnimationProcessor<T extends GeoAnimatable> {
 	private final Map<String, CoreGeoBone> bones = new Object2ObjectOpenHashMap<>();
 	private final CoreGeoModel<T> model;

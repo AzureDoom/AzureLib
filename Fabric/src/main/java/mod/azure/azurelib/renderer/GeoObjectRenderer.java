@@ -39,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
  * <br>
  * It is <b>strongly</b> recommended you override {@link GeoRenderer#getInstanceId} if using this renderer
  */
+@Deprecated()
 public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T> {
 	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;

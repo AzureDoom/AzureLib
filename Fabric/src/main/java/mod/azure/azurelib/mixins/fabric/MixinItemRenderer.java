@@ -29,7 +29,21 @@ import net.minecraft.world.item.ItemStack;
 public class MixinItemRenderer {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"), cancellable = true)
 	public void itemModelHook(ItemStack itemStack, ItemDisplayContext transformType, boolean bl, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, BakedModel bakedModel, CallbackInfo ci) {
-		if (itemStack.getItem() instanceof GeoItem)
-			RenderProvider.of(itemStack).getCustomRenderer().renderByItem(itemStack, transformType, poseStack, multiBufferSource, i, j);
+		// TODO: Remove this along with Geo-code.
+		if (itemStack.getItem() instanceof GeoItem) {
+			RenderProvider.of(itemStack)
+				.getCustomRenderer()
+				.renderByItem(itemStack, transformType, poseStack, multiBufferSource, i, j);
+		}
+
+		var item = itemStack.getItem();
+		var renderer = AzItemRendererRegistry.getOrNull(item);
+
+		if (renderer != null) {
+			switch (transformType) {
+				case GUI -> renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
+				default -> renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+			}
+		}
 	}
 }

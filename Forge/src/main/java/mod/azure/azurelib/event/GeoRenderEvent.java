@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
  * AzureLib events base-class for the various event stages of rendering.<br>
  * These are fired on the {@link net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus FORGE} mod bus
  */
+@Deprecated()
 public interface GeoRenderEvent {
 	/**
 	 * Returns the renderer for this event

@@ -33,6 +33,7 @@ import java.util.Map;
  * Because of the extra performance cost of this renderer, it is advised to avoid using it unnecessarily, and consider
  * whether the benefits are worth the cost for your needs.
  */
+@Deprecated()
 public abstract class DynamicGeoArmorRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> {
 
     protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =

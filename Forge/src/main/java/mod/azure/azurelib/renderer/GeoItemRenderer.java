@@ -47,6 +47,7 @@ import net.minecraftforge.common.MinecraftForge;
  * Base {@link GeoRenderer} class for rendering {@link Item Items} specifically.<br>
  * All items added to be rendered by AzureLib should use an instance of this class.
  */
+@Deprecated()
 public class GeoItemRenderer<T extends Item & GeoAnimatable> extends BlockEntityWithoutLevelRenderer implements GeoRenderer<T> {
 	protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
 	protected final GeoModel<T> model;

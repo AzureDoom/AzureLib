@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.entity.Entity Entities}
  */
+@Deprecated()
 public class EntityAnimTriggerPacket<D> {
 	private final int entityId;
 	private final boolean isReplacedEntity;

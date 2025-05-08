@@ -53,6 +53,7 @@ import java.util.Map;
  * Supports both {@link mod.azure.azurelib.animatable.GeoItem AzureLib} and {@link net.minecraft.world.item.ArmorItem Vanilla} armor models.<br>
  * Unlike a traditional armor renderer, this renderer renders per-bone, giving much more flexible armor rendering.
  */
+@Deprecated()
 public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends GeoRenderLayer<T> {
 	protected static final Map<String, ResourceLocation> ARMOR_PATH_CACHE = new Object2ObjectOpenHashMap<>();
 	protected static final HumanoidModel<LivingEntity> INNER_ARMOR_MODEL = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));

@@ -24,6 +24,7 @@ import net.minecraft.resources.ResourceLocation;
  * Packet for syncing user-definable animations that can be triggered from the
  * server
  */
+@Deprecated()
 public class AnimTriggerPacket extends AbstractPacket {
     private final String syncableId;
     private final long instanceId;
@@ -46,6 +47,11 @@ public class AnimTriggerPacket extends AbstractPacket {
         buf.writeUtf(this.animName);
 
         return buf;
+    }
+
+    @Override
+    public void encode(FriendlyByteBuf buf) {
+
     }
 
     @Override

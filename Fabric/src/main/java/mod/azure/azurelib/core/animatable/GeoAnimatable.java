@@ -28,6 +28,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
  *     <li>{@code GeoItem}</li>
  * </ul>
  */
+@Deprecated()
 public interface GeoAnimatable {
 	/**
 	 * Register your {@link AnimationController AnimationControllers} and their respective animations and conditions.

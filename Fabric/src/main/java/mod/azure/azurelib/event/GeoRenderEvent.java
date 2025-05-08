@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * AzureLib events base-class for the various event stages of rendering.<br>
  */
+@Deprecated()
 public interface GeoRenderEvent {
 	/**
 	 * Returns the renderer for this event

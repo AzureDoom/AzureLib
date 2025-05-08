@@ -15,6 +15,7 @@ import org.joml.Vector3f;
  * @param texU The texture U coordinate
  * @param texV The texture V coordinate
  */
+@Deprecated()
 public record GeoVertex(Vector3f position, float texU, float texV) {
 	public GeoVertex(double x, double y, double z) {
 		this(new Vector3f((float)x, (float)y, (float)z), 0, 0);

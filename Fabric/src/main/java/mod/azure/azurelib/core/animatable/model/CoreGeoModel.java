@@ -18,6 +18,7 @@ import mod.azure.azurelib.core.animation.AnimationState;
  * Base class for AzureLib models.<br>
  * Mostly an internal placeholder to allow for splitting up core (non-Minecraft) libraries
  */
+@Deprecated()
 public interface CoreGeoModel<E extends GeoAnimatable> {
 	/**
 	 * Get the baked model data for this model based on the provided string location

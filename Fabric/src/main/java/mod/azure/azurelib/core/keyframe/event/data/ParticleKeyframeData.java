@@ -14,6 +14,7 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
 /**
  * Particle {@link Keyframe} instruction holder
  */
+@Deprecated()
 public class ParticleKeyframeData extends KeyFrameData {
 	private final String effect;
 	private final String locator;
