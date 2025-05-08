@@ -12,6 +12,7 @@ import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
  * Transformations applied to the bone is monitored by the {@link mod.azure.azurelib.core.animation.AnimationProcessor}
  * in the course of animations, and stored here for monitoring.
  */
+@Deprecated()
 public class BoneSnapshot {
 	private final CoreGeoBone bone;
 

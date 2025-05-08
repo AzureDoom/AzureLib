@@ -36,22 +36,7 @@ import javax.annotation.Nullable;
  */
 @Deprecated()
 public interface GeoItem extends SingletonGeoAnimatable {
-	String ID_NBT_KEY = "AzureLibID";
-
-	/**
-	 * Safety wrapper to distance the client-side code from common code.<br>
-	 * This should be cached in your {@link net.minecraft.world.item.Item Item} class
-	 */
-	static Supplier<Object> makeRenderer(GeoItem item) {
-		if (FMLLoader.getDist().isDedicatedServer())
-			return () -> null;
-
-		return Suppliers.memoize(() -> {
-			AtomicReference<Object> renderProvider = new AtomicReference<>();
-			item.createRenderer(renderProvider::set);
-			return renderProvider.get();
-		});
-	}
+	static final String ID_NBT_KEY = "AzureLibID";
 
 	/**
 	 * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions
