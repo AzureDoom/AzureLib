@@ -15,11 +15,11 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
-    "ClientHooksMixin",
     "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",
-    "NeoMixinHumanoidArmorLayer",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "ClientHooksMixin",
+    "NeoMixinHumanoidArmorLayer"
   ]
 }

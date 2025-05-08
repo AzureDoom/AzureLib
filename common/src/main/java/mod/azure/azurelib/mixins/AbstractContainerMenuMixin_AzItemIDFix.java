@@ -1,11 +1,15 @@
 package mod.azure.azurelib.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -18,7 +22,9 @@ import java.util.UUID;
  * AzureLib-registered item stacks with custom identifiers during container interactions.
  */
 @Mixin(AbstractContainerMenu.class)
-public class AbstractContainerMenuMixin_AzItemIDFix {
+public abstract class AbstractContainerMenuMixin_AzItemIDFix {
+
+    @Shadow public abstract void removed(Player player);
 
     @Unique
     private static final int DEFAULT_AZ_ID = -1;
@@ -54,7 +60,7 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
      * <p>
      * Tooltip: Compares two `ItemStack` objects, ensuring their Az IDs (if present) also match.
      */
-    @Redirect(
+    @WrapOperation(
         method = "synchronizeSlotToRemote", at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
@@ -62,9 +68,10 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
     )
     public boolean azurelib$syncAzureIDWithRemote(
         ItemStack itemStack,
-        ItemStack comparisonItemStack
+        ItemStack comparisonItemStack,
+        Operation<Boolean> original
     ) {
-        return azurelib$compareStacksWithAzureID(itemStack, comparisonItemStack);
+        return azurelib$compareStacksWithAzureID(itemStack, comparisonItemStack, original);
     }
 
     /**
@@ -73,7 +80,7 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
      * Tooltip: Ensures that slot listeners detect changes in AzureLib-registered item stacks based not only on their
      * normal properties but also their Az ID values, if applicable.
      */
-    @Redirect(
+    @WrapOperation(
         method = "triggerSlotListeners", at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
@@ -81,9 +88,10 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
     )
     public boolean azurelib$detectSlotChangeWithAzureID(
         ItemStack itemStack,
-        ItemStack comparisonItemStack
+        ItemStack comparisonItemStack,
+        Operation<Boolean> original
     ) {
-        return azurelib$compareStacksWithAzureID(itemStack, comparisonItemStack);
+        return azurelib$compareStacksWithAzureID(itemStack, comparisonItemStack, original);
     }
 
     /**
@@ -94,9 +102,12 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
      * @return True if the base comparison is true and the Az IDs (if present) match; false otherwise.
      */
     @Unique
-    private boolean azurelib$compareStacksWithAzureID(ItemStack itemStack, ItemStack comparisonItemStack) {
-        return ItemStack.matches(itemStack, comparisonItemStack) &&
-                   (!AzIdentityRegistry.hasIdentity(itemStack.getItem()) || azurelib$checkAzIDMatch(itemStack.getTag(), comparisonItemStack.getTag()));
+    private boolean azurelib$compareStacksWithAzureID(ItemStack itemStack, ItemStack comparisonItemStack, Operation<Boolean> original) {
+        if (!AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
+            return original.call(itemStack, comparisonItemStack);
+        }
+
+        return original.call(itemStack, comparisonItemStack) && azurelib$checkAzIDMatch(itemStack.getTag(), comparisonItemStack.getTag());
     }
 
     /**
