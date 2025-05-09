@@ -5,32 +5,6 @@
 	
 AzureLib represents a branch derived from Geckolib 4.x, serving as an animation engine tailored for Minecraft Mods. It boasts various features, including support for intricate 3D keyframe-driven animations, over 30 different easing functions, concurrent animation capabilities, sound and particle keyframes, event-based keyframes, and numerous other functionalities. Currently, I'll focus on maintaining and supporting AzureLib; no help will be given to Geckolib.
 
-<br>
-Are you a developer and want to use this library in your mod? Add the following to your build.gradle
-</p>
-</center>
-
-```
-repositories {
-        // The Maven with the mods source
-        maven {url 'https://maven.azuredoom.com/mods'}
-}
-
-dependencies {
-
-        //Common 1.20.1+ Latest Only
-       compileOnly "mod.azure.azurelib:azurelib-common-MCVERSION:MODVERSION"
-	   
-        //Fabric or Quilt
-       modImplementation "mod.azure.azurelib:azurelib-fabric-MCVERSION:MODVERSION"
-		
-        //NeoForge
-       implementation "mod.azure.azurelib:azurelib-neo-MCVERSION:MODVERSION"
-}
-```
-
-<center>
-
 <h1 style="font-size:10vw" align="center">Wiki</h1>
 <p align="center">
 You can find the AzureLib Wiki here: https://wiki.azuredoom.com/
