@@ -10,12 +10,16 @@ import mod.azure.azurelib.renderer.GeoArmorRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -86,8 +90,34 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
 
             renderer.prepForRender(entity, stack, equipmentSlot, baseModel);
             baseModel.copyPropertiesTo(typedHumanoidModel);
+            azurelib$testVisibility((A) typedHumanoidModel, entity, equipmentSlot);
             armorModel.renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
             ci.cancel();
+        }
+    }
+
+    @Unique
+    private void azurelib$testVisibility(A model, Entity entity, EquipmentSlotType equipmentSlot) {
+        if (entity instanceof PlayerEntity && model instanceof PlayerModel<?>) {
+            PlayerModel<?> playerModel = (PlayerModel<?>) model;
+            switch (equipmentSlot) {
+                case HEAD: {
+                    playerModel.hat.visible = false;
+                    playerModel.ear.visible = false;
+                    break;
+                }
+                case CHEST: {
+                    playerModel.jacket.visible = false;
+                    playerModel.rightSleeve.visible = false;
+                    playerModel.leftSleeve.visible = false;
+                    break;
+                }
+                case LEGS: {
+                    playerModel.leftPants.visible = false;
+                    playerModel.rightPants.visible = false;
+                    break;
+                }
+            }
         }
     }
 }
