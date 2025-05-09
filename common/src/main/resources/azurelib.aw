@@ -25,6 +25,7 @@ accessible field net/minecraft/client/model/AgeableListModel babyZHeadOffset F
 accessible field net/minecraft/client/model/AgeableListModel babyHeadScale F
 accessible field net/minecraft/client/model/AgeableListModel babyBodyScale F
 accessible field net/minecraft/client/model/AgeableListModel bodyYOffset F
+accessible field net/minecraft/client/model/PlayerModel ear Lnet/minecraft/client/model/geom/ModelPart;
 
 accessible field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
 mutable field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
