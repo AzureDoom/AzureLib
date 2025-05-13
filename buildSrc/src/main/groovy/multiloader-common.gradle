@@ -36,6 +36,17 @@ repositories {
         name = 'Parchment'
         url = 'https://maven.parchmentmc.org'
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {

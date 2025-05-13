@@ -12,6 +12,8 @@ public interface IPlatformHelper {
 
     boolean isDevelopmentEnvironment();
 
+    boolean isModLoaded(String modId);
+
     Path getGameDir();
 
     boolean isServerEnvironment();
