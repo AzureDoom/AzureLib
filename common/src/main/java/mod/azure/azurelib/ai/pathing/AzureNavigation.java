@@ -112,12 +112,20 @@ public class AzureNavigation extends GroundPathNavigation {
         return true;
     }
 
-	@Override
-	public void tick() {
-		super.tick();
+    // If the entity is below 0.8 units in width, the pathing tends to "fail," causing issues like
+    // MC-226637 to take place. By forcing the width check to calculate at least a MINIMUM value of 1.0,
+    // we effectively remove this bug for smaller entities, while keeping larger entity navigation behaviors
+    // untouched. Might be a performance improvement, as the hitbox and AI won't update to "spin." -Modrome
+    public float getMinimumWidth() {
+        return Math.max(this.mob.getBbWidth(),1.0F); //Return whichever value is greater, for small entities, this returns 1.0 no matter what, fixing our spinning entities.
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
         if (this.isDone()) {
             if (this.pathToPosition != null) {
-                if (this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob.getY() > (double)this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), this.mob.getBbWidth())) {
+                if (this.pathToPosition.closerToCenterThan(this.mob.position(), getMinimumWidth()) || this.mob.getY() > (double)this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), getMinimumWidth())) {
                     this.pathToPosition = null;
                 } else {
                     this.mob.getMoveControl().setWantedPosition(this.pathToPosition.getX(), this.pathToPosition.getY(), this.pathToPosition.getZ(), this.speedModifier);
@@ -125,9 +133,9 @@ public class AzureNavigation extends GroundPathNavigation {
             }
             return;
         }
-		if (this.getTargetPos() != null)
-			this.mob.getLookControl().setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
-	}
+        if (this.getTargetPos() != null)
+            this.mob.getLookControl().setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
+    }
 
 	private boolean isAt(Path path, float threshold) {
 		final Vec3 pathPos = path.getNextEntityPos(this.mob);
