@@ -1,8 +1,5 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.rewrite.render.armor.compat.ShoulderSurfingCompat;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -54,10 +51,6 @@ public class AzArmorRenderer {
         }
 
         rendererPipeline.context().prepare(entity, stack, slot, baseModel);
-
-        if (Services.PLATFORM.isModLoaded("shouldersurfing") && !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-            ShoulderSurfingCompat.setAlpha();
-        }
 
         var model = provider.provideBakedModel(stack);
         prepareAnimator(stack, model);

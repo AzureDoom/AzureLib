@@ -10,6 +10,7 @@ import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.compat.ShoulderSurfingCompat;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
 
@@ -74,6 +75,12 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
 
         boneContext.applyBoneVisibilityBySlot(currentSlot);
+        if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha() < 1) {
+            var alpha = (int) (ShoulderSurfingCompat.getAlpha() * 0xFF) << 24;
+            var color = (armorContext.renderColor() & 0xFFFFFF) | alpha;
+            armorContext.setRenderColor(color);
+            armorContext.setTranslucent(true);
+        }
         config.preRenderEntry(context);
     }
 

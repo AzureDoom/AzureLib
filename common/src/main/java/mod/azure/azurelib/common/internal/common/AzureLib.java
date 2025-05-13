@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
 import mod.azure.azurelib.common.platform.Services;
+import mod.azure.azurelib.rewrite.render.armor.compat.ShoulderSurfingCompat;
 
 /**
  * Base class for AzureLib!<br>
@@ -64,6 +65,7 @@ public final class AzureLib {
             Services.INITIALIZER.initialize();
         }
         hasInitialized = true;
+        ShoulderSurfingCompat.init();
     }
 
     public static ResourceLocation modResource(String name) {

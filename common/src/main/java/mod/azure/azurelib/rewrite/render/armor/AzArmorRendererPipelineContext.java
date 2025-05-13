@@ -29,6 +29,8 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
 
     private ItemStack currentStack;
 
+    private boolean translucent = false;
+
     public AzArmorRendererPipelineContext(AzRendererPipeline<ItemStack> rendererPipeline) {
         super(rendererPipeline);
         this.baseModel = null;
@@ -45,7 +47,9 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         @Nullable MultiBufferSource bufferSource,
         float partialTick
     ) {
-        return RenderType.armorCutoutNoCull(texture);
+        return translucent
+            ? RenderType.itemEntityTranslucentCull(texture)
+            : RenderType.armorCutoutNoCull(texture);
     }
 
     public void prepare(
@@ -58,6 +62,17 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         this.currentEntity = entity;
         this.currentStack = stack;
         this.currentSlot = slot;
+    }
+
+    /**
+     * Sets whether the rendering pipeline should render with a translucent effect or not.
+     *
+     * @param translucent A boolean value indicating whether to enable or disable translucency. If true, the rendering
+     *                    pipeline will apply a translucent effect to rendered elements. If false, it will render with
+     *                    an opaque effect.
+     */
+    public void setTranslucent(boolean translucent) {
+        this.translucent = translucent;
     }
 
     /**
