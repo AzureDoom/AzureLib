@@ -136,7 +136,7 @@ public class AzureNavigation extends GroundPathNavigation {
         super.tick();
         if (this.isDone()) {
             if (this.pathToPosition != null) {
-                if (this.pathToPosition.closerToCenterThan(this.mob.position(), getMinimumWidth()) || this.mob.getY() > (double)this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), getMinimumWidth())) {
+                if (this.pathToPosition.closerToCenterThan(this.mob.position(), getMinimumWidth()) || this.mob.getY() > this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), getMinimumWidth())) {
                     this.pathToPosition = null;
                 } else {
                     this.mob.getMoveControl().setWantedPosition(this.pathToPosition.getX(), this.pathToPosition.getY(), this.pathToPosition.getZ(), this.speedModifier);
