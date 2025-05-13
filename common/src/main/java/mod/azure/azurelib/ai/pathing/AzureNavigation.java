@@ -112,11 +112,22 @@ public class AzureNavigation extends GroundPathNavigation {
         return true;
     }
 
-    // If the entity is below 0.8 units in width, the pathing tends to "fail," causing issues like
-    // MC-226637 to take place. By forcing the width check to calculate at least a MINIMUM value of 1.0,
-    // we effectively remove this bug for smaller entities, while keeping larger entity navigation behaviors
-    // untouched. Might be a performance improvement, as the hitbox and AI won't update to "spin." -Modrome
-    public float getMinimumWidth() {
+	/**
+	 * Ensures a minimum width of 1.0 for entities, addressing an issue
+	 * where smaller entities (< 0.8 units in width) encounter pathfinding
+	 * failures. This resolves bugs such as MC-226637, where small entities
+	 * end up "spinning" due to improper navigation logic.
+	 * <p>
+	 * By enforcing a minimum calculated width of 1.0, this method prevents
+	 * the pathfinding system from failing on smaller entities, while leaving
+	 * the behavior of larger entities unchanged. It may also reduce
+	 * performance overhead by preventing frequent hitbox and AI updates
+	 * caused by entity spinning.
+	 *
+	 * @author Modrome
+	 * @return the maximum of the entity's actual width and 1.0, ensuring a minimum width for correct pathing.
+	 */
+	public float getMinimumWidth() {
         return Math.max(this.mob.getBbWidth(),1.0F); //Return whichever value is greater, for small entities, this returns 1.0 no matter what, fixing our spinning entities.
     }
 
