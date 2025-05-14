@@ -94,6 +94,11 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         );
     }
 
+    @Override
+    protected float getShadowRadius(@NotNull T entity) {
+        return config.shadowRadius(entity);
+    }
+
     /**
      * Whether the entity's nametag should be rendered or not.<br>
      * Pretty much exclusively used in {@link EntityRenderer#renderNameTag}

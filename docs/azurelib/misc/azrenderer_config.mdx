@@ -136,6 +136,8 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
             AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
                 .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
                 .setDeathMaxRotation(180F) // Custom death rotation
+                .setShadowRadius(1.0F) // Sets a shadow radius
+                .setShadowRadius(exampleEntity -> 1.0F) // Sets a shadow radius with context
                 .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
                 .setRenderType(exampleEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
@@ -24,9 +25,12 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
     private final Function<T, Float> deathMaxRotationProvider;
 
+    private final Function<T, Float> shadowRadius;
+
     private AzEntityRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
+        Function<T, Float> shadowRadius,
         Function<T, RenderType> renderTypeFunction,
         Function<T, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<T>> renderLayers,
@@ -50,10 +54,15 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             scaleWidth
         );
         this.deathMaxRotationProvider = deathMaxRotationProvider;
+        this.shadowRadius = shadowRadius;
     }
 
     public float getDeathMaxRotation(T entity) {
         return deathMaxRotationProvider.apply(entity);
+    }
+
+    public float shadowRadius(T entity) {
+        return shadowRadius.apply(entity);
     }
 
     public static <T extends Entity> Builder<T> builder(
@@ -74,12 +83,15 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         private Function<T, Float> deathMaxRotationProvider;
 
+        protected Function<T, Float> shadowRadius;
+
         public Builder(
             Function<T, ResourceLocation> modelLocationProvider,
             Function<T, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.deathMaxRotationProvider = $ -> 90F;
+            this.shadowRadius = $ -> 0.0F;
         }
 
         @Override
@@ -133,12 +145,12 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleFunction) {
-            return (AzEntityRendererConfig.Builder) super.setScale(scaleFunction);
+            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleFunction);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
-            return (AzEntityRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
@@ -162,6 +174,32 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return this;
         }
 
+        /**
+         * Sets a provider function for the shadow radius of an entity. The shadow radius determines the size of the
+         * shadow cast by the entity when rendered. This can be dynamic based on the entity's state.
+         *
+         * @param shadowRadiusFunction A function that provides the shadow radius value based on the entity. The
+         *                             function should return a Float representing the desired shadow radius.
+         * @return The current {@code Builder<T>} instance with the shadow radius provider function set, allowing for
+         *         method chaining.
+         */
+        public Builder<T> setShadowRadius(Function<T, Float> shadowRadiusFunction) {
+            this.shadowRadius = shadowRadiusFunction;
+            return this;
+        }
+
+        /**
+         * Sets the shadow radius for the builder configuration. This value determines the size of the shadow rendered
+         * beneath the entity model.
+         *
+         * @param shadowRadius the radius of the shadow for the entity
+         * @return the current instance of the builder for chaining additional configurations
+         */
+        public Builder<T> setShadowRadius(float shadowRadius) {
+            this.shadowRadius = $ -> shadowRadius;
+            return this;
+        }
+
         @Override
         public AzEntityRendererConfig<T> build() {
             var baseConfig = super.build();
@@ -169,6 +207,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             return new AzEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
+                shadowRadius,
                 renderTypeProvider,
                 baseConfig::modelLocation,
                 baseConfig.renderLayers(),
