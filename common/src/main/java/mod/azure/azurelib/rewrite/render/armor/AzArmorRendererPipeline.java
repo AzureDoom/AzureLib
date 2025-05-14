@@ -75,13 +75,13 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
 
         boneContext.applyBoneVisibilityBySlot(currentSlot);
-        if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha() < 1) {
-            var alpha = (int) (ShoulderSurfingCompat.getAlpha() * 0xFF) << 24;
-            var color = (armorContext.renderColor() & 0xFFFFFF) | alpha;
-            armorContext.setRenderColor(color);
-            armorContext.setTranslucent(true);
-        } else if (config.alpha(context.animatable()) < 1) {
-            var alpha = (int) (config.alpha(context.animatable()) * 0xFF) << 24;
+        var alphaValue = config.alpha(context.animatable());
+        if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha(armorContext.currentEntity()) < 1) {
+            alphaValue = ShoulderSurfingCompat.getAlpha(armorContext.currentEntity());
+        }
+
+        if (alphaValue < 1.0F) {
+            var alpha = (int) (alphaValue * 0xFF) << 24;
             var color = (armorContext.renderColor() & 0xFFFFFF) | alpha;
             armorContext.setRenderColor(color);
             armorContext.setTranslucent(true);

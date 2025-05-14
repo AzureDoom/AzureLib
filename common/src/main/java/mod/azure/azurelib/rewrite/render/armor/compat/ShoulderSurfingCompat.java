@@ -1,6 +1,8 @@
 package mod.azure.azurelib.rewrite.render.armor.compat;
 
 import com.github.exopandora.shouldersurfing.api.client.ShoulderSurfing;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 
 import java.util.function.Supplier;
 
@@ -25,19 +27,16 @@ import mod.azure.azurelib.common.platform.Services;
  */
 public class ShoulderSurfingCompat {
 
-    private static Supplier<Float> alphaSupplier = () -> 1.0F;
-
     private static boolean isLoaded = false;
 
     /**
-     * Initializes the compatibility layer for the "Shoulder Surfing" mod. If the "Shoulder Surfing" mod is detected as
-     * loaded, this method sets the internal state to indicate its presence and assigns a supplier function to retrieve
-     * the camera entity's alpha value from the mod's implementation.
+     * Initializes the compatibility layer for the "Shoulder Surfing" mod. This method checks whether the "Shoulder
+     * Surfing" mod is loaded using the platform-specific implementation of the {@code isModLoaded} method. If the mod
+     * is detected, it sets the internal state to indicate that the compatibility layer is successfully loaded.
      */
     public static void init() {
         if (Services.PLATFORM.isModLoaded("shouldersurfing")) {
             isLoaded = true;
-            alphaSupplier = () -> ShoulderSurfing.getInstance().getCameraEntityRenderer().getCameraEntityAlpha();
         }
     }
 
@@ -52,14 +51,30 @@ public class ShoulderSurfingCompat {
     }
 
     /**
-     * Retrieves the alpha value for rendering, which is based on an externally supplied float value. This value
-     * determines the transparency level to be applied during rendering, particularly when integrating with the
-     * "Shoulder Surfing" mod.
+     * Retrieves the alpha transparency value for the provided entity. The alpha value determines the transparency level
+     * of the rendered entity, where 1.0 represents fully opaque and values below 1.0 represent varying degrees of
+     * transparency. This method integrates with the "Shoulder Surfing" mod to retrieve custom alpha values if
+     * applicable.
      *
-     * @return A float representing the alpha value for transparency, where 1.0 indicates full opacity and values closer
-     *         to 0
+     * @param currentEntity the entity for which the alpha transparency value is being determined.
+     * @return the alpha transparency value for the provided entity. Returns 1.0 if the camera entity is not available
+     *         or if the entity is not being rendered with custom transparency settings from the "Shoulder Surfing" mod.
      */
-    public static float getAlpha() {
+    public static float getAlpha(Entity currentEntity) {
+        Supplier<Float> alphaSupplier;
+        var cameraEntity = Minecraft.getInstance().getCameraEntity();
+        var cameraEntityRenderer = ShoulderSurfing.getInstance().getCameraEntityRenderer();
+
+        if (cameraEntity == null) {
+            return 1.0F;
+        }
+
+        if (currentEntity.is(cameraEntity) && cameraEntityRenderer.isRenderingCameraEntity()) {
+            alphaSupplier = cameraEntityRenderer::getCameraEntityAlpha;
+        } else {
+            alphaSupplier = () -> 1.0F;
+        }
+
         return alphaSupplier.get();
     }
 
