@@ -30,8 +30,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         Function<T, RenderType> renderTypeFunction,
         Function<T, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
@@ -99,16 +99,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         @Override
         public Builder<T> setPrerenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
         ) {
-            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
+            return (AzEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
         ) {
-            return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
+            return (AzEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override

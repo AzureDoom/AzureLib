@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
@@ -26,8 +27,8 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, RenderType> renderTypeProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
@@ -96,16 +97,16 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setPrerenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (Builder) super.setPrerenderEntry(preRenderEntry);
+            return (AzArmorRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (Builder) super.setPostRenderEntry(preRenderEntry);
+            return (AzArmorRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
