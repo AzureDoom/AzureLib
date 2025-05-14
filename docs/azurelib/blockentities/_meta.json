@@ -1,5 +1,6 @@
 {
     "blockentities.mdx": {
-        "name": "Animating Block Entities"
+        "name": "Animating Block Entities",
+        "icon": "Cuboid"
     }
 }

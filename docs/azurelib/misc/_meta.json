@@ -1,17 +1,22 @@
 {
     "azrenderer_config.mdx": {
-        "name": "AzRendererConfigs 101"
+        "name": "AzRendererConfigs 101",
+        "icon": "Info"
     },
     "azcommands_101.mdx": {
-        "name": "AzCommands 101"
+        "name": "AzCommands 101",
+        "icon": "Info"
     },
     "animating_in_code.mdx": {
-        "name": "Animating Bones In-Code"
+        "name": "Animating Bones In-Code",
+        "icon": "Info"
     },
     "azurenavigation_101.mdx": {
-        "name": "AzureNavigation 101"
+        "name": "AzureNavigation 101",
+        "icon": "Info"
     },
     "misc.mdx": {
-        "name": "Miscellaneous Features"
+        "name": "Miscellaneous Features",
+        "icon": "Info"
     }
 }

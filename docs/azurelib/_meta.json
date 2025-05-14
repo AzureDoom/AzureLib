@@ -1,14 +1,46 @@
 {
-    "blockbench": "Blockbench Plugin",
-    "updating": "Updating Guide",
-    "armor": "Armor",
-    "blockentities": "Blocks Entities",
-    "entities": "Entities",
-    "items": "Items",
-    "layers": "Layers",
-    "molang": "Molang",
-    "effectkeyframes": "Effect Keyframes",
-    "generaltips": "General Tips",
-    "configs": "Config API",
-    "misc": "Miscellaneous Features"
+    "blockbench": {
+        "name": "Blockbench Plugin",
+        "icon": "Film"
+    },
+    "updating": {
+        "name": "Updating Guide",
+        "icon": "Plus"
+    },
+    "armor": {
+        "name": "Armor",
+        "icon": "Shield"
+    },
+    "blockentities": {
+        "name": "Blocks Entities",
+        "icon": "Cuboid"
+    },
+    "entities": {
+        "name": "Entities",
+        "icon": "Squirrel"
+    },
+    "items": {
+        "name": "Items",
+        "icon": "Wrench"
+    },
+    "layers": {
+        "name": "Layers",
+        "icon": "Layers"
+    },
+    "molang": {
+        "name": "Molang",
+        "icon": "Calculator"
+    },
+    "effectkeyframes": {
+        "name": "Effect Keyframes",
+        "icon": "Sparkles"
+    },
+    "configs": {
+        "name": "Config API",
+        "icon": "Notebook"
+    },
+    "misc": {
+        "name": "Miscellaneous Features",
+        "icon": "Info"
+    }
 }

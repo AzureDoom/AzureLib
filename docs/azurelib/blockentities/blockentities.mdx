@@ -5,13 +5,9 @@ hide_meta: true
 
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
-</Callout>
-<br></br>
 
-<Callout variant="info">
     You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/blocks/blockentity)
 </Callout>
-<br></br>
 
 # How to animate Block Entities
 
@@ -51,6 +47,10 @@ This stores the `ResourceLocation` reference to the animation JSON file. You nee
 Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
 
 ## Creating an Animation Dispatcher
+
+<Callout variant="info">
+    You can find more about [AzCommands here](../misc/azcommands_101)
+</Callout>
 
 This class isn't required but is highly suggested to help store your animation commands to call in other classes.
 
@@ -126,7 +126,7 @@ It connects the block entity with the following:
 The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` and provide the required configuration.
 
 <Callout variant="info">
-    See [AzRendererConfigs 101](../misc/azrendererconfig) for all AzBlockEntityRendererConfig#builder options.
+    See [AzRendererConfigs 101](../misc/azrenderer_config#azblockentityrendererconfig) for all AzBlockEntityRendererConfig#builder options.
 </Callout>
 
 Example Renderer

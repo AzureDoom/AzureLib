@@ -1,8 +1,10 @@
 {
     "items.mdx": {
-        "name": "Animating Items"
+        "name": "Animating Items",
+        "icon": "Wrench"
     },
     "static_items.mdx": {
-        "name": "Creating Static (No Animations) Items"
+        "name": "Creating Static (No Animations) Items",
+        "icon": "Wrench"
     }
 }
