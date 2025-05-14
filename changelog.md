@@ -1,5 +1,4 @@
-v3.0.17
+v3.0.18
 
-- Adds builder support for Alpha, fixing shader issue from previous update. Thanks daedelus_dev for the fix!
-- Fixes scale not working for builders.
-- Adds scale builders with context of the entity being rendered.
+- Fixes ShoulderSurfing compat causing other instances of the armor to also go transparent 
+- Adds a builder option for setting Shadow radius
