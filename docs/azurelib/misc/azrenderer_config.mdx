@@ -46,7 +46,8 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
             AzArmorRendererConfig.builder(MODEL, TEXTURE)
                 .setAnimatorProvider(CustomArmorAnimator::new) // Custom animations
                 .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
-                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Translucent rendering
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleArmor -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -88,6 +89,8 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
         super(
             AzBlockEntityRendererConfig.<ExampleBE>builder(MODEL, TEXTURE)
                 .setAnimatorProvider(ExampleBEAnimator::new) // Custom animator
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleBEEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
@@ -133,6 +136,8 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
             AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
                 .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
                 .setDeathMaxRotation(180F) // Custom death rotation
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
                 .setPrerenderEntry(context2 -> {
                     // Insert code you want to run here
@@ -182,6 +187,8 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .setAnimatorProvider(ExampleItemAnimator::new) // Custom animator
                 .useEntityGuiLighting() // Enable GUI lighting
                 .useNewOffset(true) // Use new offset for BlockBench 4.11+
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleItem -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
@@ -191,12 +198,12 @@ public class ExampleItemRenderer extends AzItemRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
-                .setAlpha(exampleEntity -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(exampleItem -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
                 .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
                 .setScale(1.0F, 1.0F) // Scale for width and height
                 .setScale(1.0F) // Scale for width and height being the same
-                .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
-                .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .setScale(exampleItem -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleItem -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
                 .build()
         );
     }
