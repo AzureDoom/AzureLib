@@ -46,8 +46,8 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
             AzArmorRendererConfig.builder(MODEL, TEXTURE)
                 .setAnimatorProvider(CustomArmorAnimator::new) // Custom animations
                 .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
-                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
-                .setRenderType(exampleArmor -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleArmor -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -187,8 +187,8 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .setAnimatorProvider(ExampleItemAnimator::new) // Custom animator
                 .useEntityGuiLighting() // Enable GUI lighting
                 .useNewOffset(true) // Use new offset for BlockBench 4.11+
-                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
-                .setRenderType(exampleItem -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleItem -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
