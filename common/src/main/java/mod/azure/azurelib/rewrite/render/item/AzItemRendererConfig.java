@@ -148,7 +148,10 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setScale(Function<ItemStack, Float> scaleHeightFunction, Function<ItemStack, Float> scaleWidthFunction) {
+        public Builder setScale(
+            Function<ItemStack, Float> scaleHeightFunction,
+            Function<ItemStack, Float> scaleWidthFunction
+        ) {
             return (AzItemRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 

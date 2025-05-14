@@ -134,7 +134,10 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setScale(Function<ItemStack, Float> scaleHeightFunction, Function<ItemStack, Float> scaleWidthFunction) {
+        public Builder setScale(
+            Function<ItemStack, Float> scaleHeightFunction,
+            Function<ItemStack, Float> scaleWidthFunction
+        ) {
             return (AzArmorRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
