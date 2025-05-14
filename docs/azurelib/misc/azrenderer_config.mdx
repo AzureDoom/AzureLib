@@ -15,6 +15,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 
 - **Model and texture locations**: Specify geo model and texture paths.
 - **Animation support**: Integrate animations using `AzAnimator`.
+- **Alpha configuration**: Customize object alpha value when RenderType supports it.
 - **Scaling options**: Customize object scaling during rendering.
 - **Render layers**: Add extra effects onto the rendering process.
 - **Pre- and post-render hooks**: Perform operations at different stages of rendering.
@@ -54,7 +55,12 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
-                 setScale(1.0F, 1.0F) // Scaling
+                .setAlpha(exampleArmor -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleArmor -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleArmor -> 1.0F, exampleArmor -> 1.0F) // Scale for width and height with context
                 .build()
         );
     }
@@ -91,7 +97,12 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
-                .setScale(1.0F, 1.0F) // Scaling
+                .setAlpha(exampleBEEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleBEEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleBEEntity -> 1.0F, exampleBEEntity -> 1.0F) // Scale for width and height with context
                 .build()
         );
     }
@@ -117,22 +128,28 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
         YOUR_MOD_ID, "textures/entity/exampleentity.png"
     );
 
-    public ExampleEntityRenderer() {
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
                 .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
                 .setDeathMaxRotation(180F) // Custom death rotation
                 .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
-                .setPrerenderEntry(context -> {
+                .setPrerenderEntry(context2 -> {
                     // Insert code you want to run here
-                    return context;
+                    return context2;
                 }) // Pre-render hook
-                .setPostRenderEntry(context -> {
+                .setPostRenderEntry(context2 -> {
                     // Insert code you want to run here
-                    return context;
+                    return context2;
                 }) // Post-render hook
-                .setScale(0.8F, 0.8F) // Scaling options
-                .build()
+                .setAlpha(exampleEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .build(),
+            context
         );
     }
 }
@@ -174,7 +191,12 @@ public class ExampleItemRenderer extends AzItemRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
-                .setScale(1.0F, 1.0F) // Scaling options
+                .setAlpha(exampleEntity -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
                 .build()
         );
     }

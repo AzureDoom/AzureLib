@@ -29,8 +29,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
-        float scaleHeight,
-        float scaleWidth
+        Function<ItemStack, Float> alphaFunction,
+        Function<ItemStack, Float> scaleHeight,
+        Function<ItemStack, Float> scaleWidth
     ) {
         super(
             animatorProvider,
@@ -40,6 +41,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             preRenderEntry,
             postRenderEntry,
             textureLocationProvider,
+            alphaFunction,
             scaleHeight,
             scaleWidth
         );
@@ -117,6 +119,36 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
+        public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
+            return (AzArmorRendererConfig.Builder) super.setAlpha(alphaFunction);
+        }
+
+        @Override
+        public Builder setAlpha(float alpha) {
+            return (AzArmorRendererConfig.Builder) super.setAlpha(alpha);
+        }
+
+        @Override
+        public Builder setScale(Function<ItemStack, Float> scaleFunction) {
+            return (AzArmorRendererConfig.Builder) super.setScale(scaleFunction);
+        }
+
+        @Override
+        public Builder setScale(Function<ItemStack, Float> scaleHeightFunction, Function<ItemStack, Float> scaleWidthFunction) {
+            return (AzArmorRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+        }
+
+        @Override
+        public Builder setScale(float scale) {
+            return (AzArmorRendererConfig.Builder) super.setScale(scale);
+        }
+
+        @Override
+        public Builder setScale(float scaleWidth, float scaleHeight) {
+            return (AzArmorRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
+        }
+
+        @Override
         public AzArmorRendererConfig build() {
             var baseConfig = super.build();
 
@@ -129,8 +161,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
-                baseConfig.scaleHeight(),
-                baseConfig.scaleWidth()
+                baseConfig::alpha,
+                baseConfig::scaleHeight,
+                baseConfig::scaleWidth
             );
         }
     }

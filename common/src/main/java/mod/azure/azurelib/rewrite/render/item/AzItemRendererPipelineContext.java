@@ -19,11 +19,23 @@ import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
  */
 public class AzItemRendererPipelineContext extends AzRendererPipelineContext<ItemStack> {
 
+    private boolean translucent = false;
+
     public AzItemRendererPipelineContext(AzRendererPipeline<ItemStack> rendererPipeline) {
         super(rendererPipeline);
     }
 
-    // TODO: This is what Geckolib does, but it feels wrong to have this render type getter for an ITEM...
+    /**
+     * Sets whether the rendering pipeline should render with a translucent effect or not.
+     *
+     * @param translucent A boolean value indicating whether to enable or disable translucency. If true, the rendering
+     *                    pipeline will apply a translucent effect to rendered elements. If false, it will render with
+     *                    an opaque effect.
+     */
+    public void setTranslucent(boolean translucent) {
+        this.translucent = translucent;
+    }
+
     @Override
     public @NotNull RenderType getDefaultRenderType(
         ItemStack animatable,
@@ -31,6 +43,8 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
         @Nullable MultiBufferSource bufferSource,
         float partialTick
     ) {
-        return RenderType.entityCutoutNoCull(texture);
+        return translucent
+            ? RenderType.itemEntityTranslucentCull(texture)
+            : RenderType.entityCutoutNoCull(texture);
     }
 }

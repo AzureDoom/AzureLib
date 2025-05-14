@@ -33,8 +33,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
-        float scaleHeight,
-        float scaleWidth
+        Function<T, Float> alphaFunction,
+        Function<T, Float> scaleHeight,
+        Function<T, Float> scaleWidth
     ) {
         super(
             animatorProvider,
@@ -44,6 +45,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             preRenderEntry,
             postRenderEntry,
             textureLocationProvider,
+            alphaFunction,
             scaleHeight,
             scaleWidth
         );
@@ -103,10 +105,10 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         }
 
         @Override
-        public Builder setPostRenderEntry(
+        public Builder<T> setPostRenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
-            return (Builder) super.setPostRenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -117,6 +119,36 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         public Builder<T> setDeathMaxRotation(float angle) {
             this.deathMaxRotationProvider = $ -> angle;
             return this;
+        }
+
+        @Override
+        public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
+            return (AzEntityRendererConfig.Builder<T>) super.setAlpha(alphaFunction);
+        }
+
+        @Override
+        public Builder<T> setAlpha(float alpha) {
+            return (AzEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
+        }
+
+        @Override
+        public Builder<T> setScale(Function<T, Float> scaleFunction) {
+            return (AzEntityRendererConfig.Builder) super.setScale(scaleFunction);
+        }
+
+        @Override
+        public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
+            return (AzEntityRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+        }
+
+        @Override
+        public Builder<T> setScale(float scale) {
+            return (AzEntityRendererConfig.Builder<T>) super.setScale(scale);
+        }
+
+        @Override
+        public Builder<T> setScale(float scaleWidth, float scaleHeight) {
+            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
         /**
@@ -143,8 +175,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
-                baseConfig.scaleHeight(),
-                baseConfig.scaleWidth()
+                baseConfig::alpha,
+                baseConfig::scaleHeight,
+                baseConfig::scaleWidth
             );
         }
     }

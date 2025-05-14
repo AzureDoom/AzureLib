@@ -72,9 +72,14 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
         var poseStack = context.poseStack();
         this.entityRenderTranslations.set(poseStack.last().pose());
 
-        var scaleWidth = config.scaleWidth();
-        var scaleHeight = config.scaleHeight();
+        var scaleWidth = config.scaleWidth(context.animatable());
+        var scaleHeight = config.scaleHeight(context.animatable());
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
+        if (config.alpha(context.animatable()) < 1) {
+            var alpha = (int) (config.alpha(context.animatable()) * 0xFF) << 24;
+            var color = (context.renderColor() & 0xFFFFFF) | alpha;
+            context.setRenderColor(color);
+        }
         config.preRenderEntry(context);
     }
 
