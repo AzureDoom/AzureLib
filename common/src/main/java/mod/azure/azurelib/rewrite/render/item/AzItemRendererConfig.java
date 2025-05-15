@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * Configuration class for rendering items using customized settings in an animation framework. Extends
@@ -29,11 +30,12 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
-        float scaleHeight,
-        float scaleWidth,
+        Function<ItemStack, Float> alphaFunction,
+        Function<ItemStack, Float> scaleHeight,
+        Function<ItemStack, Float> scaleWidth,
         boolean useEntityGuiLighting,
         boolean useNewOffset
     ) {
@@ -45,6 +47,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 preRenderEntry,
                 postRenderEntry,
                 textureLocationProvider,
+                alphaFunction,
                 scaleHeight,
                 scaleWidth
         );
@@ -105,22 +108,53 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setPrerenderEntry(
-                Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        public Builder setPrerenderEntry(UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (Builder) super.setPrerenderEntry(preRenderEntry);
+            return (AzItemRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
-        public Builder setPostRenderEntry(
-                Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+        public Builder setPostRenderEntry(UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (Builder) super.setPostRenderEntry(preRenderEntry);
+            return (AzItemRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
+        }
+
+        @Override
+        public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
+            return (AzItemRendererConfig.Builder) super.setAlpha(alphaFunction);
+        }
+
+        @Override
+        public Builder setAlpha(float alpha) {
+            return (AzItemRendererConfig.Builder) super.setAlpha(alpha);
+        }
+
+        @Override
+        public Builder setScale(Function<ItemStack, Float> scaleFunction) {
+            return (AzItemRendererConfig.Builder) super.setScale(scaleFunction);
+        }
+
+        @Override
+        public Builder setScale(
+            Function<ItemStack, Float> scaleHeightFunction,
+            Function<ItemStack, Float> scaleWidthFunction
+        ) {
+            return (AzItemRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+        }
+
+        @Override
+        public Builder setScale(float scale) {
+            return (AzItemRendererConfig.Builder) super.setScale(scale);
+        }
+
+        @Override
+        public Builder setScale(float scaleWidth, float scaleHeight) {
+            return (AzItemRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
         }
 
         public Builder useEntityGuiLighting() {
@@ -149,8 +183,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
-                baseConfig.scaleHeight(),
-                baseConfig.scaleWidth(),
+                baseConfig::alpha,
+                baseConfig::scaleHeight,
+                baseConfig::scaleWidth,
                 useEntityGuiLighting,
                 useNewOffset
             );

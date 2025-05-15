@@ -66,10 +66,13 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
         this.entityRenderTranslations.set(poseStack.last().pose());
 
         var config = entityRenderer.config();
-        var scaleWidth = config.scaleWidth();
-        var scaleHeight = config.scaleHeight();
+        var scaleWidth = config.scaleWidth(context.animatable());
+        var scaleHeight = config.scaleHeight(context.animatable());
 
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
+        if (config.alpha(context.animatable()) < 1) {
+            context.setAlpha(config.alpha(context.animatable()));
+        }
         config.preRenderEntry(context);
     }
 

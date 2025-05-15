@@ -165,6 +165,28 @@ public abstract class AzRendererPipelineContext<T> {
         return alpha;
     }
 
+    public void setRed(float red) {
+        this.red = red;
+    }
+
+    public void setGreen(float green) {
+        this.green = green;
+    }
+
+    public void setBlue(float blue) {
+        this.blue = blue;
+    }
+
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
+    }
+
+    public void setColor(Color color) {
+        this.red = color.getRedFloat();
+        this.green = color.getGreenFloat();
+        this.blue = color.getBlueFloat();
+    }
+
     public int packedLight() {
         return packedLight;
     }

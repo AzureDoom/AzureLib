@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * The {@code AzBlockEntityRendererConfig} class is a specialized configuration for rendering block entities. It extends
@@ -27,11 +28,12 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
-        float scaleHeight,
-        float scaleWidth
+        Function<T, Float> alphaFunction,
+        Function<T, Float> scaleHeight,
+        Function<T, Float> scaleWidth
     ) {
         super(
                 animatorProvider,
@@ -41,6 +43,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 preRenderEntry,
                 postRenderEntry,
                 textureLocationProvider,
+                alphaFunction,
                 scaleHeight,
                 scaleWidth
         );
@@ -85,13 +88,52 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         @Override
-        public Builder<T> setPrerenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry) {
-            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
+        public Builder<T> setPrerenderEntry(
+            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+        ) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
+        }
+
+        @Override
+        public Builder<T> setPostRenderEntry(
+            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+        ) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<T>> animatorProvider) {
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
+        }
+
+        @Override
+        public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alphaFunction);
+        }
+
+        @Override
+        public Builder<T> setAlpha(float alpha) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
+        }
+
+        @Override
+        public Builder<T> setScale(Function<T, Float> scaleFunction) {
+            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleFunction);
+        }
+
+        @Override
+        public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
+            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+        }
+
+        @Override
+        public Builder<T> setScale(float scale) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scale);
+        }
+
+        @Override
+        public Builder<T> setScale(float scaleWidth, float scaleHeight) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
         @Override
@@ -106,8 +148,9 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 baseConfig::preRenderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
-                baseConfig.scaleHeight(),
-                baseConfig.scaleWidth()
+                baseConfig::alpha,
+                baseConfig::scaleHeight,
+                baseConfig::scaleWidth
             );
         }
     }

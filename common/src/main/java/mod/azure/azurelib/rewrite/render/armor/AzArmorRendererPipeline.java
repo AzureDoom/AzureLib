@@ -53,8 +53,8 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         var boneContext = armorContext.boneContext();
         var config = config();
         var currentSlot = armorContext.currentSlot();
-        var scaleWidth = config.scaleWidth();
-        var scaleHeight = config.scaleHeight();
+        var scaleWidth = config.scaleWidth(context.animatable());
+        var scaleHeight = config.scaleHeight(context.animatable());
 
         var animatable = armorContext.animatable();
         var model = armorRenderer.provider().provideBakedModel(animatable);
@@ -69,6 +69,10 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
 
         boneContext.applyBoneVisibilityBySlot(currentSlot);
+        if (config.alpha(context.animatable()) < 1) {
+            armorContext.setAlpha(config.alpha(context.animatable()));
+            armorContext.setTranslucent(true);
+        }
         config.preRenderEntry(context);
     }
 

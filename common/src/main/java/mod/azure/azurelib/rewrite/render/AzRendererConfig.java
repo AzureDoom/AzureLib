@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * The {@code AzRendererConfig} class is a configuration class used for defining rendering configurations for generic
@@ -27,28 +28,31 @@ public class AzRendererConfig<T> {
 
     protected final Function<T, RenderType> renderTypeFunction;
 
-    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
+    private final UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry;
 
-    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
+    private final UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry;
 
     protected final List<AzRenderLayer<T>> renderLayers;
 
     protected final Function<T, ResourceLocation> textureLocationProvider;
 
-    protected final float scaleHeight;
+    private final Function<T, Float> alphaFunction;
 
-    protected final float scaleWidth;
+    private final Function<T, Float> scaleHeight;
+
+    private final Function<T, Float> scaleWidth;
 
     public AzRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry,
+        UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
-        float scaleHeight,
-        float scaleWidth
+        Function<T, Float> alphaFunction,
+        Function<T, Float> scaleHeight,
+        Function<T, Float> scaleWidth
     ) {
         this.animatorProvider = animatorProvider;
         this.modelLocationProvider = modelLocationProvider;
@@ -59,6 +63,7 @@ public class AzRendererConfig<T> {
         this.textureLocationProvider = textureLocationProvider;
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
+        this.alphaFunction = alphaFunction;
     }
 
     public @Nullable AzAnimator<T> createAnimator() {
@@ -89,12 +94,16 @@ public class AzRendererConfig<T> {
         return postRenderEntry.apply(animatable);
     }
 
-    public float scaleHeight() {
-        return scaleHeight;
+    public float alpha(T entity) {
+        return alphaFunction.apply(entity);
     }
 
-    public float scaleWidth() {
-        return scaleWidth;
+    public float scaleHeight(T entity) {
+        return scaleHeight.apply(entity);
+    }
+
+    public float scaleWidth(T entity) {
+        return scaleWidth.apply(entity);
     }
 
     public static class Builder<T> {
@@ -105,17 +114,19 @@ public class AzRendererConfig<T> {
 
         private final List<AzRenderLayer<T>> renderLayers;
 
-        private Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
+        protected UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry;
 
-        private Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
+        protected UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry;
 
-        private final Function<T, ResourceLocation> textureLocationProvider;
+        protected final Function<T, ResourceLocation> textureLocationProvider;
 
-        private Supplier<@Nullable AzAnimator<T>> animatorProvider;
+        protected Supplier<@Nullable AzAnimator<T>> animatorProvider;
 
-        private float scaleHeight;
+        protected Function<T, Float> alphaFunction;
 
-        private float scaleWidth;
+        protected Function<T, Float> scaleHeight;
+
+        protected Function<T, Float> scaleWidth;
 
         protected Builder(
             Function<T, ResourceLocation> modelLocationProvider,
@@ -128,8 +139,9 @@ public class AzRendererConfig<T> {
             this.preRenderEntry = $ -> $;
             this.postRenderEntry = $ -> $;
             this.textureLocationProvider = textureLocationProvider;
-            this.scaleHeight = 1;
-            this.scaleWidth = 1;
+            this.alphaFunction = $ -> 1.0F;
+            this.scaleHeight = $ -> 1.0F;
+            this.scaleWidth = $ -> 1.0F;
         }
 
         /**
@@ -153,13 +165,43 @@ public class AzRendererConfig<T> {
             return this;
         }
 
-        public Builder<T> setPrerenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry) {
+        public Builder<T> setPrerenderEntry(
+            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+        ) {
             this.preRenderEntry = preRenderEntry;
             return this;
         }
 
-        public Builder<T> setPostRenderEntry(Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry) {
+        public Builder<T> setPostRenderEntry(
+            UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry
+        ) {
             this.postRenderEntry = postRenderEntry;
+            return this;
+        }
+
+        /**
+         * Sets the alpha value provider for the builder. The alpha value determines the opacity level of the rendered
+         * object and is calculated dynamically based on the specified function.
+         *
+         * @param alphaFunction a {@link Function} that takes an object of type {@code T} and returns a {@code Float}
+         *                      value representing the alpha (opacity) level, where 0.0 is fully transparent and 1.0 is
+         *                      fully opaque
+         * @return the updated {@code Builder} instance for chaining configuration methods
+         */
+        public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
+            this.alphaFunction = alphaFunction;
+            return this;
+        }
+
+        /**
+         * Sets the alpha transparency level for the builder, which determines the level of transparency to be applied.
+         *
+         * @param alpha the alpha transparency value to set, where 0.0 represents fully transparent and 1.0 represents
+         *              fully opaque
+         * @return the updated {@code Builder} instance for chaining configuration methods
+         */
+        public Builder<T> setAlpha(float alpha) {
+            this.alphaFunction = $ -> alpha;
             return this;
         }
 
@@ -181,8 +223,38 @@ public class AzRendererConfig<T> {
          * @return the updated builder instance for chaining operations
          */
         public Builder<T> setScale(float scaleWidth, float scaleHeight) {
-            this.scaleHeight = scaleHeight;
-            this.scaleWidth = scaleWidth;
+            this.scaleHeight = $ -> scaleHeight;
+            this.scaleWidth = $ -> scaleWidth;
+            return this;
+        }
+
+        /**
+         * Sets the scaling function for both the width and height dimensions of the target object. The provided
+         * function dynamically calculates scaling factors based on the input object of type {@code T}.
+         *
+         * @param scaleFunction a {@link Function} that takes an object of type {@code T} and returns a {@code Float}
+         *                      value representing the scaling factor to be applied uniformly to both width and height
+         * @return the updated {@code Builder} instance for chaining configuration methods
+         */
+        public Builder<T> setScale(Function<T, Float> scaleFunction) {
+            this.scaleHeight = scaleFunction;
+            this.scaleWidth = scaleFunction;
+            return this;
+        }
+
+        /**
+         * Sets the scaling functions for height and width dimensions. These functions dynamically calculate scaling
+         * factors based on the input object of type {@code T}.
+         *
+         * @param scaleHeightFunction a {@link Function} that takes an object of type {@code T} and returns a
+         *                            {@code Float} representing the scaling factor for the height dimension
+         * @param scaleWidthFunction  a {@link Function} that takes an object of type {@code T} and returns a
+         *                            {@code Float} representing the scaling factor for the width dimension
+         * @return the updated {@code Builder} instance for chaining configuration methods
+         */
+        public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
+            this.scaleHeight = scaleHeightFunction;
+            this.scaleWidth = scaleWidthFunction;
             return this;
         }
 
@@ -202,6 +274,7 @@ public class AzRendererConfig<T> {
                 preRenderEntry,
                 postRenderEntry,
                 textureLocationProvider,
+                alphaFunction,
                 scaleHeight,
                 scaleWidth
             );

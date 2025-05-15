@@ -16,8 +16,8 @@ public class MarauderRenderer extends AzEntityRenderer<MarauderEntity> {
     public MarauderRenderer(EntityRendererProvider.Context context) {
         super(
             AzEntityRendererConfig.<MarauderEntity>builder(MODEL, TEXTURE)
-                .addRenderLayer(new AzAutoGlowingLayer<>())
                 .setAnimatorProvider(MarauderAnimator::new)
+                .addRenderLayer(new AzAutoGlowingLayer<>())
                 .setDeathMaxRotation(0F)
                 .build(),
             context

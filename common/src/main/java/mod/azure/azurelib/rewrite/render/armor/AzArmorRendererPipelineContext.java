@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
@@ -7,8 +8,10 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.DyeableArmorItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +27,8 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
     private EquipmentSlot currentSlot;
 
     private ItemStack currentStack;
+
+    private boolean translucent = false;
 
     public AzArmorRendererPipelineContext(AzRendererPipeline<ItemStack> rendererPipeline) {
         super(rendererPipeline);
@@ -41,7 +46,9 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         @Nullable MultiBufferSource bufferSource,
         float partialTick
     ) {
-        return RenderType.armorCutoutNoCull(texture);
+        return translucent
+                   ? RenderType.itemEntityTranslucentCull(texture)
+                   : RenderType.armorCutoutNoCull(texture);
     }
 
     public void prepare(
@@ -54,6 +61,29 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         this.currentEntity = entity;
         this.currentStack = stack;
         this.currentSlot = slot;
+    }
+
+    /**
+     * Sets whether the rendering pipeline should render with a translucent effect or not.
+     *
+     * @param translucent A boolean value indicating whether to enable or disable translucency. If true, the rendering
+     *                    pipeline will apply a translucent effect to rendered elements. If false, it will render with
+     *                    an opaque effect.
+     */
+    public void setTranslucent(boolean translucent) {
+        this.translucent = translucent;
+    }
+
+    /**
+     * Gets a tint-applying color to render the given animatable with
+     * <p>
+     * Returns {@link Color#WHITE} by default
+     */
+    @Override
+    public Color getRenderColor(ItemStack animatable, float partialTick, int packedLight) {
+        return this.currentStack.getItem() instanceof DyeableArmorItem dyeableArmorItem
+                   ? Color.ofOpaque(dyeableArmorItem.getColor(animatable))
+                   : Color.WHITE;
     }
 
     public HumanoidModel<?> baseModel() {

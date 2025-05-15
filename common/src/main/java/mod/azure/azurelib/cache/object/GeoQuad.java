@@ -15,7 +15,6 @@ import net.minecraft.core.Direction;
 /**
  * Quad data holder
  */
-@Deprecated(forRemoval = true)
 public record GeoQuad(
 		GeoVertex[] vertices,
 		Vector3f normal,
