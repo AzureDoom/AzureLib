@@ -28,7 +28,7 @@ public class AzureLib {
         hasInitialized = true;
     }
 
-    public static final ResourceLocation modResource(String name) {
+    public static ResourceLocation modResource(String name) {
         return new ResourceLocation(MOD_ID, name);
     }
 }
