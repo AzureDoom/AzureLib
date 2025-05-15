@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.Gson;
@@ -63,6 +67,8 @@ public final class JsonUtil {
 			.registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
 			.registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter())
 			.registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
+		    .registerTypeAdapter(AzKeyframes.class, new AzKeyframesAdapter())
+		    .registerTypeAdapter(AzBakedAnimations.class, new AzBakedAnimationsAdapter())
 			.create();
 
 	/**

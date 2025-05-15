@@ -20,7 +20,6 @@ package mod.azure.azurelib.core.keyframe;
  * @param animationEndValue The end value to provide to the animation handling system
  * @param keyFrame The {@code Nullable} Keyframe
  */
-@Deprecated(forRemoval = true)
 public record AnimationPoint(Keyframe<?> keyFrame, double currentTick, double transitionLength, double animationStartValue, double animationEndValue) {
 	@Override
 	public String toString() {

@@ -17,10 +17,7 @@ import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
  * <li>{@code playBehavior}: The {@link AzPlayBehavior} that dictates the looping behavior or termination handling for the
  * animation.</li>
  * </ul>
- *
- * @deprecated
  */
-@Deprecated(forRemoval = true)
 public record AzQueuedAnimation(
     AzBakedAnimation animation,
     AzPlayBehavior playBehavior

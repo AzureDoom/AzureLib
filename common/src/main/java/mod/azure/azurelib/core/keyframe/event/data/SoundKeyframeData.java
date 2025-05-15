@@ -14,7 +14,6 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
 /**
  * Sound {@link Keyframe} instruction holder
  */
-@Deprecated(forRemoval = true)
 public class SoundKeyframeData extends KeyFrameData {
 	private final String sound;
 

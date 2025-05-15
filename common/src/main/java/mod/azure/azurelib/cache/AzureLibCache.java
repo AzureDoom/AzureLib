@@ -89,12 +89,18 @@ public final class AzureLibCache {
                 }, gameExecutor);
     }
 
+    /**
+     * @deprecated
+     */
     private static CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager,
                                                           BiConsumer<ResourceLocation, BakedAnimations> elementConsumer) {
         return loadResources(backgroundExecutor, resourceManager, "animations",
                 resource -> FileLoader.loadAnimationsFile(resource, resourceManager), elementConsumer);
     }
 
+    /**
+     * @deprecated
+     */
     private static CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager,
                                                       BiConsumer<ResourceLocation, BakedGeoModel> elementConsumer) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {

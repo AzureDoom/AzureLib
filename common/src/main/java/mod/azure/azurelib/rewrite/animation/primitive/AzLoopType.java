@@ -11,10 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Loop type functional interface to define post-play handling for a given animation. <br>
  * Custom loop types are supported by extending this class and providing the extended class instance as the loop type
  * for the animation
- *
- * @deprecated
  */
-@Deprecated(forRemoval = true)
 public interface AzLoopType {
 
     String name();
