@@ -112,12 +112,31 @@ public class AzureNavigation extends GroundPathNavigation {
         return true;
     }
 
-	@Override
-	public void tick() {
-		super.tick();
+	/**
+	 * Ensures a minimum width of 1.0 for entities, addressing an issue
+	 * where smaller entities (less than 0.8 units in width) encounter pathfinding
+	 * failures. This resolves bugs such as MC-226637, where small entities
+	 * end up "spinning" due to improper navigation logic.
+	 * <p>
+	 * By enforcing a minimum calculated width of 1.0, this method prevents
+	 * the pathfinding system from failing on smaller entities, while leaving
+	 * the behavior of larger entities unchanged. It may also reduce
+	 * performance overhead by preventing frequent hitbox and AI updates
+	 * caused by entity spinning.
+	 *
+	 * @author Modrome
+	 * @return the maximum of the entity's actual width and 1.0, ensuring a minimum width for correct pathing.
+	 */
+	public float getMinimumWidth() {
+        return Math.max(this.mob.getBbWidth(),1.0F); //Return whichever value is greater, for small entities, this returns 1.0 no matter what, fixing our spinning entities.
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
         if (this.isDone()) {
             if (this.pathToPosition != null) {
-                if (this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob.getY() > (double)this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), this.mob.getBbWidth())) {
+                if (this.pathToPosition.closerToCenterThan(this.mob.position(), getMinimumWidth()) || this.mob.getY() > this.pathToPosition.getY() && BlockPos.containing(this.pathToPosition.getX(), this.mob.getY(), this.pathToPosition.getZ()).closerToCenterThan(this.mob.position(), getMinimumWidth())) {
                     this.pathToPosition = null;
                 } else {
                     this.mob.getMoveControl().setWantedPosition(this.pathToPosition.getX(), this.pathToPosition.getY(), this.pathToPosition.getZ(), this.speedModifier);
@@ -125,9 +144,9 @@ public class AzureNavigation extends GroundPathNavigation {
             }
             return;
         }
-		if (this.getTargetPos() != null)
-			this.mob.getLookControl().setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
-	}
+        if (this.getTargetPos() != null)
+            this.mob.getLookControl().setLookAt(this.getTargetPos().getX(), this.getTargetPos().getY(), this.getTargetPos().getZ());
+    }
 
 	private boolean isAt(Path path, float threshold) {
 		final Vec3 pathPos = path.getNextEntityPos(this.mob);

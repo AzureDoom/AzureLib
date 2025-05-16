@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
+@Deprecated(forRemoval = true)
 public class EntityPacketOnClient {
 	public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {
 		EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.byId(byteBuf.readVarInt());

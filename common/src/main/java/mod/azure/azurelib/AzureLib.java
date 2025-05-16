@@ -18,6 +18,7 @@ public class AzureLib {
     public static final Logger LOGGER = LogManager.getLogger("azurelib");
     public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
     public static final String MOD_ID = "azurelib";
+    public static final String ITEM_UUID_TAG = "az_id";
     public static boolean hasInitialized;
 
     public static void initialize() {
@@ -27,7 +28,7 @@ public class AzureLib {
         hasInitialized = true;
     }
 
-    public static final ResourceLocation modResource(String name) {
+    public static ResourceLocation modResource(String name) {
         return new ResourceLocation(MOD_ID, name);
     }
 }

@@ -1,39 +1,39 @@
 plugins {
-    id 'idea'
-    id 'java'
-    id 'maven-publish'
-    id 'org.spongepowered.gradle.vanilla'
-}
-base {
-    archivesName = "${mod_id}-common-${minecraft_version}"
+    id 'multiloader-common'
+    id 'net.neoforged.moddev.legacyforge'
+    id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
-minecraft {
-    version(minecraft_version)
-    if (file("src/main/resources/${mod_id}.aw").exists()) {
-        accessWideners(file("src/main/resources/${mod_id}.aw"))
+legacyForge {
+    mcpVersion = minecraft_version
+    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
     }
 }
 
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
+    annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "azurelib"
-            url = "https://maven.azuredoom.com/mods"
-            credentials(PasswordCredentials)
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
     }
-    publications {
-        maven(MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
     }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
 }

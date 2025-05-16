@@ -42,6 +42,14 @@ import net.minecraft.world.phys.Vec3;
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtils {
+	private static final Matrix4f TRANSLATE_MATRIX_CACHE = new Matrix4f();
+
+	private static final Quaternionf X_QUATERNION_CACHE = new Quaternionf();
+
+	private static final Quaternionf Y_QUATERNION_CACHE = new Quaternionf();
+
+	private static final Quaternionf Z_QUATERNION_CACHE = new Quaternionf();
+
 	public static void translateMatrixToBone(PoseStack poseStack, CoreGeoBone bone) {
 		poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
 	}
@@ -60,9 +68,9 @@ public final class RenderUtils {
 	public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
 		Vec3 rotation = cube.rotation();
 
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, 0, (float) rotation.z()));
-		poseStack.mulPose(new Quaternionf().rotationXYZ(0, (float) rotation.y(), 0));
-		poseStack.mulPose(new Quaternionf().rotationXYZ((float) rotation.x(), 0, 0));
+		poseStack.mulPose(Z_QUATERNION_CACHE.rotationXYZ(0, 0, (float) rotation.z()));
+		poseStack.mulPose(Y_QUATERNION_CACHE.rotationXYZ(0, (float) rotation.y(), 0));
+		poseStack.mulPose(X_QUATERNION_CACHE.rotationXYZ((float) rotation.x(), 0, 0));
 	}
 
 	public static void scaleMatrixForBone(PoseStack poseStack, CoreGeoBone bone) {
@@ -123,7 +131,8 @@ public final class RenderUtils {
 	 * Add a positional vector to a matrix. This is specifically implemented to act as a translation of an x/y/z coordinate triplet to a render matrix
 	 */
 	public static Matrix4f translateMatrix(Matrix4f matrix, Vector3f vector) {
-		return matrix.add(new Matrix4f().m30(vector.x).m31(vector.y).m32(vector.z));
+		TRANSLATE_MATRIX_CACHE.m30(vector.x).m31(vector.y).m32(vector.z);
+		return matrix.add(TRANSLATE_MATRIX_CACHE);
 	}
 
 	/**
@@ -168,7 +177,10 @@ public final class RenderUtils {
 	}
 
 	/**
-	 * Returns the current time (in ticks) that the {@link org.lwjgl.glfw.GLFW GLFW} instance has been running. This is effectively a permanent timer that counts up since the game was launched.
+	 * Calculates and retrieves the current game tick.
+	 * The value is determined by multiplying the current rendering time by 20.
+	 *
+	 * @return The current tick as a double value.
 	 */
 	public static double getCurrentTick() {
 		return Blaze3D.getTime() * 20d;
@@ -237,6 +249,7 @@ public final class RenderUtils {
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoModel<?> getGeoModelForEntityType(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
@@ -250,6 +263,7 @@ public final class RenderUtils {
 	 * @return The {@code GeoAnimatable} instance, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoAnimatable getReplacedAnimatable(EntityType<?> entityType) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().renderers.get(entityType);
 
@@ -265,6 +279,7 @@ public final class RenderUtils {
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoModel<?> getGeoModelForEntity(Entity entity) {
 		EntityRenderer<?> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
 
@@ -280,6 +295,7 @@ public final class RenderUtils {
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoModel<?> getGeoModelForItem(Item item) {
 		if (RenderProvider.of(item).getCustomRenderer()instanceof GeoRenderer<?> geoRenderer)
 			return geoRenderer.getGeoModel();
@@ -296,6 +312,7 @@ public final class RenderUtils {
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoModel<?> getGeoModelForBlock(BlockEntity blockEntity) {
 		BlockEntityRenderer<?> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
 
@@ -311,6 +328,7 @@ public final class RenderUtils {
 	 * @return The GeoModel, or null if one isn't found
 	 */
 	@Nullable
+	@Deprecated(forRemoval = true)
 	public static GeoModel<?> getGeoModelForArmor(ItemStack stack) {
 		if (RenderProvider.of(stack).getHumanoidArmorModel(null, stack, null, null)instanceof GeoArmorRenderer<?> armorRenderer)
 			return armorRenderer.getGeoModel();

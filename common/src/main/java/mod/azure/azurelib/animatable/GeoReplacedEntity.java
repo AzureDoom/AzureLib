@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EntityType;
 /**
  * The {@link GeoAnimatable} interface specific to {@link Entity Entities}. This interface is <u>specifically</u> for entities replacing the rendering of other, existing entities.
  */
+@Deprecated(forRemoval = true)
 public interface GeoReplacedEntity extends SingletonGeoAnimatable {
 	/**
 	 * Returns the {@link EntityType} this entity is intending to replace.<br>

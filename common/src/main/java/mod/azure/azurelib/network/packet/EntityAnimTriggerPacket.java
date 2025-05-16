@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Packet for syncing user-definable animations that can be triggered from the
  * server for {@link net.minecraft.world.entity.Entity Entities}
  */
+@Deprecated(forRemoval = true)
 public class EntityAnimTriggerPacket extends AbstractPacket {
     private final int entityId;
     private final boolean isReplacedEntity;

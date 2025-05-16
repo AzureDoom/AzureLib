@@ -13,6 +13,7 @@ import mod.azure.azurelib.core.animation.AnimatableManager;
 /**
  * AnimatableInstanceCache implementation for instantiated objects such as Entities or BlockEntities. Returns a single {@link AnimatableManager} instance per cache.
  */
+@Deprecated(forRemoval = true)
 public class InstancedAnimatableInstanceCache extends AnimatableInstanceCache {
 	protected AnimatableManager<?> manager;
 

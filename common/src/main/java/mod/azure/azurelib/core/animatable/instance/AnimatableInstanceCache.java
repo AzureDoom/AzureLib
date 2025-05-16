@@ -15,6 +15,7 @@ import mod.azure.azurelib.core.object.DataTicket;
  * The base cache class responsible for returning the {@link AnimatableManager} for a given instanceof of a {@link GeoAnimatable}.
  * This class is abstracted and not intended for direct use. See either {@link SingletonAnimatableInstanceCache} or {@link InstancedAnimatableInstanceCache}
  */
+@Deprecated(forRemoval = true)
 public abstract class AnimatableInstanceCache {
 	protected final GeoAnimatable animatable;
 

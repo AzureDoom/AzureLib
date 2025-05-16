@@ -44,6 +44,7 @@ import java.util.function.ToDoubleFunction;
  * Each controller can only play a single animation at a time - for example you may have one controller to animate walking,
  * one to control attacks, one to control size, etc.
  */
+@Deprecated(forRemoval = true)
 public class AnimationController<T extends GeoAnimatable> {
     protected final T animatable;
     protected final String name;

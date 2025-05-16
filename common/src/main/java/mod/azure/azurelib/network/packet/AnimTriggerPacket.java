@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * Packet for syncing user-definable animations that can be triggered from the
  * server
  */
+@Deprecated(forRemoval = true)
 public class AnimTriggerPacket extends AbstractPacket {
     private final String syncableId;
     private final long instanceId;

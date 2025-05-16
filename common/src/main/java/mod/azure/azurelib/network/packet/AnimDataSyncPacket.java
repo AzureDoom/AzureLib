@@ -16,6 +16,7 @@ import static mod.azure.azurelib.platform.services.AzureLibNetwork.ANIM_DATA_SYN
  * Packet for syncing user-definable animation data for
  * {@link SingletonGeoAnimatable} instances
  */
+@Deprecated(forRemoval = true)
 public class AnimDataSyncPacket<D> extends AbstractPacket {
 	private final String syncableId;
 	private final long instanceId;

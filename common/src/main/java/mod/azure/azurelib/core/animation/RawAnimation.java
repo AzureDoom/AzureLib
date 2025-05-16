@@ -27,6 +27,7 @@ import java.util.Objects;
  * Example usage: <br>
  * <pre>{@code RawAnimation.begin().thenPlay("action.open_box").thenLoop("state.stay_open")}</pre>
  */
+@Deprecated(forRemoval = true)
 public final class RawAnimation {
 	private final List<Stage> animationList = new ObjectArrayList<>();
 

@@ -28,7 +28,7 @@ import java.util.Set;
 public abstract class PlayerListMixin {
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
-    private void configuration_sendServerConfigs(Connection connection, ServerPlayer player, CallbackInfo ci) {
+    private void azurelib$sendServerConfigs(Connection connection, ServerPlayer player, CallbackInfo ci) {
         Set<String> set = ConfigHolder.getSynchronizedConfigs();
         set.forEach(id -> Services.NETWORK.sendClientPacket(player, id));
     }

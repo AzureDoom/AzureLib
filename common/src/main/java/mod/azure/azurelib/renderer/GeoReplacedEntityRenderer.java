@@ -49,6 +49,7 @@ import java.util.List;
 /**
  * An alternate to {@link GeoEntityRenderer}, used specifically for replacing existing non-AzureLib entities with AzureLib rendering dynamically, without the need for an additional entity class
  */
+@Deprecated(forRemoval = true)
 public class GeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable> extends EntityRenderer<E> implements GeoRenderer<T> {
 	protected final GeoModel<T> model;
 	protected final List<GeoRenderLayer<T>> renderLayers = new ObjectArrayList<>();

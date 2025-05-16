@@ -7,11 +7,12 @@ import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
 import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.loading.json.FormatVersion;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.loading.object.GeometryTree;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
+import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
@@ -34,6 +35,7 @@ import java.util.function.Function;
  * {@link mod.azure.azurelib.core.animation.Animation Animations} and
  * {@link CoreGeoModel Models}
  */
+@Deprecated(forRemoval = true)
 public final class AzureLibCache {
     private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of("moreplayermodels", "customnpcs", "gunsrpg", "born_in_chaos_v1");
 
@@ -55,7 +57,7 @@ public final class AzureLibCache {
     }
 
     public static void registerReloadListener() {
-        Minecraft mc = Minecraft.getInstance();
+        var mc = Minecraft.getInstance();
 
         if (mc == null) return;
 
@@ -72,20 +74,33 @@ public final class AzureLibCache {
         Map<ResourceLocation, BakedGeoModel> models = new Object2ObjectOpenHashMap<>();
 
         return CompletableFuture
-                .allOf(loadAnimations(backgroundExecutor, resourceManager, animations::put),
-                        loadModels(backgroundExecutor, resourceManager, models::put))
-                .thenCompose(stage::wait).thenAcceptAsync(empty -> {
+                .allOf(
+                        // TODO: Remove these.
+                        loadAnimations(backgroundExecutor, resourceManager, animations::put),
+                        loadModels(backgroundExecutor, resourceManager, models::put),
+                        // Forward-support for new cache components
+                        AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
+                        AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
+                )
+                .thenCompose(stage::wait)
+                .thenAcceptAsync(empty -> {
                     AzureLibCache.ANIMATIONS = animations;
                     AzureLibCache.MODELS = models;
                 }, gameExecutor);
     }
 
+    /**
+     * @deprecated
+     */
     private static CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager,
                                                           BiConsumer<ResourceLocation, BakedAnimations> elementConsumer) {
         return loadResources(backgroundExecutor, resourceManager, "animations",
                 resource -> FileLoader.loadAnimationsFile(resource, resourceManager), elementConsumer);
     }
 
+    /**
+     * @deprecated
+     */
     private static CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager,
                                                       BiConsumer<ResourceLocation, BakedGeoModel> elementConsumer) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
