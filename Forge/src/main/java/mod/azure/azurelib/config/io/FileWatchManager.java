@@ -1,12 +1,8 @@
 package mod.azure.azurelib.config.io;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.config.ConfigHolder;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,14 +12,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.config.ConfigHolder;
+
 public final class FileWatchManager {
 
     public static final Marker MARKER = MarkerManager.getMarker("FileWatching");
+
     private final Map<String, ConfigHolder<?>> configPaths = new HashMap<>();
+
     private final List<WatchKey> watchKeys = new ArrayList<>();
-    @Nullable
+
     private final WatchService service;
+
     private final ScheduledExecutorService executorService;
+
     private final Set<String> processCache = new HashSet<>();
 
     public FileWatchManager() {
@@ -31,7 +35,11 @@ public final class FileWatchManager {
         try {
             watchService = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
-            AzureLib.LOGGER.error(MARKER, "Failed to initialize file watch service due to error, configs won't be automatically refreshed", e);
+            AzureLib.LOGGER.error(
+                MARKER,
+                "Failed to initialize file watch service due to error, configs won't be automatically refreshed",
+                e
+            );
         } finally {
             this.service = watchService;
             this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -42,7 +50,7 @@ public final class FileWatchManager {
             });
         }
     }
-    
+
     public void stopService() {
         try {
             this.executorService.shutdown();
@@ -65,6 +73,7 @@ public final class FileWatchManager {
                 configDirFile.mkdir();
             }
             Files.walkFileTree(configDir, new SimpleFileVisitor<Path>() {
+
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     WatchKey key = dir.register(FileWatchManager.this.service, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -91,7 +100,11 @@ public final class FileWatchManager {
                 });
             }, 0L, 1000L, TimeUnit.MILLISECONDS);
         } catch (IOException e) {
-            AzureLib.LOGGER.error(MARKER, "Unable to create watch key for config directory, disabling auto-sync function", e);
+            AzureLib.LOGGER.error(
+                MARKER,
+                "Unable to create watch key for config directory, disabling auto-sync function",
+                e
+            );
         }
     }
 

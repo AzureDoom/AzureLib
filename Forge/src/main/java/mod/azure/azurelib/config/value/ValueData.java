@@ -1,18 +1,21 @@
 package mod.azure.azurelib.config.value;
 
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-
-import javax.annotation.Nullable;
 import java.util.Objects;
+
+import mod.azure.azurelib.config.adapter.TypeAdapter;
 
 public final class ValueData<T> implements IDescriptionProvider {
 
     private final String id;
+
     private final String[] tooltip;
+
     private final T defaultValue;
+
     private final TypeAdapter.AdapterContext context;
+
     private final Class<T> valueType;
-    @Nullable
+
     private ConfigValue<?> parent;
 
     private ValueData(String id, String[] tooltip, T defaultValue, TypeAdapter.AdapterContext context) {
@@ -44,11 +47,10 @@ public final class ValueData<T> implements IDescriptionProvider {
         this.context.setFieldValue(value);
     }
 
-    public void setParent(@Nullable ConfigValue<?> parent) {
+    public void setParent(ConfigValue<?> parent) {
         this.parent = parent;
     }
 
-    @Nullable
     public ConfigValue<?> getParent() {
         return parent;
     }

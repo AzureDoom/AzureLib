@@ -5,5 +5,5 @@ import net.minecraft.client.settings.KeyBinding;
 @Deprecated()
 public class Keybindings {
 
-	public static KeyBinding RELOAD;
+    public static KeyBinding RELOAD;
 }

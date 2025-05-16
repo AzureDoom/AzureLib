@@ -1,14 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.loading.json.typeadapter;
-
-import java.lang.reflect.Type;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -18,14 +13,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
-
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.GsonHelper;
+
+import java.lang.reflect.Type;
+import java.util.Map;
+
 import mod.azure.azurelib.core.animation.Keyframes;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.GsonHelper;
 
 /**
  * {@link Gson} {@link JsonDeserializer} for {@link Keyframes}.<br>
@@ -33,65 +31,83 @@ import net.minecraft.util.GsonHelper;
  */
 @Deprecated()
 public class KeyFramesAdapter implements JsonDeserializer<Keyframes> {
-	@Override
-	public Keyframes deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject obj = json.getAsJsonObject();
-		SoundKeyframeData[] sounds = buildSoundFrameData(obj);
-		ParticleKeyframeData[] particles = buildParticleFrameData(obj);
-		CustomInstructionKeyframeData[] customInstructions = buildCustomFrameData(obj);
 
-		return new Keyframes(sounds, particles, customInstructions);
-	}
+    @Override
+    public Keyframes deserialize(
+        JsonElement json,
+        Type type,
+        JsonDeserializationContext context
+    ) throws JsonParseException {
+        JsonObject obj = json.getAsJsonObject();
+        SoundKeyframeData[] sounds = buildSoundFrameData(obj);
+        ParticleKeyframeData[] particles = buildParticleFrameData(obj);
+        CustomInstructionKeyframeData[] customInstructions = buildCustomFrameData(obj);
 
-	private static SoundKeyframeData[] buildSoundFrameData(JsonObject rootObj) {
-		JsonObject soundsObj = GsonHelper.getAsJsonObject(rootObj, "sound_effects", new JsonObject());
-		SoundKeyframeData[] sounds = new SoundKeyframeData[soundsObj.size()];
-		int index = 0;
+        return new Keyframes(sounds, particles, customInstructions);
+    }
 
-		for (Map.Entry<String, JsonElement> entry : soundsObj.entrySet()) {
-			sounds[index] = new SoundKeyframeData(Double.parseDouble(entry.getKey()) * 20d, GsonHelper.getAsString(entry.getValue().getAsJsonObject(), "effect"));
-			index++;
-		}
+    private static SoundKeyframeData[] buildSoundFrameData(JsonObject rootObj) {
+        JsonObject soundsObj = GsonHelper.getAsJsonObject(rootObj, "sound_effects", new JsonObject());
+        SoundKeyframeData[] sounds = new SoundKeyframeData[soundsObj.size()];
+        int index = 0;
 
-		return sounds;
-	}
+        for (Map.Entry<String, JsonElement> entry : soundsObj.entrySet()) {
+            sounds[index] = new SoundKeyframeData(
+                Double.parseDouble(entry.getKey()) * 20d,
+                GsonHelper.getAsString(entry.getValue().getAsJsonObject(), "effect")
+            );
+            index++;
+        }
 
-	private static ParticleKeyframeData[] buildParticleFrameData(JsonObject rootObj) {
-		JsonObject particlesObj = GsonHelper.getAsJsonObject(rootObj, "particle_effects", new JsonObject());
-		ParticleKeyframeData[] particles = new ParticleKeyframeData[particlesObj.size()];
-		int index = 0;
+        return sounds;
+    }
 
-		for (Map.Entry<String, JsonElement> entry : particlesObj.entrySet()) {
-			JsonObject obj = entry.getValue().getAsJsonObject();
-			String effect = GsonHelper.getAsString(obj, "effect", "");
-			String locator = GsonHelper.getAsString(obj, "locator", "");
-			String script = GsonHelper.getAsString(obj, "pre_effect_script", "");
+    private static ParticleKeyframeData[] buildParticleFrameData(JsonObject rootObj) {
+        JsonObject particlesObj = GsonHelper.getAsJsonObject(rootObj, "particle_effects", new JsonObject());
+        ParticleKeyframeData[] particles = new ParticleKeyframeData[particlesObj.size()];
+        int index = 0;
 
-			particles[index] = new ParticleKeyframeData(Double.parseDouble(entry.getKey()) * 20d, effect, locator, script);
-			index++;
-		}
+        for (Map.Entry<String, JsonElement> entry : particlesObj.entrySet()) {
+            JsonObject obj = entry.getValue().getAsJsonObject();
+            String effect = GsonHelper.getAsString(obj, "effect", "");
+            String locator = GsonHelper.getAsString(obj, "locator", "");
+            String script = GsonHelper.getAsString(obj, "pre_effect_script", "");
 
-		return particles;
-	}
+            particles[index] = new ParticleKeyframeData(
+                Double.parseDouble(entry.getKey()) * 20d,
+                effect,
+                locator,
+                script
+            );
+            index++;
+        }
 
-	private static CustomInstructionKeyframeData[] buildCustomFrameData(JsonObject rootObj) {
-		JsonObject customInstructionsObj = GsonHelper.getAsJsonObject(rootObj, "timeline", new JsonObject());
-		CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionsObj.size()];
-		int index = 0;
+        return particles;
+    }
 
-		for (Map.Entry<String, JsonElement> entry : customInstructionsObj.entrySet()) {
-			String instructions = "";
+    private static CustomInstructionKeyframeData[] buildCustomFrameData(JsonObject rootObj) {
+        JsonObject customInstructionsObj = GsonHelper.getAsJsonObject(rootObj, "timeline", new JsonObject());
+        CustomInstructionKeyframeData[] customInstructions = new CustomInstructionKeyframeData[customInstructionsObj
+            .size()];
+        int index = 0;
 
-			if (entry.getValue() instanceof JsonArray) {
-				instructions = JsonUtil.GEO_GSON.fromJson(((JsonArray) entry.getValue()), ObjectArrayList.class).toString();
-			} else if (entry.getValue() instanceof JsonPrimitive) {
-				instructions = ((JsonPrimitive) entry.getValue()).getAsString();
-			}
+        for (Map.Entry<String, JsonElement> entry : customInstructionsObj.entrySet()) {
+            String instructions = "";
 
-			customInstructions[index] = new CustomInstructionKeyframeData(Double.parseDouble(entry.getKey()) * 20d, instructions);
-			index++;
-		}
+            if (entry.getValue() instanceof JsonArray) {
+                instructions = JsonUtil.GEO_GSON.fromJson(((JsonArray) entry.getValue()), ObjectArrayList.class)
+                    .toString();
+            } else if (entry.getValue() instanceof JsonPrimitive) {
+                instructions = ((JsonPrimitive) entry.getValue()).getAsString();
+            }
 
-		return customInstructions;
-	}
+            customInstructions[index] = new CustomInstructionKeyframeData(
+                Double.parseDouble(entry.getKey()) * 20d,
+                instructions
+            );
+            index++;
+        }
+
+        return customInstructions;
+    }
 }

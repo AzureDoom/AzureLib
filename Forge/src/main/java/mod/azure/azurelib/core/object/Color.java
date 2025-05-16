@@ -1,7 +1,9 @@
 /*
-    Direct copy of https://github.com/shedaniel/cloth-basic-math/blob/master/src/main/java/me/shedaniel/math/Color.java under the unlicense.
+ * Direct copy of https://github.com/shedaniel/cloth-basic-math/blob/master/src/main/java/me/shedaniel/math/Color.java
+ * under the unlicense.
  */
 package mod.azure.azurelib.core.object;
+
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -15,246 +17,258 @@ import java.util.List;
  */
 public class Color {
 
-	private final int argbInt;
+    private final int argbInt;
 
-	public static final Codec<Color> RGBA_CODEC = RecordCodecBuilder.create((instance) -> {
-		return instance.group(
-				Codec.INT.fieldOf("r").forGetter(Color::getRed),
-				Codec.INT.fieldOf("g").forGetter(Color::getGreen),
-				Codec.INT.fieldOf("b").forGetter(Color::getBlue),
-				Codec.INT.fieldOf("a").orElse(255).forGetter(Color::getAlpha)
-		).apply(instance, Color::ofRGBA);
-	});
+    public static final Codec<Color> RGBA_CODEC = RecordCodecBuilder.create((instance) -> {
+        return instance.group(
+            Codec.INT.fieldOf("r").forGetter(Color::getRed),
+            Codec.INT.fieldOf("g").forGetter(Color::getGreen),
+            Codec.INT.fieldOf("b").forGetter(Color::getBlue),
+            Codec.INT.fieldOf("a").orElse(255).forGetter(Color::getAlpha)
+        ).apply(instance, Color::ofRGBA);
+    });
 
-	public static final Codec<Color> STRING_CODEC = Codec.STRING.comapFlatMap(
-			Color::tryHexString,
-			Color::toString
-	);
+    public static final Codec<Color> STRING_CODEC = Codec.STRING.comapFlatMap(
+        Color::tryHexString,
+        Color::toString
+    );
 
-	public static final Codec<Color> INT_CODEC = Codec.INT.xmap(
-			Color::new,
-			color -> color.argbInt
-	);
+    public static final Codec<Color> INT_CODEC = Codec.INT.xmap(
+        Color::new,
+        color -> color.argbInt
+    );
 
-	public static final Codec<Color> CODEC = Codec.either(STRING_CODEC, RGBA_CODEC)
-			.comapFlatMap(
-					either -> either.map(DataResult::success, DataResult::success),
-					Either::left
-			);
+    public static final Codec<Color> CODEC = Codec.either(STRING_CODEC, RGBA_CODEC)
+        .comapFlatMap(
+            either -> either.map(DataResult::success, DataResult::success),
+            Either::left
+        );
 
-	public static final Color WHITE = new Color(0xFFFFFFFF);
-	public static final Color LIGHT_GRAY = new Color(0xFFC0C0C0);
-	public static final Color GRAY = new Color(0xFF808080);
-	public static final Color DARK_GRAY = new Color(0xFF404040);
-	public static final Color BLACK = new Color(0xFF000000);
-	public static final Color RED = new Color(0xFFFF0000);
-	public static final Color PINK = new Color(0xFFFFAFAF);
-	public static final Color ORANGE = new Color(0xFFFFC800);
-	public static final Color YELLOW = new Color(0xFFFFFF00);
-	public static final Color GREEN = new Color(0xFF00FF00);
-	public static final Color MAGENTA = new Color(0xFFFF00FF);
-	public static final Color CYAN = new Color(0xFF00FFFF);
-	public static final Color BLUE = new Color(0xFF0000FF);
+    public static final Color WHITE = new Color(0xFFFFFFFF);
 
-	public Color(int argbInt) {
-		this.argbInt = argbInt;
-	}
+    public static final Color LIGHT_GRAY = new Color(0xFFC0C0C0);
 
-	public static Color ofOpaque(int color) {
-		return new Color(0xFF000000 | color);
-	}
+    public static final Color GRAY = new Color(0xFF808080);
 
-	public static Color ofRGB(float red, float green, float blue) {
-		return ofRGBA(red, green, blue, 1f);
-	}
+    public static final Color DARK_GRAY = new Color(0xFF404040);
 
-	public static Color ofRGB(int r, int g, int b) {
-		return ofRGBA(r, g, b, 255);
-	}
+    public static final Color BLACK = new Color(0xFF000000);
 
-	public static Color ofRGBA(float r, float g, float b, float a) {
-		return ofRGBA(
-				(int) (r * 255f + 0.5),
-				(int) (g * 255f + 0.5f),
-				(int) (b * 255f + 0.5f),
-				(int) (a * 255f + 0.5f)
-		);
-	}
+    public static final Color RED = new Color(0xFFFF0000);
 
-	public static Color ofRGBA(int r, int g, int b, int a) {
-		return new Color(((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF));
-	}
+    public static final Color PINK = new Color(0xFFFFAFAF);
 
-	public static Color ofHSB(float hue, float saturation, float brightness) {
-		return ofOpaque(HSBtoARGB(hue, saturation, brightness));
-	}
+    public static final Color ORANGE = new Color(0xFFFFC800);
 
-	public static int HSBtoARGB(float hue, float saturation, float brightness) {
-		int r = 0;
-		int g = 0;
-		int b = 0;
+    public static final Color YELLOW = new Color(0xFFFFFF00);
 
-		if (saturation == 0) {
-			r = g = b = (int) (brightness * 255f + 0.5f);
-		} else {
-			float h = (hue - (float) Math.floor(hue)) * 6f;
-			float f = h - (float) Math.floor(h);
-			float p = brightness * (1 - saturation);
-			float q = brightness * (1 - saturation * f);
-			float t = brightness * (1 - (saturation * (1 - f)));
+    public static final Color GREEN = new Color(0xFF00FF00);
 
-			switch ((int)h) {
-				case 0:
-					r = (int) (brightness * 255f + 0.5f);
-					g = (int) (t * 255f + 0.5f);
-					b = (int) (p * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-				case 1:
-					r = (int) (q * 255f + 0.5f);
-					g = (int) (brightness * 255f + 0.5f);
-					b = (int) (p * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-				case 2:
-					r = (int) (p * 255f + 0.5f);
-					g = (int) (brightness * 255f + 0.5f);
-					b = (int) (t * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-				case 3:
-					r = (int) (p * 255f + 0.5f);
-					g = (int) (q * 255f + 0.5f);
-					b = (int) (brightness * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-				case 4:
-					r = (int) (t * 255f + 0.5f);
-					g = (int) (p * 255f + 0.5f);
-					b = (int) (brightness * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-				case 5:
-					r = (int) (brightness * 255f + 0.5f);
-					g = (int) (p * 255f + 0.5f);
-					b = (int) (q * 255f + 0.5f);
-					return 0xFF000000 | (r << 16) | (g << 8) | b;
-			}
-		}
+    public static final Color MAGENTA = new Color(0xFFFF00FF);
 
-		return 0xFF000000 | (r << 16) | (g << 8) | b;
-	}
+    public static final Color CYAN = new Color(0xFF00FFFF);
 
-	public static Color ofHexString(String hexColor) {
-		if (hexColor.startsWith("#")) {
-			hexColor = hexColor.substring(1);
-		}
-		if (hexColor.length() == 3) {
-			StringBuilder expanded = new StringBuilder();
-			for (char c : hexColor.toCharArray()) {
-				expanded.append(c).append(c);
-			}
-			hexColor = expanded.toString();
-		}
-		return new Color(Integer.parseInt(hexColor, 16));
-	}
+    public static final Color BLUE = new Color(0xFF0000FF);
 
-	public static DataResult<Color> tryHexString(String hexColor) {
-		try {
-			return DataResult.success(ofHexString(hexColor));
-		} catch (Exception err) {
-			return DataResult.error(err.toString());
-		}
-	}
+    public Color(int argbInt) {
+        this.argbInt = argbInt;
+    }
 
-	public int getColor() {
-		return this.argbInt;
-	}
+    public static Color ofOpaque(int color) {
+        return new Color(0xFF000000 | color);
+    }
 
-	public int getAlpha() {
-		return this.argbInt >> 24 & 0xFF;
-	}
+    public static Color ofRGB(float red, float green, float blue) {
+        return ofRGBA(red, green, blue, 1f);
+    }
 
-	public float getAlphaFloat() {
-		return getAlpha() / 255f;
-	}
+    public static Color ofRGB(int r, int g, int b) {
+        return ofRGBA(r, g, b, 255);
+    }
 
-	public int getRed() {
-		return this.argbInt >> 16 & 0xFF;
-	}
+    public static Color ofRGBA(float r, float g, float b, float a) {
+        return ofRGBA(
+            (int) (r * 255f + 0.5),
+            (int) (g * 255f + 0.5f),
+            (int) (b * 255f + 0.5f),
+            (int) (a * 255f + 0.5f)
+        );
+    }
 
-	public float getRedFloat() {
-		return getRed() / 255f;
-	}
+    public static Color ofRGBA(int r, int g, int b, int a) {
+        return new Color(((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF));
+    }
 
-	public int getGreen() {
-		return this.argbInt >> 8 & 0xFF;
-	}
+    public static Color ofHSB(float hue, float saturation, float brightness) {
+        return ofOpaque(HSBtoARGB(hue, saturation, brightness));
+    }
 
-	public float getGreenFloat() {
-		return getGreen() / 255f;
-	}
+    public static int HSBtoARGB(float hue, float saturation, float brightness) {
+        int r = 0;
+        int g = 0;
+        int b = 0;
 
-	public int getBlue() {
-		return this.argbInt & 0xFF;
-	}
+        if (saturation == 0) {
+            r = g = b = (int) (brightness * 255f + 0.5f);
+        } else {
+            float h = (hue - (float) Math.floor(hue)) * 6f;
+            float f = h - (float) Math.floor(h);
+            float p = brightness * (1 - saturation);
+            float q = brightness * (1 - saturation * f);
+            float t = brightness * (1 - (saturation * (1 - f)));
 
-	public float getBlueFloat() {
-		return getBlue() / 255f;
-	}
+            switch ((int) h) {
+                case 0:
+                    r = (int) (brightness * 255f + 0.5f);
+                    g = (int) (t * 255f + 0.5f);
+                    b = (int) (p * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+                case 1:
+                    r = (int) (q * 255f + 0.5f);
+                    g = (int) (brightness * 255f + 0.5f);
+                    b = (int) (p * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+                case 2:
+                    r = (int) (p * 255f + 0.5f);
+                    g = (int) (brightness * 255f + 0.5f);
+                    b = (int) (t * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+                case 3:
+                    r = (int) (p * 255f + 0.5f);
+                    g = (int) (q * 255f + 0.5f);
+                    b = (int) (brightness * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+                case 4:
+                    r = (int) (t * 255f + 0.5f);
+                    g = (int) (p * 255f + 0.5f);
+                    b = (int) (brightness * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+                case 5:
+                    r = (int) (brightness * 255f + 0.5f);
+                    g = (int) (p * 255f + 0.5f);
+                    b = (int) (q * 255f + 0.5f);
+                    return 0xFF000000 | (r << 16) | (g << 8) | b;
+            }
+        }
 
-	public List<Integer> getList() {
-		return Arrays.asList(getRed(), getGreen(), getBlue(), getAlpha());
-	}
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
+    }
 
-	public Color brighter(double factor) {
-		int r = getRed();
-		int g = getGreen();
-		int b = getBlue();
-		int i = (int) (1 / (1 - (1 / factor)));
+    public static Color ofHexString(String hexColor) {
+        if (hexColor.startsWith("#")) {
+            hexColor = hexColor.substring(1);
+        }
+        if (hexColor.length() == 3) {
+            StringBuilder expanded = new StringBuilder();
+            for (char c : hexColor.toCharArray()) {
+                expanded.append(c).append(c);
+            }
+            hexColor = expanded.toString();
+        }
+        return new Color(Integer.parseInt(hexColor, 16));
+    }
 
-		if (r == 0 && g == 0 && b == 0)
-			return ofRGBA(i, i, i, getAlpha());
+    public static DataResult<Color> tryHexString(String hexColor) {
+        try {
+            return DataResult.success(ofHexString(hexColor));
+        } catch (Exception err) {
+            return DataResult.error(err.toString());
+        }
+    }
 
-		if (r > 0 && r < i)
-			r = i;
+    public int getColor() {
+        return this.argbInt;
+    }
 
-		if (g > 0 && g < i)
-			g = i;
+    public int getAlpha() {
+        return this.argbInt >> 24 & 0xFF;
+    }
 
-		if (b > 0 && b < i)
-			b = i;
+    public float getAlphaFloat() {
+        return getAlpha() / 255f;
+    }
 
-		return ofRGBA(
-				Math.min((int) (r / (1 / factor)), 255),
-				Math.min((int) (g / (1 / factor)), 255),
-				Math.min((int) (b / (1 / factor)), 255),
-				getAlpha()
-		);
-	}
+    public int getRed() {
+        return this.argbInt >> 16 & 0xFF;
+    }
 
-	public Color darker(float factor) {
-		return ofRGBA(
-				Math.max((int) (getRed() * (1 / factor)), 0),
-				Math.max((int) (getGreen() * (1 / factor)), 0),
-				Math.max((int) (getBlue() * (1 / factor)), 0),
-				getAlpha()
-		);
-	}
+    public float getRedFloat() {
+        return getRed() / 255f;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		if (this == other)
-			return true;
+    public int getGreen() {
+        return this.argbInt >> 8 & 0xFF;
+    }
 
-		if (getClass() != other.getClass())
-			return false;
+    public float getGreenFloat() {
+        return getGreen() / 255f;
+    }
 
-		return hashCode() == other.hashCode();
-	}
+    public int getBlue() {
+        return this.argbInt & 0xFF;
+    }
 
-	@Override
-	public int hashCode() {
-		return argbInt;
-	}
+    public float getBlueFloat() {
+        return getBlue() / 255f;
+    }
 
-	@Override
-	public String toString() {
-		return String.valueOf(argbInt);
-	}
+    public List<Integer> getList() {
+        return Arrays.asList(getRed(), getGreen(), getBlue(), getAlpha());
+    }
+
+    public Color brighter(double factor) {
+        int r = getRed();
+        int g = getGreen();
+        int b = getBlue();
+        int i = (int) (1 / (1 - (1 / factor)));
+
+        if (r == 0 && g == 0 && b == 0)
+            return ofRGBA(i, i, i, getAlpha());
+
+        if (r > 0 && r < i)
+            r = i;
+
+        if (g > 0 && g < i)
+            g = i;
+
+        if (b > 0 && b < i)
+            b = i;
+
+        return ofRGBA(
+            Math.min((int) (r / (1 / factor)), 255),
+            Math.min((int) (g / (1 / factor)), 255),
+            Math.min((int) (b / (1 / factor)), 255),
+            getAlpha()
+        );
+    }
+
+    public Color darker(float factor) {
+        return ofRGBA(
+            Math.max((int) (getRed() * (1 / factor)), 0),
+            Math.max((int) (getGreen() * (1 / factor)), 0),
+            Math.max((int) (getBlue() * (1 / factor)), 0),
+            getAlpha()
+        );
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+
+        if (getClass() != other.getClass())
+            return false;
+
+        return hashCode() == other.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return argbInt;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(argbInt);
+    }
 }

@@ -5,6 +5,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
     id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+    id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
 import groovy.json.JsonOutput
@@ -67,8 +68,6 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${loader_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    jarJar(implementation("io.github.llamalad7:mixinextras-forge:0.4.1"))
 }
 
 tasks.named('jar', Jar).configure {
@@ -176,4 +175,19 @@ if (file('key.properties').exists()) {
             minecraftVersions.add(project.minecraft_version)
         }
     }
+}
+
+spotless {
+    java {
+        eclipse().configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder("", "java", group.toString(), "\\#")
+        indentWithSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
+
+tasks.build {
+    dependsOn("spotlessApply")
 }

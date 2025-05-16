@@ -1,71 +1,73 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache;
 
-import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
 
+import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCache;
+
 /**
  * Storage class that keeps track of the last animatable id used, and provides new ones on request.<br>
- * Generally only used for {@link Item Items}, but any {@link SingletonAnimatableInstanceCache singleton} will likely use this.
+ * Generally only used for {@link Item Items}, but any {@link SingletonAnimatableInstanceCache singleton} will likely
+ * use this.
  */
 @Deprecated()
 public final class AnimatableIdCache extends WorldSavedData {
-	private static final String DATA_KEY = "AzureLib_id_cache";
-	private long lastId;
 
-	private AnimatableIdCache() {
-		super(DATA_KEY);
-	}
+    private static final String DATA_KEY = "AzureLib_id_cache";
 
-	/**
-	 * Get the next free id from the id cache
-	 * 
-	 * @param level An arbitrary ServerWorld. It doesn't matter which one
-	 * @return The next free ID, which is immediately reserved for use after calling this method
-	 */
-	public static long getFreeId(ServerWorld level) {
-		return getCache(level).getNextId();
-	}
+    private long lastId;
 
-	private long getNextId() {
-		setDirty();
+    private AnimatableIdCache() {
+        super(DATA_KEY);
+    }
 
-		return ++this.lastId;
-	}
+    /**
+     * Get the next free id from the id cache
+     *
+     * @param level An arbitrary ServerWorld. It doesn't matter which one
+     * @return The next free ID, which is immediately reserved for use after calling this method
+     */
+    public static long getFreeId(ServerWorld level) {
+        return getCache(level).getNextId();
+    }
 
-	@Override
-	public CompoundNBT save(CompoundNBT tag) {
-		tag.putLong("last_id", this.lastId);
+    private long getNextId() {
+        setDirty();
 
-		return tag;
-	}
+        return ++this.lastId;
+    }
 
-	private static AnimatableIdCache getCache(ServerWorld level) {
-		DimensionSavedDataManager storage = level.getServer().overworld().getDataStorage();
-		AnimatableIdCache cache = storage.computeIfAbsent(AnimatableIdCache::new, DATA_KEY);
+    @Override
+    public CompoundNBT save(CompoundNBT tag) {
+        tag.putLong("last_id", this.lastId);
 
-		return cache;
-	}
+        return tag;
+    }
 
-	/**
-	 * Legacy wrapper for existing worlds pre-4.0.<br>
-	 * Remove this at some point in the future
-	 */
-	public void load(CompoundNBT tag) {
-		AnimatableIdCache legacyCache = new AnimatableIdCache();
-		for (String key : tag.getAllKeys()) {
-			if (tag.contains(key, 99))
-				legacyCache.lastId = Math.max(legacyCache.lastId, tag.getInt(key));
-		}
-	}
+    private static AnimatableIdCache getCache(ServerWorld level) {
+        DimensionSavedDataManager storage = level.getServer().overworld().getDataStorage();
+        AnimatableIdCache cache = storage.computeIfAbsent(AnimatableIdCache::new, DATA_KEY);
+
+        return cache;
+    }
+
+    /**
+     * Legacy wrapper for existing worlds pre-4.0.<br>
+     * Remove this at some point in the future
+     */
+    public void load(CompoundNBT tag) {
+        AnimatableIdCache legacyCache = new AnimatableIdCache();
+        for (String key : tag.getAllKeys()) {
+            if (tag.contains(key, 99))
+                legacyCache.lastId = Math.max(legacyCache.lastId, tag.getInt(key));
+        }
+    }
 }

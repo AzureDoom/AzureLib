@@ -28,6 +28,11 @@ accessible field com/mojang/math/Matrix4f m30 F
 accessible field com/mojang/math/Matrix4f m31 F
 accessible field com/mojang/math/Matrix4f m32 F
 accessible field com/mojang/math/Matrix4f m33 F
+
+accessible field com/mojang/math/Vector3f x F
+accessible field com/mojang/math/Vector3f y F
+accessible field com/mojang/math/Vector3f z F
+
 accessible class net/minecraft/client/model/geom/ModelPart$Cube
 accessible field net/minecraft/client/model/geom/ModelPart cubes Lit/unimi/dsi/fastutil/objects/ObjectList;
 

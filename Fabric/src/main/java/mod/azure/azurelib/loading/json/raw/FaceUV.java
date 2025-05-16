@@ -1,99 +1,98 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.loading.json.raw;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.utils.MathHelper;
-import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
-
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-
-import mod.azure.azurelib.util.JsonUtil;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.util.JsonUtil;
 
 /**
  * Container class for face UV information, only used in deserialization at startup
  */
 public class FaceUV {
 
-	private final String materialInstance;
-	private final double[] uv;
-	private final double[] uvSize;
-	private final Rotation uvRotation;
+    private final String materialInstance;
 
-	public FaceUV(@Nullable String materialInstance, double[] uv, double[] uvSize, Rotation uvRotation) {
-		this.materialInstance = materialInstance;
-		this.uv = uv;
-		this.uvSize = uvSize;
-		this.uvRotation = uvRotation;
-	}
+    private final double[] uv;
 
-	@Nullable
-	public String getMaterialInstance() {
-		return materialInstance;
-	}
+    private final double[] uvSize;
 
-	public double[] getUv() {
-		return uv;
-	}
+    private final Rotation uvRotation;
 
-	public double[] getUvSize() {
-		return uvSize;
-	}
+    public FaceUV(@Nullable String materialInstance, double[] uv, double[] uvSize, Rotation uvRotation) {
+        this.materialInstance = materialInstance;
+        this.uv = uv;
+        this.uvSize = uvSize;
+        this.uvRotation = uvRotation;
+    }
 
-	public Rotation getUvRotation() {
-		return uvRotation;
-	}
+    @Nullable
+    public String getMaterialInstance() {
+        return materialInstance;
+    }
 
-	public static JsonDeserializer<FaceUV> deserializer() throws JsonParseException {
-		return (json, type, context) -> {
-			JsonObject obj = json.getAsJsonObject();
-			String materialInstance = GsonHelper.getAsString(obj, "material_instance", null);
-			double[] uv = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv", null));
-			double[] uvSize = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv_size", null));
-			Rotation uvRotation = Rotation.fromValue(GsonHelper.getAsInt(obj, "uv_rotation", 0));
+    public double[] getUv() {
+        return uv;
+    }
 
-			return new FaceUV(materialInstance, uv, uvSize, uvRotation);
-		};
-	}
+    public double[] getUvSize() {
+        return uvSize;
+    }
 
-	public enum Rotation {
+    public Rotation getUvRotation() {
+        return uvRotation;
+    }
 
-		NONE,
-		CLOCKWISE_90,
-		CLOCKWISE_180,
-		CLOCKWISE_270;
+    public static JsonDeserializer<FaceUV> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            String materialInstance = GsonHelper.getAsString(obj, "material_instance", null);
+            double[] uv = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv", null));
+            double[] uvSize = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv_size", null));
+            Rotation uvRotation = Rotation.fromValue(GsonHelper.getAsInt(obj, "uv_rotation", 0));
 
-		public static Rotation fromValue(int value) throws JsonParseException {
-			try {
-				return Rotation.values()[(value % 360) / 90];
-			} catch (Exception e) {
-				AzureLib.LOGGER.error("Invalid Face UV rotation: " + value);
-				return fromValue(Mth.floor(Math.abs(value) / 90f) * 90);
-			}
-		}
+            return new FaceUV(materialInstance, uv, uvSize, uvRotation);
+        };
+    }
 
-		public float[] rotateUvs(float u, float v, float uWidth, float vHeight) {
-			switch (this) {
-				case NONE:
-					return new float[]{u, v, uWidth, v, uWidth, vHeight, u, vHeight};
-				case CLOCKWISE_90:
-					return new float[]{uWidth, v, uWidth, vHeight, u, vHeight, u, v};
-				case CLOCKWISE_180:
-					return new float[]{uWidth, vHeight, u, vHeight, u, v, uWidth, v};
-				case CLOCKWISE_270:
-					return new float[]{u, vHeight, u, v, uWidth, v, uWidth, vHeight};
-				default:
-					throw new IllegalStateException("Unexpected value: " + this);
-			}
-		}
-	}
+    public enum Rotation {
+
+        NONE,
+        CLOCKWISE_90,
+        CLOCKWISE_180,
+        CLOCKWISE_270;
+
+        public static Rotation fromValue(int value) throws JsonParseException {
+            try {
+                return Rotation.values()[(value % 360) / 90];
+            } catch (Exception e) {
+                AzureLib.LOGGER.error("Invalid Face UV rotation: " + value);
+                return fromValue(Mth.floor(Math.abs(value) / 90f) * 90);
+            }
+        }
+
+        public float[] rotateUvs(float u, float v, float uWidth, float vHeight) {
+            switch (this) {
+                case NONE:
+                    return new float[] { u, v, uWidth, v, uWidth, vHeight, u, vHeight };
+                case CLOCKWISE_90:
+                    return new float[] { uWidth, v, uWidth, vHeight, u, vHeight, u, v };
+                case CLOCKWISE_180:
+                    return new float[] { uWidth, vHeight, u, vHeight, u, v, uWidth, v };
+                case CLOCKWISE_270:
+                    return new float[] { u, vHeight, u, v, uWidth, v, uWidth, vHeight };
+                default:
+                    throw new IllegalStateException("Unexpected value: " + this);
+            }
+        }
+    }
 }

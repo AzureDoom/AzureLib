@@ -1,18 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.loading.json.raw;
-
-import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.util.JsonUtil;
 
@@ -20,61 +17,64 @@ import mod.azure.azurelib.util.JsonUtil;
  * Container class for poly union information, only used in deserialization at startup
  */
 public class PolysUnion {
-	public double[][][] union;
-	@Nullable
-	public Type type;
 
-	public PolysUnion(double[][][] union, @Nullable Type type) {
-		this.union = union;
-		this.type = type;
-	}
+    public double[][][] union;
 
-	public double[][][] union() {
-		return union;
-	}
+    @Nullable
+    public Type type;
 
-	@Nullable
-	public Type type() {
-		return type;
-	}
+    public PolysUnion(double[][][] union, @Nullable Type type) {
+        this.union = union;
+        this.type = type;
+    }
 
-	public static JsonDeserializer<PolysUnion> deserializer() throws JsonParseException {
-		return (json, type, context) -> {
-			if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isString()) {
-				return new PolysUnion(new double[0][0][0], context.deserialize(json.getAsJsonPrimitive(), Type.class));
-			} else if (json.isJsonArray()) {
-				JsonArray array = json.getAsJsonArray();
-				double[][][] matrix = makeSizedMatrix(array);
+    public double[][][] union() {
+        return union;
+    }
 
-				for (int x = 0; x < array.size(); x++) {
-					JsonArray xArray = array.get(x).getAsJsonArray();
+    @Nullable
+    public Type type() {
+        return type;
+    }
 
-					for (int y = 0; y < xArray.size(); y++) {
-						JsonArray yArray = xArray.get(y).getAsJsonArray();
+    public static JsonDeserializer<PolysUnion> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isString()) {
+                return new PolysUnion(new double[0][0][0], context.deserialize(json.getAsJsonPrimitive(), Type.class));
+            } else if (json.isJsonArray()) {
+                JsonArray array = json.getAsJsonArray();
+                double[][][] matrix = makeSizedMatrix(array);
 
-						matrix[x][y] = JsonUtil.jsonArrayToDoubleArray(yArray);
-					}
-				}
+                for (int x = 0; x < array.size(); x++) {
+                    JsonArray xArray = array.get(x).getAsJsonArray();
 
-				return new PolysUnion(matrix, null);
-			} else {
-				throw new JsonParseException("Invalid format for PolysUnion, must be either string or array");
-			}
-		};
-	}
+                    for (int y = 0; y < xArray.size(); y++) {
+                        JsonArray yArray = xArray.get(y).getAsJsonArray();
 
-	private static double[][][] makeSizedMatrix(JsonArray array) {
-		JsonArray subArray = array.size() > 0 ? array.get(0).getAsJsonArray() : null;
-		JsonArray subSubArray = subArray != null && subArray.size() > 0 ? subArray.get(0).getAsJsonArray() : null;
-		int ySize = subArray != null ? subArray.size() : 0;
-		int zSize = subSubArray != null ? subSubArray.size() : 0;
+                        matrix[x][y] = JsonUtil.jsonArrayToDoubleArray(yArray);
+                    }
+                }
 
-		return new double[array.size()][ySize][zSize];
-	}
+                return new PolysUnion(matrix, null);
+            } else {
+                throw new JsonParseException("Invalid format for PolysUnion, must be either string or array");
+            }
+        };
+    }
 
-	public enum Type {
-		@SerializedName(value = "quad_list")
-		QUAD, @SerializedName(value = "tri_list")
-		TRI;
-	}
+    private static double[][][] makeSizedMatrix(JsonArray array) {
+        JsonArray subArray = array.size() > 0 ? array.get(0).getAsJsonArray() : null;
+        JsonArray subSubArray = subArray != null && subArray.size() > 0 ? subArray.get(0).getAsJsonArray() : null;
+        int ySize = subArray != null ? subArray.size() : 0;
+        int zSize = subSubArray != null ? subSubArray.size() : 0;
+
+        return new double[array.size()][ySize][zSize];
+    }
+
+    public enum Type {
+        @SerializedName(value = "quad_list")
+        QUAD,
+        @SerializedName(value = "tri_list")
+        TRI;
+    }
 }

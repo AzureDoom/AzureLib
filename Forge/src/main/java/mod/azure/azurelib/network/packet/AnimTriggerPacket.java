@@ -1,62 +1,63 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
 
-import java.util.function.Supplier;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
-import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.AzureLibNetwork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animations that can be triggered from the server
  */
 @Deprecated()
 public class AnimTriggerPacket<D> {
-	private final String syncableId;
-	private final long instanceId;
-	private final String controllerName;
-	private final String animName;
 
-	public AnimTriggerPacket(String syncableId, long instanceId, @Nullable String controllerName, String animName) {
-		this.syncableId = syncableId;
-		this.instanceId = instanceId;
-		this.controllerName = controllerName == null ? "" : controllerName;
-		this.animName = animName;
-	}
+    private final String syncableId;
 
-	public void encode(PacketBuffer buffer) {
-		buffer.writeUtf(this.syncableId);
-		buffer.writeVarLong(this.instanceId);
-		buffer.writeUtf(this.controllerName);
-		buffer.writeUtf(this.animName);
-	}
+    private final long instanceId;
 
-	public static <D> AnimTriggerPacket<D> decode(PacketBuffer buffer) {
-		return new AnimTriggerPacket<>(buffer.readUtf(), buffer.readVarLong(), buffer.readUtf(), buffer.readUtf());
-	}
+    private final String controllerName;
 
-	public void receivePacket(Supplier<NetworkEvent.Context> context) {
-		NetworkEvent.Context handler = context.get();
+    private final String animName;
 
-		handler.enqueueWork(() -> {
-			GeoAnimatable animatable = AzureLibNetwork.getSyncedAnimatable(this.syncableId);
+    public AnimTriggerPacket(String syncableId, long instanceId, String controllerName, String animName) {
+        this.syncableId = syncableId;
+        this.instanceId = instanceId;
+        this.controllerName = controllerName == null ? "" : controllerName;
+        this.animName = animName;
+    }
 
-			if (animatable != null) {
-				AnimatableManager<?> manager = animatable.getAnimatableInstanceCache().getManagerForId(this.instanceId);
+    public void encode(PacketBuffer buffer) {
+        buffer.writeUtf(this.syncableId);
+        buffer.writeVarLong(this.instanceId);
+        buffer.writeUtf(this.controllerName);
+        buffer.writeUtf(this.animName);
+    }
 
-				manager.tryTriggerAnimation(this.controllerName, this.animName);
-			}
-		});
-		handler.setPacketHandled(true);
-	}
+    public static <D> AnimTriggerPacket<D> decode(PacketBuffer buffer) {
+        return new AnimTriggerPacket<>(buffer.readUtf(), buffer.readVarLong(), buffer.readUtf(), buffer.readUtf());
+    }
+
+    public void receivePacket(Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context handler = context.get();
+
+        handler.enqueueWork(() -> {
+            GeoAnimatable animatable = AzureLibNetwork.getSyncedAnimatable(this.syncableId);
+
+            if (animatable != null) {
+                AnimatableManager<?> manager = animatable.getAnimatableInstanceCache().getManagerForId(this.instanceId);
+
+                manager.tryTriggerAnimation(this.controllerName, this.animName);
+            }
+        });
+        handler.setPacketHandled(true);
+    }
 }

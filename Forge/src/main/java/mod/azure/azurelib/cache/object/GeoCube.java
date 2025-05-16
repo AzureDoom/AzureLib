@@ -1,12 +1,9 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache.object;
-
 
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -15,11 +12,17 @@ import net.minecraft.util.math.vector.Vector3d;
  */
 @Deprecated()
 public class GeoCube {
+
     private final GeoQuad[] quads;
+
     private final Vector3d pivot;
+
     private final Vector3d rotation;
+
     private final Vector3d size;
+
     private final double inflate;
+
     private final boolean mirror;
 
     public GeoCube(GeoQuad[] quads, Vector3d pivot, Vector3d rotation, Vector3d size, double inflate, boolean mirror) {

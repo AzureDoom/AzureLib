@@ -1,9 +1,10 @@
 package mod.azure.azurelib.config.value;
 
+import net.minecraft.network.PacketBuffer;
+
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
-import net.minecraft.network.PacketBuffer;
 
 public class EnumValue<E extends Enum<E>> extends ConfigValue<E> {
 
@@ -26,7 +27,13 @@ public class EnumValue<E extends Enum<E>> extends ConfigValue<E> {
     public static final class Adapter<E extends Enum<E>> extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new EnumValue<>(ValueData.of(name, (E) value, context, comments));
         }
 

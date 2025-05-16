@@ -1,42 +1,43 @@
 package mod.azure.azurelib.helper;
 
-import static java.lang.Math.min;
-
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
+import static java.lang.Math.min;
+
 public interface Growable {
-	float getGrowth();
 
-	void setGrowth(float growth);
+    float getGrowth();
 
-	float getMaxGrowth();
+    void setGrowth(float growth);
 
-	default void grow(LivingEntity entity, float amount) {
-		setGrowth(min(getGrowth() + amount, getMaxGrowth()));
-		if (getGrowth() >= getMaxGrowth())
-			growUp(entity);
-	}
+    float getMaxGrowth();
 
-	LivingEntity growInto();
+    default void grow(LivingEntity entity, float amount) {
+        setGrowth(min(getGrowth() + amount, getMaxGrowth()));
+        if (getGrowth() >= getMaxGrowth())
+            growUp(entity);
+    }
 
-	default void growUp(LivingEntity entity) {
-		Level world = entity.level;
-		if (!world.isClientSide()) {
-			LivingEntity newEntity = growInto();
-			if (newEntity == null)
-				return;
-			newEntity.moveTo(entity.blockPosition(), entity.yRot, entity.xRot);
-			world.addFreshEntity(newEntity);
-			entity.remove();
-		}
-	}
+    LivingEntity growInto();
 
-	default float getGrowthNeededUntilGrowUp() {
-		return getMaxGrowth() - getGrowth();
-	}
+    default void growUp(LivingEntity entity) {
+        Level world = entity.level;
+        if (!world.isClientSide()) {
+            LivingEntity newEntity = growInto();
+            if (newEntity == null)
+                return;
+            newEntity.moveTo(entity.blockPosition(), entity.yRot, entity.xRot);
+            world.addFreshEntity(newEntity);
+            entity.remove();
+        }
+    }
 
-	default float getGrowthMultiplier() {
-		return 1.0f;
-	}
+    default float getGrowthNeededUntilGrowUp() {
+        return getMaxGrowth() - getGrowth();
+    }
+
+    default float getGrowthMultiplier() {
+        return 1.0f;
+    }
 }

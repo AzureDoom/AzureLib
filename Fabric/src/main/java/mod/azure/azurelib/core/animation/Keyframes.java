@@ -7,23 +7,31 @@ import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 @Deprecated()
 public class Keyframes {
 
-	public SoundKeyframeData[] sounds;
-	public ParticleKeyframeData[] particles;
-	public CustomInstructionKeyframeData[] customInstructions;
+    public SoundKeyframeData[] sounds;
 
-	public Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles, CustomInstructionKeyframeData[] customInstructions) {
-		this.sounds = sounds;
-		this.particles = particles;
-		this.customInstructions = customInstructions;
-	}
+    public ParticleKeyframeData[] particles;
 
-	public SoundKeyframeData[] sounds() {
-		return sounds;
-	}
-	public ParticleKeyframeData[] particles() {
-		return particles;
-	}
-	public CustomInstructionKeyframeData[] customInstructions() {
-		return customInstructions;
-	}
+    public CustomInstructionKeyframeData[] customInstructions;
+
+    public Keyframes(
+        SoundKeyframeData[] sounds,
+        ParticleKeyframeData[] particles,
+        CustomInstructionKeyframeData[] customInstructions
+    ) {
+        this.sounds = sounds;
+        this.particles = particles;
+        this.customInstructions = customInstructions;
+    }
+
+    public SoundKeyframeData[] sounds() {
+        return sounds;
+    }
+
+    public ParticleKeyframeData[] particles() {
+        return particles;
+    }
+
+    public CustomInstructionKeyframeData[] customInstructions() {
+        return customInstructions;
+    }
 }

@@ -1,18 +1,23 @@
 package mod.azure.azurelib.client;
 
-import mod.azure.azurelib.config.value.DecimalValue;
-import mod.azure.azurelib.config.value.IntegerValue;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.regex.Pattern;
 
+import mod.azure.azurelib.config.value.DecimalValue;
+import mod.azure.azurelib.config.value.IntegerValue;
+
 public final class ClientErrors {
 
-    public static final MutableComponent CHAR_VALUE_EMPTY = new TranslatableComponent("text.azurelib.error.character_value_empty");
+    public static final MutableComponent CHAR_VALUE_EMPTY = new TranslatableComponent(
+        "text.azurelib.error.character_value_empty"
+    );
 
     private static final String KEY_NAN = "text.azurelib.error.nan";
+
     private static final String KEY_NUM_BOUNDS = "text.azurelib.error.num_bounds";
+
     private static final String KEY_MISMATCHED_PATTERN = "text.azurelib.error.pattern_mismatch";
 
     public static MutableComponent notANumber(String value) {

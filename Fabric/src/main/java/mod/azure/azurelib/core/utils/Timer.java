@@ -1,54 +1,57 @@
 package mod.azure.azurelib.core.utils;
 
 public class Timer {
-	public boolean enabled;
-	public long time;
-	public long duration;
 
-	public Timer(long duration) {
-		this.duration = duration;
-	}
+    public boolean enabled;
 
-	public long getRemaining() {
-		return this.time - System.currentTimeMillis();
-	}
+    public long time;
 
-	public void mark() {
-		this.mark(this.duration);
-	}
+    public long duration;
 
-	public void mark(long duration) {
-		this.enabled = true;
-		this.time = System.currentTimeMillis() + duration;
-	}
+    public Timer(long duration) {
+        this.duration = duration;
+    }
 
-	public void reset() {
-		this.enabled = false;
-	}
+    public long getRemaining() {
+        return this.time - System.currentTimeMillis();
+    }
 
-	public boolean checkReset() {
-		boolean enabled = this.check();
+    public void mark() {
+        this.mark(this.duration);
+    }
 
-		if (enabled) {
-			this.reset();
-		}
+    public void mark(long duration) {
+        this.enabled = true;
+        this.time = System.currentTimeMillis() + duration;
+    }
 
-		return enabled;
-	}
+    public void reset() {
+        this.enabled = false;
+    }
 
-	public boolean check() {
-		return this.enabled && this.isTime();
-	}
+    public boolean checkReset() {
+        boolean enabled = this.check();
 
-	public boolean isTime() {
-		return System.currentTimeMillis() >= this.time;
-	}
+        if (enabled) {
+            this.reset();
+        }
 
-	public boolean checkRepeat() {
-		if (!this.enabled) {
-			this.mark();
-		}
+        return enabled;
+    }
 
-		return this.checkReset();
-	}
+    public boolean check() {
+        return this.enabled && this.isTime();
+    }
+
+    public boolean isTime() {
+        return System.currentTimeMillis() >= this.time;
+    }
+
+    public boolean checkRepeat() {
+        if (!this.enabled) {
+            this.mark();
+        }
+
+        return this.checkReset();
+    }
 }

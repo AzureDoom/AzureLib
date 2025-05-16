@@ -8,15 +8,16 @@ import com.google.gson.stream.JsonWriter;
 import java.io.StringWriter;
 
 public class JsonUtils {
-	public static String jsonToPretty(JsonElement element) {
-		StringWriter writer = new StringWriter();
-		JsonWriter jsonWriter = new JsonWriter(writer);
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-		jsonWriter.setIndent("    ");
-		gson.toJson(element, jsonWriter);
+    public static String jsonToPretty(JsonElement element) {
+        StringWriter writer = new StringWriter();
+        JsonWriter jsonWriter = new JsonWriter(writer);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-		/* Prettify arrays */
-		return writer.toString();
-	}
+        jsonWriter.setIndent("    ");
+        gson.toJson(element, jsonWriter);
+
+        /* Prettify arrays */
+        return writer.toString();
+    }
 }

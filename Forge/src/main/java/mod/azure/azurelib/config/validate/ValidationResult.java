@@ -5,8 +5,13 @@ import net.minecraft.util.text.StringTextComponent;
 
 public final class ValidationResult {
 
-    private static final ValidationResult OK = new ValidationResult(NotificationSeverity.INFO, (IFormattableTextComponent) StringTextComponent.EMPTY);
+    private static final ValidationResult OK = new ValidationResult(
+        NotificationSeverity.INFO,
+        (IFormattableTextComponent) StringTextComponent.EMPTY
+    );
+
     private final NotificationSeverity severity;
+
     private final IFormattableTextComponent text;
 
     public ValidationResult(NotificationSeverity severity, IFormattableTextComponent text) {

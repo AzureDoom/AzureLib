@@ -1,8 +1,9 @@
 package mod.azure.azurelib.config.validate;
 
-import mod.azure.azurelib.AzureLib;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+
+import mod.azure.azurelib.AzureLib;
 
 public enum NotificationSeverity {
 
@@ -11,9 +12,13 @@ public enum NotificationSeverity {
     ERROR("error", TextFormatting.RED, 0xF0270006, 0x50FF0000, 0x50880000);
 
     private final ResourceLocation icon;
+
     private final TextFormatting extraFormatting;
+
     public final int background;
+
     public final int fadeMin;
+
     public final int fadeMax;
 
     NotificationSeverity(String iconName, TextFormatting formatting, int background, int fadeMin, int fadeMax) {

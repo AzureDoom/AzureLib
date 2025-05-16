@@ -1,20 +1,24 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.animatable;
+
+import com.google.common.base.Suppliers;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
-import com.google.common.base.Suppliers;
 import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.azurelib.cache.AnimatableIdCache;
 import mod.azure.azurelib.constant.DataTickets;
@@ -24,143 +28,147 @@ import mod.azure.azurelib.core.animatable.instance.SingletonAnimatableInstanceCa
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.core.animation.ContextAwareAnimatableManager;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.loading.FMLLoader;
 
 /**
- * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link Item Items}. This also applies to armor, as they are just items too.
+ * The {@link mod.azure.azurelib.core.animatable.GeoAnimatable GeoAnimatable} interface specific to {@link Item Items}.
+ * This also applies to armor, as they are just items too.
  */
 @Deprecated()
 public interface GeoItem extends SingletonGeoAnimatable {
-	static final String ID_NBT_KEY = "AzureLibID";
 
-	/**
-	 * Safety wrapper to distance the client-side code from common code.<br>
-	 * This should be cached in your {@link Item Item} class
-	 */
-	static Supplier<RenderProvider> makeRenderer(GeoItem item) {
-		if (FMLLoader.getDist().isDedicatedServer())
-			return () -> null;
+    static final String ID_NBT_KEY = "AzureLibID";
 
-		return Suppliers.memoize(() -> {
-			AtomicReference<RenderProvider> renderProvider = new AtomicReference<>();
-			item.createRenderer(renderProvider::set);
-			return renderProvider.get();
-		});
-	}
+    /**
+     * Safety wrapper to distance the client-side code from common code.<br>
+     * This should be cached in your {@link Item Item} class
+     */
+    static Supplier<RenderProvider> makeRenderer(GeoItem item) {
+        if (FMLLoader.getDist().isDedicatedServer())
+            return () -> null;
 
-	/**
-	 * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions
-	 * <p>
-	 * This should be called inside the constructor of your object.
-	 */
-	static void registerSyncedAnimatable(GeoAnimatable animatable) {
-		SingletonGeoAnimatable.registerSyncedAnimatable(animatable);
-	}
+        return Suppliers.memoize(() -> {
+            AtomicReference<RenderProvider> renderProvider = new AtomicReference<>();
+            item.createRenderer(renderProvider::set);
+            return renderProvider.get();
+        });
+    }
 
-	/**
-	 * Gets the unique identifying number from this ItemStack's {@link Tag NBT}, or {@link Long#MAX_VALUE} if one hasn't been assigned
-	 */
-	static long getId(ItemStack stack) {
-		CompoundNBT tag = stack.getTag();
+    /**
+     * Register this as a synched {@code GeoAnimatable} instance with AzureLib's networking functions
+     * <p>
+     * This should be called inside the constructor of your object.
+     */
+    static void registerSyncedAnimatable(GeoAnimatable animatable) {
+        SingletonGeoAnimatable.registerSyncedAnimatable(animatable);
+    }
 
-		if (tag == null)
-			return Long.MAX_VALUE;
+    /**
+     * Gets the unique identifying number from this ItemStack's {@link Tag NBT}, or {@link Long#MAX_VALUE} if one hasn't
+     * been assigned
+     */
+    static long getId(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
 
-		return tag.getLong(ID_NBT_KEY);
-	}
+        if (tag == null)
+            return Long.MAX_VALUE;
 
-	/**
-	 * Gets the unique identifying number from this ItemStack's {@link Tag NBT}.<br>
-	 * If no ID has been reserved for this stack yet, it will reserve a new id and assign it
-	 */
-	static long getOrAssignId(ItemStack stack, ServerWorld level) {
-		CompoundNBT tag = stack.getOrCreateTag();
-		long id = tag.getLong(ID_NBT_KEY);
+        return tag.getLong(ID_NBT_KEY);
+    }
 
-		if (tag.contains(ID_NBT_KEY, 99))
-			return id;
+    /**
+     * Gets the unique identifying number from this ItemStack's {@link Tag NBT}.<br>
+     * If no ID has been reserved for this stack yet, it will reserve a new id and assign it
+     */
+    static long getOrAssignId(ItemStack stack, ServerWorld level) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        long id = tag.getLong(ID_NBT_KEY);
 
-		id = AnimatableIdCache.getFreeId(level);
+        if (tag.contains(ID_NBT_KEY, 99))
+            return id;
 
-		tag.putLong(ID_NBT_KEY, id);
+        id = AnimatableIdCache.getFreeId(level);
 
-		return id;
-	}
+        tag.putLong(ID_NBT_KEY, id);
 
-	/**
-	 * Returns the current age/tick of the animatable instance.<br>
-	 * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables to provide their own values
-	 * 
-	 * @param itemStack The ItemStack representing this animatable
-	 * @return The current tick/age of the animatable, for animation purposes
-	 */
-	@Override
-	default double getTick(Object itemStack) {
-		return RenderUtils.getCurrentTick();
-	}
+        return id;
+    }
 
-	/**
-	 * Whether this item animatable is perspective aware, handling animations differently depending on the {@link net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType render perspective}
-	 */
-	default boolean isPerspectiveAware() {
-		return false;
-	}
+    /**
+     * Returns the current age/tick of the animatable instance.<br>
+     * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables
+     * to provide their own values
+     *
+     * @param itemStack The ItemStack representing this animatable
+     * @return The current tick/age of the animatable, for animation purposes
+     */
+    @Override
+    default double getTick(Object itemStack) {
+        return RenderUtils.getCurrentTick();
+    }
 
-	/**
-	 * Replaces the default AnimatableInstanceCache for GeoItems if {@link GeoItem#isPerspectiveAware()} is true, for perspective-dependent handling
-	 */
-	@Nullable
-	@Override
-	default AnimatableInstanceCache animatableCacheOverride() {
-		if (isPerspectiveAware())
-			return new ContextBasedAnimatableInstanceCache(this);
+    /**
+     * Whether this item animatable is perspective aware, handling animations differently depending on the
+     * {@link net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType render perspective}
+     */
+    default boolean isPerspectiveAware() {
+        return false;
+    }
 
-		return SingletonGeoAnimatable.super.animatableCacheOverride();
-	}
+    /**
+     * Replaces the default AnimatableInstanceCache for GeoItems if {@link GeoItem#isPerspectiveAware()} is true, for
+     * perspective-dependent handling
+     */
 
-	/**
-	 * AnimatableInstanceCache specific to GeoItems, for doing render perspective based animations
-	 */
-	class ContextBasedAnimatableInstanceCache extends SingletonAnimatableInstanceCache {
-		public ContextBasedAnimatableInstanceCache(GeoAnimatable animatable) {
-			super(animatable);
-		}
+    @Override
+    default AnimatableInstanceCache animatableCacheOverride() {
+        if (isPerspectiveAware())
+            return new ContextBasedAnimatableInstanceCache(this);
 
-		/**
-		 * Gets an {@link AnimatableManager} instance from this cache, cached under the id provided, or a new one if one doesn't already exist.<br>
-		 * This subclass assumes that all animatable instances will be sharing this cache instance, and so differentiates data by ids.
-		 */
-		@Override
-		public AnimatableManager<?> getManagerForId(long uniqueId) {
-			if (!this.managers.containsKey(uniqueId))
-				this.managers.put(uniqueId, new ContextAwareAnimatableManager<GeoItem, TransformType>(this.animatable) {
-					@Override
-					protected Map<TransformType, AnimatableManager<GeoItem>> buildContextOptions(GeoAnimatable animatable) {
-						Map<TransformType, AnimatableManager<GeoItem>> map = new EnumMap<>(TransformType.class);
+        return SingletonGeoAnimatable.super.animatableCacheOverride();
+    }
 
-						for (TransformType context : TransformType.values()) {
-							map.put(context, new AnimatableManager<>(animatable));
-						}
+    /**
+     * AnimatableInstanceCache specific to GeoItems, for doing render perspective based animations
+     */
+    class ContextBasedAnimatableInstanceCache extends SingletonAnimatableInstanceCache {
 
-						return map;
-					}
+        public ContextBasedAnimatableInstanceCache(GeoAnimatable animatable) {
+            super(animatable);
+        }
 
-					@Override
-					public TransformType getCurrentContext() {
-						@Nullable
-						TransformType context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
+        /**
+         * Gets an {@link AnimatableManager} instance from this cache, cached under the id provided, or a new one if one
+         * doesn't already exist.<br>
+         * This subclass assumes that all animatable instances will be sharing this cache instance, and so
+         * differentiates data by ids.
+         */
+        @Override
+        public AnimatableManager<?> getManagerForId(long uniqueId) {
+            if (!this.managers.containsKey(uniqueId))
+                this.managers.put(uniqueId, new ContextAwareAnimatableManager<GeoItem, TransformType>(this.animatable) {
 
-						return context == null ? TransformType.NONE : context;
-					}
-				});
+                    @Override
+                    protected Map<TransformType, AnimatableManager<GeoItem>> buildContextOptions(
+                        GeoAnimatable animatable
+                    ) {
+                        Map<TransformType, AnimatableManager<GeoItem>> map = new EnumMap<>(TransformType.class);
 
-			return this.managers.get(uniqueId);
-		}
-	}
+                        for (TransformType context : TransformType.values()) {
+                            map.put(context, new AnimatableManager<>(animatable));
+                        }
+
+                        return map;
+                    }
+
+                    @Override
+                    public TransformType getCurrentContext() {
+                        TransformType context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
+
+                        return context == null ? TransformType.NONE : context;
+                    }
+                });
+
+            return this.managers.get(uniqueId);
+        }
+    }
 }

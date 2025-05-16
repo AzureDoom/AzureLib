@@ -3,14 +3,6 @@ package mod.azure.azurelib.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.client.IValidationHandler;
-import mod.azure.azurelib.client.widget.ConfigEntryWidget;
-import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.config.validate.NotificationSeverity;
-import mod.azure.azurelib.config.value.ConfigValue;
-import mod.azure.azurelib.config.value.ObjectValue;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,15 +17,29 @@ import org.lwjgl.opengl.GL11;
 import java.util.Collection;
 import java.util.List;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.client.IValidationHandler;
+import mod.azure.azurelib.client.widget.ConfigEntryWidget;
+import mod.azure.azurelib.config.ConfigHolder;
+import mod.azure.azurelib.config.io.ConfigIO;
+import mod.azure.azurelib.config.validate.NotificationSeverity;
+import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.config.value.ObjectValue;
+
 public abstract class AbstractConfigScreen extends Screen {
 
     public static final int HEADER_HEIGHT = 35;
+
     public static final int FOOTER_HEIGHT = 30;
+
     public static final Marker MARKER = MarkerManager.getMarker("Screen");
+
     protected final Screen last;
+
     protected final String configId;
 
     protected int index;
+
     protected int pageSize;
 
     public AbstractConfigScreen(Component title, Screen previous, String configId) {
@@ -48,7 +54,16 @@ public abstract class AbstractConfigScreen extends Screen {
         this.saveConfig(true);
     }
 
-    public static void renderScrollbar(PoseStack stack, int x, int y, int width, int height, int index, int valueCount, int paging) {
+    public static void renderScrollbar(
+        PoseStack stack,
+        int x,
+        int y,
+        int width,
+        int height,
+        int index,
+        int valueCount,
+        int paging
+    ) {
         if (valueCount <= paging)
             return;
         double step = height / (double) valueCount;
@@ -66,8 +81,12 @@ public abstract class AbstractConfigScreen extends Screen {
     protected void addFooter() {
         int centerY = this.height - FOOTER_HEIGHT + (FOOTER_HEIGHT - 20) / 2;
         addButton(new Button(20, centerY, 50, 20, ConfigEntryWidget.BACK, this::buttonBackClicked));
-        addButton(new Button(75, centerY, 120, 20, ConfigEntryWidget.REVERT_DEFAULTS, this::buttonRevertToDefaultClicked));
-        addButton(new Button(200, centerY, 120, 20, ConfigEntryWidget.REVERT_CHANGES, this::buttonRevertChangesClicked));
+        addButton(
+            new Button(75, centerY, 120, 20, ConfigEntryWidget.REVERT_DEFAULTS, this::buttonRevertToDefaultClicked)
+        );
+        addButton(
+            new Button(200, centerY, 120, 20, ConfigEntryWidget.REVERT_CHANGES, this::buttonRevertChangesClicked)
+        );
     }
 
     protected void correctScrollingIndex(int count) {
@@ -79,7 +98,7 @@ public abstract class AbstractConfigScreen extends Screen {
     protected Screen getFirstNonConfigScreen() {
         Screen screen = last;
         while (screen instanceof ConfigScreen) {
-            screen = ((ConfigScreen)screen).last;
+            screen = ((ConfigScreen) screen).last;
         }
         return screen;
     }
@@ -90,9 +109,13 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     private void buttonRevertToDefaultClicked(Button button) {
-        DialogScreen dialog = new DialogScreen(ConfigEntryWidget.REVERT_DEFAULTS, new Component[] {ConfigEntryWidget.REVERT_DEFAULTS_DIALOG_TEXT}, this);
+        DialogScreen dialog = new DialogScreen(
+            ConfigEntryWidget.REVERT_DEFAULTS,
+            new Component[] { ConfigEntryWidget.REVERT_DEFAULTS_DIALOG_TEXT },
+            this
+        );
         dialog.onConfirmed(screen -> {
-        	AzureLib.LOGGER.info(MARKER, "Reverting config {} to default values", this.configId);
+            AzureLib.LOGGER.info(MARKER, "Reverting config {} to default values", this.configId);
             ConfigHolder.getConfig(this.configId).ifPresent(holder -> {
                 revertToDefault(holder.values());
                 ConfigIO.saveClientValues(holder);
@@ -103,7 +126,11 @@ public abstract class AbstractConfigScreen extends Screen {
     }
 
     private void buttonRevertChangesClicked(Button button) {
-        DialogScreen dialog = new DialogScreen(ConfigEntryWidget.REVERT_CHANGES, new Component[] {ConfigEntryWidget.REVERT_CHANGES_DIALOG_TEXT}, this);
+        DialogScreen dialog = new DialogScreen(
+            ConfigEntryWidget.REVERT_CHANGES,
+            new Component[] { ConfigEntryWidget.REVERT_CHANGES_DIALOG_TEXT },
+            this
+        );
         dialog.onConfirmed(screen -> {
             ConfigHolder.getConfig(this.configId).ifPresent(ConfigIO::reloadClientValues);
             this.backToConfigList();
@@ -136,11 +163,17 @@ public abstract class AbstractConfigScreen extends Screen {
         }
     }
 
-    public void renderNotification(NotificationSeverity severity, PoseStack stack, List<FormattedCharSequence> texts, int mouseX, int mouseY) {
+    public void renderNotification(
+        NotificationSeverity severity,
+        PoseStack stack,
+        List<FormattedCharSequence> texts,
+        int mouseX,
+        int mouseY
+    ) {
         if (!texts.isEmpty()) {
             int maxTextWidth = 0;
             int iconOffset = 13;
-            for(FormattedCharSequence textComponent : texts) {
+            for (FormattedCharSequence textComponent : texts) {
                 int textWidth = this.font.width(textComponent);
                 if (!severity.isOkStatus()) {
                     textWidth += iconOffset;
@@ -176,15 +209,105 @@ public abstract class AbstractConfigScreen extends Screen {
             BufferBuilder bufferbuilder = tessellator.getBuilder();
             bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
             Matrix4f matrix4f = stack.last().pose();
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY - 4, startX + maxTextWidth + 3, startY - 3, zIndex, background, background);
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY + heightOffset + 3, startX + maxTextWidth + 3, startY + heightOffset + 4, zIndex, background, background);
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY - 3, startX + maxTextWidth + 3, startY + heightOffset + 3, zIndex, background, background);
-            fillGradient(matrix4f, bufferbuilder, startX - 4, startY - 3, startX - 3, startY + heightOffset + 3, zIndex, background, background);
-            fillGradient(matrix4f, bufferbuilder, startX + maxTextWidth + 3, startY - 3, startX + maxTextWidth + 4, startY + heightOffset + 3, zIndex, background, background);
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY - 3 + 1, startX - 3 + 1, startY + heightOffset + 3 - 1, zIndex, fadeMin, fadeMax);
-            fillGradient(matrix4f, bufferbuilder, startX + maxTextWidth + 2, startY - 3 + 1, startX + maxTextWidth + 3, startY + heightOffset + 3 - 1, zIndex, fadeMin, fadeMax);
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY - 3, startX + maxTextWidth + 3, startY - 3 + 1, zIndex, fadeMin, fadeMin);
-            fillGradient(matrix4f, bufferbuilder, startX - 3, startY + heightOffset + 2, startX + maxTextWidth + 3, startY + heightOffset + 3, zIndex, fadeMax, fadeMax);
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY - 4,
+                startX + maxTextWidth + 3,
+                startY - 3,
+                zIndex,
+                background,
+                background
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY + heightOffset + 3,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 4,
+                zIndex,
+                background,
+                background
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY - 3,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 4,
+                startY - 3,
+                startX - 3,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX + maxTextWidth + 3,
+                startY - 3,
+                startX + maxTextWidth + 4,
+                startY + heightOffset + 3,
+                zIndex,
+                background,
+                background
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY - 3 + 1,
+                startX - 3 + 1,
+                startY + heightOffset + 3 - 1,
+                zIndex,
+                fadeMin,
+                fadeMax
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX + maxTextWidth + 2,
+                startY - 3 + 1,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3 - 1,
+                zIndex,
+                fadeMin,
+                fadeMax
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY - 3,
+                startX + maxTextWidth + 3,
+                startY - 3 + 1,
+                zIndex,
+                fadeMin,
+                fadeMin
+            );
+            fillGradient(
+                matrix4f,
+                bufferbuilder,
+                startX - 3,
+                startY + heightOffset + 2,
+                startX + maxTextWidth + 3,
+                startY + heightOffset + 3,
+                zIndex,
+                fadeMax,
+                fadeMax
+            );
             RenderSystem.enableDepthTest();
             RenderSystem.disableTexture();
             RenderSystem.enableBlend();
@@ -207,16 +330,28 @@ public abstract class AbstractConfigScreen extends Screen {
                 BufferUploader.end(bufferbuilder);
             }
 
-
             RenderSystem.disableBlend();
-            MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(
+                Tesselator.getInstance().getBuilder()
+            );
             stack.translate(0.0D, 0.0D, zIndex);
 
             int textOffset = severity.isOkStatus() ? 0 : iconOffset;
-            for(int i = 0; i < texts.size(); i++) {
+            for (int i = 0; i < texts.size(); i++) {
                 FormattedCharSequence textComponent = texts.get(i);
                 if (textComponent != null) {
-                    this.font.drawInBatch(textComponent, (float)startX + textOffset, (float)startY, -1, true, matrix4f, bufferSource, false, 0, 0xf000f0);
+                    this.font.drawInBatch(
+                        textComponent,
+                        (float) startX + textOffset,
+                        (float) startY,
+                        -1,
+                        true,
+                        matrix4f,
+                        bufferSource,
+                        false,
+                        0,
+                        0xf000f0
+                    );
                 }
 
                 if (i == 0) {

@@ -1,88 +1,99 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.loading.json.raw;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minecraft.util.GsonHelper;
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.GsonHelper;
 
 /**
  * Container class for cube information, only used in deserialization at startup
  */
 public class Cube {
 
-	@Nullable
-	public Double inflate;
-	@Nullable
-	public Boolean mirror;
-	public double[] origin;
-	public double[] pivot;
-	public double[] rotation;
-	public double[] size;
-	public UVUnion uv;
+    @Nullable
+    public Double inflate;
 
-	public Cube(@Nullable Double inflate, @Nullable Boolean mirror, double[] origin, double[] pivot, double[] rotation, double[] size, UVUnion uv) {
-		this.inflate = inflate;
-		this.mirror = mirror;
-		this.origin = origin;
-		this.pivot = pivot;
-		this.rotation = rotation;
-		this.size = size;
-		this.uv = uv;
-	}
+    @Nullable
+    public Boolean mirror;
 
-	@Nullable
-	public Double inflate() {
-		return inflate;
-	}
+    public double[] origin;
 
-	@Nullable
-	public Boolean mirror() {
-		return mirror;
-	}
+    public double[] pivot;
 
-	public double[] origin() {
-		return origin;
-	}
+    public double[] rotation;
 
-	public double[] pivot() {
-		return pivot;
-	}
+    public double[] size;
 
-	public double[] rotation() {
-		return rotation;
-	}
+    public UVUnion uv;
 
-	public double[] size() {
-		return size;
-	}
+    public Cube(
+        @Nullable Double inflate,
+        @Nullable Boolean mirror,
+        double[] origin,
+        double[] pivot,
+        double[] rotation,
+        double[] size,
+        UVUnion uv
+    ) {
+        this.inflate = inflate;
+        this.mirror = mirror;
+        this.origin = origin;
+        this.pivot = pivot;
+        this.rotation = rotation;
+        this.size = size;
+        this.uv = uv;
+    }
 
-	public UVUnion uv() {
-		return uv;
-	}
+    @Nullable
+    public Double inflate() {
+        return inflate;
+    }
 
-	public static JsonDeserializer<Cube> deserializer() throws JsonParseException {
-		return (json, type, context) -> {
-			JsonObject obj = json.getAsJsonObject();
-			Double inflate = JsonUtil.getOptionalDouble(obj, "inflate");
-			Boolean mirror = JsonUtil.getOptionalBoolean(obj, "mirror");
-			double[] origin = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "origin", null));
-			double[] pivot = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "pivot", null));
-			double[] rotation = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "rotation", null));
-			double[] size = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "size", null));
-			UVUnion uvUnion = GsonHelper.getAsObject(obj, "uv", null, context, UVUnion.class);
+    @Nullable
+    public Boolean mirror() {
+        return mirror;
+    }
 
-			return new Cube(inflate, mirror, origin, pivot, rotation, size, uvUnion);
-		};
-	}
+    public double[] origin() {
+        return origin;
+    }
+
+    public double[] pivot() {
+        return pivot;
+    }
+
+    public double[] rotation() {
+        return rotation;
+    }
+
+    public double[] size() {
+        return size;
+    }
+
+    public UVUnion uv() {
+        return uv;
+    }
+
+    public static JsonDeserializer<Cube> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            Double inflate = JsonUtil.getOptionalDouble(obj, "inflate");
+            Boolean mirror = JsonUtil.getOptionalBoolean(obj, "mirror");
+            double[] origin = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "origin", null));
+            double[] pivot = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "pivot", null));
+            double[] rotation = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "rotation", null));
+            double[] size = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "size", null));
+            UVUnion uvUnion = GsonHelper.getAsObject(obj, "uv", null, context, UVUnion.class);
+
+            return new Cube(inflate, mirror, origin, pivot, rotation, size, uvUnion);
+        };
+    }
 }

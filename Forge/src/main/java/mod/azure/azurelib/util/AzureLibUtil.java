@@ -1,6 +1,12 @@
 package mod.azure.azurelib.util;
 
-import javax.annotation.Nullable;
+import net.minecraft.entity.AreaEffectCloudEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.tileentity.TileEntity;
 
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -11,121 +17,141 @@ import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.network.SerializableDataTicket;
-import net.minecraft.entity.AreaEffectCloudEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.tileentity.TileEntity;
 
 /**
  * Helper class for various AzureLib-specific functions.
  */
 public final class AzureLibUtil {
 
-	public static <T> T self(Object object) {
-		return (T) object;
-	}
+    public static <T> T self(Object object) {
+        return (T) object;
+    }
 
-	/**
-	 * Creates a new AnimatableInstanceCache for the given animatable object
-	 * @param animatable The animatable object
-	 */
-	@Deprecated()
-	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
-		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
+    /**
+     * Creates a new AnimatableInstanceCache for the given animatable object
+     *
+     * @param animatable The animatable object
+     */
+    @Deprecated()
+    public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable) {
+        AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
-		return cache != null ? cache : createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof TileEntity));
-	}
+        return cache != null
+            ? cache
+            : createInstanceCache(animatable, !(animatable instanceof Entity) && !(animatable instanceof TileEntity));
+    }
 
-	/**
-	 * Creates a new AnimatableInstanceCache for the given animatable object. <br>
-	 * Recommended to use {@link AzureLibUtil#createInstanceCache(GeoAnimatable)} unless you know what you're doing.
-	 * @param animatable The animatable object
-	 * @param singletonObject Whether the object is a singleton/flyweight object, and uses ints to differentiate animatable instances
-	 */
-	@Deprecated()
-	public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable, boolean singletonObject) {
-		AnimatableInstanceCache cache = animatable.animatableCacheOverride();
+    /**
+     * Creates a new AnimatableInstanceCache for the given animatable object. <br>
+     * Recommended to use {@link AzureLibUtil#createInstanceCache(GeoAnimatable)} unless you know what you're doing.
+     *
+     * @param animatable      The animatable object
+     * @param singletonObject Whether the object is a singleton/flyweight object, and uses ints to differentiate
+     *                        animatable instances
+     */
+    @Deprecated()
+    public static AnimatableInstanceCache createInstanceCache(GeoAnimatable animatable, boolean singletonObject) {
+        AnimatableInstanceCache cache = animatable.animatableCacheOverride();
 
-		if (cache != null)
-			return cache;
+        if (cache != null)
+            return cache;
 
-		return singletonObject ? new SingletonAnimatableInstanceCache(animatable) : new InstancedAnimatableInstanceCache(animatable);
-	}
+        return singletonObject
+            ? new SingletonAnimatableInstanceCache(animatable)
+            : new InstancedAnimatableInstanceCache(animatable);
+    }
 
-	/**
-	 * Register a custom {@link mod.azure.azurelib.core.animation.Animation.LoopType} with AzureLib,
-	 * allowing for dynamic handling of post-animation looping.<br>
-	 * <b><u>MUST be called during mod construct</u></b><br>
-	 * @param name The name of the {@code LoopType} handler
-	 * @param loopType The {@code LoopType} implementation to use for the given name
-	 */
-	@Deprecated()
-	synchronized public static Animation.LoopType addCustomLoopType(String name, Animation.LoopType loopType) {
-		return Animation.LoopType.register(name, loopType);
-	}
+    /**
+     * Register a custom {@link mod.azure.azurelib.core.animation.Animation.LoopType} with AzureLib, allowing for
+     * dynamic handling of post-animation looping.<br>
+     * <b><u>MUST be called during mod construct</u></b><br>
+     *
+     * @param name     The name of the {@code LoopType} handler
+     * @param loopType The {@code LoopType} implementation to use for the given name
+     */
+    @Deprecated()
+    synchronized public static Animation.LoopType addCustomLoopType(String name, Animation.LoopType loopType) {
+        return Animation.LoopType.register(name, loopType);
+    }
 
-	/**
-	 * Register a custom {@link mod.azure.azurelib.core.animation.EasingType} with AzureLib,
-	 * allowing for dynamic handling of animation transitions and curves.<br>
-	 * <b><u>MUST be called during mod construct</u></b><br>
-	 * @param name The name of the {@code EasingType} handler
-	 * @param easingType The {@code EasingType} implementation to use for the given name
-	 */
-	@Deprecated()
-	synchronized public static EasingType addCustomEasingType(String name, EasingType easingType) {
-		return EasingType.register(name, easingType);
-	}
+    /**
+     * Register a custom {@link mod.azure.azurelib.core.animation.EasingType} with AzureLib, allowing for dynamic
+     * handling of animation transitions and curves.<br>
+     * <b><u>MUST be called during mod construct</u></b><br>
+     *
+     * @param name       The name of the {@code EasingType} handler
+     * @param easingType The {@code EasingType} implementation to use for the given name
+     */
+    @Deprecated()
+    synchronized public static EasingType addCustomEasingType(String name, EasingType easingType) {
+        return EasingType.register(name, easingType);
+    }
 
-	/**
-	 * Register a custom {@link mod.azure.azurelib.loading.object.BakedModelFactory} with AzureLib,
-	 * allowing for dynamic handling of geo model loading.<br>
-	 * <b><u>MUST be called during mod construct</u></b><br>
-	 * @param namespace The namespace (modid) to register the factory for
-	 * @param factory The factory responsible for model loading under the given namespace
-	 */
-	@Deprecated()
-	synchronized public static void addCustomBakedModelFactory(String namespace, BakedModelFactory factory) {
-		BakedModelFactory.register(namespace, factory);
-	}
+    /**
+     * Register a custom {@link mod.azure.azurelib.loading.object.BakedModelFactory} with AzureLib, allowing for dynamic
+     * handling of geo model loading.<br>
+     * <b><u>MUST be called during mod construct</u></b><br>
+     *
+     * @param namespace The namespace (modid) to register the factory for
+     * @param factory   The factory responsible for model loading under the given namespace
+     */
+    @Deprecated()
+    synchronized public static void addCustomBakedModelFactory(String namespace, BakedModelFactory factory) {
+        BakedModelFactory.register(namespace, factory);
+    }
 
-	/**
-	 * Register a custom {@link SerializableDataTicket} with AzureLib for handling custom data transmission.<br>
-	 * NOTE: You do not need to register non-serializable {@link mod.azure.azurelib.core.object.DataTicket DataTickets}.
-	 * @param dataTicket The SerializableDataTicket to register
-	 * @return The dataTicket you passed in
-	 */
-	@Deprecated()
-	synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
-		return DataTickets.registerSerializable(dataTicket);
-	}
+    /**
+     * Register a custom {@link SerializableDataTicket} with AzureLib for handling custom data transmission.<br>
+     * NOTE: You do not need to register non-serializable {@link mod.azure.azurelib.core.object.DataTicket DataTickets}.
+     *
+     * @param dataTicket The SerializableDataTicket to register
+     * @return The dataTicket you passed in
+     */
+    @Deprecated()
+    synchronized public static <D> SerializableDataTicket<D> addDataTicket(SerializableDataTicket<D> dataTicket) {
+        return DataTickets.registerSerializable(dataTicket);
+    }
 
-	public static boolean isMultipleOf(int p_265754_, int p_265543_) {
-		return p_265754_ % p_265543_ == 0;
-	}
+    public static boolean isMultipleOf(int p_265754_, int p_265543_) {
+        return p_265754_ % p_265543_ == 0;
+    }
 
-	/**
-	 * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
-	 * 
-	 * @param entity     The Entity summoning the AoE
-	 * @param particle   Sets the Particle
-	 * @param yOffset    Set the yOffset if wanted
-	 * @param duration   Sets the duration of the AoE
-	 * @param radius     Sets the radius of the AoE
-	 * @param hasEffect  Should this have an effect?
-	 * @param effect     If it should effect, what effect?
-	 * @param effectTime How long the effect should be applied for?
-	 */
-	public static void summonAoE(LivingEntity entity, IParticleData particle, int yOffset, int duration, float radius, boolean hasEffect, @Nullable Effect effect, int effectTime) {
-		AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(entity.level, entity.getX(), entity.getY() + yOffset, entity.getZ());
-		areaEffectCloudEntity.setRadius(radius);
-		areaEffectCloudEntity.setDuration(duration);
-		areaEffectCloudEntity.setParticle(particle);
-		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
-		if (hasEffect && !entity.hasEffect(effect))
-			areaEffectCloudEntity.addEffect(new EffectInstance(effect, effectTime, 0));
-		entity.level.addFreshEntity(areaEffectCloudEntity);
-	}
+    /**
+     * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
+     *
+     * @param entity     The Entity summoning the AoE
+     * @param particle   Sets the Particle
+     * @param yOffset    Set the yOffset if wanted
+     * @param duration   Sets the duration of the AoE
+     * @param radius     Sets the radius of the AoE
+     * @param hasEffect  Should this have an effect?
+     * @param effect     If it should effect, what effect?
+     * @param effectTime How long the effect should be applied for?
+     */
+    public static void summonAoE(
+        LivingEntity entity,
+        IParticleData particle,
+        int yOffset,
+        int duration,
+        float radius,
+        boolean hasEffect,
+        Effect effect,
+        int effectTime
+    ) {
+        AreaEffectCloudEntity areaEffectCloudEntity = new AreaEffectCloudEntity(
+            entity.level,
+            entity.getX(),
+            entity.getY() + yOffset,
+            entity.getZ()
+        );
+        areaEffectCloudEntity.setRadius(radius);
+        areaEffectCloudEntity.setDuration(duration);
+        areaEffectCloudEntity.setParticle(particle);
+        areaEffectCloudEntity.setRadiusPerTick(
+            -areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration()
+        );
+        if (hasEffect && !entity.hasEffect(effect))
+            areaEffectCloudEntity.addEffect(new EffectInstance(effect, effectTime, 0));
+        entity.level.addFreshEntity(areaEffectCloudEntity);
+    }
 }

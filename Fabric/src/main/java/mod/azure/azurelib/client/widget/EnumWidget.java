@@ -1,8 +1,9 @@
 package mod.azure.azurelib.client.widget;
 
-import mod.azure.azurelib.config.value.EnumValue;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.TextComponent;
+
+import mod.azure.azurelib.config.value.EnumValue;
 
 public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
 

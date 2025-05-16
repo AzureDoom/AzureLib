@@ -4,6 +4,9 @@ import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+
 /**
  * A Mixin class designed to integrate an animation cache mechanism into the {@link Entity} class through the use of the
  * {@link AzAnimatorAccessor} interface. This allows entities to store an instance of {@link AzAnimator} for managing

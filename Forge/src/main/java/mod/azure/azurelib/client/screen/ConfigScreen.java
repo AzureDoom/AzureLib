@@ -1,13 +1,6 @@
 package mod.azure.azurelib.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.client.DisplayAdapter;
-import mod.azure.azurelib.client.DisplayAdapterManager;
-import mod.azure.azurelib.client.widget.ConfigEntryWidget;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.validate.NotificationSeverity;
-import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.IReorderingProcessor;
@@ -19,15 +12,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.client.DisplayAdapter;
+import mod.azure.azurelib.client.DisplayAdapterManager;
+import mod.azure.azurelib.client.widget.ConfigEntryWidget;
+import mod.azure.azurelib.config.adapter.TypeAdapter;
+import mod.azure.azurelib.config.validate.NotificationSeverity;
+import mod.azure.azurelib.config.value.ConfigValue;
+
 public class ConfigScreen extends AbstractConfigScreen {
 
     private final Map<String, ConfigValue<?>> valueMap;
 
-    public ConfigScreen(String ownerIdentifier, String configId, Map<String, ConfigValue<?>> valueMap, Screen previous) {
+    public ConfigScreen(
+        String ownerIdentifier,
+        String configId,
+        Map<String, ConfigValue<?>> valueMap,
+        Screen previous
+    ) {
         this(new TranslationTextComponent("config.screen." + ownerIdentifier), configId, valueMap, previous);
     }
 
-    public ConfigScreen(ITextComponent screenTitle, String configId, Map<String, ConfigValue<?>> valueMap, Screen previous) {
+    public ConfigScreen(
+        ITextComponent screenTitle,
+        String configId,
+        Map<String, ConfigValue<?>> valueMap,
+        Screen previous
+    ) {
         super(screenTitle, previous, configId);
         this.valueMap = valueMap;
     }
@@ -49,26 +60,42 @@ public class ConfigScreen extends AbstractConfigScreen {
             errorOffset -= correct;
             offset += correct;
             ConfigValue<?> value = values.get(i);
-            ConfigEntryWidget widget = addButton(new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, value, this.configId));
+            ConfigEntryWidget widget = addButton(
+                new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, value, this.configId)
+            );
             widget.setDescriptionRenderer(this::renderEntryDescription);
             TypeAdapter.AdapterContext context = value.getSerializationContext();
             Field field = context.getOwner();
             DisplayAdapter adapter = DisplayAdapterManager.forType(field.getType());
             if (adapter == null) {
-            	AzureLib.LOGGER.error(MARKER, "Missing display adapter for {} type, will not be displayed in GUI", field.getType().getSimpleName());
+                AzureLib.LOGGER.error(
+                    MARKER,
+                    "Missing display adapter for {} type, will not be displayed in GUI",
+                    field.getType().getSimpleName()
+                );
                 continue;
             }
             try {
                 adapter.placeWidgets(value, field, widget);
                 initializeGuiValue(value, widget);
             } catch (ClassCastException e) {
-            	AzureLib.LOGGER.error(MARKER, "Unable to create config field for {} type due to error {}", field.getType().getSimpleName(), e);
+                AzureLib.LOGGER.error(
+                    MARKER,
+                    "Unable to create config field for {} type due to error {}",
+                    field.getType().getSimpleName(),
+                    e
+                );
             }
         }
         this.addFooter();
     }
 
-    private void renderEntryDescription(MatrixStack stack, Widget widget, NotificationSeverity severity, List<IReorderingProcessor> text) {
+    private void renderEntryDescription(
+        MatrixStack stack,
+        Widget widget,
+        NotificationSeverity severity,
+        List<IReorderingProcessor> text
+    ) {
         int x = widget.x + 5;
         int y = widget.y + widget.getHeight() + 10;
         if (!severity.isOkStatus()) {
@@ -83,9 +110,24 @@ public class ConfigScreen extends AbstractConfigScreen {
         renderBackground(stack);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        font.draw(stack, this.title, (this.width - titleWidth) / 2.0F, (HEADER_HEIGHT - this.font.lineHeight) / 2.0F, 0xFFFFFF);
+        font.draw(
+            stack,
+            this.title,
+            (this.width - titleWidth) / 2.0F,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2.0F,
+            0xFFFFFF
+        );
         fill(stack, 0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x99 << 24);
-        renderScrollbar(stack, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, valueMap.size(), pageSize);
+        renderScrollbar(
+            stack,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            valueMap.size(),
+            pageSize
+        );
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 

@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache.object;
@@ -12,45 +10,57 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Baked cuboid for a {@link GeoBone}
  */
-@Deprecated()
 public class GeoCube {
-	protected final GeoQuad[] quads;
-	protected final Vec3 pivot;
-	protected final Vec3 rotation;
-	protected final Vec3 size;
-	protected final double inflate;
-	protected final boolean mirror;
 
-	public GeoCube(final GeoQuad[] quads, final Vec3 pivot, final Vec3 rotation, final Vec3 size, final double inflate, final boolean mirror) {
-		this.quads = quads;
-		this.pivot = pivot;
-		this.rotation = rotation;
-		this.size = size;
-		this.inflate = inflate;
-		this.mirror = mirror;
-	}
+    protected final GeoQuad[] quads;
 
-	public GeoQuad[] quads() {
-		return this.quads;
-	}
+    protected final Vec3 pivot;
 
-	public Vec3 pivot() {
-		return this.pivot;
-	}
+    protected final Vec3 rotation;
 
-	public Vec3 rotation() {
-		return rotation;
-	}
+    protected final Vec3 size;
 
-	public Vec3 size() {
-		return size;
-	}
+    protected final double inflate;
 
-	public double inflate() {
-		return inflate;
-	}
+    protected final boolean mirror;
 
-	public boolean mirror() {
-		return mirror;
-	}
+    public GeoCube(
+        final GeoQuad[] quads,
+        final Vec3 pivot,
+        final Vec3 rotation,
+        final Vec3 size,
+        final double inflate,
+        final boolean mirror
+    ) {
+        this.quads = quads;
+        this.pivot = pivot;
+        this.rotation = rotation;
+        this.size = size;
+        this.inflate = inflate;
+        this.mirror = mirror;
+    }
+
+    public GeoQuad[] quads() {
+        return this.quads;
+    }
+
+    public Vec3 pivot() {
+        return this.pivot;
+    }
+
+    public Vec3 rotation() {
+        return rotation;
+    }
+
+    public Vec3 size() {
+        return size;
+    }
+
+    public double inflate() {
+        return inflate;
+    }
+
+    public boolean mirror() {
+        return mirror;
+    }
 }

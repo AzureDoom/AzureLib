@@ -1,73 +1,80 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.loading.json.raw;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minecraft.util.GsonHelper;
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.GsonHelper;
 
 /**
  * Container class for poly mesh information, only used in deserialization at startup
  */
 public class PolyMesh {
 
-	protected final @Nullable Boolean normalizedUVs;
-	protected final double[] normals;
-	protected final @Nullable PolysUnion polysUnion;
-	protected final double[] positions;
-	protected final double[] uvs;
+    protected final @Nullable Boolean normalizedUVs;
 
-	public PolyMesh(@Nullable Boolean normalizedUVs, double[] normals, @Nullable PolysUnion polysUnion, double[] positions, double[] uvs) {
-		this.normalizedUVs = normalizedUVs;
-		this.normals = normals;
-		this.polysUnion = polysUnion;
-		this.positions = positions;
-		this.uvs = uvs;
-	}
+    protected final double[] normals;
 
-	public static JsonDeserializer<PolyMesh> deserializer() throws JsonParseException {
-		return (json, type, context) -> {
-			JsonObject obj = json.getAsJsonObject();
-			Boolean normalizedUVs = JsonUtil.getOptionalBoolean(obj, "normalized_uvs");
-			double[] normals = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "normals", null));
-			PolysUnion polysUnion = GsonHelper.getAsObject(obj, "polys", null, context, PolysUnion.class);
-			double[] positions = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "positions", null));
-			double[] uvs = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uvs", null));
+    protected final @Nullable PolysUnion polysUnion;
 
-			return new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs);
-		};
-	}
+    protected final double[] positions;
 
-	@Nullable
-	public Boolean normalizedUVs() {
-		return this.normalizedUVs;
-	}
+    protected final double[] uvs;
 
-	public double[] normals() {
-		return this.normals;
-	}
+    public PolyMesh(
+        @Nullable Boolean normalizedUVs,
+        double[] normals,
+        @Nullable PolysUnion polysUnion,
+        double[] positions,
+        double[] uvs
+    ) {
+        this.normalizedUVs = normalizedUVs;
+        this.normals = normals;
+        this.polysUnion = polysUnion;
+        this.positions = positions;
+        this.uvs = uvs;
+    }
 
-	@Nullable
-	public PolysUnion polysUnion() {
-		return this.polysUnion;
-	}
+    public static JsonDeserializer<PolyMesh> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            Boolean normalizedUVs = JsonUtil.getOptionalBoolean(obj, "normalized_uvs");
+            double[] normals = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "normals", null));
+            PolysUnion polysUnion = GsonHelper.getAsObject(obj, "polys", null, context, PolysUnion.class);
+            double[] positions = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "positions", null));
+            double[] uvs = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uvs", null));
 
-	public double[] positions() {
-		return this.positions;
-	}
+            return new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs);
+        };
+    }
 
-	public double[] uvs() {
-		return this.uvs;
-	}
+    @Nullable
+    public Boolean normalizedUVs() {
+        return this.normalizedUVs;
+    }
+
+    public double[] normals() {
+        return this.normals;
+    }
+
+    @Nullable
+    public PolysUnion polysUnion() {
+        return this.polysUnion;
+    }
+
+    public double[] positions() {
+        return this.positions;
+    }
+
+    public double[] uvs() {
+        return this.uvs;
+    }
 
 }

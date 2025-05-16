@@ -1,9 +1,6 @@
 package mod.azure.azurelib.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.client.DisplayAdapter;
-import mod.azure.azurelib.client.widget.ConfigEntryWidget;
-import mod.azure.azurelib.config.ConfigHolder;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
@@ -13,15 +10,23 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
+import mod.azure.azurelib.client.DisplayAdapter;
+import mod.azure.azurelib.client.widget.ConfigEntryWidget;
+import mod.azure.azurelib.config.ConfigHolder;
+
 import static mod.azure.azurelib.client.screen.AbstractConfigScreen.FOOTER_HEIGHT;
 import static mod.azure.azurelib.client.screen.AbstractConfigScreen.HEADER_HEIGHT;
 
 public class ConfigGroupScreen extends Screen {
 
     protected final Screen last;
+
     protected final String groupId;
+
     protected final List<ConfigHolder<?>> configHolders;
+
     protected int index;
+
     protected int pageSize;
 
     public ConfigGroupScreen(Screen last, String groupId, List<ConfigHolder<?>> configHolders) {
@@ -51,11 +56,29 @@ public class ConfigGroupScreen extends Screen {
             ConfigHolder<?> value = configHolders.get(i);
             int y = viewportMin + 10 + j * 25 + offset;
             String configId = value.getConfigId();
-            this.addButton(new LeftAlignedLabel(posX, y, componentWidth, 20, new TranslationTextComponent("config.screen." + configId), this.font));
-            this.addButton(new Button(DisplayAdapter.getValueX(posX, componentWidth), y, DisplayAdapter.getValueWidth(componentWidth), 20, ConfigEntryWidget.EDIT, btn -> {
-                ConfigScreen screen = new ConfigScreen(configId, configId, value.getValueMap(), this);
-                minecraft.setScreen(screen);
-            }));
+            this.addButton(
+                new LeftAlignedLabel(
+                    posX,
+                    y,
+                    componentWidth,
+                    20,
+                    new TranslationTextComponent("config.screen." + configId),
+                    this.font
+                )
+            );
+            this.addButton(
+                new Button(
+                    DisplayAdapter.getValueX(posX, componentWidth),
+                    y,
+                    DisplayAdapter.getValueWidth(componentWidth),
+                    20,
+                    ConfigEntryWidget.EDIT,
+                    btn -> {
+                        ConfigScreen screen = new ConfigScreen(configId, configId, value.getValueMap(), this);
+                        minecraft.setScreen(screen);
+                    }
+                )
+            );
         }
         initFooter();
     }
@@ -65,9 +88,24 @@ public class ConfigGroupScreen extends Screen {
         renderBackground(stack);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        font.draw(stack, this.title, (this.width - titleWidth) / 2.0F, (HEADER_HEIGHT - this.font.lineHeight) / 2.0F, 0xFFFFFF);
+        font.draw(
+            stack,
+            this.title,
+            (this.width - titleWidth) / 2.0F,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2.0F,
+            0xFFFFFF
+        );
         fill(stack, 0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x99 << 24);
-        AbstractConfigScreen.renderScrollbar(stack, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, configHolders.size(), pageSize);
+        AbstractConfigScreen.renderScrollbar(
+            stack,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            configHolders.size(),
+            pageSize
+        );
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 
@@ -98,14 +136,20 @@ public class ConfigGroupScreen extends Screen {
 
         private final FontRenderer font;
 
-        public LeftAlignedLabel(int x, int y, int width, int height, ITextComponent label, FontRenderer  font) {
+        public LeftAlignedLabel(int x, int y, int width, int height, ITextComponent label, FontRenderer font) {
             super(x, y, width, height, label);
             this.font = font;
         }
 
         @Override
-        public void renderButton(MatrixStack  stack, int mouseX, int mouseY, float partialTicks) {
-            this.font.draw(stack, this.getMessage(), this.x, this.y + (this.height - this.font.lineHeight) / 2.0F, 0xAAAAAA);
+        public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+            this.font.draw(
+                stack,
+                this.getMessage(),
+                this.x,
+                this.y + (this.height - this.font.lineHeight) / 2.0F,
+                0xAAAAAA
+            );
         }
 
         @Override

@@ -1,15 +1,6 @@
 package mod.azure.azurelib.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.client.DisplayAdapter;
-import mod.azure.azurelib.client.DisplayAdapterManager;
-import mod.azure.azurelib.client.widget.ConfigEntryWidget;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.adapter.TypeAdapters;
-import mod.azure.azurelib.config.validate.NotificationSeverity;
-import mod.azure.azurelib.config.value.ArrayValue;
-import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -23,20 +14,38 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.client.DisplayAdapter;
+import mod.azure.azurelib.client.DisplayAdapterManager;
+import mod.azure.azurelib.client.widget.ConfigEntryWidget;
+import mod.azure.azurelib.config.adapter.TypeAdapter;
+import mod.azure.azurelib.config.adapter.TypeAdapters;
+import mod.azure.azurelib.config.validate.NotificationSeverity;
+import mod.azure.azurelib.config.value.ArrayValue;
+import mod.azure.azurelib.config.value.ConfigValue;
+
 public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends AbstractConfigScreen {
 
     public static final ITextComponent ADD_ELEMENT = new TranslationTextComponent("text.azurelib.value.add_element");
 
     public final C array;
+
     private final boolean fixedSize;
 
     private Supplier<Integer> sizeSupplier = () -> 0;
+
     private DummyConfigValueFactory valueFactory;
+
     private ElementAddHandler addHandler;
+
     private ElementRemoveHandler<V> removeHandler;
 
     public ArrayConfigScreen(String ownerIdentifier, String configId, C array, Screen previous) {
-        super(new TranslationTextComponent(String.format("config.%s.option.%s", configId, ownerIdentifier)), previous, configId);
+        super(
+            new TranslationTextComponent(String.format("config.%s.option.%s", configId, ownerIdentifier)),
+            previous,
+            configId
+        );
         this.array = array;
         this.fixedSize = array.isFixedSize();
     }
@@ -79,17 +88,28 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
             offset += correct;
             ConfigValue<?> dummy = valueFactory.create(array.getId(), i);
             dummy.processFieldData(owner);
-            ConfigEntryWidget widget = addButton(new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, dummy, this.configId));
+            ConfigEntryWidget widget = addButton(
+                new ConfigEntryWidget(30, viewportMin + 10 + j * 25 + offset, this.width - 60, 20, dummy, this.configId)
+            );
             widget.setDescriptionRenderer(this::renderEntryDescription);
             if (adapter == null) {
-            	AzureLib.LOGGER.error(MARKER, "Missing display adapter for {} type, will not be displayed in GUI", compType.getSimpleName());
+                AzureLib.LOGGER.error(
+                    MARKER,
+                    "Missing display adapter for {} type, will not be displayed in GUI",
+                    compType.getSimpleName()
+                );
                 continue;
             }
             try {
                 adapter.placeWidgets(dummy, owner, widget);
                 initializeGuiValue(dummy, widget);
             } catch (ClassCastException e) {
-            	AzureLib.LOGGER.error(MARKER, "Unable to create config field for {} type due to error {}", compType.getSimpleName(), e);
+                AzureLib.LOGGER.error(
+                    MARKER,
+                    "Unable to create config field for {} type due to error {}",
+                    compType.getSimpleName(),
+                    e
+                );
             }
             if (!fixedSize) {
                 final int elementIndex = i;
@@ -106,7 +126,12 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
         addFooter();
     }
 
-    private void renderEntryDescription(MatrixStack stack, Widget widget, NotificationSeverity severity, List<IReorderingProcessor> text) {
+    private void renderEntryDescription(
+        MatrixStack stack,
+        Widget widget,
+        NotificationSeverity severity,
+        List<IReorderingProcessor> text
+    ) {
         if (!severity.isOkStatus()) {
             this.renderNotification(severity, stack, text, widget.x + 5, widget.y + widget.getHeight() + 10);
         }
@@ -117,9 +142,24 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
         renderBackground(stack);
         // HEADER
         int titleWidth = this.font.width(this.title);
-        font.draw(stack, this.title, (this.width - titleWidth) / 2.0F, (HEADER_HEIGHT - this.font.lineHeight) / 2.0F, 0xFFFFFF);
+        font.draw(
+            stack,
+            this.title,
+            (this.width - titleWidth) / 2.0F,
+            (HEADER_HEIGHT - this.font.lineHeight) / 2.0F,
+            0xFFFFFF
+        );
         fill(stack, 0, HEADER_HEIGHT, width, height - FOOTER_HEIGHT, 0x99 << 24);
-        renderScrollbar(stack, width - 5, HEADER_HEIGHT, 5, height - FOOTER_HEIGHT - HEADER_HEIGHT, index, sizeSupplier.get(), pageSize);
+        renderScrollbar(
+            stack,
+            width - 5,
+            HEADER_HEIGHT,
+            5,
+            height - FOOTER_HEIGHT - HEADER_HEIGHT,
+            index,
+            sizeSupplier.get(),
+            pageSize
+        );
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 
@@ -147,26 +187,35 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
         return false;
     }
 
-    public static <V> TypeAdapter.AdapterContext callbackCtx(Field parent, Class<V> componentType, BiConsumer<V, Integer> callback, int index) {
+    public static <V> TypeAdapter.AdapterContext callbackCtx(
+        Field parent,
+        Class<V> componentType,
+        BiConsumer<V, Integer> callback,
+        int index
+    ) {
         return new DummyCallbackAdapter<>(componentType, parent, callback, index);
     }
 
     @FunctionalInterface
     public interface ElementAddHandler {
+
         void insertElement();
     }
 
     @FunctionalInterface
     public interface DummyConfigValueFactory {
+
         ConfigValue<?> create(String id, int elementIndex);
     }
 
     @FunctionalInterface
     public interface ElementRemoveHandler<V> {
+
         void removeElementAt(int index, ArrayTrimmer<V> trimmer);
 
         @FunctionalInterface
         interface ArrayTrimmer<V> {
+
             V trim(int index, V src, V dest);
         }
     }
@@ -174,8 +223,11 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
     private static class DummyCallbackAdapter<V> implements TypeAdapter.AdapterContext {
 
         private final TypeAdapter typeAdapter;
+
         private final Field parentField;
+
         private final BiConsumer<V, Integer> setCallback;
+
         private final int index;
 
         private DummyCallbackAdapter(Class<V> type, Field parentField, BiConsumer<V, Integer> setCallback, int index) {

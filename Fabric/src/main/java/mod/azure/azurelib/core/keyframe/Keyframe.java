@@ -1,101 +1,106 @@
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.keyframe;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+
 import java.util.List;
 import java.util.Objects;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
 import mod.azure.azurelib.core.animation.EasingType;
 import mod.azure.azurelib.core.math.IValue;
 
 @Deprecated()
 public class Keyframe<T> {
-	private double length;
-	private IValue startValue;
-	private IValue endValue;
-	public EasingType easingType = EasingType.LINEAR;
-	public DoubleList easingArgs = new DoubleArrayList();
 
-	public Keyframe(double length, IValue startValue, IValue endValue) {
-		this.length = length;
-		this.startValue = startValue;
-		this.endValue = endValue;
-	}
+    private double length;
 
-	public Keyframe(double length, IValue startValue, IValue endValue, EasingType easingType) {
-		this.length = length;
-		this.startValue = startValue;
-		this.endValue = endValue;
-		this.easingType = easingType;
-	}
+    private IValue startValue;
 
-	public Keyframe(double length, IValue startValue, IValue endValue, EasingType easingType, List<IValue> easingArgs) {
-		this.length = length;
-		this.startValue = startValue;
-		this.endValue = endValue;
-		this.easingType = easingType;
+    private IValue endValue;
 
-		for (IValue easing : easingArgs) {
-			this.easingArgs.add(easing.get());
-		}
-	}
+    public EasingType easingType = EasingType.LINEAR;
 
-	public double getLength() {
-		return length;
-	}
+    public DoubleList easingArgs = new DoubleArrayList();
 
-	public void setLength(Double length) {
-		this.length = length;
-	}
+    public Keyframe(double length, IValue startValue, IValue endValue) {
+        this.length = length;
+        this.startValue = startValue;
+        this.endValue = endValue;
+    }
 
-	public IValue getStartValue() {
-		return startValue;
-	}
+    public Keyframe(double length, IValue startValue, IValue endValue, EasingType easingType) {
+        this.length = length;
+        this.startValue = startValue;
+        this.endValue = endValue;
+        this.easingType = easingType;
+    }
 
-	public void setStartValue(IValue startValue) {
-		this.startValue = startValue;
-	}
+    public Keyframe(double length, IValue startValue, IValue endValue, EasingType easingType, List<IValue> easingArgs) {
+        this.length = length;
+        this.startValue = startValue;
+        this.endValue = endValue;
+        this.easingType = easingType;
 
-	public IValue getEndValue() {
-		return endValue;
-	}
+        for (IValue easing : easingArgs) {
+            this.easingArgs.add(easing.get());
+        }
+    }
 
-	public void setEndValue(IValue endValue) {
-		this.endValue = endValue;
-	}
+    public double getLength() {
+        return length;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(length, startValue, endValue);
-	}
+    public void setLength(Double length) {
+        this.length = length;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof Keyframe && hashCode() == obj.hashCode();
-	}
+    public IValue getStartValue() {
+        return startValue;
+    }
 
-	public DoubleList easingArgs() {
-		return easingArgs;
-	}
+    public void setStartValue(IValue startValue) {
+        this.startValue = startValue;
+    }
 
-	public EasingType easingType() {
-		return easingType;
-	}
+    public IValue getEndValue() {
+        return endValue;
+    }
 
-	public IValue startValue() {
-		return startValue;
-	}
+    public void setEndValue(IValue endValue) {
+        this.endValue = endValue;
+    }
 
-	public IValue endValue() {
-		return endValue;
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(length, startValue, endValue);
+    }
 
-	public double length() {
-		return length;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Keyframe && hashCode() == obj.hashCode();
+    }
+
+    public DoubleList easingArgs() {
+        return easingArgs;
+    }
+
+    public EasingType easingType() {
+        return easingType;
+    }
+
+    public IValue startValue() {
+        return startValue;
+    }
+
+    public IValue endValue() {
+        return endValue;
+    }
+
+    public double length() {
+        return length;
+    }
 }

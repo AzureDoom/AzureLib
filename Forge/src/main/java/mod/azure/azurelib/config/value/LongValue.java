@@ -1,12 +1,13 @@
 package mod.azure.azurelib.config.value;
 
+import net.minecraft.network.PacketBuffer;
+
+import java.lang.reflect.Field;
+
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
-import net.minecraft.network.PacketBuffer;
-
-import java.lang.reflect.Field;
 
 public class LongValue extends IntegerValue<Long> {
 
@@ -39,7 +40,13 @@ public class LongValue extends IntegerValue<Long> {
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new LongValue(ValueData.of(name, (long) value, context, comments));
         }
 

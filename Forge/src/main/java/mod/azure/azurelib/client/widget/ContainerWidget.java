@@ -12,8 +12,11 @@ import java.util.List;
 public abstract class ContainerWidget extends Widget implements INestedGuiEventHandler {
 
     private final List<IGuiEventListener> listeners = new ArrayList<>();
+
     private final List<Widget> widgets = new ArrayList<>();
+
     private IGuiEventListener focused;
+
     private boolean dragging;
 
     public ContainerWidget(int x, int y, int w, int h, ITextComponent component) {
@@ -61,8 +64,20 @@ public abstract class ContainerWidget extends Widget implements INestedGuiEventH
     }
 
     @Override
-    public boolean mouseDragged(double p_231045_1_, double p_231045_3_, int p_231045_5_, double p_231045_6_, double p_231045_8_) {
-        return INestedGuiEventHandler.super.mouseDragged(p_231045_1_, p_231045_3_, p_231045_5_, p_231045_6_, p_231045_8_);
+    public boolean mouseDragged(
+        double p_231045_1_,
+        double p_231045_3_,
+        int p_231045_5_,
+        double p_231045_6_,
+        double p_231045_8_
+    ) {
+        return INestedGuiEventHandler.super.mouseDragged(
+            p_231045_1_,
+            p_231045_3_,
+            p_231045_5_,
+            p_231045_6_,
+            p_231045_8_
+        );
     }
 
     @Override

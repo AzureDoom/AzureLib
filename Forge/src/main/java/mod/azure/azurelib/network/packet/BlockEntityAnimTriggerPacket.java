@@ -1,57 +1,61 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
 
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
-import mod.azure.azurelib.animatable.GeoBlockEntity;
-import mod.azure.azurelib.util.ClientUtils;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import java.util.function.Supplier;
+
+import mod.azure.azurelib.animatable.GeoBlockEntity;
+import mod.azure.azurelib.util.ClientUtils;
+
 /**
- * Packet for syncing user-definable animations that can be triggered from the server for {@link TileEntity BlockEntities}
+ * Packet for syncing user-definable animations that can be triggered from the server for {@link TileEntity
+ * BlockEntities}
  */
 @Deprecated()
 public class BlockEntityAnimTriggerPacket<D> {
-	private final BlockPos pos;
-	private final String controllerName;
-	private final String animName;
 
-	public BlockEntityAnimTriggerPacket(BlockPos pos, @Nullable String controllerName, String animName) {
-		this.pos = pos;
-		this.controllerName = controllerName == null ? "" : controllerName;
-		this.animName = animName;
-	}
+    private final BlockPos pos;
 
-	public void encode(PacketBuffer buffer) {
-		buffer.writeBlockPos(this.pos);
-		buffer.writeUtf(this.controllerName);
-		buffer.writeUtf(this.animName);
-	}
+    private final String controllerName;
 
-	public static <D> BlockEntityAnimTriggerPacket<D> decode(PacketBuffer buffer) {
-		return new BlockEntityAnimTriggerPacket<>(buffer.readBlockPos(), buffer.readUtf(), buffer.readUtf());
-	}
+    private final String animName;
 
-	public void receivePacket(Supplier<NetworkEvent.Context> context) {
-		NetworkEvent.Context handler = context.get();
+    public BlockEntityAnimTriggerPacket(BlockPos pos, String controllerName, String animName) {
+        this.pos = pos;
+        this.controllerName = controllerName == null ? "" : controllerName;
+        this.animName = animName;
+    }
 
-		handler.enqueueWork(() -> {
-			TileEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
+    public void encode(PacketBuffer buffer) {
+        buffer.writeBlockPos(this.pos);
+        buffer.writeUtf(this.controllerName);
+        buffer.writeUtf(this.animName);
+    }
 
-			if (blockEntity instanceof GeoBlockEntity)
-				((GeoBlockEntity) blockEntity).triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-		});
-		handler.setPacketHandled(true);
-	}
+    public static <D> BlockEntityAnimTriggerPacket<D> decode(PacketBuffer buffer) {
+        return new BlockEntityAnimTriggerPacket<>(buffer.readBlockPos(), buffer.readUtf(), buffer.readUtf());
+    }
+
+    public void receivePacket(Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context handler = context.get();
+
+        handler.enqueueWork(() -> {
+            TileEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
+
+            if (blockEntity instanceof GeoBlockEntity)
+                ((GeoBlockEntity) blockEntity).triggerAnim(
+                    this.controllerName.isEmpty() ? null : this.controllerName,
+                    this.animName
+                );
+        });
+        handler.setPacketHandled(true);
+    }
 }

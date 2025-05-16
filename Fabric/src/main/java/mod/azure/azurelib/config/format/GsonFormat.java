@@ -1,13 +1,6 @@
 package mod.azure.azurelib.config.format;
 
 import com.google.gson.*;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.config.ConfigUtils;
-import mod.azure.azurelib.config.exception.ConfigReadException;
-import mod.azure.azurelib.config.exception.ConfigValueMissingException;
-import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.config.value.ConfigValue;
-import mod.azure.azurelib.config.value.IDescriptionProvider;
 
 import java.io.File;
 import java.io.FileReader;
@@ -19,9 +12,18 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.config.ConfigUtils;
+import mod.azure.azurelib.config.exception.ConfigReadException;
+import mod.azure.azurelib.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.config.io.ConfigIO;
+import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.config.value.IDescriptionProvider;
+
 public final class GsonFormat implements IConfigFormat {
 
     private final Gson gson;
+
     private final JsonObject root;
 
     public GsonFormat(Settings settings) {
@@ -267,7 +269,11 @@ public final class GsonFormat implements IConfigFormat {
         }
     }
 
-    private <T> T[] readArray(String field, Function<Integer, T[]> arrayFactory, Function<JsonElement, T> function) throws ConfigValueMissingException {
+    private <T> T[] readArray(
+        String field,
+        Function<Integer, T[]> arrayFactory,
+        Function<JsonElement, T> function
+    ) throws ConfigValueMissingException {
         JsonElement element = this.root.get(field);
         if (element == null || !element.isJsonArray()) {
             throw new ConfigValueMissingException("Missing value: " + field);
@@ -304,6 +310,7 @@ public final class GsonFormat implements IConfigFormat {
 
         /**
          * Constructs new settings and allows you to customize {@link GsonBuilder} object
+         *
          * @param consumer Consumer of {@link GsonBuilder} for this settings object
          */
         public Settings(Consumer<GsonBuilder> consumer) {

@@ -5,8 +5,13 @@ import net.minecraft.network.chat.TextComponent;
 
 public final class ValidationResult {
 
-    private static final ValidationResult OK = new ValidationResult(NotificationSeverity.INFO, (MutableComponent) TextComponent.EMPTY);
+    private static final ValidationResult OK = new ValidationResult(
+        NotificationSeverity.INFO,
+        (MutableComponent) TextComponent.EMPTY
+    );
+
     private final NotificationSeverity severity;
+
     private final MutableComponent text;
 
     public ValidationResult(NotificationSeverity severity, MutableComponent text) {

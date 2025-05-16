@@ -1,0 +1,66 @@
+package mod.azure.azurelib.rewrite.render.block;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.tileentity.TileEntity;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.AzProvider;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+
+/**
+ * The {@code AzBlockEntityRenderer} class is an abstract base class for rendering custom block entities. It leverages
+ * an animation and rendering pipeline mechanism to provide extended functionalities, such as dynamic animations and
+ * model customization.
+ *
+ * @param <T> The specific type of {@link TileEntity} that this renderer processes.
+ */
+public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEntityRenderer<T> {
+
+    private final AzProvider<T> provider;
+
+    private final AzBlockEntityRendererPipeline<T> rendererPipeline;
+
+    private AzBlockAnimator<T> reusedAzBlockAnimator;
+
+    protected AzBlockEntityRenderer(AzBlockEntityRendererConfig<T> config, TileEntityRendererDispatcher context) {
+        super(context);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+        this.rendererPipeline = createPipeline(config);
+    }
+
+    protected AzBlockEntityRendererPipeline<T> createPipeline(AzBlockEntityRendererConfig<T> config) {
+        return new AzBlockEntityRendererPipeline<>(config, this);
+    }
+
+    @Override
+    public void render(
+        T entity,
+        float partialTick,
+        MatrixStack poseStack,
+        IRenderTypeBuffer source,
+        int packedLight,
+        int packedOverlay
+    ) {
+        AzBlockAnimator<T> cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(entity);
+        AzBakedModel model = provider.provideBakedModel(entity);
+        AzRendererPipelineContext<T> context = rendererPipeline.context();
+
+        if (cachedEntityAnimator != null && model != null) {
+            cachedEntityAnimator.setActiveModel(model);
+        }
+
+        // Point the renderer's current animator reference to the cached entity animator before rendering.
+        reusedAzBlockAnimator = cachedEntityAnimator;
+
+        // Execute the render pipeline.
+        rendererPipeline.render(poseStack, model, entity, source, null, null, 0, partialTick, packedLight);
+    }
+
+    public AzBlockAnimator<T> getAnimator() {
+        return reusedAzBlockAnimator;
+    }
+}

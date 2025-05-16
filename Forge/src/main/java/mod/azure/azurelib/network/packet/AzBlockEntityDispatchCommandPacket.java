@@ -1,10 +1,15 @@
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.util.ClientUtils;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.util.ClientUtils;
 
 public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
@@ -13,8 +18,8 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
     private final AzCommand dispatchCommand;
 
     public AzBlockEntityDispatchCommandPacket(
-            BlockPos blockPos,
-            AzCommand dispatchCommand
+        BlockPos blockPos,
+        AzCommand dispatchCommand
     ) {
         this.blockPos = blockPos;
         this.dispatchCommand = dispatchCommand;
@@ -34,7 +39,7 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
     @Override
     public void handle() {
-        TileEntity blockEntity = ClientUtils.getLevel().getTileEntity(blockPos);
+        TileEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
 
         if (blockEntity == null) {
             return;

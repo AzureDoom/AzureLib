@@ -1,22 +1,21 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.renderer.layer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.ResourceLocation;
+
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.model.GeoModel;
 import mod.azure.azurelib.renderer.GeoRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * Render layer base class for rendering additional layers of effects or textures over an existing model at runtime.<br>
@@ -24,6 +23,7 @@ import net.minecraft.util.ResourceLocation;
  */
 @Deprecated()
 public abstract class GeoRenderLayer<T extends GeoAnimatable> {
+
     protected final GeoRenderer<T> renderer;
 
     public GeoRenderLayer(GeoRenderer<T> entityRendererIn) {
@@ -60,29 +60,59 @@ public abstract class GeoRenderLayer<T extends GeoAnimatable> {
     }
 
     /**
-     * This method is called by the {@link GeoRenderer} before rendering, immediately after {@link GeoRenderer#preRender} has been called.<br>
+     * This method is called by the {@link GeoRenderer} before rendering, immediately after
+     * {@link GeoRenderer#preRender} has been called.<br>
      * This allows for RenderLayers to perform pre-render manipulations such as hiding or showing bones
      */
-    public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
-    }
+    public void preRender(
+        MatrixStack poseStack,
+        T animatable,
+        BakedGeoModel bakedModel,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
+    ) {}
 
     /**
      * This is the method that is actually called by the render for your render layer to function.<br>
      * This is called <i>after</i> the animatable has been rendered, but before supplementary rendering like nametags.
      */
-    public void render(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
-    }
+    public void render(
+        MatrixStack poseStack,
+        T animatable,
+        BakedGeoModel bakedModel,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
+    ) {}
 
     /**
      * This method is called by the {@link GeoRenderer} for each bone being rendered.<br>
      * This is a more expensive call, particularly if being used to render something on a different buffer.<br>
-     * It does however have the benefit of having the matrix translations and other transformations already applied from render-time.<br>
+     * It does however have the benefit of having the matrix translations and other transformations already applied from
+     * render-time.<br>
      * It's recommended to avoid using this unless necessary.<br>
      * <br>
      * The {@link GeoBone} in question has already been rendered by this stage.<br>
      * <br>
-     * If you <i>do</i> use it, and you render something that changes the {@link IVertexBuilder buffer}, you need to reset it back to the previous buffer using {@link IRenderTypeBuffer #getBuffer} before ending the method
+     * If you <i>do</i> use it, and you render something that changes the {@link IVertexBuilder buffer}, you need to
+     * reset it back to the previous buffer using {@link IRenderTypeBuffer #getBuffer} before ending the method
      */
-    public void renderForBone(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
-    }
+    public void renderForBone(
+        MatrixStack poseStack,
+        T animatable,
+        GeoBone bone,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
+    ) {}
 }

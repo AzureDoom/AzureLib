@@ -1,28 +1,29 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.renderer.layer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.renderer.GeoRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.renderer.GeoRenderer;
+
 /**
- * {@link GeoRenderLayer} for rendering the auto-generated glowlayer functionality implemented by AzureLib using the <i>_glowing</i> appendixed texture files.
+ * {@link GeoRenderLayer} for rendering the auto-generated glowlayer functionality implemented by AzureLib using the
+ * <i>_glowing</i> appendixed texture files.
  */
 @Deprecated()
 public class AutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
+
     public AutoGlowingGeoLayer(GeoRenderer<T> renderer) {
         super(renderer);
     }
@@ -40,11 +41,33 @@ public class AutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer
      * This is called <i>after</i> the animatable has been rendered, but before supplementary rendering like nametags.
      */
     @Override
-    public void render(MatrixStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, float partialTick, int packedLight, int packedOverlay) {
+    public void render(
+        MatrixStack poseStack,
+        T animatable,
+        BakedGeoModel bakedModel,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
+    ) {
         RenderType emissiveRenderType = getRenderType(animatable);
 
-        getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, emissiveRenderType,
-                bufferSource.getBuffer(emissiveRenderType), partialTick, 15728640, OverlayTexture.NO_OVERLAY, 1, 1, 1,
-                1);
+        getRenderer().reRender(
+            bakedModel,
+            poseStack,
+            bufferSource,
+            animatable,
+            emissiveRenderType,
+            bufferSource.getBuffer(emissiveRenderType),
+            partialTick,
+            15728640,
+            OverlayTexture.NO_OVERLAY,
+            1,
+            1,
+            1,
+            1
+        );
     }
 }
