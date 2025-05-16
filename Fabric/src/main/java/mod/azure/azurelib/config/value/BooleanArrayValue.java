@@ -34,7 +34,11 @@ public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayVa
         if (this.fixedSize) {
             boolean[] defaultArray = this.valueData.getDefaultValue();
             if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
                 return defaultArray;
             }
         }
@@ -69,7 +73,13 @@ public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayVa
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new BooleanArrayValue(ValueData.of(name, (boolean[]) value, context, comments));
         }
 

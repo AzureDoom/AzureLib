@@ -15,12 +15,13 @@ public class YamlFormat implements IConfigFormat {
 
     // writing
     private final StringBuilder buffer;
+
     private final int currentNesting;
 
     // reading
     private final Map<String, Object> processedData;
-    private int readerIndex;
 
+    private int readerIndex;
 
     public YamlFormat() {
         this.buffer = new StringBuilder();

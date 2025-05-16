@@ -41,7 +41,9 @@ public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 
         public static Range newBoundedRange(double min, double max) {
             if (min > max) {
-                throw new IllegalArgumentException(String.format("Invalid number range: Min value (%f) cannot be bigger than max value (%f)", min, max));
+                throw new IllegalArgumentException(
+                    String.format("Invalid number range: Min value (%f) cannot be bigger than max value (%f)", min, max)
+                );
             }
             return new Range(min, max);
         }

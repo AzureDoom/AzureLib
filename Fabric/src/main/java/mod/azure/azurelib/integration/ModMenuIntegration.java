@@ -1,11 +1,11 @@
 package mod.azure.azurelib.integration;
 
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.ConfigHolder;

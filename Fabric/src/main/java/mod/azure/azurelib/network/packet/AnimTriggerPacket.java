@@ -1,34 +1,35 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
 
-import org.jetbrains.annotations.Nullable;
-
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimatableManager;
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzureLibNetwork;
 
 /**
- * Packet for syncing user-definable animations that can be triggered from the
- * server
+ * Packet for syncing user-definable animations that can be triggered from the server
  */
 @Deprecated()
 public class AnimTriggerPacket extends AbstractPacket {
+
     private final String syncableId;
+
     private final long instanceId;
+
     private final String controllerName;
+
     private final String animName;
 
     public AnimTriggerPacket(String syncableId, long instanceId, @Nullable String controllerName, String animName) {
@@ -50,16 +51,16 @@ public class AnimTriggerPacket extends AbstractPacket {
     }
 
     @Override
-    public void encode(FriendlyByteBuf buf) {
-
-    }
-
-    @Override
     public ResourceLocation getPacketID() {
         return AzureLibNetwork.ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+    public static void receive(
+        Minecraft client,
+        ClientPacketListener handler,
+        FriendlyByteBuf buf,
+        PacketSender responseSender
+    ) {
         String syncableId = buf.readUtf();
         long instanceId = buf.readVarLong();
         String controllerName = buf.readUtf();

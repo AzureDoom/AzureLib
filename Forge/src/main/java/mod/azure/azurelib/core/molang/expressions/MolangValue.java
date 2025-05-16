@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.molang.expressions;
@@ -12,41 +10,43 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 
 /**
- * Molang extension for the {@link IValue} system.
- * Used to handle values and expressions specific to Molang deserialization
+ * Molang extension for the {@link IValue} system. Used to handle values and expressions specific to Molang
+ * deserialization
  */
 public class MolangValue implements IValue {
-	private final IValue value;
-	private final boolean returns;
 
-	public MolangValue(IValue value) {
-		this(value, false);
-	}
+    private final IValue value;
 
-	public MolangValue(IValue value, boolean isReturn) {
-		this.value = value;
-		this.returns = isReturn;
-	}
+    private final boolean returns;
 
-	@Override
-	public double get() {
-		return this.value.get();
-	}
+    public MolangValue(IValue value) {
+        this(value, false);
+    }
 
-	public IValue getValueHolder() {
-		return this.value;
-	}
+    public MolangValue(IValue value, boolean isReturn) {
+        this.value = value;
+        this.returns = isReturn;
+    }
 
-	public boolean isReturnValue() {
-		return this.returns;
-	}
+    @Override
+    public double get() {
+        return this.value.get();
+    }
 
-	public boolean isConstant() {
-		return getClass() == MolangValue.class && value instanceof Constant;
-	}
+    public IValue getValueHolder() {
+        return this.value;
+    }
 
-	@Override
-	public String toString() {
-		return (this.returns ? MolangParser.RETURN : "") + this.value.toString();
-	}
+    public boolean isReturnValue() {
+        return this.returns;
+    }
+
+    public boolean isConstant() {
+        return getClass() == MolangValue.class && value instanceof Constant;
+    }
+
+    @Override
+    public String toString() {
+        return (this.returns ? MolangParser.RETURN : "") + this.value.toString();
+    }
 }

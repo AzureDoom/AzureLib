@@ -9,7 +9,13 @@ import mod.azure.azurelib.config.value.ConfigValue;
 
 public abstract class TypeAdapter {
 
-    public abstract ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException;
+    public abstract ConfigValue<?> serialize(
+        String name,
+        String[] comments,
+        Object value,
+        TypeSerializer serializer,
+        AdapterContext context
+    ) throws IllegalAccessException;
 
     public abstract void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer);
 
@@ -21,6 +27,7 @@ public abstract class TypeAdapter {
 
     @FunctionalInterface
     public interface TypeSerializer {
+
         Map<String, ConfigValue<?>> serialize(Class<?> type, Object instance) throws IllegalAccessException;
     }
 

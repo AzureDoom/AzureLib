@@ -1,5 +1,11 @@
 package mod.azure.azurelib.network;
 
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
@@ -9,11 +15,6 @@ import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 
 public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.ConfigData> {
 
@@ -68,7 +69,7 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
                     String fieldId = buffer.readUtf();
                     ConfigValue<?> value = serialized.get(fieldId);
                     if (value == null) {
-                    	AzureLib.LOGGER.fatal(Networking.MARKER, "Received unknown config value " + fieldId);
+                        AzureLib.LOGGER.fatal(Networking.MARKER, "Received unknown config value " + fieldId);
                         throw new RuntimeException("Unknown config field: " + fieldId);
                     }
                     setValue(value, buffer);
@@ -79,8 +80,12 @@ public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.Conf
     }
 
     @Override
-    public void handleClientsidePacket(Minecraft client, ClientPacketListener listener, ConfigData packetData, PacketSender dispatcher) {
-    }
+    public void handleClientsidePacket(
+        Minecraft client,
+        ClientPacketListener listener,
+        ConfigData packetData,
+        PacketSender dispatcher
+    ) {}
 
     private <V> void setValue(ConfigValue<V> value, FriendlyByteBuf buffer) {
         TypeAdapter adapter = value.getAdapter();

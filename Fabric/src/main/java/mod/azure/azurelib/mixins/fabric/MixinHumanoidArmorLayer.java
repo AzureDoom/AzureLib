@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.mixins.fabric;
@@ -11,10 +9,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.animatable.client.RenderProvider;
-import mod.azure.azurelib.renderer.GeoArmorRenderer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -30,14 +24,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
 /**
  * Render hook for injecting AzureLib's armor rendering functionalities
  */
 @Mixin(value = HumanoidArmorLayer.class, priority = 700)
 public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
+
     @ModifyExpressionValue(
         method = "renderArmorPiece",
         at = @At(
@@ -55,9 +54,9 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
 
     @Inject(
         method = "renderArmorPiece", at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;usesInnerModel(Lnet/minecraft/world/entity/EquipmentSlot;)Z"
-    ), cancellable = true
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;usesInnerModel(Lnet/minecraft/world/entity/EquipmentSlot;)Z"
+        ), cancellable = true
     )
     public void azurelib$renderAzurelibModel(
         PoseStack poseStack,
@@ -74,7 +73,7 @@ public abstract class MixinHumanoidArmorLayer<T extends LivingEntity, A extends 
         @SuppressWarnings("unchecked")
         var humanoidModel = (HumanoidModel<LivingEntity>) baseModel;
         var geckolibModel = renderProvider
-                                .getGenericArmorModel(entity, stack, equipmentSlot, humanoidModel);
+            .getGenericArmorModel(entity, stack, equipmentSlot, humanoidModel);
 
         if (geckolibModel != null && stack.getItem() instanceof GeoItem) {
             if (geckolibModel instanceof GeoArmorRenderer<?> geoArmorRenderer) {

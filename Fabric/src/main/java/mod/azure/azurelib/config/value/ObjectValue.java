@@ -34,15 +34,20 @@ public class ObjectValue extends ConfigValue<Map<String, ConfigValue<?>>> {
     public static final class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             Class<?> type = value.getClass();
             Map<String, ConfigValue<?>> map = serializer.serialize(type, value);
             return new ObjectValue(ValueData.of(name, map, context, comments));
         }
 
         @Override
-        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
-        }
+        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {}
 
         @Override
         public Object decodeFromBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {

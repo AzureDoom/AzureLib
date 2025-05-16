@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.renderer.layer;
@@ -12,6 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import org.apache.logging.log4j.util.TriConsumer;
+
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.cache.object.GeoBone;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
@@ -25,38 +24,49 @@ import mod.azure.azurelib.renderer.GeoRenderer;
  */
 @Deprecated()
 public class BoneFilterGeoLayer<T extends GeoAnimatable> extends GeoRenderLayer<T> {
-	protected final TriConsumer<GeoBone, T, Float> checkAndApply;
 
-	public BoneFilterGeoLayer(GeoRenderer<T> renderer) {
-		this(renderer, (bone, animatable, partialTick) -> {});
-	}
+    protected final TriConsumer<GeoBone, T, Float> checkAndApply;
 
-	public BoneFilterGeoLayer(GeoRenderer<T> renderer, TriConsumer<GeoBone, T, Float> checkAndApply) {
-		super(renderer);
+    public BoneFilterGeoLayer(GeoRenderer<T> renderer) {
+        this(renderer, (bone, animatable, partialTick) -> {});
+    }
 
-		this.checkAndApply = checkAndApply;
-	}
+    public BoneFilterGeoLayer(GeoRenderer<T> renderer, TriConsumer<GeoBone, T, Float> checkAndApply) {
+        super(renderer);
 
-	/**
-	 * This method is called for each bone in the model.<br>
-	 * Check whether the bone should be affected and apply the modification as needed.
-	 */
-	protected void checkAndApply(GeoBone bone, T animatable, float partialTick) {
-		this.checkAndApply.accept(bone, animatable, partialTick);
-	}
+        this.checkAndApply = checkAndApply;
+    }
 
-	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-		for (GeoBone bone : bakedModel.topLevelBones()) {
-			checkChildBones(bone, animatable, partialTick);
-		}
-	}
+    /**
+     * This method is called for each bone in the model.<br>
+     * Check whether the bone should be affected and apply the modification as needed.
+     */
+    protected void checkAndApply(GeoBone bone, T animatable, float partialTick) {
+        this.checkAndApply.accept(bone, animatable, partialTick);
+    }
 
-	private void checkChildBones(GeoBone parentBone, T animatable, float partialTick) {
-		checkAndApply(parentBone, animatable, partialTick);
+    @Override
+    public void preRender(
+        PoseStack poseStack,
+        T animatable,
+        BakedGeoModel bakedModel,
+        RenderType renderType,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
+    ) {
+        for (GeoBone bone : bakedModel.topLevelBones()) {
+            checkChildBones(bone, animatable, partialTick);
+        }
+    }
 
-		for (GeoBone bone : parentBone.getChildBones()) {
-			checkChildBones(bone, animatable, partialTick);
-		}
-	}
+    private void checkChildBones(GeoBone parentBone, T animatable, float partialTick) {
+        checkAndApply(parentBone, animatable, partialTick);
+
+        for (GeoBone bone : parentBone.getChildBones()) {
+            checkChildBones(bone, animatable, partialTick);
+        }
+    }
 }

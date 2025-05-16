@@ -14,6 +14,7 @@ import mod.azure.azurelib.config.format.IConfigFormat;
 public class IntArrayValue extends ConfigValue<int[]> implements ArrayValue {
 
     private boolean fixedSize;
+
     private IntegerValue.Range range;
 
     public IntArrayValue(ValueData<int[]> valueData) {
@@ -29,7 +30,9 @@ public class IntArrayValue extends ConfigValue<int[]> implements ArrayValue {
     protected void readFieldData(Field field) {
         this.fixedSize = field.getAnnotation(Configurable.FixedSize.class) != null;
         Configurable.Range intRange = field.getAnnotation(Configurable.Range.class);
-        this.range = intRange != null ? IntegerValue.Range.newBoundedRange(intRange.min(), intRange.max()) : IntegerValue.Range.unboundedInt();
+        this.range = intRange != null
+            ? IntegerValue.Range.newBoundedRange(intRange.min(), intRange.max())
+            : IntegerValue.Range.unboundedInt();
     }
 
     @Override
@@ -37,7 +40,11 @@ public class IntArrayValue extends ConfigValue<int[]> implements ArrayValue {
         if (this.fixedSize) {
             int[] defaultArray = this.valueData.getDefaultValue();
             if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
                 in = defaultArray;
             }
         }
@@ -104,7 +111,13 @@ public class IntArrayValue extends ConfigValue<int[]> implements ArrayValue {
         }
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new IntArrayValue(ValueData.of(name, (int[]) value, context, comments));
         }
     }

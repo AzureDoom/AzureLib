@@ -29,7 +29,13 @@ public final class BooleanValue extends ConfigValue<Boolean> {
     public static class Adapter extends TypeAdapter {
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) {
             return new BooleanValue(ValueData.of(name, (boolean) value, context, comments));
         }
 

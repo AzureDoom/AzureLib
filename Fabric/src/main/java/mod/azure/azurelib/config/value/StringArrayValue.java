@@ -1,5 +1,7 @@
 package mod.azure.azurelib.config.value;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -11,114 +13,137 @@ import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
 import mod.azure.azurelib.config.io.ConfigIO;
-import net.minecraft.network.FriendlyByteBuf;
 
 public class StringArrayValue extends ConfigValue<String[]> implements ArrayValue {
 
-	private boolean fixedSize;
-	private Pattern pattern;
-	private String defaultElementValue = "";
+    private boolean fixedSize;
 
-	public StringArrayValue(ValueData<String[]> valueData) {
-		super(valueData);
-	}
+    private Pattern pattern;
 
-	@Override
-	public boolean isFixedSize() {
-		return fixedSize;
-	}
+    private String defaultElementValue = "";
 
-	@Override
-	protected void readFieldData(Field field) {
-		this.fixedSize = field.getAnnotation(Configurable.FixedSize.class) != null;
-		Configurable.StringPattern stringPattern = field.getAnnotation(Configurable.StringPattern.class);
-		if (stringPattern != null) {
-			String value = stringPattern.value();
-			this.defaultElementValue = stringPattern.defaultValue();
-			try {
-				this.pattern = Pattern.compile(value, stringPattern.flags());
-			} catch (IllegalArgumentException e) {
-				AzureLib.LOGGER.error(ConfigIO.MARKER, "Invalid @StringPattern value for {} field - {}", this.getId(), e);
-			}
-			if (this.pattern != null && !this.pattern.matcher(this.defaultElementValue).matches()) {
-				throw new IllegalArgumentException(String.format("Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\", this.defaultElementValue, this.getId(), this.pattern.toString()));
-			}
-		}
-	}
+    public StringArrayValue(ValueData<String[]> valueData) {
+        super(valueData);
+    }
 
-	@Override
-	protected String[] getCorrectedValue(String[] in) {
-		String[] defaultArray = this.valueData.getDefaultValue();
-		if (this.fixedSize) {
-			if (in.length != defaultArray.length) {
-				ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
-				return defaultArray;
-			}
-		}
-		if (this.pattern != null) {
-			for (int i = 0; i < in.length; i++) {
-				String string = in[i];
-				if (!this.pattern.matcher(string).matches()) {
-					ConfigUtils.logCorrectedMessage(this.getId() + "[" + i + "]", string, this.defaultElementValue);
-					in[i] = this.defaultElementValue;
-				}
-			}
-		}
-		return in;
-	}
+    @Override
+    public boolean isFixedSize() {
+        return fixedSize;
+    }
 
-	public String getDefaultElementValue() {
-		return defaultElementValue;
-	}
+    @Override
+    protected void readFieldData(Field field) {
+        this.fixedSize = field.getAnnotation(Configurable.FixedSize.class) != null;
+        Configurable.StringPattern stringPattern = field.getAnnotation(Configurable.StringPattern.class);
+        if (stringPattern != null) {
+            String value = stringPattern.value();
+            this.defaultElementValue = stringPattern.defaultValue();
+            try {
+                this.pattern = Pattern.compile(value, stringPattern.flags());
+            } catch (IllegalArgumentException e) {
+                AzureLib.LOGGER.error(
+                    ConfigIO.MARKER,
+                    "Invalid @StringPattern value for {} field - {}",
+                    this.getId(),
+                    e
+                );
+            }
+            if (this.pattern != null && !this.pattern.matcher(this.defaultElementValue).matches()) {
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\",
+                        this.defaultElementValue,
+                        this.getId(),
+                        this.pattern.toString()
+                    )
+                );
+            }
+        }
+    }
 
-	@Override
-	protected void serialize(IConfigFormat format) {
-		format.writeStringArray(this.getId(), this.get());
-	}
+    @Override
+    protected String[] getCorrectedValue(String[] in) {
+        String[] defaultArray = this.valueData.getDefaultValue();
+        if (this.fixedSize) {
+            if (in.length != defaultArray.length) {
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
+                return defaultArray;
+            }
+        }
+        if (this.pattern != null) {
+            for (int i = 0; i < in.length; i++) {
+                String string = in[i];
+                if (!this.pattern.matcher(string).matches()) {
+                    ConfigUtils.logCorrectedMessage(this.getId() + "[" + i + "]", string, this.defaultElementValue);
+                    in[i] = this.defaultElementValue;
+                }
+            }
+        }
+        return in;
+    }
 
-	@Override
-	protected void deserialize(IConfigFormat format) throws ConfigValueMissingException {
-		this.set(format.readStringArray(this.getId()));
-	}
+    public String getDefaultElementValue() {
+        return defaultElementValue;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("[");
-		String[] strings = this.get();
-		for (int i = 0; i < strings.length; i++) {
-			builder.append(this.elementToString(strings[i]));
-			if (i < strings.length - 1) {
-				builder.append(",");
-			}
-		}
-		builder.append("]");
-		return builder.toString();
-	}
+    @Override
+    protected void serialize(IConfigFormat format) {
+        format.writeStringArray(this.getId(), this.get());
+    }
 
-	public static final class Adapter extends TypeAdapter {
+    @Override
+    protected void deserialize(IConfigFormat format) throws ConfigValueMissingException {
+        this.set(format.readStringArray(this.getId()));
+    }
 
-		@Override
-		public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
-			String[] arr = (String[]) value.get();
-			buffer.writeInt(arr.length);
-			for (String v : arr) {
-				buffer.writeUtf(v);
-			}
-		}
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        String[] strings = this.get();
+        for (int i = 0; i < strings.length; i++) {
+            builder.append(this.elementToString(strings[i]));
+            if (i < strings.length - 1) {
+                builder.append(",");
+            }
+        }
+        builder.append("]");
+        return builder.toString();
+    }
 
-		@Override
-		public Object decodeFromBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
-			String[] arr = new String[buffer.readInt()];
-			for (int i = 0; i < arr.length; i++) {
-				arr[i] = buffer.readUtf();
-			}
-			return arr;
-		}
+    public static final class Adapter extends TypeAdapter {
 
-		@Override
-		public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
-			return new StringArrayValue(ValueData.of(name, (String[]) value, context, comments));
-		}
-	}
+        @Override
+        public void encodeToBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
+            String[] arr = (String[]) value.get();
+            buffer.writeInt(arr.length);
+            for (String v : arr) {
+                buffer.writeUtf(v);
+            }
+        }
+
+        @Override
+        public Object decodeFromBuffer(ConfigValue<?> value, FriendlyByteBuf buffer) {
+            String[] arr = new String[buffer.readInt()];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = buffer.readUtf();
+            }
+            return arr;
+        }
+
+        @Override
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
+            return new StringArrayValue(ValueData.of(name, (String[]) value, context, comments));
+        }
+    }
 }

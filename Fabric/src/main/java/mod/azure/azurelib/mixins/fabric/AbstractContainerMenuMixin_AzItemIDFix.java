@@ -2,8 +2,6 @@ package mod.azure.azurelib.mixins.fabric;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -16,15 +14,19 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+
 /**
- * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific {@code ItemStack}
- * identity management (Az ID). This Mixin ensures the proper handling, synchronization, and comparison of
- * AzureLib-registered item stacks with custom identifiers during container interactions.
+ * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific
+ * {@code ItemStack} identity management (Az ID). This Mixin ensures the proper handling, synchronization, and
+ * comparison of AzureLib-registered item stacks with custom identifiers during container interactions.
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
-    @Shadow public abstract void removed(Player player);
+    @Shadow
+    public abstract void removed(Player player);
 
     @Unique
     private static final int DEFAULT_AZ_ID = -1;
@@ -46,8 +48,12 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
     public ItemStack azurelib$syncAzureIDWithRemote(ItemStack itemStack, int count) {
         var copyStack = itemStack.copyWithCount(count);
 
-        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag().contains(
-            AzureLib.ITEM_UUID_TAG)) {
+        if (
+            AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag()
+                .contains(
+                    AzureLib.ITEM_UUID_TAG
+                )
+        ) {
             copyStack.getTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
@@ -102,12 +108,19 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
      * @return True if the base comparison is true and the Az IDs (if present) match; false otherwise.
      */
     @Unique
-    private boolean azurelib$compareStacksWithAzureID(ItemStack itemStack, ItemStack comparisonItemStack, Operation<Boolean> original) {
+    private boolean azurelib$compareStacksWithAzureID(
+        ItemStack itemStack,
+        ItemStack comparisonItemStack,
+        Operation<Boolean> original
+    ) {
         if (!AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
             return original.call(itemStack, comparisonItemStack);
         }
 
-        return original.call(itemStack, comparisonItemStack) && azurelib$checkAzIDMatch(itemStack.getTag(), comparisonItemStack.getTag());
+        return original.call(itemStack, comparisonItemStack) && azurelib$checkAzIDMatch(
+            itemStack.getTag(),
+            comparisonItemStack.getTag()
+        );
     }
 
     /**
@@ -119,7 +132,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
      */
     @Unique
     private static boolean azurelib$checkAzIDMatch(CompoundTag tag1, CompoundTag tag2) {
-        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getInt(AzureLib.ITEM_UUID_TAG)) == (tag2 == null ? DEFAULT_AZ_ID : tag2.getInt(AzureLib.ITEM_UUID_TAG));
+        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getInt(AzureLib.ITEM_UUID_TAG)) == (tag2 == null
+            ? DEFAULT_AZ_ID
+            : tag2.getInt(AzureLib.ITEM_UUID_TAG));
     }
 
 }

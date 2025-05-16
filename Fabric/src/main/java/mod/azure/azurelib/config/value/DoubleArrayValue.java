@@ -14,6 +14,7 @@ import mod.azure.azurelib.config.format.IConfigFormat;
 public class DoubleArrayValue extends ConfigValue<double[]> implements ArrayValue {
 
     private boolean fixedSize;
+
     private DecimalValue.Range range;
 
     public DoubleArrayValue(ValueData<double[]> valueData) {
@@ -29,7 +30,9 @@ public class DoubleArrayValue extends ConfigValue<double[]> implements ArrayValu
     protected void readFieldData(Field field) {
         this.fixedSize = field.getAnnotation(Configurable.FixedSize.class) != null;
         Configurable.DecimalRange decimalRange = field.getAnnotation(Configurable.DecimalRange.class);
-        this.range = decimalRange != null ? DecimalValue.Range.newBoundedRange(decimalRange.min(), decimalRange.max()) : DecimalValue.Range.unboundedDouble();
+        this.range = decimalRange != null
+            ? DecimalValue.Range.newBoundedRange(decimalRange.min(), decimalRange.max())
+            : DecimalValue.Range.unboundedDouble();
     }
 
     @Override
@@ -37,7 +40,11 @@ public class DoubleArrayValue extends ConfigValue<double[]> implements ArrayValu
         if (this.fixedSize) {
             double[] defaultArray = this.valueData.getDefaultValue();
             if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
                 in = defaultArray;
             }
         }
@@ -104,7 +111,13 @@ public class DoubleArrayValue extends ConfigValue<double[]> implements ArrayValu
         }
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new DoubleArrayValue(ValueData.of(name, (double[]) value, context, comments));
         }
     }

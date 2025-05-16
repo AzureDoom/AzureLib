@@ -1,13 +1,6 @@
 package mod.azure.azurelib.network;
 
-import java.util.Map;
-
-import mod.azure.azurelib.network.packet.*;
-import org.jetbrains.annotations.Nullable;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -16,39 +9,71 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.network.packet.*;
 
 /**
  * Network handling class for AzureLib.<br>
  * Handles packet registration and some networking functions
  */
 public final class AzureLibNetwork {
-    @Deprecated()
-    public static final ResourceLocation ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "anim_data_sync");
-    @Deprecated()
-    public static final ResourceLocation ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "anim_trigger_sync");
 
     @Deprecated()
-    public static final ResourceLocation ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "entity_anim_data_sync");
-    @Deprecated()
-    public static final ResourceLocation ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "entity_anim_trigger_sync");
+    public static final ResourceLocation ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "anim_data_sync"
+    );
 
     @Deprecated()
-    public static final ResourceLocation BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "block_entity_anim_data_sync");
-    @Deprecated()
-    public static final ResourceLocation BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "block_entity_anim_trigger_sync");
+    public static final ResourceLocation ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "anim_trigger_sync"
+    );
 
     @Deprecated()
-	public static final ResourceLocation CUSTOM_ENTITY_ID = new ResourceLocation(AzureLib.MOD_ID, "spawn_entity");
+    public static final ResourceLocation ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "entity_anim_data_sync"
+    );
 
-    public static final ResourceLocation AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    @Deprecated()
+    public static final ResourceLocation ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "entity_anim_trigger_sync"
+    );
+
+    @Deprecated()
+    public static final ResourceLocation BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "block_entity_anim_data_sync"
+    );
+
+    @Deprecated()
+    public static final ResourceLocation BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "block_entity_anim_trigger_sync"
+    );
+
+    @Deprecated()
+    public static final ResourceLocation CUSTOM_ENTITY_ID = new ResourceLocation(AzureLib.MOD_ID, "spawn_entity");
+
+    public static final ResourceLocation AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_blockentity_dispatch_command_sync"
     );
 
-    public static final ResourceLocation AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    public static final ResourceLocation AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_entity_dispatch_command_sync"
     );
 
-    public static final ResourceLocation AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    public static final ResourceLocation AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_item_stack_dispatch_command_sync"
     );
 
@@ -62,27 +87,45 @@ public final class AzureLibNetwork {
         ClientPlayNetworking.registerGlobalReceiver(ANIM_TRIGGER_SYNC_PACKET_ID, AnimTriggerPacket::receive);
 
         ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_DATA_SYNC_PACKET_ID, EntityAnimDataSyncPacket::receive);
-        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, EntityAnimTriggerPacket::receive);
+        ClientPlayNetworking.registerGlobalReceiver(
+            ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+            EntityAnimTriggerPacket::receive
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID, BlockEntityAnimDataSyncPacket::receive);
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, BlockEntityAnimTriggerPacket::receive);
+        ClientPlayNetworking.registerGlobalReceiver(
+            BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID,
+            BlockEntityAnimDataSyncPacket::receive
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+            BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+            BlockEntityAnimTriggerPacket::receive
+        );
 
-		ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID,
-            (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            CUSTOM_ENTITY_ID,
+            (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf)
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzBlockEntityDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzBlockEntityDispatchCommandPacket.receive(buf)
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzEntityDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzEntityDispatchCommandPacket.receive(buf)
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzItemStackDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzItemStackDispatchCommandPacket.receive(buf)
+        );
     }
 
     /**
      * Registers a synced {@link GeoAnimatable} object for networking support.<br>
-     * It is recommended that you don't call this directly, instead implementing and calling {@link mod.azure.azurelib.animatable.SingletonGeoAnimatable#registerSyncedAnimatable}
+     * It is recommended that you don't call this directly, instead implementing and calling
+     * {@link mod.azure.azurelib.animatable.SingletonGeoAnimatable#registerSyncedAnimatable}
      */
     @Deprecated()
     synchronized public static void registerSyncedAnimatable(GeoAnimatable animatable) {
@@ -128,6 +171,7 @@ public final class AzureLibNetwork {
     }
 
     public interface IPacketCallback {
+
         void onReadyToSend(AbstractPacket packetToSend);
     }
 }

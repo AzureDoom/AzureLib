@@ -2,8 +2,6 @@ package mod.azure.azurelib.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import mod.azure.azurelib.config.value.EnumValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -11,6 +9,8 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+
+import mod.azure.azurelib.config.value.EnumValue;
 
 public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
 
@@ -21,7 +21,6 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
         this.value = value;
         this.updateText();
     }
-    
 
     @Override
     public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
@@ -30,7 +29,19 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        blitNineSliced(stack, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+        blitNineSliced(
+            stack,
+            this.getX(),
+            this.getY(),
+            this.getWidth(),
+            this.getHeight(),
+            20,
+            4,
+            200,
+            20,
+            0,
+            this.getTextureY()
+        );
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         this.renderString(stack, minecraft.font, Mth.ceil(this.alpha * 255.0F) << 24);
     }
@@ -56,9 +67,8 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
     }
 
     @Override
-    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-    }
-    
+    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
+
     private void nextValue() {
         E e = this.value.get();
         E[] values = e.getDeclaringClass().getEnumConstants();

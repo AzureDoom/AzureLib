@@ -1,18 +1,24 @@
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.util.ClientUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.util.ClientUtils;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
     private final int entityId;
+
     private final AzCommand dispatchCommand;
 
     public AzEntityDispatchCommandPacket(
-            int entityId,
-            AzCommand dispatchCommand
+        int entityId,
+        AzCommand dispatchCommand
     ) {
         this.entityId = entityId;
         this.dispatchCommand = dispatchCommand;

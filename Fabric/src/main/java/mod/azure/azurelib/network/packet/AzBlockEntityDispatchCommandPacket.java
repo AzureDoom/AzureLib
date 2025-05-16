@@ -1,13 +1,18 @@
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
-import mod.azure.azurelib.util.ClientUtils;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzureLibNetwork;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.util.ClientUtils;
 
 public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
@@ -16,8 +21,8 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
     private final AzCommand dispatchCommand;
 
     public AzBlockEntityDispatchCommandPacket(
-            BlockPos blockPos,
-            AzCommand dispatchCommand
+        BlockPos blockPos,
+        AzCommand dispatchCommand
     ) {
         this.blockPos = blockPos;
         this.dispatchCommand = dispatchCommand;

@@ -1,17 +1,6 @@
 package mod.azure.azurelib.network;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.function.BiConsumer;
-
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-
 import io.netty.buffer.Unpooled;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.network.api.IClientPacket;
-import mod.azure.azurelib.network.api.IPacket;
-import mod.azure.azurelib.network.api.IPacketDecoder;
-import mod.azure.azurelib.network.api.IPacketEncoder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -19,6 +8,17 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.function.BiConsumer;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.network.api.IClientPacket;
+import mod.azure.azurelib.network.api.IPacket;
+import mod.azure.azurelib.network.api.IPacketDecoder;
+import mod.azure.azurelib.network.api.IPacketEncoder;
 
 public final class Networking {
 
@@ -51,11 +51,18 @@ public final class Networking {
                 ClientPlayNetworking.registerGlobalReceiver(packetId, (client, handler, buffer, responseDispatcher) -> {
                     IPacketDecoder<T> decoder = packet.getDecoder();
                     T packetData = decoder.decode(buffer);
-                    client.execute(() -> packet.handleClientsidePacket(client, handler, packetData, responseDispatcher));
+                    client.execute(
+                        () -> packet.handleClientsidePacket(client, handler, packetData, responseDispatcher)
+                    );
                 });
-            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                     IllegalAccessException exc) {
-            	AzureLib.LOGGER.fatal(MARKER, "Couldn't instantiate new client packet from class {}, make sure it declares public default constructor", clientPacketClass.getSimpleName());
+            } catch (
+                NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exc
+            ) {
+                AzureLib.LOGGER.fatal(
+                    MARKER,
+                    "Couldn't instantiate new client packet from class {}, make sure it declares public default constructor",
+                    clientPacketClass.getSimpleName()
+                );
                 throw new RuntimeException(exc);
             }
         }

@@ -1,18 +1,18 @@
 package mod.azure.azurelib.mixins.fabric;
 
-import java.util.Set;
-
+import net.minecraft.network.Connection;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Set;
+
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.network.Networking;
 import mod.azure.azurelib.network.S2C_SendConfigData;
-import net.minecraft.network.Connection;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
 
 @Mixin(PlayerList.class)
 public abstract class PlayerListMixin {
