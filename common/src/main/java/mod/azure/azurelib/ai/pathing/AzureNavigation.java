@@ -114,7 +114,7 @@ public class AzureNavigation extends GroundPathNavigation {
 
 	/**
 	 * Ensures a minimum width of 1.0 for entities, addressing an issue
-	 * where smaller entities (< 0.8 units in width) encounter pathfinding
+	 * where smaller entities (less than 0.8 units in width) encounter pathfinding
 	 * failures. This resolves bugs such as MC-226637, where small entities
 	 * end up "spinning" due to improper navigation logic.
 	 * <p>
