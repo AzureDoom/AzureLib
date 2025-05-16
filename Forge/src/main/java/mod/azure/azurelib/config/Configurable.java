@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation for field to config serialization.
- * Only public instance fields are allowed.
+ * Marker annotation for field to config serialization. Only public instance fields are allowed.
  *
  * @author Toma
  */
@@ -16,8 +15,7 @@ import java.lang.annotation.Target;
 public @interface Configurable {
 
     /**
-     * Allows you to add description to configurable value.
-     * This description will be visible on hover in GUI or as
+     * Allows you to add description to configurable value. This description will be visible on hover in GUI or as
      * comment if config file (if supported by file format)
      */
     @Target(ElementType.FIELD)
@@ -31,19 +29,15 @@ public @interface Configurable {
     }
 
     /**
-     * Field values annotated by this will be automatically
-     * synchronized to client when joining server.
-     * Does not rewrite client config file, all values
-     * are recovered when leaving server
+     * Field values annotated by this will be automatically synchronized to client when joining server. Does not rewrite
+     * client config file, all values are recovered when leaving server
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface Synchronized {
-    }
+    @interface Synchronized {}
 
     /**
-     * Allows you to specify number range for int or long values.
-     * This annotation is also applicable to int/long arrays
+     * Allows you to specify number range for int or long values. This annotation is also applicable to int/long arrays
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -63,8 +57,8 @@ public @interface Configurable {
     }
 
     /**
-     * Allows you to specify decimal number range for float or double values.
-     * This annotation is also applicable to float/double arrays
+     * Allows you to specify decimal number range for float or double values. This annotation is also applicable to
+     * float/double arrays
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -84,9 +78,8 @@ public @interface Configurable {
     }
 
     /**
-     * Allows you to require strings to be in specific format.
-     * Useful when you for example want to use this for resource locations etc.
-     * This annotation is also applicable to string arrays
+     * Allows you to require strings to be in specific format. Useful when you for example want to use this for resource
+     * locations etc. This annotation is also applicable to string arrays
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
@@ -99,48 +92,47 @@ public @interface Configurable {
         String value();
 
         /**
-         * This value is used only for <i>string arrays</i> in case entered value does not
-         * match the regular expression.
+         * This value is used only for <i>string arrays</i> in case entered value does not match the regular expression.
+         *
          * @return Default value to be used when user enters invalid value
          */
         String defaultValue() default "";
 
         /**
-         * @return Flags used for {@link java.util.regex.Pattern} object.
-         * You can use for example value like {@code flags = Pattern.CASE_INSENTITIVE | Pattern.LITERAL}
-         * for flag specification
+         * @return Flags used for {@link java.util.regex.Pattern} object. You can use for example value like
+         *         {@code flags = Pattern.CASE_INSENTITIVE | Pattern.LITERAL} for flag specification
          */
         int flags() default 0;
 
         /**
          * Gui error message when user enters invalid value
+         *
          * @return Error message to be displayed on GUI
          */
         String errorDescriptor() default "";
     }
 
     /**
-     * Allows you to lock array size based on default provided value.
-     * Applicable to all arrays.
+     * Allows you to lock array size based on default provided value. Applicable to all arrays.
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface FixedSize {
-    }
+    @interface FixedSize {}
 
     /**
-     * Allows you to map custom listener method to listen for value change.
-     * Could be useful for example when validating item ID or something like that.
+     * Allows you to map custom listener method to listen for value change. Could be useful for example when validating
+     * item ID or something like that.
      */
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface ValueUpdateCallback {
 
         /**
-         * You must have defined custom method in the same class as where this configurable value is.
-         * The method also requires specific signature with {@code void} return type, value type and {@link mod.azure.azurelib.client.IValidationHandler} parameter.
-         * For example value listener method for int config field would look like this
-         * {@code public void onValueChange(int value, IValidationHandler validationHandler) {}}
+         * You must have defined custom method in the same class as where this configurable value is. The method also
+         * requires specific signature with {@code void} return type, value type and
+         * {@link mod.azure.azurelib.client.IValidationHandler} parameter. For example value listener method for int
+         * config field would look like this {@code public void onValueChange(int value, IValidationHandler
+         * validationHandler) {}}
          *
          * @return Name of your method
          */
@@ -148,8 +140,9 @@ public @interface Configurable {
 
         /**
          * Handles remapping of boxed java types to their primitive values
-         * @return Whether remapping is allowed, unless specific implementation is provided, this should always
-         * be set to true
+         *
+         * @return Whether remapping is allowed, unless specific implementation is provided, this should always be set
+         *         to true
          */
         boolean allowPrimitivesMapping() default true;
     }
@@ -160,8 +153,7 @@ public @interface Configurable {
     final class Gui {
 
         /**
-         * Allows you to specify number formatting for float and double values
-         * in GUI.
+         * Allows you to specify number formatting for float and double values in GUI.
          */
         @Target(ElementType.FIELD)
         @Retention(RetentionPolicy.RUNTIME)

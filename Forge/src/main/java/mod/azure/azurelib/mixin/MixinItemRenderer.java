@@ -11,21 +11,39 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+
 /**
  * Render hook to inject AzureLib's ISTER rendering callback
  */
 @Mixin(ItemRenderer.class)
 public class MixinItemRenderer {
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemTransforms$TransformType;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"), cancellable = true)
-	public void azurelib$itemModelHook(ItemStack itemStack, ItemTransforms.TransformType transformType, boolean p_115146_, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int p_115150_, BakedModel p_115151_, CallbackInfo ci) {
-//		var item = itemStack.getItem();
-//		var renderer = AzItemRendererRegistry.getOrNull(item);
-//
-//		if (renderer != null) {
-//			switch (transformType) {
-//				case GUI -> renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
-//				default -> renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
-//			}
-//		}
-	}
+
+    @Inject(
+        method = "render", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemTransforms$TransformType;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"
+        ), cancellable = true
+    )
+    public void azurelib$itemModelHook(
+        ItemStack itemStack,
+        ItemTransforms.TransformType transformType,
+        boolean p_115146_,
+        PoseStack poseStack,
+        MultiBufferSource multiBufferSource,
+        int i,
+        int p_115150_,
+        BakedModel p_115151_,
+        CallbackInfo ci
+    ) {
+        var item = itemStack.getItem();
+        var renderer = AzItemRendererRegistry.getOrNull(item);
+
+        if (renderer != null) {
+            switch (transformType) {
+                case GUI -> renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
+                default -> renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+            }
+        }
+    }
 }

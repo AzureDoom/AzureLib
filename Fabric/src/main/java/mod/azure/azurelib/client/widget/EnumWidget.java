@@ -1,10 +1,11 @@
 package mod.azure.azurelib.client.widget;
 
-import mod.azure.azurelib.config.value.EnumValue;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+
+import mod.azure.azurelib.config.value.EnumValue;
 
 public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
 
@@ -23,8 +24,7 @@ public class EnumWidget<E extends Enum<E>> extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
-    }
+    public void updateNarration(NarrationElementOutput p_169152_) {}
 
     private void nextValue() {
         E e = this.value.get();

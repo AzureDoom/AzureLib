@@ -1,12 +1,17 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.animatable.GeoEntity;
@@ -16,32 +21,32 @@ import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.util.ClientUtils;
 import mod.azure.azurelib.util.RenderUtils;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 
 /**
- * Packet for syncing user-definable animations that can be triggered from the
- * server for {@link net.minecraft.world.entity.Entity Entities}
+ * Packet for syncing user-definable animations that can be triggered from the server for
+ * {@link net.minecraft.world.entity.Entity Entities}
  */
 @Deprecated()
 public class EntityAnimTriggerPacket extends AbstractPacket {
+
     private final int ENTITY_ID;
+
     private final boolean IS_REPLACED_ENTITY;
 
     private final String CONTROLLER_NAME;
+
     private final String ANIM_NAME;
 
     public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
         this(entityId, false, controllerName, animName);
     }
 
-    public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, @Nullable String controllerName,
-                                   String animName) {
+    public EntityAnimTriggerPacket(
+        int entityId,
+        boolean isReplacedEntity,
+        @Nullable String controllerName,
+        String animName
+    ) {
         this.ENTITY_ID = entityId;
         this.IS_REPLACED_ENTITY = isReplacedEntity;
         this.CONTROLLER_NAME = controllerName == null ? "" : controllerName;
@@ -66,7 +71,12 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
         return AzureLibNetwork.ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 
-    public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+    public static void receive(
+        Minecraft client,
+        ClientPacketListener handler,
+        FriendlyByteBuf buf,
+        PacketSender responseSender
+    ) {
         final int ENTITY_ID = buf.readVarInt();
         final boolean IS_REPLACED_ENTITY = buf.readBoolean();
 

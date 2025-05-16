@@ -1,62 +1,88 @@
 package mod.azure.azurelib.network;
 
+import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import io.netty.buffer.Unpooled;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
 import mod.azure.azurelib.network.packet.*;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.network.FriendlyByteBuf;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.jetbrains.annotations.Nullable;
-
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 
 /**
  * Network handling class for AzureLib.<br>
  * Handles packet registration and some networking functions
  */
 public final class AzureLibNetwork {
+
     public static final Marker MARKER = MarkerManager.getMarker("Network");
-    public static final ResourceLocation ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "anim_data_sync");
-    public static final ResourceLocation ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "anim_trigger_sync");
 
-    public static final ResourceLocation ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "entity_anim_data_sync");
-    public static final ResourceLocation ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "entity_anim_trigger_sync");
+    public static final ResourceLocation ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "anim_data_sync"
+    );
 
-    public static final ResourceLocation BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "block_entity_anim_data_sync");
-    public static final ResourceLocation BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID, "block_entity_anim_trigger_sync");
+    public static final ResourceLocation ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "anim_trigger_sync"
+    );
 
-    public static final ResourceLocation AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    public static final ResourceLocation ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "entity_anim_data_sync"
+    );
+
+    public static final ResourceLocation ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "entity_anim_trigger_sync"
+    );
+
+    public static final ResourceLocation BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "block_entity_anim_data_sync"
+    );
+
+    public static final ResourceLocation BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
+        "block_entity_anim_trigger_sync"
+    );
+
+    public static final ResourceLocation AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_blockentity_dispatch_command_sync"
     );
 
-    public static final ResourceLocation AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    public static final ResourceLocation AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_entity_dispatch_command_sync"
     );
 
-    public static final ResourceLocation AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(AzureLib.MOD_ID,
+    public static final ResourceLocation AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID = new ResourceLocation(
+        AzureLib.MOD_ID,
         "az_item_stack_dispatch_command_sync"
     );
 
-	public static final ResourceLocation CUSTOM_ENTITY_ID = new ResourceLocation(AzureLib.MOD_ID, "spawn_entity");
+    public static final ResourceLocation CUSTOM_ENTITY_ID = new ResourceLocation(AzureLib.MOD_ID, "spawn_entity");
 
     public static final Map<String, GeoAnimatable> SYNCED_ANIMATABLES = new Object2ObjectOpenHashMap<>();
 
@@ -68,28 +94,44 @@ public final class AzureLibNetwork {
         ClientPlayNetworking.registerGlobalReceiver(ANIM_TRIGGER_SYNC_PACKET_ID, AnimTriggerPacket::receive);
 
         ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_DATA_SYNC_PACKET_ID, EntityAnimDataSyncPacket::receive);
-        ClientPlayNetworking.registerGlobalReceiver(ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, EntityAnimTriggerPacket::receive);
+        ClientPlayNetworking.registerGlobalReceiver(
+            ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+            EntityAnimTriggerPacket::receive
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID, BlockEntityAnimDataSyncPacket::receive);
-        ClientPlayNetworking.registerGlobalReceiver(BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID, BlockEntityAnimTriggerPacket::receive);
+        ClientPlayNetworking.registerGlobalReceiver(
+            BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID,
+            BlockEntityAnimDataSyncPacket::receive
+        );
+        ClientPlayNetworking.registerGlobalReceiver(
+            BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
+            BlockEntityAnimTriggerPacket::receive
+        );
 
-		ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID, (client, handler, buf, responseSender) -> {
-			EntityPacketOnClient.onPacket(client, buf);
-		});
+        ClientPlayNetworking.registerGlobalReceiver(CUSTOM_ENTITY_ID, (client, handler, buf, responseSender) -> {
+            EntityPacketOnClient.onPacket(client, buf);
+        });
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzBlockEntityDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzBlockEntityDispatchCommandPacket.receive(buf)
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzEntityDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzEntityDispatchCommandPacket.receive(buf)
+        );
 
-        ClientPlayNetworking.registerGlobalReceiver(AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID,
-            (client, handler, buf, responseSender) -> AzItemStackDispatchCommandPacket.receive(buf));
+        ClientPlayNetworking.registerGlobalReceiver(
+            AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID,
+            (client, handler, buf, responseSender) -> AzItemStackDispatchCommandPacket.receive(buf)
+        );
     }
 
     /**
      * Registers a synced {@link GeoAnimatable} object for networking support.<br>
-     * It is recommended that you don't call this directly, instead implementing and calling {@link mod.azure.azurelib.animatable.SingletonGeoAnimatable#registerSyncedAnimatable}
+     * It is recommended that you don't call this directly, instead implementing and calling
+     * {@link mod.azure.azurelib.animatable.SingletonGeoAnimatable#registerSyncedAnimatable}
      */
     @Deprecated()
     synchronized public static void registerSyncedAnimatable(GeoAnimatable animatable) {
@@ -135,6 +177,7 @@ public final class AzureLibNetwork {
     }
 
     public interface IPacketCallback {
+
         void onReadyToSend(AbstractPacket packetToSend);
     }
 
@@ -165,11 +208,18 @@ public final class AzureLibNetwork {
                 ClientPlayNetworking.registerGlobalReceiver(packetId, (client, handler, buffer, responseDispatcher) -> {
                     IPacketDecoder<T> decoder = packet.getDecoder();
                     T packetData = decoder.decode(buffer);
-                    client.execute(() -> packet.handleClientsidePacket(client, handler, packetData, responseDispatcher));
+                    client.execute(
+                        () -> packet.handleClientsidePacket(client, handler, packetData, responseDispatcher)
+                    );
                 });
-            } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                     IllegalAccessException exc) {
-                AzureLib.LOGGER.fatal(MARKER, "Couldn't instantiate new client packet from class {}, make sure it declares public default constructor", clientPacketClass.getSimpleName());
+            } catch (
+                NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException exc
+            ) {
+                AzureLib.LOGGER.fatal(
+                    MARKER,
+                    "Couldn't instantiate new client packet from class {}, make sure it declares public default constructor",
+                    clientPacketClass.getSimpleName()
+                );
                 throw new RuntimeException(exc);
             }
         }

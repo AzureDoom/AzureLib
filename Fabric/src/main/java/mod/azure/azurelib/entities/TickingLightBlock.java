@@ -1,8 +1,5 @@
 package mod.azure.azurelib.entities;
 
-import java.util.function.ToIntFunction;
-
-import mod.azure.azurelib.AzureLibMod;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -24,60 +21,75 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.function.ToIntFunction;
+
+import mod.azure.azurelib.AzureLibMod;
+
 public class TickingLightBlock extends BaseEntityBlock {
 
-	public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
+    public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
 
-	public TickingLightBlock() {
-		super(FabricBlockSettings.of(Material.AIR).sounds(SoundType.CANDLE).lightLevel(litBlockEmission(15))
-				.noOcclusion());
-	}
+    public TickingLightBlock() {
+        super(
+            FabricBlockSettings.of(Material.AIR)
+                .sounds(SoundType.CANDLE)
+                .lightLevel(litBlockEmission(15))
+                .noOcclusion()
+        );
+    }
 
-	private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
-		return (p_50763_) -> {
-			return BlockStateProperties.MAX_LEVEL_15;
-		};
-	}
+    private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
+        return (p_50763_) -> {
+            return BlockStateProperties.MAX_LEVEL_15;
+        };
+    }
 
-	public static IntegerProperty getLightLevel() {
-		return LIGHT_LEVEL;
-	}
+    public static IntegerProperty getLightLevel() {
+        return LIGHT_LEVEL;
+    }
 
-	@Override
-	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(LIGHT_LEVEL);
-	}
+    @Override
+    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+        builder.add(LIGHT_LEVEL);
+    }
 
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new TickingLightEntity(pos, state);
-	}
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new TickingLightEntity(pos, state);
+    }
 
-	@Override
-	public VoxelShape getShape(BlockState p_60555_, BlockGetter p_60556_, BlockPos p_60557_,
-			CollisionContext p_60558_) {
-		return Shapes.empty();
-	}
+    @Override
+    public VoxelShape getShape(
+        BlockState p_60555_,
+        BlockGetter p_60556_,
+        BlockPos p_60557_,
+        CollisionContext p_60558_
+    ) {
+        return Shapes.empty();
+    }
 
-	@Override
-	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
-		return true;
-	}
+    @Override
+    public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+        return true;
+    }
 
-	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.INVISIBLE;
-	}
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
 
-	@Override
-	public PushReaction getPistonPushReaction(BlockState state) {
-		return PushReaction.DESTROY;
-	}
+    @Override
+    public PushReaction getPistonPushReaction(BlockState state) {
+        return PushReaction.DESTROY;
+    }
 
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
-			BlockEntityType<T> type) {
-		return createTickerHelper(type, AzureLibMod.TICKING_LIGHT_ENTITY, TickingLightEntity::tick);
-	}
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level world,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
+        return createTickerHelper(type, AzureLibMod.TICKING_LIGHT_ENTITY, TickingLightEntity::tick);
+    }
 
 }

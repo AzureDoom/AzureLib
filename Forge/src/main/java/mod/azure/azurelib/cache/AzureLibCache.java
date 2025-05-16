@@ -2,23 +2,12 @@ package mod.azure.azurelib.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
-import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.loading.json.FormatVersion;
-import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.loading.object.BakedAnimations;
-import mod.azure.azurelib.loading.object.BakedModelFactory;
-import mod.azure.azurelib.loading.object.GeometryTree;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.fml.ModLoader;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -30,15 +19,42 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
+import mod.azure.azurelib.loading.FileLoader;
+import mod.azure.azurelib.loading.json.raw.Model;
+import mod.azure.azurelib.loading.object.BakedAnimations;
+import mod.azure.azurelib.loading.object.BakedModelFactory;
+import mod.azure.azurelib.loading.object.GeometryTree;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
+import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
+
 /**
- * Cache class for holding loaded {@link mod.azure.azurelib.core.animation.Animation Animations} and {@link CoreGeoModel Models}
+ * Cache class for holding loaded {@link mod.azure.azurelib.core.animation.Animation Animations} and {@link CoreGeoModel
+ * Models}
  */
 public final class AzureLibCache {
-    private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of("geckolib3", "animatedmobsmod",
-            "moreplayermodels", "customnpcs", "gunsrpg", "mimic", "celestisynth", "the_flesh_that_hates",
-            "enemyexpansion", "mutationcraft", "dungeons_mobs", "fear_the_dark", "born_in_chaos_v1");
+
+    private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of(
+        "geckolib3",
+        "animatedmobsmod",
+        "moreplayermodels",
+        "customnpcs",
+        "gunsrpg",
+        "mimic",
+        "celestisynth",
+        "the_flesh_that_hates",
+        "enemyexpansion",
+        "mutationcraft",
+        "dungeons_mobs",
+        "fear_the_dark",
+        "born_in_chaos_v1"
+    );
 
     private static Map<ResourceLocation, BakedAnimations> ANIMATIONS = Collections.emptyMap();
+
     private static Map<ResourceLocation, BakedGeoModel> MODELS = Collections.emptyMap();
 
     public static Map<ResourceLocation, BakedAnimations> getBakedAnimations() {
@@ -58,7 +74,8 @@ public final class AzureLibCache {
     public static void registerReloadListener() {
         Minecraft mc = Minecraft.getInstance();
 
-        if (mc == null) return;
+        if (mc == null)
+            return;
 
         if (!(mc.getResourceManager() instanceof ReloadableResourceManager resourceManager))
             throw new AzureLibException("AzureLib was initialized too early!");
@@ -66,7 +83,14 @@ public final class AzureLibCache {
         resourceManager.registerReloadListener(AzureLibCache::reload);
     }
 
-    private static CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
+    private static CompletableFuture<Void> reload(
+        PreparationBarrier stage,
+        ResourceManager resourceManager,
+        ProfilerFiller preparationsProfiler,
+        ProfilerFiller reloadProfiler,
+        Executor backgroundExecutor,
+        Executor gameExecutor
+    ) {
         Map<ResourceLocation, BakedAnimations> animations = new Object2ObjectOpenHashMap<>();
         Map<ResourceLocation, BakedGeoModel> models = new Object2ObjectOpenHashMap<>();
 
@@ -77,31 +101,57 @@ public final class AzureLibCache {
             // Forward-support for new cache components
             AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
             AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
-        ).thenCompose(stage::wait).thenAcceptAsync(
+        )
+            .thenCompose(stage::wait)
+            .thenAcceptAsync(
                 empty -> {
                     AzureLibCache.ANIMATIONS = animations;
                     AzureLibCache.MODELS = models;
-                }, gameExecutor);
+                },
+                gameExecutor
+            );
     }
 
-    private static CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager, BiConsumer<ResourceLocation, BakedAnimations> elementConsumer) {
-        return loadResources(backgroundExecutor, resourceManager, "animations",
-                resource -> FileLoader.loadAnimationsFile(resource, resourceManager), elementConsumer);
+    private static CompletableFuture<Void> loadAnimations(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager,
+        BiConsumer<ResourceLocation, BakedAnimations> elementConsumer
+    ) {
+        return loadResources(
+            backgroundExecutor,
+            resourceManager,
+            "animations",
+            resource -> FileLoader.loadAnimationsFile(resource, resourceManager),
+            elementConsumer
+        );
     }
 
-    private static CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager, BiConsumer<ResourceLocation, BakedGeoModel> elementConsumer) {
+    private static CompletableFuture<Void> loadModels(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager,
+        BiConsumer<ResourceLocation, BakedGeoModel> elementConsumer
+    ) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
             Model model = FileLoader.loadModelFile(resource, resourceManager);
 
-            return BakedModelFactory.getForNamespace(resource.getNamespace()).constructGeoModel(
-                    GeometryTree.fromModel(model));
+            return BakedModelFactory.getForNamespace(resource.getNamespace())
+                .constructGeoModel(
+                    GeometryTree.fromModel(model)
+                );
         }, elementConsumer);
     }
 
-    private static <T> CompletableFuture<Void> loadResources(Executor executor, ResourceManager resourceManager, String type, Function<ResourceLocation, T> loader, BiConsumer<ResourceLocation, T> map) {
+    private static <T> CompletableFuture<Void> loadResources(
+        Executor executor,
+        ResourceManager resourceManager,
+        String type,
+        Function<ResourceLocation, T> loader,
+        BiConsumer<ResourceLocation, T> map
+    ) {
         return CompletableFuture.supplyAsync(
-                () -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")),
-                executor).thenApplyAsync(resources -> {
+            () -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")),
+            executor
+        ).thenApplyAsync(resources -> {
             Map<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
 
             for (ResourceLocation resource : resources.keySet()) {

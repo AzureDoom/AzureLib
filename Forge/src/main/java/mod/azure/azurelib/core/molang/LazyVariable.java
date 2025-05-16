@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.core.molang;
@@ -16,45 +14,46 @@ import mod.azure.azurelib.core.math.Variable;
  * Optimises rendering as values are not touched until needed (if at all)
  */
 public class LazyVariable extends Variable {
-	private DoubleSupplier valueSupplier;
 
-	public LazyVariable(String name, double value) {
-		this(name, () -> value);
-	}
+    private DoubleSupplier valueSupplier;
 
-	public LazyVariable(String name, DoubleSupplier valueSupplier) {
-		super(name, 0);
+    public LazyVariable(String name, double value) {
+        this(name, () -> value);
+    }
 
-		this.valueSupplier = valueSupplier;
-	}
+    public LazyVariable(String name, DoubleSupplier valueSupplier) {
+        super(name, 0);
 
-	/**
-	 * Set the new value for the variable, acting as a constant
-	 */
-	@Override
-	public void set(double value) {
-		this.valueSupplier = () -> value;
-	}
+        this.valueSupplier = valueSupplier;
+    }
 
-	/**
-	 * Set the new value supplier for the variable
-	 */
-	public void set(DoubleSupplier valueSupplier) {
-		this.valueSupplier = valueSupplier;
-	}
+    /**
+     * Set the new value for the variable, acting as a constant
+     */
+    @Override
+    public void set(double value) {
+        this.valueSupplier = () -> value;
+    }
 
-	/**
-	 * Get the current value of the variable
-	 */
-	@Override
-	public double get() {
-		return this.valueSupplier.getAsDouble();
-	}
+    /**
+     * Set the new value supplier for the variable
+     */
+    public void set(DoubleSupplier valueSupplier) {
+        this.valueSupplier = valueSupplier;
+    }
 
-	/**
-	 * Instantiates a copy of this variable from this variable's current value and name
-	 */
-	public static LazyVariable from(Variable variable) {
-		return new LazyVariable(variable.getName(), variable.get());
-	}
+    /**
+     * Get the current value of the variable
+     */
+    @Override
+    public double get() {
+        return this.valueSupplier.getAsDouble();
+    }
+
+    /**
+     * Instantiates a copy of this variable from this variable's current value and name
+     */
+    public static LazyVariable from(Variable variable) {
+        return new LazyVariable(variable.getName(), variable.get());
+    }
 }

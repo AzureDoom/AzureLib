@@ -3,66 +3,85 @@ package mod.azure.azurelib.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.animatable.GeoReplacedEntity;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.util.ClientUtils;
 import mod.azure.azurelib.util.RenderUtils;
 
-import javax.annotation.Nullable;
-import java.util.function.Supplier;
-
 /**
- * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.entity.Entity Entities}
+ * Packet for syncing user-definable animations that can be triggered from the server for
+ * {@link net.minecraft.world.entity.Entity Entities}
  */
 @Deprecated()
 public class EntityAnimTriggerPacket<D> {
-	private final int entityId;
-	private final boolean isReplacedEntity;
-	private final String controllerName;
-	private final String animName;
 
-	public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
-		this(entityId, false, controllerName, animName);
-	}
+    private final int entityId;
 
-	public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, @Nullable String controllerName, String animName) {
-		this.entityId = entityId;
-		this.isReplacedEntity = isReplacedEntity;
-		this.controllerName = controllerName == null ? "" : controllerName;
-		this.animName = animName;
-	}
+    private final boolean isReplacedEntity;
 
-	public void encode(FriendlyByteBuf buffer) {
-		buffer.writeVarInt(this.entityId);
-		buffer.writeBoolean(this.isReplacedEntity);
-		buffer.writeUtf(this.controllerName);
-		buffer.writeUtf(this.animName);
-	}
+    private final String controllerName;
 
-	public static <D> EntityAnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
-		return new EntityAnimTriggerPacket<>(buffer.readVarInt(), buffer.readBoolean(), buffer.readUtf(), buffer.readUtf());
-	}
+    private final String animName;
 
-	public void receivePacket(Supplier<NetworkEvent.Context> context) {
-		NetworkEvent.Context handler = context.get();
+    public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
+        this(entityId, false, controllerName, animName);
+    }
 
-		handler.enqueueWork(() -> {
-			Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
+    public EntityAnimTriggerPacket(
+        int entityId,
+        boolean isReplacedEntity,
+        @Nullable String controllerName,
+        String animName
+    ) {
+        this.entityId = entityId;
+        this.isReplacedEntity = isReplacedEntity;
+        this.controllerName = controllerName == null ? "" : controllerName;
+        this.animName = animName;
+    }
 
-			if (entity == null)
-				return;
+    public void encode(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.entityId);
+        buffer.writeBoolean(this.isReplacedEntity);
+        buffer.writeUtf(this.controllerName);
+        buffer.writeUtf(this.animName);
+    }
 
-			if (this.isReplacedEntity) {
-				GeoAnimatable animatable = RenderUtils.getReplacedAnimatable(entity.getType());
+    public static <D> EntityAnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
+        return new EntityAnimTriggerPacket<>(
+            buffer.readVarInt(),
+            buffer.readBoolean(),
+            buffer.readUtf(),
+            buffer.readUtf()
+        );
+    }
 
-				if (animatable instanceof GeoReplacedEntity replacedEntity)
-					replacedEntity.triggerAnim(entity, this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-			}
-			else if (entity instanceof GeoEntity geoEntity) {
-				geoEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-			}
-		});
-		handler.setPacketHandled(true);
-	}
+    public void receivePacket(Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context handler = context.get();
+
+        handler.enqueueWork(() -> {
+            Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
+
+            if (entity == null)
+                return;
+
+            if (this.isReplacedEntity) {
+                GeoAnimatable animatable = RenderUtils.getReplacedAnimatable(entity.getType());
+
+                if (animatable instanceof GeoReplacedEntity replacedEntity)
+                    replacedEntity.triggerAnim(
+                        entity,
+                        this.controllerName.isEmpty() ? null : this.controllerName,
+                        this.animName
+                    );
+            } else if (entity instanceof GeoEntity geoEntity) {
+                geoEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
+            }
+        });
+        handler.setPacketHandled(true);
+    }
 }

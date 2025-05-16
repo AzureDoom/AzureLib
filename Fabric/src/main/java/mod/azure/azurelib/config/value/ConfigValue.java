@@ -1,11 +1,5 @@
 package mod.azure.azurelib.config.value;
 
-import mod.azure.azurelib.client.IValidationHandler;
-import mod.azure.azurelib.config.ConfigUtils;
-import mod.azure.azurelib.config.Configurable;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.exception.ConfigValueMissingException;
-import mod.azure.azurelib.config.format.IConfigFormat;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
@@ -14,11 +8,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class ConfigValue<T> implements Supplier<T>{
+import mod.azure.azurelib.client.IValidationHandler;
+import mod.azure.azurelib.config.ConfigUtils;
+import mod.azure.azurelib.config.Configurable;
+import mod.azure.azurelib.config.adapter.TypeAdapter;
+import mod.azure.azurelib.config.exception.ConfigValueMissingException;
+import mod.azure.azurelib.config.format.IConfigFormat;
+
+public abstract class ConfigValue<T> implements Supplier<T> {
 
     protected final ValueData<T> valueData;
+
     private T value;
+
     private boolean synchronizeToClient;
+
     @Nullable
     private SetValueCallback<T> setValueCallback;
 
@@ -64,9 +68,7 @@ public abstract class ConfigValue<T> implements Supplier<T>{
         this.readFieldData(field);
     }
 
-    protected void readFieldData(Field field) {
-
-    }
+    protected void readFieldData(Field field) {}
 
     protected T getCorrectedValue(T in) {
         return in;
