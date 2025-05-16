@@ -1,6 +1,8 @@
 package mod.azure.azurelib.mixin;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mod.azure.azurelib.rewrite.render.item.AzItemRenderer;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -14,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
+
+import java.util.Objects;
 
 /**
  * Render hook to inject AzureLib's ISTER rendering callback
@@ -29,9 +33,10 @@ public class MixinItemRenderer {
 		AzItemRenderer renderer = AzItemRendererRegistry.getOrNull(item);
 
 		if (renderer != null) {
-			switch (transformType) {
-				case GUI -> renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
-				default -> renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+			if (transformType == ItemCameraTransforms.TransformType.GUI) {
+				renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
+			} else {
+				renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
 			}
 		}
 	}

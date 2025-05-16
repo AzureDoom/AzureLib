@@ -46,6 +46,26 @@ import net.minecraft.util.math.Vec3d;
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtils {
+
+	public static void copy(Matrix4f main, Matrix4f other) {
+		main.m00 = other.m00;
+		main.m01 = other.m01;
+		main.m02 = other.m02;
+		main.m03 = other.m03;
+		main.m10 = other.m10;
+		main.m11 = other.m11;
+		main.m12 = other.m12;
+		main.m13 = other.m13;
+		main.m20 = other.m20;
+		main.m21 = other.m21;
+		main.m22 = other.m22;
+		main.m23 = other.m23;
+		main.m30 = other.m30;
+		main.m31 = other.m31;
+		main.m32 = other.m32;
+		main.m33 = other.m33;
+	}
+
 	public static void translateMatrixToBone(MatrixStack poseStack, CoreGeoBone bone) {
 		poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
 	}

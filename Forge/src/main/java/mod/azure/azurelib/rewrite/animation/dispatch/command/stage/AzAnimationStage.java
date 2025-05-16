@@ -1,0 +1,39 @@
+package mod.azure.azurelib.rewrite.animation.dispatch.command.stage;
+
+import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
+import net.minecraft.network.PacketBuffer;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+public class AzAnimationStage {
+
+    private String name;
+
+    private AzAnimationStageProperties properties;
+
+    public AzAnimationStage(String name, AzAnimationStageProperties properties) {
+        this.name = name;
+        this.properties = properties;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public AzAnimationStageProperties properties() {
+        return properties;
+    }
+
+    public static final Function<PacketBuffer, AzAnimationStage> DECODER = buf -> {
+        String name = buf.readString();
+        AzAnimationStageProperties properties = AzAnimationStageProperties.DECODER.apply(buf);
+        return new AzAnimationStage(name, properties);
+    };
+
+    public static final BiConsumer<PacketBuffer, AzAnimationStage> ENCODER = (buf, stage) -> {
+        buf.writeString(stage.name());
+        AzAnimationStageProperties.ENCODER.accept(buf, stage.properties());
+    };
+
+}

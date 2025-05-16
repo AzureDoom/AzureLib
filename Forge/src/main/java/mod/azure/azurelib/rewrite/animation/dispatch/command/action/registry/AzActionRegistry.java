@@ -1,0 +1,122 @@
+package mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry;
+
+import it.unimi.dsi.fastutil.objects.Object2ShortArrayMap;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+/**
+ * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
+ * associated {@link ResourceLocation} identifiers and corresponding encoders/decoders. This registry enables efficient
+ * encoding, decoding, and dispatching of animation-related actions within the animation system. <br>
+ * Key Responsibilities:
+ * <ul>
+ * <li>Maintain a bidirectional mapping between {@link ResourceLocation} identifiers and short integer IDs for efficient
+ * serialization/deserialization.</li>
+ * <li>Register {@link AzAction} implementations and their corresponding encoders and decoders.</li>
+ * <li>Provide methods for retrieving encoders/decoders and IDs based on resource locations or integer IDs.
+ * </ul>
+ */
+public class AzActionRegistry {
+
+    // Mappings for resource location to ID and encoders/decoders by ID
+    private static final Map<ResourceLocation, Short> RESOURCE_LOCATION_TO_ID = new Object2ShortArrayMap<>();
+
+    private static final Map<Short, Function<PacketBuffer, AzAction>> DECODERS_BY_ID = new HashMap<>();
+
+    private static final Map<Short, BiConsumer<PacketBuffer, AzAction>> ENCODERS_BY_ID = new HashMap<>();
+
+    private static short NEXT_FREE_ID = 0;
+
+    static {
+        // Register root actions
+        register(
+            AzRootCancelAction.RESOURCE_LOCATION,
+            AzRootCancelAction::decode, // Decoder function
+            AzRootCancelAction::encode // Encoder function
+        );
+        register(
+            AzRootCancelAllAction.RESOURCE_LOCATION,
+            AzRootCancelAllAction::decode,
+            AzRootCancelAllAction::encode
+        );
+        register(
+            AzRootPlayAnimationSequenceAction.RESOURCE_LOCATION,
+            AzRootPlayAnimationSequenceAction::decode,
+            AzRootPlayAnimationSequenceAction::encode
+        );
+        register(
+            AzRootSetAnimationSpeedAction.RESOURCE_LOCATION,
+            AzRootSetAnimationSpeedAction::decode,
+            AzRootSetAnimationSpeedAction::encode
+        );
+        register(
+            AzRootSetEasingTypeAction.RESOURCE_LOCATION,
+            AzRootSetEasingTypeAction::decode,
+            AzRootSetEasingTypeAction::encode
+        );
+        register(
+            AzRootSetTransitionSpeedAction.RESOURCE_LOCATION,
+            AzRootSetTransitionSpeedAction::decode,
+            AzRootSetTransitionSpeedAction::encode
+        );
+    }
+
+    /**
+     * Returns a decoder function for the given {@link ResourceLocation}.
+     */
+    public static Function<PacketBuffer, ? extends AzAction> getDecoderOrNull(
+        ResourceLocation resourceLocation
+    ) {
+        Short id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
+        return DECODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns a decoder function for the given ID.
+     */
+    public static Function<PacketBuffer, AzAction> getDecoderOrNull(short id) {
+        return DECODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns an encoder function for the given {@link ResourceLocation}.
+     */
+    public static BiConsumer<PacketBuffer, AzAction> getEncoderOrNull(ResourceLocation resourceLocation) {
+        Short id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
+        return ENCODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns an encoder function for the given ID.
+     */
+    public static BiConsumer<PacketBuffer, AzAction> getEncoderOrNull(short id) {
+        return ENCODERS_BY_ID.get(id);
+    }
+
+    /**
+     * Returns the ID associated with a given {@link ResourceLocation}.
+     */
+    public static Short getIdOrNull(ResourceLocation resourceLocation) {
+        return RESOURCE_LOCATION_TO_ID.get(resourceLocation);
+    }
+
+    /**
+     * Registers a new action with its resource location, decoder, and encoder.
+     */
+    private static <A extends AzAction> void register(
+        ResourceLocation resourceLocation,
+        Function<PacketBuffer, A> decoder,
+        BiConsumer<PacketBuffer, A> encoder
+    ) {
+        Short id = RESOURCE_LOCATION_TO_ID.computeIfAbsent(resourceLocation, ($) -> NEXT_FREE_ID++);
+        DECODERS_BY_ID.put(id, (Function<PacketBuffer, AzAction>) decoder);
+        ENCODERS_BY_ID.put(id, (BiConsumer<PacketBuffer, AzAction>) encoder);
+    }
+}

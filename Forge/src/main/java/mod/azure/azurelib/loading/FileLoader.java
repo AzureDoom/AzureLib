@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonObject;

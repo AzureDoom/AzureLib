@@ -14,7 +14,6 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
  * @see ParticleKeyframeData
  * @see SoundKeyframeData
  */
-@Deprecated()
 public abstract class KeyFrameData {
 	private final double startTick;
 

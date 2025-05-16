@@ -7,7 +7,6 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
 /**
  * Custom instruction {@link Keyframe} instruction holder
  */
-@Deprecated()
 public class CustomInstructionKeyframeData extends KeyFrameData {
 	private final String instructions;
 

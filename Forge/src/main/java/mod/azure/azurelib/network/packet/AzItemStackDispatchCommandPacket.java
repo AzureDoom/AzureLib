@@ -1,6 +1,10 @@
 package mod.azure.azurelib.network.packet;
 
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.UUID;

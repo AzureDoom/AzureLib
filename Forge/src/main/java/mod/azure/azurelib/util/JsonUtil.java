@@ -42,15 +42,36 @@ import mod.azure.azurelib.loading.json.raw.UVUnion;
 import mod.azure.azurelib.loading.json.typeadapter.BakedAnimationsAdapter;
 import mod.azure.azurelib.loading.json.typeadapter.KeyFramesAdapter;
 import mod.azure.azurelib.loading.object.BakedAnimations;
+import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import net.minecraft.util.JSONUtils;
 
 /**
  * Json helper class for various json functions
  */
 public final class JsonUtil {
-	public static final Gson GEO_GSON = new GsonBuilder().setLenient().registerTypeAdapter(Bone.class, Bone.deserializer()).registerTypeAdapter(Cube.class, Cube.deserializer()).registerTypeAdapter(FaceUV.class, FaceUV.deserializer()).registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer()).registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer()).registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
-			.registerTypeAdapter(Model.class, Model.deserializer()).registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer()).registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer()).registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer()).registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer()).registerTypeAdapter(UVFaces.class, UVFaces.deserializer()).registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
-			.registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter()).registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter()).create();
+
+	public static final Gson GEO_GSON = new GsonBuilder().setLenient()
+		                                    .registerTypeAdapter(Bone.class, Bone.deserializer())
+		                                    .registerTypeAdapter(Cube.class, Cube.deserializer())
+		                                    .registerTypeAdapter(FaceUV.class, FaceUV.deserializer())
+		                                    .registerTypeAdapter(LocatorClass.class, LocatorClass.deserializer())
+		                                    .registerTypeAdapter(LocatorValue.class, LocatorValue.deserializer())
+		                                    .registerTypeAdapter(MinecraftGeometry.class, MinecraftGeometry.deserializer())
+		                                    .registerTypeAdapter(Model.class, Model.deserializer())
+		                                    .registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
+		                                    .registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
+		                                    .registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
+		                                    .registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
+		                                    .registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
+		                                    .registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
+		                                    .registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter())
+		                                    .registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
+		                                    .registerTypeAdapter(AzKeyframes.class, new AzKeyframesAdapter())
+		                                    .registerTypeAdapter(AzBakedAnimations.class, new AzBakedAnimationsAdapter())
+		                                    .create();
 
 	/**
 	 * Convert a {@link JsonArray} of doubles to a {@code double[]}.<br>

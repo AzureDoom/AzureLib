@@ -1,6 +1,7 @@
 package mod.azure.azurelib.mixin;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;

@@ -44,10 +44,10 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 			// TODO Auto-generated constructor stub
 		}
 
-		public static RenderType emissive(ResourceLocation texture) {
+		public static RenderType emissive(ResourceLocation texture, boolean isGlowing) {
 			return RenderType.makeType("az_glowing_layer", DefaultVertexFormats.ENTITY, GL11.GL_QUADS, 256, State.getBuilder().alpha(
 					RenderState.DEFAULT_ALPHA).cull(new RenderState.CullState(false)).texture(new TextureState(texture, false, false)).transparency(
-					RenderState.TRANSLUCENT_TRANSPARENCY).overlay(new RenderState.OverlayState(true)).build(true));
+					RenderState.TRANSLUCENT_TRANSPARENCY).overlay(new RenderState.OverlayState(true)).build(isGlowing));
 		}
 	}
 
@@ -151,10 +151,20 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
 	/**
 	 * Return a cached instance of the RenderType for the given texture for GeoGlowingLayer rendering.
-	 * 
+	 *
 	 * @param texture The texture of the resource to apply a glow layer to
 	 */
 	public static RenderType getRenderType(ResourceLocation texture) {
-		return GlowRenderType.emissive(getEmissiveResource(texture));
+		return GlowRenderType.emissive(getEmissiveResource(texture), false);
+	}
+
+	/**
+	 * Return a cached instance of the RenderType for the given texture for AutoGlowingGeoLayer rendering, while the
+	 * entity has an outline
+	 *
+	 * @param texture The texture of the resource to apply a glow layer to
+	 */
+	public static RenderType getOutlineRenderType(ResourceLocation texture) {
+		return GlowRenderType.emissive(getEmissiveResource(texture), true);
 	}
 }

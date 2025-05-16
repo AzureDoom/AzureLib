@@ -10,7 +10,6 @@ package mod.azure.azurelib.cache.object;
 
 import net.minecraft.client.renderer.Vector3f;
 
-@Deprecated()
 public class GeoVertex {
     private final Vector3f position;
     private final float texU;
