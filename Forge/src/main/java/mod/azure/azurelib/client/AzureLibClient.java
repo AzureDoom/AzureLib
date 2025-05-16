@@ -20,7 +20,7 @@ public final class AzureLibClient {
      * @param previous    Previously open screen
      * @return Either new config screen or {@code null} when no config exists for the provided class
      */
-    @Nullable
+    
     public static Screen getConfigScreen(Class<?> configClass, Screen previous) {
         Config cfg = configClass.getAnnotation(Config.class);
         if (cfg == null) {
@@ -37,7 +37,7 @@ public final class AzureLibClient {
      * @param previous Previously open screen
      * @return Either new config screen or {@code null} when no config exists with the provided ID
      */
-    @Nullable
+    
     public static Screen getConfigScreen(String configId, Screen previous) {
         return ConfigHolder.getConfig(configId).map(holder -> getConfigScreenForHolder(holder, previous)).orElse(null);
     }

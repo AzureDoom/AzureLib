@@ -21,7 +21,7 @@ public final class FileWatchManager {
     public static final Marker MARKER = MarkerManager.getMarker("FileWatching");
     private final Map<String, ConfigHolder<?>> configPaths = new HashMap<>();
     private final List<WatchKey> watchKeys = new ArrayList<>();
-    @Nullable
+    
     private final WatchService service;
     private final ScheduledExecutorService executorService;
     private final Set<String> processCache = new HashSet<>();

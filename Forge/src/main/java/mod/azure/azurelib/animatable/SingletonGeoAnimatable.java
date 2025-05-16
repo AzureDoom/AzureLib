@@ -45,7 +45,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 * @param dataTicket The data ticket for the data to retrieve
 	 * @return The synced data, or null if no data of that type has been synced
 	 */
-	@Nullable
+	
 	default <D> D getAnimData(long instanceId, SerializableDataTicket<D> dataTicket) {
 		return getAnimatableInstanceCache().getManagerForId(instanceId).getData(dataTicket);
 	}
@@ -91,7 +91,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 * @param controllerName The name of the controller name the animation belongs to, or null to do an inefficient lazy search
 	 * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
-	default <D> void triggerAnim(Entity relatedEntity, long instanceId, @Nullable String controllerName, String animName) {
+	default <D> void triggerAnim(Entity relatedEntity, long instanceId, String controllerName, String animName) {
 		if (relatedEntity.level.isClientSide()) {
 			getAnimatableInstanceCache().getManagerForId(instanceId).tryTriggerAnimation(controllerName, animName);
 		} else {
@@ -109,7 +109,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 * @param packetTarget   The distribution method determining which players to sync the data to
 	 */
-	default <D> void triggerAnim(long instanceId, @Nullable String controllerName, String animName, PacketDistributor.PacketTarget packetTarget) {
+	default <D> void triggerAnim(long instanceId, String controllerName, String animName, PacketDistributor.PacketTarget packetTarget) {
 		AzureLibNetwork.send(new AnimTriggerPacket<>(getClass().toString(), instanceId, controllerName, animName), packetTarget);
 	}
 
@@ -118,7 +118,7 @@ public interface SingletonGeoAnimatable extends GeoAnimatable {
 	 * Don't override this unless you know what you're doing.
 	 */
 	@Override
-	default @Nullable AnimatableInstanceCache animatableCacheOverride() {
+	default AnimatableInstanceCache animatableCacheOverride() {
 		return new SingletonAnimatableInstanceCache(this);
 	}
 }

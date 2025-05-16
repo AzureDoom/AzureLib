@@ -27,7 +27,7 @@ public class AnimTriggerPacket<D> {
 	private final String controllerName;
 	private final String animName;
 
-	public AnimTriggerPacket(String syncableId, long instanceId, @Nullable String controllerName, String animName) {
+	public AnimTriggerPacket(String syncableId, long instanceId, String controllerName, String animName) {
 		this.syncableId = syncableId;
 		this.instanceId = instanceId;
 		this.controllerName = controllerName == null ? "" : controllerName;

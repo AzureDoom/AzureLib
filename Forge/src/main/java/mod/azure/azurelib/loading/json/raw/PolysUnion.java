@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for poly union information, only used in deserialization at startup
  */
-public record PolysUnion(double[][][] union, @Nullable Type type) {
+public record PolysUnion(double[][][] union, Type type) {
 	public static JsonDeserializer<PolysUnion> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isString()) {

@@ -12,11 +12,12 @@ import java.util.List;
 public abstract class ContainerWidget extends AbstractWidget implements ContainerEventHandler {
 
     private final List<GuiEventListener> listeners = new ArrayList<>();
+
     private final List<AbstractWidget> widgets = new ArrayList<>();
+
     private GuiEventListener focused;
+
     private boolean dragging;
-
-
 
     public ContainerWidget(int x, int y, int w, int h, Component component) {
         super(x, y, w, h, component);
@@ -63,8 +64,20 @@ public abstract class ContainerWidget extends AbstractWidget implements Containe
     }
 
     @Override
-    public boolean mouseDragged(double p_231045_1_, double p_231045_3_, int p_231045_5_, double p_231045_6_, double p_231045_8_) {
-        return ContainerEventHandler.super.mouseDragged(p_231045_1_, p_231045_3_, p_231045_5_, p_231045_6_, p_231045_8_);
+    public boolean mouseDragged(
+        double p_231045_1_,
+        double p_231045_3_,
+        int p_231045_5_,
+        double p_231045_6_,
+        double p_231045_8_
+    ) {
+        return ContainerEventHandler.super.mouseDragged(
+            p_231045_1_,
+            p_231045_3_,
+            p_231045_5_,
+            p_231045_6_,
+            p_231045_8_
+        );
     }
 
     @Override

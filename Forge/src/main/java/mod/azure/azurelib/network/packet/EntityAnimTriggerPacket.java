@@ -30,11 +30,11 @@ public class EntityAnimTriggerPacket<D> {
 	private final String controllerName;
 	private final String animName;
 
-	public EntityAnimTriggerPacket(int entityId, @Nullable String controllerName, String animName) {
+	public EntityAnimTriggerPacket(int entityId, String controllerName, String animName) {
 		this(entityId, false, controllerName, animName);
 	}
 
-	public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, @Nullable String controllerName, String animName) {
+	public EntityAnimTriggerPacket(int entityId, boolean isReplacedEntity, String controllerName, String animName) {
 		this.entityId = entityId;
 		this.isReplacedEntity = isReplacedEntity;
 		this.controllerName = controllerName == null ? "" : controllerName;

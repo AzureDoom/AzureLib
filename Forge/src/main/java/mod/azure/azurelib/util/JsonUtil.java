@@ -10,6 +10,10 @@ package mod.azure.azurelib.util;
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import net.minecraft.util.GsonHelper;
 import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.loading.json.raw.*;
@@ -43,6 +47,8 @@ public final class JsonUtil {
 			.registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
 			.registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter())
 			.registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
+		    .registerTypeAdapter(AzKeyframes.class, new AzKeyframesAdapter())
+		    .registerTypeAdapter(AzBakedAnimations.class, new AzBakedAnimationsAdapter())
 			.create();
 
 	/**
@@ -50,7 +56,7 @@ public final class JsonUtil {
 	 * No type checking is done, so if the array contains anything other than doubles, this will throw an exception.<br>
 	 * Ensures a minimum size of 3, as this is the expected usage of this method
 	 */
-	public static double[] jsonArrayToDoubleArray(@Nullable JsonArray array) throws JsonParseException {
+	public static double[] jsonArrayToDoubleArray(JsonArray array) throws JsonParseException {
 		if (array == null)
 			return new double[3];
 
@@ -84,7 +90,7 @@ public final class JsonUtil {
 	 * @param array The {@code JsonArray} to convert
 	 * @param elementTransformer Transformation function that converts a {@link JsonElement} to the intended output object
 	 */
-	public static <T> List<T> jsonArrayToList(@Nullable JsonArray array, Function<JsonElement, T> elementTransformer) {
+	public static <T> List<T> jsonArrayToList(JsonArray array, Function<JsonElement, T> elementTransformer) {
 		if (array == null)
 			return new ObjectArrayList<>();
 
@@ -116,7 +122,7 @@ public final class JsonUtil {
 	/**
 	 * Retrieves an optionally present Long from the provided {@link JsonObject}, or null if the element isn't present
 	 */
-	@Nullable
+	
 	public static Long getOptionalLong(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsLong(obj, elementName) : null;
 	}
@@ -124,7 +130,7 @@ public final class JsonUtil {
 	/**
 	 * Retrieves an optionally present Boolean from the provided {@link JsonObject}, or null if the element isn't present
 	 */
-	@Nullable
+	
 	public static Boolean getOptionalBoolean(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsBoolean(obj, elementName) : null;
 	}
@@ -132,7 +138,7 @@ public final class JsonUtil {
 	/**
 	 * Retrieves an optionally present Float from the provided {@link JsonObject}, or null if the element isn't present
 	 */
-	@Nullable
+	
 	public static Float getOptionalFloat(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsFloat(obj, elementName) : null;
 	}
@@ -140,7 +146,7 @@ public final class JsonUtil {
 	/**
 	 * Retrieves an optionally present Double from the provided {@link JsonObject}, or null if the element isn't present
 	 */
-	@Nullable
+	
 	public static Double getOptionalDouble(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsDouble(obj, elementName) : null;
 	}
@@ -148,7 +154,7 @@ public final class JsonUtil {
 	/**
 	 * Retrieves an optionally present Integer from the provided {@link JsonObject}, or null if the element isn't present
 	 */
-	@Nullable
+	
 	public static Integer getOptionalInteger(JsonObject obj, String elementName) {
 		return obj.has(elementName) ? GsonHelper.getAsInt(obj, elementName) : null;
 	}

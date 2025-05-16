@@ -40,8 +40,8 @@ public abstract class DyeableGeoArmorRenderer<T extends Item & GeoItem> extends 
             PoseStack poseStack,
             T animatable,
             BakedGeoModel model,
-            @Nullable MultiBufferSource bufferSource,
-            @Nullable VertexConsumer buffer,
+            MultiBufferSource bufferSource,
+            VertexConsumer buffer,
             boolean isReRender,
             float partialTick,
             int packedLight,
@@ -115,7 +115,7 @@ public abstract class DyeableGeoArmorRenderer<T extends Item & GeoItem> extends 
      * here
      * </p>
      */
-    @NotNull
+    
     protected abstract Color getColorForBone(GeoBone bone);
 
     /**

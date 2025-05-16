@@ -8,6 +8,8 @@
 package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;

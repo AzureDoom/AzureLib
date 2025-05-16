@@ -42,7 +42,7 @@ public class GeoGlowingTextureMeta {
 		/**
 		 * Generate a {@link Pixel} collection from the "sections" array of the mcmeta file
 		 */
-		private List<Pixel> fromSections(@Nullable JsonArray sectionsArray) {
+		private List<Pixel> fromSections(JsonArray sectionsArray) {
 			if (sectionsArray == null)
 				return List.of();
 

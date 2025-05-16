@@ -50,7 +50,7 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 	/**
 	 * Return an ItemStack relevant to this bone for rendering, or null if no ItemStack to render
 	 */
-	@Nullable
+	
 	protected ItemStack getStackForBone(GeoBone bone, T animatable) {
 		return this.stackForBone.apply(bone, animatable);
 	}
@@ -58,7 +58,7 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
 	/**
 	 * Return a BlockState relevant to this bone for rendering, or null if no BlockState to render
 	 */
-	@Nullable
+	
 	protected BlockState getBlockForBone(GeoBone bone, T animatable) {
 		return this.blockForBone.apply(bone, animatable);
 	}

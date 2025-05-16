@@ -90,7 +90,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
 	 * Generate and apply the necessary functions here, then return the RenderCall to submit to the render pipeline.
 	 * @return The RenderCall to submit to the render pipeline, or null if no further action required
 	 */
-	@Nullable
+	
 	protected abstract RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException;
 
 	/**

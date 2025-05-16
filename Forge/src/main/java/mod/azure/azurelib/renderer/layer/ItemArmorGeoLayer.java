@@ -66,12 +66,12 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	protected static final HumanoidModel<LivingEntity> INNER_ARMOR_MODEL = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
 	protected static final HumanoidModel<LivingEntity> OUTER_ARMOR_MODEL = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR));
 
-	@Nullable protected ItemStack mainHandStack;
-	@Nullable protected ItemStack offhandStack;
-	@Nullable protected ItemStack helmetStack;
-	@Nullable protected ItemStack chestplateStack;
-	@Nullable protected ItemStack leggingsStack;
-	@Nullable protected ItemStack bootsStack;
+	protected ItemStack mainHandStack;
+	protected ItemStack offhandStack;
+	protected ItemStack helmetStack;
+	protected ItemStack chestplateStack;
+	protected ItemStack leggingsStack;
+	protected ItemStack bootsStack;
 
 	public ItemArmorGeoLayer(GeoRenderer<T> geoRenderer) {
 		super(geoRenderer);
@@ -106,7 +106,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 * Get the {@link ItemStack} relevant to the bone being rendered.<br>
 	 * Return null if this bone should be ignored
 	 */
-	@Nullable
+	
 	protected ItemStack getArmorItemForBone(GeoBone bone, T animatable) {
 		return null;
 	}
@@ -201,7 +201,7 @@ public class ItemArmorGeoLayer<T extends LivingEntity & GeoAnimatable> extends G
 	 * @param enchanted Whether the render should have an enchanted glint or not
 	 * @return The buffer to draw to
 	 */
-	protected VertexConsumer getArmorBuffer(MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable ResourceLocation texturePath, boolean enchanted) {
+	protected VertexConsumer getArmorBuffer(MultiBufferSource bufferSource, RenderType renderType, ResourceLocation texturePath, boolean enchanted) {
 		if (renderType == null)
 			renderType = RenderType.armorCutoutNoCull(texturePath);
 

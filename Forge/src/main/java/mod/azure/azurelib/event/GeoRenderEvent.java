@@ -59,7 +59,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method for retrieving the entity being rendered
 		 */
-		@Nullable
+		
 		public net.minecraft.world.entity.Entity getEntity() {
 			return getRenderer().getCurrentEntity();
 		}
@@ -67,7 +67,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method for retrieving the ItemStack relevant to the armor piece being rendered
 		 */
-		@Nullable
+		
 		public ItemStack getItemStack() {
 			return getRenderer().getCurrentStack();
 		}
@@ -75,7 +75,7 @@ public interface GeoRenderEvent {
 		/**
 		 * Shortcut method for retrieving the equipped slot of the armor piece being rendered
 		 */
-		@Nullable
+		
 		public EquipmentSlot getEquipmentSlot() {
 			return getRenderer().getCurrentSlot();
 		}

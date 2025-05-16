@@ -18,6 +18,7 @@ import mod.azure.azurelib.network.packet.S2C_SendConfigData;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,6 +32,8 @@ public abstract class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     private void azurelib$sendServerConfigs(Connection connection, ServerPlayer player, CallbackInfo ci) {
         Set<String> set = ConfigHolder.getSynchronizedConfigs();
-        set.forEach(id -> AzureLibNetwork.sendClientPacket(player, new S2C_SendConfigData(id)));
+        set.forEach(
+            id -> AzureLibNetwork.send(new S2C_SendConfigData(id), PacketDistributor.PLAYER.with(() -> player))
+        );
     }
 }

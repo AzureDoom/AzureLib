@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for UV information, only used in deserialization at startup
  */
-public record UVUnion(double[] boxUVCoords, @Nullable UVFaces faceUV, boolean isBoxUV) {
+public record UVUnion(double[] boxUVCoords, UVFaces faceUV, boolean isBoxUV) {
 	public static JsonDeserializer<UVUnion> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			if (json.isJsonObject()) {

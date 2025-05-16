@@ -1,8 +1,6 @@
 package mod.azure.azurelib.client.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.client.screen.DialogScreen;
-import mod.azure.azurelib.config.Configurable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -20,16 +18,32 @@ import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.client.screen.DialogScreen;
+import mod.azure.azurelib.config.Configurable;
+
 public final class ColorWidget extends AbstractWidget {
 
     public static final Component SELECT_COLOR = new TranslatableComponent("text.azurelib.screen.color_dialog");
+
     private final boolean argb;
+
     private final String colorPrefix;
+
     private final IntSupplier colorSupplier;
+
     private final GetSet<String> colorWidget;
+
     private final Screen lastScreen;
 
-    public ColorWidget(int x, int y, int width, int height, Configurable.Gui.ColorValue colorOptions, GetSet<String> colorWidget, Screen lastScreen) {
+    public ColorWidget(
+        int x,
+        int y,
+        int width,
+        int height,
+        Configurable.Gui.ColorValue colorOptions,
+        GetSet<String> colorWidget,
+        Screen lastScreen
+    ) {
         super(x, y, width, height, TextComponent.EMPTY);
         this.argb = colorOptions.isARGB();
         this.colorPrefix = colorOptions.getGuiColorPrefix();
@@ -63,7 +77,12 @@ public final class ColorWidget extends AbstractWidget {
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        ColorSelectorDialog dialog = new ColorSelectorDialog(SELECT_COLOR, this.lastScreen, this.argb, this.colorSupplier);
+        ColorSelectorDialog dialog = new ColorSelectorDialog(
+            SELECT_COLOR,
+            this.lastScreen,
+            this.argb,
+            this.colorSupplier
+        );
         dialog.onConfirmed(screen -> {
             int color = dialog.getResultColor();
             String colorText = this.colorPrefix + Integer.toHexString(color).toUpperCase(Locale.ROOT);
@@ -74,8 +93,7 @@ public final class ColorWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput elementOutput) {
-    }
+    public void updateNarration(NarrationElementOutput elementOutput) {}
 
     public interface GetSet<T> {
 
@@ -85,6 +103,7 @@ public final class ColorWidget extends AbstractWidget {
 
         static <T> GetSet<T> of(Supplier<T> get, Consumer<T> set) {
             return new GetSet<T>() {
+
                 @Override
                 public T get() {
                     return get.get();
@@ -101,10 +120,17 @@ public final class ColorWidget extends AbstractWidget {
     private static final class ColorSelectorDialog extends DialogScreen {
 
         private final boolean argb;
+
         private final IntSupplier colorProvider;
+
         private final List<ColorSlider> sliders = new ArrayList<>();
 
-        public ColorSelectorDialog(Component title, Screen background, boolean allowTransparency, IntSupplier colorProvider) {
+        public ColorSelectorDialog(
+            Component title,
+            Screen background,
+            boolean allowTransparency,
+            IntSupplier colorProvider
+        ) {
             super(title, new Component[0], background);
             this.argb = allowTransparency;
             this.colorProvider = colorProvider;
@@ -124,19 +150,71 @@ public final class ColorWidget extends AbstractWidget {
             super.init();
             this.setDimensions(width, height);
             int color = this.colorProvider.getAsInt();
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 20, dialogWidth - rightMargin, 20, color, ColorComponent.RED)));
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 45, dialogWidth - rightMargin, 20, color, ColorComponent.GREEN)));
-            this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 70, dialogWidth - rightMargin, 20, color, ColorComponent.BLUE)));
+            this.sliders.add(
+                this.addRenderableWidget(
+                    new ColorSlider(
+                        dialogLeft + 5,
+                        dialogTop + 20,
+                        dialogWidth - rightMargin,
+                        20,
+                        color,
+                        ColorComponent.RED
+                    )
+                )
+            );
+            this.sliders.add(
+                this.addRenderableWidget(
+                    new ColorSlider(
+                        dialogLeft + 5,
+                        dialogTop + 45,
+                        dialogWidth - rightMargin,
+                        20,
+                        color,
+                        ColorComponent.GREEN
+                    )
+                )
+            );
+            this.sliders.add(
+                this.addRenderableWidget(
+                    new ColorSlider(
+                        dialogLeft + 5,
+                        dialogTop + 70,
+                        dialogWidth - rightMargin,
+                        20,
+                        color,
+                        ColorComponent.BLUE
+                    )
+                )
+            );
             if (this.argb) {
-                this.sliders.add(this.addRenderableWidget(new ColorSlider(dialogLeft + 5, dialogTop + 95, dialogWidth - rightMargin, 20, color, ColorComponent.ALPHA)));
+                this.sliders.add(
+                    this.addRenderableWidget(
+                        new ColorSlider(
+                            dialogLeft + 5,
+                            dialogTop + 95,
+                            dialogWidth - rightMargin,
+                            20,
+                            color,
+                            ColorComponent.ALPHA
+                        )
+                    )
+                );
             }
-            this.addRenderableWidget(new ColorDisplay(dialogLeft + 5 + dialogWidth - rightMargin + 5, dialogTop + 20, rightMargin - 15, rightMargin - 15, argb, this::getResultColor));
+            this.addRenderableWidget(
+                new ColorDisplay(
+                    dialogLeft + 5 + dialogWidth - rightMargin + 5,
+                    dialogTop + 20,
+                    rightMargin - 15,
+                    rightMargin - 15,
+                    argb,
+                    this::getResultColor
+                )
+            );
             super.addDefaultDialogButtons();
         }
 
         @Override
-        protected void addDefaultDialogButtons() {
-        }
+        protected void addDefaultDialogButtons() {}
 
         public int getResultColor() {
             int color = 0;
@@ -149,6 +227,7 @@ public final class ColorWidget extends AbstractWidget {
         private static final class ColorDisplay extends AbstractWidget {
 
             private final boolean argb;
+
             private final IntSupplier colorProvider;
 
             public ColorDisplay(int x, int y, int width, int height, boolean argb, IntSupplier colorProvider) {
@@ -165,7 +244,15 @@ public final class ColorWidget extends AbstractWidget {
                 }
                 int borderColor = 0xffa0a0a0;
                 fill(stack, this.x, this.y, this.x + this.width, this.y + this.height, borderColor);
-                fillGradient(stack, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, 0xFFFFFFFF, 0xFF888888);
+                fillGradient(
+                    stack,
+                    this.x + 1,
+                    this.y + 1,
+                    this.x + this.width - 1,
+                    this.y + this.height - 1,
+                    0xFFFFFFFF,
+                    0xFF888888
+                );
                 fill(stack, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, color);
             }
 
@@ -175,8 +262,7 @@ public final class ColorWidget extends AbstractWidget {
             }
 
             @Override
-            public void updateNarration(NarrationElementOutput p_169152_) {
-            }
+            public void updateNarration(NarrationElementOutput p_169152_) {}
         }
 
         private static final class ColorSlider extends AbstractSliderButton {
@@ -196,8 +282,7 @@ public final class ColorWidget extends AbstractWidget {
             }
 
             @Override
-            protected void applyValue() {
-            }
+            protected void applyValue() {}
 
             int getColor() {
                 return this.colorComponent.getOffsetColor((int) (0xFF * this.value));
@@ -212,6 +297,7 @@ public final class ColorWidget extends AbstractWidget {
             BLUE(0);
 
             private final int bitOffset;
+
             private final Function<Double, Component> title;
 
             ColorComponent(int bitOffset) {

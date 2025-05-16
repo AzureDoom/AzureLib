@@ -18,15 +18,15 @@ import javax.annotation.Nullable;
 /**
  * Container class for model property information, only used in deserialization at startup
  */
-public record ModelProperties(@Nullable Boolean animationArmsDown, @Nullable Boolean animationArmsOutFront,
-							  @Nullable Boolean animationDontShowArmor, @Nullable Boolean animationInvertedCrouch,
-							  @Nullable Boolean animationNoHeadBob, @Nullable Boolean animationSingleArmAnimation,
-							  @Nullable Boolean animationSingleLegAnimation, @Nullable Boolean animationStationaryLegs,
-							  @Nullable Boolean animationStatueOfLibertyArms, @Nullable Boolean animationUpsideDown,
-							  @Nullable String identifier, @Nullable Boolean preserveModelPose,
+public record ModelProperties(Boolean animationArmsDown, Boolean animationArmsOutFront,
+							  Boolean animationDontShowArmor, Boolean animationInvertedCrouch,
+							  Boolean animationNoHeadBob, Boolean animationSingleArmAnimation,
+							  Boolean animationSingleLegAnimation, Boolean animationStationaryLegs,
+							  Boolean animationStatueOfLibertyArms, Boolean animationUpsideDown,
+							  String identifier, Boolean preserveModelPose,
 							  double textureHeight, double textureWidth,
-							  @Nullable Double visibleBoundsHeight, double[] visibleBoundsOffset,
-							  @Nullable Double visibleBoundsWidth) {
+							  Double visibleBoundsHeight, double[] visibleBoundsOffset,
+							  Double visibleBoundsWidth) {
 	public static JsonDeserializer<ModelProperties> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

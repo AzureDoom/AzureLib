@@ -1,5 +1,10 @@
 package mod.azure.azurelib.config.value;
 
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.lang.reflect.Field;
+import java.util.regex.Pattern;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.Configurable;
@@ -7,14 +12,11 @@ import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
 import mod.azure.azurelib.config.io.ConfigIO;
-import net.minecraft.network.FriendlyByteBuf;
-
-import java.lang.reflect.Field;
-import java.util.regex.Pattern;
 
 public class StringValue extends ConfigValue<String> {
 
     private Pattern pattern;
+
     private String descriptor;
 
     public StringValue(ValueData<String> valueData) {
@@ -30,7 +32,12 @@ public class StringValue extends ConfigValue<String> {
             try {
                 this.pattern = Pattern.compile(value, stringPattern.flags());
             } catch (IllegalArgumentException e) {
-            	AzureLib.LOGGER.error(ConfigIO.MARKER, "Invalid @StringPattern value for {} field - {}", this.getId(), e);
+                AzureLib.LOGGER.error(
+                    ConfigIO.MARKER,
+                    "Invalid @StringPattern value for {} field - {}",
+                    this.getId(),
+                    e
+                );
             }
         }
     }
@@ -41,7 +48,14 @@ public class StringValue extends ConfigValue<String> {
             if (!this.pattern.matcher(in).matches()) {
                 String defaultValue = this.valueData.getDefaultValue();
                 if (!this.pattern.matcher(defaultValue).matches()) {
-                    throw new IllegalArgumentException(String.format("Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\", defaultValue, this.getId(), this.pattern.toString()));
+                    throw new IllegalArgumentException(
+                        String.format(
+                            "Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\",
+                            defaultValue,
+                            this.getId(),
+                            this.pattern.toString()
+                        )
+                    );
                 }
                 ConfigUtils.logCorrectedMessage(this.getId(), in, defaultValue);
                 return defaultValue;
@@ -81,7 +95,13 @@ public class StringValue extends ConfigValue<String> {
         }
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new StringValue(ValueData.of(name, (String) value, context, comments));
         }
     }

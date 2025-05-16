@@ -70,7 +70,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
 	 * Override this to change the way a model will render (such as translucent models, etc)
 	 */
-	default RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+	default RenderType getRenderType(T animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
 		return getGeoModel().getRenderType(animatable, texture);
 	}
 
@@ -126,7 +126,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Initial access point for rendering. It all begins here.<br>
 	 * All AzureLib renderers should immediately defer their respective default {@code render} calls to this, for consistent handling
 	 */
-	default void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+	default void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, RenderType renderType, VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
 		poseStack.pushPose();
 
 		Color renderColor = getRenderColor(animatable, partialTick, packedLight);
@@ -210,7 +210,7 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
 	 * {@link PoseStack} translations made here are kept until the end of the render process
 	 */
-	default void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	default void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 	}
 
 	/**

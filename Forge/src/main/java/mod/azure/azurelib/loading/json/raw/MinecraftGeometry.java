@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for generic geometry information, only used in deserialization at startup
  */
-public record MinecraftGeometry(Bone[] bones, @Nullable String cape, @Nullable ModelProperties modelProperties) {
+public record MinecraftGeometry(Bone[] bones, String cape, ModelProperties modelProperties) {
 	public static JsonDeserializer<MinecraftGeometry> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

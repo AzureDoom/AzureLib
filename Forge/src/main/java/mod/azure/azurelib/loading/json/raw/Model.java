@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for model information, only used in deserialization at startup
  */
-public record Model(@Nullable FormatVersion formatVersion, MinecraftGeometry[] minecraftGeometry) {
+public record Model(FormatVersion formatVersion, MinecraftGeometry[] minecraftGeometry) {
 	public static JsonDeserializer<Model> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

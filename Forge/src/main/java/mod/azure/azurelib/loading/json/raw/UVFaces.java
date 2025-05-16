@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for UV face information, only used in deserialization at startup
  */
-public record UVFaces(@Nullable FaceUV north, @Nullable FaceUV south, @Nullable FaceUV east, @Nullable FaceUV west, @Nullable FaceUV up, @Nullable FaceUV down) {
+public record UVFaces(FaceUV north, FaceUV south, FaceUV east, FaceUV west, FaceUV up, FaceUV down) {
 	public static JsonDeserializer<UVFaces> deserializer() {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

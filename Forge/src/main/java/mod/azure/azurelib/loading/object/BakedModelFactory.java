@@ -40,7 +40,7 @@ public interface BakedModelFactory {
 	 * @param properties The loaded properties for the model
 	 * @param parent The parent bone for this bone, or null if a top-level bone
 	 */
-	GeoBone constructBone(BoneStructure boneStructure, ModelProperties properties, @Nullable GeoBone parent);
+	GeoBone constructBone(BoneStructure boneStructure, ModelProperties properties, GeoBone parent);
 
 	/**
 	 * Construct a {@link GeoCube} from the relevant raw input data

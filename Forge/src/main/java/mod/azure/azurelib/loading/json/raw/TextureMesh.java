@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for texture mesh information, only used in deserialization at startup
  */
-public record TextureMesh(double[] localPivot, double[] position, double[] rotation, double[] scale, @Nullable String texture) {
+public record TextureMesh(double[] localPivot, double[] position, double[] rotation, double[] scale, String texture) {
 	public static JsonDeserializer<TextureMesh> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

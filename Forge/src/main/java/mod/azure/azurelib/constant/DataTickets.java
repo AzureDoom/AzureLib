@@ -53,7 +53,7 @@ public final class DataTickets {
 	public static final SerializableDataTicket<Boolean> CLOSED = AzureLibUtil.addDataTicket(SerializableDataTicket.ofBoolean(new ResourceLocation(AzureLib.MOD_ID, "closed")));
 	public static final SerializableDataTicket<Direction> DIRECTION = AzureLibUtil.addDataTicket(SerializableDataTicket.ofEnum(new ResourceLocation(AzureLib.MOD_ID, "direction"), Direction.class));
 
-	@Nullable
+	
 	public static SerializableDataTicket<?> byName(String id) {
 		return SERIALIZABLE_TICKETS.getOrDefault(id, null);
 	}

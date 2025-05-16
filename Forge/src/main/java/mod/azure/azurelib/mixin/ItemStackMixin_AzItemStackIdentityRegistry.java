@@ -1,6 +1,7 @@
 package mod.azure.azurelib.mixin;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;

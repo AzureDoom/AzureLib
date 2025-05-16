@@ -22,7 +22,7 @@ public final class ConfigUtils {
     public static final Pattern DECIMAL_PATTERN = Pattern.compile("-?[0-9]+(\\.[0-9]+)?(E[0-9]+)?");
     public static final Map<Class<?>, Class<?>> PRIMITIVE_MAPPINGS = new HashMap<>();
 
-    public static void logCorrectedMessage(String field, @Nullable Object prevValue, Object corrected) {
+    public static void logCorrectedMessage(String field, Object prevValue, Object corrected) {
         AzureLib.LOGGER.warn(ConfigIO.MARKER, "Correcting config value '{}' from '{}' to '{}'", field, Objects.toString(prevValue), corrected);
     }
 

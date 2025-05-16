@@ -5,15 +5,13 @@ import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzureLibNetwork;
-import mod.azure.azurelib.network.IPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
-public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
+public class S2C_SendConfigData extends AbstractPacket {
 
 	private final String config;
 
@@ -41,8 +39,7 @@ public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
 		});
 	}
 
-	@Override
-	public S2C_SendConfigData decode(FriendlyByteBuf buffer) {
+	public static S2C_SendConfigData receive(FriendlyByteBuf buffer) {
 		String config = buffer.readUtf();
 		int i = buffer.readInt();
 		ConfigHolder.getConfig(config).ifPresent(data -> {
@@ -61,12 +58,10 @@ public class S2C_SendConfigData implements IPacket<S2C_SendConfigData> {
 	}
 
 	@Override
-	public void handle(Supplier<NetworkEvent.Context> supplier) {
-		supplier.get().setPacketHandled(true);
-	}
+	public void handle() {}
 
 	@SuppressWarnings("unchecked")
-	private <V> void setValue(ConfigValue<V> value, FriendlyByteBuf buffer) {
+	private static <V> void setValue(ConfigValue<V> value, FriendlyByteBuf buffer) {
 		TypeAdapter adapter = value.getAdapter();
 		V v = (V) adapter.decodeFromBuffer(value, buffer);
 		value.set(v);

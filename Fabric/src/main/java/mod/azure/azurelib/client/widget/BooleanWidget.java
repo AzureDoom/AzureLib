@@ -1,6 +1,5 @@
 package mod.azure.azurelib.client.widget;
 
-import mod.azure.azurelib.config.value.BooleanValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -8,12 +7,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
+import mod.azure.azurelib.config.value.BooleanValue;
+
 public class BooleanWidget extends AbstractWidget {
 
-    public static final Component TRUE = new TranslatableComponent("text.azurelib.value.true").withStyle(ChatFormatting.GREEN);
-    public static final Component FALSE = new TranslatableComponent("text.azurelib.value.false").withStyle(ChatFormatting.RED);
-    private final BooleanValue value;
+    public static final Component TRUE = new TranslatableComponent("text.azurelib.value.true").withStyle(
+        ChatFormatting.GREEN
+    );
 
+    public static final Component FALSE = new TranslatableComponent("text.azurelib.value.false").withStyle(
+        ChatFormatting.RED
+    );
+
+    private final BooleanValue value;
 
     public BooleanWidget(int x, int y, int w, int h, BooleanValue value) {
         super(x, y, w, h, TextComponent.EMPTY);
@@ -27,8 +33,7 @@ public class BooleanWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
-    }
+    public void updateNarration(NarrationElementOutput p_169152_) {}
 
     private void readState() {
         boolean value = this.value.get();

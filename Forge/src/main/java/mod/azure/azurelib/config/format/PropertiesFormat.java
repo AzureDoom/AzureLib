@@ -16,7 +16,7 @@ public final class PropertiesFormat implements IConfigFormat {
 
     private final Settings settings;
     private final StringBuilder buffer;
-    @Nullable
+    
     private final String prefix;
     private final Map<String, String> parsed;
 
@@ -28,7 +28,7 @@ public final class PropertiesFormat implements IConfigFormat {
         this(prefix, bufferRef, new HashMap<>(), settings);
     }
 
-    private PropertiesFormat(@Nullable String prefix, StringBuilder bufferRef, Map<String, String> parsed, Settings settings) {
+    private PropertiesFormat(String prefix, StringBuilder bufferRef, Map<String, String> parsed, Settings settings) {
         this.prefix = prefix;
         this.buffer = bufferRef;
         this.parsed = parsed;

@@ -1,5 +1,8 @@
 package mod.azure.azurelib.mixin;
 
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.world.entity.EquipmentSlot;

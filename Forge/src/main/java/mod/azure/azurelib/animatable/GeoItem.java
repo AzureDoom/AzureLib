@@ -99,7 +99,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 	/**
 	 * Replaces the default AnimatableInstanceCache for GeoItems if {@link GeoItem#isPerspectiveAware()} is true, for perspective-dependent handling
 	 */
-	@Nullable
+	
 	@Override
 	default AnimatableInstanceCache animatableCacheOverride() {
 		if (isPerspectiveAware())
@@ -137,7 +137,7 @@ public interface GeoItem extends SingletonGeoAnimatable {
 
 					@Override
 					public TransformType getCurrentContext() {
-						@Nullable
+						
 						TransformType context = getData(DataTickets.ITEM_RENDER_PERSPECTIVE);
 
 						return context == null ? TransformType.NONE : context;

@@ -1,9 +1,10 @@
 package mod.azure.azurelib.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,54 +21,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.annotation.Nullable;
-
 /**
  * Render hook for injecting AzureLib's armor rendering functionalities
  */
 @Mixin(value = HumanoidArmorLayer.class, priority = 700)
 public class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
 
-    @ModifyExpressionValue(
-        method = "renderArmorPiece",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"
-        )
-    )
-    private ItemStack azurelib$captureItemBySlot(
-        ItemStack original,
-        @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
-    ) {
-        itemBySlotRef.set(original);
-        return original;
-    }
-
-    @Inject(
-        method = "renderArmorPiece", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;renderModel(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IZLnet/minecraft/client/model/HumanoidModel;FFFLnet/minecraft/resources/ResourceLocation;)V"
-        ), cancellable = true
-    )
-    public void azurelib$renderAzurelibModel(
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        T entity,
-        EquipmentSlot equipmentSlot,
-        int packedLight,
-        A baseModel,
-        CallbackInfo ci,
-        @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
-    ) {
-        var stack = itemBySlotRef.get();
-
-        var renderer = AzArmorRendererRegistry.getOrNull(stack.getItem());
+    @Inject(method = "renderArmorPiece", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;usesInnerModel(Lnet/minecraft/world/entity/EquipmentSlot;)Z"), cancellable = true)
+    public void azurelib$renderAzModel(PoseStack poseStack, MultiBufferSource bufferSource, T entity, EquipmentSlot equipmentSlot, int packedLight, A baseModel, CallbackInfo ci) {
+        final ItemStack stack = entity.getItemBySlot(equipmentSlot);
+        AzArmorRenderer renderer = AzArmorRendererRegistry.getOrNull(stack.getItem());
 
         if (renderer != null) {
-            var rendererPipeline = renderer.rendererPipeline();
-            var armorModel = rendererPipeline.armorModel();
+            AzArmorRendererPipeline rendererPipeline = renderer.rendererPipeline();
+            AzArmorModel<?> armorModel = rendererPipeline.armorModel();
             @SuppressWarnings("unchecked")
-            var typedHumanoidModel = (HumanoidModel<T>) armorModel;
+            HumanoidModel<T> typedHumanoidModel = (HumanoidModel<T>) armorModel;
 
             renderer.prepForRender(entity, stack, equipmentSlot, baseModel);
             baseModel.copyPropertiesTo(typedHumanoidModel);
@@ -78,7 +47,7 @@ public class MixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidM
     }
 
     @Unique
-    private void azurelib$testVisibility(A model, @Nullable Entity entity, EquipmentSlot equipmentSlot) {
+    private void azurelib$testVisibility(A model, Entity entity, EquipmentSlot equipmentSlot) {
         if (entity instanceof Player && model instanceof PlayerModel<?> playerModel) {
             switch (equipmentSlot) {
                 case HEAD -> {

@@ -22,6 +22,8 @@ import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.loading.object.BakedModelFactory;
 import mod.azure.azurelib.loading.object.GeometryTree;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
+import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;

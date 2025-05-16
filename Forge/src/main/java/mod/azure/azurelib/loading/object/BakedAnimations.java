@@ -23,7 +23,7 @@ public record BakedAnimations(Map<String, Animation> animations, Map<String, Res
 	/**
 	 * Gets an {@link Animation} by its name, if present
 	 */
-	@Nullable
+	
 	public Animation getAnimation(String name){
 		Animation result = animations.get(name);
 		if(result == null && includes != null) {
@@ -40,7 +40,7 @@ public record BakedAnimations(Map<String, Animation> animations, Map<String, Res
 		return result;
 	}
 	
-	@Nullable
+	
 	private Animation getAnimationWithoutIncludes(String name) {
 		return animations.get(name);
 	}

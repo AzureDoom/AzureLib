@@ -19,7 +19,7 @@ public abstract class ConfigValue<T> implements Supplier<T>{
     protected final ValueData<T> valueData;
     private T value;
     private boolean synchronizeToClient;
-    @Nullable
+    
     private SetValueCallback<T> setValueCallback;
 
     public ConfigValue(ValueData<T> valueData) {
@@ -55,7 +55,7 @@ public abstract class ConfigValue<T> implements Supplier<T>{
         return this.valueData.getId();
     }
 
-    public final void setParent(@Nullable ConfigValue<?> parent) {
+    public final void setParent(ConfigValue<?> parent) {
         this.valueData.setParent(parent);
     }
 

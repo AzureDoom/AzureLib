@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 /**
  * Container class for locator value information, only used in deserialization at startup
  */
-public record LocatorValue(@Nullable LocatorClass locatorClass, double[] values) {
+public record LocatorValue(LocatorClass locatorClass, double[] values) {
 	public static JsonDeserializer<LocatorValue> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			if (json.isJsonArray()) {

@@ -27,7 +27,7 @@ public class BlockEntityAnimTriggerPacket<D> {
 	private final String controllerName;
 	private final String animName;
 
-	public BlockEntityAnimTriggerPacket(BlockPos pos, @Nullable String controllerName, String animName) {
+	public BlockEntityAnimTriggerPacket(BlockPos pos, String controllerName, String animName) {
 		this.pos = pos;
 		this.controllerName = controllerName == null ? "" : controllerName;
 		this.animName = animName;

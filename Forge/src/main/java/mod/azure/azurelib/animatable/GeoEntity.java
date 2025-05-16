@@ -33,7 +33,7 @@ public interface GeoEntity extends GeoAnimatable {
 	 * @param dataTicket The data ticket for the data to retrieve
 	 * @return The synced data, or null if no data of that type has been synced
 	 */
-	@Nullable
+	
 	default <D> D getAnimData(SerializableDataTicket<D> dataTicket) {
 		return getAnimatableInstanceCache().getManagerForId(((Entity) this).getId()).getData(dataTicket);
 	}
@@ -62,7 +62,7 @@ public interface GeoEntity extends GeoAnimatable {
 	 * @param controllerName The name of the controller name the animation belongs to, or null to do an inefficient lazy search
 	 * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
 	 */
-	default void triggerAnim(@Nullable String controllerName, String animName) {
+	default void triggerAnim(String controllerName, String animName) {
 		Entity entity = (Entity) this;
 
 		if (entity.level.isClientSide()) {

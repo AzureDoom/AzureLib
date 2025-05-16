@@ -3,14 +3,10 @@ package mod.azure.azurelib.network;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.network.packet.*;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
@@ -46,6 +42,14 @@ public final class AzureLibNetwork {
 		PACKET_CHANNEL.registerMessage(id++, AzBlockEntityDispatchCommandPacket.class, AzBlockEntityDispatchCommandPacket::encode, AzBlockEntityDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
 		PACKET_CHANNEL.registerMessage(id++, AzItemStackDispatchCommandPacket.class, AzItemStackDispatchCommandPacket::encode, AzItemStackDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
 		PACKET_CHANNEL.registerMessage(id++, AzEntityDispatchCommandPacket.class, AzEntityDispatchCommandPacket::encode, AzEntityDispatchCommandPacket::receive, AzureLibNetwork::handlePacket);
+
+		PACKET_CHANNEL.registerMessage(
+			id++,
+			S2C_SendConfigData.class,
+			S2C_SendConfigData::encode,
+			S2C_SendConfigData::receive,
+			AzureLibNetwork::handlePacket
+		);
 	}
 
 	/**
@@ -64,7 +68,7 @@ public final class AzureLibNetwork {
 	 * 
 	 * @param className
 	 */
-	@Nullable
+	
 	public static GeoAnimatable getSyncedAnimatable(String className) {
 		GeoAnimatable animatable = SYNCED_ANIMATABLES.get(className);
 
@@ -81,37 +85,9 @@ public final class AzureLibNetwork {
 		PACKET_CHANNEL.send(distributor, packet);
 	}
 
-	public static void sendClientPacket(ServerPlayer target, IPacket<?> packet) {
-		PACKET_CHANNEL.sendTo(packet, target.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-	}
-
 	private static void handlePacket(AbstractPacket packet, Supplier<NetworkEvent.Context> context) {
 		NetworkEvent.Context handler = context.get();
 		handler.enqueueWork(packet::handle);
 		handler.setPacketHandled(true);
-	}
-
-	public static final class PacketRegistry {
-
-		private static int packetIndex;
-
-		public static void register() {
-			registerNetworkPacket(S2C_SendConfigData.class);
-		}
-
-		private static <P extends IPacket<P>> void registerNetworkPacket(Class<P> packetType) {
-			P packet;
-			try {
-				packet = packetType.newInstance();
-			} catch (InstantiationException | IllegalAccessException e) {
-				throw new ReportedException(
-					CrashReport.forThrowable(
-						e,
-						"Couldn't instantiate packet for registration. Make sure you have provided public constructor with no parameters."
-					)
-				);
-			}
-			PACKET_CHANNEL.registerMessage(packetIndex++, packetType, IPacket::encode, packet::decode, IPacket::handle);
-		}
 	}
 }

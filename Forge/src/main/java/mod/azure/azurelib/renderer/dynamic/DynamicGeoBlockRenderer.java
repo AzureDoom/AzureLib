@@ -53,7 +53,7 @@ public abstract class DynamicGeoBlockRenderer<T extends BlockEntity & GeoAnimata
      *
      * @return The specified ResourceLocation, or null if no override
      */
-    @Nullable
+    
     protected ResourceLocation getTextureOverrideForBone(GeoBone bone, T animatable, float partialTick) {
         return null;
     }
@@ -66,7 +66,7 @@ public abstract class DynamicGeoBlockRenderer<T extends BlockEntity & GeoAnimata
      *
      * @return The specified RenderType, or null if no override
      */
-    @Nullable
+    
     protected RenderType getRenderTypeOverrideForBone(
             GeoBone bone,
             T animatable,

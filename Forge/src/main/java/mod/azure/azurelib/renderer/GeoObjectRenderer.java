@@ -125,7 +125,7 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 	 * @param buffer       The VertexConsumer to use for rendering, or null to use the default for the RenderType
 	 * @param packedLight  The light level at the given render position for rendering
 	 */
-	public void render(PoseStack poseStack, T animatable, @Nullable MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, int packedLight) {
+	public void render(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, RenderType renderType, VertexConsumer buffer, int packedLight) {
 		this.animatable = animatable;
 		Minecraft mc = Minecraft.getInstance();
 

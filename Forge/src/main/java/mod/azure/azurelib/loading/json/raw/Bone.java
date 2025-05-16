@@ -20,12 +20,12 @@ import java.util.Map;
 /**
  * Container class for cube information, only used in deserialization at startup
  */
-public record Bone(double[] bindPoseRotation, Cube[] cubes, @Nullable Boolean debug,
-				   @Nullable Double inflate, @Nullable Map<String, LocatorValue> locators,
-				   @Nullable Boolean mirror, @Nullable String name, @Nullable Boolean neverRender,
-				   @Nullable String parent, double[] pivot, @Nullable PolyMesh polyMesh,
-				   @Nullable Long renderGroupId, @Nullable Boolean reset, double[] rotation,
-				   @Nullable TextureMesh[] textureMeshes) {
+public record Bone(double[] bindPoseRotation, Cube[] cubes, Boolean debug,
+				   Double inflate, Map<String, LocatorValue> locators,
+				   Boolean mirror, String name, Boolean neverRender,
+				   String parent, double[] pivot, PolyMesh polyMesh,
+				   Long renderGroupId, Boolean reset, double[] rotation,
+				   TextureMesh[] textureMeshes) {
 	public static JsonDeserializer<Bone> deserializer() throws JsonParseException {
 		return (json, type, context) -> {
 			JsonObject obj = json.getAsJsonObject();

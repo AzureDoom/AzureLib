@@ -5,6 +5,6 @@ package mod.azure.azurelib.core.object;
  */
 @Deprecated()
 public enum PlayState {
-	CONTINUE,
-	STOP
+    CONTINUE,
+    STOP
 }

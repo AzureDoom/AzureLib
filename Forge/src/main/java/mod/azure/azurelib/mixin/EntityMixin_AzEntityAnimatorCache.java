@@ -1,5 +1,7 @@
 package mod.azure.azurelib.mixin;
 
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

@@ -177,7 +177,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the head model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getHeadBone() {
 		return this.model.getBone("armorHead").orElse(null);
 	}
@@ -188,7 +188,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the body model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getBodyBone() {
 		return this.model.getBone("armorBody").orElse(null);
 	}
@@ -199,7 +199,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the right arm model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getRightArmBone() {
 		return this.model.getBone("armorRightArm").orElse(null);
 	}
@@ -210,7 +210,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the left arm model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getLeftArmBone() {
 		return this.model.getBone("armorLeftArm").orElse(null);
 	}
@@ -221,7 +221,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the right leg model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getRightLegBone() {
 		return this.model.getBone("armorRightLeg").orElse(null);
 	}
@@ -232,7 +232,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the left leg model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getLeftLegBone() {
 		return this.model.getBone("armorLeftLeg").orElse(null);
 	}
@@ -243,7 +243,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the right boot model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getRightBootBone() {
 		return this.model.getBone("armorRightBoot").orElse(null);
 	}
@@ -254,7 +254,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * 
 	 * @return The bone for the left boot model piece, or null if not using it
 	 */
-	@Nullable
+	
 	public GeoBone getLeftBootBone() {
 		return this.model.getBone("armorLeftBoot").orElse(null);
 	}
@@ -264,7 +264,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * {@link PoseStack} translations made here are kept until the end of the render process
 	 */
 	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
 		this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
 
 		applyBaseModel(this.baseModel);
@@ -367,7 +367,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	 * @param slot      The slot being rendered
 	 * @param baseModel The default (vanilla) model that would have been rendered if this model hadn't replaced it
 	 */
-	public void prepForRender(@Nullable Entity entity, ItemStack stack, @Nullable EquipmentSlot slot, @Nullable HumanoidModel<?> baseModel) {
+	public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel) {
 		if (entity == null || slot == null || baseModel == null)
 			return;
 
@@ -543,7 +543,7 @@ public class GeoArmorRenderer<T extends Item & GeoItem> extends HumanoidModel im
 	/**
 	 * Sets a bone as visible or hidden, with nullability
 	 */
-	protected void setBoneVisible(@Nullable GeoBone bone, boolean visible) {
+	protected void setBoneVisible(GeoBone bone, boolean visible) {
 		if (bone == null)
 			return;
 

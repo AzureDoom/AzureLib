@@ -1,10 +1,6 @@
 package mod.azure.azurelib.client.widget;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.client.WidgetAdder;
-import mod.azure.azurelib.config.validate.NotificationSeverity;
-import mod.azure.azurelib.config.validate.ValidationResult;
-import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -21,27 +17,47 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mod.azure.azurelib.client.WidgetAdder;
+import mod.azure.azurelib.config.validate.NotificationSeverity;
+import mod.azure.azurelib.config.validate.ValidationResult;
+import mod.azure.azurelib.config.value.ConfigValue;
+
 public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
 
     public static final Component EDIT = new TranslatableComponent("text.azurelib.value.edit");
+
     public static final Component BACK = new TranslatableComponent("text.azurelib.value.back");
+
     public static final Component REVERT_DEFAULTS = new TranslatableComponent("text.azurelib.value.revert.default");
-    public static final Component REVERT_DEFAULTS_DIALOG_TEXT = new TranslatableComponent("text.azurelib.value.revert.default.dialog");
+
+    public static final Component REVERT_DEFAULTS_DIALOG_TEXT = new TranslatableComponent(
+        "text.azurelib.value.revert.default.dialog"
+    );
+
     public static final Component REVERT_CHANGES = new TranslatableComponent("text.azurelib.value.revert.changes");
-    public static final Component REVERT_CHANGES_DIALOG_TEXT = new TranslatableComponent("text.azurelib.value.revert.changes.dialog");
+
+    public static final Component REVERT_CHANGES_DIALOG_TEXT = new TranslatableComponent(
+        "text.azurelib.value.revert.changes.dialog"
+    );
 
     private final String configId;
+
     private final List<Component> description;
 
     private ValidationResult result = ValidationResult.ok();
+
     private IDescriptionRenderer renderer;
+
     private boolean lastHoverState;
+
     private long hoverTimeStart;
 
     public ConfigEntryWidget(int x, int y, int w, int h, ConfigValue<?> value, String configId) {
         super(x, y, w, h, new TranslatableComponent("config." + configId + ".option." + value.getId()));
         this.configId = configId;
-        this.description = Arrays.stream(value.getDescription()).map(text -> new TextComponent(text).withStyle(ChatFormatting.GRAY)).collect(Collectors.toList());
+        this.description = Arrays.stream(value.getDescription())
+            .map(text -> new TextComponent(text).withStyle(ChatFormatting.GRAY))
+            .collect(Collectors.toList());
     }
 
     public void setDescriptionRenderer(IDescriptionRenderer renderer) {
@@ -54,8 +70,7 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput p_169152_) {
-    }
+    public void updateNarration(NarrationElementOutput p_169152_) {}
 
     @Override
     public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
@@ -72,7 +87,9 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
                 NotificationSeverity severity = this.result.severity();
                 MutableComponent textComponent = this.result.text().withStyle(severity.getExtraFormatting());
                 List<Component> desc = isError ? Collections.singletonList(textComponent) : this.description;
-                List<FormattedCharSequence> split = desc.stream().flatMap(text -> font.split(text, this.width / 2).stream()).collect(Collectors.toList());
+                List<FormattedCharSequence> split = desc.stream()
+                    .flatMap(text -> font.split(text, this.width / 2).stream())
+                    .collect(Collectors.toList());
                 renderer.drawDescription(stack, this, severity, split);
             }
         }
@@ -92,6 +109,12 @@ public class ConfigEntryWidget extends ContainerWidget implements WidgetAdder {
 
     @FunctionalInterface
     public interface IDescriptionRenderer {
-        void drawDescription(PoseStack stack, AbstractWidget widget, NotificationSeverity severity, List<FormattedCharSequence> text);
+
+        void drawDescription(
+            PoseStack stack,
+            AbstractWidget widget,
+            NotificationSeverity severity,
+            List<FormattedCharSequence> text
+        );
     }
 }

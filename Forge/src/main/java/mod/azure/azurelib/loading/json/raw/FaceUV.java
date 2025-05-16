@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  * Container class for face UV information, only used in deserialization at startup
  */
 public record FaceUV(
-		@Nullable String materialInstance,
+		String materialInstance,
 		double[] uv,
 		double[] uvSize,
 		Rotation uvRotation

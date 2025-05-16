@@ -43,7 +43,6 @@ public final class AzureLibMod {
 	}
 
 	private void init(FMLCommonSetupEvent event) {
-		AzureLibNetwork.PacketRegistry.register();
 		ConfigIO.FILE_WATCH_MANAGER.startService();
 	}
 
