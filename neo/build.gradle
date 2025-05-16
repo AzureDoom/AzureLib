@@ -48,7 +48,12 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 dependencies {
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    jarJar(implementation("io.github.llamalad7:mixinextras-forge:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        version {
+            strictly '[0.1, 1.0)'
+            prefer '0.4.1'
+        }
+    }
     // Testing a crash (Confirmed no crash with using MixinExtras!)
     //modImplementation("maven.modrinth:easy-anvils:v8.0.2-1.20.1-Forge")
     //modImplementation("maven.modrinth:puzzles-lib:v8.1.32-1.20.1-Forge")
