@@ -1,15 +1,16 @@
 package mod.azure.azurelib.client;
 
-import mod.azure.azurelib.client.screen.ConfigGroupScreen;
-import mod.azure.azurelib.client.screen.ConfigScreen;
-import mod.azure.azurelib.config.Config;
-import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.config.value.ConfigValue;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+
+import mod.azure.azurelib.client.screen.ConfigGroupScreen;
+import mod.azure.azurelib.client.screen.ConfigScreen;
+import mod.azure.azurelib.config.Config;
+import mod.azure.azurelib.config.ConfigHolder;
+import mod.azure.azurelib.config.value.ConfigValue;
 
 public final class AzureLibClient {
 
@@ -43,7 +44,8 @@ public final class AzureLibClient {
     }
 
     /**
-     * Obtain group of multiple configs based on group ID. This is useful when you have multiple config files for your mod.
+     * Obtain group of multiple configs based on group ID. This is useful when you have multiple config files for your
+     * mod.
      *
      * @param group    Group ID, usually mod ID
      * @param previous Previously open screen

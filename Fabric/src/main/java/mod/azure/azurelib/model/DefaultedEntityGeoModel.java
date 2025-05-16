@@ -1,91 +1,95 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.model;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
 import mod.azure.azurelib.core.animation.AnimationState;
 import mod.azure.azurelib.model.data.EntityModelData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 /**
- * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.entity.Entity Entities}.
- * Using this class pre-sorts provided asset paths into the "entity" subdirectory
- * Additionally it can automatically handle head-turning if the entity has a "head" bone
+ * {@link DefaultedGeoModel} specific to {@link net.minecraft.world.entity.Entity Entities}. Using this class pre-sorts
+ * provided asset paths into the "entity" subdirectory Additionally it can automatically handle head-turning if the
+ * entity has a "head" bone
  */
 @Deprecated()
 public class DefaultedEntityGeoModel<T extends GeoAnimatable> extends DefaultedGeoModel<T> {
-	private final boolean turnsHead;
 
-	/**
-	 * Create a new instance of this model class.<br>
-	 * The asset path should be the truncated relative path from the base folder.<br>
-	 * E.G.
-	 * <pre>{@code
-	 * 	new ResourceLocation("myMod", "animals/red_fish")
-	 * }</pre>
-	 */
-	public DefaultedEntityGeoModel(ResourceLocation assetSubpath) {
-		this(assetSubpath, false);
-	}
+    private final boolean turnsHead;
 
-	public DefaultedEntityGeoModel(ResourceLocation assetSubpath, boolean turnsHead) {
-		super(assetSubpath);
+    /**
+     * Create a new instance of this model class.<br>
+     * The asset path should be the truncated relative path from the base folder.<br>
+     * E.G.
+     *
+     * <pre>{@code
+     * new ResourceLocation("myMod", "animals/red_fish")
+     * }</pre>
+     */
+    public DefaultedEntityGeoModel(ResourceLocation assetSubpath) {
+        this(assetSubpath, false);
+    }
 
-		this.turnsHead = turnsHead;
-	}
+    public DefaultedEntityGeoModel(ResourceLocation assetSubpath, boolean turnsHead) {
+        super(assetSubpath);
 
-	@Override
-	protected String subtype() {
-		return "entity";
-	}
+        this.turnsHead = turnsHead;
+    }
 
-	@Override
-	public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-		if (!this.turnsHead)
-			return;
+    @Override
+    protected String subtype() {
+        return "entity";
+    }
 
-		CoreGeoBone head = getAnimationProcessor().getBone("head");
+    @Override
+    public void setCustomAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
+        if (!this.turnsHead)
+            return;
 
-		if (head != null) {
-			EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+        CoreGeoBone head = getAnimationProcessor().getBone("head");
 
-			head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
-			head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
-		}
-	}
+        if (head != null) {
+            EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
-	/**
-	 * Changes the constructor-defined model path for this model to an alternate.<br>
-	 * This is useful if your animatable shares a model path with another animatable that differs in path to the texture and animations for this model
-	 */
-	@Override
-	public DefaultedEntityGeoModel<T> withAltModel(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltModel(altPath);
-	}
+            head.setRotX(entityData.headPitch() * Mth.DEG_TO_RAD);
+            head.setRotY(entityData.netHeadYaw() * Mth.DEG_TO_RAD);
+        }
+    }
 
-	/**
-	 * Changes the constructor-defined animations path for this model to an alternate.<br>
-	 * This is useful if your animatable shares an animations path with another animatable that differs in path to the model and texture for this model
-	 */
-	@Override
-	public DefaultedEntityGeoModel<T> withAltAnimations(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltAnimations(altPath);
-	}
+    /**
+     * Changes the constructor-defined model path for this model to an alternate.<br>
+     * This is useful if your animatable shares a model path with another animatable that differs in path to the texture
+     * and animations for this model
+     */
+    @Override
+    public DefaultedEntityGeoModel<T> withAltModel(ResourceLocation altPath) {
+        return (DefaultedEntityGeoModel<T>) super.withAltModel(altPath);
+    }
 
-	/**
-	 * Changes the constructor-defined texture path for this model to an alternate.<br>
-	 * This is useful if your animatable shares a texture path with another animatable that differs in path to the model and animations for this model
-	 */
-	@Override
-	public DefaultedEntityGeoModel<T> withAltTexture(ResourceLocation altPath) {
-		return (DefaultedEntityGeoModel<T>)super.withAltTexture(altPath);
-	}
+    /**
+     * Changes the constructor-defined animations path for this model to an alternate.<br>
+     * This is useful if your animatable shares an animations path with another animatable that differs in path to the
+     * model and texture for this model
+     */
+    @Override
+    public DefaultedEntityGeoModel<T> withAltAnimations(ResourceLocation altPath) {
+        return (DefaultedEntityGeoModel<T>) super.withAltAnimations(altPath);
+    }
+
+    /**
+     * Changes the constructor-defined texture path for this model to an alternate.<br>
+     * This is useful if your animatable shares a texture path with another animatable that differs in path to the model
+     * and animations for this model
+     */
+    @Override
+    public DefaultedEntityGeoModel<T> withAltTexture(ResourceLocation altPath) {
+        return (DefaultedEntityGeoModel<T>) super.withAltTexture(altPath);
+    }
 }

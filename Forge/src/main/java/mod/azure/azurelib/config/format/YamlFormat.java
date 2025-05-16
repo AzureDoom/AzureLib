@@ -1,26 +1,27 @@
 package mod.azure.azurelib.config.format;
 
+import java.io.*;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.exception.ConfigReadException;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.IDescriptionProvider;
 
-import java.io.*;
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
 public class YamlFormat implements IConfigFormat {
 
     // writing
     private final StringBuilder buffer;
+
     private final int currentNesting;
 
     // reading
     private final Map<String, Object> processedData;
-    private int readerIndex;
 
+    private int readerIndex;
 
     public YamlFormat() {
         this.buffer = new StringBuilder();

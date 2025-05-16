@@ -9,23 +9,24 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
  */
 @Deprecated()
 public class CustomInstructionKeyframeData extends KeyFrameData {
-	private final String instructions;
 
-	public CustomInstructionKeyframeData(double startTick, String instructions) {
-		super(startTick);
+    private final String instructions;
 
-		this.instructions = instructions;
-	}
+    public CustomInstructionKeyframeData(double startTick, String instructions) {
+        super(startTick);
 
-	/**
-	 * Gets the instructions string given by the {@link Keyframe} instruction from the {@code animation.json}
-	 */
-	public String getInstructions() {
-		return this.instructions;
-	}
+        this.instructions = instructions;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getStartTick(), instructions);
-	}
+    /**
+     * Gets the instructions string given by the {@link Keyframe} instruction from the {@code animation.json}
+     */
+    public String getInstructions() {
+        return this.instructions;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStartTick(), instructions);
+    }
 }

@@ -2,47 +2,50 @@ package mod.azure.azurelib.core.molang.expressions;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.core.molang.LazyVariable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import mod.azure.azurelib.core.molang.LazyVariable;
+
 /**
  * An extension of the {@link MolangValue} class, allowing for compound expressions.
  */
 public class MolangCompoundValue extends MolangValue {
-	public final List<MolangValue> values = new ObjectArrayList<>();
-	public final Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
 
-	public MolangCompoundValue(MolangValue baseValue) {
-		super(baseValue);
+    public final List<MolangValue> values = new ObjectArrayList<>();
 
-		this.values.add(baseValue);
-	}
+    public final Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
 
-	@Override
-	public double get() {
-		double value = 0;
+    public MolangCompoundValue(MolangValue baseValue) {
+        super(baseValue);
 
-		for (MolangValue molangValue : this.values) {
-			value = molangValue.get();
-		}
+        this.values.add(baseValue);
+    }
 
-		return value;
-	}
+    @Override
+    public double get() {
+        double value = 0;
 
-	@Override
-	public String toString() {
-		StringJoiner builder = new StringJoiner("; ");
+        for (MolangValue molangValue : this.values) {
+            value = molangValue.get();
+        }
 
-		for (MolangValue molangValue : this.values) {
-			builder.add(molangValue.toString());
+        return value;
+    }
 
-			if (molangValue.isReturnValue())
-				break;
-		}
+    @Override
+    public String toString() {
+        StringJoiner builder = new StringJoiner("; ");
 
-		return builder.toString();
-	}
+        for (MolangValue molangValue : this.values) {
+            builder.add(molangValue.toString());
+
+            if (molangValue.isReturnValue())
+                break;
+        }
+
+        return builder.toString();
+    }
 }

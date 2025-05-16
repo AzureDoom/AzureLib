@@ -9,23 +9,24 @@ import mod.azure.azurelib.core.keyframe.Keyframe;
  */
 @Deprecated()
 public class SoundKeyframeData extends KeyFrameData {
-	private final String sound;
 
-	public SoundKeyframeData(Double startTick, String sound) {
-		super(startTick);
+    private final String sound;
 
-		this.sound = sound;
-	}
+    public SoundKeyframeData(Double startTick, String sound) {
+        super(startTick);
 
-	/**
-	 * Gets the sound id given by the {@link Keyframe} instruction from the {@code animation.json}
-	 */
-	public String getSound() {
-		return this.sound;
-	}
+        this.sound = sound;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getStartTick(), this.sound);
-	}
+    /**
+     * Gets the sound id given by the {@link Keyframe} instruction from the {@code animation.json}
+     */
+    public String getSound() {
+        return this.sound;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStartTick(), this.sound);
+    }
 }

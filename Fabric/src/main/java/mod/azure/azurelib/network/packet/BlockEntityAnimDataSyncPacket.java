@@ -1,18 +1,10 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.animatable.GeoBlockEntity;
-import mod.azure.azurelib.constant.DataTickets;
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
-import mod.azure.azurelib.network.SerializableDataTicket;
-import mod.azure.azurelib.util.ClientUtils;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
@@ -22,50 +14,64 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import mod.azure.azurelib.animatable.GeoBlockEntity;
+import mod.azure.azurelib.constant.DataTickets;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzureLibNetwork;
+import mod.azure.azurelib.network.SerializableDataTicket;
+import mod.azure.azurelib.util.ClientUtils;
+
 /**
- * Packet for syncing user-definable animation data for {@link BlockEntity
- * BlockEntities}
+ * Packet for syncing user-definable animation data for {@link BlockEntity BlockEntities}
  */
 @Deprecated()
 public class BlockEntityAnimDataSyncPacket<D> extends AbstractPacket {
-	private final BlockPos BLOCK_POS;
-	private final SerializableDataTicket<D> DATA_TICKET;
-	private final D DATA;
 
-	public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
-		this.BLOCK_POS = pos;
-		this.DATA_TICKET = dataTicket;
-		this.DATA = data;
-	}
+    private final BlockPos BLOCK_POS;
 
-	@Override
-	public FriendlyByteBuf encode() {
-		FriendlyByteBuf buf = PacketByteBufs.create();
+    private final SerializableDataTicket<D> DATA_TICKET;
 
-		buf.writeBlockPos(this.BLOCK_POS);
-		buf.writeUtf(this.DATA_TICKET.id());
-		this.DATA_TICKET.encode(this.DATA, buf);
+    private final D DATA;
 
-		return buf;
-	}
+    public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
+        this.BLOCK_POS = pos;
+        this.DATA_TICKET = dataTicket;
+        this.DATA = data;
+    }
 
-	@Override
-	public ResourceLocation getPacketID() {
-		return AzureLibNetwork.BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID;
-	}
+    @Override
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
 
-	public static <D> void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-		final BlockPos BLOCK_POS = buf.readBlockPos();
-		final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
-		final D DATA = DATA_TICKET.decode(buf);
+        buf.writeBlockPos(this.BLOCK_POS);
+        buf.writeUtf(this.DATA_TICKET.id());
+        this.DATA_TICKET.encode(this.DATA, buf);
 
-		client.execute(() -> runOnThread(BLOCK_POS, DATA_TICKET, DATA));
-	}
+        return buf;
+    }
 
-	private static <D> void runOnThread(BlockPos blockPos, SerializableDataTicket<D> dataTicket, D data) {
-		BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
+    @Override
+    public ResourceLocation getPacketID() {
+        return AzureLibNetwork.BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID;
+    }
 
-		if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
-			geoBlockEntity.setAnimData(dataTicket, data);
-	}
+    public static <D> void receive(
+        Minecraft client,
+        ClientPacketListener handler,
+        FriendlyByteBuf buf,
+        PacketSender responseSender
+    ) {
+        final BlockPos BLOCK_POS = buf.readBlockPos();
+        final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
+        final D DATA = DATA_TICKET.decode(buf);
+
+        client.execute(() -> runOnThread(BLOCK_POS, DATA_TICKET, DATA));
+    }
+
+    private static <D> void runOnThread(BlockPos blockPos, SerializableDataTicket<D> dataTicket, D data) {
+        BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
+
+        if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
+            geoBlockEntity.setAnimData(dataTicket, data);
+    }
 }

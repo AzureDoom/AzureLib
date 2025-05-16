@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
@@ -10,50 +8,54 @@ package mod.azure.azurelib.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-
-import java.util.function.Supplier;
 
 /**
  * Packet for syncing user-definable animation data for {@link net.minecraft.world.entity.Entity Entities}
  */
 @Deprecated()
 public class EntityAnimDataSyncPacket<D> {
-	private final int entityId;
-	private final SerializableDataTicket<D> dataTicket;
-	private final D data;
 
-	public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
-		this.entityId = entityId;
-		this.dataTicket = dataTicket;
-		this.data = data;
-	}
+    private final int entityId;
 
-	public void encode(FriendlyByteBuf buffer) {
-		buffer.writeVarInt(this.entityId);
-		buffer.writeUtf(this.dataTicket.id());
-		this.dataTicket.encode(this.data, buffer);
-	}
+    private final SerializableDataTicket<D> dataTicket;
 
-	public static <D> EntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
-		int entityId = buffer.readVarInt();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+    private final D data;
 
-		return new EntityAnimDataSyncPacket<>(entityId, dataTicket, dataTicket.decode(buffer));
-	}
+    public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
+        this.entityId = entityId;
+        this.dataTicket = dataTicket;
+        this.data = data;
+    }
 
-	public void receivePacket(Supplier<NetworkEvent.Context> context) {
-		NetworkEvent.Context handler = context.get();
+    public void encode(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.entityId);
+        buffer.writeUtf(this.dataTicket.id());
+        this.dataTicket.encode(this.data, buffer);
+    }
 
-		handler.enqueueWork(() -> {
-			Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
+    public static <D> EntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+        int entityId = buffer.readVarInt();
+        SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 
-			if (entity instanceof GeoEntity geoEntity)
-				geoEntity.setAnimData(this.dataTicket, this.data);
-		});
-		handler.setPacketHandled(true);
-	}
+        return new EntityAnimDataSyncPacket<>(entityId, dataTicket, dataTicket.decode(buffer));
+    }
+
+    public void receivePacket(Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context handler = context.get();
+
+        handler.enqueueWork(() -> {
+            Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
+
+            if (entity instanceof GeoEntity geoEntity)
+                geoEntity.setAnimData(this.dataTicket, this.data);
+        });
+        handler.setPacketHandled(true);
+    }
 }

@@ -1,31 +1,45 @@
 package mod.azure.azurelib;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import mod.azure.azurelib.network.AzureLibNetwork;
+
 import mod.azure.azurelib.cache.AzureLibCache;
+import mod.azure.azurelib.network.AzureLibNetwork;
 
 /**
  * Base class for AzureLib!<br>
  * Hello World!<br>
  * There's not much to really see here, but feel free to stay a while and have a snack or something.
+ *
  * @see mod.azure.azurelib.util.AzureLibUtil
  */
 public class AzureLib {
-	public static final Logger LOGGER = LogManager.getLogger();
-	public static final org.apache.logging.log4j.Marker MAIN_MARKER = org.apache.logging.log4j.MarkerManager.getMarker("main");
-	public static final String MOD_ID = "azurelib";
-	public static final String ITEM_UUID_TAG = "az_id";
-	public static volatile boolean hasInitialized;
 
-	synchronized public static void initialize() {
-		if (!hasInitialized) {
-			DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> AzureLibCache::registerReloadListener);
-			AzureLibNetwork.init();
-		}
+    public static final Logger LOGGER = LogManager.getLogger();
 
-		hasInitialized = true;
-	}
+    public static final org.apache.logging.log4j.Marker MAIN_MARKER = org.apache.logging.log4j.MarkerManager.getMarker(
+        "main"
+    );
+
+    public static final String MOD_ID = "azurelib";
+
+    public static final String ITEM_UUID_TAG = "az_id";
+
+    public static volatile boolean hasInitialized;
+
+    synchronized public static void initialize() {
+        if (!hasInitialized) {
+            DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> AzureLibCache::registerReloadListener);
+            AzureLibNetwork.init();
+        }
+
+        hasInitialized = true;
+    }
+
+    public static ResourceLocation modResource(String name) {
+        return new ResourceLocation(MOD_ID, name);
+    }
 }
