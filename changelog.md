@@ -1,4 +1,3 @@
-v3.0.1
+v3.0.3
 
-- Fixes crash with Identity registry mixin with some mods.
-- Fixes crash with jar-in-jar MixinExtras for Forge.
+- Fixes crash due to Java generics and lambdas.
