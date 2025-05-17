@@ -1,14 +1,13 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.mixin;
 
-import java.util.Map;
-
+import net.minecraft.client.renderer.texture.Texture;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,28 +15,34 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Map;
+
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
 
 @Mixin(TextureManager.class)
 public abstract class TextureManagerMixin {
-	@Shadow @Final private Map<ResourceLocation, Texture> mapTextureObjects;
 
-	@Shadow public abstract void loadTexture(ResourceLocation resourceLocation, Texture abstractTexture);
-	
-	@Inject(method = "getTexture(Lnet/minecraft/util/ResourceLocation;)Lnet/minecraft/client/renderer/texture/Texture;", at = @At("HEAD"))
-	private void azurelib$wrapAnimatableTexture(ResourceLocation path, CallbackInfoReturnable<Texture> callback) {
-		Texture existing = this.mapTextureObjects.get(path);
+    @Shadow
+    @Final
+    private Map<ResourceLocation, Texture> mapTextureObjects;
 
-		if (existing == null && !path.getNamespace().equals("minecraft")) {
-			AnimatableTexture animatableTexture = new AnimatableTexture(path);
+    @Shadow
+    public abstract void loadTexture(ResourceLocation resourceLocation, Texture abstractTexture);
 
-			loadTexture(path, animatableTexture);
+    @Inject(
+        method = "getTexture(Lnet/minecraft/util/ResourceLocation;)Lnet/minecraft/client/renderer/texture/Texture;",
+        at = @At("HEAD")
+    )
+    private void azurelib$wrapAnimatableTexture(ResourceLocation path, CallbackInfoReturnable<Texture> callback) {
+        Texture existing = this.mapTextureObjects.get(path);
 
-			if (!animatableTexture.isAnimated())
-				this.mapTextureObjects.remove(path);
-		}
-	}
+        if (existing == null && !path.getNamespace().equals("minecraft")) {
+            AnimatableTexture animatableTexture = new AnimatableTexture(path);
+
+            loadTexture(path, animatableTexture);
+
+            if (!animatableTexture.isAnimated())
+                this.mapTextureObjects.remove(path);
+        }
+    }
 }

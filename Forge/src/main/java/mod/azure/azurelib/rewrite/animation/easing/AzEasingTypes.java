@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.core.utils.Interpolations;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 
 import java.util.Collection;
 import java.util.List;
+
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.utils.Interpolations;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 
 public class AzEasingTypes {
 

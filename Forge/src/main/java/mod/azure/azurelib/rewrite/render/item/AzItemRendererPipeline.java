@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * Extends the {@link AzRendererPipeline} to provide a specific implementation for rendering {@link ItemStack} objects.

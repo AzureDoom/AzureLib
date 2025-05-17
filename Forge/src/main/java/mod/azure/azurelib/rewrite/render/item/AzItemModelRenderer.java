@@ -1,6 +1,11 @@
 package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3d;
+
 import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
@@ -8,10 +13,6 @@ import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzPhasedRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * AzItemModelRenderer is a specialized implementation of {@link AzModelRenderer} for rendering {@link ItemStack}

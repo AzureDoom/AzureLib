@@ -1,6 +1,10 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.Map;
+import java.util.Objects;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimationContext;
 import mod.azure.azurelib.rewrite.animation.AzAnimationTimer;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorConfig;
@@ -8,9 +12,6 @@ import mod.azure.azurelib.rewrite.animation.AzCachedBoneUpdateUtil;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
-
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * The AzBoneCache class is responsible for managing the state and cache of bones in a baked model. It provides

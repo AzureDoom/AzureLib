@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.rewrite.render.*;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * Represents a renderer pipeline specifically designed for rendering entities. This pipeline facilitates stages of

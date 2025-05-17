@@ -1,9 +1,5 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.core.object.Color;
-import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
@@ -12,6 +8,11 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.DyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.core.object.Color;
+import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 
 public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<ItemStack> {
 

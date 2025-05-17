@@ -2,8 +2,6 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.core.object.Color;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -11,6 +9,9 @@ import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
+
+import mod.azure.azurelib.core.object.Color;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides

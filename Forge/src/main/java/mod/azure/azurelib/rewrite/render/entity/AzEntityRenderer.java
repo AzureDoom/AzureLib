@@ -1,15 +1,15 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.AzProvider;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base

@@ -1,5 +1,17 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.PacketDistributor;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
@@ -12,17 +24,6 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.PacketDistributor;
-
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily

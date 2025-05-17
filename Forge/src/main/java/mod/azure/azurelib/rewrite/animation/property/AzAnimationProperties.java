@@ -1,13 +1,14 @@
 package mod.azure.azurelib.rewrite.animation.property;
 
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec;
 
 public class AzAnimationProperties {
 

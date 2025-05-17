@@ -32,8 +32,9 @@ public class AzEntityLeashRenderUtil {
         IRenderTypeBuffer bufferSource,
         E leashHolder
     ) {
-        double lerpBodyAngle = (MathHelper.lerp(partialTick, mob.prevRenderYawOffset, mob.renderYawOffset) * 0.017453292f) + 1.5707964f;
-        Vector3d leashOffset =new Vector3d(0.0D, mob.getEyeHeight(), (mob.getWidth() * 0.4F));
+        double lerpBodyAngle = (MathHelper.lerp(partialTick, mob.prevRenderYawOffset, mob.renderYawOffset)
+            * 0.017453292f) + 1.5707964f;
+        Vector3d leashOffset = new Vector3d(0.0D, mob.getEyeHeight(), (mob.getWidth() * 0.4F));
         double xAngleOffset = Math.cos(lerpBodyAngle) * leashOffset.z + Math.sin(lerpBodyAngle) * leashOffset.x;
         double zAngleOffset = Math.sin(lerpBodyAngle) * leashOffset.z - Math.cos(lerpBodyAngle) * leashOffset.x;
         double lerpOriginX = MathHelper.lerp(partialTick, mob.prevPosX, mob.getPosX()) + xAngleOffset;

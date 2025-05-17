@@ -1,11 +1,12 @@
 package mod.azure.azurelib.rewrite.render.armor.bone;
 
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.inventory.EquipmentSlotType;
+
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.util.RenderUtils;
 
 public class AzArmorBoneContext {
 
@@ -90,25 +91,41 @@ public class AzArmorBoneContext {
             ModelRenderer rightArmPart = baseModel.bipedRightArm;
 
             RenderUtils.matchModelPartRot(rightArmPart, this.rightArm);
-            this.rightArm.updatePosition(rightArmPart.rotationPointX + 5, 2 - rightArmPart.rotationPointY, rightArmPart.rotationPointZ);
+            this.rightArm.updatePosition(
+                rightArmPart.rotationPointX + 5,
+                2 - rightArmPart.rotationPointY,
+                rightArmPart.rotationPointZ
+            );
         }
 
         if (this.leftArm != null) {
             ModelRenderer leftArmPart = baseModel.bipedLeftArm;
 
             RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
-            this.leftArm.updatePosition(leftArmPart.rotationPointX - 5f, 2f - leftArmPart.rotationPointY, leftArmPart.rotationPointZ);
+            this.leftArm.updatePosition(
+                leftArmPart.rotationPointX - 5f,
+                2f - leftArmPart.rotationPointY,
+                leftArmPart.rotationPointZ
+            );
         }
 
         if (this.rightLeg != null) {
             ModelRenderer rightLegPart = baseModel.bipedRightLeg;
 
             RenderUtils.matchModelPartRot(rightLegPart, this.rightLeg);
-            this.rightLeg.updatePosition(rightLegPart.rotationPointX + 2, 12 - rightLegPart.rotationPointY, rightLegPart.rotationPointZ);
+            this.rightLeg.updatePosition(
+                rightLegPart.rotationPointX + 2,
+                12 - rightLegPart.rotationPointY,
+                rightLegPart.rotationPointZ
+            );
 
             if (this.rightBoot != null) {
                 RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
-                this.rightBoot.updatePosition(rightLegPart.rotationPointX + 2, 12 - rightLegPart.rotationPointY, rightLegPart.rotationPointZ);
+                this.rightBoot.updatePosition(
+                    rightLegPart.rotationPointX + 2,
+                    12 - rightLegPart.rotationPointY,
+                    rightLegPart.rotationPointZ
+                );
             }
         }
 
@@ -116,11 +133,19 @@ public class AzArmorBoneContext {
             ModelRenderer leftLegPart = baseModel.bipedLeftLeg;
 
             RenderUtils.matchModelPartRot(leftLegPart, this.leftLeg);
-            this.leftLeg.updatePosition(leftLegPart.rotationPointX - 2, 12 - leftLegPart.rotationPointY, leftLegPart.rotationPointZ);
+            this.leftLeg.updatePosition(
+                leftLegPart.rotationPointX - 2,
+                12 - leftLegPart.rotationPointY,
+                leftLegPart.rotationPointZ
+            );
 
             if (this.leftBoot != null) {
                 RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
-                this.leftBoot.updatePosition(leftLegPart.rotationPointX - 2, 12 - leftLegPart.rotationPointY, leftLegPart.rotationPointZ);
+                this.leftBoot.updatePosition(
+                    leftLegPart.rotationPointX - 2,
+                    12 - leftLegPart.rotationPointY,
+                    leftLegPart.rotationPointZ
+                );
             }
         }
     }

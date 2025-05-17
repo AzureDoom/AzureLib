@@ -2,8 +2,6 @@ package mod.azure.azurelib.rewrite.render.armor;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -13,6 +11,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 
 public class AzArmorModel<E extends LivingEntity> extends BipedModel<E> {
 
@@ -41,7 +42,8 @@ public class AzArmorModel<E extends LivingEntity> extends BipedModel<E> {
         IRenderTypeBuffer bufferSource = Minecraft.getInstance().worldRenderer.renderTypeTextures.getBufferSource();
 
         boolean shouldOutline = Minecraft.getInstance().worldRenderer.isRenderEntityOutlines() && mc
-            .getRenderViewEntity().isGlowing();
+            .getRenderViewEntity()
+            .isGlowing();
 
         if (shouldOutline) {
             bufferSource = Minecraft.getInstance().worldRenderer.renderTypeTextures.getOutlineBufferSource();

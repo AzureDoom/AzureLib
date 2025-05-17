@@ -1,16 +1,17 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.*;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.client.renderer.entity.model.AgeableModel;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
 

@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.keyframe;
 
 @Deprecated()
 public class KeyframeLocation<T extends Keyframe<?>> {
+
     T keyframe;
+
     double startTick;
 
     /**

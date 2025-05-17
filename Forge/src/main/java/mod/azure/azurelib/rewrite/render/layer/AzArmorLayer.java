@@ -4,15 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import io.netty.util.internal.StringUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.block.AbstractSkullBlock;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
@@ -33,7 +24,16 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
-import java.util.UUID;
+
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
@@ -387,7 +387,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     /**
      * Gets a cached resource path for the vanilla armor layer texture for this armor piece.
      * <p>
-     * Equivalent to {@link net.minecraft.client.renderer.entity.layers.BipedArmorLayer#getArmorResource(Entity, ItemStack, EquipmentSlotType, String)}
+     * Equivalent to
+     * {@link net.minecraft.client.renderer.entity.layers.BipedArmorLayer#getArmorResource(Entity, ItemStack, EquipmentSlotType, String)}
      * HumanoidArmorLayer.getArmorLocation}
      */
     public ResourceLocation getVanillaArmorResource(

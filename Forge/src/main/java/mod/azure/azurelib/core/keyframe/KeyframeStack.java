@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.keyframe;
@@ -14,8 +13,11 @@ import java.util.List;
  */
 @Deprecated()
 public class KeyframeStack<T extends Keyframe<?>> {
+
     List<T> xKeyframes;
+
     List<T> yKeyframes;
+
     List<T> zKeyframes;
 
     public KeyframeStack(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
@@ -52,15 +54,15 @@ public class KeyframeStack<T extends Keyframe<?>> {
         return Math.max(xTime, Math.max(yTime, zTime));
     }
 
-	public List<T> xKeyframes() {
-		return this.xKeyframes;
-	}
+    public List<T> xKeyframes() {
+        return this.xKeyframes;
+    }
 
     public List<T> yKeyframes() {
-		return this.yKeyframes;
-	}
+        return this.yKeyframes;
+    }
 
     public List<T> zKeyframes() {
-		return this.zKeyframes;
-	}
+        return this.zKeyframes;
+    }
 }

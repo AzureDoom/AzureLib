@@ -1,9 +1,5 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -12,6 +8,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * A {@link AzRenderLayer} responsible for rendering {@link BlockState BlockStates} or {@link ItemStack ItemStacks} onto

@@ -1,11 +1,16 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.model;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -27,13 +32,6 @@ import mod.azure.azurelib.core.object.DataTicket;
 import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.renderer.GeoRenderer;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Vector3d;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * Base class for all code-based model objects.<br>
@@ -41,172 +39,210 @@ import net.minecraft.util.math.Vec3d;
  */
 @Deprecated()
 public abstract class GeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
-	private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
 
-	private BakedGeoModel currentModel = null;
-	private double animTime;
-	private double lastGameTickTime;
-	private long lastRenderedInstance = -1;
+    private final AnimationProcessor<T> processor = new AnimationProcessor<>(this);
 
-	/**
-	 * Returns the resource path for the {@link BakedGeoModel} (model json file) to render based on the provided animatable
-	 */
-	public abstract ResourceLocation getModelResource(T animatable);
+    private BakedGeoModel currentModel = null;
 
-	/**
-	 * Returns the resource path for the texture file to render based on the provided animatable
-	 */
-	public abstract ResourceLocation getTextureResource(T animatable);
+    private double animTime;
 
-	/**
-	 * Returns the resourcepath for the {@link BakedAnimations} (animation json file) to use for animations based on the provided animatable
-	 */
-	public abstract ResourceLocation getAnimationResource(T animatable);
+    private double lastGameTickTime;
 
-	/**
-	 * Override this and return true if AzureLib should crash when attempting to animate the model, but fails to find a bone.<br>
-	 * By default, AzureLib will just gracefully ignore a missing bone, which might cause oddities with incorrect models or mismatching variables.<br>
-	 */
-	public boolean crashIfBoneMissing() {
-		return false;
-	}
+    private long lastRenderedInstance = -1;
 
-	/**
-	 * Gets the default render type for this animatable, to be selected by default by the renderer using it
-	 */
-	public RenderType getRenderType(T animatable, ResourceLocation texture) {
-		return RenderType.getEntityCutoutNoCull(texture);
-	}
+    /**
+     * Returns the resource path for the {@link BakedGeoModel} (model json file) to render based on the provided
+     * animatable
+     */
+    public abstract ResourceLocation getModelResource(T animatable);
 
-	@Override
-	public final BakedGeoModel getBakedGeoModel(String location) {
-		return getBakedModel(new ResourceLocation(location));
-	}
+    /**
+     * Returns the resource path for the texture file to render based on the provided animatable
+     */
+    public abstract ResourceLocation getTextureResource(T animatable);
 
-	/**
-	 * Get the baked geo model object used for rendering from the given resource path
-	 */
-	public BakedGeoModel getBakedModel(ResourceLocation location) {
-		BakedGeoModel model = AzureLibCache.getBakedModels().get(location);
+    /**
+     * Returns the resourcepath for the {@link BakedAnimations} (animation json file) to use for animations based on the
+     * provided animatable
+     */
+    public abstract ResourceLocation getAnimationResource(T animatable);
 
-		if (model == null)
-			throw new AzureLibException(location, "Unable to find model");
+    /**
+     * Override this and return true if AzureLib should crash when attempting to animate the model, but fails to find a
+     * bone.<br>
+     * By default, AzureLib will just gracefully ignore a missing bone, which might cause oddities with incorrect models
+     * or mismatching variables.<br>
+     */
+    public boolean crashIfBoneMissing() {
+        return false;
+    }
 
-		if (model != this.currentModel) {
-			this.processor.setActiveModel(model);
-			this.currentModel = model;
-		}
+    /**
+     * Gets the default render type for this animatable, to be selected by default by the renderer using it
+     */
+    public RenderType getRenderType(T animatable, ResourceLocation texture) {
+        return RenderType.getEntityCutoutNoCull(texture);
+    }
 
-		return this.currentModel;
-	}
+    @Override
+    public final BakedGeoModel getBakedGeoModel(String location) {
+        return getBakedModel(new ResourceLocation(location));
+    }
 
-	/**
-	 * Gets a bone from this model by name
-	 * 
-	 * @param name The name of the bone
-	 * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
-	 */
-	public Optional<GeoBone> getBone(String name) {
-		return Optional.ofNullable((GeoBone) getAnimationProcessor().getBone(name));
-	}
+    /**
+     * Get the baked geo model object used for rendering from the given resource path
+     */
+    public BakedGeoModel getBakedModel(ResourceLocation location) {
+        BakedGeoModel model = AzureLibCache.getBakedModels().get(location);
 
-	/**
-	 * Get the baked animation object used for rendering from the given resource path
-	 */
-	@Override
-	public Animation getAnimation(T animatable, String name) {
-		ResourceLocation location = getAnimationResource(animatable);
-		BakedAnimations bakedAnimations = AzureLibCache.getBakedAnimations().get(location);
+        if (model == null)
+            throw new AzureLibException(location, "Unable to find model");
 
-		if (bakedAnimations == null)
-			throw new AzureLibException(location, "Unable to find animation.");
+        if (model != this.currentModel) {
+            this.processor.setActiveModel(model);
+            this.currentModel = model;
+        }
 
-		return bakedAnimations.getAnimation(name);
-	}
+        return this.currentModel;
+    }
 
-	@Override
-	public AnimationProcessor<T> getAnimationProcessor() {
-		return this.processor;
-	}
+    /**
+     * Gets a bone from this model by name
+     *
+     * @param name The name of the bone
+     * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
+     */
+    public Optional<GeoBone> getBone(String name) {
+        return Optional.ofNullable((GeoBone) getAnimationProcessor().getBone(name));
+    }
 
-	/**
-	 * Add additional {@link DataTicket DataTickets} to the {@link AnimationState} to be handled by your animation handler at render time
-	 * 
-	 * @param animatable   The animatable instance currently being animated
-	 * @param instanceId   The unique instance id of the animatable being animated
-	 * @param dataConsumer The DataTicket + data consumer to be added to the AnimationState
-	 */
-	public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {
-	}
+    /**
+     * Get the baked animation object used for rendering from the given resource path
+     */
+    @Override
+    public Animation getAnimation(T animatable, String name) {
+        ResourceLocation location = getAnimationResource(animatable);
+        BakedAnimations bakedAnimations = AzureLibCache.getBakedAnimations().get(location);
 
-	@Override
-	public void handleAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
-		Minecraft mc = Minecraft.getInstance();
-		AnimatableManager<T> animatableManager = animatable.getAnimatableInstanceCache().getManagerForId(instanceId);
-		Double currentTick = animationState.getData(DataTickets.TICK);
+        if (bakedAnimations == null)
+            throw new AzureLibException(location, "Unable to find animation.");
 
-		if (currentTick == null)
-			currentTick = animatable instanceof LivingEntity ? (double) ((LivingEntity)animatable).ticksExisted : RenderUtils.getCurrentTick();
+        return bakedAnimations.getAnimation(name);
+    }
 
-		if (animatableManager.getFirstTickTime() == -1)
-			animatableManager.startedAt(currentTick + mc.getRenderPartialTicks());
+    @Override
+    public AnimationProcessor<T> getAnimationProcessor() {
+        return this.processor;
+    }
 
-		double currentFrameTime = currentTick - animatableManager.getFirstTickTime();
-		boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager.getLastUpdateTime();
+    /**
+     * Add additional {@link DataTicket DataTickets} to the {@link AnimationState} to be handled by your animation
+     * handler at render time
+     *
+     * @param animatable   The animatable instance currently being animated
+     * @param instanceId   The unique instance id of the animatable being animated
+     * @param dataConsumer The DataTicket + data consumer to be added to the AnimationState
+     */
+    public void addAdditionalStateData(T animatable, long instanceId, BiConsumer<DataTicket<T>, T> dataConsumer) {}
 
-		if (isReRender && instanceId == this.lastRenderedInstance)
-			return;
+    @Override
+    public void handleAnimations(T animatable, long instanceId, AnimationState<T> animationState) {
+        Minecraft mc = Minecraft.getInstance();
+        AnimatableManager<T> animatableManager = animatable.getAnimatableInstanceCache().getManagerForId(instanceId);
+        Double currentTick = animationState.getData(DataTickets.TICK);
 
-		if (!isReRender && (!mc.isGamePaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
-			if (animatable instanceof LivingEntity) {
-				animatableManager.updatedAt(currentFrameTime);
-			} else {
-				animatableManager.updatedAt(currentFrameTime);
-			}
+        if (currentTick == null)
+            currentTick = animatable instanceof LivingEntity
+                ? (double) ((LivingEntity) animatable).ticksExisted
+                : RenderUtils.getCurrentTick();
 
-			double lastUpdateTime = animatableManager.getLastUpdateTime();
-			this.animTime += lastUpdateTime - this.lastGameTickTime;
-			this.lastGameTickTime = lastUpdateTime;
-		}
+        if (animatableManager.getFirstTickTime() == -1)
+            animatableManager.startedAt(currentTick + mc.getRenderPartialTicks());
 
-		animationState.animationTick = this.animTime;
-		AnimationProcessor<T> processor = getAnimationProcessor();
+        double currentFrameTime = currentTick - animatableManager.getFirstTickTime();
+        boolean isReRender = !animatableManager.isFirstTick() && currentFrameTime == animatableManager
+            .getLastUpdateTime();
 
-		processor.preAnimationSetup(animationState.getAnimatable(), this.animTime);
+        if (isReRender && instanceId == this.lastRenderedInstance)
+            return;
 
-		if (!processor.getRegisteredBones().isEmpty())
-			processor.tickAnimation(animatable, this, animatableManager, this.animTime, animationState, crashIfBoneMissing());
+        if (!isReRender && (!mc.isGamePaused() || animatable.shouldPlayAnimsWhileGamePaused())) {
+            if (animatable instanceof LivingEntity) {
+                animatableManager.updatedAt(currentFrameTime);
+            } else {
+                animatableManager.updatedAt(currentFrameTime);
+            }
 
-		setCustomAnimations(animatable, instanceId, animationState);
-	}
+            double lastUpdateTime = animatableManager.getLastUpdateTime();
+            this.animTime += lastUpdateTime - this.lastGameTickTime;
+            this.lastGameTickTime = lastUpdateTime;
+        }
 
-	@Override
-	public void applyMolangQueries(T animatable, double animTime) {
-		MolangParser parser = MolangParser.INSTANCE;
-		Minecraft mc = Minecraft.getInstance();
+        animationState.animationTick = this.animTime;
+        AnimationProcessor<T> processor = getAnimationProcessor();
 
-		parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
-		parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, mc.world::getCountLoadedEntities);
-		parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> mc.world.getDayTime() / 24000f);
-		parser.setMemoizedValue(MolangQueries.MOON_PHASE, mc.world::getMoonPhase);
+        processor.preAnimationSetup(animationState.getAnimatable(), this.animTime);
 
-		if (animatable instanceof Entity) {
-			parser.setMemoizedValue(MolangQueries.DISTANCE_FROM_CAMERA, () -> mc.gameRenderer.getActiveRenderInfo().getProjectedView().distanceTo(((Entity) animatable).getPositionVec()));
-			parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(((Entity) animatable).onGround));
-			parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWater()));
-			parser.setMemoizedValue(MolangQueries.IS_IN_WATER_OR_RAIN, () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWaterRainOrBubbleColumn()));
-			parser.setMemoizedValue(MolangQueries.IS_ON_FIRE, () -> RenderUtils.booleanToFloat(((Entity) animatable).isBurning()));
+        if (!processor.getRegisteredBones().isEmpty())
+            processor.tickAnimation(
+                animatable,
+                this,
+                animatableManager,
+                this.animTime,
+                animationState,
+                crashIfBoneMissing()
+            );
 
-			if (animatable instanceof LivingEntity) {
-				parser.setMemoizedValue(MolangQueries.HEALTH, ((LivingEntity) animatable)::getHealth);
-				parser.setMemoizedValue(MolangQueries.MAX_HEALTH, ((LivingEntity) animatable)::getMaxHealth);
-				parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
-					Vec3d velocity = ((LivingEntity) animatable).getMotion();
+        setCustomAnimations(animatable, instanceId, animationState);
+    }
 
-					return Math.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
-				});
-				parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> ((LivingEntity) animatable).rotationYaw - ((LivingEntity) animatable).prevRotationYaw);
-			}
-		}
-	}
+    @Override
+    public void applyMolangQueries(T animatable, double animTime) {
+        MolangParser parser = MolangParser.INSTANCE;
+        Minecraft mc = Minecraft.getInstance();
+
+        parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
+        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, mc.world::getCountLoadedEntities);
+        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> mc.world.getDayTime() / 24000f);
+        parser.setMemoizedValue(MolangQueries.MOON_PHASE, mc.world::getMoonPhase);
+
+        if (animatable instanceof Entity) {
+            parser.setMemoizedValue(
+                MolangQueries.DISTANCE_FROM_CAMERA,
+                () -> mc.gameRenderer.getActiveRenderInfo()
+                    .getProjectedView()
+                    .distanceTo(((Entity) animatable).getPositionVec())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_ON_GROUND,
+                () -> RenderUtils.booleanToFloat(((Entity) animatable).onGround)
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_IN_WATER,
+                () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWater())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_IN_WATER_OR_RAIN,
+                () -> RenderUtils.booleanToFloat(((Entity) animatable).isInWaterRainOrBubbleColumn())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_ON_FIRE,
+                () -> RenderUtils.booleanToFloat(((Entity) animatable).isBurning())
+            );
+
+            if (animatable instanceof LivingEntity) {
+                parser.setMemoizedValue(MolangQueries.HEALTH, ((LivingEntity) animatable)::getHealth);
+                parser.setMemoizedValue(MolangQueries.MAX_HEALTH, ((LivingEntity) animatable)::getMaxHealth);
+                parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
+                    Vec3d velocity = ((LivingEntity) animatable).getMotion();
+
+                    return Math.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
+                });
+                parser.setMemoizedValue(
+                    MolangQueries.YAW_SPEED,
+                    () -> ((LivingEntity) animatable).rotationYaw - ((LivingEntity) animatable).prevRotationYaw
+                );
+            }
+        }
+    }
 }

@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render.block;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.AzProvider;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.AzProvider;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 
 /**
  * The {@code AzBlockEntityRenderer} class is an abstract base class for rendering custom block entities. It leverages

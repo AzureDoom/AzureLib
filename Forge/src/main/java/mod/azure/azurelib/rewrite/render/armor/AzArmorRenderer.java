@@ -1,13 +1,14 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.AzProvider;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.AzProvider;
+import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 
 public class AzArmorRenderer {
 

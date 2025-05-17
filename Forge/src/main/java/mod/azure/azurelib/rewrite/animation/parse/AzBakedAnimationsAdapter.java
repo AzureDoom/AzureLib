@@ -4,6 +4,15 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -21,14 +30,6 @@ import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.rewrite.animation.primitive.AzLoopType;
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import org.apache.commons.lang3.math.NumberUtils;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * {@link Gson} {@link JsonDeserializer} for {@link AzBakedAnimations}.<br>
@@ -261,8 +262,8 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
     }
 
     /**
-     * Processes a JSON object representing bone animations and constructs an array of {@link AzBoneAnimation} instances.
-     * Each bone's animation includes keyframe stacks for position, rotation, and scale transformations.
+     * Processes a JSON object representing bone animations and constructs an array of {@link AzBoneAnimation}
+     * instances. Each bone's animation includes keyframe stacks for position, rotation, and scale transformations.
      *
      * @param bonesObj The JSON object containing bone animation data, where each key is the bone name and the value is
      *                 an object with keyframe data for scale, position, and rotation.

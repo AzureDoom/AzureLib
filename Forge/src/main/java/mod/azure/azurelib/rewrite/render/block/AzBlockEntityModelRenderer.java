@@ -2,12 +2,6 @@ package mod.azure.azurelib.rewrite.render.block;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
-import mod.azure.azurelib.rewrite.render.AzModelRenderer;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DirectionalBlock;
 import net.minecraft.block.HorizontalBlock;
@@ -15,6 +9,13 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
+import mod.azure.azurelib.rewrite.render.AzModelRenderer;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * The AzBlockEntityModelRenderer is a specialized model renderer class for rendering block entities in a 3D space. It

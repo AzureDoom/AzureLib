@@ -2,16 +2,17 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.Matrix3f;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.client.renderer.Vector4f;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.client.renderer.Vector4f;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone

@@ -1,16 +1,17 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root;
 
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class AzRootPlayAnimationSequenceAction implements AzAction {
 

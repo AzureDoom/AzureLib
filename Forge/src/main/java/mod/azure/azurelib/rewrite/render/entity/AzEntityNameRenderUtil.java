@@ -51,7 +51,8 @@ public class AzEntityNameRenderUtil {
             case HIDE_FOR_OTHER_TEAMS:
                 return playerTeam == null
                     ? visibleToClient
-                    : entityTeam.isSameTeam(playerTeam) && (entityTeam.getSeeFriendlyInvisiblesEnabled() || visibleToClient);
+                    : entityTeam.isSameTeam(playerTeam) && (entityTeam.getSeeFriendlyInvisiblesEnabled()
+                        || visibleToClient);
             case HIDE_FOR_OWN_TEAM:
                 return playerTeam == null
                     ? visibleToClient

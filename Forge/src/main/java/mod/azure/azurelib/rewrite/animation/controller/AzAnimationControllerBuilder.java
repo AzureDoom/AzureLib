@@ -1,11 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
+import java.util.Objects;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframeCallbacks;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationProperties;
-
-import java.util.Objects;
 
 /**
  * A builder class to construct {@link AzAnimationController} instances for managing animations in {@link AzAnimator}.

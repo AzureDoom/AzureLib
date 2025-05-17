@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache.object;
@@ -19,7 +17,9 @@ import mod.azure.azurelib.loading.json.raw.ModelProperties;
  */
 @Deprecated()
 public class BakedGeoModel implements CoreBakedGeoModel {
+
     private final List<GeoBone> topLevelBones;
+
     private final ModelProperties properties;
 
     public BakedGeoModel(List<GeoBone> topLevelBones, ModelProperties properties) {
@@ -35,29 +35,29 @@ public class BakedGeoModel implements CoreBakedGeoModel {
         return properties;
     }
 
-	/**
-	 * Gets the list of top-level bones for this model.
-	 * Identical to calling {@link BakedGeoModel#topLevelBones()}
-	 */
-	@Override
-	public List<? extends CoreGeoBone> getBones() {
-		return this.topLevelBones;
-	}
+    /**
+     * Gets the list of top-level bones for this model. Identical to calling {@link BakedGeoModel#topLevelBones()}
+     */
+    @Override
+    public List<? extends CoreGeoBone> getBones() {
+        return this.topLevelBones;
+    }
 
-	/**
-	 * Gets a bone from this model by name.<br>
-	 * Generally not a very efficient method, should be avoided where possible.
-	 * @param name The name of the bone
-	 * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
-	 */
-	public Optional<GeoBone> getBone(String name) {
-		for (GeoBone bone : this.topLevelBones) {
-			CoreGeoBone childBone = searchForChildBone(bone, name);
+    /**
+     * Gets a bone from this model by name.<br>
+     * Generally not a very efficient method, should be avoided where possible.
+     *
+     * @param name The name of the bone
+     * @return An {@link Optional} containing the {@link GeoBone} if one matches, otherwise an empty Optional
+     */
+    public Optional<GeoBone> getBone(String name) {
+        for (GeoBone bone : this.topLevelBones) {
+            CoreGeoBone childBone = searchForChildBone(bone, name);
 
-			if (childBone != null)
-				return Optional.of((GeoBone)childBone);
-		}
+            if (childBone != null)
+                return Optional.of((GeoBone) childBone);
+        }
 
-		return Optional.empty();
-	}
+        return Optional.empty();
+    }
 }

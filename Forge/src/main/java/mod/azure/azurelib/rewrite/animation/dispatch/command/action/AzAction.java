@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action;
 
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec.AzActionCodec;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * The AzAction interface serves as a base contract for defining actions that can be dispatched within the animation

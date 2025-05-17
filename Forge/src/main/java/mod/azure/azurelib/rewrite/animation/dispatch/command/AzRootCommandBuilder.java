@@ -1,11 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
+import java.util.function.UnaryOperator;
+
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
-
-import java.util.function.UnaryOperator;
 
 public class AzRootCommandBuilder extends AzCommandBuilder {
 

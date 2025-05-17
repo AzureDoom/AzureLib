@@ -1,22 +1,12 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.renderer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.cache.object.GeoBone;
-import mod.azure.azurelib.core.animatable.GeoAnimatable;
-import mod.azure.azurelib.core.animation.AnimationState;
-import mod.azure.azurelib.model.GeoModel;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
-import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Matrix4f;
@@ -25,30 +15,45 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
+
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.model.GeoModel;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayersContainer;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
- * Base {@link GeoRenderer} class for rendering anything that isn't already handled by the other builtin GeoRenderer subclasses.<br>
- * Before using this class you should ensure your use-case isn't already covered by one of the other existing renderers.<br>
+ * Base {@link GeoRenderer} class for rendering anything that isn't already handled by the other builtin GeoRenderer
+ * subclasses.<br>
+ * Before using this class you should ensure your use-case isn't already covered by one of the other existing
+ * renderers.<br>
  * <br>
  * It is <b>strongly</b> recommended you override {@link GeoRenderer#getInstanceId} if using this renderer
  */
 @Deprecated()
 public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T> {
+
     protected final GeoRenderLayersContainer<T> renderLayers = new GeoRenderLayersContainer<>(this);
+
     protected final GeoModel<T> model;
 
     protected T animatable;
+
     protected float scaleWidth = 1;
+
     protected float scaleHeight = 1;
 
     protected Matrix4f objectRenderTranslations = new Matrix4f();
+
     protected Matrix4f modelRenderTranslations = new Matrix4f();
 
     public GeoObjectRenderer(GeoModel<T> model) {
         this.model = model;
-
     }
 
     /**
@@ -121,36 +126,92 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
      * @param buffer       The VertexConsumer to use for rendering, or null to use the default for the RenderType
      * @param packedLight  The light level at the given render position for rendering
      */
-    public void render(MatrixStack poseStack, T animatable, @Nullable IRenderTypeBuffer bufferSource, @Nullable RenderType renderType, @Nullable IVertexBuilder buffer, int packedLight) {
+    public void render(
+        MatrixStack poseStack,
+        T animatable,
+        @Nullable IRenderTypeBuffer bufferSource,
+        @Nullable RenderType renderType,
+        @Nullable IVertexBuilder buffer,
+        int packedLight
+    ) {
         this.animatable = animatable;
         Minecraft mc = Minecraft.getInstance();
 
         if (buffer == null)
             bufferSource = mc.worldRenderer.renderTypeTextures.getBufferSource();
 
-        defaultRender(poseStack, animatable, bufferSource, renderType, buffer, 0, mc.getRenderPartialTicks(), packedLight);
+        defaultRender(
+            poseStack,
+            animatable,
+            bufferSource,
+            renderType,
+            buffer,
+            0,
+            mc.getRenderPartialTicks(),
+            packedLight
+        );
     }
 
     /**
-     * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling and translating.<br>
+     * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling
+     * and translating.<br>
      * {@link MatrixStack} translations made here are kept until the end of the render process
      */
     @Override
-    public void preRender(MatrixStack poseStack, T animatable, BakedGeoModel model, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void preRender(
+        MatrixStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
         this.objectRenderTranslations = new Matrix4f(poseStack.getLast().getMatrix());
 
-        scaleModelForRender(this.scaleWidth, this.scaleHeight, poseStack, animatable, model, isReRender, partialTick,
-                packedLight, packedOverlay);
+        scaleModelForRender(
+            this.scaleWidth,
+            this.scaleHeight,
+            poseStack,
+            animatable,
+            model,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay
+        );
 
         poseStack.translate(0.5f, 0.51f, 0.5f);
     }
 
     /**
      * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
-     * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be called directly after
+     * {@link GeoRenderer#preRender} has already been called by this stage, and {@link GeoRenderer#postRender} will be
+     * called directly after
      */
     @Override
-    public void actuallyRender(MatrixStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void actuallyRender(
+        MatrixStack poseStack,
+        T animatable,
+        BakedGeoModel model,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
         poseStack.push();
 
         if (!isReRender) {
@@ -163,8 +224,22 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
 
         this.modelRenderTranslations = new Matrix4f(poseStack.getLast().getMatrix());
 
-        GeoRenderer.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender,
-                partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        GeoRenderer.super.actuallyRender(
+            poseStack,
+            animatable,
+            model,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            red,
+            green,
+            blue,
+            alpha
+        );
         poseStack.pop();
     }
 
@@ -172,7 +247,22 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
      * Renders the provided {@link GeoBone} and its associated child bones
      */
     @Override
-    public void renderRecursively(MatrixStack poseStack, T animatable, GeoBone bone, RenderType renderType, IRenderTypeBuffer bufferSource, IVertexBuilder buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(
+        MatrixStack poseStack,
+        T animatable,
+        GeoBone bone,
+        RenderType renderType,
+        IRenderTypeBuffer bufferSource,
+        IVertexBuilder buffer,
+        boolean isReRender,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.getLast().getMatrix());
 
@@ -180,7 +270,21 @@ public class GeoObjectRenderer<T extends GeoAnimatable> implements GeoRenderer<T
             bone.setLocalSpaceMatrix(RenderUtils.invertAndMultiplyMatrices(poseState, this.objectRenderTranslations));
         }
 
-        GeoRenderer.super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender,
-                partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        GeoRenderer.super.renderRecursively(
+            poseStack,
+            animatable,
+            bone,
+            renderType,
+            bufferSource,
+            buffer,
+            isReRender,
+            partialTick,
+            packedLight,
+            packedOverlay,
+            red,
+            green,
+            blue,
+            alpha
+        );
     }
 }

@@ -2,15 +2,16 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.AzProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**
  * AzItemRenderer is an abstract base class for rendering custom animated items in a game framework. It provides

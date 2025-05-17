@@ -1,11 +1,12 @@
 package mod.azure.azurelib.rewrite.render.item;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 
 /**
  * A specialized subclass of {@link AzRendererPipelineContext} designed for rendering {@link ItemStack} objects.

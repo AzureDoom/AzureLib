@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.entity.Entity;
 
 import java.util.Collection;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
  * A renderer class responsible for rendering additional entity layers for a particular animatable entity type. It

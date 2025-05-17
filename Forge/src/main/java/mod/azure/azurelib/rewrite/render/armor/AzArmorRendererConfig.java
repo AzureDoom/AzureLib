@@ -1,11 +1,5 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneProvider;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzDefaultArmorBoneProvider;
-import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +7,13 @@ import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneProvider;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzDefaultArmorBoneProvider;
+import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 
@@ -25,8 +25,8 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  postRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
@@ -100,14 +100,14 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setPrerenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPostRenderEntry(preRenderEntry);
         }

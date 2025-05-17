@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.sequence;
 
-import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
-import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
+import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 
 public class AzAnimationSequence {
 

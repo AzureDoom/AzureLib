@@ -1,8 +1,6 @@
 package mod.azure.azurelib.rewrite.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.ResourceLocation;
 
@@ -10,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
  * The {@code AzRendererConfig} class is a configuration class used for defining rendering configurations for generic
@@ -27,9 +27,9 @@ public class AzRendererConfig<T> {
 
     protected final Function<T, RenderType> renderTypeFunction;
 
-    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry;
+    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
-    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry;
+    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
 
     protected final List<AzRenderLayer<T>> renderLayers;
 
@@ -46,8 +46,8 @@ public class AzRendererConfig<T> {
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
@@ -113,9 +113,9 @@ public class AzRendererConfig<T> {
 
         private final List<AzRenderLayer<T>> renderLayers;
 
-        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
-        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
 
         protected final Function<T, ResourceLocation> textureLocationProvider;
 
@@ -165,14 +165,14 @@ public class AzRendererConfig<T> {
         }
 
         public Builder<T> setPrerenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             this.preRenderEntry = preRenderEntry;
             return this;
         }
 
         public Builder<T> setPostRenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry
         ) {
             this.postRenderEntry = postRenderEntry;
             return this;

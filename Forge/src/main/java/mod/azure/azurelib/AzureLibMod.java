@@ -7,10 +7,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 @Mod(AzureLib.MOD_ID)
 public final class AzureLibMod {
 
-	public static AzureLibMod instance;
+    public static AzureLibMod instance;
 
-	public AzureLibMod() {
-		instance = this;
-		AzureLib.initialize();
-	}
+    public AzureLibMod() {
+        instance = this;
+        AzureLib.initialize();
+    }
 }

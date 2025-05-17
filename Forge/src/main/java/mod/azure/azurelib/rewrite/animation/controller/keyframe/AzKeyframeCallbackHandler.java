@@ -1,6 +1,9 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+
+import java.util.Set;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
@@ -14,8 +17,6 @@ import mod.azure.azurelib.rewrite.animation.event.AzCustomInstructionKeyframeEve
 import mod.azure.azurelib.rewrite.animation.event.AzParticleKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.event.AzSoundKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
-
-import java.util.Set;
 
 /**
  * AzKeyframeCallbackHandler acts as a handler for managing animation keyframe events such as sound, particle, or custom

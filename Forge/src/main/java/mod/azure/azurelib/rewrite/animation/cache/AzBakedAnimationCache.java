@@ -1,15 +1,16 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.rewrite.AzResourceCache;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+
+import mod.azure.azurelib.loading.FileLoader;
+import mod.azure.azurelib.rewrite.AzResourceCache;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 
 /**
  * AzBakedAnimationCache is a singleton cache to manage and store preloaded animation data of type

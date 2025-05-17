@@ -1,5 +1,9 @@
 package mod.azure.azurelib.rewrite.animation;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.ResourceLocation;
+
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -10,9 +14,6 @@ import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerCont
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as

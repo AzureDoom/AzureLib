@@ -1,5 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
+import java.util.NoSuchElementException;
+
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -8,8 +10,6 @@ import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerTimer;
 import mod.azure.azurelib.rewrite.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
-
-import java.util.NoSuchElementException;
 
 /**
  * AzKeyframeExecutor is a specialized implementation of {@link AzAbstractKeyframeExecutor}, designed to handle

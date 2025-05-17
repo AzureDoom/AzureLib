@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.render.block;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.rewrite.render.*;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * AzBlockEntityRendererPipeline is a specific implementation of the {@link AzRendererPipeline} tailored for rendering

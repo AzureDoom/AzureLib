@@ -1,10 +1,10 @@
 package mod.azure.azurelib.rewrite.render;
 
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
-
 import java.util.Collection;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
  * Provides a mechanism to manage and apply multiple render layers for a given animatable context. This class acts as a

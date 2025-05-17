@@ -1,5 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.controller.state.impl;
 
+import java.util.Map;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimationContext;
 import mod.azure.azurelib.rewrite.animation.cache.AzBoneCache;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
@@ -11,8 +13,6 @@ import mod.azure.azurelib.rewrite.animation.controller.state.machine.AzAnimation
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
-
-import java.util.Map;
 
 /**
  * Represents a transition state in an animation state machine. This state is responsible for managing the transition

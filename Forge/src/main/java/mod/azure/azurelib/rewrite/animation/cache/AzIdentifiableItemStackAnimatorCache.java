@@ -1,13 +1,14 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 
 /**
  * The AzIdentifiableItemStackAnimatorCache class is a singleton utility for managing a cache of {@link ItemStack}

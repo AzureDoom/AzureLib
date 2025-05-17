@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.stage;
 
-import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 import net.minecraft.network.PacketBuffer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 
 public class AzAnimationStage {
 

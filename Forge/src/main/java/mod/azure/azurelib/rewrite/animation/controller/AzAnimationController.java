@@ -1,5 +1,8 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframeCallbacks;
@@ -16,9 +19,6 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationSt
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationProperties;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The actual controller that handles the playing and usage of animations, including their various keyframes and

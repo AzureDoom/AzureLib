@@ -1,11 +1,14 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.network.packet;
+
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -13,48 +16,47 @@ import mod.azure.azurelib.animatable.GeoBlockEntity;
 import mod.azure.azurelib.constant.DataTickets;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.util.ClientUtils;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * Packet for syncing user-definable animation data for {@link TileEntity BlockEntities}
  */
 @Deprecated()
 public class BlockEntityAnimDataSyncPacket<D> {
-	private final BlockPos pos;
-	private final SerializableDataTicket<D> dataTicket;
-	private final D data;
 
-	public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
-		this.pos = pos;
-		this.dataTicket = dataTicket;
-		this.data = data;
-	}
+    private final BlockPos pos;
 
-	public void encode(PacketBuffer buffer) {
-		buffer.writeBlockPos(this.pos);
-		buffer.writeString(this.dataTicket.id());
-		this.dataTicket.encode(this.data, buffer);
-	}
+    private final SerializableDataTicket<D> dataTicket;
 
-	public static <D> BlockEntityAnimDataSyncPacket<D> decode(PacketBuffer buffer) {
-		BlockPos pos = buffer.readBlockPos();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readString());
+    private final D data;
 
-		return new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, dataTicket.decode(buffer));
-	}
+    public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
+        this.pos = pos;
+        this.dataTicket = dataTicket;
+        this.data = data;
+    }
 
-	public void receivePacket(Supplier<NetworkEvent.Context> context) {
-		NetworkEvent.Context handler = context.get();
+    public void encode(PacketBuffer buffer) {
+        buffer.writeBlockPos(this.pos);
+        buffer.writeString(this.dataTicket.id());
+        this.dataTicket.encode(this.data, buffer);
+    }
 
-		handler.enqueueWork(() -> {
-			TileEntity blockEntity = ClientUtils.getLevel().getTileEntity(this.pos);
+    public static <D> BlockEntityAnimDataSyncPacket<D> decode(PacketBuffer buffer) {
+        BlockPos pos = buffer.readBlockPos();
+        SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readString());
 
-			if (blockEntity instanceof GeoBlockEntity)
-				((GeoBlockEntity) blockEntity).setAnimData(this.dataTicket, this.data);
-		});
-		handler.setPacketHandled(true);
-	}
+        return new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, dataTicket.decode(buffer));
+    }
+
+    public void receivePacket(Supplier<NetworkEvent.Context> context) {
+        NetworkEvent.Context handler = context.get();
+
+        handler.enqueueWork(() -> {
+            TileEntity blockEntity = ClientUtils.getLevel().getTileEntity(this.pos);
+
+            if (blockEntity instanceof GeoBlockEntity)
+                ((GeoBlockEntity) blockEntity).setAnimData(this.dataTicket, this.data);
+        });
+        handler.setPacketHandled(true);
+    }
 }

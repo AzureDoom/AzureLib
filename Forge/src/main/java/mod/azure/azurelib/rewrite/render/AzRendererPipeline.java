@@ -2,11 +2,12 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
 
 /**
  * Abstract base class for defining a rendering pipeline. The {@code AzRendererPipeline} provides a structured framework

@@ -1,6 +1,8 @@
 package mod.azure.azurelib.rewrite.model.factory.impl;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.math.Vec3d;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.loading.json.raw.Cube;
@@ -13,7 +15,6 @@ import mod.azure.azurelib.rewrite.model.AzBoneMetadata;
 import mod.azure.azurelib.rewrite.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.rewrite.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * A concrete implementation of the {@link AzBakedModelFactory} that constructs baked models, bones, and cubes from raw

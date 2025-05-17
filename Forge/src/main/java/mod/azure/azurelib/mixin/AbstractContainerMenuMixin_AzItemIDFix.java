@@ -1,7 +1,5 @@
 package mod.azure.azurelib.mixin;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
@@ -15,15 +13,19 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+
 /**
- * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific {@code ItemStack}
- * identity management (Az ID). This Mixin ensures the proper handling, synchronization, and comparison of
- * AzureLib-registered item stacks with custom identifiers during container interactions.
+ * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific
+ * {@code ItemStack} identity management (Az ID). This Mixin ensures the proper handling, synchronization, and
+ * comparison of AzureLib-registered item stacks with custom identifiers during container interactions.
  */
 @Mixin(Container.class)
 public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
-    @Shadow public abstract void clearContainer(PlayerEntity player, World worldIn, IInventory inventoryIn);
+    @Shadow
+    public abstract void clearContainer(PlayerEntity player, World worldIn, IInventory inventoryIn);
 
     @Unique
     private static final int DEFAULT_AZ_ID = -1;
@@ -47,7 +49,10 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
         copyStack.setCount(itemStack.getCount());
 
-        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
+        if (
+            AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag()
+                .contains(AzureLib.ITEM_UUID_TAG)
+        ) {
             copyStack.getTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 

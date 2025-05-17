@@ -2,12 +2,6 @@ package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
-import mod.azure.azurelib.rewrite.render.AzModelRenderer;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.entity.Entity;
@@ -18,6 +12,13 @@ import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
+import mod.azure.azurelib.rewrite.render.AzModelRenderer;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * AzEntityModelRenderer is a class responsible for rendering animated 3D entity models in a pipeline-based rendering
@@ -69,7 +70,11 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         if (shouldSit && animatable.getRidingEntity() instanceof LivingEntity) {
             LivingEntity livingentity = (LivingEntity) animatable.getRidingEntity();
-            lerpBodyRot = MathHelper.rotLerp(partialTick, livingentity.prevRenderYawOffset, livingentity.renderYawOffset);
+            lerpBodyRot = MathHelper.rotLerp(
+                partialTick,
+                livingentity.prevRenderYawOffset,
+                livingentity.renderYawOffset
+            );
             netHeadYaw = lerpHeadRot - lerpBodyRot;
             float clampedHeadYaw = MathHelper.clamp(MathHelper.wrapDegrees(netHeadYaw), -85, 85);
             lerpBodyRot = lerpHeadRot - clampedHeadYaw;

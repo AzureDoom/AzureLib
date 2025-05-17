@@ -1,9 +1,9 @@
 package mod.azure.azurelib.rewrite.model.factory.primitive;
 
-import mod.azure.azurelib.cache.object.GeoVertex;
-import net.minecraft.client.renderer.Vector3d;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.Vec3d;
+
+import mod.azure.azurelib.cache.object.GeoVertex;
 
 /**
  * Holder class to make it easier to store and refer to vertices for a given cube.

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -9,6 +7,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends

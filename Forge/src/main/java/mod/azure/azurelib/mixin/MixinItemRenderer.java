@@ -1,8 +1,6 @@
 package mod.azure.azurelib.mixin;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.azure.azurelib.rewrite.render.item.AzItemRenderer;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -16,28 +14,44 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
-
-import java.util.Objects;
+import mod.azure.azurelib.rewrite.render.item.AzItemRenderer;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 
 /**
  * Render hook to inject AzureLib's ISTER rendering callback
  */
 @Mixin(ItemRenderer.class)
 public class MixinItemRenderer {
-	@Inject(method = "renderItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/tileentity/ItemStackTileEntityRenderer;render(Lnet/minecraft/item/ItemStack;Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;II)V"), cancellable = true)
-	public void azurelib$itemModelHook(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, boolean bl, MatrixStack poseStack, IRenderTypeBuffer multiBufferSource, int i, int j, IBakedModel bakedModel, CallbackInfo ci) {
-		if (itemStack.getItem() instanceof GeoItem)
-			RenderProvider.of(itemStack).getCustomRenderer().render(itemStack, poseStack, multiBufferSource, i, j);
 
-		Item item = itemStack.getItem();
-		AzItemRenderer renderer = AzItemRendererRegistry.getOrNull(item);
+    @Inject(
+        method = "renderItem", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/tileentity/ItemStackTileEntityRenderer;render(Lnet/minecraft/item/ItemStack;Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;II)V"
+        ), cancellable = true
+    )
+    public void azurelib$itemModelHook(
+        ItemStack itemStack,
+        ItemCameraTransforms.TransformType transformType,
+        boolean bl,
+        MatrixStack poseStack,
+        IRenderTypeBuffer multiBufferSource,
+        int i,
+        int j,
+        IBakedModel bakedModel,
+        CallbackInfo ci
+    ) {
+        if (itemStack.getItem() instanceof GeoItem)
+            RenderProvider.of(itemStack).getCustomRenderer().render(itemStack, poseStack, multiBufferSource, i, j);
 
-		if (renderer != null) {
-			if (transformType == ItemCameraTransforms.TransformType.GUI) {
-				renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
-			} else {
-				renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
-			}
-		}
-	}
+        Item item = itemStack.getItem();
+        AzItemRenderer renderer = AzItemRendererRegistry.getOrNull(item);
+
+        if (renderer != null) {
+            if (transformType == ItemCameraTransforms.TransformType.GUI) {
+                renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
+            } else {
+                renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+            }
+        }
+    }
 }

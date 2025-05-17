@@ -1,18 +1,19 @@
 package mod.azure.azurelib.rewrite.model.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.loading.object.GeometryTree;
-import mod.azure.azurelib.rewrite.AzResourceCache;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.model.factory.registry.AzBakedModelFactoryRegistry;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+
+import mod.azure.azurelib.loading.FileLoader;
+import mod.azure.azurelib.loading.json.raw.Model;
+import mod.azure.azurelib.loading.object.GeometryTree;
+import mod.azure.azurelib.rewrite.AzResourceCache;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.model.factory.registry.AzBakedModelFactoryRegistry;
 
 /**
  * AzBakedModelCache is a singleton class that extends {@link AzResourceCache} and is designed to manage and cache baked

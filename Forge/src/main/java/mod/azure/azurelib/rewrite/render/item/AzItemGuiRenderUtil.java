@@ -3,7 +3,6 @@ package mod.azure.azurelib.rewrite.render.item;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -12,6 +11,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 
 public class AzItemGuiRenderUtil {
 

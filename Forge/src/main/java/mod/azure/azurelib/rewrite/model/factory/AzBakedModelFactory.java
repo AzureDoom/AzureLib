@@ -1,5 +1,8 @@
 package mod.azure.azurelib.rewrite.model.factory;
 
+import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.util.Direction;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.loading.json.raw.Cube;
@@ -11,8 +14,6 @@ import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.factory.primitive.VertexSet;
-import net.minecraft.client.renderer.Vector3d;
-import net.minecraft.util.Direction;
 
 /**
  * Abstract factory class for constructing baked models, bones, and cubes from raw input data such as geometry trees or

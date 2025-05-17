@@ -1,8 +1,5 @@
 package mod.azure.azurelib.mixin;
 
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.entity.LivingEntity;
@@ -13,6 +10,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
 @Mixin(ForgeHooksClient.class)
 public class ClientHooksMixin {

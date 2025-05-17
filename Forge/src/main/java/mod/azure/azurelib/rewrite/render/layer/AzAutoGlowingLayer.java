@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+
+import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.ClientUtils;
 
 /**
  * A {@link AzRenderLayer} dedicated to rendering the auto-generated glow layer functionality provided by AzureLib. This

@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec;
 
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry;
 
 /**
  * The AzActionCodec class serves as an implementation of the {@link StreamCodec} interface specifically designed for
