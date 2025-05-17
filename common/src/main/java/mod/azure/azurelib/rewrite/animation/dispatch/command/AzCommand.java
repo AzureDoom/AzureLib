@@ -1,16 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
-import mod.azure.azurelib.platform.Services;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
-import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -24,6 +13,18 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
+import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
+
 /**
  * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily
  * serves as a container for a list of {@link AzAction} instances that define specific operations or behaviors to be
@@ -34,7 +35,7 @@ import java.util.function.Function;
 public record AzCommand(List<AzAction> actions) {
 
     public static final AzListStreamCodec<AzAction> ACTION_LIST_CODEC =
-            new AzListStreamCodec<>(AzAction::decode, (buf, action) -> action.encode(buf));
+        new AzListStreamCodec<>(AzAction::decode, (buf, action) -> action.encode(buf));
 
     public static final Function<FriendlyByteBuf, AzCommand> DECODER = buf -> {
         // Decode the list of actions using the AzListStreamCodec

@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.codec.AzActionCodec;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * The AzAction interface serves as a base contract for defining actions that can be dispatched within the animation
@@ -15,16 +16,16 @@ import net.minecraft.resources.ResourceLocation;
 public interface AzAction {
 
     /**
-     * Decodes an AzAction from a {@link FriendlyByteBuf}.
-     * Delegates to {@link AzActionCodec#decode(FriendlyByteBuf)} for decoding logic.
+     * Decodes an AzAction from a {@link FriendlyByteBuf}. Delegates to {@link AzActionCodec#decode(FriendlyByteBuf)}
+     * for decoding logic.
      */
     static AzAction decode(FriendlyByteBuf byteBuf) {
         return new AzActionCodec().decode(byteBuf);
     }
 
     /**
-     * Encodes this AzAction into a {@link FriendlyByteBuf}.
-     * Delegates to {@link AzActionCodec#encode(FriendlyByteBuf, AzAction)} for encoding logic.
+     * Encodes this AzAction into a {@link FriendlyByteBuf}. Delegates to
+     * {@link AzActionCodec#encode(FriendlyByteBuf, AzAction)} for encoding logic.
      */
     default void encode(FriendlyByteBuf byteBuf) {
         new AzActionCodec().encode(byteBuf, this);

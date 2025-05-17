@@ -1,106 +1,125 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.animatable;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.platform.Services;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.animatable.GeoAnimatable;
 import mod.azure.azurelib.core.animation.AnimatableManager;
 import mod.azure.azurelib.network.SerializableDataTicket;
 import mod.azure.azurelib.network.packet.BlockEntityAnimDataSyncPacket;
 import mod.azure.azurelib.network.packet.BlockEntityAnimTriggerPacket;
+import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * The {@link GeoAnimatable} interface specific to {@link BlockEntity BlockEntities}
  */
 @Deprecated(forRemoval = true)
 public interface GeoBlockEntity extends GeoAnimatable {
-	/**
-	 * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>
-	 * Should only be used on the <u>client-side</u>.<br>
-	 * <b><u>DO NOT OVERRIDE</u></b>
-	 * @param dataTicket The data ticket for the data to retrieve
-	 * @return The synced data, or null if no data of that type has been synced
-	 */
-	@Nullable
-	default <D> D getAnimData(SerializableDataTicket<D> dataTicket) {
-		return getAnimatableInstanceCache().getManagerForId(0).getData(dataTicket);
-	}
 
-	/**
-	 * Saves an arbitrary piece of data to this animatable's {@link AnimatableManager}.<br>
-	 * <b><u>DO NOT OVERRIDE</u></b>
-	 * @param dataTicket The DataTicket to sync the data for
-	 * @param data The data to sync
-	 */
-	default <D> void setAnimData(SerializableDataTicket<D> dataTicket, D data) {
-		BlockEntity blockEntity = (BlockEntity)this;
-		Level level = blockEntity.getLevel();
+    /**
+     * Get server-synced animation data via its relevant {@link SerializableDataTicket}.<br>
+     * Should only be used on the <u>client-side</u>.<br>
+     * <b><u>DO NOT OVERRIDE</u></b>
+     *
+     * @param dataTicket The data ticket for the data to retrieve
+     * @return The synced data, or null if no data of that type has been synced
+     */
+    @Nullable
+    default <D> D getAnimData(SerializableDataTicket<D> dataTicket) {
+        return getAnimatableInstanceCache().getManagerForId(0).getData(dataTicket);
+    }
 
-		if (level == null) {
-			AzureLib.LOGGER.error("Attempting to set animation data for BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})", blockEntity.getClass());
+    /**
+     * Saves an arbitrary piece of data to this animatable's {@link AnimatableManager}.<br>
+     * <b><u>DO NOT OVERRIDE</u></b>
+     *
+     * @param dataTicket The DataTicket to sync the data for
+     * @param data       The data to sync
+     */
+    default <D> void setAnimData(SerializableDataTicket<D> dataTicket, D data) {
+        BlockEntity blockEntity = (BlockEntity) this;
+        Level level = blockEntity.getLevel();
 
-			return;
-		}
+        if (level == null) {
+            AzureLib.LOGGER.error(
+                "Attempting to set animation data for BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})",
+                blockEntity.getClass()
+            );
 
-		if (level.isClientSide()) {
-			getAnimatableInstanceCache().getManagerForId(0).setData(dataTicket, data);
-		}
-		else {
-			BlockPos pos = blockEntity.getBlockPos();
+            return;
+        }
 
-			BlockEntityAnimDataSyncPacket<D> blockEntityAnimDataSyncPacket = new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, data);
-			Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimDataSyncPacket, (ServerLevel) level, pos);
-		}
-	}
+        if (level.isClientSide()) {
+            getAnimatableInstanceCache().getManagerForId(0).setData(dataTicket, data);
+        } else {
+            BlockPos pos = blockEntity.getBlockPos();
 
-	/**
-	 * Trigger an animation for this BlockEntity, based on the controller name and animation name.<br>
-	 * <b><u>DO NOT OVERRIDE</u></b>
-	 * @param controllerName The name of the controller name the animation belongs to, or null to do an inefficient lazy search
-	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
-	 */
-	default void triggerAnim(@Nullable String controllerName, String animName) {
-		BlockEntity blockEntity = (BlockEntity)this;
-		Level level = blockEntity.getLevel();
+            BlockEntityAnimDataSyncPacket<D> blockEntityAnimDataSyncPacket = new BlockEntityAnimDataSyncPacket<>(
+                pos,
+                dataTicket,
+                data
+            );
+            Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimDataSyncPacket, (ServerLevel) level, pos);
+        }
+    }
 
-		if (level == null) {
-			AzureLib.LOGGER.error("Attempting to trigger an animation for a BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})", blockEntity.getClass());
+    /**
+     * Trigger an animation for this BlockEntity, based on the controller name and animation name.<br>
+     * <b><u>DO NOT OVERRIDE</u></b>
+     *
+     * @param controllerName The name of the controller name the animation belongs to, or null to do an inefficient lazy
+     *                       search
+     * @param animName       The name of animation to trigger. This needs to have been registered with the controller
+     *                       via {@link mod.azure.azurelib.core.animation.AnimationController#triggerableAnim
+     *                       AnimationController.triggerableAnim}
+     */
+    default void triggerAnim(@Nullable String controllerName, String animName) {
+        BlockEntity blockEntity = (BlockEntity) this;
+        Level level = blockEntity.getLevel();
 
-			return;
-		}
+        if (level == null) {
+            AzureLib.LOGGER.error(
+                "Attempting to trigger an animation for a BlockEntity too early! Must wait until after the BlockEntity has been set in the world. ({})",
+                blockEntity.getClass()
+            );
 
-		if (level.isClientSide()) {
-			getAnimatableInstanceCache().getManagerForId(0).tryTriggerAnimation(controllerName, animName);
-		}
-		else {
-			BlockPos pos = blockEntity.getBlockPos();
+            return;
+        }
 
-			BlockEntityAnimTriggerPacket blockEntityAnimTriggerPacket = new BlockEntityAnimTriggerPacket(pos, controllerName, animName);
-			Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimTriggerPacket, (ServerLevel) level, pos);
-		}
-	}
+        if (level.isClientSide()) {
+            getAnimatableInstanceCache().getManagerForId(0).tryTriggerAnimation(controllerName, animName);
+        } else {
+            BlockPos pos = blockEntity.getBlockPos();
 
-	/**
-	 * Returns the current age/tick of the animatable instance.<br>
-	 * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables to provide their own values
-	 * @param blockEntity The BlockEntity representing this animatable
-	 * @return The current tick/age of the animatable, for animation purposes
-	 */
-	@Override
-	default double getTick(Object blockEntity) {
-		return RenderUtils.getCurrentTick();
-	}
+            BlockEntityAnimTriggerPacket blockEntityAnimTriggerPacket = new BlockEntityAnimTriggerPacket(
+                pos,
+                controllerName,
+                animName
+            );
+            Services.NETWORK.sendToEntitiesTrackingChunk(blockEntityAnimTriggerPacket, (ServerLevel) level, pos);
+        }
+    }
+
+    /**
+     * Returns the current age/tick of the animatable instance.<br>
+     * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables
+     * to provide their own values
+     *
+     * @param blockEntity The BlockEntity representing this animatable
+     * @return The current tick/age of the animatable, for animation purposes
+     */
+    @Override
+    default double getTick(Object blockEntity) {
+        return RenderUtils.getCurrentTick();
+    }
 }

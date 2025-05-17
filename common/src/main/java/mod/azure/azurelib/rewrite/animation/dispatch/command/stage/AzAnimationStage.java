@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.stage;
 
-import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 
 public record AzAnimationStage(
     String name,
@@ -21,6 +22,5 @@ public record AzAnimationStage(
         buf.writeUtf(stage.name());
         AzAnimationStageProperties.ENCODER.accept(buf, stage.properties());
     };
-
 
 }

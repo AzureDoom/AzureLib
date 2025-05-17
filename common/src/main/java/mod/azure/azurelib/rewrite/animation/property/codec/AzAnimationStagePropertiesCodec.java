@@ -1,15 +1,15 @@
 package mod.azure.azurelib.rewrite.animation.property.codec;
 
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypeRegistry;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviorRegistry;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
-import net.minecraft.network.FriendlyByteBuf;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class AzAnimationStagePropertiesCodec {
 

@@ -1,13 +1,14 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.utils.Interpolations;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.core.utils.Interpolations;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 
 public interface AzEasingType {
 
@@ -15,8 +16,9 @@ public interface AzEasingType {
 
     Double2DoubleFunction buildTransformer(Double value);
 
-    Function<FriendlyByteBuf, AzEasingType> DECODER = buf ->
-            Objects.requireNonNull(AzEasingTypeRegistry.getOrNull(buf.readUtf()));
+    Function<FriendlyByteBuf, AzEasingType> DECODER = buf -> Objects.requireNonNull(
+        AzEasingTypeRegistry.getOrNull(buf.readUtf())
+    );
 
     BiConsumer<FriendlyByteBuf, AzEasingType> ENCODER = (buf, val) -> buf.writeUtf(val.name());
 

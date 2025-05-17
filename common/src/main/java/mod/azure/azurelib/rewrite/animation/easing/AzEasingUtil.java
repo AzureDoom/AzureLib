@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 
 public class AzEasingUtil {
@@ -17,20 +18,21 @@ public class AzEasingUtil {
      * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
      *
      * @param delta The interpolation parameter (between 0 and 1)
-     * @param p0 First control point (anchor)
-     * @param p1 Second control point (start point)
-     * @param p2 Third control point (end point)
-     * @param p3 Fourth control point (anchor)
+     * @param p0    First control point (anchor)
+     * @param p1    Second control point (start point)
+     * @param p2    Third control point (end point)
+     * @param p3    Fourth control point (anchor)
      * @return The interpolated value
      */
     public static double catmullRom(double delta, double p0, double p1, double p2, double p3) {
         return 0.5d * (2d * p1 + (p2 - p0) * delta +
-                (2d * p0 - 5d * p1 + 4d * p2 - p3) * delta * delta +
-                (3d * p1 - p0 - 3d * p2 + p3) * delta * delta * delta);
+            (2d * p0 - 5d * p1 + 4d * p2 - p3) * delta * delta +
+            (3d * p1 - p0 - 3d * p2 + p3) * delta * delta * delta);
     }
 
     /**
      * Simplified Catmull-Rom interpolation for single parameter
+     *
      * @param n The interpolation parameter
      * @return The interpolated value
      */

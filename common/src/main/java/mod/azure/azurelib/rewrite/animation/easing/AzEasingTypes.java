@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+
 import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
 
@@ -171,6 +172,7 @@ public class AzEasingTypes {
     public static final AzEasingType CATMULLROM = AzEasingTypeRegistry.register(
         "catmullrom",
         new AzEasingType() {
+
             @Override
             public String name() {
                 return "Catmull-Rom";
@@ -191,17 +193,17 @@ public class AzEasingTypes {
 
                 if (easingArgs.size() < 2)
                     return Interpolations.lerp(
-                            buildTransformer(easingValue).apply(lerpValue),
-                            animationPoint.animationStartValue(),
-                            animationPoint.animationEndValue()
+                        buildTransformer(easingValue).apply(lerpValue),
+                        animationPoint.animationStartValue(),
+                        animationPoint.animationEndValue()
                     );
 
                 return AzEasingUtil.catmullRom(
-                        lerpValue,
-                        easingArgs.get(0).get(),
-                        animationPoint.animationStartValue(),
-                        animationPoint.animationEndValue(),
-                        easingArgs.get(1).get()
+                    lerpValue,
+                    easingArgs.get(0).get(),
+                    animationPoint.animationStartValue(),
+                    animationPoint.animationEndValue(),
+                    easingArgs.get(1).get()
                 );
             }
         }

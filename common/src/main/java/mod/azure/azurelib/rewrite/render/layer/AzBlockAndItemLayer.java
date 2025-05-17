@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,6 +12,7 @@ import java.util.function.Function;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * A {@link AzRenderLayer} responsible for rendering {@link net.minecraft.world.level.block.state.BlockState
@@ -30,8 +30,8 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
     }
 
     public AzBlockAndItemLayer(
-            Function<AzBone, ItemStack> itemStackProvider,
-            Function<AzBone, BlockState> blockStateProvider
+        Function<AzBone, ItemStack> itemStackProvider,
+        Function<AzBone, BlockState> blockStateProvider
     ) {
         super();
 
@@ -120,39 +120,39 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param itemStack the {@link ItemStack} to render
      */
     protected void renderItemForBone(
-            AzRendererPipelineContext<T> context,
-            AzBone bone,
-            ItemStack itemStack,
-            T animatable
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        ItemStack itemStack,
+        T animatable
     ) {
         if (context.animatable() instanceof LivingEntity livingEntity) {
             Minecraft.getInstance()
-                    .getItemRenderer()
-                    .renderStatic(
-                            livingEntity,
-                            itemStack,
-                            getTransformTypeForStack(bone, itemStack, animatable),
-                            false,
-                            context.poseStack(),
-                            context.multiBufferSource(),
-                            livingEntity.level(),
-                            context.packedLight(),
-                            context.packedOverlay(),
-                            livingEntity.getId()
-                    );
+                .getItemRenderer()
+                .renderStatic(
+                    livingEntity,
+                    itemStack,
+                    getTransformTypeForStack(bone, itemStack, animatable),
+                    false,
+                    context.poseStack(),
+                    context.multiBufferSource(),
+                    livingEntity.level(),
+                    context.packedLight(),
+                    context.packedOverlay(),
+                    livingEntity.getId()
+                );
         } else {
             Minecraft.getInstance()
-                    .getItemRenderer()
-                    .renderStatic(
-                            itemStack,
-                            getTransformTypeForStack(bone, itemStack, animatable),
-                            context.packedLight(),
-                            context.packedOverlay(),
-                            context.poseStack(),
-                            context.multiBufferSource(),
-                            Minecraft.getInstance().level,
-                            context.animatable().hashCode()
-                    );
+                .getItemRenderer()
+                .renderStatic(
+                    itemStack,
+                    getTransformTypeForStack(bone, itemStack, animatable),
+                    context.packedLight(),
+                    context.packedOverlay(),
+                    context.poseStack(),
+                    context.multiBufferSource(),
+                    Minecraft.getInstance().level,
+                    context.animatable().hashCode()
+                );
         }
     }
 
@@ -165,10 +165,10 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param blockState the {@link BlockState} to render
      */
     protected void renderBlockForBone(
-            AzRendererPipelineContext<T> context,
-            AzBone bone,
-            BlockState blockState,
-            T animatable
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        BlockState blockState,
+        T animatable
     ) {
         context.poseStack().pushPose();
 
@@ -176,14 +176,14 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
         context.poseStack().scale(0.5f, 0.5f, 0.5f);
 
         Minecraft.getInstance()
-                .getBlockRenderer()
-                .renderSingleBlock(
-                        blockState,
-                        context.poseStack(),
-                        context.multiBufferSource(),
-                        context.packedLight(),
-                        OverlayTexture.NO_OVERLAY
-                );
+            .getBlockRenderer()
+            .renderSingleBlock(
+                blockState,
+                context.poseStack(),
+                context.multiBufferSource(),
+                context.packedLight(),
+                OverlayTexture.NO_OVERLAY
+            );
 
         context.poseStack().popPose();
     }

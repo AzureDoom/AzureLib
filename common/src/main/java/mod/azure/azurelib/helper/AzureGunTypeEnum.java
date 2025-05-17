@@ -1,4 +1,3 @@
 package mod.azure.azurelib.helper;
 
-public enum AzureGunTypeEnum {
-}
+public enum AzureGunTypeEnum {}

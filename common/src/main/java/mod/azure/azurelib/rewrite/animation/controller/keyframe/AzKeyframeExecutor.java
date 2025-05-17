@@ -1,5 +1,9 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.NoSuchElementException;
+
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -8,9 +12,6 @@ import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerTimer;
 import mod.azure.azurelib.rewrite.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.NoSuchElementException;
 
 /**
  * AzKeyframeExecutor is a specialized implementation of {@link AzAbstractKeyframeExecutor}, designed to handle
@@ -42,7 +43,8 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
      *                              bone, or continue with the remaining bones
      */
     public void execute(@NotNull AzQueuedAnimation currentAnimation, T animatable, boolean crashWhenCantFindBone) {
-        AzKeyframeCallbackHandler<T> keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
+        AzKeyframeCallbackHandler<T> keyframeCallbackHandler = animationController.keyframeManager()
+            .keyframeCallbackHandler();
         AzAnimationControllerTimer<T> controllerTimer = animationController.controllerTimer();
         float transitionLength = animationController.animationProperties().transitionLength();
 

@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
-import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 
 /**
  * Represents a queue of animations to be processed in a sequential manner. This class manages a collection of

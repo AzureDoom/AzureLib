@@ -147,10 +147,18 @@ public class AzEntityLeashRenderUtil {
             : yDif - yDif * (1.0f - piecePosPercent) * (1.0f - piecePosPercent);
         var z = zDif * piecePosPercent;
 
-        buffer.vertex(positionMatrix, x - xOffset, y + yOffset, z + zOffset).color(red, green, blue, 1).uv2(
-                packedLight).endVertex();
-        buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1).uv2(
-                packedLight).endVertex();
+        buffer.vertex(positionMatrix, x - xOffset, y + yOffset, z + zOffset)
+            .color(red, green, blue, 1)
+            .uv2(
+                packedLight
+            )
+            .endVertex();
+        buffer.vertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset)
+            .color(red, green, blue, 1)
+            .uv2(
+                packedLight
+            )
+            .endVertex();
     }
 
     private AzEntityLeashRenderUtil() {

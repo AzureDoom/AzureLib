@@ -1,60 +1,59 @@
 package mod.azure.azurelib.core.utils;
 
 public final class MathHelper {
-	/**
-	 * the angle is reduced to an angle between -180 and +180 by mod, and a 360
-	 * check
-	 */
-	public static float wrapDegrees(float value) {
-		value = value % 360.0F;
 
-		if (value >= 180.0F) {
-			value -= 360.0F;
-		}
+    /**
+     * the angle is reduced to an angle between -180 and +180 by mod, and a 360 check
+     */
+    public static float wrapDegrees(float value) {
+        value = value % 360.0F;
 
-		if (value < -180.0F) {
-			value += 360.0F;
-		}
+        if (value >= 180.0F) {
+            value -= 360.0F;
+        }
 
-		return value;
-	}
+        if (value < -180.0F) {
+            value += 360.0F;
+        }
 
-	/**
-	 * the angle is reduced to an angle between -180 and +180 by mod, and a 360
-	 * check
-	 */
-	public static double wrapDegrees(double value) {
-		value = value % 360.0D;
+        return value;
+    }
 
-		if (value >= 180.0D) {
-			value -= 360.0D;
-		}
+    /**
+     * the angle is reduced to an angle between -180 and +180 by mod, and a 360 check
+     */
+    public static double wrapDegrees(double value) {
+        value = value % 360.0D;
 
-		if (value < -180.0D) {
-			value += 360.0D;
-		}
+        if (value >= 180.0D) {
+            value -= 360.0D;
+        }
 
-		return value;
-	}
+        if (value < -180.0D) {
+            value += 360.0D;
+        }
 
-	/**
-	 * Adjust the angle so that his value is in range [-180;180[
-	 */
-	public static int wrapDegrees(int angle) {
-		angle = angle % 360;
+        return value;
+    }
 
-		if (angle >= 180) {
-			angle -= 360;
-		}
+    /**
+     * Adjust the angle so that his value is in range [-180;180[
+     */
+    public static int wrapDegrees(int angle) {
+        angle = angle % 360;
 
-		if (angle < -180) {
-			angle += 360;
-		}
+        if (angle >= 180) {
+            angle -= 360;
+        }
 
-		return angle;
-	}
+        if (angle < -180) {
+            angle += 360;
+        }
 
-	private MathHelper() {
-		throw new UnsupportedOperationException();
-	}
+        return angle;
+    }
+
+    private MathHelper() {
+        throw new UnsupportedOperationException();
+    }
 }

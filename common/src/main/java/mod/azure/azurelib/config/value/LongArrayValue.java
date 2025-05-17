@@ -1,24 +1,24 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.value;
+
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.Configurable;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
-import net.minecraft.network.FriendlyByteBuf;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
 
 public class LongArrayValue extends ConfigValue<long[]> implements ArrayValue {
 
     private boolean fixedSize;
+
     private IntegerValue.Range range;
 
     public LongArrayValue(ValueData<long[]> valueData) {
@@ -34,7 +34,9 @@ public class LongArrayValue extends ConfigValue<long[]> implements ArrayValue {
     protected void readFieldData(Field field) {
         this.fixedSize = field.getAnnotation(Configurable.FixedSize.class) != null;
         Configurable.Range intRange = field.getAnnotation(Configurable.Range.class);
-        this.range = intRange != null ? IntegerValue.Range.newBoundedRange(intRange.min(), intRange.max()) : IntegerValue.Range.unboundedLong();
+        this.range = intRange != null
+            ? IntegerValue.Range.newBoundedRange(intRange.min(), intRange.max())
+            : IntegerValue.Range.unboundedLong();
     }
 
     @Override
@@ -42,7 +44,11 @@ public class LongArrayValue extends ConfigValue<long[]> implements ArrayValue {
         if (this.fixedSize) {
             long[] defaultArray = this.valueData.getDefaultValue();
             if (in.length != defaultArray.length) {
-                ConfigUtils.logArraySizeCorrectedMessage(this.getId(), Arrays.toString(in), Arrays.toString(defaultArray));
+                ConfigUtils.logArraySizeCorrectedMessage(
+                    this.getId(),
+                    Arrays.toString(in),
+                    Arrays.toString(defaultArray)
+                );
                 in = defaultArray;
             }
         }
@@ -109,7 +115,13 @@ public class LongArrayValue extends ConfigValue<long[]> implements ArrayValue {
         }
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new LongArrayValue(ValueData.of(name, (long[]) value, context, comments));
         }
     }

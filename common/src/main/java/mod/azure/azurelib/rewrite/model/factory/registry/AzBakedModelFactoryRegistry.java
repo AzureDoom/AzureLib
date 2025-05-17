@@ -1,11 +1,12 @@
 package mod.azure.azurelib.rewrite.model.factory.registry;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.Map;
+
 import mod.azure.azurelib.rewrite.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.rewrite.model.factory.impl.AzBuiltinBakedModelFactory;
 import mod.azure.azurelib.util.AzureLibUtil;
-
-import java.util.Map;
 
 /**
  * A registry for managing instances of {@link AzBakedModelFactory} that are used to handle the creation of baked models

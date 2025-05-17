@@ -1,13 +1,14 @@
 package mod.azure.azurelib.rewrite.render.item;
 
-import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 
 /**
  * A specialized subclass of {@link AzRendererPipelineContext} designed for rendering {@link ItemStack} objects.
@@ -43,7 +44,7 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
         float partialTick
     ) {
         return translucent
-                   ? RenderType.itemEntityTranslucentCull(texture)
-                   : RenderType.entityCutoutNoCull(texture);
+            ? RenderType.itemEntityTranslucentCull(texture)
+            : RenderType.entityCutoutNoCull(texture);
     }
 }

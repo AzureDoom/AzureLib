@@ -1,13 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
+import java.util.List;
+
 import mod.azure.azurelib.core.keyframe.AnimationPoint;
 import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.KeyframeLocation;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.object.Axis;
-
-import java.util.List;
 
 /**
  * AzAbstractKeyframeExecutor is a base class designed to handle animations and transitions between keyframes in a

@@ -1,15 +1,13 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.value;
 
-import mod.azure.azurelib.config.Configurable;
-
 import java.lang.reflect.Field;
 import java.util.Objects;
+
+import mod.azure.azurelib.config.Configurable;
 
 public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 
@@ -39,6 +37,7 @@ public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
     public static final class Range {
 
         private final double min;
+
         private final double max;
 
         private Range(double min, double max) {
@@ -48,7 +47,9 @@ public abstract class DecimalValue<N extends Number> extends ConfigValue<N> {
 
         public static Range newBoundedRange(double min, double max) {
             if (min > max) {
-                throw new IllegalArgumentException(String.format("Invalid number range: Min value (%f) cannot be bigger than max value (%f)", min, max));
+                throw new IllegalArgumentException(
+                    String.format("Invalid number range: Min value (%f) cannot be bigger than max value (%f)", min, max)
+                );
             }
             return new Range(min, max);
         }

@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
-import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+
+import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
+import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
 
 /**
  * A cache system for managing and storing {@link AzBoneSnapshot} objects related to specific animations and their

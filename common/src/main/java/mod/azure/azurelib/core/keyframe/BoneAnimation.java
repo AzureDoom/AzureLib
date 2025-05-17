@@ -1,13 +1,10 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 /*
- * Copyright (c) 2020.
- * Author: Bernie G. (Gecko)
+ * Copyright (c) 2020. Author: Bernie G. (Gecko)
  */
 
 package mod.azure.azurelib.core.keyframe;
@@ -23,8 +20,9 @@ import mod.azure.azurelib.core.math.IValue;
  * @param positionKeyFrames The deserialized position {@code Keyframe} stack
  * @param scaleKeyFrames    The deserialized scale {@code Keyframe} stack
  */
-public record BoneAnimation(String boneName,
-                            KeyframeStack<Keyframe<IValue>> rotationKeyFrames,
-                            KeyframeStack<Keyframe<IValue>> positionKeyFrames,
-                            KeyframeStack<Keyframe<IValue>> scaleKeyFrames) {
-}
+public record BoneAnimation(
+    String boneName,
+    KeyframeStack<Keyframe<IValue>> rotationKeyFrames,
+    KeyframeStack<Keyframe<IValue>> positionKeyFrames,
+    KeyframeStack<Keyframe<IValue>> scaleKeyFrames
+) {}

@@ -1,8 +1,6 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
-import mod.azure.azurelib.rewrite.render.AzProvider;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -11,6 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base

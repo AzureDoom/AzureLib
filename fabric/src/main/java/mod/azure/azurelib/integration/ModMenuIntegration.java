@@ -2,13 +2,14 @@ package mod.azure.azurelib.integration;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import mod.azure.azurelib.client.AzureLibClient;
-import mod.azure.azurelib.config.ConfigHolder;
-import mod.azure.azurelib.platform.Services;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import mod.azure.azurelib.client.AzureLibClient;
+import mod.azure.azurelib.config.ConfigHolder;
+import mod.azure.azurelib.platform.Services;
 
 public class ModMenuIntegration implements ModMenuApi {
 

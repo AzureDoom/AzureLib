@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.client;
 
@@ -17,12 +15,13 @@ public final class DisplayAdapterManager {
     private static final Map<TypeMatcher, DisplayAdapter> ADAPTER_MAP = new HashMap<>();
 
     public static DisplayAdapter forType(Class<?> type) {
-        return ADAPTER_MAP.entrySet().stream()
-                .filter(entry -> entry.getKey().test(type))
-                .sorted(Comparator.comparingInt(value -> value.getKey().priority()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
+        return ADAPTER_MAP.entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().test(type))
+            .sorted(Comparator.comparingInt(value -> value.getKey().priority()))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .orElse(null);
     }
 
     public static void registerDisplayAdapter(TypeMatcher matcher, DisplayAdapter adapter) {

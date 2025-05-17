@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.rewrite.animation.AzBoneAnimationUpdateUtil;
-import mod.azure.azurelib.rewrite.animation.cache.AzBoneCache;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzBoneAnimationQueue;
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+
+import mod.azure.azurelib.rewrite.animation.AzBoneAnimationUpdateUtil;
+import mod.azure.azurelib.rewrite.animation.cache.AzBoneCache;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzBoneAnimationQueue;
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 
 /**
  * The AzBoneAnimationQueueCache class is responsible for managing and updating animation queues for bones. It acts as a

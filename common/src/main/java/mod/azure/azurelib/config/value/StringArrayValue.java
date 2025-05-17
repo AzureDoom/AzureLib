@@ -1,10 +1,10 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.value;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -17,12 +17,13 @@ import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
 import mod.azure.azurelib.config.io.ConfigIO;
-import net.minecraft.network.FriendlyByteBuf;
 
 public class StringArrayValue extends ConfigValue<String[]> implements ArrayValue {
 
     private boolean fixedSize;
+
     private Pattern pattern;
+
     private String defaultElementValue = "";
 
     public StringArrayValue(ValueData<String[]> valueData) {
@@ -44,10 +45,22 @@ public class StringArrayValue extends ConfigValue<String[]> implements ArrayValu
             try {
                 this.pattern = Pattern.compile(value, stringPattern.flags());
             } catch (IllegalArgumentException e) {
-            	AzureLib.LOGGER.error(ConfigIO.MARKER, "Invalid @StringPattern value for {} field - {}", this.getId(), e);
+                AzureLib.LOGGER.error(
+                    ConfigIO.MARKER,
+                    "Invalid @StringPattern value for {} field - {}",
+                    this.getId(),
+                    e
+                );
             }
             if (this.pattern != null && !this.pattern.matcher(this.defaultElementValue).matches()) {
-                throw new IllegalArgumentException(String.format("Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\", this.defaultElementValue, this.getId(), this.pattern.toString()));
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Invalid config default value '%s' for field '%s' - does not match required pattern \\%s\\",
+                        this.defaultElementValue,
+                        this.getId(),
+                        this.pattern.toString()
+                    )
+                );
             }
         }
     }
@@ -121,7 +134,13 @@ public class StringArrayValue extends ConfigValue<String[]> implements ArrayValu
         }
 
         @Override
-        public ConfigValue<?> serialize(String name, String[] comments, Object value, TypeSerializer serializer, AdapterContext context) throws IllegalAccessException {
+        public ConfigValue<?> serialize(
+            String name,
+            String[] comments,
+            Object value,
+            TypeSerializer serializer,
+            AdapterContext context
+        ) throws IllegalAccessException {
             return new StringArrayValue(ValueData.of(name, (String[]) value, context, comments));
         }
     }

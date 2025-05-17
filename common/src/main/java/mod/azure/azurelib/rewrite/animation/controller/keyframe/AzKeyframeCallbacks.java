@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
+import org.jetbrains.annotations.Nullable;
+
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzCustomKeyframeHandler;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzParticleKeyframeHandler;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzSoundKeyframeHandler;
 import mod.azure.azurelib.rewrite.animation.event.AzCustomInstructionKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.event.AzParticleKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.event.AzSoundKeyframeEvent;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The AzKeyframeCallbacks class manages callbacks for different types of keyframe events, enabling the handling of

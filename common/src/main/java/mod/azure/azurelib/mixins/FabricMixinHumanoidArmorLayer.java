@@ -4,10 +4,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.animatable.client.RenderProvider;
-import mod.azure.azurelib.renderer.GeoArmorRenderer;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,48 +21,54 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.animatable.client.RenderProvider;
+import mod.azure.azurelib.renderer.GeoArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+
 /**
  * Render hook for injecting AzureLib's armor rendering functionalities
  */
 @Mixin(value = HumanoidArmorLayer.class, priority = 700)
 public abstract class FabricMixinHumanoidArmorLayer<T extends LivingEntity, A extends HumanoidModel<T>> {
+
     @ModifyExpressionValue(
-            method = "renderArmorPiece",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"
-            )
+        method = "renderArmorPiece",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"
+        )
     )
     private ItemStack azurelib$captureItemBySlot(
-            ItemStack original,
-            @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
+        ItemStack original,
+        @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
     ) {
         itemBySlotRef.set(original);
         return original;
     }
 
     @Inject(
-            method = "renderArmorPiece", at = @At(
+        method = "renderArmorPiece", at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/entity/layers/HumanoidArmorLayer;usesInnerModel(Lnet/minecraft/world/entity/EquipmentSlot;)Z"
-    ), cancellable = true
+        ), cancellable = true
     )
     public void azurelib$renderAzurelibModel(
-            PoseStack poseStack,
-            MultiBufferSource bufferSource,
-            T entity,
-            EquipmentSlot equipmentSlot,
-            int packedLight,
-            A baseModel,
-            CallbackInfo ci,
-            @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        T entity,
+        EquipmentSlot equipmentSlot,
+        int packedLight,
+        A baseModel,
+        CallbackInfo ci,
+        @Share("item_by_slot") LocalRef<ItemStack> itemBySlotRef
     ) {
         var stack = itemBySlotRef.get();
         var renderProvider = RenderProvider.of(stack);
         @SuppressWarnings("unchecked")
         var humanoidModel = (HumanoidModel<LivingEntity>) baseModel;
         var geckolibModel = renderProvider
-                .getGenericArmorModel(entity, stack, equipmentSlot, humanoidModel);
+            .getGenericArmorModel(entity, stack, equipmentSlot, humanoidModel);
 
         if (geckolibModel != null && stack.getItem() instanceof GeoItem) {
             if (geckolibModel instanceof GeoArmorRenderer<?> geoArmorRenderer) {

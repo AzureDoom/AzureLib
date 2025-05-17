@@ -1,24 +1,27 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.value;
 
-import java.util.Objects;
-
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 
 public final class ValueData<T> implements IDescriptionProvider {
 
     private final String id;
+
     private final String[] tooltip;
+
     private final T defaultValue;
+
     private final TypeAdapter.AdapterContext context;
+
     private final Class<T> valueType;
+
     @Nullable
     private ConfigValue<?> parent;
 

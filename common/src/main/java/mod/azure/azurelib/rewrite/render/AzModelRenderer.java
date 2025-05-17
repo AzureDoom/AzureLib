@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.util.RenderUtils;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone
@@ -146,20 +147,21 @@ public class AzModelRenderer<T> {
             var vector4f = poseState.transform(poseStateTransformCache);
 
             buffer.vertex(
-                    vector4f.x(),
-                    vector4f.y(),
-                    vector4f.z(),
-                    context.red(),
-                    context.green(),
-                    context.blue(),
-                    context.alpha(),
-                    vertex.texU(),
-                    vertex.texV(),
-                    packedOverlay,
-                    packedLight,
-                    normal.x(),
-                    normal.y(),
-                    normal.z());
+                vector4f.x(),
+                vector4f.y(),
+                vector4f.z(),
+                context.red(),
+                context.green(),
+                context.blue(),
+                context.alpha(),
+                vertex.texU(),
+                vertex.texV(),
+                packedOverlay,
+                packedLight,
+                normal.x(),
+                normal.y(),
+                normal.z()
+            );
         }
     }
 }

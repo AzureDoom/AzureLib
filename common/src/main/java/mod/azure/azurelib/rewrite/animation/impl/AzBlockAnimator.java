@@ -1,8 +1,9 @@
 package mod.azure.azurelib.rewrite.animation.impl;
 
+import net.minecraft.world.level.block.entity.BlockEntity;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorConfig;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * The {@code AzBlockAnimator} class extends the functionality of the {@link AzAnimator} to provide animation support

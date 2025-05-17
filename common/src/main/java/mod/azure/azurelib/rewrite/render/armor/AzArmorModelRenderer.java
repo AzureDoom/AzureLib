@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
+import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzPhasedRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
 

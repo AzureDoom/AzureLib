@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animatable.client;
 
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.mixins.ItemRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -11,12 +9,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.mixins.ItemRendererAccessor;
+
 /**
  * Internal interface for safely providing a custom renderer instances at runtime.<br>
  * This can be safely instantiated as a new anonymous class inside your {@link Item} class
  */
 @Deprecated(forRemoval = true)
 public interface RenderProvider {
+
     RenderProvider DEFAULT = new RenderProvider() {};
 
     static RenderProvider of(ItemStack itemStack) {
@@ -24,20 +26,29 @@ public interface RenderProvider {
     }
 
     static RenderProvider of(Item item) {
-        if(item instanceof GeoItem geoItem){
-            return (RenderProvider)geoItem.getRenderProvider().get();
+        if (item instanceof GeoItem geoItem) {
+            return (RenderProvider) geoItem.getRenderProvider().get();
         }
 
         return DEFAULT;
     }
 
-    default BlockEntityWithoutLevelRenderer getCustomRenderer(){
-        return ((ItemRendererAccessor)Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
+    default BlockEntityWithoutLevelRenderer getCustomRenderer() {
+        return ((ItemRendererAccessor) Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
     }
 
-
-    default Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {
-        HumanoidModel<LivingEntity> replacement = getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+    default Model getGenericArmorModel(
+        LivingEntity livingEntity,
+        ItemStack itemStack,
+        EquipmentSlot equipmentSlot,
+        HumanoidModel<LivingEntity> original
+    ) {
+        HumanoidModel<LivingEntity> replacement = getHumanoidArmorModel(
+            livingEntity,
+            itemStack,
+            equipmentSlot,
+            original
+        );
 
         if (replacement != original) {
             original.copyPropertiesTo(replacement);
@@ -47,7 +58,12 @@ public interface RenderProvider {
         return original;
     }
 
-    default HumanoidModel<LivingEntity> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {
+    default HumanoidModel<LivingEntity> getHumanoidArmorModel(
+        LivingEntity livingEntity,
+        ItemStack itemStack,
+        EquipmentSlot equipmentSlot,
+        HumanoidModel<LivingEntity> original
+    ) {
         return original;
     }
 }

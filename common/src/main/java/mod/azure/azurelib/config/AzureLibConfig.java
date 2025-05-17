@@ -4,12 +4,15 @@ import mod.azure.azurelib.AzureLib;
 
 @Config(id = AzureLib.MOD_ID)
 public class AzureLibConfig {
+
     @Configurable
     @Configurable.Synchronized
     public boolean disableOptifineWarning = false;
+
     @Configurable
     @Configurable.Synchronized
     public boolean useVanillaUseKey = true;
+
     @Configurable
     @Configurable.Synchronized
     public boolean useIncendiaryEnchantment = true;

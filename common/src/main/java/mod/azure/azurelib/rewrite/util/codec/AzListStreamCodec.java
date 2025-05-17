@@ -11,6 +11,7 @@ import java.util.function.Function;
 public class AzListStreamCodec<T> {
 
     private final Function<FriendlyByteBuf, T> decoder; // Function to decode an element from the buffer
+
     private final BiConsumer<FriendlyByteBuf, T> encoder; // BiConsumer to encode an element into the buffer
 
     public AzListStreamCodec(Function<FriendlyByteBuf, T> decoder, BiConsumer<FriendlyByteBuf, T> encoder) {

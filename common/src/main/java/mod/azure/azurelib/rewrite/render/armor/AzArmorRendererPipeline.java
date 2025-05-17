@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
-import mod.azure.azurelib.rewrite.render.*;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
+
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.rewrite.render.*;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
 

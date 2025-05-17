@@ -6,9 +6,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * A utility class for analyzing the movement of an {@link Entity} in the game world.
  * <p>
- * This class tracks the movement of an entity by calculating its position deltas
- * over time. It provides methods to check if the entity is moving horizontally,
- * vertically, or overall in any direction.
+ * This class tracks the movement of an entity by calculating its position deltas over time. It provides methods to
+ * check if the entity is moving horizontally, vertically, or overall in any direction.
  * </p>
  */
 public class MoveAnalysis {
@@ -56,9 +55,8 @@ public class MoveAnalysis {
     /**
      * Updates the movement analysis with the entity's current position.
      * <p>
-     * This method calculates the change in position (delta) for each axis (X, Y, Z)
-     * since the last update. The update only occurs if the entity's tick count has
-     * increased since the last recorded tick.
+     * This method calculates the change in position (delta) for each axis (X, Y, Z) since the last update. The update
+     * only occurs if the entity's tick count has increased since the last recorded tick.
      * </p>
      */
     public void update() {

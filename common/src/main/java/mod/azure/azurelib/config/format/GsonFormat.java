@@ -1,10 +1,16 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.format;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 
 import java.io.File;
 import java.io.FileReader;
@@ -18,14 +24,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.exception.ConfigReadException;
@@ -37,6 +35,7 @@ import mod.azure.azurelib.config.value.IDescriptionProvider;
 public final class GsonFormat implements IConfigFormat {
 
     private final Gson gson;
+
     private final JsonObject root;
 
     public GsonFormat(Settings settings) {
@@ -294,12 +293,16 @@ public final class GsonFormat implements IConfigFormat {
         try {
             return function.apply(element);
         } catch (Exception e) {
-        	AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
+            AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
             throw new ConfigValueMissingException("Invalid value");
         }
     }
 
-    private <T> T[] readArray(String field, Function<Integer, T[]> arrayFactory, Function<JsonElement, T> function) throws ConfigValueMissingException {
+    private <T> T[] readArray(
+        String field,
+        Function<Integer, T[]> arrayFactory,
+        Function<JsonElement, T> function
+    ) throws ConfigValueMissingException {
         JsonElement element = this.root.get(field);
         if (element == null || !element.isJsonArray()) {
             throw new ConfigValueMissingException("Missing value: " + field);
@@ -313,7 +316,7 @@ public final class GsonFormat implements IConfigFormat {
             }
             return arr;
         } catch (Exception e) {
-        	AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
+            AzureLib.LOGGER.error(ConfigIO.MARKER, "Error loading value for field {} - {}", field, e);
             throw new ConfigValueMissingException("Invalid value");
         }
     }
@@ -336,6 +339,7 @@ public final class GsonFormat implements IConfigFormat {
 
         /**
          * Constructs new settings and allows you to customize {@link GsonBuilder} object
+         *
          * @param consumer Consumer of {@link GsonBuilder} for this settings object
          */
         public Settings(Consumer<GsonBuilder> consumer) {

@@ -1,14 +1,8 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -21,19 +15,22 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import net.minecraft.world.level.entity.EntityAccess;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
@@ -138,7 +135,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
             context.poseStack().pushPose();
             context.poseStack().scale(-1, -1, 1);
 
-
             if (renderer != null) {
                 prepModelPartForRender(context, bone, modelPart);
                 renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
@@ -179,9 +175,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      */
     @NotNull
     protected ModelPart getModelPartForBone(
-            AzRendererPipelineContext<T> context,
-            AzBone bone,
-            HumanoidModel<?> baseModel
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        HumanoidModel<?> baseModel
     ) {
         return baseModel.body;
     }
@@ -196,13 +192,13 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     }
 
     protected void renderAzArmorPiece(
-            AzRendererPipelineContext<T> context,
-            EquipmentSlot slot,
-            ItemStack armorStack,
-            AzArmorRenderer renderer,
-            LivingEntity entity,
-            HumanoidModel<T> model,
-            ModelPart modelPart
+        AzRendererPipelineContext<T> context,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        AzArmorRenderer renderer,
+        LivingEntity entity,
+        HumanoidModel<T> model,
+        ModelPart modelPart
     ) {
         var renderPipelines = renderer.rendererPipeline();
         var boneContext = renderPipelines.context().boneContext();
@@ -210,7 +206,16 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
         renderer.prepForRender(entity, armorStack, slot, model);
         boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
-        armorModel.renderToBuffer(context.poseStack(), null, context.packedLight(), OverlayTexture.NO_OVERLAY, context.red(), context.green(), context.blue(), context.alpha());
+        armorModel.renderToBuffer(
+            context.poseStack(),
+            null,
+            context.packedLight(),
+            OverlayTexture.NO_OVERLAY,
+            context.red(),
+            context.green(),
+            context.blue(),
+            context.alpha()
+        );
     }
 
     /**
@@ -224,12 +229,12 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ModelPart modelPart
     ) {
         var buffer = getVanillaArmorBuffer(
-                context,
-                armorStack,
-                slot,
-                bone,
-                false
-            );
+            context,
+            armorStack,
+            slot,
+            bone,
+            false
+        );
 
         modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay());
 
@@ -277,7 +282,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         }
 
         return context.multiBufferSource()
-            .getBuffer(RenderType.armorCutoutNoCull(getVanillaArmorResource(context.animatable(), stack, slot, bone.getName())));
+            .getBuffer(
+                RenderType.armorCutoutNoCull(getVanillaArmorResource(context.animatable(), stack, slot, bone.getName()))
+            );
     }
 
     /**
@@ -324,15 +331,19 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
             if (skullTag instanceof CompoundTag compoundTag) {
                 skullProfile = NbtUtils.readGameProfile(compoundTag);
-            }
-            else if (skullTag instanceof StringTag tag) {
+            } else if (skullTag instanceof StringTag tag) {
                 String skullOwner = tag.getAsString();
 
                 if (!skullOwner.isBlank()) {
                     CompoundTag profileTag = new CompoundTag();
 
-                    SkullBlockEntity.updateGameprofile(new GameProfile(null, skullOwner), name ->
-                            stackTag.put(PlayerHeadItem.TAG_SKULL_OWNER, NbtUtils.writeGameProfile(profileTag, name)));
+                    SkullBlockEntity.updateGameprofile(
+                        new GameProfile(null, skullOwner),
+                        name -> stackTag.put(
+                            PlayerHeadItem.TAG_SKULL_OWNER,
+                            NbtUtils.writeGameProfile(profileTag, name)
+                        )
+                    );
 
                     skullProfile = NbtUtils.readGameProfile(profileTag);
                 }
@@ -397,7 +408,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     /**
      * Gets a cached resource path for the vanilla armor layer texture for this armor piece.
      * <p>
-     * Equivalent to {@link net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer#getArmorLocation HumanoidArmorLayer.getArmorLocation}
+     * Equivalent to {@link net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer#getArmorLocation
+     * HumanoidArmorLayer.getArmorLocation}
      */
     public ResourceLocation getVanillaArmorResource(Entity entity, ItemStack stack, EquipmentSlot slot, String type) {
         String domain = "minecraft";
@@ -412,7 +424,13 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         if (!type.isBlank())
             type = "_" + type;
 
-        String texture = String.format("%s:textures/models/armor/%s_layer_%d%s.png", domain, path, (slot == EquipmentSlot.LEGS ? 2 : 1), type);
+        String texture = String.format(
+            "%s:textures/models/armor/%s_layer_%d%s.png",
+            domain,
+            path,
+            (slot == EquipmentSlot.LEGS ? 2 : 1),
+            type
+        );
         return ARMOR_PATH_CACHE.computeIfAbsent(texture, ResourceLocation::new);
     }
 }

@@ -1,10 +1,10 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.format;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,8 +21,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.exception.ConfigReadException;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
@@ -32,9 +30,12 @@ import mod.azure.azurelib.config.value.IDescriptionProvider;
 public final class PropertiesFormat implements IConfigFormat {
 
     private final Settings settings;
+
     private final StringBuilder buffer;
+
     @Nullable
     private final String prefix;
+
     private final Map<String, String> parsed;
 
     public PropertiesFormat(Settings settings) {
@@ -294,16 +295,16 @@ public final class PropertiesFormat implements IConfigFormat {
     @Override
     public void readMap(String field, Collection<ConfigValue<?>> values) throws ConfigValueMissingException {
         Set<String> validElements = this.parsed.keySet()
-                .stream()
-                .filter(key -> {
-                    String[] strings = key.split("\\.", 2);
-                    if (strings.length < 2) {
-                        return false;
-                    }
-                    String prefix = strings[0];
-                    return prefix.equals(field);
-                })
-                .collect(Collectors.toSet());
+            .stream()
+            .filter(key -> {
+                String[] strings = key.split("\\.", 2);
+                if (strings.length < 2) {
+                    return false;
+                }
+                String prefix = strings[0];
+                return prefix.equals(field);
+            })
+            .collect(Collectors.toSet());
         Map<String, String> parsed = new HashMap<>();
         for (String key : validElements) {
             String s = key.split("\\.", 2)[1];
@@ -392,11 +393,11 @@ public final class PropertiesFormat implements IConfigFormat {
     public static final class Settings {
 
         private String arraySeparator = ";";
+
         private int newlines = 1;
 
         /**
-         * Allows you to configure custom separator used for arrays in case the default
-         * one is causing issues
+         * Allows you to configure custom separator used for arrays in case the default one is causing issues
          *
          * @param arraySeparator Nonnull separator to be used
          * @return This instance
@@ -408,6 +409,7 @@ public final class PropertiesFormat implements IConfigFormat {
 
         /**
          * Specifies amount of newlines after each value (Not comments)
+         *
          * @param count Count of newlines
          * @return This instance
          */

@@ -1,11 +1,12 @@
 package mod.azure.azurelib.platform.services;
 
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.nio.file.Path;
+
+import mod.azure.azurelib.entities.TickingLightBlock;
+import mod.azure.azurelib.entities.TickingLightEntity;
 
 public interface IPlatformHelper {
 
@@ -37,7 +38,6 @@ public interface IPlatformHelper {
      * @return The name of the environment type.
      */
     default String getEnvironmentName() {
-
         return isDevelopmentEnvironment() ? "development" : "production";
     }
 

@@ -6,13 +6,14 @@
 package mod.azure.azurelib.rewrite.model;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.core.state.BoneSnapshot;
 import org.joml.*;
 
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
+import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>

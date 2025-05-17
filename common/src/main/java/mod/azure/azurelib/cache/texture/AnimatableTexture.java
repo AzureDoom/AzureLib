@@ -1,8 +1,6 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository.
- * Original source: https://github.com/bernie-g/geckolib
- * Copyright © 2024 Bernie-G.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache.texture;
@@ -14,30 +12,29 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
-import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.minecraft.util.Mth;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * Wrapper for {@link SimpleTexture SimpleTexture} implementation allowing for casual use of animated non-atlas textures
  */
 public class AnimatableTexture extends SimpleTexture {
+
     protected AnimationContents animationContents = null;
 
     protected boolean isAnimated = false;
@@ -49,7 +46,9 @@ public class AnimatableTexture extends SimpleTexture {
     @Override
     public void load(ResourceManager manager) throws IOException {
         Resource resource = manager.getResourceOrThrow(this.location);
-        AnimationMetadataSection animMeta = resource.metadata().getSection(AnimationMetadataSection.SERIALIZER).orElse(null);
+        AnimationMetadataSection animMeta = resource.metadata()
+            .getSection(AnimationMetadataSection.SERIALIZER)
+            .orElse(null);
 
         if (animMeta != null) {
             NativeImage nativeImage;
@@ -69,8 +68,23 @@ public class AnimatableTexture extends SimpleTexture {
             this.isAnimated = true;
 
             onRenderThread(() -> {
-                TextureUtil.prepareImage(getId(), 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height());
-                nativeImage.upload(0, 0, 0, 0, 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height(), false, false);
+                TextureUtil.prepareImage(
+                    getId(),
+                    0,
+                    this.animationContents.frameSize.width(),
+                    this.animationContents.frameSize.height()
+                );
+                nativeImage.upload(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    this.animationContents.frameSize.width(),
+                    this.animationContents.frameSize.height(),
+                    false,
+                    false
+                );
             });
         }
     }
@@ -111,7 +125,9 @@ public class AnimatableTexture extends SimpleTexture {
     }
 
     protected class AnimationContents {
+
         protected final FrameSize frameSize;
+
         protected final Texture animatedTexture;
 
         private AnimationContents(NativeImage image, AnimationMetadataSection animMeta) {
@@ -124,11 +140,20 @@ public class AnimatableTexture extends SimpleTexture {
         }
 
         private Texture generateAnimatedTexture(NativeImage image, AnimationMetadataSection animMeta) {
-            if (!Mth.isMultipleOf(image.getWidth(), this.frameSize.width()) || !Mth.isMultipleOf(image.getHeight(),
-                    this.frameSize.height())) {
-                AzureLib.LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}",
-                        AnimatableTexture.this.location, image.getWidth(), image.getHeight(), this.frameSize.width(),
-                        this.frameSize.height());
+            if (
+                !Mth.isMultipleOf(image.getWidth(), this.frameSize.width()) || !Mth.isMultipleOf(
+                    image.getHeight(),
+                    this.frameSize.height()
+                )
+            ) {
+                AzureLib.LOGGER.error(
+                    "Image {} size {},{} is not multiple of frame size {},{}",
+                    AnimatableTexture.this.location,
+                    image.getWidth(),
+                    image.getHeight(),
+                    this.frameSize.width(),
+                    this.frameSize.height()
+                );
 
                 return null;
             }
@@ -150,12 +175,20 @@ public class AnimatableTexture extends SimpleTexture {
 
                 for (Frame frame : frames) {
                     if (frame.time <= 0) {
-                        AzureLib.LOGGER.warn("Invalid frame duration on sprite {} frame {}: {}",
-                                AnimatableTexture.this.location, index, frame.time);
+                        AzureLib.LOGGER.warn(
+                            "Invalid frame duration on sprite {} frame {}: {}",
+                            AnimatableTexture.this.location,
+                            index,
+                            frame.time
+                        );
                         unusedFrames.add(frame.index);
                     } else if (frame.index < 0 || frame.index >= frameCount) {
-                        AzureLib.LOGGER.warn("Invalid frame index on sprite {} frame {}: {}",
-                                AnimatableTexture.this.location, index, frame.index);
+                        AzureLib.LOGGER.warn(
+                            "Invalid frame index on sprite {} frame {}: {}",
+                            AnimatableTexture.this.location,
+                            index,
+                            frame.index
+                        );
                         unusedFrames.add(frame.index);
                     }
 
@@ -163,30 +196,50 @@ public class AnimatableTexture extends SimpleTexture {
                 }
 
                 if (!unusedFrames.isEmpty())
-                    AzureLib.LOGGER.warn("Unused frames in sprite {}: {}", AnimatableTexture.this.location,
-                            Arrays.toString(unusedFrames.toArray()));
+                    AzureLib.LOGGER.warn(
+                        "Unused frames in sprite {}: {}",
+                        AnimatableTexture.this.location,
+                        Arrays.toString(unusedFrames.toArray())
+                    );
             }
 
-            return frames.size() <= 1 ? null : new Texture(image, frames.toArray(new Frame[0]), columns,
-                    animMeta.isInterpolatedFrames());
+            return frames.size() <= 1
+                ? null
+                : new Texture(
+                    image,
+                    frames.toArray(new Frame[0]),
+                    columns,
+                    animMeta.isInterpolatedFrames()
+                );
         }
 
-        private record Frame(int index, int time) {
-        }
+        private record Frame(
+            int index,
+            int time
+        ) {}
 
         public class Texture implements AutoCloseable {
+
             private final NativeImage baseImage;
+
             private final Frame[] frames;
+
             private final int framePanelSize;
+
             private final boolean interpolating;
+
             private final NativeImage interpolatedFrame;
+
             private final int totalFrameTime;
 
             protected int glowMaskTextureId = -1;
+
             protected NativeImage glowmaskImage = null;
+
             protected NativeImage glowmaskInterpolatedFrame = null;
 
             private int currentFrame;
+
             private int currentSubframe;
 
             private Texture(NativeImage baseImage, Frame[] frames, int framePanelSize, boolean interpolating) {
@@ -194,8 +247,13 @@ public class AnimatableTexture extends SimpleTexture {
                 this.frames = frames;
                 this.framePanelSize = framePanelSize;
                 this.interpolating = interpolating;
-                this.interpolatedFrame = interpolating ? new NativeImage(AnimationContents.this.frameSize.width(),
-                        AnimationContents.this.frameSize.height(), false) : null;
+                this.interpolatedFrame = interpolating
+                    ? new NativeImage(
+                        AnimationContents.this.frameSize.width(),
+                        AnimationContents.this.frameSize.height(),
+                        false
+                    )
+                    : null;
                 int time = 0;
 
                 for (Frame frame : this.frames) {
@@ -216,7 +274,13 @@ public class AnimatableTexture extends SimpleTexture {
             public void setGlowMaskTexture(AutoGlowingTexture texture, NativeImage baseImage, NativeImage glowMask) {
                 this.glowMaskTextureId = texture.getId();
                 this.glowmaskImage = glowMask;
-                this.glowmaskInterpolatedFrame = this.interpolating ? new NativeImage(AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false) : null;
+                this.glowmaskInterpolatedFrame = this.interpolating
+                    ? new NativeImage(
+                        AnimationContents.this.frameSize.width(),
+                        AnimationContents.this.frameSize.height(),
+                        false
+                    )
+                    : null;
                 this.baseImage.copyFrom(baseImage);
             }
 
@@ -243,17 +307,42 @@ public class AnimatableTexture extends SimpleTexture {
 
                 if (this.currentFrame != lastFrame && this.currentSubframe == 0) {
                     onRenderThread(() -> {
-                        TextureUtil.prepareImage(AnimatableTexture.this.getId(), 0,
-                                AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
-                        this.baseImage.upload(0, 0, 0,
-                                getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(),
-                                getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(),
-                                AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(),
-                                false, false);
+                        TextureUtil.prepareImage(
+                            AnimatableTexture.this.getId(),
+                            0,
+                            AnimationContents.this.frameSize.width(),
+                            AnimationContents.this.frameSize.height()
+                        );
+                        this.baseImage.upload(
+                            0,
+                            0,
+                            0,
+                            getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(),
+                            getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(),
+                            AnimationContents.this.frameSize.width(),
+                            AnimationContents.this.frameSize.height(),
+                            false,
+                            false
+                        );
 
                         if (this.glowmaskImage != null) {
-                            TextureUtil.prepareImage(this.glowMaskTextureId, 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
-                            this.glowmaskImage.upload(0, 0, 0, getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(), getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(), AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
+                            TextureUtil.prepareImage(
+                                this.glowMaskTextureId,
+                                0,
+                                AnimationContents.this.frameSize.width(),
+                                AnimationContents.this.frameSize.height()
+                            );
+                            this.glowmaskImage.upload(
+                                0,
+                                0,
+                                0,
+                                getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(),
+                                getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(),
+                                AnimationContents.this.frameSize.width(),
+                                AnimationContents.this.frameSize.height(),
+                                false,
+                                false
+                            );
                         }
                     });
                 } else if (this.currentSubframe != lastSubframe && this.interpolating) {
@@ -261,8 +350,11 @@ public class AnimatableTexture extends SimpleTexture {
                         generateInterpolatedFrame(getId(), this.baseImage, this.interpolatedFrame);
 
                         if (this.glowmaskImage != null) {
-                            generateInterpolatedFrame(this.glowMaskTextureId, this.glowmaskImage,
-                                    this.glowmaskInterpolatedFrame);
+                            generateInterpolatedFrame(
+                                this.glowMaskTextureId,
+                                this.glowmaskImage,
+                                this.glowmaskInterpolatedFrame
+                            );
                         }
                     });
                 }
@@ -270,7 +362,7 @@ public class AnimatableTexture extends SimpleTexture {
 
             private void generateInterpolatedFrame(int textureId, NativeImage image, NativeImage interpolatedFrame) {
                 Frame frame = this.frames[this.currentFrame];
-                double frameProgress = 1 - (double)this.currentSubframe / (double)frame.time();
+                double frameProgress = 1 - (double) this.currentSubframe / (double) frame.time();
                 int nextFrameIndex = this.frames[(this.currentFrame + 1) % this.frames.length].index();
 
                 if (frame.index() != nextFrameIndex) {
@@ -278,21 +370,51 @@ public class AnimatableTexture extends SimpleTexture {
                         for (int x = 0; x < interpolatedFrame.getWidth(); ++x) {
                             int prevFramePixel = getPixel(image, frame.index(), x, y);
                             int nextFramePixel = getPixel(image, nextFrameIndex, x, y);
-                            int blendedRed = interpolate(frameProgress, prevFramePixel >> 16 & 255, nextFramePixel >> 16 & 255);
-                            int blendedGreen = interpolate(frameProgress, prevFramePixel >> 8 & 255, nextFramePixel >> 8 & 255);
+                            int blendedRed = interpolate(
+                                frameProgress,
+                                prevFramePixel >> 16 & 255,
+                                nextFramePixel >> 16 & 255
+                            );
+                            int blendedGreen = interpolate(
+                                frameProgress,
+                                prevFramePixel >> 8 & 255,
+                                nextFramePixel >> 8 & 255
+                            );
                             int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
 
-                            interpolatedFrame.setPixelRGBA(x, y, prevFramePixel & -16777216 | blendedRed << 16 | blendedGreen << 8 | blendedBlue);
+                            interpolatedFrame.setPixelRGBA(
+                                x,
+                                y,
+                                prevFramePixel & -16777216 | blendedRed << 16 | blendedGreen << 8 | blendedBlue
+                            );
                         }
                     }
 
-                    TextureUtil.prepareImage(textureId, 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
-                    interpolatedFrame.upload(0, 0, 0, 0, 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
+                    TextureUtil.prepareImage(
+                        textureId,
+                        0,
+                        AnimationContents.this.frameSize.width(),
+                        AnimationContents.this.frameSize.height()
+                    );
+                    interpolatedFrame.upload(
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        AnimationContents.this.frameSize.width(),
+                        AnimationContents.this.frameSize.height(),
+                        false,
+                        false
+                    );
                 }
             }
 
             private int getPixel(NativeImage image, int frameIndex, int x, int y) {
-                return image.getPixelRGBA(x + getFrameX(frameIndex) * AnimationContents.this.frameSize.width(), y + getFrameY(frameIndex) * AnimationContents.this.frameSize.height());
+                return image.getPixelRGBA(
+                    x + getFrameX(frameIndex) * AnimationContents.this.frameSize.width(),
+                    y + getFrameY(frameIndex) * AnimationContents.this.frameSize.height()
+                );
             }
 
             private int interpolate(double frameProgress, double prevColour, double nextColour) {

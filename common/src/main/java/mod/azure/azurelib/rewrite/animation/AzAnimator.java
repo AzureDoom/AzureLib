@@ -1,5 +1,9 @@
 package mod.azure.azurelib.rewrite.animation;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -8,11 +12,6 @@ import mod.azure.azurelib.rewrite.animation.cache.AzBoneCache;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -96,8 +95,8 @@ public abstract class AzAnimator<T> {
      * Sets custom animations for the given animatable object. This method is used to define and configure specific
      * animations unique to the context of the animatable and the current render state.
      *
-     * @param animatable    The object for which custom animations are being set.
-     * @param partialTicks  The partial tick time used for interpolating animations smoothly between frames.
+     * @param animatable   The object for which custom animations are being set.
+     * @param partialTicks The partial tick time used for interpolating animations smoothly between frames.
      */
     public void setCustomAnimations(T animatable, float partialTicks) {}
 

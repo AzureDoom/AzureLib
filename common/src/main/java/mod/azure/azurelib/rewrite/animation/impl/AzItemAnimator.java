@@ -1,8 +1,9 @@
 package mod.azure.azurelib.rewrite.animation.impl;
 
+import net.minecraft.world.item.ItemStack;
+
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorConfig;
-import net.minecraft.world.item.ItemStack;
 
 /**
  * The {@code AzItemAnimator} class is an abstract extension of the {@code AzAnimator} class, specifically designed to

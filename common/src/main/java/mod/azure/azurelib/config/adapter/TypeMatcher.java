@@ -1,16 +1,15 @@
 /**
- * This class is a fork of the matching class found in the Configuration repository.
- * Original source: https://github.com/Toma1O6/Configuration
- * Copyright © 2024 Toma1O6.
- * Licensed under the MIT License.
+ * This class is a fork of the matching class found in the Configuration repository. Original source:
+ * https://github.com/Toma1O6/Configuration Copyright © 2024 Toma1O6. Licensed under the MIT License.
  */
 package mod.azure.azurelib.config.adapter;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 
 import mod.azure.azurelib.AzureLib;
-import net.minecraft.resources.ResourceLocation;
 
 public interface TypeMatcher extends Predicate<Class<?>> {
 
@@ -80,13 +79,15 @@ public interface TypeMatcher extends Predicate<Class<?>> {
 
     static TypeMatcher matchObject() {
         return NamedMatcherImpl.vanilla("object", type -> !type.isArray())
-                .withPriority(Integer.MAX_VALUE);
+            .withPriority(Integer.MAX_VALUE);
     }
 
     class NamedMatcherImpl implements TypeMatcher {
 
         private final ResourceLocation identifier;
+
         private final Predicate<Class<?>> matcher;
+
         private int priority;
 
         public NamedMatcherImpl(ResourceLocation identifier, Predicate<Class<?>> matcher) {
@@ -124,8 +125,10 @@ public interface TypeMatcher extends Predicate<Class<?>> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             NamedMatcherImpl that = (NamedMatcherImpl) o;
             return identifier.equals(that.identifier);
         }

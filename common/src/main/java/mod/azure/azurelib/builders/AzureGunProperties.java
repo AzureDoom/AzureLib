@@ -12,21 +12,32 @@ import org.jetbrains.annotations.Nullable;
  */
 @Deprecated(forRemoval = true)
 public class AzureGunProperties {
+
     private AzureGunProperties properties;
+
     private int ammoCount;
+
     private int reloadAmount;
+
     private int reloadCooldown;
+
     private SoundEvent reloadSound;
+
     private Item ammoItem;
+
     private int firingCooldown;
+
     private float damage;
+
     private int usedamage;
+
     private SoundEvent firingSound;
+
     private SoundEvent emptySound;
+
     private Enchantment enchantmentExtraDamage;
 
-    public AzureGunProperties() {
-    }
+    public AzureGunProperties() {}
 
     public int getAmmoCount() {
         return this.ammoCount;
@@ -73,6 +84,7 @@ public class AzureGunProperties {
     }
 
     public static class Builder {
+
         private AzureGunProperties properties;
 
         public Builder() {

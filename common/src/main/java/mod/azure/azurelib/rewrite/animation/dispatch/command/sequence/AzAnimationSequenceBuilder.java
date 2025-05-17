@@ -1,11 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.sequence;
 
-import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
-import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
+
+import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
+import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 
 public class AzAnimationSequenceBuilder {
 
