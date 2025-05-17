@@ -46,7 +46,7 @@ minecraft {
             args "-mixin.config=azurelib.mixins.json"
 
             mods {
-                geckolib {
+                azurelib {
                     source sourceSets.main
                 }
             }
@@ -176,20 +176,29 @@ processResources {
     }
 }
 
+tasks.matching { it.name == 'publishCurseforge' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
+tasks.matching { it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
 if (file('key.properties').exists()) {
     publishMods {
         def releaseProp = new Properties()
         File secretPropsFile = file("key.properties")
         releaseProp.load(secretPropsFile.newInputStream())
-        file = jar.archiveFile
+        def jarFile = file("build/libs/azurelib-forge-${minecraft_version}-${project.version}.jar")
+        file = jarFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("forge")
         displayName = "${mod_id} forge ${minecraft_version}"
 
         discord {
-            webhookUrl = releaseProp.getProperty("discordKey")
-            dryRunWebhookUrl = releaseProp.getProperty("discordKey")
+            webhookUrl = releaseProp.getProperty("discordKey2")
+            dryRunWebhookUrl = releaseProp.getProperty("discordKey2")
             username = "AzureBot"
             avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
             content = changelog.map { "# A new version of AzureLib for Forge has been released for 1.18.2 \n" + it}
