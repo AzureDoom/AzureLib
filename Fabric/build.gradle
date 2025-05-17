@@ -124,6 +124,7 @@ if (file('key.properties').exists()) {
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("fabric")
+        displayName = "${mod_id} fabric ${minecraft_version}"
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
