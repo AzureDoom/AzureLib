@@ -27,9 +27,9 @@ public class AzRendererConfig<T> {
 
     protected final Function<T, RenderType> renderTypeFunction;
 
-    private final UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry;
+    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry;
 
-    private final UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry;
+    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry;
 
     protected final List<AzRenderLayer<T>> renderLayers;
 
@@ -46,8 +46,8 @@ public class AzRendererConfig<T> {
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry,
-        UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
@@ -113,9 +113,9 @@ public class AzRendererConfig<T> {
 
         private final List<AzRenderLayer<T>> renderLayers;
 
-        protected UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry;
 
-        protected UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry;
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry;
 
         protected final Function<T, ResourceLocation> textureLocationProvider;
 
@@ -165,14 +165,14 @@ public class AzRendererConfig<T> {
         }
 
         public Builder<T> setPrerenderEntry(
-            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry
         ) {
             this.preRenderEntry = preRenderEntry;
             return this;
         }
 
         public Builder<T> setPostRenderEntry(
-            UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry
         ) {
             this.postRenderEntry = postRenderEntry;
             return this;
