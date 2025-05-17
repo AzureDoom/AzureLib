@@ -174,12 +174,21 @@ processResources {
     }
 }
 
+tasks.matching { it.name == 'publishCurseforge' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
+tasks.matching { it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
 if (file('key.properties').exists()) {
     publishMods {
         def releaseProp = new Properties()
         File secretPropsFile = file("key.properties")
         releaseProp.load(secretPropsFile.newInputStream())
-        file = jar.archiveFile
+        def jarFile = file("build/libs/azurelib-forge-${minecraft_version}-${project.version}.jar")
+        file = jarFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("forge")
