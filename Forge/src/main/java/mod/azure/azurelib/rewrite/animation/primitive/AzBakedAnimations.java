@@ -1,5 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.primitive;
 
+import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -22,6 +24,25 @@ public record AzBakedAnimations(
      * Gets an {@link AzBakedAnimation} by its name, if present
      */
     public AzBakedAnimation getAnimation(String name) {
+        AzBakedAnimation result = animations.get(name);
+        if (result == null && includes != null) {
+            ResourceLocation otherFileID = includes.getOrDefault(name, null);
+            if (otherFileID != null) {
+                AzBakedAnimations otherBakedAnims = AzBakedAnimationCache.getInstance().getNullable(otherFileID);
+                if (otherBakedAnims.equals(this)) {
+                    throw new AzureLibException(
+                        "The animation file '" + otherFileID +
+                            "' refers back to itself through includes."
+                    );
+                } else {
+                    result = otherBakedAnims.getAnimationWithoutIncludes(name);
+                }
+            }
+        }
+        return result;
+    }
+
+    private AzBakedAnimation getAnimationWithoutIncludes(String name) {
         return animations.get(name);
     }
 
