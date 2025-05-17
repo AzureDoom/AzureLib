@@ -66,12 +66,21 @@ jar {
     ])
 }
 
+tasks.matching { it.name == 'publishCurseforge' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
+tasks.matching { it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
 def keyPropsFile = new File(rootProject.projectDir, "key.properties")
 if (keyPropsFile.exists()) {
     publishMods {
         def releaseProp = new Properties()
         releaseProp.load(new FileInputStream(keyPropsFile))
-        file = jar.archiveFile
+        def jarFile = file("build/libs/azurelib-neo-${minecraft_version}-${project.version}.jar")
+        file = jarFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("neoforge")
