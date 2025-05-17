@@ -1,0 +1,21 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "mod.azure.azurelib.mixins.fabric",
+	"compatibilityLevel": "JAVA_8",
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"mixins": [
+		"AbstractContainerMenuMixin_AzItemIDFix",
+		"ItemStackMixin_AzItemStackIdentityRegistry"
+	],
+	"client": [
+		"BlockEntityMixin_AzBlockEntityAnimatorCache",
+		"EntityMixin_AzEntityAnimatorCache",
+		"ItemStackMixin_AzItemAnimatorCache",
+		"MixinHumanoidArmorLayer",
+		"MixinItemRenderer",
+		"TextureManagerMixin"
+	]
+}

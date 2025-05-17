@@ -1,0 +1,237 @@
+/**
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
+ * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ */
+package mod.azure.azurelib.util;
+
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.model.AzBone;
+
+/**
+ * Helper class for various methods and functions useful while rendering
+ */
+public final class RenderUtils {
+
+    public static void copy(Matrix4f main, Matrix4f other) {
+        main.m00 = other.m00;
+        main.m01 = other.m01;
+        main.m02 = other.m02;
+        main.m03 = other.m03;
+        main.m10 = other.m10;
+        main.m11 = other.m11;
+        main.m12 = other.m12;
+        main.m13 = other.m13;
+        main.m20 = other.m20;
+        main.m21 = other.m21;
+        main.m22 = other.m22;
+        main.m23 = other.m23;
+        main.m30 = other.m30;
+        main.m31 = other.m31;
+        main.m32 = other.m32;
+        main.m33 = other.m33;
+    }
+
+    public static void translateMatrixToBone(PoseStack poseStack, AzBone bone) {
+        poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
+    }
+
+    public static void rotateMatrixAroundBone(PoseStack poseStack, AzBone bone) {
+        if (bone.getRotZ() != 0)
+            poseStack.mulPose(Vector3f.ZP.rotation(bone.getRotZ()));
+
+        if (bone.getRotY() != 0)
+            poseStack.mulPose(Vector3f.YP.rotation(bone.getRotY()));
+
+        if (bone.getRotX() != 0)
+            poseStack.mulPose(Vector3f.XP.rotation(bone.getRotX()));
+    }
+
+    public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
+        Vec3 rotation = cube.rotation();
+
+        poseStack.mulPose(new Quaternion(0, 0, (float) rotation.z(), false));
+        poseStack.mulPose(new Quaternion(0, (float) rotation.y(), 0, false));
+        poseStack.mulPose(new Quaternion((float) rotation.x(), 0, 0, false));
+    }
+
+    public static void scaleMatrixForBone(PoseStack poseStack, AzBone bone) {
+        poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+    }
+
+    public static void translateToPivotPoint(PoseStack poseStack, GeoCube cube) {
+        Vec3 pivot = cube.pivot();
+        poseStack.translate(pivot.x() / 16f, pivot.y() / 16f, pivot.z() / 16f);
+    }
+
+    public static void translateToPivotPoint(PoseStack poseStack, AzBone bone) {
+        poseStack.translate(bone.getPivotX() / 16f, bone.getPivotY() / 16f, bone.getPivotZ() / 16f);
+    }
+
+    public static void translateAwayFromPivotPoint(PoseStack poseStack, GeoCube cube) {
+        Vec3 pivot = cube.pivot();
+
+        poseStack.translate(-pivot.x() / 16f, -pivot.y() / 16f, -pivot.z() / 16f);
+    }
+
+    public static void translateAwayFromPivotPoint(PoseStack poseStack, AzBone bone) {
+        poseStack.translate(-bone.getPivotX() / 16f, -bone.getPivotY() / 16f, -bone.getPivotZ() / 16f);
+    }
+
+    public static void translateAndRotateMatrixForBone(PoseStack poseStack, AzBone bone) {
+        translateToPivotPoint(poseStack, bone);
+        rotateMatrixAroundBone(poseStack, bone);
+    }
+
+    public static void prepMatrixForBone(PoseStack poseStack, AzBone bone) {
+        translateMatrixToBone(poseStack, bone);
+        translateToPivotPoint(poseStack, bone);
+        rotateMatrixAroundBone(poseStack, bone);
+        scaleMatrixForBone(poseStack, bone);
+        translateAwayFromPivotPoint(poseStack, bone);
+    }
+
+    public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {
+        inputMatrix = new Matrix4f(inputMatrix);
+
+        inputMatrix.invert();
+        inputMatrix.multiply(baseMatrix);
+
+        return inputMatrix;
+    }
+
+    /**
+     * Translates the provided {@link PoseStack} to face towards the given {@link Entity}'s rotation.<br>
+     */
+    public static void faceRotation(PoseStack poseStack, Entity animatable, float partialTick) {
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.yRot) - 90));
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.xRot)));
+    }
+
+    /**
+     * Gets the actual dimensions of a texture resource from a given path.<br>
+     * Not performance-efficient and should not be relied upon
+     *
+     * @param texture The path of the texture resource to check
+     * @return The dimensions (width x height) of the texture, or null if unable to find or read the file
+     */
+    @Nullable
+    public static Tuple<Integer, Integer> getTextureDimensions(ResourceLocation texture) {
+        if (texture == null)
+            return null;
+
+        AbstractTexture originalTexture = null;
+        Minecraft mc = Minecraft.getInstance();
+
+        try {
+            originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(texture)).get();
+        } catch (Exception e) {
+            AzureLib.LOGGER.warn("Failed to load image for id {}", texture);
+            e.printStackTrace();
+        }
+
+        if (originalTexture == null)
+            return null;
+
+        NativeImage image = null;
+
+        try {
+            image = originalTexture instanceof DynamicTexture
+                ? ((DynamicTexture) originalTexture).getPixels()
+                : NativeImage.read(mc.getResourceManager().getResource(texture).getInputStream());
+        } catch (Exception e) {
+            AzureLib.LOGGER.error("Failed to read image for id {}", texture);
+            e.printStackTrace();
+        }
+
+        return image == null ? null : new Tuple<Integer, Integer>(image.getWidth(), image.getHeight());
+    }
+
+    public static double getCurrentSystemTick() {
+        return System.nanoTime() / 1E6 / 50d;
+    }
+
+    /**
+     * Returns the current time (in ticks) that the {@link org.lwjgl.glfw.GLFW GLFW} instance has been running. This is
+     * effectively a permanent timer that counts up since the game was launched.
+     */
+    public static double getCurrentTick() {
+        return Blaze3D.getTime() * 20d;
+    }
+
+    /**
+     * Returns a float equivalent of a boolean.<br>
+     * Output table:
+     * <ul>
+     * <li>true -> 1</li>
+     * <li>false -> 0</li>
+     * </ul>
+     */
+    public static float booleanToFloat(boolean input) {
+        return input ? 1f : 0f;
+    }
+
+    /**
+     * Converts a given double array to its {@link Vec3} equivalent
+     */
+    public static Vec3 arrayToVec(double[] array) {
+        return new Vec3(array[0], array[1], array[2]);
+    }
+
+    /**
+     * Rotates a {@link AzBone} to match a provided {@link ModelPart}'s rotations.<br>
+     * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
+     */
+    public static void matchModelPartRot(ModelPart from, AzBone to) {
+        to.updateRotation(-from.xRot, -from.yRot, from.zRot);
+    }
+
+    /**
+     * If a {@link GeoCube} is a 2d plane the {@link mod.azure.azurelib.cache.object.GeoQuad Quad's} normal is inverted
+     * in an intersecting plane,it can cause issues with shaders and other lighting tasks.<br>
+     * This performs a pseudo-ABS function to help resolve some of those issues.
+     */
+    public static void fixInvertedFlatCube(GeoCube cube, Vector3f normal) {
+        if (normal.x() < 0 && (cube.size().y() == 0 || cube.size().z() == 0))
+            normal.mul(-1, 1, 1);
+
+        if (normal.y() < 0 && (cube.size().x() == 0 || cube.size().z() == 0))
+            normal.mul(1, -1, 1);
+
+        if (normal.z() < 0 && (cube.size().x() == 0 || cube.size().y() == 0))
+            normal.mul(1, 1, -1);
+    }
+
+    /**
+     * Converts a {@link Direction} to a rotational float for rotation purposes
+     */
+    public static float getDirectionAngle(Direction direction) {
+        if (direction.equals(Direction.NORTH))
+            return 270f;
+        else if (direction.equals(Direction.SOUTH))
+            return 90f;
+        else if (direction.equals(Direction.EAST))
+            return 180f;
+        else
+            return 0f;
+    }
+}
