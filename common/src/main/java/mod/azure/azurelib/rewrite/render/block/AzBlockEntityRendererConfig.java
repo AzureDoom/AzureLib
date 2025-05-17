@@ -1,9 +1,5 @@
 package mod.azure.azurelib.rewrite.render.block;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,7 +8,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
  * The {@code AzBlockEntityRendererConfig} class is a specialized configuration for rendering block entities. It extends
@@ -28,24 +28,24 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry,
-        UnaryOperator<AzRendererPipelineContext<T>> postRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth
     ) {
         super(
-                animatorProvider,
-                modelLocationProvider,
-                renderTypeFunction,
-                renderLayers,
-                preRenderEntry,
-                postRenderEntry,
-                textureLocationProvider,
-                alphaFunction,
-                scaleHeight,
-                scaleWidth
+            animatorProvider,
+            modelLocationProvider,
+            renderTypeFunction,
+            renderLayers,
+            preRenderEntry,
+            postRenderEntry,
+            textureLocationProvider,
+            alphaFunction,
+            scaleHeight,
+            scaleWidth
         );
     }
 
@@ -89,14 +89,14 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
         @Override
         public Builder<T> setPrerenderEntry(
-            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             return (AzBlockEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
-            UnaryOperator<AzRendererPipelineContext<T>> preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             return (AzBlockEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
