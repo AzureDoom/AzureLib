@@ -1,4 +1,3 @@
-v3.0.18
+v3.0.19
 
-- Fixes ShoulderSurfing compat causing other instances of the armor to also go transparent 
-- Adds a builder option for setting Shadow radius
+- Fixes crash due to Java generics and lambdas.
