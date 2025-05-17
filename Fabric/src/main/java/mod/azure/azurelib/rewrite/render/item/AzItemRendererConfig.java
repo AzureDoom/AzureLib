@@ -31,8 +31,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
-        UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry,
-        UnaryOperator<AzRendererPipelineContext<ItemStack>> postRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
@@ -110,14 +110,14 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setPrerenderEntry(
-            UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry
         ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
-            UnaryOperator<AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>>  preRenderEntry
         ) {
             return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
