@@ -183,6 +183,7 @@ if (file('key.properties').exists()) {
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("forge")
+        displayName = "${mod_id} forge ${minecraft_version}"
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
