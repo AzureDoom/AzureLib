@@ -109,7 +109,6 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            artifacts = sourcesJar
             artifactId base.archivesName.get()
             pom.withXml {
                 asNode().dependencies.dependency.each { dep ->
