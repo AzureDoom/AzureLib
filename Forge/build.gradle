@@ -22,12 +22,13 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 jarJar.enable()
 
-tasks.named('jar') {
-    archiveClassifier = 'slim'
+tasks.jarJar.configure {
+    it.archiveClassifier.set("")
+    finalizedBy("reobfJarJar")
 }
 
-tasks.named('jarJar') {
-    archiveClassifier = ''
+tasks.jar.configure {
+    it.archiveClassifier.set("slim")
 }
 
 minecraft {
@@ -106,6 +107,11 @@ dependencies {
     }
 }
 
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 jar {
     from(rootProject.file("LICENSE")) {
         rename { "${it}_${mod_name}" }
@@ -118,12 +124,11 @@ jar {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.mod_version,
                 "Implementation-Vendor"   : "AzureDoom",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "azurelib.mymod.json"
         ])
     }
 }
-
-jar.finalizedBy('reobfJar')
 
 publishing {
   repositories {
@@ -138,17 +143,17 @@ publishing {
   }
   publications {
     maven(MavenPublication) {
-      groupId = project.maven_group
-      artifactId = project.archives_base_name
-      version = project.mod_version
       from components.java
-        pom.withXml {
-            asNode().dependencies.dependency.each { dep ->
-                if (dep.groupId.text() == 'net.minecraftforge' && dep.artifactId.text() == 'forge') {
-                    dep.parent().remove(dep)
-                }
-            }
-        }
+      artifacts = sourcesJar
+      jarJar.component(it)
+      artifactId base.archivesName.get()
+      pom.withXml {
+          asNode().dependencies.dependency.each { dep ->
+              if (dep.groupId.text() == 'net.minecraftforge' && dep.artifactId.text() == 'forge') {
+                  dep.parent().remove(dep)
+              }
+          }
+      }
     }
   }
 }
@@ -195,7 +200,6 @@ if (file('key.properties').exists()) {
         type = STABLE
         modLoaders.add("forge")
         displayName = "${mod_id} forge ${minecraft_version}"
-        dryRun = true
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
