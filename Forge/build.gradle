@@ -138,7 +138,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            artifacts = sourcesJar
+            artifacts = [sourcesJar]
             jarJar.component(it)
             artifactId base.archivesName.get()
             pom.withXml {
