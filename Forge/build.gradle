@@ -22,12 +22,13 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 jarJar.enable()
 
-tasks.named('jar') {
-    archiveClassifier = 'slim'
+tasks.jarJar.configure {
+    it.archiveClassifier.set("")
+    finalizedBy("reobfJarJar")
 }
 
-tasks.named('jarJar') {
-    archiveClassifier = ''
+tasks.jar.configure {
+    it.archiveClassifier.set("slim")
 }
 
 minecraft {
@@ -121,7 +122,10 @@ tasks.named('jar', Jar).configure {
     }
 }
 
-jar.finalizedBy('reobfJar')
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
 
 publishing {
     repositories {
@@ -136,10 +140,10 @@ publishing {
     }
     publications {
         maven(MavenPublication) {
-            groupId = project.maven_group
-            artifactId = project.archives_base_name
-            version = project.mod_version
             from components.java
+            artifacts = sourcesJar
+            jarJar.component(it)
+            artifactId base.archivesName.get()
             pom.withXml {
                 asNode().dependencies.dependency.each { dep ->
                     if (dep.groupId.text() == 'net.minecraftforge' && dep.artifactId.text() == 'forge') {
@@ -193,7 +197,6 @@ if (file('key.properties').exists()) {
         type = STABLE
         modLoaders.add("forge")
         displayName = "${mod_id} forge ${minecraft_version}"
-        dryRun = true
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
