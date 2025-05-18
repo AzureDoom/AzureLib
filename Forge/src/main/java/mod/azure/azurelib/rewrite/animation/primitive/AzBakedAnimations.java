@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.animation.primitive;
 
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
