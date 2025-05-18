@@ -11,6 +11,10 @@
         "name": "Animating Bones In-Code",
         "icon": "Info"
     },
+    "animation_includes.mdx": {
+        "name": "Using the inclusion feature in Animation JSON",
+        "icon": "Info"
+    },
     "azurenavigation_101.mdx": {
         "name": "AzureNavigation 101",
         "icon": "Info"
