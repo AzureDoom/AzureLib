@@ -89,6 +89,11 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
+java {
+    withSourcesJar()
+    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+}
+
 tasks.named('jar', Jar).configure {
     manifest {
         attributes([
@@ -118,10 +123,9 @@ publishing {
     }
     publications {
         maven(MavenPublication) {
-            groupId = project.maven_group
-            artifactId = project.archives_base_name
-            version = project.mod_version
             from components.java
+            artifacts = sourcesJar
+            artifactId base.archivesName.get()
             pom.withXml {
                 asNode().dependencies.dependency.each { dep ->
                     if (dep.groupId.text() == 'net.minecraftforge' && dep.artifactId.text() == 'forge') {
