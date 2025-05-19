@@ -15,6 +15,10 @@ hide_meta: true
 
 For this, you will create a class which extends `AzItemAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
 Example:
 ```java
 public class ExampleItemAnimator extends AzItemAnimator {
@@ -105,6 +109,11 @@ It connects the item with the following:
 
 <Callout variant="info">
     See [AzRendererConfigs 101](../misc/azrenderer_config#azitemrendererconfig) for all AzItemRendererConfig#builder options.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+<Callout variant="warning">
+    There is currently a bug in the plugin which exports the displays with an offset applied, please use useNewOffset(true) in your AzItemRendererConfig builder to fix this.
 </Callout>
 
 ```java

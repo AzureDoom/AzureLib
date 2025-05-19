@@ -31,6 +31,9 @@ The `AzArmorRendererConfig` is explicitly designed for rendering **animated armo
 
 Here’s an example of setting up an armor renderer with full configuration options:
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
 
@@ -76,6 +79,9 @@ The `AzBlockEntityRendererConfig` specializes in rendering **block entities**.
 
 Here’s an example of setting up a block entity renderer with full configuration options:
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
 ```java
 public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
@@ -122,6 +128,9 @@ The `AzEntityRendererConfig` supports rendering **entities** with death-specific
 
 Here’s an example of setting up an entity renderer with full configuration options:
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
@@ -174,6 +183,9 @@ It extends the flexibility of `AzRendererConfig` by adding options for item-spec
 
 Here’s an example of setting up an item renderer with full configuration options:
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
 ```java
 public class ExampleItemRenderer extends AzItemRenderer {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(

@@ -15,6 +15,10 @@ hide_meta: true
 
 For this, you will create a class which extends `AzEntityAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
 
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
 Example:
 ```java
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
@@ -166,6 +170,8 @@ The renderer class must extend `AzEntityRenderer<ExampleEntity>` and provide the
 
 <Callout variant="info">
     See [AzRendererConfigs 101](../misc/azrenderer_config#azentityrendererconfig) for all AzEntityRendererConfig#builder options.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
 
 Example Renderer
