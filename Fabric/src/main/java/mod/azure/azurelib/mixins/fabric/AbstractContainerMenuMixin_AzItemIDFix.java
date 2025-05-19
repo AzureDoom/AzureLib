@@ -44,6 +44,7 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
                     AzureLib.ITEM_UUID_TAG
                 )
         ) {
+            copyStack.getTag().remove(AzureLib.ITEM_UUID_TAG);
             copyStack.getTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
