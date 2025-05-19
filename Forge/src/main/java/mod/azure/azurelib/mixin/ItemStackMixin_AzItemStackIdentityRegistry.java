@@ -57,6 +57,19 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     }
 
     /**
+     * Injects into the constructor of the {@link ItemStack} that takes an {@link ItemLike} and an integer count. This
+     * ensures that a unique AzureLib ID (Az ID) is initialized if the item is registered in {@link AzIdentityRegistry}.
+     *
+     * @param ci The {@link CallbackInfo} for the mixin injection.
+     */
+    @Inject(
+        method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;I)V", at = @At("TAIL")
+    )
+    public void azurelib$initializeAzIdForConstructor(CallbackInfo ci) {
+        azureLib$initializeAzIdOnStack(this, null);
+    }
+
+    /**
      * Ensures that a unique AzureLib ID (Az ID) is initialized on the provided stack object if the item it represents
      * is registered in the {@link AzIdentityRegistry} and does not already have a unique identifier. If necessary,
      * assigns a new {@link CompoundTag} for the stack and generates a new UUID.
@@ -68,14 +81,17 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     private void azureLib$initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
 
+        if (!AzIdentityRegistry.hasIdentity(self.getItem())) {
+            return;
+        }
+
         if (!self.hasTag()) {
             self.setTag(new CompoundTag());
         }
 
         var stackTag = self.getTag();
 
-        if (stackTag != null && AzIdentityRegistry.hasIdentity(self.getItem()) && !stackTag.hasUUID(
-            AzureLib.ITEM_UUID_TAG)) {
+        if (stackTag != null && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
             stackTag.putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
     }

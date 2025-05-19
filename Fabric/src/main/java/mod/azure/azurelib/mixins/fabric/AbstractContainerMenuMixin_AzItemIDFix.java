@@ -56,6 +56,7 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
                     AzureLib.ITEM_UUID_TAG
                 )
         ) {
+            copyStack.getTag().remove(AzureLib.ITEM_UUID_TAG);
             copyStack.getTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
@@ -134,9 +135,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
      */
     @Unique
     private static boolean azurelib$checkAzIDMatch(CompoundTag tag1, CompoundTag tag2) {
-        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getInt(AzureLib.ITEM_UUID_TAG)) == (tag2 == null
+        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getUUID(AzureLib.ITEM_UUID_TAG)) == (tag2 == null
             ? DEFAULT_AZ_ID
-            : tag2.getInt(AzureLib.ITEM_UUID_TAG));
+            : tag2.getUUID(AzureLib.ITEM_UUID_TAG));
     }
 
 }
