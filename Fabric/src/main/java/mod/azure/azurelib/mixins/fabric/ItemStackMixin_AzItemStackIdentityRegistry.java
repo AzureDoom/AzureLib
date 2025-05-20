@@ -70,13 +70,9 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
             return;
         }
 
-        if (!self.hasTag()) {
-            self.setTag(new CompoundTag());
-        }
+        CompoundTag stackTag = self.getOrCreateTag();
 
-        CompoundTag stackTag = self.getTag();
-
-        if (stackTag != null && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
+        if (!stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
             stackTag.putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
     }

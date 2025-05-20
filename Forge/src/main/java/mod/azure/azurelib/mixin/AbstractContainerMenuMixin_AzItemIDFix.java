@@ -1,13 +1,8 @@
 package mod.azure.azurelib.mixin;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -23,12 +18,6 @@ import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
  */
 @Mixin(Container.class)
 public abstract class AbstractContainerMenuMixin_AzItemIDFix {
-
-    @Shadow
-    public abstract void clearContainer(PlayerEntity player, World worldIn, IInventory inventoryIn);
-
-    @Unique
-    private static final int DEFAULT_AZ_ID = -1;
 
     /**
      * Removes the AzureLib-specific ID (Az ID) from a copied `ItemStack` during a container click action. This is only
@@ -49,12 +38,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
         copyStack.setCount(itemStack.getCount());
 
-        if (
-            AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag()
-                .contains(AzureLib.ITEM_UUID_TAG)
-        ) {
-            copyStack.getTag().remove(AzureLib.ITEM_UUID_TAG);
-            copyStack.getTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag()) {
+            copyStack.getOrCreateTag().remove(AzureLib.ITEM_UUID_TAG);
+            copyStack.getOrCreateTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
         return copyStack;

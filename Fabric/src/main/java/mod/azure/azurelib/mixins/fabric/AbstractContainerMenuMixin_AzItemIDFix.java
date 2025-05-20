@@ -38,14 +38,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
         copyStack.setCount(itemStack.getCount());
 
-        if (
-            AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag()
-                .contains(
-                    AzureLib.ITEM_UUID_TAG
-                )
-        ) {
-            copyStack.getTag().remove(AzureLib.ITEM_UUID_TAG);
-            copyStack.getTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag()) {
+            copyStack.getOrCreateTag().remove(AzureLib.ITEM_UUID_TAG);
+            copyStack.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
         return copyStack;
