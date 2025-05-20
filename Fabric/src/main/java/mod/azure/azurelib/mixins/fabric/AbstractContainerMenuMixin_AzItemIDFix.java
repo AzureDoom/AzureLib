@@ -3,11 +3,9 @@ package mod.azure.azurelib.mixins.fabric;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -24,9 +22,6 @@ import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
  */
 @Mixin(AbstractContainerMenu.class)
 public abstract class AbstractContainerMenuMixin_AzItemIDFix {
-
-    @Shadow
-    public abstract void removed(Player player);
 
     @Unique
     private static final int DEFAULT_AZ_ID = -1;
@@ -48,14 +43,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
     public ItemStack azurelib$syncAzureIDWithRemote(ItemStack itemStack, int count) {
         var copyStack = itemStack.copyWithCount(count);
 
-        if (
-            AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag() && copyStack.getTag()
-                .contains(
-                    AzureLib.ITEM_UUID_TAG
-                )
-        ) {
-            copyStack.getTag().remove(AzureLib.ITEM_UUID_TAG);
-            copyStack.getTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag()) {
+            copyStack.getOrCreateTag().remove(AzureLib.ITEM_UUID_TAG);
+            copyStack.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
 
         return copyStack;
@@ -133,9 +123,9 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
      */
     @Unique
     private static boolean azurelib$checkAzIDMatch(CompoundTag tag1, CompoundTag tag2) {
-        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getUUID(AzureLib.ITEM_UUID_TAG)) == (tag2 == null
+        return (tag1 == null ? DEFAULT_AZ_ID : tag1.getInt(AzureLib.ITEM_UUID_TAG)) == (tag2 == null
             ? DEFAULT_AZ_ID
-            : tag2.getUUID(AzureLib.ITEM_UUID_TAG));
+            : tag2.getInt(AzureLib.ITEM_UUID_TAG));
     }
 
 }
