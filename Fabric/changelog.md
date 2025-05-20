@@ -1,3 +1,3 @@
-v3.0.5
+v3.0.6
 
-- Fixes item stacking on non-azurelib identity registered items.
+- Resolves an edge crash with comparing two NBTs when grabbing creative menu AzLib items.
