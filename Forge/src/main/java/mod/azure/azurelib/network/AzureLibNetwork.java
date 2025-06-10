@@ -120,7 +120,8 @@ public final class AzureLibNetwork {
      * It is recommended that you don't call this directly, instead implementing and calling
      * {@link mod.azure.azurelib.animatable.SingletonGeoAnimatable#registerSyncedAnimatable}
      */
-    synchronized public static void registerSyncedAnimatable(GeoAnimatable animatable) {
+    @Deprecated
+    public static synchronized void registerSyncedAnimatable(GeoAnimatable animatable) {
         GeoAnimatable existing = SYNCED_ANIMATABLES.put(animatable.getClass().toString(), animatable);
 
         if (existing == null)
@@ -132,6 +133,7 @@ public final class AzureLibNetwork {
      *
      * @param className
      */
+    @Deprecated
     @Nullable
     public static GeoAnimatable getSyncedAnimatable(String className) {
         GeoAnimatable animatable = SYNCED_ANIMATABLES.get(className);
