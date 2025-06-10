@@ -156,7 +156,7 @@ public record AzCommand(List<AzAction> actions) {
 
             var packet = new AzItemStackDispatchCommandPacket(uuid, this);
 
-            AzureLibNetwork.send(packet, PacketDistributor.TRACKING_ENTITY.with(() -> entity));
+            AzureLibNetwork.send(packet, PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity));
         }
     }
 
