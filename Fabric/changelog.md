@@ -1,3 +1,3 @@
-v3.0.6
+v3.0.7
 
-- Resolves an edge crash with comparing two NBTs when grabbing creative menu AzLib items.
+- Resolves a crash from missing NBT data on AzureLib animated items.
