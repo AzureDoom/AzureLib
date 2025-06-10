@@ -1,10 +1,12 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
+import mod.azure.azurelib.AzureLib;
 import net.minecraft.item.Item;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The AzIdentityRegistry class provides functionality to register and check the identity of items. This class maintains
@@ -24,6 +26,11 @@ public class AzIdentityRegistry {
     public static void register(Item first, Item... rest) {
         IDENTITY_OF_ITEMS.add(first);
         IDENTITY_OF_ITEMS.addAll(Arrays.asList(rest));
+
+        first.getDefaultInstance().getOrCreateTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        for (Item item : rest) {
+            item.getDefaultInstance().getOrCreateTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        }
     }
 
     /**

@@ -25,6 +25,9 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     public AzAnimator<ItemStack> getAnimatorOrNull() {
         ItemStack self = AzureLibUtil.<ItemStack>self(this);
         UUID uuid = self.getOrCreateTag().getUniqueId(AzureLib.ITEM_UUID_TAG);
+        if (!self.getOrCreateTag().contains(AzureLib.ITEM_UUID_TAG)) {
+            self.getOrCreateTag().putUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        }
         return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid);
     }
 }
