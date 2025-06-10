@@ -34,7 +34,6 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
      * @param compoundTag The {@link CompoundTag} associated with the {@link ItemStack}.
      * @param ci          The {@link CallbackInfo} for the mixin injection.
      */
-
     @Inject(
         method = "<init>(Lnet/minecraft/nbt/CompoundTag;)V",
         at = @At("TAIL")
