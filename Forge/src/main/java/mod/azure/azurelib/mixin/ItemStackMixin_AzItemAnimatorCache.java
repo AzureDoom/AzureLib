@@ -4,6 +4,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +24,11 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     @Override
     public AzAnimator<ItemStack> getAnimatorOrNull() {
         ItemStack self = AzureLibUtil.<ItemStack>self(this);
+
+        if (!AzIdentityRegistry.hasIdentity(self.getItem())) {
+            return null;
+        }
+
         UUID uuid = self.getOrCreateTag().getUUID(AzureLib.ITEM_UUID_TAG);
         if (!self.getOrCreateTag().contains(AzureLib.ITEM_UUID_TAG)) {
             self.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
