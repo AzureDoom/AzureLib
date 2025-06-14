@@ -33,7 +33,7 @@ public class AzIdentifiableItemStackAnimatorCache {
             itemStack.setTag(new CompoundNBT());
         }
 
-        CompoundNBT tag = itemStack.getTag();
+        CompoundNBT tag = itemStack.getOrCreateTag();
         UUID uuid = tag.getUniqueId(AzureLib.ITEM_UUID_TAG);
 
         if (uuid != null) {
