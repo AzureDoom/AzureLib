@@ -1,4 +1,3 @@
-v3.0.7
+v3.0.8
 
-- Resolves a crash from missing NBT data on AzureLib animated items.
-- Resolves a packet issue preventing item animations from working for the player using the item.
+- Item animation packets will now not send itself if the item doesn't animations setup properly via AzIdentityRegistry.
