@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -143,6 +144,10 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level().isClientSide()) {
             dispatchFromClient(entity);
         } else {
+            if (!AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
+                return;
+            }
+
             var uuid = itemStack.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
 
             if (uuid == null) {
