@@ -1,5 +1,6 @@
 package mod.azure.azurelib.mixin;
 
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -24,6 +25,11 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     @Override
     public AzAnimator<ItemStack> getAnimatorOrNull() {
         ItemStack self = AzureLibUtil.<ItemStack>self(this);
+
+        if (!AzIdentityRegistry.hasIdentity(self.getItem())) {
+            return null;
+        }
+
         UUID uuid = self.getOrCreateTag().getUUID(AzureLib.ITEM_UUID_TAG);
         if (!self.getOrCreateTag().contains(AzureLib.ITEM_UUID_TAG)) {
             self.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
