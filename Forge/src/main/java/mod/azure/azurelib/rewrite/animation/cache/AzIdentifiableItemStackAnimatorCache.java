@@ -34,11 +34,11 @@ public class AzIdentifiableItemStackAnimatorCache {
             itemStack.setTag(new CompoundTag());
         }
 
-        var tag = itemStack.getTag();
+        var tag = itemStack.getOrCreateTag();
         var uuid = tag.getUUID(AzureLib.ITEM_UUID_TAG);
 
         if (uuid != null) {
-            ANIMATORS_BY_UUID.computeIfAbsent(uuid, ($) -> animator);
+            ANIMATORS_BY_UUID.computeIfAbsent(uuid, $ -> animator);
         }
     }
 
