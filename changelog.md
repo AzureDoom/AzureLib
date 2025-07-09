@@ -1,3 +1,5 @@
-v3.0.8
+v3.0.9
 
-- Item animation packets will now not send itself if the item doesn't animations setup properly via AzIdentityRegistry.
+- Excludes more MCreator mods with broken geo models (brutality, crazythings) that break things.
+- Adds a cap to adjustedTick on transitions.
+- Adds a logger and return to avoid crash when using a super high tick rate with transitions.
