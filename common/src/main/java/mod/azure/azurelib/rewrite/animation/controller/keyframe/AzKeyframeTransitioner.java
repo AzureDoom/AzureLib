@@ -41,6 +41,7 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
     public void transition(Map<String, AzBone> bones, boolean crashWhenCantFindBone, double adjustedTick) {
         var currentAnimation = animationController.currentAnimation();
         var transitionLength = animationController.animationProperties().transitionLength();
+        adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
         MolangParser.INSTANCE.setValue(MolangQueries.ANIM_TIME, () -> 0);
 
