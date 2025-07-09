@@ -18,14 +18,16 @@ import java.util.function.Function;
  */
 public abstract class AzResourceCache {
 
-    private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of(
+    public static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of(
         "moreplayermodels",
         "customnpcs",
         "creeperoverhaul",
         "geckolib",
         "gunsrpg",
         "born_in_chaos_v1",
-        "neoforge"
+        "neoforge",
+        "brutality",
+        "crazythings"
     );
 
     protected final <T> CompletableFuture<Void> loadResources(

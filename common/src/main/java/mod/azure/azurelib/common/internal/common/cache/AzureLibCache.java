@@ -7,6 +7,7 @@ package mod.azure.azurelib.common.internal.common.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import mod.azure.azurelib.rewrite.AzResourceCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
@@ -43,19 +44,6 @@ import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
  * @deprecated Use {@link AzBakedModelCache} and {@link AzBakedAnimationCache} instead.
  */
 public final class AzureLibCache {
-
-    /**
-     * @deprecated
-     */
-    private static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of(
-        "moreplayermodels",
-        "customnpcs",
-        "creeperoverhaul",
-        "geckolib",
-        "gunsrpg",
-        "born_in_chaos_v1",
-        "neoforge"
-    );
 
     /**
      * @deprecated
@@ -191,7 +179,7 @@ public final class AzureLibCache {
             }, executor)
             .thenAcceptAsync(tasks -> {
                 for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
-                    if (!EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
+                    if (!AzResourceCache.EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
                         map.accept(entry.getKey(), entry.getValue().join());
                 }
             }, executor);
