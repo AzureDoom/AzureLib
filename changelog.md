@@ -1,4 +1,5 @@
-v3.0.20
+v3.0.21
 
-- Ports missing animations including feature to 3.x. 
-  - See wiki here for documentation on this feature: https://moddedmc.wiki/en/project/azurelib/docs/misc/animation_includes
+- Excludes more MCreator mods with broken geo models (brutality, crazythings) that break things.
+- Adds a cap to adjustedTick on transitions.
+- Adds a logger and return to avoid crash when using a super high tick rate with transitions.
