@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +17,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.packet.*;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
