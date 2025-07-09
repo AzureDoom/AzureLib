@@ -78,6 +78,15 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         AzBoneSnapshot snapshot,
         AzBone bone
     ) {
+        if (snapshot == null) {
+            AzureLib.LOGGER.warn(
+                "Missing snapshot for bone: '{}'. This issue likely occurs due to an unusually high tick rate causing improper synchronization. " +
+                    "Consider limiting the tick rate.",
+                bone.getName()
+            );
+            return;
+        }
+
         if (keyframes.xKeyframes().isEmpty()) {
             return;
         }

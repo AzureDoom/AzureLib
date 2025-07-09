@@ -8,6 +8,7 @@ package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
@@ -336,6 +337,10 @@ public record AzBoneAnimationQueue(
         AzAnimationPoint nextYPoint,
         AzAnimationPoint nextZPoint
     ) {
+        if (startSnapshot == null) {
+            AzureLib.LOGGER.warn("Warning: startSnapshot is null. Animation may not behave as expected.");
+            return;
+        }
         addRotationXPoint(
             keyframe,
             lerpedTick,
