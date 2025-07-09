@@ -1,10 +1,11 @@
 package mod.azure.azurelib.mixin;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -38,7 +39,7 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
         at = @At("TAIL")
     )
     public void azurelib$initializeAzIdFromCompoundTag(CompoundTag compoundTag, CallbackInfo ci) {
-        azureLib$initializeAzIdOnStack(this, compoundTag);
+        azureLib$initializeAzIdOnStack(this);
     }
 
     /**
@@ -49,11 +50,11 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
      * @param ci The {@link CallbackInfo} for the mixin injection.
      */
     @Inject(
-        method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;ILjava/util/Optional;)V",
+        method = "<init>(Lnet/minecraft/world/level/ItemLike;ILjava/util/Optional;)V",
         at = @At("TAIL")
     )
     public void azurelib$initializeAzIdForConstructorWithOptional(CallbackInfo ci) {
-        azureLib$initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this);
     }
 
     /**
@@ -63,10 +64,26 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
      * @param ci The {@link CallbackInfo} for the mixin injection.
      */
     @Inject(
-        method = "Lnet/minecraft/world/item/ItemStack;<init>(Lnet/minecraft/world/level/ItemLike;I)V", at = @At("TAIL")
+        method = "<init>(Lnet/minecraft/world/level/ItemLike;I)V", at = @At("TAIL")
     )
     public void azurelib$initializeAzIdForConstructor(CallbackInfo ci) {
-        azureLib$initializeAzIdOnStack(this, null);
+        azureLib$initializeAzIdOnStack(this);
+    }
+
+    /**
+     * Injects custom functionality into the `inventoryTick` method to ensure the initialization of a unique AzureLib ID
+     * (Az ID) for the {@link ItemStack}. This method is called when an {@link ItemStack} is updated during each tick in
+     * the inventory.
+     *
+     * @param level    The current {@link Level} in which the {@link ItemStack} exists.
+     * @param entity   The {@link Entity} associated with the inventory, typically the player or other entity.
+     * @param slot     The inventory slot index where the {@link ItemStack} resides.
+     * @param selected Indicates if the {@link ItemStack} is currently selected or in use.
+     * @param ci       The {@link CallbackInfo} providing control over the method's execution.
+     */
+    @Inject(method = "inventoryTick", at = @At("TAIL"))
+    private void injectCustomCodec(Level level, Entity entity, int slot, boolean selected, CallbackInfo ci) {
+        azureLib$initializeAzIdOnStack(this);
     }
 
     /**
@@ -75,10 +92,9 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
      * assigns a new {@link CompoundTag} for the stack and generates a new UUID.
      *
      * @param stackObject The object representing the stack, expected to be an instance of {@link ItemStack}.
-     * @param tag         The {@link CompoundTag} associated with the stack, used for storing or retrieving data.
      */
     @Unique
-    private void azureLib$initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
+    private void azureLib$initializeAzIdOnStack(Object stackObject) {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
 
         if (!AzIdentityRegistry.hasIdentity(self.getItem())) {

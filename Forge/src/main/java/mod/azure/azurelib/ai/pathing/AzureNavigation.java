@@ -106,18 +106,36 @@ public class AzureNavigation extends GroundPathNavigation {
         return true;
     }
 
+    /**
+     * If the entity is below 0.8 units in width, the pathfinding tends to "fail," causing issues such as MC-226637. By
+     * forcing the width check to calculate at least a MINIMUM value of 1.0, this method effectively prevents smaller
+     * entities from spinning and avoids pathfinding errors. This behavior modification ensures that smaller entities
+     * navigate correctly while retaining the behavior of larger entities.
+     * <p>
+     * Additionally, this change might result in a slight performance improvement since the hitbox and AI won't update
+     * unnecessarily to "spin."
+     * <p>
+     * Special thanks to Modrome for identifying and implementing this fix.
+     * <p>
+     *
+     * @return The greater value between the entity's bounding box width and 1.0.
+     */
+    public float getMinimumWidth() {
+        return Math.max(this.mob.getBbWidth(), 1.0F);
+    }
+
     @Override
     public void tick() {
         super.tick();
         if (this.isDone()) {
             if (this.pathToPosition != null) {
                 if (
-                    this.pathToPosition.closerToCenterThan(this.mob.position(), this.mob.getBbWidth()) || this.mob
-                        .getY() > (double) this.pathToPosition.getY() && new BlockPos(
+                    this.pathToPosition.closerToCenterThan(this.mob.position(), getMinimumWidth()) || this.mob
+                        .getY() > this.pathToPosition.getY() && new BlockPos(
                             this.pathToPosition.getX(),
                             this.mob.getY(),
                             this.pathToPosition.getZ()
-                        ).closerToCenterThan(this.mob.position(), this.mob.getBbWidth())
+                        ).closerToCenterThan(this.mob.position(), getMinimumWidth())
                 ) {
                     this.pathToPosition = null;
                 } else {
