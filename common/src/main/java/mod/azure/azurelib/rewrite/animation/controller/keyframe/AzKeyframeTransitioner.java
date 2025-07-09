@@ -44,7 +44,6 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var transitionLength = animationController.animationProperties().transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
-
         MolangParser.INSTANCE.setValue(MolangQueries.ANIM_TIME, () -> 0);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
@@ -80,7 +79,8 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
     ) {
         if (snapshot == null) {
             AzureLib.LOGGER.warn(
-                "Missing snapshot for bone: '{}'. This issue likely occurs due to an unusually high tick rate causing improper synchronization. " +
+                "Missing snapshot for bone: '{}'. This issue likely occurs due to an unusually high tick rate causing improper synchronization. "
+                    +
                     "Consider limiting the tick rate.",
                 bone.getName()
             );

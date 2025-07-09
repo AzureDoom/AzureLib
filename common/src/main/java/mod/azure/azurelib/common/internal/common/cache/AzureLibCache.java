@@ -6,8 +6,6 @@
 package mod.azure.azurelib.common.internal.common.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mod.azure.azurelib.rewrite.AzResourceCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
@@ -19,7 +17,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -35,6 +32,7 @@ import mod.azure.azurelib.common.internal.common.loading.object.BakedModelFactor
 import mod.azure.azurelib.common.internal.common.loading.object.GeometryTree;
 import mod.azure.azurelib.core.animatable.model.CoreGeoModel;
 import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.rewrite.AzResourceCache;
 import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
 
@@ -179,7 +177,11 @@ public final class AzureLibCache {
             }, executor)
             .thenAcceptAsync(tasks -> {
                 for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
-                    if (!AzResourceCache.EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT)))
+                    if (
+                        !AzResourceCache.EXCLUDED_NAMESPACES.contains(
+                            entry.getKey().getNamespace().toLowerCase(Locale.ROOT)
+                        )
+                    )
                         map.accept(entry.getKey(), entry.getValue().join());
                 }
             }, executor);
