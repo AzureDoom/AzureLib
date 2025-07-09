@@ -3,6 +3,7 @@ package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -76,6 +77,16 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         AzBoneSnapshot snapshot,
         AzBone bone
     ) {
+        if (snapshot == null) {
+            AzureLib.LOGGER.warn(
+                "Missing snapshot for bone: '{}'. This issue likely occurs due to an unusually high tick rate causing improper synchronization. "
+                    +
+                    "Consider limiting the tick rate.",
+                bone.getName()
+            );
+            return;
+        }
+
         if (keyframes.xKeyframes().isEmpty()) {
             return;
         }
