@@ -59,6 +59,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
             var queue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
             var snapshot = boneSnapshotCache.getOrNull(boneAnimation.boneName());
 
+            if (snapshot == null || queue == null) {
+                return;
+            }
+
             var rotationKeyframes = boneAnimation.rotationKeyframes();
             var positionKeyframes = boneAnimation.positionKeyframes();
             var scaleKeyframes = boneAnimation.scaleKeyframes();
@@ -77,15 +81,6 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         AzBoneSnapshot snapshot,
         AzBone bone
     ) {
-        if (snapshot == null) {
-            AzureLib.LOGGER.warn(
-                "Missing snapshot for bone: '{}'. This issue likely occurs due to an unusually high tick rate causing improper synchronization. "
-                    +
-                    "Consider limiting the tick rate.",
-                bone.getName()
-            );
-            return;
-        }
 
         if (keyframes.xKeyframes().isEmpty()) {
             return;
@@ -106,14 +101,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         double transitionLength,
         AzBoneSnapshot snapshot
     ) {
-        if (keyframes.xKeyframes().isEmpty()) {
-            return;
-        }
 
         var x = getAnimationPointAtTick(keyframes.xKeyframes(), 0, false, Axis.X);
         var y = getAnimationPointAtTick(keyframes.yKeyframes(), 0, false, Axis.Y);
         var z = getAnimationPointAtTick(keyframes.zKeyframes(), 0, false, Axis.Z);
-
         queue.addNextPosition(null, adjustedTick, transitionLength, snapshot, x, y, z);
     }
 
