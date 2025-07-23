@@ -18,7 +18,7 @@ public class AzAnimationProperties {
 
     public static final BiConsumer<FriendlyByteBuf, AzAnimationProperties> ENCODER = AzAnimationPropertiesCodec.ENCODER;
 
-    public static final AzAnimationProperties DEFAULT = new AzAnimationProperties(1D, AzEasingTypes.NONE, 0F);
+    public static final AzAnimationProperties DEFAULT = new AzAnimationProperties(1D, null, 0F);
 
     public static final AzAnimationProperties EMPTY = new AzAnimationProperties(null, null, null);
 
@@ -67,7 +67,7 @@ public class AzAnimationProperties {
     }
 
     public AzEasingType easingType() {
-        return easingType == null ? DEFAULT.easingType() : easingType;
+        return easingType;
     }
 
     public float transitionLength() {
