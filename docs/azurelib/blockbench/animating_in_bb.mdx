@@ -47,20 +47,58 @@ Molang empowers you to input mathematical expressions as keyframe values, extend
 
 ### Supported Queries
 
-- query.anim_time
-- query.actor_count
-- query.time_of_day
-- query.moon_phase
-- query.distance_from_camera
-- query.is_on_ground
-- query.is_in_water
-- query.is_in_water_or_rain
-- query.health
-- query.max_health
-- query.is_on_fire
-- query.on_fire_time
-- query.ground_speed
-- query.yaw_speed
+- `query.anim_time`
+  - Represents the animation time in seconds.
+- `query.actor_count`
+  - Returns the number of entities currently loaded in the world.
+- `query.time_of_day`
+  - Represents the current time of day in the game as a fraction (0.0 to 1.0).
+- `query.moon_phase`
+  - Returns the current phase of the moon as an integer (0 to 7).
+- `query.distance_from_camera`
+  - Returns the distance between the entity or object and the camera/player.
+- `query.is_on_ground`
+  - Returns whether the entity is on the ground (`true` or `false`).
+- `query.is_in_water`
+  - Returns whether the entity is currently in water.
+- `query.is_in_water_or_rain`
+  - Returns whether the entity is in water or exposed to rain.
+- `query.health`
+  - Returns the current health of a living entity.
+- `query.max_health`
+  - Returns the maximum health of a living entity.
+- `query.is_on_fire`
+  - Returns whether the entity is on fire.
+- `query.on_fire_time`
+  - Indicates the amount of time the entity has been on fire.
+- `query.ground_speed`
+  - Represents the entity's movement speed while on the ground.
+- `query.yaw_speed`
+  - Represents the rate of change of the entity's yaw (horizontal rotation).
+- `query.head_pitch`
+  - Represents the vertical rotation of the entity's head (looking up or down).
+- `query.head_yaw`
+  - Represents the horizontal rotation of the entity's head relative to the body.
+- `query.hurt_time`
+  - Returns the remaining time in the entity's hurt animation.
+- `query.is_baby`
+  - Returns whether a living entity is a baby.
+- `query.is_blocking`
+  - Returns whether the entity is actively blocking (e.g., holding a shield in defense).
+- `query.is_using_item`
+  - Returns whether the entity is actively using an item (e.g., eating or drinking).
+- `query.in_air`
+  - Returns whether the entity is currently off the ground (e.g., jumping or falling).
+- `query.item_current_durability`
+  - Represents an item’s durability as a fraction of its maximum durability.
+- `query.item_is_enchanted`
+  - Returns whether the item is enchanted.
+- `query.limb_swing`
+  - Represents the current state of the entity's limb swinging animation (e.g., for walking or running).
+- `query.limb_swing_amount`
+  - Represents the intensity or speed of the entity's limb swing animation.
+- `query.life_time`
+  - Represents the total lifetime of the entity or object, in seconds.
 
 
 ## How to add Effect Keyframes
