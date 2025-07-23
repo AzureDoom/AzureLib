@@ -35,12 +35,13 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
      * with the world. The method extends the baseline queries defined in the superclass with additional entity-specific
      * properties, particularly for living entities.
      *
-     * @param entity   The entity for which the MoLang queries are being applied.
-     * @param animTime The current animation time, in seconds, used for time-dependent queries.
+     * @param entity       The entity being animated. It can be of any type extending {@code Entity}.
+     * @param animTime     The time in seconds related to the current animation cycle.
+     * @param partialTicks A partial tick value used to interpolate animations smoothly.
      */
     @Override
-    protected void applyMolangQueries(T entity, double animTime) {
-        super.applyMolangQueries(entity, animTime);
+    protected void applyMolangQueries(T entity, double animTime, float partialTicks) {
+        super.applyMolangQueries(entity, animTime, partialTicks);
 
         var parser = MolangParser.INSTANCE;
         var minecraft = Minecraft.getInstance();
