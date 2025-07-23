@@ -2,6 +2,9 @@ package mod.azure.azurelib.rewrite.animation.impl;
 
 import net.minecraft.world.item.ItemStack;
 
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.core.molang.MolangParser;
+import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorConfig;
 
@@ -22,5 +25,21 @@ public abstract class AzItemAnimator extends AzAnimator<ItemStack> {
 
     protected AzItemAnimator(AzAnimatorConfig config) {
         super(config);
+    }
+
+    @Override
+    protected void applyMolangQueries(ItemStack animatable, double animTime, float partialTicks) {
+        super.applyMolangQueries(animatable, animTime, partialTicks);
+
+        var parser = MolangParser.INSTANCE;
+
+        parser.setMemoizedValue(
+            MolangQueries.ITEM_CURRENT_DURABILITY,
+            () -> animatable.getDamageValue() / (float) animatable.getMaxDamage()
+        );
+        parser.setMemoizedValue(
+            MolangQueries.ITEM_IS_ENCHANTED,
+            () -> RenderUtils.booleanToFloat(!animatable.isEnchanted())
+        );
     }
 }
