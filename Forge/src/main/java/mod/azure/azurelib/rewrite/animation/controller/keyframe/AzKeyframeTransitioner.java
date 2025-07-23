@@ -57,6 +57,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
             var queue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
             var snapshot = boneSnapshotCache.getOrNull(boneAnimation.boneName());
 
+            if (snapshot == null || queue == null) {
+                return;
+            }
+
             var rotationKeyframes = boneAnimation.rotationKeyframes();
             var positionKeyframes = boneAnimation.positionKeyframes();
             var scaleKeyframes = boneAnimation.scaleKeyframes();
