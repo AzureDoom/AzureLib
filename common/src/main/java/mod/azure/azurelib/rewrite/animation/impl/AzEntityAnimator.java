@@ -30,10 +30,9 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
     }
 
     /**
-     * Applies MoLang queries specific to an entity in the animation system. These queries provide contextual
-     * information about the entity's state and environment, such as its position, health, movement, and interaction
-     * with the world. The method extends the baseline queries defined in the superclass with additional entity-specific
-     * properties, particularly for living entities.
+     * Applies MoLang queries to the given entity, setting various parameters related to its state and properties. This
+     * method customizes animation behavior by populating MoLang queries with entity-specific data such as position,
+     * health, motion state, and environmental conditions.
      *
      * @param entity       The entity being animated. It can be of any type extending {@code Entity}.
      * @param animTime     The time in seconds related to the current animation cycle.
@@ -50,6 +49,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
             MolangQueries.DISTANCE_FROM_CAMERA,
             () -> minecraft.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position())
         );
+        parser.setMemoizedValue(MolangQueries.IN_AIR, () -> RenderUtils.booleanToFloat(!entity.onGround()));
         parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.onGround()));
         parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(entity.isInWater()));
         parser.setMemoizedValue(
@@ -59,6 +59,14 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
         parser.setMemoizedValue(MolangQueries.IS_ON_FIRE, () -> RenderUtils.booleanToFloat(entity.isOnFire()));
 
         if (entity instanceof LivingEntity livingEntity) {
+            parser.setMemoizedValue(
+                MolangQueries.IS_BLOCKING,
+                () -> RenderUtils.booleanToFloat(livingEntity.isBlocking())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_USING_ITEM,
+                () -> RenderUtils.booleanToFloat(livingEntity.isUsingItem())
+            );
             parser.setMemoizedValue(MolangQueries.HEALTH, livingEntity::getHealth);
             parser.setMemoizedValue(MolangQueries.MAX_HEALTH, livingEntity::getMaxHealth);
             parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
@@ -66,6 +74,22 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
                 return Mth.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
             });
             parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> livingEntity.getYRot() - livingEntity.yRotO);
+            parser.setValue(
+                MolangQueries.HEAD_YAW,
+                () -> livingEntity.getViewYRot(partialTicks) - Mth.lerp(
+                    partialTicks,
+                    livingEntity.yBodyRotO,
+                    livingEntity.yBodyRot
+                )
+            );
+            parser.setValue(MolangQueries.HEAD_PITCH, () -> livingEntity.getViewXRot(partialTicks));
+            parser.setValue(
+                MolangQueries.HURT_TIME,
+                () -> livingEntity.hurtTime == 0 ? 0 : livingEntity.hurtTime - partialTicks
+            );
+            parser.setValue(MolangQueries.IS_BABY, () -> RenderUtils.booleanToFloat(livingEntity.isBaby()));
+            parser.setValue(MolangQueries.LIMB_SWING, livingEntity.walkAnimation::position);
+            parser.setValue(MolangQueries.LIMB_SWING_AMOUNT, () -> livingEntity.walkAnimation.speed(partialTicks));
         }
     }
 }
