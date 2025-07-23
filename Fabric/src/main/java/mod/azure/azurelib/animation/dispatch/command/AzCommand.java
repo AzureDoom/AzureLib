@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command;
 
-import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +15,7 @@ import java.util.stream.Collectors;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;

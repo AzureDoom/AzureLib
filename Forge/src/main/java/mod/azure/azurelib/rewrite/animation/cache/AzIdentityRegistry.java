@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.animation.cache;
 
-import mod.azure.azurelib.AzureLib;
 import net.minecraft.item.Item;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import mod.azure.azurelib.AzureLib;
 
 /**
  * The AzIdentityRegistry class provides functionality to register and check the identity of items. This class maintains

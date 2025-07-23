@@ -1,6 +1,5 @@
 package mod.azure.azurelib.mixins.fabric;
 
-import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.util.AzureLibUtil;
 
