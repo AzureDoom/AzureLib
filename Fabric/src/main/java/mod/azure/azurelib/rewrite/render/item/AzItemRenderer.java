@@ -52,7 +52,8 @@ public abstract class AzItemRenderer {
         @NotNull MultiBufferSource source,
         int packedLight
     ) {
-        @Nullable AzBakedModel model = provider.provideBakedModel(stack);
+        @Nullable
+        AzBakedModel model = provider.provideBakedModel(stack);
 
         prepareAnimator(stack, model);
 

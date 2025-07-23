@@ -8,8 +8,11 @@ import java.util.List;
  * Stores a triplet of {@link AzKeyframe Keyframes} in an ordered stack.
  */
 public class AzKeyframeStack<T extends AzKeyframe<?>> {
+
     private final List<T> xKeyframes;
+
     private final List<T> yKeyframes;
+
     private final List<T> zKeyframes;
 
     public AzKeyframeStack() {
@@ -61,10 +64,10 @@ public class AzKeyframeStack<T extends AzKeyframe<?>> {
     @Override
     public String toString() {
         return "AzKeyframeStack{" +
-                   "xKeyframes=" + xKeyframes +
-                   ", yKeyframes=" + yKeyframes +
-                   ", zKeyframes=" + zKeyframes +
-                   '}';
+            "xKeyframes=" + xKeyframes +
+            ", yKeyframes=" + yKeyframes +
+            ", zKeyframes=" + zKeyframes +
+            '}';
     }
 
     @Override

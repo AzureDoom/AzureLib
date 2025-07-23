@@ -1,14 +1,14 @@
 package mod.azure.azurelib.rewrite.animation.property.codec;
 
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
-import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypeRegistry;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviorRegistry;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
@@ -34,7 +34,10 @@ public class AzAnimationStagePropertiesCodec {
                     properties = properties.withEasingType(easingType);
                     break;
                 case 3:
-                    AzPlayBehavior playBehavior = AzPlayBehaviorRegistry.getOrDefault(buf.readUtf(), AzPlayBehaviors.PLAY_ONCE);
+                    AzPlayBehavior playBehavior = AzPlayBehaviorRegistry.getOrDefault(
+                        buf.readUtf(),
+                        AzPlayBehaviors.PLAY_ONCE
+                    );
                     properties = properties.withPlayBehavior(playBehavior);
                     break;
             }

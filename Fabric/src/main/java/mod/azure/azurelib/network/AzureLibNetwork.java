@@ -2,7 +2,6 @@ package mod.azure.azurelib.network;
 
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.network.packet.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -28,6 +27,7 @@ import mod.azure.azurelib.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
+import mod.azure.azurelib.network.packet.*;
 
 /**
  * Network handling class for AzureLib.<br>

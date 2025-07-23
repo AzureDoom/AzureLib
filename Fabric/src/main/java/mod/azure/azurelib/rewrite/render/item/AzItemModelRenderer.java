@@ -35,7 +35,8 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
     public void render(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
         if (!isReRender) {
             ItemStack animatable = context.animatable();
-            mod.azure.azurelib.rewrite.animation.impl.@org.jetbrains.annotations.Nullable AzItemAnimator animator = itemRendererPipeline.getRenderer().getAnimator();
+            mod.azure.azurelib.rewrite.animation.impl.@org.jetbrains.annotations.Nullable AzItemAnimator animator =
+                itemRendererPipeline.getRenderer().getAnimator();
 
             if (animator != null) {
                 animator.animate(animatable, context.partialTick());

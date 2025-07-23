@@ -3,9 +3,9 @@ package mod.azure.azurelib.rewrite.render.armor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import net.minecraft.world.item.ItemStack;
 
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -17,7 +15,9 @@ import java.util.stream.Collectors;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AzureLibNetwork;
 import mod.azure.azurelib.network.packet.*;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
@@ -69,7 +69,8 @@ public class AzCommand {
 
         return new AzCommand(
             commands.stream()
-                .flatMap(command -> command.actions().stream()).collect(Collectors.toList())
+                .flatMap(command -> command.actions().stream())
+                .collect(Collectors.toList())
         );
     }
 

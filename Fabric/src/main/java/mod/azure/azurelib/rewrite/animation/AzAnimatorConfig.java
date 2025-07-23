@@ -1,25 +1,32 @@
 package mod.azure.azurelib.rewrite.animation;
 
 public class AzAnimatorConfig {
+
     private final double boneResetTime;
+
     private final boolean crashIfBoneMissing;
+
     private final boolean shouldPlayAnimationsWhileGamePaused;
 
     /**
      * The {@code AzAnimatorConfig} record encapsulates configuration settings related to the animation system of the
      * AzureLib framework. It provides customizable options for controlling animation behavior and error handling. This
      * configuration is used to determine runtime behaviors such as whether animations should continue while the game is
-     * paused, whether the system should throw an error if a bone in the animation structure is missing, and the duration it
-     * takes to reset bone transformations.
+     * paused, whether the system should throw an error if a bone in the animation structure is missing, and the
+     * duration it takes to reset bone transformations.
      *
-     * @param boneResetTime                       The specified time duration (in ticks or seconds) for resetting bones to
-     *                                            their default transformations when animations are interrupted.
-     * @param crashIfBoneMissing                  Specifies whether the system will throw an exception if an expected bone
-     *                                            in the animation is not found during runtime.
+     * @param boneResetTime                       The specified time duration (in ticks or seconds) for resetting bones
+     *                                            to their default transformations when animations are interrupted.
+     * @param crashIfBoneMissing                  Specifies whether the system will throw an exception if an expected
+     *                                            bone in the animation is not found during runtime.
      * @param shouldPlayAnimationsWhileGamePaused Indicates whether animations should continue playing when the game is
      *                                            paused.
      */
-    public AzAnimatorConfig(double boneResetTime, boolean crashIfBoneMissing, boolean shouldPlayAnimationsWhileGamePaused) {
+    public AzAnimatorConfig(
+        double boneResetTime,
+        boolean crashIfBoneMissing,
+        boolean shouldPlayAnimationsWhileGamePaused
+    ) {
         this.boneResetTime = boneResetTime;
         this.crashIfBoneMissing = crashIfBoneMissing;
         this.shouldPlayAnimationsWhileGamePaused = shouldPlayAnimationsWhileGamePaused;
@@ -36,7 +43,6 @@ public class AzAnimatorConfig {
     public boolean shouldPlayAnimationsWhileGamePaused() {
         return shouldPlayAnimationsWhileGamePaused;
     }
-
 
     /**
      * Creates a new instance of the {@link Builder} to configure and build an {@code AzAnimatorConfig}.

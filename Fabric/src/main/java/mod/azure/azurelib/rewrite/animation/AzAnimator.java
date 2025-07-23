@@ -1,7 +1,5 @@
 package mod.azure.azurelib.rewrite.animation;
 
-import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
@@ -12,8 +10,10 @@ import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.rewrite.animation.cache.AzBoneCache;
+import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 
 /**

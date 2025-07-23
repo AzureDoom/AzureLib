@@ -12,6 +12,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 
 public class AzRootSetAnimationSpeedAction implements AzAction {
+
     private final double animationSpeed;
 
     public static final Function<FriendlyByteBuf, AzRootSetAnimationSpeedAction> DECODER = buf -> {
@@ -60,14 +61,16 @@ public class AzRootSetAnimationSpeedAction implements AzAction {
     @Override
     public String toString() {
         return "AzRootSetAnimationSpeedAction{" +
-               "animationSpeed=" + animationSpeed +
-               '}';
+            "animationSpeed=" + animationSpeed +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzRootSetAnimationSpeedAction that = (AzRootSetAnimationSpeedAction) o;
 

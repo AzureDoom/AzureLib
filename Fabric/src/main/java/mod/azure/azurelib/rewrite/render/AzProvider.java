@@ -58,7 +58,8 @@ public class AzProvider<T> {
         // TODO: Instead of caching the entire animator itself, we're going to want to cache the relevant data for the
         // entity.
         AzAnimatorAccessor<T> accessor = AzAnimatorAccessor.cast(animatable);
-        @Nullable AzAnimator<T> cachedAnimator = accessor.getAnimatorOrNull();
+        @Nullable
+        AzAnimator<T> cachedAnimator = accessor.getAnimatorOrNull();
 
         if (cachedAnimator == null) {
             // If the cached animator is null, create a new one. We use a separate reference here just for some

@@ -17,64 +17,69 @@ import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
  * animation sequences defined in an animation system.
  */
 public class AzKeyframes {
-	private final SoundKeyframeData[] sounds;
-	private final ParticleKeyframeData[] particles;
-	private final CustomInstructionKeyframeData[] customInstructions;
 
-	public AzKeyframes(SoundKeyframeData[] sounds,
-	                   ParticleKeyframeData[] particles,
-	                   CustomInstructionKeyframeData[] customInstructions) {
-		this.sounds = sounds;
-		this.particles = particles;
-		this.customInstructions = customInstructions;
-	}
+    private final SoundKeyframeData[] sounds;
 
-	public SoundKeyframeData[] sounds() {
-		return sounds;
-	}
+    private final ParticleKeyframeData[] particles;
 
-	public ParticleKeyframeData[] particles() {
-		return particles;
-	}
+    private final CustomInstructionKeyframeData[] customInstructions;
 
-	public CustomInstructionKeyframeData[] customInstructions() {
-		return customInstructions;
-	}
+    public AzKeyframes(
+        SoundKeyframeData[] sounds,
+        ParticleKeyframeData[] particles,
+        CustomInstructionKeyframeData[] customInstructions
+    ) {
+        this.sounds = sounds;
+        this.particles = particles;
+        this.customInstructions = customInstructions;
+    }
 
-	@Override
-	public String toString() {
-		return "AzKeyframes{" +
-			       "sounds=" + java.util.Arrays.toString(sounds) +
-			       ", particles=" + java.util.Arrays.toString(particles) +
-			       ", customInstructions=" + java.util.Arrays.toString(customInstructions) +
-			       '}';
-	}
+    public SoundKeyframeData[] sounds() {
+        return sounds;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
+    public ParticleKeyframeData[] particles() {
+        return particles;
+    }
 
-		AzKeyframes that = (AzKeyframes) o;
+    public CustomInstructionKeyframeData[] customInstructions() {
+        return customInstructions;
+    }
 
-		if (!java.util.Arrays.equals(sounds, that.sounds)) {
-			return false;
-		}
-		if (!java.util.Arrays.equals(particles, that.particles)) {
-			return false;
-		}
-		return java.util.Arrays.equals(customInstructions, that.customInstructions);
-	}
+    @Override
+    public String toString() {
+        return "AzKeyframes{" +
+            "sounds=" + java.util.Arrays.toString(sounds) +
+            ", particles=" + java.util.Arrays.toString(particles) +
+            ", customInstructions=" + java.util.Arrays.toString(customInstructions) +
+            '}';
+    }
 
-	@Override
-	public int hashCode() {
-		int result = java.util.Arrays.hashCode(sounds);
-		result = 31 * result + java.util.Arrays.hashCode(particles);
-		result = 31 * result + java.util.Arrays.hashCode(customInstructions);
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AzKeyframes that = (AzKeyframes) o;
+
+        if (!java.util.Arrays.equals(sounds, that.sounds)) {
+            return false;
+        }
+        if (!java.util.Arrays.equals(particles, that.particles)) {
+            return false;
+        }
+        return java.util.Arrays.equals(customInstructions, that.customInstructions);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = java.util.Arrays.hashCode(sounds);
+        result = 31 * result + java.util.Arrays.hashCode(particles);
+        result = 31 * result + java.util.Arrays.hashCode(customInstructions);
+        return result;
+    }
 }

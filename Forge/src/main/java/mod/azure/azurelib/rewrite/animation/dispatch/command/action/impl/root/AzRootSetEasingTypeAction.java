@@ -1,5 +1,8 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root;
 
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -8,8 +11,6 @@ import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * Represents an action that sets the easing type of animation controllers within an {@link AzAnimator}.

@@ -52,7 +52,8 @@ public class AzArmorRenderer {
 
         rendererPipeline.context().prepare(entity, stack, slot, baseModel);
 
-        @Nullable AzBakedModel model = provider.provideBakedModel(stack);
+        @Nullable
+        AzBakedModel model = provider.provideBakedModel(stack);
         prepareAnimator(stack, model);
     }
 

@@ -1,19 +1,22 @@
 package mod.azure.azurelib.rewrite.animation.primitive;
 
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
+
 /**
- * Represents a container for baked animations in the AzureLib framework. Holds mappings for precompiled
- * animation instances ({@link AzBakedAnimation}) and resource includes ({@link ResourceLocation}) for use in
- * animation-driven content.
+ * Represents a container for baked animations in the AzureLib framework. Holds mappings for precompiled animation
+ * instances ({@link AzBakedAnimation}) and resource includes ({@link ResourceLocation}) for use in animation-driven
+ * content.
  */
 public class AzBakedAnimations {
+
     private final Map<String, AzBakedAnimation> animations;
+
     private final Map<String, ResourceLocation> includes;
 
     public AzBakedAnimations(Map<String, AzBakedAnimation> animations, Map<String, ResourceLocation> includes) {
@@ -59,19 +62,22 @@ public class AzBakedAnimations {
     @Override
     public String toString() {
         return "AzBakedAnimations{" +
-               "animations=" + animations +
-               ", includes=" + includes +
-               '}';
+            "animations=" + animations +
+            ", includes=" + includes +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzBakedAnimations that = (AzBakedAnimations) o;
 
-        if (!animations.equals(that.animations)) return false;
+        if (!animations.equals(that.animations))
+            return false;
         return includes.equals(that.includes);
     }
 

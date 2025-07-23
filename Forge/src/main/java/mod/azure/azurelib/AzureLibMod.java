@@ -12,7 +12,6 @@ import mod.azure.azurelib.config.TestingConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.network.AzureLibNetwork;
 
 @EventBusSubscriber
 @Mod(AzureLib.MOD_ID)

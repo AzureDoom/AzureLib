@@ -1,8 +1,6 @@
 package mod.azure.azurelib.rewrite.render.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -11,7 +9,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.AzProvider;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 
 /**
  * The {@code AzBlockEntityRenderer} class is an abstract base class for rendering custom block entities. It leverages
@@ -30,8 +30,8 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> extends Block
     private AzBlockAnimator<T> reusedAzBlockAnimator;
 
     protected AzBlockEntityRenderer(AzBlockEntityRendererConfig<T> config, BlockEntityRenderDispatcher context) {
-	    super(context);
-	    this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+        super(context);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
         this.rendererPipeline = createPipeline(config);
     }
 

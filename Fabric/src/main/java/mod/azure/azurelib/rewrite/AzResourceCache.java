@@ -1,7 +1,6 @@
 package mod.azure.azurelib.rewrite;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -44,7 +43,8 @@ public abstract class AzResourceCache {
             executor
         )
             .thenApplyAsync(resources -> {
-                Object2ObjectOpenHashMap<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
+                Object2ObjectOpenHashMap<ResourceLocation, CompletableFuture<T>> tasks =
+                    new Object2ObjectOpenHashMap<>();
 
                 for (ResourceLocation resource : resources) {
                     tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));

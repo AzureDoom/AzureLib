@@ -3,10 +3,6 @@ package mod.azure.azurelib.rewrite.animation.controller.state.machine;
 import mod.azure.azurelib.rewrite.animation.AzAnimationContext;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.controller.state.AzAnimationState;
-import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationPauseState;
-import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationPlayState;
-import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationStopState;
-import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationTransitionState;
 import mod.azure.azurelib.rewrite.util.state.StateMachine;
 import mod.azure.azurelib.rewrite.util.state.StateMachineContext;
 

@@ -16,6 +16,7 @@ import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
  * Represents an action that sets the easing type of animation controllers within an {@link AzAnimator}.
  */
 public class AzRootSetEasingTypeAction implements AzAction {
+
     private final AzEasingType easingType;
 
     public static final Function<FriendlyByteBuf, AzRootSetEasingTypeAction> DECODER = buf -> {
@@ -64,14 +65,16 @@ public class AzRootSetEasingTypeAction implements AzAction {
     @Override
     public String toString() {
         return "AzRootSetEasingTypeAction{" +
-               "easingType=" + easingType +
-               '}';
+            "easingType=" + easingType +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzRootSetEasingTypeAction that = (AzRootSetEasingTypeAction) o;
 

@@ -1,10 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.primitive;
 
-import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
+
+import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.rewrite.animation.cache.AzBakedAnimationCache;
 
 /**
  * Represents a container for baked animations in the AzureLib framework. Holds mappings for precompiled animation

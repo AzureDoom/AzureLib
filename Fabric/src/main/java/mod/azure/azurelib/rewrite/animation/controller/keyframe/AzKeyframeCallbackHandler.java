@@ -1,18 +1,18 @@
 package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
-import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
-import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzCustomKeyframeHandler;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzParticleKeyframeHandler;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzSoundKeyframeHandler;
 
 import java.util.Set;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
+import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
+import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzCustomKeyframeHandler;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzParticleKeyframeHandler;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.handler.AzSoundKeyframeHandler;
 import mod.azure.azurelib.rewrite.animation.event.AzCustomInstructionKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.event.AzParticleKeyframeEvent;
 import mod.azure.azurelib.rewrite.animation.event.AzSoundKeyframeEvent;
@@ -53,7 +53,9 @@ public class AzKeyframeCallbackHandler<T> {
 
     private void handleCustomKeyframes(T animatable, double adjustedTick) {
         AzCustomKeyframeHandler<T> customKeyframeHandler = keyframeCallbacks.customKeyframeHandler();
-        CustomInstructionKeyframeData[] customInstructions = currentAnimation().animation().keyframes().customInstructions();
+        CustomInstructionKeyframeData[] customInstructions = currentAnimation().animation()
+            .keyframes()
+            .customInstructions();
 
         for (CustomInstructionKeyframeData keyframeData : customInstructions) {
             if (adjustedTick >= keyframeData.getStartTick() && executedKeyframes.add(keyframeData)) {

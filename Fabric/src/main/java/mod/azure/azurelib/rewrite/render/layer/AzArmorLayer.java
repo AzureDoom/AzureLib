@@ -3,10 +3,6 @@ package mod.azure.azurelib.rewrite.render.layer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
-import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
@@ -29,10 +25,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
 import mod.azure.azurelib.rewrite.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererPipeline;
 import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.util.RenderUtils;
 
 /**
@@ -129,7 +129,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         EquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
         AzArmorRenderer renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
         HumanoidModel<T> model = getModelForItem(armorStack, slot);
-        @NotNull ModelPart modelPart = getModelPartForBone(context, bone, model);
+        @NotNull
+        ModelPart modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
             context.poseStack().pushPose();
@@ -305,7 +306,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * {@link ItemStack}
      */
     protected HumanoidModel<T> getModelForItem(ItemStack stack, EquipmentSlot slot) {
-        @Nullable AzArmorRenderer renderer = getRendererForItem(stack);
+        @Nullable
+        AzArmorRenderer renderer = getRendererForItem(stack);
 
         if (renderer == null) {
             return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);

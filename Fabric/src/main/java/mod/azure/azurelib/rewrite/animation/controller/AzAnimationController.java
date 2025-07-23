@@ -1,15 +1,12 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.controller.state.machine.StateHolder;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframeCallbacks;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframeManager;
@@ -18,8 +15,11 @@ import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationPla
 import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationStopState;
 import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationTransitionState;
 import mod.azure.azurelib.rewrite.animation.controller.state.machine.AzAnimationControllerStateMachine;
+import mod.azure.azurelib.rewrite.animation.controller.state.machine.StateHolder;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.rewrite.animation.property.AzAnimationProperties;
 

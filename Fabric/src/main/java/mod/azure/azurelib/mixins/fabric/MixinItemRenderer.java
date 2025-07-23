@@ -6,8 +6,6 @@
 package mod.azure.azurelib.mixins.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.rewrite.render.item.AzItemRenderer;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -19,10 +17,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Objects;
+
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.client.RenderProvider;
-
-import java.util.Objects;
+import mod.azure.azurelib.rewrite.render.item.AzItemRenderer;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 
 /**
  * Render hook to inject AzureLib's ISTER rendering callback
@@ -58,11 +58,11 @@ public class MixinItemRenderer {
         AzItemRenderer renderer = AzItemRendererRegistry.getOrNull(item);
 
         if (renderer != null) {
-	        if (Objects.requireNonNull(transformType) == ItemTransforms.TransformType.GUI) {
-		        renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
-	        } else {
-		        renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
-	        }
+            if (Objects.requireNonNull(transformType) == ItemTransforms.TransformType.GUI) {
+                renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
+            } else {
+                renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+            }
         }
     }
 }

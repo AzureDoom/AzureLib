@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root;
 
-import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -9,6 +8,7 @@ import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 
@@ -16,6 +16,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
  * Represents an action that cancels the current animation of a specified animation controller in the animation system.
  */
 public class AzRootCancelAction implements AzAction {
+
     private final String controllerName;
 
     public static final Function<FriendlyByteBuf, AzRootCancelAction> DECODER = buf -> {
@@ -62,14 +63,16 @@ public class AzRootCancelAction implements AzAction {
     @Override
     public String toString() {
         return "AzRootCancelAction{" +
-               "controllerName='" + controllerName + '\'' +
-               '}';
+            "controllerName='" + controllerName + '\'' +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzRootCancelAction that = (AzRootCancelAction) o;
 

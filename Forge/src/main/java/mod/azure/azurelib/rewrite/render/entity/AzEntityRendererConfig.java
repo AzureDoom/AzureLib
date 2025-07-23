@@ -7,7 +7,6 @@ import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
@@ -33,8 +32,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  postRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
@@ -110,14 +109,14 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         @Override
         public Builder<T> setPrerenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>>  preRenderEntry
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }

@@ -1,12 +1,12 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzBoneAnimation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
 
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzBoneAnimation;
 import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
 

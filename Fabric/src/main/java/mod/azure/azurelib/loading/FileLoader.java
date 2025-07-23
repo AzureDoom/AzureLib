@@ -6,8 +6,6 @@
 package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -21,6 +19,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.BakedGeoModel;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.BakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**

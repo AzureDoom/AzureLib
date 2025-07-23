@@ -7,6 +7,7 @@ package mod.azure.azurelib.rewrite.animation.parse;
 
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.JSONUtils;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -16,7 +17,6 @@ import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.util.JsonUtil;
-import net.minecraft.util.JSONUtils;
 
 /**
  * {@link Gson} {@link JsonDeserializer} for {@link AzKeyframes}.<br>

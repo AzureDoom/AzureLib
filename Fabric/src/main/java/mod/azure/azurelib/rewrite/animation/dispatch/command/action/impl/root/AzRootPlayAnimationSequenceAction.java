@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root;
 
-import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -9,12 +8,15 @@ import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
 
 public class AzRootPlayAnimationSequenceAction implements AzAction {
+
     private final String controllerName;
+
     private final AzAnimationSequence sequence;
 
     public static final Function<FriendlyByteBuf, AzRootPlayAnimationSequenceAction> DECODER = buf -> {
@@ -68,19 +70,22 @@ public class AzRootPlayAnimationSequenceAction implements AzAction {
     @Override
     public String toString() {
         return "AzRootPlayAnimationSequenceAction{" +
-               "controllerName='" + controllerName + '\'' +
-               ", sequence=" + sequence +
-               '}';
+            "controllerName='" + controllerName + '\'' +
+            ", sequence=" + sequence +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzRootPlayAnimationSequenceAction that = (AzRootPlayAnimationSequenceAction) o;
 
-        if (!controllerName.equals(that.controllerName)) return false;
+        if (!controllerName.equals(that.controllerName))
+            return false;
         return sequence.equals(that.sequence);
     }
 

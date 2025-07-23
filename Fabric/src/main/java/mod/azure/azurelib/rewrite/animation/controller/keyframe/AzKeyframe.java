@@ -15,10 +15,15 @@ import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
 
 public class AzKeyframe<T extends IValue> {
+
     private final double length;
+
     private final T startValue;
+
     private final T endValue;
+
     private final AzEasingType easingType;
+
     private final List<T> easingArgs;
 
     /**
@@ -84,12 +89,12 @@ public class AzKeyframe<T extends IValue> {
     @Override
     public String toString() {
         return "AzKeyframe{" +
-                   "length=" + length +
-                   ", startValue=" + startValue +
-                   ", endValue=" + endValue +
-                   ", easingType=" + easingType +
-                   ", easingArgs=" + easingArgs +
-                   '}';
+            "length=" + length +
+            ", startValue=" + startValue +
+            ", endValue=" + endValue +
+            ", easingType=" + easingType +
+            ", easingArgs=" + easingArgs +
+            '}';
     }
 
     @Override
@@ -107,9 +112,9 @@ public class AzKeyframe<T extends IValue> {
         }
         AzKeyframe<?> other = (AzKeyframe<?>) obj;
         return Double.compare(this.length, other.length) == 0 &&
-                   Objects.equals(this.startValue, other.startValue) &&
-                   Objects.equals(this.endValue, other.endValue) &&
-                   Objects.equals(this.easingType, other.easingType) &&
-                   Objects.equals(this.easingArgs, other.easingArgs);
+            Objects.equals(this.startValue, other.startValue) &&
+            Objects.equals(this.endValue, other.endValue) &&
+            Objects.equals(this.easingType, other.easingType) &&
+            Objects.equals(this.easingArgs, other.easingArgs);
     }
 }

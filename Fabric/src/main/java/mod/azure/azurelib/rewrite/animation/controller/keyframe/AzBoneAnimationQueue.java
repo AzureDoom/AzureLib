@@ -8,25 +8,33 @@ package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
 
 /**
- * A bone pseudo-stack for bone animation positions, scales, and rotations.
- * Animation points are calculated then pushed onto their respective queues
- * to be used for transformations in rendering.
+ * A bone pseudo-stack for bone animation positions, scales, and rotations. Animation points are calculated then pushed
+ * onto their respective queues to be used for transformations in rendering.
  */
 public class AzBoneAnimationQueue {
+
     private final AzBone bone;
+
     private final Queue<AzAnimationPoint> rotationXQueue;
+
     private final Queue<AzAnimationPoint> rotationYQueue;
+
     private final Queue<AzAnimationPoint> rotationZQueue;
+
     private final Queue<AzAnimationPoint> positionXQueue;
+
     private final Queue<AzAnimationPoint> positionYQueue;
+
     private final Queue<AzAnimationPoint> positionZQueue;
+
     private final Queue<AzAnimationPoint> scaleXQueue;
+
     private final Queue<AzAnimationPoint> scaleYQueue;
+
     private final Queue<AzAnimationPoint> scaleZQueue;
 
     public AzBoneAnimationQueue(AzBone bone) {

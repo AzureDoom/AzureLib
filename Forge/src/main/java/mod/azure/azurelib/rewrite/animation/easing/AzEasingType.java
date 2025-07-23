@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import net.minecraft.network.PacketBuffer;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -8,7 +9,6 @@ import java.util.function.Function;
 
 import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
-import net.minecraft.network.PacketBuffer;
 
 public interface AzEasingType {
 

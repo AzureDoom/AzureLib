@@ -54,8 +54,9 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     }
 
     /**
-     * Injects into the constructor of the {@link ItemStack} that takes an {@link IItemProvider} and an integer count. This
-     * ensures that a unique AzureLib ID (Az ID) is initialized if the item is registered in {@link AzIdentityRegistry}.
+     * Injects into the constructor of the {@link ItemStack} that takes an {@link IItemProvider} and an integer count.
+     * This ensures that a unique AzureLib ID (Az ID) is initialized if the item is registered in
+     * {@link AzIdentityRegistry}.
      *
      * @param ci The {@link CallbackInfo} for the mixin injection.
      */

@@ -15,10 +15,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
-import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
-import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +40,10 @@ import mod.azure.azurelib.loading.json.raw.UVUnion;
 import mod.azure.azurelib.loading.json.typeadapter.BakedAnimationsAdapter;
 import mod.azure.azurelib.loading.json.typeadapter.KeyFramesAdapter;
 import mod.azure.azurelib.loading.object.BakedAnimations;
+import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
 
 /**
  * Json helper class for various json functions

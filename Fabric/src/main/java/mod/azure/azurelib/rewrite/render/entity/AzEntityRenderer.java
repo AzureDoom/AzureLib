@@ -1,7 +1,6 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -12,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**

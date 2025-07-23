@@ -44,7 +44,7 @@ import mod.azure.azurelib.renderer.GeoReplacedEntityRenderer;
  * Helper class for various methods and functions useful while rendering
  */
 public final class RenderUtils {
-    
+
     public static void copy(Matrix4f main, Matrix4f other) {
         main.m00 = other.m00;
         main.m01 = other.m01;

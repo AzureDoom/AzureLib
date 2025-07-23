@@ -2,12 +2,12 @@ package mod.azure.azurelib.rewrite.animation.primitive;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import mod.azure.azurelib.util.AzureTriFunction;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
+import mod.azure.azurelib.util.AzureTriFunction;
 
 /**
  * Loop type functional interface to define post-play handling for a given animation. <br>

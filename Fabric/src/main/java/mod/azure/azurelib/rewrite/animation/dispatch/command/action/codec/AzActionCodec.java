@@ -4,11 +4,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.registry.AzActionRegistry;
 
 /**
  * The AzActionCodec class serves as an implementation of the {@link StreamCodec} interface specifically designed for
@@ -47,7 +47,8 @@ public class AzActionCodec {
         // Get the resource location for the AzAction
         ResourceLocation resourceLocation = action.getResourceLocation();
         // Retrieve the corresponding ID and codec for the resource location
-        @org.jetbrains.annotations.Nullable Short id = AzActionRegistry.getIdOrNull(resourceLocation);
+        @org.jetbrains.annotations.Nullable
+        Short id = AzActionRegistry.getIdOrNull(resourceLocation);
         BiConsumer<FriendlyByteBuf, AzAction> encoder = AzActionRegistry.getEncoderOrNull(resourceLocation);
 
         if (id == null) {

@@ -50,12 +50,12 @@ public class AzEntityNameRenderUtil {
                 return false;
             case HIDE_FOR_OTHER_TEAMS:
                 return playerTeam == null
-                           ? visibleToClient
-                           : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient);
+                    ? visibleToClient
+                    : entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || visibleToClient);
             case HIDE_FOR_OWN_TEAM:
                 return playerTeam == null
-                           ? visibleToClient
-                           : !entityTeam.isAlliedTo(playerTeam) && visibleToClient;
+                    ? visibleToClient
+                    : !entityTeam.isAlliedTo(playerTeam) && visibleToClient;
         }
         return false;
     }

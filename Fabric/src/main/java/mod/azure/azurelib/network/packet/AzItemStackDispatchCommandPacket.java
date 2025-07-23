@@ -1,11 +1,5 @@
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.AzureLibNetwork;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
-import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
@@ -15,14 +9,22 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzureLibNetwork;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+
 public class AzItemStackDispatchCommandPacket extends AbstractPacket {
 
     private final UUID itemStackId;
+
     private final AzCommand dispatchCommand;
 
     public AzItemStackDispatchCommandPacket(
-            UUID itemStackId,
-            AzCommand dispatchCommand
+        UUID itemStackId,
+        AzCommand dispatchCommand
     ) {
         this.itemStackId = itemStackId;
         this.dispatchCommand = dispatchCommand;

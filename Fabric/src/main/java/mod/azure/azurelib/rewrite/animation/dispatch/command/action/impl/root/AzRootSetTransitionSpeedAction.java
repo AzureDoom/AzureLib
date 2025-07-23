@@ -15,6 +15,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
  * Represents an action that sets the transition speed of animation controllers within an {@link AzAnimator}.
  */
 public class AzRootSetTransitionSpeedAction implements AzAction {
+
     private final float transitionSpeed;
 
     public static final Function<FriendlyByteBuf, AzRootSetTransitionSpeedAction> DECODER = buf -> {
@@ -63,14 +64,16 @@ public class AzRootSetTransitionSpeedAction implements AzAction {
     @Override
     public String toString() {
         return "AzRootSetTransitionSpeedAction{" +
-               "transitionSpeed=" + transitionSpeed +
-               '}';
+            "transitionSpeed=" + transitionSpeed +
+            '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         AzRootSetTransitionSpeedAction that = (AzRootSetTransitionSpeedAction) o;
 

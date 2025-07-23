@@ -9,23 +9,33 @@ import mod.azure.azurelib.cache.object.GeoVertex;
  * Holder class to make it easier to store and refer to vertices for a given cube.
  */
 public class VertexSet {
+
     private final GeoVertex bottomLeftBack;
+
     private final GeoVertex bottomRightBack;
+
     private final GeoVertex topLeftBack;
+
     private final GeoVertex topRightBack;
+
     private final GeoVertex topLeftFront;
+
     private final GeoVertex topRightFront;
+
     private final GeoVertex bottomLeftFront;
+
     private final GeoVertex bottomRightFront;
 
-    public VertexSet(GeoVertex bottomLeftBack,
-                     GeoVertex bottomRightBack,
-                     GeoVertex topLeftBack,
-                     GeoVertex topRightBack,
-                     GeoVertex topLeftFront,
-                     GeoVertex topRightFront,
-                     GeoVertex bottomLeftFront,
-                     GeoVertex bottomRightFront) {
+    public VertexSet(
+        GeoVertex bottomLeftBack,
+        GeoVertex bottomRightBack,
+        GeoVertex topLeftBack,
+        GeoVertex topRightBack,
+        GeoVertex topLeftFront,
+        GeoVertex topRightFront,
+        GeoVertex bottomLeftFront,
+        GeoVertex bottomRightFront
+    ) {
         this.bottomLeftBack = bottomLeftBack;
         this.bottomRightBack = bottomRightBack;
         this.topLeftBack = topLeftBack;
@@ -41,11 +51,27 @@ public class VertexSet {
             new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z - inflation),
             new GeoVertex(origin.x - inflation, origin.y - inflation, origin.z + vertexSize.z + inflation),
             new GeoVertex(origin.x - inflation, origin.y + vertexSize.y + inflation, origin.z - inflation),
-            new GeoVertex(origin.x - inflation, origin.y + vertexSize.y + inflation, origin.z + vertexSize.z + inflation),
-            new GeoVertex(origin.x + vertexSize.x + inflation, origin.y + vertexSize.y + inflation, origin.z - inflation),
-            new GeoVertex(origin.x + vertexSize.x + inflation, origin.y + vertexSize.y + inflation, origin.z + vertexSize.z + inflation),
+            new GeoVertex(
+                origin.x - inflation,
+                origin.y + vertexSize.y + inflation,
+                origin.z + vertexSize.z + inflation
+            ),
+            new GeoVertex(
+                origin.x + vertexSize.x + inflation,
+                origin.y + vertexSize.y + inflation,
+                origin.z - inflation
+            ),
+            new GeoVertex(
+                origin.x + vertexSize.x + inflation,
+                origin.y + vertexSize.y + inflation,
+                origin.z + vertexSize.z + inflation
+            ),
             new GeoVertex(origin.x + vertexSize.x + inflation, origin.y - inflation, origin.z - inflation),
-            new GeoVertex(origin.x + vertexSize.x + inflation, origin.y - inflation, origin.z + vertexSize.z + inflation)
+            new GeoVertex(
+                origin.x + vertexSize.x + inflation,
+                origin.y - inflation,
+                origin.z + vertexSize.z + inflation
+            )
         );
     }
 
@@ -82,27 +108,27 @@ public class VertexSet {
     }
 
     public GeoVertex[] quadWest() {
-        return new GeoVertex[]{topRightBack, topLeftBack, bottomLeftBack, bottomRightBack};
+        return new GeoVertex[] { topRightBack, topLeftBack, bottomLeftBack, bottomRightBack };
     }
 
     public GeoVertex[] quadEast() {
-        return new GeoVertex[]{topLeftFront, topRightFront, bottomRightFront, bottomLeftFront};
+        return new GeoVertex[] { topLeftFront, topRightFront, bottomRightFront, bottomLeftFront };
     }
 
     public GeoVertex[] quadNorth() {
-        return new GeoVertex[]{topLeftBack, topLeftFront, bottomLeftFront, bottomLeftBack};
+        return new GeoVertex[] { topLeftBack, topLeftFront, bottomLeftFront, bottomLeftBack };
     }
 
     public GeoVertex[] quadSouth() {
-        return new GeoVertex[]{topRightFront, topRightBack, bottomRightBack, bottomRightFront};
+        return new GeoVertex[] { topRightFront, topRightBack, bottomRightBack, bottomRightFront };
     }
 
     public GeoVertex[] quadUp() {
-        return new GeoVertex[]{topRightBack, topRightFront, topLeftFront, topLeftBack};
+        return new GeoVertex[] { topRightBack, topRightFront, topLeftFront, topLeftBack };
     }
 
     public GeoVertex[] quadDown() {
-        return new GeoVertex[]{bottomLeftBack, bottomLeftFront, bottomRightFront, bottomRightBack};
+        return new GeoVertex[] { bottomLeftBack, bottomLeftFront, bottomRightFront, bottomRightBack };
     }
 
     public GeoVertex[] verticesForQuad(Direction direction, boolean boxUv, boolean mirror) {

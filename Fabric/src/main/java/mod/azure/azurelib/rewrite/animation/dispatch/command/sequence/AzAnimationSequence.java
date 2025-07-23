@@ -10,6 +10,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationSt
 import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 
 public class AzAnimationSequence {
+
     private final List<AzAnimationStage> stages;
 
     private static final AzListStreamCodec<AzAnimationStage> STAGE_LIST_CODEC =
@@ -35,8 +36,8 @@ public class AzAnimationSequence {
     @Override
     public String toString() {
         return "AzAnimationSequence{" +
-                   "stages=" + stages +
-                   '}';
+            "stages=" + stages +
+            '}';
     }
 
     @Override
@@ -58,4 +59,3 @@ public class AzAnimationSequence {
         return stages.hashCode();
     }
 }
-
