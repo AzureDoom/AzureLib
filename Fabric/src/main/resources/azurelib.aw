@@ -1,4 +1,4 @@
-accessWidener	v1	named
+accessWidener	v2	named
 accessible method net/minecraft/client/renderer/entity/MobRenderer renderLeash (Lnet/minecraft/world/entity/Mob;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;)V
 accessible field net/minecraft/world/entity/Entity yRot F
 accessible field net/minecraft/world/entity/Entity xRot F
