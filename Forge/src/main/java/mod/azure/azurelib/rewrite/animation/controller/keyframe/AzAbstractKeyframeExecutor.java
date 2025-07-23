@@ -27,7 +27,9 @@ public class AzAbstractKeyframeExecutor {
         boolean isRotation,
         Axis axis
     ) {
-        AzKeyframeLocation<AzKeyframe<IValue>> location = getCurrentKeyframeLocation(frames, tick);
+        AzKeyframeLocation<AzKeyframe<IValue>> location = frames.isEmpty()
+            ? new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0)
+            : getCurrentKeyframeLocation(frames, tick);
         AzKeyframe<IValue> currentFrame = location.keyframe();
         double startValue = currentFrame.startValue().get();
         double endValue = currentFrame.endValue().get();
