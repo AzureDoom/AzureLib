@@ -39,8 +39,8 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
      * @param animTime The current animation time, in seconds, used for time-dependent queries.
      */
     @Override
-    protected void applyMolangQueries(T entity, double animTime) {
-        super.applyMolangQueries(entity, animTime);
+    protected void applyMolangQueries(T entity, double animTime, float partialTicks) {
+        super.applyMolangQueries(entity, animTime, partialTicks);
 
         var parser = MolangParser.INSTANCE;
         var minecraft = Minecraft.getInstance();
