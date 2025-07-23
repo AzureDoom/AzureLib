@@ -58,6 +58,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
             AzBoneAnimationQueue queue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
             AzBoneSnapshot snapshot = boneSnapshotCache.getOrNull(boneAnimation.boneName());
 
+            if (snapshot == null || queue == null) {
+                return;
+            }
+
             AzKeyframeStack<AzKeyframe<IValue>> rotationKeyframes = boneAnimation.rotationKeyframes();
             AzKeyframeStack<AzKeyframe<IValue>> positionKeyframes = boneAnimation.positionKeyframes();
             AzKeyframeStack<AzKeyframe<IValue>> scaleKeyframes = boneAnimation.scaleKeyframes();
