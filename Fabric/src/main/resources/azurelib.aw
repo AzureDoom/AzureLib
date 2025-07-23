@@ -1,4 +1,4 @@
-accessWidener	v1	named
+accessWidener	v2	named
 accessible method net/minecraft/sounds/SoundEvent createFixedRangeEvent (Lnet/minecraft/resources/ResourceLocation;F)Lnet/minecraft/sounds/SoundEvent;
 accessible field net/minecraft/world/entity/Entity yRot F
 accessible field net/minecraft/world/entity/Entity xRot F
