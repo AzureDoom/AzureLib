@@ -28,8 +28,8 @@ public class AzAbstractKeyframeExecutor {
         Axis axis
     ) {
         AzKeyframeLocation<AzKeyframe<IValue>> location = frames.isEmpty()
-                                                              ? new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0)
-                                                              : getCurrentKeyframeLocation(frames, tick);
+            ? new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0)
+            : getCurrentKeyframeLocation(frames, tick);
         var currentFrame = location.keyframe();
         var startValue = currentFrame.startValue().get();
         var endValue = currentFrame.endValue().get();
