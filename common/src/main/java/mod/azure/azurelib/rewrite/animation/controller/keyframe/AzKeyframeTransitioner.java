@@ -3,7 +3,6 @@ package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -81,7 +80,6 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         AzBoneSnapshot snapshot,
         AzBone bone
     ) {
-
         if (keyframes.xKeyframes().isEmpty()) {
             return;
         }
@@ -101,7 +99,6 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         double transitionLength,
         AzBoneSnapshot snapshot
     ) {
-
         var x = getAnimationPointAtTick(keyframes.xKeyframes(), 0, false, Axis.X);
         var y = getAnimationPointAtTick(keyframes.yKeyframes(), 0, false, Axis.Y);
         var z = getAnimationPointAtTick(keyframes.zKeyframes(), 0, false, Axis.Z);
