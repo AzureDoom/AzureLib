@@ -50,6 +50,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
             MolangQueries.DISTANCE_FROM_CAMERA,
             () -> minecraft.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position())
         );
+        parser.setMemoizedValue(MolangQueries.IN_AIR, () -> RenderUtils.booleanToFloat(!entity.onGround));
         parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.onGround));
         parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(entity.isInWater()));
         parser.setMemoizedValue(
@@ -60,6 +61,14 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
 
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
+            parser.setMemoizedValue(
+                MolangQueries.IS_BLOCKING,
+                () -> RenderUtils.booleanToFloat(livingEntity.isBlocking())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_USING_ITEM,
+                () -> RenderUtils.booleanToFloat(livingEntity.isUsingItem())
+            );
             parser.setMemoizedValue(MolangQueries.HEALTH, livingEntity::getHealth);
             parser.setMemoizedValue(MolangQueries.MAX_HEALTH, livingEntity::getMaxHealth);
             parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
@@ -67,6 +76,25 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
                 return Mth.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
             });
             parser.setMemoizedValue(MolangQueries.YAW_SPEED, () -> livingEntity.yRot - livingEntity.yRotO);
+            parser.setValue(
+                MolangQueries.HEAD_YAW,
+                () -> livingEntity.getViewYRot(partialTicks) - Mth.lerp(
+                    partialTicks,
+                    livingEntity.yBodyRotO,
+                    livingEntity.yBodyRot
+                )
+            );
+            parser.setValue(MolangQueries.HEAD_PITCH, () -> livingEntity.getViewXRot(partialTicks));
+            parser.setValue(
+                MolangQueries.HURT_TIME,
+                () -> livingEntity.hurtTime == 0 ? 0 : livingEntity.hurtTime - partialTicks
+            );
+            parser.setValue(MolangQueries.IS_BABY, () -> RenderUtils.booleanToFloat(livingEntity.isBaby()));
+            parser.setValue(MolangQueries.LIMB_SWING, () -> livingEntity.animationPosition);
+            parser.setValue(
+                MolangQueries.LIMB_SWING_AMOUNT,
+                () -> Mth.lerp(partialTicks, livingEntity.animationSpeedOld, livingEntity.animationSpeed)
+            );
         }
     }
 }

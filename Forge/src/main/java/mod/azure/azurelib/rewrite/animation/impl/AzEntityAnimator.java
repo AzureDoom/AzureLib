@@ -3,6 +3,7 @@ package mod.azure.azurelib.rewrite.animation.impl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import mod.azure.azurelib.core.molang.MolangParser;
@@ -49,6 +50,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
             MolangQueries.DISTANCE_FROM_CAMERA,
             () -> minecraft.gameRenderer.getActiveRenderInfo().getProjectedView().distanceTo(entity.getPositionVec())
         );
+        parser.setMemoizedValue(MolangQueries.IN_AIR, () -> RenderUtils.booleanToFloat(!entity.onGround));
         parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.onGround));
         parser.setMemoizedValue(MolangQueries.IS_IN_WATER, () -> RenderUtils.booleanToFloat(entity.isInWater()));
         parser.setMemoizedValue(
@@ -59,6 +61,14 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
 
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
+            parser.setMemoizedValue(
+                MolangQueries.IS_BLOCKING,
+                () -> RenderUtils.booleanToFloat(livingEntity.isActiveItemStackBlocking())
+            );
+            parser.setMemoizedValue(
+                MolangQueries.IS_USING_ITEM,
+                () -> RenderUtils.booleanToFloat(livingEntity.isHandActive())
+            );
             parser.setMemoizedValue(MolangQueries.HEALTH, livingEntity::getHealth);
             parser.setMemoizedValue(MolangQueries.MAX_HEALTH, livingEntity::getMaxHealth);
             parser.setMemoizedValue(MolangQueries.GROUND_SPEED, () -> {
@@ -68,6 +78,25 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
             parser.setMemoizedValue(
                 MolangQueries.YAW_SPEED,
                 () -> livingEntity.rotationYaw - livingEntity.prevRotationYaw
+            );
+            parser.setValue(
+                MolangQueries.HEAD_YAW,
+                () -> livingEntity.getYaw(partialTicks) - MathHelper.lerp(
+                    partialTicks,
+                    livingEntity.prevRenderYawOffset,
+                    livingEntity.renderYawOffset
+                )
+            );
+            parser.setValue(MolangQueries.HEAD_PITCH, () -> livingEntity.getPitch(partialTicks));
+            parser.setValue(
+                MolangQueries.HURT_TIME,
+                () -> livingEntity.hurtTime == 0 ? 0 : livingEntity.hurtTime - partialTicks
+            );
+            parser.setValue(MolangQueries.IS_BABY, () -> RenderUtils.booleanToFloat(livingEntity.isChild()));
+            parser.setValue(MolangQueries.LIMB_SWING, () -> livingEntity.limbSwing);
+            parser.setValue(
+                MolangQueries.LIMB_SWING_AMOUNT,
+                () -> MathHelper.lerp(partialTicks, livingEntity.prevLimbSwingAmount, livingEntity.limbSwingAmount)
             );
         }
     }

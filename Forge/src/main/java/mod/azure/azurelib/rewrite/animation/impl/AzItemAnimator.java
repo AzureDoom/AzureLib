@@ -2,8 +2,11 @@ package mod.azure.azurelib.rewrite.animation.impl;
 
 import net.minecraft.item.ItemStack;
 
+import mod.azure.azurelib.core.molang.MolangParser;
+import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorConfig;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * The {@code AzItemAnimator} class is an abstract extension of the {@code AzAnimator} class, specifically designed to
@@ -22,5 +25,21 @@ public abstract class AzItemAnimator extends AzAnimator<ItemStack> {
 
     protected AzItemAnimator(AzAnimatorConfig config) {
         super(config);
+    }
+
+    @Override
+    protected void applyMolangQueries(ItemStack animatable, double animTime, float partialTicks) {
+        super.applyMolangQueries(animatable, animTime, partialTicks);
+
+        MolangParser parser = MolangParser.INSTANCE;
+
+        parser.setMemoizedValue(
+            MolangQueries.ITEM_CURRENT_DURABILITY,
+            () -> animatable.getDamage() / (float) animatable.getMaxDamage()
+        );
+        parser.setMemoizedValue(
+            MolangQueries.ITEM_IS_ENCHANTED,
+            () -> RenderUtils.booleanToFloat(!animatable.isEnchanted())
+        );
     }
 }
