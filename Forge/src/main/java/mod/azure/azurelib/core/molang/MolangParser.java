@@ -93,6 +93,17 @@ public class MolangParser extends MathBuilder {
         register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
         register(new LazyVariable(MolangQueries.IS_ON_FIRE, 0));
         register(new LazyVariable(MolangQueries.GROUND_SPEED, 0));
+        register(new LazyVariable(MolangQueries.HEAD_YAW, 0));
+        register(new LazyVariable(MolangQueries.HEAD_PITCH, 0));
+        register(new LazyVariable(MolangQueries.HURT_TIME, 0));
+        register(new LazyVariable(MolangQueries.IN_AIR, 0));
+        register(new LazyVariable(MolangQueries.IS_BABY, 0));
+        register(new LazyVariable(MolangQueries.IS_BLOCKING, 0));
+        register(new LazyVariable(MolangQueries.IS_USING_ITEM, 0));
+        register(new LazyVariable(MolangQueries.ITEM_CURRENT_DURABILITY, 0));
+        register(new LazyVariable(MolangQueries.ITEM_IS_ENCHANTED, 0));
+        register(new LazyVariable(MolangQueries.LIMB_SWING, 0));
+        register(new LazyVariable(MolangQueries.LIMB_SWING_AMOUNT, 0));
     }
 
     /**
