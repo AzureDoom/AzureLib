@@ -54,7 +54,7 @@ public abstract class AzAnimator<T> {
 
         timer.tick();
 
-        preAnimationSetup(animatable, timer.getAnimTime());
+        preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
 
         if (!boneCache.isEmpty()) {
 
@@ -71,13 +71,38 @@ public abstract class AzAnimator<T> {
     }
 
     /**
-     * Apply transformations and settings prior to acting on any animation-related functionality
+     * Apply transformations and settings prior to acting on any animation-related functionality.
+     *
+     * @param animatable   The animatable being animated.
+     * @param animTime     Animation time in seconds.
+     * @param partialTicks The partial tick for smooth animations.
      */
-    protected void preAnimationSetup(T animatable, double animTime) {
+    protected void preAnimationSetup(T animatable, double animTime, float partialTicks) {
+        applyMolangQueries(animatable, animTime, partialTicks);
+    }
+
+    /**
+     * Handles MoLang queries with support for partial ticks.
+     *
+     * @param animatable   The animatable being animated.
+     * @param animTime     Animation time in seconds.
+     * @param partialTicks The partial tick for smooth animations.
+     */
+    protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
+        // TODO: Refactor this method by moving all logic from the old applyMolangQueries(animatable, animTime)
+        // method directly into this one, ensuring that the old method is no longer called.
+        // This will consolidate the logic to ensure that partial tick support is fully integrated here.
         applyMolangQueries(animatable, animTime);
     }
 
-    protected void applyMolangQueries(T animatable, double animTime) {
+    /**
+     * Existing method for applying MoLang queries.
+     *
+     * @param animatable The animatable being animated.
+     * @param animTime   Animation time in seconds.
+     */
+    @Deprecated
+    private void applyMolangQueries(T animatable, double animTime) {
         var level = Minecraft.getInstance().level;
         var parser = MolangParser.INSTANCE;
 
