@@ -1,0 +1,62 @@
+---
+title: Item AzAnimator Basics
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have looked at the [AzAnimator Basics](../base_animator)  page
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/items/)
+</Callout>
+
+The `AzItemAnimator` is a framework specifically designed to handle animations for `ItemStack` instances in AzureLib. By extending the base functionality of `AzAnimator`, it provides an easy-to-use API for creating animation systems tailored to items.
+
+## Overview of AzItemAnimator
+
+The `AzItemAnimator` builds on the generic animation system outlined in the `AzAnimator` but focuses explicitly on animating **item stacks**. It simplifies item animation setup and configuration by abstracting much of the common functionality.
+
+### Key Features
+- Purpose-built for animating `ItemStack` instances.
+- Maintains compatibility with AzureLib's baked animation and MoLang systems.
+- Fully integrates with the `AzAnimator` APIs, including animation controllers and context handling.
+
+### Constructor
+
+The `AzItemAnimator` requires a configuration object (`AzAnimatorConfig`) to initialize:
+```java
+public AzItemAnimator(AzAnimatorConfig config) { super(config); }
+```
+
+To simplify setup, you can use the `defaultConfig` for common scenarios:
+```java
+public YourItemAnimator() { super(AzAnimatorConfig.defaultConfig()); }
+```
+
+## Example: YourItemAnimator
+
+Below is a working example of a custom animator for an animimated item using the `AzItemAnimator`.
+
+```java
+java public class YourItemAnimator extends AzItemAnimator {
+    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+        "animations/item/youritem.animation.json"
+    );
+
+    public YourItemAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ItemStack> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+        return ANIMATIONS;
+    }
+}
+```

@@ -23,6 +23,10 @@
         "name": "Items",
         "icon": "Wrench"
     },
+    "animators": {
+        "name": "Animators",
+        "icon": "Film"
+    },
     "layers": {
         "name": "Layers",
         "icon": "Layers"
