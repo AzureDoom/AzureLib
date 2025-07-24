@@ -1,4 +1,8 @@
 {
+    "animation_controller_builder.mdx": {
+        "name": "Animation Controller Builder",
+        "icon": "Info"
+    },
     "azrenderer_config.mdx": {
         "name": "AzRendererConfigs 101",
         "icon": "Info"

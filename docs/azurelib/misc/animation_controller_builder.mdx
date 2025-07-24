@@ -1,0 +1,54 @@
+---
+title: Animation Controller Builder
+hide_meta: true
+---
+
+The `Animation Controller Builder` is a utility class in AzureLib that simplifies the creation and configuration of `AzAnimationController` instances. It provides a **fluent API** for defining animation behaviors such as speed, easing types, transitions, and custom keyframe callbacks, ensuring that animations are as smooth and configurable as possible.
+
+## Overview
+
+The `AzAnimationControllerBuilder` is tightly integrated with the `AzAnimator` framework and is used to create `AzAnimationController` objects. These controllers drive animations for animatable objects (like entities, blocks, or items) by managing both the state of the animation and additional properties like speed, transitions, and actions triggered at specific keyframes.
+
+### Key Features
+- Fluent API for defining animation properties.
+- Supports custom easing types for smooth transitions.
+- Allows integration of keyframe-based callbacks.
+- Simplifies animation controller creation with clear, chainable methods.
+
+### Class Definition
+
+The `AzAnimationControllerBuilder` is designed to work with any animatable type `T`. Where `T` is the type of object (e.g., entity or block) that the animation controller targets.
+
+## Builder Methods
+
+Here’s a breakdown of the builder’s methods:
+
+### 1. **`setAnimationSpeed(double animationSpeed)`**
+Specifies the speed at which the animation should play:
+- **Default:** `1.0` (normal speed).
+- **Usage Example:**
+  ```java
+  builder(...).setAnimationSpeed(2.0).build(); // Play the animation at double the normal speed.
+  ```
+
+### 2. **`setKeyframeCallbacks(AzKeyframeCallbacks<T> keyframeCallbacks)`**
+Please see [Adding Effect Keyframes](../effectkeyframes/adding_keyframes) for this.
+
+### 3. **`setEasingType(AzEasingType easingType)`**
+Defines the easing function for the animation, influencing how values interpolate over time.
+- **Options:** Supports predefined easing types (e.g., LINEAR, STEP, CATMULLROM).
+- **Usage Example:**
+  ```java
+  builder(...).setEasingType(AzEasingType.STEP).build();
+  ```
+
+### 4. **`setTransitionLength(int transitionLength)`**
+Configures the length of time (in ticks) that the controller should take to transition between animation states.
+- **Default:** `0` (instant transition).
+- **Usage Example:**
+  ```java
+  builder(...).setTransitionLength(10).build(); // Smooth transition over half a second (10 ticks).
+  ```
+
+### 5. **`build()`**
+Builds and returns the `AzAnimationController` instance based on the configured properties.
