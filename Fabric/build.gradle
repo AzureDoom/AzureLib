@@ -131,7 +131,7 @@ if (file('key.properties').exists()) {
             dryRunWebhookUrl = releaseProp.getProperty("discordKey")
             username = "AzureBot"
             avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
-            content = changelog.map { "# A new version of AzureLib for Forge has been released for 1.19.2 \n" + it}
+            content = changelog.map { "# A new version of AzureLib for Fabric has been released for 1.19.2 \n" + it}
             setPlatforms(publishMods.platforms.curseforge, publishMods.platforms.modrinth)
             style {
                 look = "MODERN"
