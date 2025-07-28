@@ -5,15 +5,16 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 
 /**
  * AzDynamicEntityModelRenderer is an abstract class designed for rendering dynamic entity models with support for
@@ -177,22 +178,23 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
             float texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
             float texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
 
-            context.vertexConsumer().vertex(
-                vector4f.x(),
-                vector4f.y(),
-                vector4f.z(),
-                context.red(),
-                context.green(),
-                context.blue(),
-                context.alpha(),
-                texU,
-                texV,
-                context.packedOverlay(),
-                context.packedLight(),
-                normal.x(),
-                normal.y(),
-                normal.z()
-            );
+            context.vertexConsumer()
+                .vertex(
+                    vector4f.x(),
+                    vector4f.y(),
+                    vector4f.z(),
+                    context.red(),
+                    context.green(),
+                    context.blue(),
+                    context.alpha(),
+                    texU,
+                    texV,
+                    context.packedOverlay(),
+                    context.packedLight(),
+                    normal.x(),
+                    normal.y(),
+                    normal.z()
+                );
         }
     }
 }
