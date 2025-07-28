@@ -76,6 +76,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
     @Override
     public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
         config.postRenderEntry(context);
+        context.setTextureOverride(null);
     }
 
     /**

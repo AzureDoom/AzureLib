@@ -86,6 +86,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     @Override
     public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
         config.postRenderEntry(context);
+        context.setTextureOverride(null);
     }
 
     /**

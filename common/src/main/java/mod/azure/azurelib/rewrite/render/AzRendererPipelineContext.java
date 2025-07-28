@@ -2,6 +2,10 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.common.internal.client.util.RenderUtils;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -9,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
@@ -22,6 +27,8 @@ import mod.azure.azurelib.rewrite.model.AzBakedModel;
  * @param <T> the type of the animatable object being rendered
  */
 public abstract class AzRendererPipelineContext<T> {
+
+    public ResourceLocation textureOverride;
 
     private final AzRendererPipeline<T> rendererPipeline;
 
@@ -44,6 +51,9 @@ public abstract class AzRendererPipelineContext<T> {
     private @Nullable RenderType renderType;
 
     private VertexConsumer vertexConsumer;
+
+    protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
+        new Object2ObjectOpenHashMap<>();
 
     protected AzRendererPipelineContext(AzRendererPipeline<T> rendererPipeline) {
         this.rendererPipeline = rendererPipeline;
@@ -188,5 +198,82 @@ public abstract class AzRendererPipelineContext<T> {
 
     public void setVertexConsumer(VertexConsumer vertexConsumer) {
         this.vertexConsumer = vertexConsumer;
+    }
+
+    public void setTextureOverride(ResourceLocation textureOverride) {
+        this.textureOverride = textureOverride;
+    }
+
+    public ResourceLocation getTextureOverride() {
+        return textureOverride;
+    }
+
+    /**
+     * Override method for rendering a specific bone. This method can be customized to apply specific
+     * transformations, modify the bone's render properties, or override its rendering behavior
+     * entirely.
+     *
+     * @param poseStack      The pose stack used for handling transformations (rotation, scaling, and translation).
+     * @param bone           The bone that is being rendered.
+     * @param bufferSource   The buffer source used for rendering.
+     * @param buffer         The vertex consumer buffer used for writing vertex data during rendering.
+     * @param partialTick    The partial tick progress for interpolating between frames.
+     * @param packedLight    The packed light value for the rendered bone.
+     * @param packedOverlay  The packed overlay value for the rendered bone.
+     * @param colour         The color modifier for the rendered output.
+     * @return A boolean indicating whether the bone's rendering behavior has been overridden successfully.
+     */
+    public boolean boneRenderOverride(
+        PoseStack poseStack,
+        AzBone bone,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        int colour
+    ) {
+        return false;
+    }
+
+    /**
+     * Determines if a specific bone should override the default render type. This method can be
+     * used to apply custom rendering behavior to individual bones by specifying a different
+     * {@link RenderType}.
+     *
+     * @param bone         The bone that is being considered for a render type override.
+     * @param animatable   The animation-related object associated with this renderer, typically an entity or geo-animatable instance.
+     * @param texturePath  The resource location of the texture associated with the bone.
+     * @param bufferSource The buffer source used for rendering operations.
+     * @param partialTick  The partial tick progress for interpolating*/
+    @Nullable
+    public RenderType getRenderTypeOverrideForBone(
+        AzBone bone,
+        T animatable,
+        ResourceLocation texturePath,
+        MultiBufferSource bufferSource,
+        float partialTick
+    ) {
+        return null;
+    }
+
+    /**
+     * Retrieves a texture override for a specific bone during rendering, if applicable.
+     * This method can be used to specify a custom texture for individual bones.
+     *
+     * @param bone        The bone for which the texture override is being requested.
+     * @param animatable  The animation-related object associated with the renderer,
+     *                    typically an entity or geo-animatable instance.
+     * @param partialTick The partial tick progress for interpolating animations.
+     * @return A {@link ResourceLocation} pointing to the overridden texture for the specified bone,
+     *         or null if no override is applied.
+     */
+    @Nullable
+    public ResourceLocation getTextureOverrideForBone(AzBone bone, T animatable, float partialTick) {
+        return null;
+    }
+
+    public IntIntPair computeTextureSize(ResourceLocation texture) {
+        return TEXTURE_DIMENSIONS_CACHE.computeIfAbsent(texture, RenderUtils::getTextureDimensions);
     }
 }

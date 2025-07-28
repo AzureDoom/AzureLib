@@ -32,6 +32,7 @@ import mod.azure.azurelib.core.animatable.GeoAnimatable;
  * Because of the extra performance cost of this renderer, it is advised to avoid using it unnecessarily, and consider
  * whether the benefits are worth the cost for your needs.
  */
+@Deprecated(forRemoval = true)
 public abstract class DynamicGeoReplacedEntityRenderer<E extends Entity, T extends GeoAnimatable> extends GeoReplacedEntityRenderer<E, T> {
 
     protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =

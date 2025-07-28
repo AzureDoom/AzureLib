@@ -86,6 +86,7 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
     @Override
     public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
         config.postRenderEntry(context);
+        context.setTextureOverride(null);
     }
 
     public AzBlockEntityRenderer<T> getRenderer() {
