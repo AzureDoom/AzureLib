@@ -7,6 +7,10 @@
         "name": "AzRendererConfigs 101",
         "icon": "Info"
     },
+    "dynamicmodelrenderers.mdx": {
+        "name": "Dynamic Model Renderers",
+        "icon": "Info"
+    },
     "azcommands_101.mdx": {
         "name": "AzCommands 101",
         "icon": "Info"
