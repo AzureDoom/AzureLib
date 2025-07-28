@@ -13,6 +13,10 @@ import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.util.RenderUtils;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone
@@ -168,5 +172,77 @@ public class AzModelRenderer<T> {
                 normal.z()
             );
         }
+    }
+
+    /**
+     * Provides an override logic for rendering a specific bone. This method allows
+     * custom handling of how an individual bone should be rendered.
+     *
+     * @param poseStack     The pose stack used for managing transformations during rendering.
+     * @param bone          The bone targeted for rendering or customization.
+     * @param bufferSource  The source of buffers used in the rendering process.
+     * @param buffer        The vertex consumer to which the rendering data is submitted.
+     * @param partialTick   The partial tick for interpolating transformations and animations.
+     * @param packedLight   The packed lightmap coordinates for lighting calculations.
+     * @param packedOverlay The packed overlay coordinates for additional rendering effects.
+     * @param red           The red color multiplier applied to the bone's rendering.
+     * @param green         The green color multiplier applied to the bone's rendering.
+     * @param blue          The blue color multiplier applied to the bone's rendering.
+     * @param alpha         The alpha/transparency value applied to the bone's rendering.
+     * @return A boolean indicating whether this override has applied custom rendering logic.
+     *         If true, the custom behavior has been applied; otherwise, the default rendering will proceed.
+     */
+    public boolean boneRenderOverride(
+        PoseStack poseStack,
+        AzBone bone,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
+    ) {
+        return false;
+    }
+
+    /**
+     * Determines if a specific bone should override the default render type. This method can be used to apply custom
+     * rendering behavior to individual bones by specifying a different {@link RenderType}.
+     *
+     * @param bone         The bone that is being considered for a render type override.
+     * @param animatable   The animation-related object associated with this renderer, typically an entity or
+     *                     geo-animatable instance.
+     * @param texturePath  The resource location of the texture associated with the bone.
+     * @param bufferSource The buffer source used for rendering operations.
+     * @param partialTick  The partial tick progress for interpolating
+     */
+    @Nullable
+    public RenderType getRenderTypeOverrideForBone(
+        AzBone bone,
+        T animatable,
+        ResourceLocation texturePath,
+        MultiBufferSource bufferSource,
+        float partialTick
+    ) {
+        return null;
+    }
+
+    /**
+     * Retrieves a texture override for a specific bone during rendering, if applicable. This method can be used to
+     * specify a custom texture for individual bones.
+     *
+     * @param bone        The bone for which the texture override is being requested.
+     * @param animatable  The animation-related object associated with the renderer, typically an entity or
+     *                    geo-animatable instance.
+     * @param partialTick The partial tick progress for interpolating animations.
+     * @return A {@link ResourceLocation} pointing to the overridden texture for the specified bone, or null if no
+     *         override is applied.
+     */
+    @Nullable
+    public ResourceLocation getTextureOverrideForBone(AzBone bone, T animatable, float partialTick) {
+        return null;
     }
 }
