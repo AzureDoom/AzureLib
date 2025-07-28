@@ -27,7 +27,7 @@ import mod.azure.azurelib.util.RenderUtils;
  */
 public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRenderer<T> {
 
-    private final AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline;
+    protected final AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline;
 
     public AzBlockEntityModelRenderer(
         AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline,
