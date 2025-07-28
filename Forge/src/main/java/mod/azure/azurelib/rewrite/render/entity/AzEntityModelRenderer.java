@@ -30,7 +30,7 @@ import net.minecraft.world.entity.player.PlayerModelPart;
  */
 public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> {
 
-    private final AzEntityRendererPipeline<T> entityRendererPipeline;
+    protected final AzEntityRendererPipeline<T> entityRendererPipeline;
 
     public AzEntityModelRenderer(AzEntityRendererPipeline<T> entityRendererPipeline, AzLayerRenderer<T> layerRenderer) {
         super(entityRendererPipeline, layerRenderer);

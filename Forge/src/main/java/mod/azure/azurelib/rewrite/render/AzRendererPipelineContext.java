@@ -2,15 +2,19 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Map;
 import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import net.minecraft.util.Tuple;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides
@@ -20,6 +24,8 @@ import mod.azure.azurelib.rewrite.model.AzBakedModel;
  * @param <T> the type of the animatable object being rendered
  */
 public abstract class AzRendererPipelineContext<T> {
+
+    public ResourceLocation textureOverride;
 
     private final AzRendererPipeline<T> rendererPipeline;
 
@@ -48,6 +54,9 @@ public abstract class AzRendererPipelineContext<T> {
     private RenderType renderType;
 
     private VertexConsumer vertexConsumer;
+
+    protected static final Map<ResourceLocation, Tuple<Integer, Integer>> TEXTURE_DIMENSIONS_CACHE =
+        new Object2ObjectOpenHashMap<>();
 
     protected AzRendererPipelineContext(AzRendererPipeline<T> rendererPipeline) {
         this.rendererPipeline = rendererPipeline;
@@ -226,5 +235,38 @@ public abstract class AzRendererPipelineContext<T> {
 
     public void setVertexConsumer(VertexConsumer vertexConsumer) {
         this.vertexConsumer = vertexConsumer;
+    }
+
+    /**
+     * Sets the texture override for the current rendering context. This can be used to replace the default texture
+     * associated with the animatable object being rendered.
+     *
+     * @param textureOverride the {@link ResourceLocation} of the texture to override; passing null will revert back to
+     *                        the default texture
+     */
+    public void setTextureOverride(ResourceLocation textureOverride) {
+        this.textureOverride = textureOverride;
+    }
+
+    /**
+     * Retrieves the texture override set for this rendering context, if any.
+     *
+     * @return the {@link ResourceLocation} representing the texture override, or null if no override is set.
+     */
+    public ResourceLocation getTextureOverride() {
+        return textureOverride;
+    }
+
+    /**
+     * Computes the dimensions of the specified texture and caches the result for future use. This method retrieves the
+     * dimensions of the texture represented by the given {@code ResourceLocation} and returns them as an
+     * {@code Tuple<Integer, Integer>}, where the first value represents the width and the second value represents the height of the
+     * texture.
+     *
+     * @param texture the {@link ResourceLocation} of the texture whose dimensions need to be computed
+     * @return an {@link Tuple<Integer, Integer>} containing the width and height of the texture
+     */
+    public Tuple<Integer, Integer> computeTextureSize(ResourceLocation texture) {
+        return TEXTURE_DIMENSIONS_CACHE.computeIfAbsent(texture, RenderUtils::getTextureDimensions);
     }
 }
