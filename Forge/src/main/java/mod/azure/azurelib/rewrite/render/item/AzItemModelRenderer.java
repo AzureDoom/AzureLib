@@ -17,7 +17,7 @@ import mod.azure.azurelib.util.RenderUtils;
  */
 public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
 
-    private final AzItemRendererPipeline itemRendererPipeline;
+    protected final AzItemRendererPipeline itemRendererPipeline;
 
     public AzItemModelRenderer(AzItemRendererPipeline itemRendererPipeline, AzLayerRenderer<ItemStack> layerRenderer) {
         super(itemRendererPipeline, layerRenderer);
