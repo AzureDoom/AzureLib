@@ -26,7 +26,7 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
         @Nullable VertexConsumer buffer,
         int packedLight,
         int packedOverlay,
-        int var5
+        int color
     ) {
         var mc = Minecraft.getInstance();
         var context = rendererPipeline.context();
