@@ -101,15 +101,15 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     /**
-     * Scales the specified bone based on the model part associated with the current {@link EquipmentSlot}.
-     * This method adjusts the scaling for various armor parts such as head, chest, legs, and feet during rendering.
-     * The scaling is not performed if {@code isReRender} is set to true.
+     * Scales the specified bone based on the model part associated with the current {@link EquipmentSlot}. This method
+     * adjusts the scaling for various armor parts such as head, chest, legs, and feet during rendering. The scaling is
+     * not performed if {@code isReRender} is set to true.
      *
-     * @param context    The {@link AzArmorRendererPipelineContext} providing the rendering context, including the base
-     *                   model, current slot, and other relevant information for the rendering pipeline.
+     * @param context     The {@link AzArmorRendererPipelineContext} providing the rendering context, including the base
+     *                    model, current slot, and other relevant information for the rendering pipeline.
      * @param boneContext The {@link AzArmorBoneContext} specifying the bones that correspond to the armor model parts.
-     * @param isReRender A boolean flag indicating if this is a re-rendering pass. When true, scaling logic is skipped
-     *                   as it is generally unnecessary during re-rendering.
+     * @param isReRender  A boolean flag indicating if this is a re-rendering pass. When true, scaling logic is skipped
+     *                    as it is generally unnecessary during re-rendering.
      */
     public void scaleBoneWithModelPart(
         AzArmorRendererPipelineContext context,
@@ -138,12 +138,11 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     /**
-     * Sets the scale of the specified bone based on the scaling parameters
-     * defined in the given model part.
+     * Sets the scale of the specified bone based on the scaling parameters defined in the given model part.
      *
      * @param bone      The {@link AzBone} instance representing the bone to be scaled.
-     * @param modelPart The {@link ModelPart} containing the scale values (xScale, yScale, zScale)
-     *                  that will be applied to the bone.
+     * @param modelPart The {@link ModelPart} containing the scale values (xScale, yScale, zScale) that will be applied
+     *                  to the bone.
      */
     private void setBoneScale(AzBone bone, ModelPart modelPart) {
         bone.setScaleX(modelPart.xScale);
