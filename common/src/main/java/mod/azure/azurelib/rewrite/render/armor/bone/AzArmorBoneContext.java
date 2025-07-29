@@ -13,21 +13,21 @@ public class AzArmorBoneContext {
 
     private AzBakedModel lastModel;
 
-    protected AzBone head;
+    public AzBone head;
 
-    protected AzBone body;
+    public AzBone body;
 
-    protected AzBone rightArm;
+    public AzBone rightArm;
 
-    protected AzBone leftArm;
+    public AzBone leftArm;
 
-    protected AzBone rightLeg;
+    public AzBone rightLeg;
 
-    protected AzBone leftLeg;
+    public AzBone leftLeg;
 
-    protected AzBone rightBoot;
+    public AzBone rightBoot;
 
-    protected AzBone leftBoot;
+    public AzBone leftBoot;
 
     public AzArmorBoneContext() {
         this.head = null;
