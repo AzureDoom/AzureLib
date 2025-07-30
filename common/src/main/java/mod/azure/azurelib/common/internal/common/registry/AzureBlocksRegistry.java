@@ -18,8 +18,11 @@ public class AzureBlocksRegistry implements CommonBlockRegistryInterface {
         () -> new TickingLightBlock(
             BlockBehaviour.Properties.of()
                 .sound(SoundType.CANDLE)
-                .lightLevel(TickingLightBlock.litBlockEmission(15))
+                .lightLevel(TickingLightBlock.LIGHT_EMISSION)
                 .pushReaction(PushReaction.DESTROY)
+                .noLootTable()
+                .noCollission()
+                .replaceable()
                 .noOcclusion()
         )
     );
