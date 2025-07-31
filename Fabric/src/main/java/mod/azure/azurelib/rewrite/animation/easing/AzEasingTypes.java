@@ -7,6 +7,7 @@ import java.util.Collection;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.rewrite.animation.easing.bedrock_easings.BezierEasing;
 
 public class AzEasingTypes {
 
@@ -172,6 +173,48 @@ public class AzEasingTypes {
         value -> AzEasingUtil.easeInOut(AzEasingUtil.bounce(value))
     );
 
+    // Bedrock Animation Types
+    /**
+     * <b>Author:</b> <a href="https://github.com/ZigyTheBird">ZigyTheBird</a>
+     */
+    public static final AzEasingType BEZIER = AzEasingTypeRegistry.register(
+        "bezier",
+        new BezierEasing() {
+
+            @Override
+            public String name() {
+                return "Bezier";
+            }
+
+            @Override
+            public boolean isEasingBefore() {
+                return true;
+            }
+        }
+    );
+
+    /**
+     * <b>Author:</b> <a href="https://github.com/ZigyTheBird">ZigyTheBird</a>
+     */
+    public static final AzEasingType BEZIER_AFTER = AzEasingTypeRegistry.register(
+        "bezier_after",
+        new BezierEasing() {
+
+            @Override
+            public String name() {
+                return "Bezier After";
+            }
+
+            @Override
+            public boolean isEasingBefore() {
+                return false;
+            }
+        }
+    );
+
+    /**
+     * <b>Author:</b> <a href="https://github.com/ZigyTheBird">ZigyTheBird</a>
+     */
     public static final AzEasingType CATMULLROM = AzEasingTypeRegistry.register(
         "catmullrom",
         new AzEasingType() {
