@@ -1,8 +1,10 @@
 package mod.azure.azurelib.entities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -12,9 +14,12 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -23,66 +28,99 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.function.ToIntFunction;
 
 import mod.azure.azurelib.platform.Services;
+import org.jetbrains.annotations.NotNull;
 
 public class TickingLightBlock extends BaseEntityBlock {
 
-    public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.AGE_15;
+    public static final IntegerProperty LIGHT_LEVEL = BlockStateProperties.LEVEL;
+
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
+    public static final ToIntFunction<BlockState> LIGHT_EMISSION = state -> state.getValue(LIGHT_LEVEL);
 
     public TickingLightBlock() {
         super(
             BlockBehaviour.Properties.of()
                 .sound(SoundType.CANDLE)
-                .lightLevel(litBlockEmission(15))
+                .lightLevel(TickingLightBlock.LIGHT_EMISSION)
                 .pushReaction(PushReaction.DESTROY)
+                .noLootTable()
+                .noCollission()
+                .replaceable()
                 .noOcclusion()
+        );
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(LIGHT_LEVEL, 15).setValue(WATERLOGGED, Boolean.FALSE)
         );
     }
 
-    private static ToIntFunction<BlockState> litBlockEmission(int p_50760_) {
-        return p_50763_ -> BlockStateProperties.MAX_LEVEL_15;
-    }
-
-    public static IntegerProperty getLightLevel() {
-        return LIGHT_LEVEL;
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(LIGHT_LEVEL, WATERLOGGED);
     }
 
     @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(LIGHT_LEVEL);
-    }
-
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new TickingLightEntity(pos, state);
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState p_60555_,
-        BlockGetter p_60556_,
-        BlockPos p_60557_,
-        CollisionContext p_60558_
+    public @NotNull VoxelShape getShape(
+        @NotNull BlockState blockState,
+        @NotNull BlockGetter blockGetter,
+        @NotNull BlockPos blockPos,
+        @NotNull CollisionContext collisionContext
     ) {
         return Shapes.empty();
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
-        return true;
+    public boolean propagatesSkylightDown(
+        @NotNull BlockState state,
+        @NotNull BlockGetter world,
+        @NotNull BlockPos pos
+    ) {
+        return state.getFluidState().isEmpty();
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.INVISIBLE;
     }
 
     @Override
+    public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+        return 1.0F;
+    }
+
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level world,
-        BlockState state,
-        BlockEntityType<T> type
+        @NotNull Level world,
+        @NotNull BlockState state,
+        @NotNull BlockEntityType<T> type
     ) {
         return createTickerHelper(type, Services.PLATFORM.getTickingLightEntity(), TickingLightEntity::tick);
+    }
+
+    @Override
+    public @NotNull BlockState updateShape(
+        BlockState state,
+        @NotNull Direction direction,
+        @NotNull BlockState neighborState,
+        @NotNull LevelAccessor level,
+        @NotNull BlockPos pos,
+        @NotNull BlockPos neighborPos
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    public @NotNull FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
 }
