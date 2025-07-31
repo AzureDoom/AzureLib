@@ -3,8 +3,8 @@
 	"id": "azurelib",
 	"version": "${version}",
 	"name" : "AzureLib",
-	"description" : "Based off Geckolib but now just for my own needs.",
-	"authors" : [ "AzureDoom, Gecko, Eliot, Hydos, DerToaster, Tslat, KyoSleep" ],
+	"description" : "AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat, Bvanseg, ZigyTheBird",
+	"authors" : [ "AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat, Bvanseg, ZigyTheBird" ],
 	"contact": {
 		"homepage" : "https://www.curseforge.com/minecraft/mc-mods/azurelib",
 		"issues" : "https://github.com/AzureDoom/AzureLib/issues",
