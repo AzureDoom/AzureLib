@@ -1,51 +1,51 @@
 {
 	"variants": {
-		"age=0": {
+		"level=0": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=1": {
+		"level=1": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=2": {
+		"level=2": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=3": {
+		"level=3": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=4": {
+		"level=4": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=5": {
+		"level=5": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=6": {
+		"level=6": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=7": {
+		"level=7": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=8": {
+		"level=8": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=9": {
+		"level=9": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=10": {
+		"level=10": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=11": {
+		"level=11": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=12": {
+		"level=12": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=13": {
+		"level=13": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=14": {
+		"level=14": {
 			"model": "azurelib:block/lightblock"
 		},
-		"age=15": {
+		"level=15": {
 			"model": "azurelib:block/lightblock"
 		}
 	}
