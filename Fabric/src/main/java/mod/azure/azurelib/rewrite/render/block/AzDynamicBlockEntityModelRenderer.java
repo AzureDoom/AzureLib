@@ -94,11 +94,15 @@ public abstract class AzDynamicBlockEntityModelRenderer<T extends BlockEntity> e
             context.partialTick()
         );
 
-        if (texture != null && renderTypeOverride == null)
-            renderTypeOverride = renderType;
+        if (texture != null && renderTypeOverride == null) {
+            renderTypeOverride = context.getDefaultRenderType(context.animatable(), texture, context.multiBufferSource(), context.partialTick());
+            renderType = renderTypeOverride;
+        }
 
-        if (renderTypeOverride != null)
+        if (renderTypeOverride != null) {
             context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+            renderType = renderTypeOverride;
+        }
 
         if (
             !boneRenderOverride(
@@ -117,11 +121,8 @@ public abstract class AzDynamicBlockEntityModelRenderer<T extends BlockEntity> e
         )
             super.renderCubesOfBone(context, bone);
 
-        if (
-            renderTypeOverride != null && renderType != null && !isReRender && buffer instanceof BufferBuilder builder
-                && !builder.building
-        ) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+        if (!isReRender && buffer instanceof BufferBuilder && !((BufferBuilder) buffer).building) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderType));
         }
 
         renderCubesOfBone(context, bone);
