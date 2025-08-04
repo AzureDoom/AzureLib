@@ -29,7 +29,7 @@ public class AzAnimationControllerBuilder<T> {
     public AzAnimationControllerBuilder(AzAnimator<T> animator, String name) {
         this.animator = animator;
         this.name = name;
-        this.animationProperties = AzAnimationProperties.DEFAULT;
+        this.animationProperties = new AzAnimationProperties(1D, null, null, 0D);
         this.keyframeCallbacks = AzKeyframeCallbacks.noop();
     }
 
@@ -51,6 +51,11 @@ public class AzAnimationControllerBuilder<T> {
 
     public AzAnimationControllerBuilder<T> setTransitionLength(int transitionLength) {
         animationProperties = animationProperties.withTransitionLength(transitionLength);
+        return this;
+    }
+
+    public AzAnimationControllerBuilder<T> setStartTickOffset(double startTickOffset) {
+        animationProperties = animationProperties.withStartTickOffset(startTickOffset);
         return this;
     }
 
