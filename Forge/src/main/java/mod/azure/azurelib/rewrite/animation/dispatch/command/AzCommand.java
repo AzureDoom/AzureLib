@@ -161,15 +161,16 @@ public record AzCommand(List<AzAction> actions) {
     }
 
     /**
-     * Creates an animation command for a specified controller and animation, with the ability to customize
-     * the play behavior, starting tick offset, and animation speed.
+     * Creates an animation command for a specified controller and animation, with the ability to customize the play
+     * behavior, starting tick offset, and animation speed.
      *
-     * @param controllerName the name of the animation controller to target
-     * @param animationName the name of the animation to be played
-     * @param playBehavior the play behavior for the animation, defining how it should handle playback
+     * @param controllerName  the name of the animation controller to target
+     * @param animationName   the name of the animation to be played
+     * @param playBehavior    the play behavior for the animation, defining how it should handle playback
      * @param startTickOffset the start tick offset for the animation
-     * @param animationSpeed the speed at which the animation should play
-     * @return an AzCommand instance configured for the specified controller, animation, play behavior, start tick offset, and speed
+     * @param animationSpeed  the speed at which the animation should play
+     * @return an AzCommand instance configured for the specified controller, animation, play behavior, start tick
+     *         offset, and speed
      */
     public static AzCommand create(
         String controllerName,
@@ -179,16 +180,16 @@ public record AzCommand(List<AzAction> actions) {
         float animationSpeed
     ) {
         return builder()
-                   .playSequence(
-                       controllerName,
-                       sequenceBuilder -> sequenceBuilder.queue(
-                           animationName,
-                           props -> props.withPlayBehavior(playBehavior)
-                       )
-                   )
-                   .setStartTickOffset(startTickOffset)
-                   .setSpeed(animationSpeed)
-                   .build();
+            .playSequence(
+                controllerName,
+                sequenceBuilder -> sequenceBuilder.queue(
+                    animationName,
+                    props -> props.withPlayBehavior(playBehavior)
+                )
+            )
+            .setStartTickOffset(startTickOffset)
+            .setSpeed(animationSpeed)
+            .build();
     }
 
     /**

@@ -102,10 +102,10 @@ public class AzAnimationProperties {
         AzAnimationProperties that = (AzAnimationProperties) object;
 
         return Objects.equals(animationSpeed, that.animationSpeed) && Objects.equals(easingType, that.easingType)
-                   && Objects.equals(transitionLength, that.transitionLength) && Objects.equals(
-            startTickOffset,
-            that.startTickOffset
-        );
+            && Objects.equals(transitionLength, that.transitionLength) && Objects.equals(
+                startTickOffset,
+                that.startTickOffset
+            );
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -15,6 +14,7 @@ import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides

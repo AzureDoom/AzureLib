@@ -25,11 +25,11 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.ToIntFunction;
 
 import mod.azure.azurelib.AzureLibMod;
-import org.jetbrains.annotations.NotNull;
 
 public class TickingLightBlock extends BaseEntityBlock {
 
