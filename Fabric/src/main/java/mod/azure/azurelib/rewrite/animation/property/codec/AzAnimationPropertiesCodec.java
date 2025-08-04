@@ -13,17 +13,24 @@ public class AzAnimationPropertiesCodec {
 
     public static final Function<FriendlyByteBuf, AzAnimationProperties> DECODER = buf -> {
         var propertyLength = buf.readByte();
-        var properties = AzAnimationProperties.EMPTY;
+        var properties = new AzAnimationProperties(1D, null, null, 1D);
 
         for (int i = 0; i < propertyLength; i++) {
             var code = buf.readByte();
 
             switch (code) {
-                case 0 -> properties = properties.withAnimationSpeed(buf.readDouble());
+                case 0 -> {
+                    var animationSpeed = buf.readNullable(FriendlyByteBuf::readDouble);
+                    properties = properties.withAnimationSpeed(animationSpeed != null ? animationSpeed : 1D);
+                }
                 case 1 -> properties = properties.withTransitionLength(buf.readFloat());
                 case 2 -> {
                     var easingType = AzEasingTypeRegistry.getOrDefault(buf.readUtf(), AzEasingTypes.NONE);
                     properties = properties.withEasingType(easingType);
+                }
+                case 3 -> {
+                    var startTickOffset = buf.readNullable(FriendlyByteBuf::readDouble);
+                    properties = properties.withStartTickOffset(startTickOffset != null ? startTickOffset : 0D);
                 }
             }
         }
