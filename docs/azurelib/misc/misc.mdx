@@ -46,7 +46,7 @@ In your armor renderer, call the `createPipeline` and return a new `AzArmorRende
 
 ### Displaying Conditional Bones Only When Certain Armor Items are Equipped
 
-Like above after you add your bone, simply override `applyBoneVisibilityBySlot` like so and first hide it then unhide in the armor peice you want it to show in.boneContext
+Like above after you add your bone, simply override `applyBoneVisibilityBySlot` like so and first hide it then unhide in the armor piece you want it to show in.boneContext
 ```java
     @Override
     protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
@@ -84,7 +84,7 @@ Like above after you add your bone, simply override `applyBoneVisibilityBySlot` 
                                         setBoneVisible(this.leftArm, true);
                                     }
                                     case LEGS -> {
-                                        // Make the legging torso bone visible when the legging armor is equiped
+                                        // Make the legging torso bone visible when the legging armor is equipped
                                         this.setBoneVisible(this.armorLeggingTorsoBone, true);
                                         setBoneVisible(this.rightLeg, true);
                                         setBoneVisible(this.leftLeg, true);
