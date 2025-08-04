@@ -14,14 +14,16 @@ public class AzAnimationPropertiesCodec {
 
     public static final Function<PacketBuffer, AzAnimationProperties> DECODER = buf -> {
         byte propertyLength = buf.readByte();
-        AzAnimationProperties properties = AzAnimationProperties.EMPTY;
+        AzAnimationProperties properties = new AzAnimationProperties(1D, null, null, 1D);
 
         for (int i = 0; i < propertyLength; i++) {
             byte code = buf.readByte();
 
             switch (code) {
                 case 0:
-                    properties = properties.withAnimationSpeed(buf.readDouble());
+                    boolean hasAnimationSpeed = buf.readBoolean();
+                    double animationSpeed = hasAnimationSpeed ? buf.readDouble() : 1D;
+                    properties = properties.withAnimationSpeed(animationSpeed);
                     break;
                 case 1:
                     properties = properties.withTransitionLength(buf.readFloat());
@@ -30,8 +32,12 @@ public class AzAnimationPropertiesCodec {
                     AzEasingType easingType = AzEasingTypeRegistry.getOrDefault(buf.readString(), AzEasingTypes.NONE);
                     properties = properties.withEasingType(easingType);
                     break;
+                case 3:
+                    boolean hasTickOffset = buf.readBoolean();
+                    double startTickOffset = hasTickOffset ? buf.readDouble() : 0D;
+                    properties = properties.withStartTickOffset(startTickOffset);
+                    break;
             }
-
         }
 
         return properties;
@@ -42,6 +48,7 @@ public class AzAnimationPropertiesCodec {
         propertyLength += properties.hasAnimationSpeed() ? 1 : 0;
         propertyLength += properties.hasTransitionLength() ? 1 : 0;
         propertyLength += properties.hasEasingType() ? 1 : 0;
+        propertyLength += properties.hasStartTickOffset() ? 1 : 0;
 
         buf.writeByte(propertyLength);
 
@@ -58,6 +65,11 @@ public class AzAnimationPropertiesCodec {
         if (properties.hasEasingType()) {
             buf.writeByte(2);
             buf.writeString(properties.easingType().name());
+        }
+
+        if (properties.hasStartTickOffset()) {
+            buf.writeByte(3);
+            buf.writeDouble(properties.startTickOffset());
         }
     };
 }

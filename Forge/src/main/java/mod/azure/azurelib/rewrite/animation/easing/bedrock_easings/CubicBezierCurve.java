@@ -6,8 +6,11 @@ import java.util.List;
 public class CubicBezierCurve {
 
     private final Vector2d startPoint;
+
     private final Vector2d controlPoint1;
+
     private final Vector2d controlPoint2;
+
     private final Vector2d endPoint;
 
     /**

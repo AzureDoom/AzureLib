@@ -67,6 +67,11 @@ public class AzActionRegistry {
             AzRootSetTransitionSpeedAction::decode,
             AzRootSetTransitionSpeedAction::encode
         );
+        register(
+            AzRootSetStartTickOffsetAction.RESOURCE_LOCATION,
+            AzRootSetStartTickOffsetAction::decode,
+            AzRootSetStartTickOffsetAction::encode
+        );
     }
 
     /**
