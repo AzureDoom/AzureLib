@@ -174,8 +174,8 @@ public class AzModelRenderer<T> {
     }
 
     /**
-     * Provides an override logic for rendering a specific bone. This method allows
-     * custom handling of how an individual bone should be rendered.
+     * Provides an override logic for rendering a specific bone. This method allows custom handling of how an individual
+     * bone should be rendered.
      *
      * @param poseStack     The pose stack used for managing transformations during rendering.
      * @param bone          The bone targeted for rendering or customization.
@@ -188,8 +188,8 @@ public class AzModelRenderer<T> {
      * @param green         The green color multiplier applied to the bone's rendering.
      * @param blue          The blue color multiplier applied to the bone's rendering.
      * @param alpha         The alpha/transparency value applied to the bone's rendering.
-     * @return A boolean indicating whether this override has applied custom rendering logic.
-     *         If true, the custom behavior has been applied; otherwise, the default rendering will proceed.
+     * @return A boolean indicating whether this override has applied custom rendering logic. If true, the custom
+     *         behavior has been applied; otherwise, the default rendering will proceed.
      */
     public boolean boneRenderOverride(
         MatrixStack poseStack,

@@ -5,14 +5,13 @@ import net.minecraft.network.PacketBuffer;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingTypes;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationStagePropertiesCodec;
-
-import javax.annotation.Nullable;
 
 public class AzAnimationStageProperties extends AzAnimationProperties {
 

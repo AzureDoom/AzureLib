@@ -2,13 +2,6 @@ package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import mod.azure.azurelib.cache.object.GeoQuad;
-import mod.azure.azurelib.cache.object.GeoVertex;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.entity.Entity;
@@ -17,6 +10,14 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
+
+import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
+import mod.azure.azurelib.rewrite.render.AzRendererConfig;
+import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * AzDynamicEntityModelRenderer is an abstract class designed for rendering dynamic entity models with support for
@@ -97,7 +98,12 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
         );
 
         if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(context.animatable(), texture, context.multiBufferSource(), context.partialTick());
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
             renderType = renderTypeOverride;
         }
 
@@ -165,7 +171,9 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
 
         AzRendererConfig<T> config = entityRendererPipeline.config();
         Tuple<Integer, Integer> boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        Tuple<Integer, Integer> entityTextureSize = context.computeTextureSize(config.textureLocation(context.animatable()));
+        Tuple<Integer, Integer> entityTextureSize = context.computeTextureSize(
+            config.textureLocation(context.animatable())
+        );
 
         if (boneTextureSize == null || entityTextureSize == null) {
             super.createVerticesOfQuad(context, quad, poseState, normal);
@@ -181,22 +189,23 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
             float texU = (vertex.texU() * entityTextureSize.getA()) / boneTextureSize.getA();
             float texV = (vertex.texV() * entityTextureSize.getB()) / boneTextureSize.getB();
 
-            context.vertexConsumer().vertex(
-                vector4f.x(),
-                vector4f.y(),
-                vector4f.z(),
-                context.red(),
-                context.green(),
-                context.blue(),
-                context.alpha(),
-                texU,
-                texV,
-                context.packedOverlay(),
-                context.packedLight(),
-                normal.x(),
-                normal.y(),
-                normal.z()
-            );
+            context.vertexConsumer()
+                .vertex(
+                    vector4f.x(),
+                    vector4f.y(),
+                    vector4f.z(),
+                    context.red(),
+                    context.green(),
+                    context.blue(),
+                    context.alpha(),
+                    texU,
+                    texV,
+                    context.packedOverlay(),
+                    context.packedLight(),
+                    normal.x(),
+                    normal.y(),
+                    normal.z()
+                );
         }
     }
 }

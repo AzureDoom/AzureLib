@@ -6,6 +6,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBone;
@@ -13,11 +19,6 @@ import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
 
 /**
  * AzDynamicItemModelRenderer is an abstract extension of AzItemModelRenderer designed to handle dynamic
@@ -88,7 +89,12 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
         );
 
         if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(context.animatable(), texture, context.multiBufferSource(), context.partialTick());
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
             renderType = renderTypeOverride;
         }
 
@@ -148,7 +154,9 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
 
         AzRendererConfig<ItemStack> config = itemRendererPipeline.config();
         Tuple<Integer, Integer> boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        Tuple<Integer, Integer> entityTextureSize = context.computeTextureSize(config.textureLocation(context.animatable()));
+        Tuple<Integer, Integer> entityTextureSize = context.computeTextureSize(
+            config.textureLocation(context.animatable())
+        );
 
         if (boneTextureSize == null || entityTextureSize == null) {
             super.createVerticesOfQuad(context, quad, poseState, normal);
@@ -164,22 +172,23 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
             float texU = (vertex.texU() * entityTextureSize.getA()) / boneTextureSize.getA();
             float texV = (vertex.texV() * entityTextureSize.getB()) / boneTextureSize.getB();
 
-            context.vertexConsumer().vertex(
-                vector4f.x(),
-                vector4f.y(),
-                vector4f.z(),
-                context.red(),
-                context.green(),
-                context.blue(),
-                context.alpha(),
-                texU,
-                texV,
-                context.packedOverlay(),
-                context.packedLight(),
-                normal.x(),
-                normal.y(),
-                normal.z()
-            );
+            context.vertexConsumer()
+                .vertex(
+                    vector4f.x(),
+                    vector4f.y(),
+                    vector4f.z(),
+                    context.red(),
+                    context.green(),
+                    context.blue(),
+                    context.alpha(),
+                    texU,
+                    texV,
+                    context.packedOverlay(),
+                    context.packedLight(),
+                    normal.x(),
+                    normal.y(),
+                    normal.z()
+                );
         }
     }
 }

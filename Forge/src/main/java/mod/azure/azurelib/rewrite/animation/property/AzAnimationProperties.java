@@ -1,14 +1,14 @@
 package mod.azure.azurelib.rewrite.animation.property;
 
+import net.minecraft.network.PacketBuffer;
+
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationPropertiesCodec;
-import net.minecraft.network.PacketBuffer;
-
-import javax.annotation.Nullable;
 
 public class AzAnimationProperties {
 
@@ -101,10 +101,10 @@ public class AzAnimationProperties {
         AzAnimationProperties that = (AzAnimationProperties) object;
 
         return Objects.equals(animationSpeed, that.animationSpeed) && Objects.equals(easingType, that.easingType)
-                   && Objects.equals(transitionLength, that.transitionLength) && Objects.equals(
-            startTickOffset,
-            that.startTickOffset
-        );
+            && Objects.equals(transitionLength, that.transitionLength) && Objects.equals(
+                startTickOffset,
+                that.startTickOffset
+            );
     }
 
     @Override
