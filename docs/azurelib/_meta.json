@@ -4,7 +4,7 @@
         "icon": "Film"
     },
     "updating": {
-        "name": "Updating Guide",
+        "name": "Updating Guides",
         "icon": "Plus"
     },
     "armor": {
@@ -23,14 +23,6 @@
         "name": "Items",
         "icon": "Wrench"
     },
-    "animators": {
-        "name": "Animators",
-        "icon": "Film"
-    },
-    "layers": {
-        "name": "Layers",
-        "icon": "Layers"
-    },
     "molang": {
         "name": "Molang",
         "icon": "Calculator"
@@ -39,12 +31,8 @@
         "name": "Effect Keyframes",
         "icon": "Sparkles"
     },
-    "configs": {
-        "name": "Config API",
-        "icon": "Notebook"
-    },
     "misc": {
-        "name": "Miscellaneous Features",
+        "name": "Advanced Features",
         "icon": "Info"
     }
 }

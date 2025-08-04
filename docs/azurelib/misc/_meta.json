@@ -1,27 +1,15 @@
 {
-    "animation_controller_builder.mdx": {
-        "name": "Animation Controller Builder",
+    "animating": {
+        "name": "Animating Topics",
+        "icon": "Film"
+    },
+    "rendering": {
+        "name": "Rendering Topics",
         "icon": "Info"
     },
-    "azrenderer_config.mdx": {
-        "name": "AzRendererConfigs 101",
-        "icon": "Info"
-    },
-    "dynamicmodelrenderers.mdx": {
-        "name": "Dynamic Model Renderers",
-        "icon": "Info"
-    },
-    "azcommands_101.mdx": {
-        "name": "AzCommands 101",
-        "icon": "Info"
-    },
-    "animating_in_code.mdx": {
-        "name": "Animating Bones In-Code",
-        "icon": "Info"
-    },
-    "animation_includes.mdx": {
-        "name": "Using the inclusion feature in Animation JSON",
-        "icon": "Info"
+    "configs": {
+        "name": "Config API",
+        "icon": "Notebook"
     },
     "azurenavigation_101.mdx": {
         "name": "AzureNavigation 101",

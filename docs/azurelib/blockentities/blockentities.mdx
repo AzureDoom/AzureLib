@@ -53,7 +53,7 @@ Registers the animation controllers that will define the animation behavior and 
 ## Creating an Animation Dispatcher
 
 <Callout variant="info">
-    You can find more about [AzCommands here](../misc/azcommands_101)
+    You can find more about [AzCommands here](../misc/animating/azcommands_101)
 </Callout>
 
 This class isn't required but is highly suggested to help store your animation commands to call in other classes.
@@ -130,9 +130,9 @@ It connects the block entity with the following:
 The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` and provide the required configuration.
 
 <Callout variant="info">
-    See [AzRendererConfigs 101](../misc/azrenderer_config#azblockentityrendererconfig) for all AzBlockEntityRendererConfig#builder options.
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azblockentityrendererconfig) for all AzBlockEntityRendererConfig#builder options.
 
-    See [Dynamic Model Renderers](../misc/dynamicmodelrenderers#azdynamicblockentitymodelrenderer) for advanced options such as setting a render type or texture per bone.
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicblockentitymodelrenderer) for advanced options such as setting a render type or texture per bone.
 
     For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
