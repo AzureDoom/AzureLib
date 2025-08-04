@@ -3,18 +3,18 @@ package mod.azure.azurelib.rewrite.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 
 import java.util.Map;
 import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import net.minecraft.util.Tuple;
+import mod.azure.azurelib.util.RenderUtils;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides
@@ -260,8 +260,8 @@ public abstract class AzRendererPipelineContext<T> {
     /**
      * Computes the dimensions of the specified texture and caches the result for future use. This method retrieves the
      * dimensions of the texture represented by the given {@code ResourceLocation} and returns them as an
-     * {@code Tuple<Integer, Integer>}, where the first value represents the width and the second value represents the height of the
-     * texture.
+     * {@code Tuple<Integer, Integer>}, where the first value represents the width and the second value represents the
+     * height of the texture.
      *
      * @param texture the {@link ResourceLocation} of the texture whose dimensions need to be computed
      * @return an {@link Tuple<Integer, Integer>} containing the width and height of the texture
