@@ -10,12 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAllAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootPlayAnimationSequenceAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetAnimationSpeedAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetEasingTypeAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetTransitionSpeedAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
@@ -46,6 +41,7 @@ public class AzActionRegistry {
         register(AzRootSetAnimationSpeedAction.RESOURCE_LOCATION, AzRootSetAnimationSpeedAction.CODEC);
         register(AzRootSetEasingTypeAction.RESOURCE_LOCATION, AzRootSetEasingTypeAction.CODEC);
         register(AzRootSetTransitionSpeedAction.RESOURCE_LOCATION, AzRootSetTransitionSpeedAction.CODEC);
+        register(AzRootSetStartTickOffsetAction.RESOURCE_LOCATION, AzRootSetStartTickOffsetAction.CODEC);
 
         // Controller actions
         // TODO:

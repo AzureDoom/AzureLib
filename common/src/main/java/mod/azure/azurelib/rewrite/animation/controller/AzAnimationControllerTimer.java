@@ -8,7 +8,7 @@ package mod.azure.azurelib.rewrite.animation.controller;
  */
 public class AzAnimationControllerTimer<T> {
 
-    private final AzAnimationController<T> animationController;
+    private AzAnimationController<T> animationController;
 
     private double adjustedTick;
 
@@ -19,16 +19,23 @@ public class AzAnimationControllerTimer<T> {
     }
 
     /**
-     * Adjust a tick value depending on the controller's current state and speed modifier.<br>
-     * Is used when starting a new animation, transitioning, and a few other key areas
+     * Updates the internally tracked adjusted tick value for the animation timer. This method retrieves the current
+     * animation time, combines it with relevant modifiers from the animation controller, such as animation speed and
+     * start tick offset, and adjusts the tick value accordingly. The calculation incorporates the animation speed
+     * multiplier to ensure proper playback rate scaling and offsets the calculation based on the tick offset.
+     * <p>
+     * The adjusted tick value is computed as: - Multiply the animation speed by the maximum of: - The difference
+     * between the current animation time (plus start tick offset) and the existing tick offset. - The start tick
+     * offset.
      */
     public void update() {
         var stateMachine = animationController.stateMachine();
         var animContext = stateMachine.getContext().animationContext();
         var animationSpeed = animationController.animationProperties().animationSpeed();
         var tick = animContext.timer().getAnimTime();
+        double tickStartOffset = animationController.animationProperties().startTickOffset();
 
-        adjustedTick = animationSpeed * Math.max(tick - tickOffset, 0);
+        adjustedTick = animationSpeed * Math.max((tick + tickStartOffset) - tickOffset, tickStartOffset);
     }
 
     public void reset() {

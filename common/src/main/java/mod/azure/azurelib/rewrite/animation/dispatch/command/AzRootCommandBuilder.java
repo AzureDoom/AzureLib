@@ -2,12 +2,7 @@ package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
 import java.util.function.UnaryOperator;
 
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootCancelAllAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootPlayAnimationSequenceAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetAnimationSpeedAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetEasingTypeAction;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.AzRootSetTransitionSpeedAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 
@@ -38,13 +33,18 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
         return this;
     }
 
+    public AzRootCommandBuilder setStartTickOffset(float tickOffset) {
+        actions.add(new AzRootSetStartTickOffsetAction(tickOffset));
+        return this;
+    }
+
     public AzRootCommandBuilder cancel(String controllerName) {
         actions.add(new AzRootCancelAction(controllerName));
         return this;
     }
 
     public AzRootCommandBuilder play(String controllerName, String animationName) {
-        return playSequence(controllerName, builder -> builder.queue(animationName));
+        return playSequence(controllerName, builder -> builder.queue(animationName, properties -> properties));
     }
 
     public AzRootCommandBuilder playSequence(

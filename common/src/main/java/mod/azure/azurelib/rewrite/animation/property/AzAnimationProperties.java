@@ -12,24 +12,24 @@ public class AzAnimationProperties {
 
     public static final AzAnimationPropertiesCodec CODEC = new AzAnimationPropertiesCodec();
 
-    public static final AzAnimationProperties DEFAULT = new AzAnimationProperties(1D, null, 0F);
+    protected @Nullable Double animationSpeed;
 
-    public static final AzAnimationProperties EMPTY = new AzAnimationProperties(null, null, null);
+    protected @Nullable AzEasingType easingType;
 
-    protected final @Nullable Double animationSpeed;
+    protected @Nullable Float transitionLength;
 
-    protected final @Nullable AzEasingType easingType;
-
-    protected final @Nullable Float transitionLength;
+    protected @Nullable Double startTickOffset;
 
     public AzAnimationProperties(
         @Nullable Double animationSpeed,
         @Nullable AzEasingType easingType,
-        @Nullable Float transitionLength
+        @Nullable Float transitionLength,
+        @Nullable Double startTickOffset
     ) {
         this.animationSpeed = animationSpeed;
         this.easingType = easingType;
         this.transitionLength = transitionLength;
+        this.startTickOffset = startTickOffset;
     }
 
     public boolean hasAnimationSpeed() {
@@ -44,20 +44,32 @@ public class AzAnimationProperties {
         return transitionLength != null;
     }
 
+    public boolean hasStartTickOffset() {
+        return startTickOffset != null;
+    }
+
     public AzAnimationProperties withAnimationSpeed(double animationSpeed) {
-        return new AzAnimationProperties(animationSpeed, easingType, transitionLength);
+        this.animationSpeed = animationSpeed;
+        return new AzAnimationProperties(animationSpeed, easingType, transitionLength, startTickOffset);
     }
 
     public AzAnimationProperties withEasingType(@NotNull AzEasingType easingType) {
-        return new AzAnimationProperties(animationSpeed, easingType, transitionLength);
+        this.easingType = easingType;
+        return new AzAnimationProperties(animationSpeed, easingType, transitionLength, startTickOffset);
     }
 
     public AzAnimationProperties withTransitionLength(float transitionLength) {
-        return new AzAnimationProperties(animationSpeed, easingType, transitionLength);
+        this.transitionLength = transitionLength;
+        return new AzAnimationProperties(animationSpeed, easingType, transitionLength, startTickOffset);
+    }
+
+    public AzAnimationProperties withStartTickOffset(double startTickOffset) {
+        this.startTickOffset = startTickOffset;
+        return new AzAnimationProperties(animationSpeed, easingType, transitionLength, startTickOffset);
     }
 
     public double animationSpeed() {
-        return animationSpeed == null ? DEFAULT.animationSpeed() : animationSpeed;
+        return animationSpeed == null ? 1D : animationSpeed;
     }
 
     public AzEasingType easingType() {
@@ -65,7 +77,11 @@ public class AzAnimationProperties {
     }
 
     public float transitionLength() {
-        return transitionLength == null ? DEFAULT.transitionLength() : transitionLength;
+        return transitionLength == null ? 0F : transitionLength;
+    }
+
+    public double startTickOffset() {
+        return startTickOffset == null ? 0D : startTickOffset;
     }
 
     @Override
@@ -81,11 +97,14 @@ public class AzAnimationProperties {
         AzAnimationProperties that = (AzAnimationProperties) object;
 
         return Objects.equals(animationSpeed, that.animationSpeed) && Objects.equals(easingType, that.easingType)
-            && Objects.equals(transitionLength, that.transitionLength);
+            && Objects.equals(transitionLength, that.transitionLength) && Objects.equals(
+                startTickOffset,
+                that.startTickOffset
+            );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(animationSpeed, easingType, transitionLength);
+        return Objects.hash(animationSpeed, easingType, transitionLength, startTickOffset);
     }
 }
