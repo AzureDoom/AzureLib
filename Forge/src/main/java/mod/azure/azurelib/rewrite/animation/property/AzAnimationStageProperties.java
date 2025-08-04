@@ -12,6 +12,8 @@ import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.animation.property.codec.AzAnimationStagePropertiesCodec;
 
+import javax.annotation.Nullable;
+
 public class AzAnimationStageProperties extends AzAnimationProperties {
 
     public static final Function<PacketBuffer, AzAnimationStageProperties> DECODER =
@@ -24,21 +26,22 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         1D,
         AzEasingTypes.NONE,
         AzPlayBehaviors.PLAY_ONCE,
-        0F
+        0F,
+        0D
     );
 
-    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(null, null, null, null);
-
-    private final AzPlayBehavior playBehavior;
+    private AzPlayBehavior playBehavior;
 
     public AzAnimationStageProperties(
-        Double animationSpeed,
-        AzEasingType easingType,
-        AzPlayBehavior playBehavior,
-        Float transitionLength
+        @Nullable Double animationSpeed,
+        @Nullable AzEasingType easingType,
+        @Nullable AzPlayBehavior playBehavior,
+        @Nullable Float transitionLength,
+        @Nullable Double startTickOffset
     ) {
-        super(animationSpeed, easingType, transitionLength);
+        super(animationSpeed, easingType, transitionLength, startTickOffset);
         this.playBehavior = playBehavior;
+        this.startTickOffset = startTickOffset;
     }
 
     public boolean hasPlayBehavior() {
@@ -47,21 +50,61 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
 
     @Override
     public AzAnimationStageProperties withAnimationSpeed(double animationSpeed) {
-        return new AzAnimationStageProperties(animationSpeed, easingType, playBehavior, transitionLength);
+        this.animationSpeed = animationSpeed;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset
+        );
     }
 
     @Override
     public AzAnimationStageProperties withEasingType(AzEasingType easingType) {
-        return new AzAnimationStageProperties(animationSpeed, easingType, playBehavior, transitionLength);
+        this.easingType = easingType;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset
+        );
     }
 
     public AzAnimationStageProperties withPlayBehavior(AzPlayBehavior playBehavior) {
-        return new AzAnimationStageProperties(animationSpeed, easingType, playBehavior, transitionLength);
+        this.playBehavior = playBehavior;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset
+        );
     }
 
     @Override
     public AzAnimationStageProperties withTransitionLength(float transitionLength) {
-        return new AzAnimationStageProperties(animationSpeed, easingType, playBehavior, transitionLength);
+        this.transitionLength = transitionLength;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset
+        );
+    }
+
+    @Override
+    public AzAnimationStageProperties withStartTickOffset(double startTickOffset) {
+        this.startTickOffset = startTickOffset;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset
+        );
     }
 
     public AzPlayBehavior playBehavior() {

@@ -34,13 +34,18 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
         return this;
     }
 
+    public AzRootCommandBuilder setStartTickOffset(float tickOffset) {
+        actions.add(new AzRootSetStartTickOffsetAction(tickOffset));
+        return this;
+    }
+
     public AzRootCommandBuilder cancel(String controllerName) {
         actions.add(new AzRootCancelAction(controllerName));
         return this;
     }
 
     public AzRootCommandBuilder play(String controllerName, String animationName) {
-        return playSequence(controllerName, builder -> builder.queue(animationName));
+        return playSequence(controllerName, builder -> builder.queue(animationName, properties -> properties));
     }
 
     public AzRootCommandBuilder playSequence(
