@@ -27,8 +27,9 @@ public class AzAnimationControllerTimer<T> {
         var animContext = stateMachine.getContext().animationContext();
         var animationSpeed = animationController.animationProperties().animationSpeed();
         var tick = animContext.timer().getAnimTime();
+        double tickStartOffset = animationController.animationProperties().startTickOffset();
 
-        adjustedTick = animationSpeed * Math.max(tick - tickOffset, 0);
+        adjustedTick = animationSpeed * Math.max((tick + tickStartOffset) - tickOffset, tickStartOffset);
     }
 
     public void reset() {

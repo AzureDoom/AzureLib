@@ -13,17 +13,26 @@ public class AzAnimationPropertiesCodec {
 
     public static final Function<FriendlyByteBuf, AzAnimationProperties> DECODER = buf -> {
         var propertyLength = buf.readByte();
-        var properties = AzAnimationProperties.EMPTY;
+        var properties = new AzAnimationProperties(1D, null, null, 1D);
 
         for (int i = 0; i < propertyLength; i++) {
             var code = buf.readByte();
 
             switch (code) {
-                case 0 -> properties = properties.withAnimationSpeed(buf.readDouble());
+                case 0 -> {
+                    var hasAnimationSpeed = buf.readBoolean();
+                    var animationSpeed = hasAnimationSpeed ? buf.readDouble() : 1D;
+                    properties = properties.withAnimationSpeed(animationSpeed);
+                }
                 case 1 -> properties = properties.withTransitionLength(buf.readFloat());
                 case 2 -> {
                     var easingType = AzEasingTypeRegistry.getOrDefault(buf.readUtf(), AzEasingTypes.NONE);
                     properties = properties.withEasingType(easingType);
+                }
+                case 3 -> {
+                    var hasTickOffset = buf.readBoolean();
+                    var startTickOffset = hasTickOffset ? buf.readDouble() : 0D;
+                    properties = properties.withStartTickOffset(startTickOffset);
                 }
             }
         }
@@ -36,6 +45,7 @@ public class AzAnimationPropertiesCodec {
         propertyLength += properties.hasAnimationSpeed() ? 1 : 0;
         propertyLength += properties.hasTransitionLength() ? 1 : 0;
         propertyLength += properties.hasEasingType() ? 1 : 0;
+        propertyLength += properties.hasStartTickOffset() ? 1 : 0;
 
         buf.writeByte(propertyLength);
 
@@ -52,6 +62,11 @@ public class AzAnimationPropertiesCodec {
         if (properties.hasEasingType()) {
             buf.writeByte(2);
             buf.writeUtf(properties.easingType().name());
+        }
+
+        if (properties.hasStartTickOffset()) {
+            buf.writeByte(3);
+            buf.writeDouble(properties.startTickOffset());
         }
     };
 }
