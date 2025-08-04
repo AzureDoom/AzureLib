@@ -89,7 +89,12 @@ public abstract class AzDynamicArmorModelRenderer extends AzArmorModelRenderer {
         );
 
         if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(context.animatable(), texture, context.multiBufferSource(), context.partialTick());
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
             renderType = renderTypeOverride;
         }
 
