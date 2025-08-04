@@ -1,14 +1,15 @@
 package mod.azure.azurelib.rewrite.animation.easing.bedrock_easings;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
-import mod.azure.azurelib.rewrite.animation.easing.AzEasingUtil;
 import net.minecraft.util.Mth;
 import org.joml.Vector2d;
 
 import java.util.List;
+
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
+import mod.azure.azurelib.rewrite.animation.easing.AzEasingUtil;
 
 /**
  * The BezierEasing class represents an abstract easing type that facilitates smooth transitions in animation using
