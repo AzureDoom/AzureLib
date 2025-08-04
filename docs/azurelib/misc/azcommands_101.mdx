@@ -16,6 +16,8 @@ hide_meta: true
 
 ### 1. **Creating an AzCommand**
 Creating an AzCommand involves specifying the controller name, the animation name, and optionally the playback behavior (e.g., loop, play once). Here's how:
+
+**Example**:
 ``` java
 AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
 ```
@@ -23,9 +25,62 @@ In this example:
 - `"Walk"` is the controller name.
 - `"WALK_ANIMATION"` is the animation to play.
 - By default, the play behavior is set to `PLAY_ONCE`. You can customize it like this:
+
+**Example**:
 ``` java
 AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
 ```
+
+#### **Advanced Command Creation**
+
+##### **1. Using `AzCommand.create` with Custom Tick Offset**
+The `create` command now supports specifying a custom **starting tick offset** and playback behavior.
+
+**Example**:
+```java
+AzCommand spinCommand = AzCommand.create("SpinController", "SPIN_ANIMATION", AzPlayBehaviors.LOOP, 10F);
+```
+
+In this example:
+- `"SpinController"`: Name of the animation controller.
+- `"SPIN_ANIMATION"`: Name of the animation.
+- `AzPlayBehaviors.LOOP`: Sets the animation playback behavior to loop endlessly.
+- `10F`: Starts the animation 10 ticks into its animation.
+
+##### **2. Using `AzCommand.createSpeed` to Set Animation Speed**
+The `createSpeed` command extends the functionality of `create` by allowing you to control the **animation playback speed**. This is useful for dynamically accelerating or decelerating animations based on specific game scenarios.
+
+**Example**:
+```java
+AzCommand runQuicklyCommand = AzCommand.createSpeed("RunController", "RUN_ANIMATION", 1.5F);
+```
+In this example:
+- `"RunController"`: Name of the animation controller.
+- `"RUN_ANIMATION"`: Name of the animation to play.
+- `1.5F`: Playback speed, which increases the animation's speed by 50%.
+
+###### **Advanced Speed and Playback Customization**
+You can further specify both the playback behavior and animation speed in combination:
+
+**Example**:
+```
+AzCommand slowCrawlCommand = AzCommand.createSpeed("CrawlController", "CRAWL_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 0.5F);
+```
+In this example:
+- `AzPlayBehaviors.PLAY_ONCE`: The animation plays once without looping.
+- `0.5F`: Slows the animation to 50% of its normal playback speed.
+
+###### **Combining Tick Offset and Animation Speed**
+The `create` family of methods provides full customization by allowing both the **starting tick offset** and **playback speed** to be defined simultaneously:
+
+**Example**:
+```java
+AzCommand complexCommand = AzCommand.createSpeed("ComplexController", "CCOMPLEX_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 5F, 2F);
+
+```
+- This command starts the animation at **tick 5** and plays it at **double speed**.
+
+
 ### 2. **Composing Multiple Commands**
 If you need to merge several commands into one, you can use the `compose` method. This is helpful for combining animations across multiple controllers:
 ``` java
