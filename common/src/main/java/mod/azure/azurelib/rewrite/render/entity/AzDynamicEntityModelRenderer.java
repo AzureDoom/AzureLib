@@ -99,7 +99,12 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
         );
 
         if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(context.animatable(), texture, context.multiBufferSource(), context.partialTick());
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
             renderType = renderTypeOverride;
         }
 
