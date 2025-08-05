@@ -15,7 +15,7 @@ public class AzAnimationStagePropertiesCodec {
 
     public static final Function<FriendlyByteBuf, AzAnimationStageProperties> DECODER = buf -> {
         var propertyLength = buf.readByte();
-        var properties = AzAnimationStageProperties.DEFAULT;
+        var properties = AzAnimationStageProperties.EMPTY;
 
         for (int i = 0; i < propertyLength; i++) {
             var code = buf.readByte();
