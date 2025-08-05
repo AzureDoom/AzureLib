@@ -23,6 +23,8 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         0D
     );
 
+    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(null, null, null, null, null);
+
     private AzPlayBehavior playBehavior;
 
     public AzAnimationStageProperties(

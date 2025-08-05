@@ -15,16 +15,13 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
     @Override
     public @NotNull AzAnimationStageProperties decode(FriendlyByteBuf buf) {
         var propertyLength = buf.readByte();
-        var properties = AzAnimationStageProperties.DEFAULT;
+        var properties = AzAnimationStageProperties.EMPTY;
 
         for (int i = 0; i < propertyLength; i++) {
             var code = buf.readByte();
 
             switch (code) {
-                case 0 -> {
-                    var animationSpeed = buf.readNullable(FriendlyByteBuf::readDouble);
-                    properties = properties.withAnimationSpeed(animationSpeed != null ? animationSpeed : 1D);
-                }
+                case 0 -> properties = properties.withAnimationSpeed(buf.readDouble());
                 case 1 -> properties = properties.withTransitionLength(buf.readFloat());
                 case 2 -> {
                     var easingType = AzEasingTypeRegistry.getOrDefault(buf.readUtf(), AzEasingTypes.NONE);
@@ -34,10 +31,7 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
                     var playBehavior = AzPlayBehaviorRegistry.getOrDefault(buf.readUtf(), AzPlayBehaviors.PLAY_ONCE);
                     properties = properties.withPlayBehavior(playBehavior);
                 }
-                case 4 -> {
-                    var startTickOffset = buf.readNullable(FriendlyByteBuf::readDouble);
-                    properties = properties.withStartTickOffset(startTickOffset != null ? startTickOffset : 0D);
-                }
+                case 4 -> properties = properties.withStartTickOffset(buf.readFloat());
             }
         }
 
