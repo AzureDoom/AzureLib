@@ -107,6 +107,8 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         );
     }
 
+    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(null, null, null, null, null);
+
     public AzPlayBehavior playBehavior() {
         return playBehavior == null ? DEFAULT.playBehavior() : playBehavior;
     }

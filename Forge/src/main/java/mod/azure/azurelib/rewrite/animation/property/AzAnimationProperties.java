@@ -17,6 +17,10 @@ public class AzAnimationProperties {
 
     public static final BiConsumer<FriendlyByteBuf, AzAnimationProperties> ENCODER = AzAnimationPropertiesCodec.ENCODER;
 
+    public static final AzAnimationProperties DEFAULT = new AzAnimationProperties(1D, null, 0F, 0D);
+
+    public static final AzAnimationProperties EMPTY = new AzAnimationProperties(null, null, null, null);
+
     protected @Nullable Double animationSpeed;
 
     protected @Nullable AzEasingType easingType;
@@ -74,7 +78,7 @@ public class AzAnimationProperties {
     }
 
     public double animationSpeed() {
-        return animationSpeed == null ? 1D : animationSpeed;
+        return animationSpeed == null ? DEFAULT.animationSpeed() : animationSpeed;
     }
 
     public AzEasingType easingType() {
@@ -82,11 +86,11 @@ public class AzAnimationProperties {
     }
 
     public float transitionLength() {
-        return transitionLength == null ? 0F : transitionLength;
+        return transitionLength == null ? DEFAULT.transitionLength() : transitionLength;
     }
 
     public double startTickOffset() {
-        return startTickOffset == null ? 0D : startTickOffset;
+        return startTickOffset == null ? DEFAULT.startTickOffset() : startTickOffset;
     }
 
     @Override
