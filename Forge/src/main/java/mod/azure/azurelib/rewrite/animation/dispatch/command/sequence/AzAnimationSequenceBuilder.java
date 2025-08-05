@@ -17,6 +17,11 @@ public class AzAnimationSequenceBuilder {
         this.stages = new ArrayList<>();
     }
 
+    public AzAnimationSequenceBuilder queue(String animationName) {
+        stages.add(new AzAnimationStage(animationName, AzAnimationStageProperties.EMPTY));
+        return this;
+    }
+
     public AzAnimationSequenceBuilder queue(
         String animationName,
         UnaryOperator<AzAnimationStageProperties> builderUnaryOperator

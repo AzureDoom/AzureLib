@@ -17,19 +17,16 @@ public class AzAnimationSequenceBuilder {
         this.stages = new ArrayList<>();
     }
 
+    public AzAnimationSequenceBuilder queue(String animationName) {
+        stages.add(new AzAnimationStage(animationName, AzAnimationStageProperties.EMPTY));
+        return this;
+    }
+
     public AzAnimationSequenceBuilder queue(
         String animationName,
         UnaryOperator<AzAnimationStageProperties> builderUnaryOperator
     ) {
-        AzAnimationStageProperties properties = builderUnaryOperator.apply(
-            new AzAnimationStageProperties(
-                1D,
-                AzEasingTypes.NONE,
-                AzPlayBehaviors.PLAY_ONCE,
-                0F,
-                0D
-            )
-        );
+        AzAnimationStageProperties properties = builderUnaryOperator.apply(AzAnimationStageProperties.EMPTY);
         stages.add(new AzAnimationStage(animationName, properties));
         return this;
     }
