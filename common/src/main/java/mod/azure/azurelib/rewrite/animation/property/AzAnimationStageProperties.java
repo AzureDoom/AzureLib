@@ -20,7 +20,7 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         AzAnimationStagePropertiesCodec.DECODER;
 
     public static final BiConsumer<FriendlyByteBuf, AzAnimationStageProperties> ENCODER =
-        AzAnimationStagePropertiesCodec.ENCODER;
+        AzAnimationStagePropertiesCodec.ENCODER;;
 
     public static final AzAnimationStageProperties DEFAULT = new AzAnimationStageProperties(
         1D,
@@ -29,6 +29,8 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         0F,
         0D
     );
+
+    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(null, null, null, null, null);
 
     private AzPlayBehavior playBehavior;
 
