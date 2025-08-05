@@ -23,7 +23,7 @@ public enum AzDispatchSide implements StringRepresentable {
     private static final Map<Integer, AzDispatchSide> ID_TO_ENUM_MAP = new Int2ObjectArrayMap<>();
 
     static {
-        // Populate the map for quick lookup
+        // Populate the map for a quick lookup
         for (AzDispatchSide side : values()) {
             ID_TO_ENUM_MAP.put(side.id, side);
         }

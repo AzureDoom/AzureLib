@@ -1,5 +1,6 @@
 package mod.azure.azurelib.neoforge;
 
+import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -21,6 +22,7 @@ public final class NeoForgeAzureLibMod {
 
     public static final DeferredRegister.DataComponents DATA_COMPONENTS_REGISTER = DeferredRegister
         .createDataComponents(
+            Registries.DATA_COMPONENT_TYPE,
             AzureLib.MOD_ID
         );
 

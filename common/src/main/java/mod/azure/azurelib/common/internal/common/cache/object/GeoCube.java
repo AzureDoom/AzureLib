@@ -9,8 +9,6 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Baked cuboid for a {@link GeoBone}
- *
- * @deprecated
  */
 public record GeoCube(
     GeoQuad[] quads,

@@ -12,8 +12,6 @@ import mod.azure.azurelib.common.internal.common.loading.json.raw.FaceUV;
 
 /**
  * Quad data holder
- *
- * @deprecated
  */
 public record GeoQuad(
     GeoVertex[] vertices,

@@ -28,6 +28,13 @@ public class AzBoneAnimationQueueCache<T> {
         this.boneCache = boneCache;
     }
 
+    /**
+     * Updates the animations of all bones in the cache by applying transformations such as rotation, position, and scale
+     * based on the specified easing type. The method retrieves current bone snapshots and initial snapshots to calculate
+     * the updated transformations for each bone animation queue.
+     *
+     * @param easingType the easing type used for calculating the interpolation of transformations such as rotation, position, and scale
+     */
     public void update(AzEasingType easingType) {
         var boneSnapshots = boneCache.getBoneSnapshotsByName();
 
@@ -46,6 +53,12 @@ public class AzBoneAnimationQueueCache<T> {
         return boneAnimationQueues.values();
     }
 
+    /**
+     * Retrieves the animation queue for the specified bone name or returns null if the bone does not exist.
+     *
+     * @param boneName the name of the bone for which the animation queue is to be retrieved
+     * @return the {@code AzBoneAnimationQueue} associated with the specified bone name, or {@code null} if the bone does not exist
+     */
     public @Nullable AzBoneAnimationQueue getOrNull(String boneName) {
         var bone = boneCache.getBakedModel().getBoneOrNull(boneName);
 
@@ -56,6 +69,10 @@ public class AzBoneAnimationQueueCache<T> {
         return boneAnimationQueues.computeIfAbsent(boneName, $ -> new AzBoneAnimationQueue(bone));
     }
 
+    /**
+     * Clears all the animation queues stored in the cache. This method removes all mappings of bone names
+     * to their respective {@code AzBoneAnimationQueue} objects, effectively resetting the cache to an empty state.
+     */
     public void clear() {
         boneAnimationQueues.clear();
     }

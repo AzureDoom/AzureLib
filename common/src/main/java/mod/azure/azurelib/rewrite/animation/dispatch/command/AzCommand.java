@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.animation.dispatch.command;
 
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -25,11 +26,9 @@ import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
 
 /**
- * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily
- * serves as a container for a list of {@link AzAction} instances that define specific operations or behaviors to be
- * executed. <br>
- * The class provides support for building complex dispatch commands by leveraging the hierarchical builder system,
- * enabling customization of animation-related functionality.
+ * Represents a command containing a list of actions (`AzAction`) that can be executed as part of animations or other
+ * complex behaviors. This class provides methods for constructing, composing, and dispatching commands across client
+ * and server contexts.
  */
 public record AzCommand(List<AzAction> actions) {
 
@@ -247,6 +246,14 @@ public record AzCommand(List<AzAction> actions) {
         }
     }
 
+    /**
+     * Dispatches animation commands from the client side for the provided animatable object.
+     * This method retrieves an {@link AzAnimator} instance associated with the animatable object
+     * and applies all configured actions to it using the {@code CLIENT} dispatch side.
+     *
+     * @param <T>        the type of the animatable object
+     * @param animatable the animatable object for which the animation commands are dispatched
+     */
     private <T> void dispatchFromClient(T animatable) {
         var animator = AzAnimatorAccessor.getOrNull(animatable);
 
