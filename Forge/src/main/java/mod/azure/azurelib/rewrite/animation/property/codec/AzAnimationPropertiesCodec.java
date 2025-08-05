@@ -14,7 +14,7 @@ public class AzAnimationPropertiesCodec {
 
     public static final Function<PacketBuffer, AzAnimationProperties> DECODER = buf -> {
         byte propertyLength = buf.readByte();
-        AzAnimationProperties properties = new AzAnimationProperties(1D, null, null, 1D);
+        AzAnimationProperties properties = AzAnimationProperties.EMPTY;
 
         for (int i = 0; i < propertyLength; i++) {
             byte code = buf.readByte();

@@ -27,7 +27,7 @@ public class AzAnimationControllerBuilder<T> {
     public AzAnimationControllerBuilder(AzAnimator<T> animator, String name) {
         this.animator = animator;
         this.name = name;
-        this.animationProperties = new AzAnimationProperties(1D, null, null, 0D);
+        this.animationProperties = AzAnimationProperties.DEFAULT;
         this.keyframeCallbacks = AzKeyframeCallbacks.noop();
     }
 
