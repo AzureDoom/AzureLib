@@ -1,3 +1,14 @@
+v3.0.27
+
+### Changes
+- Added new utility methods in ClientUtils. 
+  - getCurrentAnimationController(); Allows you to get the controller of the animated object.
+  - getCurrentAnimationTick(); Allows you to get the current tick of the current animation.
+  - getCurrentAnimationLength(); Allows you to get the length of the current animation.
+
+### Fixes
+- Fixed an issue where NeoForge would kill itself on packets.
+
 v3.0.26
 
 ### Changes
