@@ -17,9 +17,9 @@ public class AzAnimationPlayState<T> extends AzAnimationState<T> {
     public AzAnimationPlayState() {}
 
     /**
-     * Handles the behavior when the play state is entered in the animation state machine. This method
-     * resets the animation controller's timer to synchronize the starting point of the animation, ensuring consistency
-     * with the current animation state.
+     * Handles the behavior when the play state is entered in the animation state machine. This method resets the
+     * animation controller's timer to synchronize the starting point of the animation, ensuring consistency with the
+     * current animation state.
      *
      * @param context the context of the animation state machine, providing access to the animation controller,
      *                animation context, and state machine properties
@@ -81,16 +81,14 @@ public class AzAnimationPlayState<T> extends AzAnimationState<T> {
     }
 
     /**
-     * Attempts to play the next animation in the queue or transitions the state machine to the "stop" state
-     * if no animations are available.
+     * Attempts to play the next animation in the queue or transitions the state machine to the "stop" state if no
+     * animations are available. This method checks the animation queue for a pending animation. If an animation is
+     * available, it is set as the current animation, and the state machine transitions to a play state. If no animation
+     * is available, the state machine transitions to the "stop" state, effectively halting any further actions in the
+     * animation system.
      *
-     * This method checks the animation queue for a pending animation. If an animation is available, it is
-     * set as the current animation, and the state machine transitions to a play state. If no animation is
-     * available, the state machine transitions to the "stop" state, effectively halting any further actions
-     * in the animation system.
-     *
-     * @param context the context of the animation state machine, containing the animation controller, state
-     *                machine instance, and associated data used to manage animation state and transitions
+     * @param context the context of the animation state machine, containing the animation controller, state machine
+     *                instance, and associated data used to manage animation state and transitions
      */
     private void tryPlayNextOrStop(AzAnimationControllerStateMachine.Context<T> context) {
         var controller = context.animationController();

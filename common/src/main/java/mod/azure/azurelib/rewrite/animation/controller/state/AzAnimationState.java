@@ -26,12 +26,12 @@ public abstract class AzAnimationState<T> implements State<AzAnimationController
     }
 
     /**
-     * Invoked when the state is entered in the animation state machine. This method is responsible for
-     * initializing the state and marking it as active. Subclasses may override this method to define
-     * additional setup logic specific to the state being entered.
+     * Invoked when the state is entered in the animation state machine. This method is responsible for initializing the
+     * state and marking it as active. Subclasses may override this method to define additional setup logic specific to
+     * the state being entered.
      *
-     * @param context the context associated with the state machine, providing access to the
-     *                animation controller, animation context, and references to the state machine
+     * @param context the context associated with the state machine, providing access to the animation controller,
+     *                animation context, and references to the state machine
      */
     @Override
     public void onEnter(AzAnimationControllerStateMachine.Context<T> context) {
@@ -43,13 +43,12 @@ public abstract class AzAnimationState<T> implements State<AzAnimationController
     }
 
     /**
-     * Handles the exit operations when this animation state is transitioned out of.
-     * This method is invoked as part of the state's lifecycle, specifically during the transition
-     * from the current state to another state in the animation controller's state machine.
-     * It deactivates the current state by setting its active status to false.
+     * Handles the exit operations when this animation state is transitioned out of. This method is invoked as part of
+     * the state's lifecycle, specifically during the transition from the current state to another state in the
+     * animation controller's state machine. It deactivates the current state by setting its active status to false.
      *
-     * @param context the context associated with the state machine, which provides access to
-     *                the animation controller, animation context, and state machine itself
+     * @param context the context associated with the state machine, which provides access to the animation controller,
+     *                animation context, and state machine itself
      */
     @Override
     public void onExit(AzAnimationControllerStateMachine.Context<T> context) {

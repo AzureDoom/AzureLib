@@ -10,9 +10,9 @@ import mod.azure.azurelib.rewrite.animation.property.AzAnimationStageProperties;
 /**
  * Builder class for creating instances of {@link AzAnimationSequence}.
  * <p>
- * The {@code AzAnimationSequenceBuilder} provides a fluent API for defining and queuing animation stages
- * to be included in a sequence. Each stage is defined by its name and can optionally include customized
- * properties through a functional interface.
+ * The {@code AzAnimationSequenceBuilder} provides a fluent API for defining and queuing animation stages to be included
+ * in a sequence. Each stage is defined by its name and can optionally include customized properties through a
+ * functional interface.
  */
 public class AzAnimationSequenceBuilder {
 
@@ -23,8 +23,8 @@ public class AzAnimationSequenceBuilder {
     }
 
     /**
-     * Adds a new animation stage to the sequence with the specified animation name. The stage
-     * is created using the given animation name and default (empty) stage properties.
+     * Adds a new animation stage to the sequence with the specified animation name. The stage is created using the
+     * given animation name and default (empty) stage properties.
      *
      * @param animationName the name of the animation to be added as a stage
      * @return the current instance of {@code AzAnimationSequenceBuilder} to allow method chaining
@@ -35,11 +35,13 @@ public class AzAnimationSequenceBuilder {
     }
 
     /**
-     * Adds a new animation stage to the sequence with the specified animation name and optionally customized properties.
-     * The stage is created using the given animation name and the properties provided by the {@code builderUnaryOperator}.
+     * Adds a new animation stage to the sequence with the specified animation name and optionally customized
+     * properties. The stage is created using the given animation name and the properties provided by the
+     * {@code builderUnaryOperator}.
      *
-     * @param animationName the name of the animation to be added as a stage
-     * @param builderUnaryOperator a unary operator to customize the {@code AzAnimationStageProperties} of the animation stage
+     * @param animationName        the name of the animation to be added as a stage
+     * @param builderUnaryOperator a unary operator to customize the {@code AzAnimationStageProperties} of the animation
+     *                             stage
      * @return the current instance of {@code AzAnimationSequenceBuilder} to allow method chaining
      */
     public AzAnimationSequenceBuilder queue(

@@ -19,10 +19,9 @@ import java.util.function.Function;
 public abstract class AzResourceCache {
 
     /**
-     * A set of namespaces that should be excluded when processing or loading resources.
-     * These namespaces are pre-defined and typically represent mods or resource groups
-     * that are not intended to be processed by the resource management logic of the
-     * AzResourceCache class.
+     * A set of namespaces that should be excluded when processing or loading resources. These namespaces are
+     * pre-defined and typically represent mods or resource groups that are not intended to be processed by the resource
+     * management logic of the AzResourceCache class.
      */
     public static final Set<String> EXCLUDED_NAMESPACES = ObjectOpenHashSet.of(
         "moreplayermodels",
@@ -37,20 +36,20 @@ public abstract class AzResourceCache {
     );
 
     /**
-     * Asynchronously loads resources from the provided {@code ResourceManager} based on the specified {@code type}.
-     * The method filters resource files, processes them using the given {@code loader}, and maps the resulting objects
+     * Asynchronously loads resources from the provided {@code ResourceManager} based on the specified {@code type}. The
+     * method filters resource files, processes them using the given {@code loader}, and maps the resulting objects
      * using the provided {@code map} function. Resources from excluded namespaces are ignored during processing.
      *
-     * @param <T>            The type of the resource being loaded and processed.
-     * @param executor       The executor used to execute asynchronous tasks.
+     * @param <T>             The type of the resource being loaded and processed.
+     * @param executor        The executor used to execute asynchronous tasks.
      * @param resourceManager The resource manager used to locate and manage resources.
-     * @param type           The type of resource to be fetched, typically a folder or category defined in the
-     *                       resource pack (e.g., "animations").
-     * @param loader         A function that processes a {@link ResourceLocation} into an object of type {@code T}.
-     * @param map            A consumer that maps the processed resources (keyed by {@link ResourceLocation}) to
-     *                       their corresponding values of type {@code T}.
-     * @return A {@code CompletableFuture<Void>} that completes when all resources of the specified type are
-     *         loaded and processed.
+     * @param type            The type of resource to be fetched, typically a folder or category defined in the resource
+     *                        pack (e.g., "animations").
+     * @param loader          A function that processes a {@link ResourceLocation} into an object of type {@code T}.
+     * @param map             A consumer that maps the processed resources (keyed by {@link ResourceLocation}) to their
+     *                        corresponding values of type {@code T}.
+     * @return A {@code CompletableFuture<Void>} that completes when all resources of the specified type are loaded and
+     *         processed.
      */
     protected final <T> CompletableFuture<Void> loadResources(
         Executor executor,

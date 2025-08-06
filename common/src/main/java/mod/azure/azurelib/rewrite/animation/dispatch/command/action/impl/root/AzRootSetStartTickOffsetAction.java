@@ -10,6 +10,11 @@ import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 
+/**
+ * Represents an action used to set the start tick offset for animations in the AzureLib animation system. This action
+ * is dispatched to modify the animation properties of all controllers within an animator, specifically updating their
+ * start tick offset based on the provided value.
+ */
 public record AzRootSetStartTickOffsetAction(
     double startTickOffset
 ) implements AzAction {
