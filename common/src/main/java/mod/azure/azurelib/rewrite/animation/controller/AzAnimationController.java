@@ -103,7 +103,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      * Attempts to create a queue of animations from the provided animation sequence for the given animatable object.
      * This method processes each stage of the supplied animation sequence, retrieves the corresponding animation,
      * and adds it to the queue with its specified play behavior.
-     *
+     * <p>
      * If any stage in the sequence references an animation that cannot be found, the method logs a warning and
      * returns an empty list, indicating that the animation queue could not be fully created.
      *
