@@ -94,8 +94,8 @@ public class MolangParser extends MathBuilder {
         }
 
         if (result == null) {
-			AzureLib.LOGGER.error("Molang expression cannot be null! Defaulted to 0");
-	        return ZERO;
+            AzureLib.LOGGER.error("Molang expression cannot be null! Defaulted to 0");
+            return ZERO;
         }
 
         return result;
@@ -285,20 +285,20 @@ public class MolangParser extends MathBuilder {
     }
 
     /**
-     * Parses a list of symbols in the Molang context and converts them into an {@link IValue} representation.
-     * This method extends the functionality of {@code parseSymbols} to handle scenarios unique to Molang expressions.
-     * If an error occurs during parsing, an error message is logged and a default value of {@code ZERO} is returned.
+     * Parses a list of symbols in the Molang context and converts them into an {@link IValue} representation. This
+     * method extends the functionality of {@code parseSymbols} to handle scenarios unique to Molang expressions. If an
+     * error occurs during parsing, an error message is logged and a default value of {@code ZERO} is returned.
      *
      * @param symbols A list of objects representing the symbols to be parsed into an {@link IValue}.
-     * @return The parsed {@link IValue} object corresponding to the provided symbols. Returns {@code ZERO} in case
-     *         of a parsing failure.
+     * @return The parsed {@link IValue} object corresponding to the provided symbols. Returns {@code ZERO} in case of a
+     *         parsing failure.
      */
     private IValue parseSymbolsMolang(List<Object> symbols) {
         try {
             return this.parseSymbols(symbols);
         } catch (Exception e) {
-			AzureLib.LOGGER.error("Couldn't parse an expression! Defaulted to 0");
-			return ZERO;
+            AzureLib.LOGGER.error("Couldn't parse an expression! Defaulted to 0");
+            return ZERO;
         }
     }
 

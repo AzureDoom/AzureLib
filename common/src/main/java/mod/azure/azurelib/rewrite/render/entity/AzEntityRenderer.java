@@ -25,11 +25,11 @@ import mod.azure.azurelib.rewrite.render.AzProvider;
  */
 public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 
-    private final AzEntityRendererConfig<T> config;
+    protected final AzEntityRendererConfig<T> config;
 
-    private final AzProvider<T> provider;
+    protected final AzProvider<T> provider;
 
-    private final AzEntityRendererPipeline<T> rendererPipeline;
+    protected final AzEntityRendererPipeline<T> rendererPipeline;
 
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;
@@ -41,7 +41,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         this.rendererPipeline = createPipeline(config);
     }
 
-    protected AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
+    public AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
         return new AzEntityRendererPipeline<>(config, this);
     }
 
