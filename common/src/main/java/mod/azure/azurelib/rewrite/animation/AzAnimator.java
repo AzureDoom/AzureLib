@@ -46,13 +46,15 @@ public abstract class AzAnimator<T> {
 
     public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
 
-    public void animate(T animatable, float partialTicks) {
+    public void animate(T animatable, float partialTicks, boolean updateTimer) {
         reusableContext.animatable = animatable;
 
         var boneCache = reusableContext.boneCache();
         var timer = reusableContext.timer();
 
-        timer.tick();
+        if (updateTimer) {
+            timer.tick();
+        }
 
         preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
 
@@ -68,6 +70,10 @@ public abstract class AzAnimator<T> {
         }
 
         setCustomAnimations(animatable, partialTicks);
+    }
+
+    public void animate(T animatable, float partialTicks) {
+        this.animate(animatable, partialTicks, true);
     }
 
     /**
