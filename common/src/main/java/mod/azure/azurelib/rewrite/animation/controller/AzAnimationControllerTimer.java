@@ -1,5 +1,8 @@
 package mod.azure.azurelib.rewrite.animation.controller;
 
+import mod.azure.azurelib.rewrite.animation.AzAnimationContext;
+import mod.azure.azurelib.rewrite.animation.controller.state.machine.AzAnimationControllerStateMachine;
+
 /**
  * A timer utility that integrates directly with an {@link AzAnimationController} to track and adjust tick values for
  * animation playback control, based on the controller's state and animation speed modifiers.
@@ -8,7 +11,7 @@ package mod.azure.azurelib.rewrite.animation.controller;
  */
 public class AzAnimationControllerTimer<T> {
 
-    private AzAnimationController<T> animationController;
+    private final AzAnimationController<T> animationController;
 
     private double adjustedTick;
 
@@ -18,22 +21,18 @@ public class AzAnimationControllerTimer<T> {
         this.animationController = animationController;
     }
 
-    /**
-     * Updates the internally tracked adjusted tick value for the animation timer. This method retrieves the current
-     * animation time, combines it with relevant modifiers from the animation controller, such as animation speed and
-     * start tick offset, and adjusts the tick value accordingly. The calculation incorporates the animation speed
-     * multiplier to ensure proper playback rate scaling and offsets the calculation based on the tick offset.
-     * <p>
-     * The adjusted tick value is computed as: - Multiply the animation speed by the maximum of: - The difference
-     * between the current animation time (plus start tick offset) and the existing tick offset. - The start tick
-     * offset.
-     */
     public void update() {
-        var stateMachine = animationController.stateMachine();
-        var animContext = stateMachine.getContext().animationContext();
-        var animationSpeed = animationController.animationProperties().animationSpeed();
-        var tick = animContext.timer().getAnimTime();
+        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
+        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
+        double animationSpeed = animationController.animationProperties().animationSpeed();
+        double tick = animContext.timer().getAnimTime();
         double tickStartOffset = animationController.animationProperties().startTickOffset();
+        double freezeTick = animationController.animationProperties().freezeTickOffset();
+
+        if (freezeTick > 0 && adjustedTick >= freezeTick) {
+            adjustedTick = freezeTick;
+            return;
+        }
 
         adjustedTick = animationSpeed * Math.max((tick + tickStartOffset) - tickOffset, tickStartOffset);
     }
@@ -45,8 +44,8 @@ public class AzAnimationControllerTimer<T> {
      * tick calculations reflect the reset starting point.
      */
     public void reset() {
-        var stateMachine = animationController.stateMachine();
-        var animContext = stateMachine.getContext().animationContext();
+        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
+        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
         this.tickOffset = animContext.timer().getAnimTime();
         this.adjustedTick = 0;
     }
@@ -66,7 +65,7 @@ public class AzAnimationControllerTimer<T> {
      * method increments the adjusted tick by the provided amount, allowing for cumulative adjustments to the tick value
      * over time.
      *
-     * @param adjustedTick The value to be added to the current adjusted tick. This parameter represents the amount by
+     * @param adjustedTick The value to be added to the current-adjusted tick. This parameter represents the amount by
      *                     which the adjusted tick should be updated.
      */
     public void addToAdjustedTick(double adjustedTick) {

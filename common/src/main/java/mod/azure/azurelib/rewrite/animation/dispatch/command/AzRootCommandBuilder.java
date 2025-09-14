@@ -7,10 +7,10 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimatio
 import mod.azure.azurelib.rewrite.animation.easing.AzEasingType;
 
 /**
- * AzRootCommandBuilder is a concrete implementation of AzCommandBuilder that provides methods
- * specifically tailored for constructing and configuring root-level animation commands. These methods
- * allow for appending subcommands, adjusting easing types, speeds, and playback sequences, as well as performing
- * cancel operations or configuring other root command-specific actions.
+ * AzRootCommandBuilder is a concrete implementation of AzCommandBuilder that provides methods specifically tailored for
+ * constructing and configuring root-level animation commands. These methods allow for appending subcommands, adjusting
+ * easing types, speeds, and playback sequences, as well as performing cancel operations or configuring other
+ * root-command-specific actions.
  */
 public class AzRootCommandBuilder extends AzCommandBuilder {
 
@@ -26,9 +26,9 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Cancels all ongoing animations for all animation controllers associated with the current animator.
-     * This method adds an action to the command builder that, when executed, clears the current animation
-     * from all animation controllers in the animator.
+     * Cancels all ongoing animations for all animation controllers associated with the current animator. This method
+     * adds an action to the command builder that, when executed, clears the current animation from all animation
+     * controllers in the animator.
      *
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
      */
@@ -38,8 +38,8 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Sets the easing type to be used for root-level animations within the command builder.
-     * The easing type defines the interpolation behavior for transitioning animations.
+     * Sets the easing type to be used for root-level animations within the command builder. The easing type defines the
+     * interpolation behavior for transitioning animations.
      *
      * @param easingType the {@code AzEasingType} instance that specifies the desired easing behavior
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
@@ -50,8 +50,8 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Sets the animation speed for all root-level animations within the command builder.
-     * This method adds an action to adjust the speed of animations when executed.
+     * Sets the animation speed for all root-level animations within the command builder. This method adds an action to
+     * adjust the speed of animations when executed.
      *
      * @param speed the desired animation speed, where a value of 1.0 represents the normal animation speed
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
@@ -62,8 +62,8 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Sets the transition speed for animations and adds the corresponding action to the command builder.
-     * The transition speed determines the duration of the transition between animation states.
+     * Sets the transition speed for animations and adds the corresponding action to the command builder. The transition
+     * speed determines the duration of the transition between animation states.
      *
      * @param transitionSpeed a float representing the transition speed to be applied
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
@@ -74,9 +74,8 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Sets the start tick offset for root-level animations within the command builder.
-     * This method adds an action that, when executed, adjusts the animation's start
-     * point based on the specified tick offset.
+     * Sets the start tick offset for root-level animations within the command builder. This method adds an action that,
+     * when executed, adjusts the animation's start point based on the specified tick offset.
      *
      * @param tickOffset the float value representing the tick offset to shift the start of the animation
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
@@ -87,46 +86,56 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     }
 
     /**
-     * Cancels the current animation for a specified animation controller by adding a cancel action
-     * to the command builder. This action targets the animation controller identified by its name.
+     * Sets the freeze tick offset for root-level animations within the command builder. This method adds an action
+     * that, when executed, adjusts the freeze tick offset of animations based on the specified value.
      *
-     * @param controllerName the name of the animation controller whose animation will be canceled
+     * @param freezeTickOffset the float value representing the freeze tick offset to be applied to the animation
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
      */
-    public AzRootCommandBuilder cancel(String controllerName) {
-        actions.add(new AzRootCancelAction(controllerName));
+    public AzRootCommandBuilder setFreezeTickOffset(float freezeTickOffset) {
+        actions.add(new AzRootSetFreezeTickAction(freezeTickOffset));
         return this;
     }
 
     /**
-     * Plays the specified animation on the given controller. This method queues the provided
-     * animation name into an animation sequence and associates it with the specified
-     * controller.
+     * Sets the repeat amount for root-level animations within the command builder. This method adds an action that,
+     * when executed, adjusts the number of times the animation should repeat based on the specified value.
      *
-     * @param controllerName the name of the animation controller on which to play the animation
-     * @param animationName the name of the animation to be played
+     * @param repeatAmount the float value representing the number of times the animation should repeat
      * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
      */
-    public AzRootCommandBuilder play(String controllerName, String animationName) {
-        return playSequence(controllerName, builder -> builder.queue(animationName, properties -> properties));
+    public AzRootCommandBuilder setRepeatAmount(float repeatAmount) {
+        actions.add(new AzRootSetRepeatTimesAction(repeatAmount));
+        return this;
     }
 
     /**
-     * Adds an action to play a sequence of animations on the specified controller.
-     * The animation sequence is created using the provided builder and then executed
-     * when the command is run.
+     * Sets whether the animations should play in reverse order and adds the corresponding action to the command
+     * builder. When executed, this action updates the animation properties of all relevant animation controllers to
+     * reflect the reverse playback setting.
      *
-     * @param controllerName the name of the animation controller on which the sequence will be played
-     * @param builderUnaryOperator a {@code UnaryOperator} that defines and customizes the animation sequence
-     *                              using an instance of {@code AzAnimationSequenceBuilder}
-     * @return the current instance of {@code AzRootCommandBuilder} to support method chaining
+     * @param hasReverse a boolean value indicating whether animations should play in reverse
+     * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
+     */
+    public AzRootCommandBuilder setReverseAnimation(boolean hasReverse) {
+        actions.add(new AzRootSetReverseAction(hasReverse));
+        return this;
+    }
+
+    /**
+     * Plays a composed animation sequence by applying the provided {@link UnaryOperator} to an instance of
+     * {@code AzAnimationSequenceBuilder}. The animation sequence is constructed and then added as an action to the
+     * current root command builder.
+     *
+     * @param builderUnaryOperator a {@link UnaryOperator} to customize and build an {@code AzAnimationSequence} using
+     *                             an {@link AzAnimationSequenceBuilder}
+     * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
      */
     public AzRootCommandBuilder playSequence(
-        String controllerName,
         UnaryOperator<AzAnimationSequenceBuilder> builderUnaryOperator
     ) {
         var sequence = builderUnaryOperator.apply(new AzAnimationSequenceBuilder()).build();
-        actions.add(new AzRootPlayAnimationSequenceAction(controllerName, sequence));
+        actions.add(new AzRootPlayAnimationSequenceAction(sequence));
         return this;
     }
 }

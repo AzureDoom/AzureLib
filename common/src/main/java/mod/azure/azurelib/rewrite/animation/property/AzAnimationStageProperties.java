@@ -20,10 +20,22 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         AzEasingTypes.NONE,
         AzPlayBehaviors.PLAY_ONCE,
         0F,
-        0D
+        0D,
+        0D,
+        1D,
+        false
     );
 
-    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(null, null, null, null, null);
+    public static final AzAnimationStageProperties EMPTY = new AzAnimationStageProperties(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
 
     private AzPlayBehavior playBehavior;
 
@@ -32,9 +44,20 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
         @Nullable AzEasingType easingType,
         @Nullable AzPlayBehavior playBehavior,
         @Nullable Float transitionLength,
-        @Nullable Double startTickOffset
+        @Nullable Double startTickOffset,
+        @Nullable Double freezeTickOffset,
+        @Nullable Double repeatXTimes,
+        @Nullable Boolean isReversing
     ) {
-        super(animationSpeed, easingType, transitionLength, startTickOffset);
+        super(
+            animationSpeed,
+            easingType,
+            transitionLength,
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
+        );
         this.playBehavior = playBehavior;
         this.startTickOffset = startTickOffset;
     }
@@ -51,7 +74,10 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
             easingType,
             playBehavior,
             transitionLength,
-            startTickOffset
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
         );
     }
 
@@ -63,7 +89,10 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
             easingType,
             playBehavior,
             transitionLength,
-            startTickOffset
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
         );
     }
 
@@ -74,7 +103,10 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
             easingType,
             playBehavior,
             transitionLength,
-            startTickOffset
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
         );
     }
 
@@ -86,7 +118,10 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
             easingType,
             playBehavior,
             transitionLength,
-            startTickOffset
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
         );
     }
 
@@ -98,7 +133,55 @@ public class AzAnimationStageProperties extends AzAnimationProperties {
             easingType,
             playBehavior,
             transitionLength,
-            startTickOffset
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
+        );
+    }
+
+    @Override
+    public AzAnimationStageProperties withFreezeTickOffset(double freezeTickOffset) {
+        this.freezeTickOffset = freezeTickOffset;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
+        );
+    }
+
+    @Override
+    public AzAnimationStageProperties withRepeatXTimes(double repeatXTimes) {
+        this.repeatXTimes = repeatXTimes;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
+        );
+    }
+
+    @Override
+    public AzAnimationStageProperties withShouldReverse(boolean isReversing) {
+        this.isReversing = isReversing;
+        return new AzAnimationStageProperties(
+            animationSpeed,
+            easingType,
+            playBehavior,
+            transitionLength,
+            startTickOffset,
+            freezeTickOffset,
+            repeatXTimes,
+            isReversing
         );
     }
 
