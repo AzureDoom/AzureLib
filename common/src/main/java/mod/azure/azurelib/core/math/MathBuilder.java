@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
@@ -426,40 +427,45 @@ public class MathBuilder {
      * Get value from an object. This method is responsible for creating different sort of values based on the input
      * object. It can create constants, variables and groups.
      */
-    public IValue valueFromObject(Object object) throws Exception {
-        if (object instanceof List) {
-            return new Group(this.parseSymbols((List<Object>) object));
-        }
+    public IValue valueFromObject(Object object) {
+        try {
 
-        if (object instanceof String symbol) {
-            /* Variable and constant negation */
-            if (symbol.startsWith("!")) {
-                return new Negate(this.valueFromObject(symbol.substring(1)));
+            if (object instanceof List) {
+                return new Group(this.parseSymbols((List<Object>) object));
             }
 
-            if (this.isDecimal(symbol)) {
-                return new Constant(Double.parseDouble(symbol));
-            } else if (this.isVariable(symbol)) {
-                /* Need to account for a negative value variable */
-                if (symbol.startsWith("-")) {
-                    symbol = symbol.substring(1);
-                    Variable value = this.getVariable(symbol);
+            if (object instanceof String symbol) {
+                /* Variable and constant negation */
+                if (symbol.startsWith("!")) {
+                    return new Negate(this.valueFromObject(symbol.substring(1)));
+                }
 
-                    if (value != null) {
-                        return new Negative(value);
-                    }
-                } else {
-                    IValue value = this.getVariable(symbol);
+                if (this.isDecimal(symbol)) {
+                    return new Constant(Double.parseDouble(symbol));
+                } else if (this.isVariable(symbol)) {
+                    /* Need to account for a negative value variable */
+                    if (symbol.startsWith("-")) {
+                        symbol = symbol.substring(1);
+                        Variable value = this.getVariable(symbol);
 
-                    /* Avoid NPE */
-                    if (value != null) {
-                        return value;
+                        if (value != null) {
+                            return new Negative(value);
+                        }
+                    } else {
+                        IValue value = this.getVariable(symbol);
+
+                        /* Avoid NPE */
+                        if (value != null) {
+                            return value;
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            AzureLib.LOGGER.error("Failed to convert object to value: {}. Using default fallback.", object, e);
         }
 
-        throw new AzureLibException("Given object couldn't be converted to value! " + object);
+        return new Constant(0);
     }
 
     /**

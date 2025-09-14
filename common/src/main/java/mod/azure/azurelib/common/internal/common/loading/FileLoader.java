@@ -34,44 +34,67 @@ public final class FileLoader {
     }
 
     /**
-     * Load up and deserialize an animation json file to its respective {@link Animation} components
+     * Load up and deserialize an animation JSON file to its respective {@link Animation} components
      *
-     * @param location The resource path of the animations file
+     * @param location The resource path of the animation file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      * @deprecated
      */
     public static BakedAnimations loadAnimationsFile(ResourceLocation location, ResourceManager manager) {
-        return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
+        try {
+            return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
+        } catch (Exception e) {
+            logError(location);
+            return null;
+        }
     }
 
     /**
-     * Load up and deserialize an animation json file to its respective {@link AzBakedAnimation} components
+     * Load up and deserialize an animation JSON file to its respective {@link AzBakedAnimation} components
      *
-     * @param location The resource path of the animations file
+     * @param location The resource path of the animation file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
     public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, ResourceManager manager) {
-        return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
+        try {
+            return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
+        } catch (Exception e) {
+            logError(location);
+            return null;
+        }
     }
 
     /**
-     * Load up and deserialize a geo model json file to its respective {@link BakedGeoModel} format
+     * Load up and deserialize a geo model JSON file to its respective {@link BakedGeoModel} format
      *
      * @param location The resource path of the model file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
     public static Model loadModelFile(ResourceLocation location, ResourceManager manager) {
-        return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
+        try {
+            return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
+        } catch (Exception e) {
+            logError(location);
+            return null;
+        }
     }
 
     /**
-     * Load a given json file into memory
+     * Loads and parses a JSON file from the specified resource location. This method retrieves the file using the
+     * provided resource manager and deserializes its contents into a {@link JsonObject}. If an error occurs during file
+     * loading or parsing, logs the error and returns {@code null}.
      *
-     * @param location The resource path of the json file
-     * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
+     * @param location The resource location of the file to be loaded.
+     * @param manager  The resource manager responsible for accessing the resource.
+     * @return The parsed JSON file as a {@link JsonObject}, or {@code null} if an error occurs.
      */
     public static JsonObject loadFile(ResourceLocation location, ResourceManager manager) {
-        return GsonHelper.fromJson(JsonUtil.GEO_GSON, getFileContents(location, manager), JsonObject.class);
+        try {
+            return GsonHelper.fromJson(JsonUtil.GEO_GSON, getFileContents(location, manager), JsonObject.class);
+        } catch (Exception e) {
+            logError(location);
+            return null;
+        }
     }
 
     /**
@@ -88,5 +111,15 @@ public final class FileLoader {
 
             throw new AzureLibException(location.toString());
         }
+    }
+
+    /**
+     * Logs error messages with optional arguments using the AzureLib logger at the warning level. This method provides
+     * a way to indicate warnings or errors during file loading or parsing.
+     *
+     * @param args Optional arguments to be formatted into the message placeholders.
+     */
+    private static void logError(Object args) {
+        AzureLib.LOGGER.warn("Error parsing JSON from {}: skipping", args);
     }
 }
