@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.layer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -64,6 +65,10 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
 
         if (stack == null && blockState == null)
             return;
+
+        if (animatable instanceof Entity entity && Minecraft.getInstance().shouldEntityAppearGlowing(entity)) {
+            return;
+        }
 
         context.poseStack().pushPose();
         RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
