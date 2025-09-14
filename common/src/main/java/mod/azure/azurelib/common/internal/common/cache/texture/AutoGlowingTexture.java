@@ -69,6 +69,19 @@ public class AutoGlowingTexture extends AzAbstractTexture {
 
             if (glowLayerResource.isPresent()) {
                 glowImage = NativeImage.read(glowLayerResource.get().open());
+
+                if (baseImage.getWidth() != glowImage.getWidth() || baseImage.getHeight() != glowImage.getHeight()) {
+                    AzureLib.LOGGER.error(
+                        "Glowmask size mismatch with base texture. Base size: {}x{}, Glowmask size: {}x{}, Location: {}",
+                        baseImage.getWidth(),
+                        baseImage.getHeight(),
+                        glowImage.getWidth(),
+                        glowImage.getHeight(),
+                        this.glowLayer
+                    );
+                    return null;
+                }
+
                 glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(glowImage);
             } else {
                 Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata()
