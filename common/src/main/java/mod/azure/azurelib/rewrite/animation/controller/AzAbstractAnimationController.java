@@ -21,7 +21,7 @@ public class AzAbstractAnimationController {
     }
 
     /**
-     * Checks whether the last animation that was playing on this controller has finished or not.<br>
+     * Checks whether the last animation playing on this controller has finished or not.<br>
      * This will return true if the controller has had an animation set previously, and it has finished playing and
      * isn't going to loop or proceed to another animation.<br>
      *

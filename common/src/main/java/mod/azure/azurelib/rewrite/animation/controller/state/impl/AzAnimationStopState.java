@@ -18,6 +18,14 @@ public final class AzAnimationStopState<T> extends AzAnimationState<T> {
 
     public AzAnimationStopState() {}
 
+    /**
+     * Updates the "stop" state within the animation state machine. In this state, no actions are performed, as the stop
+     * state is meant to represent an idle or inactive behavior where no animations are running. This method is a no-op,
+     * providing a placeholder for any update-related logic, should it be introduced in the future.
+     *
+     * @param context the context of the animation state machine containing references to the animation controller,
+     *                animation context, and state machine properties
+     */
     @Override
     public void onUpdate(AzAnimationControllerStateMachine.Context<T> context) {
         // Stop state does not need to do anything.

@@ -48,6 +48,13 @@ public class AzBoneSnapshotCache {
         }
     }
 
+    /**
+     * Retrieves an {@link AzBoneSnapshot} from the cache based on the provided bone name. If no snapshot is found for
+     * the specified name, {@code null} is returned.
+     *
+     * @param name The name of the bone whose snapshot is to be retrieved.
+     * @return The {@link AzBoneSnapshot} associated with the given name, or {@code null} if not found.
+     */
     public @Nullable AzBoneSnapshot getOrNull(String name) {
         return boneSnapshots.get(name);
     }

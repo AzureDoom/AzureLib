@@ -102,7 +102,6 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var x = getAnimationPointAtTick(keyframes.xKeyframes(), 0, false, Axis.X);
         var y = getAnimationPointAtTick(keyframes.yKeyframes(), 0, false, Axis.Y);
         var z = getAnimationPointAtTick(keyframes.zKeyframes(), 0, false, Axis.Z);
-
         queue.addNextPosition(null, adjustedTick, transitionLength, snapshot, x, y, z);
     }
 

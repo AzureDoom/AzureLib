@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.ACos;
 import mod.azure.azurelib.core.math.functions.classic.ASin;
@@ -110,10 +112,10 @@ public class MathBuilder {
     /**
      * Breakdown an expression
      */
-    public String[] breakdown(String expression) throws Exception {
+    public String[] breakdown(String expression) throws AzureLibException {
         /* If given string have illegal characters, then it can't be parsed */
         if (!expression.matches("^[\\w\\d\\s_+-/*%^&|<>=!?:.,()]+$")) {
-            throw new Exception("Given expression '" + expression + "' contains illegal characters!");
+            throw new AzureLibException("Given expression '" + expression + "' contains illegal characters!");
         }
 
         /* Remove all spaces, and leading and trailing parenthesis */
@@ -134,7 +136,7 @@ public class MathBuilder {
 
         /* Amount of left and right brackets should be the same */
         if (left != right) {
-            throw new Exception(
+            throw new AzureLibException(
                 "Given expression '" + expression
                     + "' has more uneven amount of parenthesis, there are " + left + " open and " + right + " closed!"
             );
@@ -409,7 +411,7 @@ public class MathBuilder {
         }
 
         if (!this.functions.containsKey(first)) {
-            throw new Exception("Function '" + first + "' couldn't be found!");
+            throw new AzureLibException("Function '" + first + "' couldn't be found!");
         }
 
         List<IValue> values = new ArrayList<>();
@@ -437,40 +439,45 @@ public class MathBuilder {
      * Get value from an object. This method is responsible for creating different sort of values based on the input
      * object. It can create constants, variables and groups.
      */
-    public IValue valueFromObject(Object object) throws Exception {
-        if (object instanceof List) {
-            return new Group(this.parseSymbols((List<Object>) object));
-        }
+    public IValue valueFromObject(Object object) {
+        try {
 
-        if (object instanceof String symbol) {
-            /* Variable and constant negation */
-            if (symbol.startsWith("!")) {
-                return new Negate(this.valueFromObject(symbol.substring(1)));
+            if (object instanceof List) {
+                return new Group(this.parseSymbols((List<Object>) object));
             }
 
-            if (this.isDecimal(symbol)) {
-                return new Constant(Double.parseDouble(symbol));
-            } else if (this.isVariable(symbol)) {
-                /* Need to account for a negative value variable */
-                if (symbol.startsWith("-")) {
-                    symbol = symbol.substring(1);
-                    Variable value = this.getVariable(symbol);
+            if (object instanceof String symbol) {
+                /* Variable and constant negation */
+                if (symbol.startsWith("!")) {
+                    return new Negate(this.valueFromObject(symbol.substring(1)));
+                }
 
-                    if (value != null) {
-                        return new Negative(value);
-                    }
-                } else {
-                    IValue value = this.getVariable(symbol);
+                if (this.isDecimal(symbol)) {
+                    return new Constant(Double.parseDouble(symbol));
+                } else if (this.isVariable(symbol)) {
+                    /* Need to account for a negative value variable */
+                    if (symbol.startsWith("-")) {
+                        symbol = symbol.substring(1);
+                        Variable value = this.getVariable(symbol);
 
-                    /* Avoid NPE */
-                    if (value != null) {
-                        return value;
+                        if (value != null) {
+                            return new Negative(value);
+                        }
+                    } else {
+                        IValue value = this.getVariable(symbol);
+
+                        /* Avoid NPE */
+                        if (value != null) {
+                            return value;
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            AzureLib.LOGGER.error("Failed to convert object to value: {}. Using default fallback.", object, e);
         }
 
-        throw new Exception("Given object couldn't be converted to value! " + object);
+        return new Constant(0);
     }
 
     /**
@@ -483,14 +490,14 @@ public class MathBuilder {
     /**
      * Get operation for given operator strings
      */
-    protected Operation operationForOperator(String op) throws Exception {
+    protected Operation operationForOperator(String op) throws AzureLibException {
         for (Operation operation : Operation.values()) {
             if (operation.sign.equals(op)) {
                 return operation;
             }
         }
 
-        throw new Exception("There is no such operator '" + op + "'!");
+        throw new AzureLibException("There is no such operator '" + op + "'!");
     }
 
     /**

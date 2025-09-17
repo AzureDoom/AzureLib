@@ -13,18 +13,15 @@ import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.sequence.AzAnimationSequence;
 
 public record AzRootPlayAnimationSequenceAction(
-    String controllerName,
     AzAnimationSequence sequence
 ) implements AzAction {
 
     public static final Function<FriendlyByteBuf, AzRootPlayAnimationSequenceAction> DECODER = buf -> {
-        String controllerName = buf.readUtf(); // Read controller name (UTF string)
         AzAnimationSequence sequence = AzAnimationSequence.DECODER.apply(buf); // Decode AzAnimationSequence
-        return new AzRootPlayAnimationSequenceAction(controllerName, sequence); // Create new instance
+        return new AzRootPlayAnimationSequenceAction(sequence); // Create new instance
     };
 
     public static final BiConsumer<FriendlyByteBuf, AzRootPlayAnimationSequenceAction> ENCODER = (buf, action) -> {
-        buf.writeUtf(action.controllerName()); // Write controller name (UTF string)
         AzAnimationSequence.ENCODER.accept(buf, action.sequence()); // Encode AzAnimationSequence
     };
 
@@ -32,11 +29,10 @@ public record AzRootPlayAnimationSequenceAction(
 
     @Override
     public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
-        var controller = animator.getAnimationControllerContainer().getOrNull(controllerName);
+        var controllerContainer = animator.getAnimationControllerContainer();
+        var controllers = controllerContainer.getAll();
 
-        if (controller != null) {
-            controller.run(originSide, sequence);
-        }
+        controllers.forEach(controller -> controller.run(originSide, sequence));
     }
 
     @Override

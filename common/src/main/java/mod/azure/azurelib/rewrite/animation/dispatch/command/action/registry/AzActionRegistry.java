@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 
 /**
@@ -38,11 +39,6 @@ public class AzActionRegistry {
 
     static {
         // Register root actions
-        register(
-            AzRootCancelAction.RESOURCE_LOCATION,
-            AzRootCancelAction::decode, // Decoder function
-            AzRootCancelAction::encode // Encoder function
-        );
         register(
             AzRootCancelAllAction.RESOURCE_LOCATION,
             AzRootCancelAllAction::decode,
@@ -72,6 +68,53 @@ public class AzActionRegistry {
             AzRootSetStartTickOffsetAction.RESOURCE_LOCATION,
             AzRootSetStartTickOffsetAction::decode,
             AzRootSetStartTickOffsetAction::encode
+        );
+
+        // Register controller actions
+        register(
+            AzControllerCancelAction.RESOURCE_LOCATION,
+            AzControllerCancelAction::decode,
+            AzControllerCancelAction::encode
+        );
+        register(
+            AzControllerPlayAnimationSequenceAction.RESOURCE_LOCATION,
+            AzControllerPlayAnimationSequenceAction::decode,
+            AzControllerPlayAnimationSequenceAction::encode
+        );
+        register(
+            AzControllerSetAnimationSpeedAction.RESOURCE_LOCATION,
+            AzControllerSetAnimationSpeedAction::decode,
+            AzControllerSetAnimationSpeedAction::encode
+        );
+        register(
+            AzControllerSetEasingTypeAction.RESOURCE_LOCATION,
+            AzControllerSetEasingTypeAction::decode,
+            AzControllerSetEasingTypeAction::encode
+        );
+        register(
+            AzControllerSetTransitionSpeedAction.RESOURCE_LOCATION,
+            AzControllerSetTransitionSpeedAction::decode,
+            AzControllerSetTransitionSpeedAction::encode
+        );
+        register(
+            AzControllerSetStartTickOffsetAction.RESOURCE_LOCATION,
+            AzControllerSetStartTickOffsetAction::decode,
+            AzControllerSetStartTickOffsetAction::encode
+        );
+        register(
+            AzControllerSetFreezeTickAction.RESOURCE_LOCATION,
+            AzControllerSetFreezeTickAction::decode,
+            AzControllerSetFreezeTickAction::encode
+        );
+        register(
+            AzControllerSetRepeatTimesAction.RESOURCE_LOCATION,
+            AzControllerSetRepeatTimesAction::decode,
+            AzControllerSetRepeatTimesAction::encode
+        );
+        register(
+            AzControllerSetReverseAction.RESOURCE_LOCATION,
+            AzControllerSetReverseAction::decode,
+            AzControllerSetReverseAction::encode
         );
     }
 

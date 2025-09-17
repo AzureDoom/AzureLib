@@ -13,6 +13,7 @@ import org.joml.Vector4f;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.util.RenderUtils;
 
@@ -240,5 +241,9 @@ public class AzModelRenderer<T> {
     @Nullable
     public ResourceLocation getTextureOverrideForBone(AzBone bone, T animatable, float partialTick) {
         return null;
+    }
+
+    public void handleAnimation(AzAnimator<T> animator, T animatable, float partialTick) {
+        animator.animate(animatable, partialTick);
     }
 }

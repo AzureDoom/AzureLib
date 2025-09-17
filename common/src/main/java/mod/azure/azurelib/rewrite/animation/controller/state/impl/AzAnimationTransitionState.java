@@ -16,12 +16,28 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
 
     public AzAnimationTransitionState() {}
 
+    /**
+     * Invoked when the transition state is entered in the animation state machine. This method performs the necessary
+     * setup for transitioning between animations, including calling the superclass's `onEnter` method and invoking the
+     * `prepareTransition` method to initialize the transition process.
+     *
+     * @param context the context of the animation state machine, providing access to the animation controller,
+     *                animation context, and references to the state machine
+     */
     @Override
     public void onEnter(AzAnimationControllerStateMachine.Context<T> context) {
         super.onEnter(context);
         prepareTransition(context);
     }
 
+    /**
+     * Updates the transition state of the animation controller. This method checks whether the transition period has
+     * been completed and determines the appropriate next action, such as transitioning to the play state or continuing
+     * the transition by updating keyframes.
+     *
+     * @param context The context of the animation controller state machine, providing the current animation controller,
+     *                animation context, and state machine associated with this update.
+     */
     @Override
     public void onUpdate(AzAnimationControllerStateMachine.Context<T> context) {
         var controller = context.animationController();
@@ -49,6 +65,13 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
         }
     }
 
+    /**
+     * Prepares the animation transition process by resetting the necessary components, updating callbacks, caching bone
+     * snapshots, and setting the next animation in the animation controller.
+     *
+     * @param context The context of the animation controller state machine, providing the animation context, animation
+     *                controller, and references required for processing the transition.
+     */
     private void prepareTransition(AzAnimationControllerStateMachine.Context<?> context) {
         var animContext = context.animationContext();
         var boneCache = animContext.boneCache();

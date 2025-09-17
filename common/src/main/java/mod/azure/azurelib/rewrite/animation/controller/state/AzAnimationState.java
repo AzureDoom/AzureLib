@@ -5,7 +5,7 @@ import mod.azure.azurelib.rewrite.util.state.State;
 
 /**
  * Represents an abstract animation state within the {@link AzAnimationControllerStateMachine}. Each concrete
- * implementation of this class defines specific behavior for managing animations during state transitions. <br/>
+ * implementation of this class defines a specific behavior for managing animations during state transitions. <br/>
  * <br/>
  * The animation state lifecycle consists of three primary methods:
  * <ul>
@@ -25,6 +25,14 @@ public abstract class AzAnimationState<T> implements State<AzAnimationController
         this.isActive = false;
     }
 
+    /**
+     * Invoked when the state is entered in the animation state machine. This method is responsible for initializing the
+     * state and marking it as active. Subclasses may override this method to define additional setup logic specific to
+     * the state being entered.
+     *
+     * @param context the context associated with the state machine, providing access to the animation controller,
+     *                animation context, and references to the state machine
+     */
     @Override
     public void onEnter(AzAnimationControllerStateMachine.Context<T> context) {
         this.isActive = true;
@@ -34,6 +42,14 @@ public abstract class AzAnimationState<T> implements State<AzAnimationController
         return isActive;
     }
 
+    /**
+     * Handles the exit operations when this animation state is transitioned out of. This method is invoked as part of
+     * the state's lifecycle, specifically during the transition from the current state to another state in the
+     * animation controller's state machine. It deactivates the current state by setting its active status to false.
+     *
+     * @param context the context associated with the state machine, which provides access to the animation controller,
+     *                animation context, and state machine itself
+     */
     @Override
     public void onExit(AzAnimationControllerStateMachine.Context<T> context) {
         this.isActive = false;

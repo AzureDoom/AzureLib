@@ -27,9 +27,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     private final AzEntityRendererConfig<T> config;
 
-    private final AzProvider<T> provider;
+    protected final AzProvider<T> provider;
 
-    private final AzEntityRendererPipeline<T> rendererPipeline;
+    protected final AzEntityRendererPipeline<T> rendererPipeline;
 
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;

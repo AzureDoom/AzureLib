@@ -38,6 +38,9 @@ public class AzAnimationStagePropertiesCodec {
                     var startTickOffset = buf.readNullable(FriendlyByteBuf::readDouble);
                     properties = properties.withStartTickOffset(startTickOffset != null ? startTickOffset : 0D);
                 }
+                case 5 -> properties = properties.withFreezeTickOffset(buf.readDouble());
+                case 6 -> properties = properties.withRepeatXTimes(buf.readDouble());
+                case 7 -> properties = properties.withShouldReverse(buf.readBoolean());
             }
         }
 
@@ -51,6 +54,9 @@ public class AzAnimationStagePropertiesCodec {
         propertyLength += properties.hasEasingType() ? 1 : 0;
         propertyLength += properties.hasPlayBehavior() ? 1 : 0;
         propertyLength += properties.hasStartTickOffset() ? 1 : 0;
+        propertyLength += properties.hasFreezeTickOffset() ? 1 : 0;
+        propertyLength += properties.hasRepeatXTimes() ? 1 : 0;
+        propertyLength += properties.hasReversing() ? 1 : 0;
 
         buf.writeByte(propertyLength);
 
@@ -77,6 +83,21 @@ public class AzAnimationStagePropertiesCodec {
         if (properties.hasStartTickOffset()) {
             buf.writeByte(4);
             buf.writeDouble(properties.startTickOffset());
+        }
+
+        if (properties.hasFreezeTickOffset()) {
+            buf.writeByte(5);
+            buf.writeDouble(properties.freezeTickOffset());
+        }
+
+        if (properties.hasRepeatXTimes()) {
+            buf.writeByte(6);
+            buf.writeDouble(properties.repeatXTimes());
+        }
+
+        if (properties.hasReversing()) {
+            buf.writeByte(7);
+            buf.writeBoolean(properties.isReversing());
         }
     };
 }

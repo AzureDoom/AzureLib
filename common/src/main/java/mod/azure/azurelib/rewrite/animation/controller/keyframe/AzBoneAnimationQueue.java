@@ -127,10 +127,6 @@ public record AzBoneAnimationQueue(
         AzAnimationPoint nextYPoint,
         AzAnimationPoint nextZPoint
     ) {
-        if (startSnapshot == null) {
-            AzureLib.LOGGER.warn("Warning: startSnapshot is null. Animation may not behave as expected.");
-            return;
-        }
         addPosXPoint(
             keyframe,
             lerpedTick,
@@ -341,6 +337,10 @@ public record AzBoneAnimationQueue(
         AzAnimationPoint nextYPoint,
         AzAnimationPoint nextZPoint
     ) {
+        if (startSnapshot == null) {
+            AzureLib.LOGGER.warn("Warning: startSnapshot is null. Animation may not behave as expected.");
+            return;
+        }
         addRotationXPoint(
             keyframe,
             lerpedTick,
