@@ -1,4 +1,4 @@
-v3.0.15
+v3.1.0
 
 ### Changes
 - Rewrote in Multiloader
