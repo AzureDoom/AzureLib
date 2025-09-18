@@ -1,0 +1,52 @@
+{
+	"variants": {
+		"level=0": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=1": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=2": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=3": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=4": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=5": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=6": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=7": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=8": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=9": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=10": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=11": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=12": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=13": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=14": {
+			"model": "azurelib:block/lightblock"
+		},
+		"level=15": {
+			"model": "azurelib:block/lightblock"
+		}
+	}
+}
