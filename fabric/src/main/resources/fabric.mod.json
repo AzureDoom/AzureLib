@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "AzureDoom, Gecko, Eliot, Chappie, DerToaster, Tslat, Bvanseg"
+  ],
+  "contact": {
+    "homepage": "${mod_url}",
+    "issues": "${mod_issues}",
+    "sources": "${mod_sources}"
+  },
+  "license": "${mod_license}",
+  "icon": "${mod_logo}",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mod.azure.azurelib.FabricAzureLibMod"
+    ],
+    "client": [
+      "mod.azure.azurelib.ClientListener"
+    ],
+    "modmenu": [
+      "mod.azure.azurelib.integration.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "azurelib.mixins.json",
+    "azurelib.fabric.mixins.json"
+  ],
+  "accessWidener": "azurelib.aw",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "java": ">=17",
+    "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
+  }
+}
