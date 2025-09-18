@@ -215,7 +215,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
             rotationYaw += (float) (Math.cos(animatable.tickCount * 3.25d) * Math.PI * 0.4d);
         }
 
-	    if (animatable.getPose() != Pose.SLEEPING) {
+        if (animatable.getPose() != Pose.SLEEPING) {
             poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
         }
 

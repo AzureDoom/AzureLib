@@ -4,14 +4,15 @@
  */
 package mod.azure.azurelib.config;
 
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.client.IValidationHandler;
 import mod.azure.azurelib.config.validate.ValidationResult;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 @Config(id = AzureLib.MOD_ID)
 public final class TestingConfig {

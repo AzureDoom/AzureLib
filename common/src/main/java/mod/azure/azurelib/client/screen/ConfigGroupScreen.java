@@ -7,14 +7,14 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import mod.azure.azurelib.client.DisplayAdapter;
 import mod.azure.azurelib.client.widget.ConfigEntryWidget;
 import mod.azure.azurelib.config.ConfigHolder;
-import net.minecraft.network.chat.TranslatableComponent;
-import org.jetbrains.annotations.NotNull;
 
 import static mod.azure.azurelib.client.screen.AbstractConfigScreen.FOOTER_HEIGHT;
 import static mod.azure.azurelib.client.screen.AbstractConfigScreen.HEADER_HEIGHT;

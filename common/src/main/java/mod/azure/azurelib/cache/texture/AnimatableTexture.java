@@ -45,8 +45,8 @@ public class AnimatableTexture extends SimpleTexture {
 
     @Override
     public void load(ResourceManager manager) throws IOException {
-	    Resource resource = manager.getResource(this.location);
-	    AnimationMetadataSection animMeta = resource.getMetadata(AnimationMetadataSection.SERIALIZER);
+        Resource resource = manager.getResource(this.location);
+        AnimationMetadataSection animMeta = resource.getMetadata(AnimationMetadataSection.SERIALIZER);
 
         if (animMeta != null) {
             NativeImage nativeImage;

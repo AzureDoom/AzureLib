@@ -43,7 +43,7 @@ public class TickingLightBlock extends BaseEntityBlock {
             BlockBehaviour.Properties.of(Material.AIR)
                 .sound(SoundType.CANDLE)
                 .lightLevel(TickingLightBlock.LIGHT_EMISSION)
-	            .noDrops()
+                .noDrops()
                 .noCollission()
                 .noOcclusion()
         );

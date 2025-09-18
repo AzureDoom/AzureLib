@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import mod.azure.azurelib.client.widget.ConfigEntryWidget;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.validate.NotificationSeverity;
 import mod.azure.azurelib.config.value.ConfigValue;
-import org.jetbrains.annotations.NotNull;
 
 public class ConfigScreen extends AbstractConfigScreen {
 

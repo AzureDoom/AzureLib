@@ -5,12 +5,12 @@
 package mod.azure.azurelib.client;
 
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.regex.Pattern;
 
 import mod.azure.azurelib.config.value.DecimalValue;
 import mod.azure.azurelib.config.value.IntegerValue;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public final class ClientErrors {
 

@@ -128,17 +128,17 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
             throw new IOException("Failed to load original texture: " + this.textureBase, e);
         }
 
-	    Resource textureBaseResource = resourceManager.getResource(this.textureBase);
-	    NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture
-		                            ? dynamicTexture.getPixels()
-		                            : NativeImage.read(textureBaseResource.getInputStream());
-	    NativeImage glowImage = null;
-	    TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata(TextureMetadataSection.SERIALIZER);
-	    boolean blur = textureBaseMeta != null && textureBaseMeta.isBlur();
-	    boolean clamp = textureBaseMeta != null && textureBaseMeta.isClamp();
+        Resource textureBaseResource = resourceManager.getResource(this.textureBase);
+        NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture
+            ? dynamicTexture.getPixels()
+            : NativeImage.read(textureBaseResource.getInputStream());
+        NativeImage glowImage = null;
+        TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata(TextureMetadataSection.SERIALIZER);
+        boolean blur = textureBaseMeta != null && textureBaseMeta.isBlur();
+        boolean clamp = textureBaseMeta != null && textureBaseMeta.isClamp();
 
         try {
-	        Resource glowLayerResource = resourceManager.getResource(this.glowLayer);
+            Resource glowLayerResource = resourceManager.getResource(this.glowLayer);
             GeoGlowingTextureMeta glowLayerMeta = null;
 
             if (glowLayerResource != null) {
@@ -158,7 +158,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
                 glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(glowImage);
             } else {
-	            GeoGlowingTextureMeta meta = textureBaseResource.getMetadata(GeoGlowingTextureMeta.DESERIALIZER);
+                GeoGlowingTextureMeta meta = textureBaseResource.getMetadata(GeoGlowingTextureMeta.DESERIALIZER);
 
                 if (meta != null) {
                     glowLayerMeta = meta;

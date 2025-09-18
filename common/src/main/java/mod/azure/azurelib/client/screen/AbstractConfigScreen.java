@@ -307,13 +307,13 @@ public abstract class AbstractConfigScreen extends Screen {
                 fadeMax,
                 fadeMax
             );
-	        RenderSystem.enableDepthTest();
-	        RenderSystem.disableTexture();
-	        RenderSystem.enableBlend();
-	        RenderSystem.defaultBlendFunc();
-	        bufferbuilder.end();
-	        BufferUploader.end(bufferbuilder);
-	        RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            bufferbuilder.end();
+            BufferUploader.end(bufferbuilder);
+            RenderSystem.enableTexture();
 
             if (!severity.isOkStatus()) {
                 ResourceLocation icon = severity.getIcon();
@@ -326,8 +326,8 @@ public abstract class AbstractConfigScreen extends Screen {
                 bufferbuilder.vertex(matrix4f, startX + min, startY + max, zIndex).uv(0.0F, 1.0F).endVertex();
                 bufferbuilder.vertex(matrix4f, startX + max, startY + max, zIndex).uv(1.0F, 1.0F).endVertex();
                 bufferbuilder.vertex(matrix4f, startX + max, startY + min, zIndex).uv(1.0F, 0.0F).endVertex();
-	            bufferbuilder.end();
-	            BufferUploader.end(bufferbuilder);
+                bufferbuilder.end();
+                BufferUploader.end(bufferbuilder);
             }
 
             RenderSystem.disableBlend();

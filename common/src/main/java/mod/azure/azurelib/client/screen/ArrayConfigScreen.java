@@ -42,7 +42,7 @@ public class ArrayConfigScreen<V, C extends ConfigValue<V> & ArrayValue> extends
 
     public ArrayConfigScreen(String ownerIdentifier, String configId, C array, Screen previous) {
         super(
-	        new TranslatableComponent(String.format("config.%s.option.%s", configId, ownerIdentifier)),
+            new TranslatableComponent(String.format("config.%s.option.%s", configId, ownerIdentifier)),
             previous,
             configId
         );

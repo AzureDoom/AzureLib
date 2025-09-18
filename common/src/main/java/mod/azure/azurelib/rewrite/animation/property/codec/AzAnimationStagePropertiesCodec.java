@@ -22,9 +22,9 @@ public class AzAnimationStagePropertiesCodec {
 
             switch (code) {
                 case 0 -> {
-	                var hasAnimationSpeed = buf.readBoolean();
-	                var animationSpeed = hasAnimationSpeed ? buf.readDouble() : 1D;
-	                properties = properties.withAnimationSpeed(animationSpeed);
+                    var hasAnimationSpeed = buf.readBoolean();
+                    var animationSpeed = hasAnimationSpeed ? buf.readDouble() : 1D;
+                    properties = properties.withAnimationSpeed(animationSpeed);
                 }
                 case 1 -> properties = properties.withTransitionLength(buf.readFloat());
                 case 2 -> {
@@ -36,9 +36,9 @@ public class AzAnimationStagePropertiesCodec {
                     properties = properties.withPlayBehavior(playBehavior);
                 }
                 case 4 -> {
-	                var hasTickOffset = buf.readBoolean();
-	                var startTickOffset = hasTickOffset ? buf.readDouble() : 0D;
-	                properties = properties.withStartTickOffset(startTickOffset);
+                    var hasTickOffset = buf.readBoolean();
+                    var startTickOffset = hasTickOffset ? buf.readDouble() : 0D;
+                    properties = properties.withStartTickOffset(startTickOffset);
                 }
                 case 5 -> properties = properties.withFreezeTickOffset(buf.readDouble());
                 case 6 -> properties = properties.withRepeatXTimes(buf.readDouble());

@@ -52,7 +52,7 @@ public interface DisplayAdapter {
                 y,
                 getValueWidth(width),
                 20,
-	            TextComponent.EMPTY
+                TextComponent.EMPTY
             );
             CharValue charValue = (CharValue) value;
             char character = charValue.get();
@@ -80,7 +80,7 @@ public interface DisplayAdapter {
                 y,
                 getValueWidth(width),
                 20,
-	            TextComponent.EMPTY
+                TextComponent.EMPTY
             );
             IntValue intValue = (IntValue) value;
             int num = intValue.get();
@@ -119,7 +119,7 @@ public interface DisplayAdapter {
                 y,
                 getValueWidth(width),
                 20,
-	            TextComponent.EMPTY
+                TextComponent.EMPTY
             );
             LongValue longValue = (LongValue) value;
             long num = longValue.get();
@@ -158,7 +158,7 @@ public interface DisplayAdapter {
                 y,
                 getValueWidth(width),
                 20,
-	            TextComponent.EMPTY
+                TextComponent.EMPTY
             );
             FloatValue floatValue = (FloatValue) value;
             DecimalFormat format = ConfigUtils.getDecimalFormat(field);
@@ -198,7 +198,7 @@ public interface DisplayAdapter {
                 y,
                 getValueWidth(width),
                 20,
-	            TextComponent.EMPTY
+                TextComponent.EMPTY
             );
             DoubleValue doubleValue = (DoubleValue) value;
             DecimalFormat format = ConfigUtils.getDecimalFormat(field);
@@ -241,7 +241,7 @@ public interface DisplayAdapter {
                     y,
                     getValueWidth(width),
                     20,
-	                TextComponent.EMPTY
+                    TextComponent.EMPTY
                 );
                 String val = strValue.get();
                 tfw.setValue(val);
