@@ -28,8 +28,8 @@ public class ClientModListener {
             optional.ifPresent(modContainer -> {
                 List<ConfigHolder<?>> list = entry.getValue();
                 modContainer.registerExtensionPoint(
-	                ConfigGuiHandler.ConfigGuiFactory.class,
-	                () -> new ConfigGuiHandler.ConfigGuiFactory((minecraft, screen) -> {
+                    ConfigGuiHandler.ConfigGuiFactory.class,
+                    () -> new ConfigGuiHandler.ConfigGuiFactory((minecraft, screen) -> {
                         if (list.size() == 1) {
                             return AzureLibClient.getConfigScreen(list.get(0).getConfigId(), screen);
                         }

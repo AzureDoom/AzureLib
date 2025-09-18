@@ -61,7 +61,10 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
         buf.writeByte(Mth.floor(entity.getYRot() * 256.0F / 360.0F));
         buf.writeFloat(entity.getXRot());
         buf.writeFloat(entity.getYRot());
-        return (Packet<ClientGamePacketListener>) ServerPlayNetworking.createS2CPacket(AzureLibNetwork.CUSTOM_ENTITY_ID, buf);
+        return (Packet<ClientGamePacketListener>) ServerPlayNetworking.createS2CPacket(
+            AzureLibNetwork.CUSTOM_ENTITY_ID,
+            buf
+        );
     }
 
     public FriendlyByteBuf createFriendlyByteBuf() {
