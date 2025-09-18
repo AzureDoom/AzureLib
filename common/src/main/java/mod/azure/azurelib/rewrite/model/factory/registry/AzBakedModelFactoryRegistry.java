@@ -24,15 +24,6 @@ public class AzBakedModelFactoryRegistry {
         return FACTORIES.getOrDefault(namespace, DEFAULT_FACTORY);
     }
 
-    /**
-     * Register a custom {@link AzBakedModelFactory} to handle loading models in a custom way.<br>
-     * <b><u>MUST be called during mod construct</u></b><br>
-     * It is recommended you don't call this directly, and instead call it via
-     * {@link AzureLibUtil#addCustomBakedModelFactory}
-     *
-     * @param namespace The namespace (modid) to register the factory for
-     * @param factory   The factory responsible for model loading under the given namespace
-     */
     public static void register(String namespace, AzBakedModelFactory factory) {
         FACTORIES.put(namespace, factory);
     }
