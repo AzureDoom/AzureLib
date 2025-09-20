@@ -157,7 +157,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
     public ExampleEntityRenderer() {
         super(
-            AzBlockEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
+            AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
                 .setAnimatorProvider(ExampleEntityAnimator::new).build()
         );
     }
