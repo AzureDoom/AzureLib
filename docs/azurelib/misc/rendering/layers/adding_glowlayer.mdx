@@ -62,6 +62,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
    - Ensure the glow texture is named correctly (must include `_glowmask`).
 
 2. **Texture Not Found:**
+   - Symptom: Entity model renders completely black on the exterior of the model.
    - Double-check that your main texture file is correctly registered in the renderer.
    - Confirm the model uses a texture location that matches your `_glowmask` texture pairing logic.
 
@@ -71,4 +72,4 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
 ### Advanced Configuration (Optional)
 
-The `AzAutoGlowingLayer` uses a packed light value of `0xF00000` by default for the glow layer render. If you want to customize the glow intensity or modify other behaviors, consider creating a custom layer by extending `AzAutoGlowingLayer`.
+The `AzAutoGlowingLayer` uses a packed light value of `0xF00000` by default for the glow layer render. If you want to customize the glow intensity or modify other behaviors, consider creating a custom layer by extending the `AzAutoGlowingLayer` class and overriding the methods.
