@@ -39,16 +39,19 @@ animationControllerContainer.add(
 
 ```java
 public class MyEntityDispatcher {
+
+    public static final AzCommand GENERIC_ATTACK_COMMAND = AzCommand.create("attack_controller", "attack", AzPlayBehaviors.PLAY_ONCE)
+
     private final Entity entity;
 
     public MyEntityDispatcher(Entity animatable) {this.entity = animatable;}
-
-    public static final AzCommand GENERIC_ATTACK_COMMAND = AzCommand.create("attack_controller", "attack", AzPlayBehaviors.PLAY_ONCE)
-    public void genericAttack()   {GENERIC_ATTACK_COMMAND.sendForEntity(entity);}
+    
+    public void genericAttack() {
+		GENERIC_ATTACK_COMMAND.sendForEntity(entity);
+	}
 
     // ... Rest of the Entity Animation Dispatcher code
 }
-
 ```
 
 ## Calling the Animation
