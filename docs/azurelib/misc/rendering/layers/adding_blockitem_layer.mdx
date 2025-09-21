@@ -172,6 +172,17 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE_LOCATION =
         ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
+    @Override
+    protected AzEntityRendererPipeline<YourEntity> createPipeline(AzEntityRendererConfig<YourEntity> config) {
+        return new AzEntityRendererPipeline<>(config, this) {
+
+            @Override
+            protected AzModelRenderer<YourEntity> createModelRenderer(AzLayerRenderer<YourEntity> layerRenderer) {
+                return new YourModelRenderer(this, layerRenderer);
+            }
+        };
+    }
+
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
