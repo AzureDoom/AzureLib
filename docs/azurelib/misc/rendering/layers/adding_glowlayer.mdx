@@ -58,11 +58,11 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 ### Troubleshooting
 
 1. **Glow Effect Not Visible:**
+   - Symptom: Entity model renders completely black on the exterior of the model.
    - Verify that your `_glowmask` texture is in the correct file path.
    - Ensure the glow texture is named correctly (must include `_glowmask`).
 
 2. **Texture Not Found:**
-   - Symptom: Entity model renders completely black on the exterior of the model.
    - Double-check that your main texture file is correctly registered in the renderer.
    - Confirm the model uses a texture location that matches your `_glowmask` texture pairing logic.
 
