@@ -47,7 +47,7 @@ public class ExampleEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) {
+        if (this.level.isClientSide) {
             animationDispatcher.idle();
         }
     }

@@ -134,8 +134,8 @@ Example of playing a death animation, movement animations and an idle animation.
         super.tick();
         moveAnalysis.update();
 
-        if (this.level().isClientSide) {
-            var isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
+        if (this.level.isClientSide) {
+            var isMovingOnGround = moveAnalysis.isMovingHorizontally() && isOnGround();
             Runnable animationRunner;
             if (!this.isAlive()) { // if dead, play death animation
                 animationRunner = animationDispatcher::death;

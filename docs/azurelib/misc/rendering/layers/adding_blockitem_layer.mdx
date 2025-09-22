@@ -62,16 +62,16 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
 2. **`getTransformTypeForStack`**:
    - Determines the display context for rendering items.
    - For example:
-     - `ItemDisplayContext.THIRD_PERSON_RIGHT_HAND` for the right hand.
-     - `ItemDisplayContext.THIRD_PERSON_LEFT_HAND` for the left hand.
+     - `ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND` for the right hand.
+     - `ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND` for the left hand.
 
    ```java
    @Override
-   protected ItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
+   protected ItemTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
        return switch (bone.getName()) {
-           case "rightHandBone" -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-           case "leftHandBone" -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-           default -> ItemDisplayContext.NONE;
+           case "rightHandBone" -> ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+           case "leftHandBone" -> ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+           default -> ItemTransforms.TransformType.NONE;
        };
    }
    ```
@@ -85,7 +85,7 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    ```java
    @Override
    protected void renderItemForBone(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-       context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+       context.poseStack().mulPose(Vector3f.XP.rotationDegrees(270));
        context.poseStack().translate(0.0D, 0.1D, -0.1D);
        super.renderItemForBone(context, bone, itemStack, animatable);
    }
@@ -150,7 +150,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
                             @Override
                             protected void renderItemForBone(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-                                context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+                                context.poseStack().mulPose(Vector3f.XP.rotationDegrees(270));
                                 context.poseStack().translate(0.0D, 0.1D, -0.1D);
                                 super.renderItemForBone(context, bone, itemStack, animatable);
                             }
