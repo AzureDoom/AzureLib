@@ -21,8 +21,6 @@ It connects the item with the following:
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azitemrendererconfig) for all AzItemRendererConfig#builder options.
 
     See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicitemmodelrenderer) for advanced options such as setting a render type or texture per bone.
-
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
 <Callout variant="warning">
     There is currently a bug in the plugin which exports the displays with an offset applied, please use useNewOffset(true) in your AzItemRendererConfig builder to fix this.
@@ -30,12 +28,12 @@ It connects the item with the following:
 
 ```java
 public class ExampleItemRenderer extends AzItemRenderer {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation GEO = new ResourceLocation(
         YOUR_MOD_ID,
         "geo/item/exampleitem.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation TEX = new ResourceLocation(
         YOUR_MOD_ID,
         "textures/item/exampleitem.png"
     );

@@ -22,18 +22,16 @@ It connects the armor with the following:
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azarmorrendererconfig) for all AzArmorRendererConfig#builder options.
 
     See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicarmormodelrenderer) for advanced options such as setting a render type or texture per bone.
-
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
 
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation GEO = new ResourceLocation(
         YOUR_MOD_ID,
         "geo/item/examplearmor.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation TEX = new ResourceLocation(
         YOUR_MOD_ID,
         "textures/item/examplearmor.png"
     );
