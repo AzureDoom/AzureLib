@@ -1,0 +1,22 @@
+{
+    "animators": {
+        "name": "Animators",
+        "icon": "Film"
+    },
+    "animation_controller_builder.mdx": {
+        "name": "Animation Controller Builder",
+        "icon": "Info"
+    },
+    "azcommands_101.mdx": {
+        "name": "AzCommands 101",
+        "icon": "Info"
+    },
+    "animating_in_code.mdx": {
+        "name": "Animating Bones In-Code",
+        "icon": "Info"
+    },
+    "animation_includes.mdx": {
+        "name": "Using the inclusion feature in Animation JSON",
+        "icon": "Info"
+    }
+}

@@ -1,0 +1,62 @@
+---
+title: Entity AzAnimator Basics
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have looked at the [AzAnimator Basics](../animators/base_animator)  page
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/entities/)
+</Callout>
+
+The `AzEntityAnimator` is a framework specifically designed to handle animations for `Entity` instances in AzureLib. By extending the base functionality of `AzAnimator`, it provides an easy-to-use API for creating animation systems tailored to entities.
+
+## Overview of AzEntityAnimator
+
+The `AzEntityAnimator` builds on the generic animation system outlined in the `AzAnimator` but focuses explicitly on animating **entities**. It simplifies entity animation setup and configuration by abstracting much of the common functionality.
+
+### Key Features
+- Purpose-built for animating `Entity` instances.
+- Maintains compatibility with AzureLib's baked animation and MoLang systems.
+- Fully integrates with the `AzAnimator` APIs, including animation controllers and context handling.
+
+### Constructor
+
+The `AzEntityAnimator` requires a configuration object (`AzAnimatorConfig`) to initialize:
+```java
+public AzEntityAnimator(AzAnimatorConfig config) { super(config); }
+```
+
+To simplify setup, you can use the `defaultConfig` for common scenarios:
+```java
+public YourEntityAnimator() { super(AzAnimatorConfig.defaultConfig()); }
+```
+
+## Example: YourEntityAnimator
+
+Below is a working example of a custom animator for a entity, `YourEntity`, using the `AzEntityAnimator`.
+
+```java
+java public class YourEntityAnimator extends AzEntityAnimator<YourEntity> {
+    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+        "animations/entity/yourentity.animation.json"
+    );
+
+    public YourEntityAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<YourEntity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(YourEntity animatable) {
+        return ANIMATIONS;
+    }
+}
+```

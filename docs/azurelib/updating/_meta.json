@@ -1,0 +1,18 @@
+{
+    "armor.mdx": {
+        "name": "Updating Armors",
+        "icon": "Plus"
+    },
+    "blockentities.mdx": {
+        "name": "Updating Block Entities",
+        "icon": "Plus"
+    },
+    "entities.mdx": {
+        "name": "Updating Entities",
+        "icon": "Plus"
+    },
+    "items.mdx": {
+        "name": "Updating Items",
+        "icon": "Plus"
+    }
+}

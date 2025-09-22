@@ -1,0 +1,56 @@
+---
+title: Creating Static (No Animations) Armor
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/items/armors)
+</Callout>
+# How to create static Armor
+
+## Creating your Renderer
+
+This renderer is responsible for how your armor is displayed in the game.
+
+It connects the armor with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the armor.
+2. **Texture file (`.png`)**: The visual appearance of the armor (applies over the geometry).
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azarmorrendererconfig) for all AzArmorRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicarmormodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(AzArmorRendererConfig.builder(GEO, TEX).build());
+    }
+}
+```
+
+## Registering your Renderer
+
+Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS);
+```
