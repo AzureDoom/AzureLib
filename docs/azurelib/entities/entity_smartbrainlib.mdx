@@ -1,0 +1,95 @@
+---
+title: Animating Entities Within SmartBrainLib Tasks
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have previously set up a SmartBrainOwner entity with [SmartBrainLib](https://github.com/Tslat/SmartBrainLib/wiki/Making-an-Entity-With-SmartBrainLib).
+
+    This page additionally assumes you have set up an entity as described in [Animating Entities](../entities/entities).
+
+    Any code for AzureLib 2.x is shown as reference for upgrading to AzureLib 3.x.
+</Callout>
+
+# How to animate Entities with SmartBrainLib tasks
+
+AzureLib supports using SmartBrainLib to handle animating entities within their AI, allowing for animations, such as attack animations, to be programmed into the entity itself and called when the entity AI performs said task(s).
+
+## Adding a new AnimationController
+
+Within your entity's `AzEntityAnimator` class, within the `registerControllers` method, you can add a secondary `AzAnimationController`, like so:
+
+<CodeTabs>
+
+```java !!tabs AzureLib 2.x/Geckolib
+// ... Somewhere in your project
+public static final RawAnimation ATTACK = RawAnimation.begin().then("attack", LoopType.PLAY_ONCE);
+
+// ... In registerControllers
+.add(new AnimationController<>(this, "attackController", 1, event -> PlayState.STOP).triggerableAnim("melee", ATTACK));
+```
+
+```java !!tabs AzureLib 3.x
+animationControllerContainer.add(
+  AzAnimationController.builder(this, "attack_controller").build()
+);
+```
+
+</CodeTabs>
+
+## Defining the Dispatcher
+
+**The following section is only applicable to Azurelib 3.x**
+
+```java
+public class MyEntityDispatcher {
+
+    public static final AzCommand GENERIC_ATTACK_COMMAND = AzCommand.create("attack_controller", "attack", AzPlayBehaviors.PLAY_ONCE)
+
+    private final Entity entity;
+
+    public MyEntityDispatcher(Entity animatable) {this.entity = animatable;}
+
+    public void genericAttack() {
+		GENERIC_ATTACK_COMMAND.sendForEntity(entity);
+	}
+
+    // ... Rest of the Entity Animation Dispatcher code
+}
+```
+
+## Calling the Animation
+
+Within your entity's `BrainActivityGroup` method, within the `Behavior[]` lists, you can utilize a lambda to extend the function of an existing Behavior, like so:
+
+<CodeTabs>
+
+```java !!tabs AzureLib 2.x/Geckolib
+// ... Within getFightTasks()
+(new AnimatableMeleeAttack<>(0)).whenStarting((entity) -> {this.triggerAnim("attackController", "melee");})
+```
+
+```java !!tabs AzureLib 3.x
+// ... Within getFightTasks()
+(new AnimatableMeleeAttack<>(0)).whenStarting((entity) -> {this.dispatcher.genericAttack();})
+```
+
+</CodeTabs>
+
+This example has an entity performing a generic melee attack animation immediately when the attack task begins.
+
+
+### Tips for Animating with SmartBrainLib and AzureLib
+
+1. **Unified names:**
+   - AzureLib fully supports the use of enums and string variables in place of directly providing strings.
+   - Using variables instead of strings helps reduce errors caused by typos or inconsistencies, and is generally a good practice.
+   - For the purposes of keeping documentation simple, the practice of making a common entity Dispatcher and Animator class was not used.
+2. **Tasks with hit delays:**
+   - When timing attack animations with the hit calculation, remember that Minecraft performs calculations at a speed of 20 ticks per second
+   - To change the delay, such as if the hit calculation should sync at 0.5 seconds, you would set the tick delay to (for example) `AnimatableMeleeAttack<>(10)`, where `10` is the equivalent to `0.5` seconds in real time.
+3. **Stopping all movement to perform an animation:**
+   - With the above in consideration, in the `whenStarting()` method, a status effect can be applied to the entity, as so:
+       ```java
+       this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10, 20, false, false));
+       ```
