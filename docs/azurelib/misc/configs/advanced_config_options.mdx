@@ -1,0 +1,127 @@
+---
+title: Using the Config API
+hide_meta: true
+---
+
+<Callout variant="warning">
+The configuration API is only for versions 1.16.5 and higher.
+</Callout>
+
+# Configuration Annotations Guide
+
+This various annotations that can be used to customize configuration values within your mod, focusing on applying constraints, cosmetic properties, and advanced behaviors.
+
+## `@Comment`
+Adds a description to a configurable value. This description will be visible on hover in GUIs or in the configuration file (if the file format supports comments).
+
+**Usage Example**:
+```java
+@Configurable
+@Comment("This value controls whether vanilla mechanics are used.")
+public boolean useVanillaMechanics = true;
+```
+
+## `@Synchronized`
+
+Synchronizes the value between client and server when a client joins the server. Note that the client’s config file is not rewritten, and the original values will be recovered upon leaving the server.
+
+**Usage Example**:
+```java
+@Configurable
+@Synchronized
+public boolean syncFeatureToggle = true;
+```
+
+## `@Range`
+
+Specifies a numeric range for integer or long values and their corresponding arrays.
+
+**Usage Example**:
+```java
+@Configurable
+@Range(min = 0, max = 100)
+public int maxPlayers = 20;
+```
+
+## `@DecimalRange`
+
+Specifies a numeric range for floating-point or double values, also applied to arrays of those types.
+
+**Usage Example**:
+```java
+@Configurable
+@DecimalRange(min = 0.0, max = 1.0)
+public double spawnRate = 0.5;
+```
+
+## `@StringPattern`
+
+Validates string values against a regular expression and optionally applies a default value for invalid inputs.
+
+**Usage Example**:
+```java
+@Configurable
+@StringPattern(value = "^[a-zA-Z0-9_]+$", errorDescriptor = "String must be alphanumeric.")
+public String username = "DefaultUser";
+```
+
+## `@FixedSize`
+
+Locks an array's size to its default value.
+
+**Usage Example**:
+```java
+@Configurable
+@FixedSize
+public int[] fixedArray = {1, 2, 3};
+```
+
+## `@ValueUpdateCallback`
+
+Links a configuration field to a custom method for validation or additional behaviors whenever the value changes.
+
+**Usage Example**:
+```java
+@Configurable
+@ValueUpdateCallback(method = "onValueChange")
+public int customRange = 10;
+
+public void onValueChange(int value, IValidationHandler validationHandler) {
+    if (value < 0) {
+        validationHandler.invalidate("Value must be positive!");
+    }
+}
+```
+
+## `@Gui.NumberFormat`
+
+Specifies a custom number format for floats and doubles in the GUI.
+
+**Usage Example**:
+```java
+@Configurable
+@Gui.NumberFormat("0.00")
+public float roundedValue = 3.14f;
+```
+
+## `@Gui.ColorValue`
+
+Adds a color preview for string values in the GUI.
+
+**Usage Example**:
+```java
+@Configurable
+@Gui.ColorValue(isARGB = true)
+public String colorCode = "#FFFFFF";
+```
+
+## `@Gui.CharacterLimit`
+
+Sets a maximum character length for text fields in the configuration GUI.
+
+**Usage Example**:
+```java
+@Configurable
+@Gui.CharacterLimit(16)
+public String playerName = "DefaultName";
+```

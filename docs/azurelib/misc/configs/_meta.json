@@ -1,0 +1,10 @@
+{
+    "config_api.mdx": {
+        "name": "Config API",
+        "icon": "Notebook"
+    },
+    "advanced_config_options.mdx": {
+        "name": "Advanced Config Options",
+        "icon": "Notebook"
+    }
+}

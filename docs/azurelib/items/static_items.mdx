@@ -1,0 +1,57 @@
+---
+title: Creating Static (No Animations) Items
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/items)
+</Callout>
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom item is displayed in the game.
+
+It connects the item with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the item.
+2. **Texture file (`.png`)**: The visual appearance of the item (applies over the geometry).
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azitemrendererconfig) for all AzItemRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicitemmodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+<Callout variant="warning">
+    There is currently a bug in the plugin which exports the displays with an offset applied, please use useNewOffset(true) in your AzItemRendererConfig builder to fix this.
+</Callout>
+
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/exampleitem.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/exampleitem.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(GEO, TEX).build()
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Now simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+```

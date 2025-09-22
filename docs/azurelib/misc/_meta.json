@@ -1,0 +1,22 @@
+{
+    "animating": {
+        "name": "Animating Topics",
+        "icon": "Film"
+    },
+    "rendering": {
+        "name": "Rendering Topics",
+        "icon": "Info"
+    },
+    "configs": {
+        "name": "Config API",
+        "icon": "Notebook"
+    },
+    "azurenavigation_101.mdx": {
+        "name": "AzureNavigation 101",
+        "icon": "Info"
+    },
+    "misc.mdx": {
+        "name": "Miscellaneous Features",
+        "icon": "Info"
+    }
+}

@@ -1,0 +1,95 @@
+---
+title: Adding Custom Molang Queries
+hide_meta: true
+---
+
+<Callout variant="info">
+    See [How to use Molang](../blockbench/animating_in_bb#how-to-use-molang) for how to use your custom Molang Queries.
+</Callout>
+
+# Overview
+
+Custom Molang queries allow you to expose additional data to your animations. These queries can be registered and updated through your animator implementations.
+
+## Defining Custom Queries
+
+### Step 1: Define Query Constants
+
+First, define your custom query constants in your mods main class:
+
+```java
+public static final String MY_CUSTOM_VALUE = MolangQueries.normalize("query.my_custom_value");
+```
+
+### Step 2: Register Variables
+
+Create a method to register your variables, typically called during initialization:
+
+```java
+private void registerXModsVariables() {
+    MolangParser molangParser = new MolangParser();
+    molangParser.register(new LazyVariable(AzureLib.MY_CUSTOM_VALUE, 0));
+}
+```
+
+### Step 3: Implement Query Updates
+
+Override `applyMolangQueries` to update your query values during animation via your AzAnimator class:
+
+```java
+@Override
+protected void applyMolangQueries(T animatable, double animTime) {
+    super.applyMolangQueries(animatable, animTime);
+
+    MolangParser.INSTANCE.setMemoizedValue(ModClass.MY_CUSTOM_VALUE, () -> calculateValue());
+}
+```
+
+## Registration Methods
+
+### Memoized Values
+
+For values that don't need frequent updates:
+
+```java
+MolangParser.INSTANCE.setMemoizedValue(ModClass.MY_CUSTOM_VALUE, () -> calculateValue());
+
+private double calculateValue() {
+    // This method is typically used for values that don't change frequently
+    // For example, calculating a static property of an entity or block
+    double baseValue = 10.0;
+    double modifier = 1.5;
+    return baseValue * modifier;
+}
+```
+
+### Dynamic Values
+
+For values that need real-time updates:
+
+```java
+MolangParser.INSTANCE.setValue(ModClass.MY_CUSTOM_VALUE, () -> getUpdatedValue());
+
+private double getUpdatedValue() {
+    // This method is used for values that need real-time updates
+    // For example, getting an entity's current health or position
+    double currentTime = System.currentTimeMillis() / 1000.0;
+    return Math.sin(currentTime) * 10.0; // Creates a smooth oscillating value
+}
+```
+
+### Static Values
+
+For constant values:
+
+```java
+MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 42.0));
+```
+
+## Best Practices
+
+1. Always use `MolangQueries.normalize()` when defining query constants
+2. Define query constants as `public static final` fields
+3. Register variables during initialization
+4. Use memoized values when possible for better performance
+5. Keep query names descriptive and consistent

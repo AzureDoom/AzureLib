@@ -1,0 +1,245 @@
+---
+title: AzRendererConfigs 101
+hide_meta: true
+---
+
+# Everything You Need to Know About AzRendererConfigs
+
+The `AzRendererConfig` and its specialized subclasses (`AzArmorRendererConfig`, `AzBlockEntityRendererConfig`, `AzEntityRendererConfig`, and `AzItemRendererConfig`) are part of the AzureLib rendering pipeline.
+
+Below, you will find an overview of each class, their purposes, and fully configured real-world usage examples.
+
+## AzRendererConfig
+
+The base `AzRendererConfig` class serves as the foundation for all rendering configuration subclasses. Its features include:
+
+- **Model and texture locations**: Specify geo model and texture paths.
+- **Animation support**: Integrate animations using `AzAnimator`.
+- **Alpha configuration**: Customize object alpha value when RenderType supports it.
+- **Scaling options**: Customize object scaling during rendering.
+- **Render layers**: Add extra effects onto the rendering process.
+- **Render Stage Hooks**: Support hooks _before_, _during_, and _after_ rendering through customizable lambdas.
+- **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
+
+## AzArmorRendererConfig
+
+The `AzArmorRendererConfig` is explicitly designed for rendering **animated armor models**. It provides options such as:
+
+- **Bone providers**: A custom provider for managing custom bone structures
+
+### Example
+
+Here’s an example of setting up an armor renderer with full configuration options:
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "geo/armor/examplearmor.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/armor/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(
+            AzArmorRendererConfig.builder(MODEL, TEXTURE)
+                .setAnimatorProvider(CustomArmorAnimator::new) // Custom animations
+                .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleArmor -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .setAlpha(exampleArmor -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleArmor -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleArmor -> 1.0F, exampleArmor -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+## AzBlockEntityRendererConfig
+
+The `AzBlockEntityRendererConfig` specializes in rendering **block entities**.
+
+### Example
+
+Here’s an example of setting up a block entity renderer with full configuration options:
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+```java
+public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "geo/block/examplebe.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/block/examplebe.png"
+    );
+
+    public ExampleBERenderer() {
+        super(
+            AzBlockEntityRendererConfig.<ExampleBE>builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleBEAnimator::new) // Custom animator
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleBEEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .setAlpha(exampleBEEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleBEEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleBEEntity -> 1.0F, exampleBEEntity -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+This configuration adds scaling, render layers, hooks for pre- and post-rendering, and full animation support.
+
+## AzEntityRendererConfig
+
+The `AzEntityRendererConfig` supports rendering **entities** with death-specific behaviors such as rotation when the entity dies.
+
+### Example
+
+Here’s an example of setting up an entity renderer with full configuration options:
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "geo/entity/exampleentity.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/entity/exampleentity.png"
+    );
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
+                .setDeathMaxRotation(180F) // Custom death rotation
+                .setShadowRadius(1.0F) // Sets a shadow radius
+                .setShadowRadius(exampleEntity -> 1.0F) // Sets a shadow radius with context
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
+                .setPrerenderEntry(context2 -> {
+                    // Insert code you want to run here
+                    return context2;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context2 -> {
+                    // Insert code you want to run here
+                    return context2;
+                }) // Post-render hook
+                .setAlpha(exampleEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .build(),
+            context
+        );
+    }
+}
+```
+
+This implementation allows you to define rotations, animations, and layers for the entity.
+
+## AzItemRendererConfig
+
+The `AzItemRendererConfig` is tailored for rendering **items**.
+
+It extends the flexibility of `AzRendererConfig` by adding options for item-specific behaviors, such as GUI lighting and offset adjustments.
+
+### Example
+
+Here’s an example of setting up an item renderer with full configuration options:
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "geo/item/exampleitem.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/item/exampleitem.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleItemAnimator::new) // Custom animator
+                .useEntityGuiLighting() // Enable GUI lighting
+                .useNewOffset(true) // Use new offset for BlockBench 4.11+
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleItem -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .setAlpha(exampleItem -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleItem -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleItem -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+This setup provides GUI lighting support, offset handling, and numerous customization options for item rendering.
+
+---

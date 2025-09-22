@@ -1,0 +1,97 @@
+<ModAsset
+  width="100%"
+  title="Modrinth Download"
+  location="azurelib:header"
+/>
+
+## Developers
+To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
+
+<CodeTabs>
+
+```markdown !!tabs build.gradle
+repositories {
+	maven {
+		name = "AzureDoom Mods"
+		url = "https://maven.azuredoom.com/mods"
+	}
+}
+```
+
+</CodeTabs>
+
+### How AzureLib gets added to your dependencies varies based on modloader and setup.
+
+The Gradle property `MODVERSION` should be something like `3.0.0` with the Mod's version. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib)
+
+The Gradle property `MCVERSION` should be something like `1.21.1` with the Minecraft version.
+
+Here are common dependency setups for different loaders.
+
+<CodeTabs>
+
+```markdown !!tabs Common 1.19.2/1.20.1+ Latest Only
+dependencies {
+	compileOnly "mod.azure.azurelib:azurelib-common-MCVERSION:MODVERSION"
+}
+```
+
+```markdown !!tabs Fabric/Quilt
+dependencies {
+	modImplementation "mod.azure.azurelib:azurelib-fabric-MCVERSION:MODVERSION"
+}
+```
+
+```markdown !!tabs NeoForge
+dependencies {
+	implementation "mod.azure.azurelib:azurelib-neo-MCVERSION:MODVERSION"
+}
+```
+
+```markdown !!tabs Forge FG4+ (1.20.1 and lower)
+dependencies {
+    // 1.20.1
+	implementation fg.deobf("mod.azure.azurelib:azurelib-neo-MCVERSION:MODVERSION")
+	// 1.19.4 and older
+	implementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+	// Mixins as per: https://darkhax.net/2020/07/mixins
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+```
+
+```markdown !!tabs Forge MDG (1.20.1 - 1.17.1)
+dependencies {
+	modImplementation("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+	// Mixins as per: https://darkhax.net/2020/07/mixins
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+```
+
+```markdown !!tabs Architectury Forge 1.20.1
+dependencies {
+	modImplementation fg.deobf("mod.azure.azurelib:azurelib-forge-MCVERSION:MODVERSION")
+	// Mixins as per: https://darkhax.net/2020/07/mixins
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+```
+
+</CodeTabs>
+
+For Forge Gradle users, you will need to enable Mixin refmaps in your client sourceset. This can be done by adding 2 lines inside of your client runs, to look like below.
+
+<CodeTabs>
+
+```markdown !!tabs build.gradle
+runs {
+	client {
+		// Add these two lines
+		property 'mixin.env.remapRefMap', 'true'
+		property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+		// The rest of the code that was already here
+		// ...
+	}
+}
+```
+
+</CodeTabs>

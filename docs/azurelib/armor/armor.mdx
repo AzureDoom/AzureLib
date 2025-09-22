@@ -1,0 +1,198 @@
+---
+title: Animating Armor
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/items/armors)
+</Callout>
+
+# How to animate Armor
+
+## Creating your custom AzItemAnimator
+
+For this, you will create a class which extends `AzItemAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+Example:
+```java
+public class ExampleArmorAnimator extends AzItemAnimator {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/examplearmor.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ItemStack> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+<Callout variant="info">
+    You can find more about [AzCommands here](../misc/animating/azcommands_101)
+</Callout>
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleArmorDispatcher {
+    private static final AzCommand EQUIP_COMMAND = AzCommand.create(
+        "base_controller",
+        "equipping",
+        AzPlayBehaviors.PLAY_ONCE
+    );
+
+    private static final AzCommand IDLE_COMMAND = AzCommand.create(
+        "base_controller",
+        "idle",
+        AzPlayBehaviors.LOOP
+    );
+
+    public void equip(Entity entity, ItemStack itemStack) {
+        EQUIP_COMMAND.sendForItem(entity, itemStack);
+    }
+
+    public void idle(Entity entity, ItemStack itemStack) {
+        IDLE_COMMAND.sendForItem(entity, itemStack);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleArmorDispatcher from above in your ArmorItem class.
+
+Example:
+```java
+public class ExampleArmor extends ArmorItem {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleArmorDispatcher dispatcher;
+
+    public ExampleArmor(Type type) {
+        super(ArmorMaterials.NETHERITE, type, new Properties());
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleArmorDispatcher();
+    }
+}
+```
+
+Now you can all your dispatcher in to trigger different animations, like if you want to trigger one when equipping the armor piece:
+```java
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> swapWithEquipmentSlot(
+        Item item,
+        Level level,
+        Player player,
+        InteractionHand hand
+    ) {
+        var result = super.swapWithEquipmentSlot(item, level, player, hand);
+
+        if (!level.isClientSide) {
+            var slot = getEquipmentSlot();
+            var itemStack = player.getItemBySlot(slot);
+            // This is where you now trigger an animation to play
+            dispatcher.equip(player, itemStack);
+        }
+
+        return result;
+    }
+```
+or trigger an idle animation that should play all the time:
+```java
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (!level.isClientSide && entity instanceof Player player ) {
+            player.getArmorSlots().forEach(wornArmor -> {
+                if (wornArmor != null && wornArmor.is(YourItemRegistry.YOUR_ARMOR_CHESTPLATE)) {
+                    dispatcher.serverIdleArmor(player, wornArmor);
+                }
+            });
+        }
+    }
+```
+
+## Creating your Renderer
+
+This renderer is responsible for how your armor is displayed in the game.
+
+It connects the armor with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the armor.
+2. **Texture file (`.png`)**: The visual appearance of the armor (applies over the geometry).
+3. **Animator**: Animations for the armor, provided by `ExampleArmorAnimator`.
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azarmorrendererconfig) for all AzArmorRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicarmormodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(
+            AzArmorRendererConfig.builder(GEO, TEX)
+                .setAnimatorProvider(ExampleArmorAnimator::new)
+                .build()
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS);
+```
+
+
+## Registering your Armor for proper animation triggering
+
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for NeoForge/Forge like so:
+
+```java
+AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS);
+```

@@ -1,0 +1,204 @@
+---
+title: Animating Entities
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/entities)
+</Callout>
+
+# How to animate Entities
+
+## Creating your custom AzEntityAnimator
+
+For this, you will create a class which extends `AzEntityAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+Example:
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/entity/example_entity.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleEntity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ExampleEntity animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+<Callout variant="info">
+    You can find more about [AzCommands here](../misc/animating/azcommands_101)
+</Callout>
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleEntityDispatcher {
+    private static final AzCommand IDLE_COMMAND = AzCommand.create(
+        "base_controller",
+        "idle",
+        AzPlayBehaviors.LOOP
+    );
+
+    private static final AzCommand WALK_COMMAND = AzCommand.create(
+        "base_controller",
+        "walking",
+        AzPlayBehaviors.LOOP
+    );
+
+    private static final AzCommand RUN_COMMAND = AzCommand.create(
+        "base_controller",
+        "running",
+        AzPlayBehaviors.LOOP
+    );
+
+    private static final AzCommand DEATH_COMMAND = AzCommand.create(
+        "base_controller",
+        "death",
+        AzPlayBehaviors.HOLD_ON_LAST_FRAME
+    );
+
+    private final ExampleEntity example_entity;
+
+    public DoomHunterAnimationDispatcher(ExampleEntity animatable) {
+        this.example_entity = animatable;
+    }
+
+    public void idle() {
+        IDLE_COMMAND.sendForEntity(example_entity);
+    }
+
+    public void walk() {
+        WALK_COMMAND.sendForEntity(example_entity);
+    }
+
+    public void run() {
+        RUN_COMMAND.sendForEntity(example_entity);
+    }
+
+    public void death() {
+        DEATH_COMMAND.sendForEntity(example_entity);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleEntityDispatcher from above in your Entities class. It is also recommand to register the MoveAnalysis utility class if you'd like to do movement based animations.
+
+```java
+public class ExampleEntity extends Entity {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleEntityDispatcher dispatcher;
+
+    public final MoveAnalysis moveAnalysis;
+
+    public ExampleEntity(EntityType<? extends Entity> entityType, Level level) {
+        super(entityType, level);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleEntityDispatcher(this);
+        this.moveAnalysis = new MoveAnalysis(this);
+    }
+}
+```
+
+Now you simply call the dispatcher wherever you want to play the animations.
+
+Example of playing a death animation, movement animations and an idle animation.
+```java
+    @Override
+    public void tick() {
+        super.tick();
+        moveAnalysis.update();
+
+        if (this.level().isClientSide) {
+            var isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
+            Runnable animationRunner;
+            if (!this.isAlive()) { // if dead, play death animation
+                animationRunner = animationDispatcher::death;
+            } else if (isMovingOnGround) {
+                if (this.isAggressive()) { // if moving and aggressive, play running
+                    animationRunner = animationDispatcher::run;
+                } else { // if moving but not aggressive play walk
+                    animationRunner = animationDispatcher::walk;
+                }
+            } else { // Play the default idle animation
+                animationRunner = animationDispatcher::idle;
+            }
+            animationRunner.run();
+        }
+    }
+```
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom entity is displayed in the game.
+
+It connects the entity with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the entity.
+2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
+3. **Animator**: Animations for the entity, provided by `ExampleEntityAnimator`.
+
+The renderer class must extend `AzEntityRenderer<ExampleEntity>` and provide the required configuration.
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azentityrendererconfig) for all AzEntityRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicentitymodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+Example Renderer
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/entity/example_entity.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/entity/example_entity.png"
+    );
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
+                .setAnimatorProvider(ExampleEntityAnimator::new).build(),
+            context
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Nothing special is required here! Simply call render your entity render as per the standard use case of your modloader.

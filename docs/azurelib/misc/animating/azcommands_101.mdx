@@ -1,0 +1,183 @@
+---
+title: AzCommands 101
+hide_meta: true
+---
+
+# Everything you need to know about AzCommands
+
+`AzCommand` is a highly flexible class for controlling animations in AzureLib by dispatching a sequence of animation-related actions. It simplifies animation management by allowing you to manipulate the animation system at three hierarchical levels: **root**, **controller**, and **animation**. This guide will walk you through the basics of using `AzCommand` and how to replace the traditional `AnimationController` approach with it.
+
+### **The Three Configuration Layers**:
+    - **Root**: Manages all controllers globally.
+    - **Controller**: Configures specific animation controllers.
+    - **Animation**: Configures per-animation properties, automatically reverting to the previous state after the animation finishes.
+
+## Getting Started with `AzCommand`
+
+### 1. **Creating an AzCommand**
+Creating an AzCommand involves specifying the controller name, the animation name, and optionally the playback behavior (e.g., loop, play once). Here's how:
+
+**Example**:
+``` java
+AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+```
+In this example:
+- `"Walk"` is the controller name.
+- `"WALK_ANIMATION"` is the animation to play.
+- By default, the play behavior is set to `PLAY_ONCE`. You can customize it like this:
+
+**Example**:
+``` java
+AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+```
+
+#### **Advanced Command Creation**
+
+##### **1. Using `AzCommand.create` with Custom Tick Offset**
+The `create` command now supports specifying a custom **starting tick offset** and playback behavior.
+
+**Example**:
+```java
+AzCommand spinCommand = AzCommand.create("SpinController", "SPIN_ANIMATION", AzPlayBehaviors.LOOP, 10F);
+```
+
+In this example:
+- `"SpinController"`: Name of the animation controller.
+- `"SPIN_ANIMATION"`: Name of the animation.
+- `AzPlayBehaviors.LOOP`: Sets the animation playback behavior to loop endlessly.
+- `10F`: Starts the animation 10 ticks into its animation.
+
+##### **2. Using `AzCommand.createSpeed` to Set Animation Speed**
+The `createSpeed` command extends the functionality of `create` by allowing you to control the **animation playback speed**. This is useful for dynamically accelerating or decelerating animations based on specific game scenarios.
+
+**Example**:
+```java
+AzCommand runQuicklyCommand = AzCommand.createSpeed("RunController", "RUN_ANIMATION", 1.5F);
+```
+In this example:
+- `"RunController"`: Name of the animation controller.
+- `"RUN_ANIMATION"`: Name of the animation to play.
+- `1.5F`: Playback speed, which increases the animation's speed by 50%.
+
+###### **Advanced Speed and Playback Customization**
+You can further specify both the playback behavior and animation speed in combination:
+
+**Example**:
+```
+AzCommand slowCrawlCommand = AzCommand.createSpeed("CrawlController", "CRAWL_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 0.5F);
+```
+In this example:
+- `AzPlayBehaviors.PLAY_ONCE`: The animation plays once without looping.
+- `0.5F`: Slows the animation to 50% of its normal playback speed.
+
+###### **Combining Tick Offset and Animation Speed**
+The `create` family of methods provides full customization by allowing both the **starting tick offset** and **playback speed** to be defined simultaneously:
+
+**Example**:
+```java
+AzCommand complexCommand = AzCommand.createSpeed("ComplexController", "COMPLEX_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 5F, 2F);
+
+```
+- This command starts the animation at **tick 5** and plays it at **double speed**.
+
+
+### 2. **Composing Multiple Commands**
+If you need to merge several commands into one, you can use the `compose` method. This is helpful for combining animations across multiple controllers:
+``` java
+AzCommand combinedCommand = AzCommand.compose(walkCommand, idleCommand);
+```
+All actions from the two commands are merged into a single unified command.
+
+## Sending AzCommands
+Once you've created an AzCommand, you can dispatch it to an entity, block entity, or item stack using the provided methods.
+
+### Send to an Entity
+To trigger an animation on an entity, use the `sendForEntity` method:
+``` java
+walkCommand.sendForEntity(myEntity);
+```
+- The command will determine the proper dispatch based on the client or server side.
+
+### Send to a Block Entity
+To send a command to a `BlockEntity`:
+``` java
+idleCommand.sendForBlockEntity(myBlockEntity);
+```
+This sends the command to all clients tracking the relevant chunk.
+
+### Send to an Item/Armor
+To animate an item, use the `sendForItem` method:
+``` java
+combinedCommand.sendForItem(myEntity, myItemStack);
+```
+This requires the item stack to have a registered UUID, which is covered in the Item and Armor guides.
+
+## Best Practices
+1. **Reuse Commands**:
+    - Define reusable commands for common animations to simplify your rendering logic.
+
+
+## Converting from `AnimationController` to `AzCommand`
+
+If you previously managed animations using `AnimationController`, you can streamline and simplify your code using `AzCommand`. This approach eliminates the need for directly managing `AnimationController` states by leveraging `AzCommand` to dispatch animations dynamically.
+
+---
+
+### Old Approach (Using `AnimationController`)
+
+```java
+@Override
+public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+    controllers.add(new AnimationController<>(this, "Walk", 5, state -> {
+        if (state.isMoving()) {
+            return state.setAndContinue(WALK_ANIMATION);
+        }
+        return state.setAndContinue(IDLE_ANIMATION);
+    }));
+}
+```
+
+In this example:
+- The `AnimationController` dynamically switches between a walking animation and an idle animation based on whether the entity is moving.
+
+---
+
+### New Approach (Using `AzCommand` and `MoveAnalysis`)
+
+With `AzCommand`, you can dynamically dispatch animation commands based on the entity's state. Instead of continuously managing `AnimationController` state updates, you simply send the appropriate `AzCommand` when needed.
+
+To enhance the new `AzCommand` approach and replace the `isMoving` logic from the old `AnimationController` example, you can use the `MoveAnalysis` utility class. This class provides advanced functionalities, such as detecting horizontal movement and checking whether the entity is on the ground. Here's how you can implement this:
+
+```java
+public class ExampleEntity extends Monster {
+    private final AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+    private final AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+    private final MoveAnalysis moveAnalysis;
+
+    public ExampleEntity(EntityType<? extends Monster> entityType, Level level) {
+        super(entityType, level);
+        this.moveAnalysis = new MoveAnalysis(this);
+    }
+
+    @Override
+    public void tick() {
+        super.tick(); // Update base entity behavior
+        moveAnalysis.update(); // Analyze the entity's movement state
+
+        if (this.level().isClientSide) { // Only execute animation logic on the client
+            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
+
+            if (isMovingOnGround) {
+                walkCommand.sendForEntity(this); // Send the walk animation if moving
+            } else {
+                idleCommand.sendForEntity(this); // Otherwise, send the idle animation
+            }
+        }
+    }
+}
+```
+
+- **`MoveAnalysis`**: Provides a reliable method to check if the entity is moving horizontally.
+- **Benefits**:
+  - Improves code readability and reusability by moving movement logic into `MoveAnalysis`.
+  - Cleanly separates movement detection from animation dispatch.
