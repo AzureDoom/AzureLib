@@ -38,7 +38,7 @@ import mod.azure.azurelib.resource.GeoGlowingTextureMeta;
 public class AutoGlowingTexture extends GeoAbstractTexture {
 
     private static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(
-        GameRenderer::getRendertypeEntityTranslucentShader
+        GameRenderer::getRendertypeEyesShader
     );
 
     private static final RenderStateShard.TransparencyStateShard TRANSPARENCY_STATE =
@@ -98,9 +98,9 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
     /**
      * Get the emissive resource equivalent of the input resource path.<br>
-     * Additionally prepares the texture manager for the missing texture if the resource is not present
+     * Additionally, prepares the texture manager for the missing texture if the resource is not present
      *
-     * @return The glowlayer resourcepath for the provided input path
+     * @return The glowlayer resource path for the provided input path
      */
     protected static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
         ResourceLocation path = appendToPath(baseResource, APPENDIX);
