@@ -15,9 +15,6 @@ hide_meta: true
 
 For this, you will create a class which extends `AzItemAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
 Example:
 ```java
 public class ExampleArmorAnimator extends AzItemAnimator {
@@ -148,8 +145,6 @@ It connects the armor with the following:
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azarmorrendererconfig) for all AzArmorRendererConfig#builder options.
 
     See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicarmormodelrenderer) for advanced options such as setting a render type or texture per bone.
-
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
 
 ```java
