@@ -35,17 +35,29 @@ Example:
         Optional<AzBone> leftLeg = boneCache.getBakedModel().getBone("left_Leg");
         Optional<AzBone> rightLeg = boneCache.getBakedModel().getBone("right_Leg");
 
-        if (leftArm.isPresent())
-            leftArm.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (rightArm.isPresent())
-            rightArm.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * -2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (leftLeg.isPresent())
-            leftLeg.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (rightLeg.isPresent())
-            rightLeg.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F) * 1.4F * animatable.walkAnimation.speed() * 0.5F);
+        if (leftArm.isPresent()) {
+            leftArm.get()
+                .setRotX(
+                    Mth.cos(animationPosition * 0.6662F + (float) Math.PI) * 2.0F * animationSpeed * 0.5F
+                );
+        }
+        if (rightArm.isPresent()) {
+            rightArm.get()
+                .setRotX(
+                    Mth.cos(animationPosition * 0.6662F) * 2.0F * animationSpeed * 0.5F
+                );
+        }
+        if (leftLeg.isPresent()) {
+            leftLeg.get()
+                .setRotX(
+                    Mth.cos(animationPosition * 0.6662F) * 1.4F * animationSpeed * 0.5F
+                );
+        }
+        if (rightLeg.isPresent()) {
+            rightLeg.get()
+                .setRotX(
+                    Mth.cos(animationPosition * 0.6662F + (float) Math.PI) * 1.4F * animationSpeed * 0.5F
+                );
+        }
     }
 ```

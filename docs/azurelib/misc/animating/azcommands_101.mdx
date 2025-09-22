@@ -164,7 +164,7 @@ public class ExampleEntity extends Monster {
         super.tick(); // Update base entity behavior
         moveAnalysis.update(); // Analyze the entity's movement state
 
-        if (this.level().isClientSide) { // Only execute animation logic on the client
+        if (this.level.isClientSide) { // Only execute animation logic on the client
             boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
 
             if (isMovingOnGround) {

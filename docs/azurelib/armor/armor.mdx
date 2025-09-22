@@ -97,39 +97,18 @@ public class ExampleArmor extends ArmorItem {
 }
 ```
 
-Now you can all your dispatcher in to trigger different animations, like if you want to trigger one when equipping the armor piece:
+Now you can all your dispatcher in to trigger different animations, like if you want to trigger an idle animation that should play all the time:
 ```java
-    @Override
-    public @NotNull InteractionResultHolder<ItemStack> swapWithEquipmentSlot(
-        Item item,
-        Level level,
-        Player player,
-        InteractionHand hand
-    ) {
-        var result = super.swapWithEquipmentSlot(item, level, player, hand);
-
-        if (!level.isClientSide) {
-            var slot = getEquipmentSlot();
-            var itemStack = player.getItemBySlot(slot);
-            // This is where you now trigger an animation to play
-            dispatcher.equip(player, itemStack);
-        }
-
-        return result;
-    }
-```
-or trigger an idle animation that should play all the time:
-```java
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide && entity instanceof Player player ) {
-            player.getArmorSlots().forEach(wornArmor -> {
-                if (wornArmor != null && wornArmor.is(YourItemRegistry.YOUR_ARMOR_CHESTPLATE)) {
-                    dispatcher.serverIdleArmor(player, wornArmor);
-                }
-            });
-        }
-    }
+	@Override
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+		if (!level.isClientSide && entity instanceof Player player ) {
+			player.getArmorSlots().forEach(wornArmor -> {
+				if (wornArmor != null && wornArmor.is(this)) {
+					dispatcher.serverIdleArmor(player, wornArmor);
+				}
+			});
+		}
+	}
 ```
 
 ## Creating your Renderer
