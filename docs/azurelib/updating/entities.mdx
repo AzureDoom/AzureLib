@@ -80,7 +80,7 @@ As you can see here, you no longer need to implement a Geo interface to your cla
 
 ```java !!tabs AzureLib 3.x
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
-    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation ANIMATIONS = new ResourceLocation(
         YOUR_MOD_ID,
         "animations/entity/example_entity.animation.json"
     );
@@ -136,7 +136,7 @@ public class ExampleEntityDispatcher {
 ```java !!tabs AzureLib 2.x/Geckolib
 public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer() {
-        super(new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(
+        super(new DefaultedEntityGeoModel<>(new ResourceLocation(
             YOUR_MOD_ID, "example_entity"
         )));
     }
@@ -145,12 +145,12 @@ public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
 
 ```java !!tabs AzureLib 3.x
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation GEO = new ResourceLocation(
         YOUR_MOD_ID,
         "geo/entity/example_entity.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation TEX = new ResourceLocation(
         YOUR_MOD_ID,
         "textures/entity/example_entity.png"
     );
