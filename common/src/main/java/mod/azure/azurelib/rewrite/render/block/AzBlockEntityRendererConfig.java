@@ -29,6 +29,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
@@ -41,6 +42,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
             renderTypeFunction,
             renderLayers,
             preRenderEntry,
+            renderEntry,
             postRenderEntry,
             textureLocationProvider,
             alphaFunction,
@@ -95,6 +97,13 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         @Override
+        public Builder<T> setRenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry
+        ) {
+            return (AzBlockEntityRendererConfig.Builder<T>) super.setRenderEntry(renderEntry);
+        }
+
+        @Override
         public Builder<T> setPostRenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
@@ -146,6 +155,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
+                baseConfig::renderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig::alpha,
