@@ -34,10 +34,10 @@ import mod.azure.azurelib.rewrite.render.layer.AzArmorLayer;
 
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
 
     private static final ResourceLocation TEXTURE_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(

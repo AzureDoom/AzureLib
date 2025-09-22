@@ -15,14 +15,10 @@ hide_meta: true
 
 For this, you will create a class which extends `AzEntityAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
-
 Example:
 ```java
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
-    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation ANIMATIONS = new ResourceLocation(
         YOUR_MOD_ID,
         "animations/entity/example_entity.animation.json"
     );
@@ -172,19 +168,17 @@ The renderer class must extend `AzEntityRenderer<ExampleEntity>` and provide the
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azentityrendererconfig) for all AzEntityRendererConfig#builder options.
 
     See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicentitymodelrenderer) for advanced options such as setting a render type or texture per bone.
-
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
 </Callout>
 
 Example Renderer
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation GEO = new ResourceLocation(
         YOUR_MOD_ID,
         "geo/entity/example_entity.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation TEX = new ResourceLocation(
         YOUR_MOD_ID,
         "textures/entity/example_entity.png"
     );

@@ -42,7 +42,7 @@ This renderer is designed to handle dynamic rendering for item models. It suppor
 
    Example:
    ```java
-        protected final ResourceLocation DYNAMIC_ITEM_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        protected final ResourceLocation DYNAMIC_ITEM_TEXTURE = new ResourceLocation(
             YOUR_MOD_ID,
             "textures/item/dynamic_item_texture.png"
         );
@@ -119,7 +119,7 @@ This renderer specializes in dynamic rendering for custom armor models. It exten
 
    Example:
    ```java
-        protected final ResourceLocation DYNAMIC_ARMOR_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        protected final ResourceLocation DYNAMIC_ARMOR_TEXTURE = new ResourceLocation(
             YOUR_MOD_ID,
             "textures/armor/dynamic_armor_texture.png"
         );
@@ -194,7 +194,7 @@ The renderer designed for entities, offering powerful support for advanced rende
 
    Example:
    ```java
-        protected final ResourceLocation DYNAMIC_ENTITY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        protected final ResourceLocation DYNAMIC_ENTITY_TEXTURE = new ResourceLocation(
             YOUR_MOD_ID,
             "textures/entity/dynamic_entity_texture.png"
         );
@@ -270,7 +270,7 @@ This renderer is tailored for rendering animated and dynamic block entity models
 
    Example:
    ```java
-        protected final ResourceLocation DYNAMIC_BLOCK_ENTITY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        protected final ResourceLocation DYNAMIC_BLOCK_ENTITY_TEXTURE = new ResourceLocation(
             YOUR_MOD_ID,
             "textures/block/dynamic_block_entity_texture.png"
         );
