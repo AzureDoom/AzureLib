@@ -18,7 +18,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Alpha configuration**: Customize object alpha value when RenderType supports it.
 - **Scaling options**: Customize object scaling during rendering.
 - **Render layers**: Add extra effects onto the rendering process.
-- **Pre- and post-render hooks**: Perform operations at different stages of rendering.
+- **Render Stage Hooks**: Support hooks _before_, _during_, and _after_ rendering through customizable lambdas.
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
 
 ## AzArmorRendererConfig
@@ -31,9 +31,6 @@ The `AzArmorRendererConfig` is explicitly designed for rendering **animated armo
 
 Here’s an example of setting up an armor renderer with full configuration options:
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
 
@@ -55,6 +52,10 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
                 .setPostRenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -79,9 +80,6 @@ The `AzBlockEntityRendererConfig` specializes in rendering **block entities**.
 
 Here’s an example of setting up a block entity renderer with full configuration options:
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
 ```java
 public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
@@ -102,6 +100,10 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                     // Insert code you want to run here
                     return context;
                 }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
                 .setPostRenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -128,9 +130,6 @@ The `AzEntityRendererConfig` supports rendering **entities** with death-specific
 
 Here’s an example of setting up an entity renderer with full configuration options:
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
@@ -154,6 +153,10 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                     // Insert code you want to run here
                     return context2;
                 }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
                 .setPostRenderEntry(context2 -> {
                     // Insert code you want to run here
                     return context2;
@@ -183,9 +186,6 @@ It extends the flexibility of `AzRendererConfig` by adding options for item-spec
 
 Here’s an example of setting up an item renderer with full configuration options:
 
-<Callout variant="info">
-    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
-</Callout>
 ```java
 public class ExampleItemRenderer extends AzItemRenderer {
     private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
@@ -208,6 +208,10 @@ public class ExampleItemRenderer extends AzItemRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
                 .setPostRenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
