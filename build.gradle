@@ -3,7 +3,7 @@ plugins {
     id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
     id 'net.neoforged.moddev' version "${neo_moddev}" apply(false)
     id 'me.modmuss50.mod-publish-plugin' version "${modmuss50_mod_publish_version}" apply(false)
-    id 'org.moddedmc.wiki.toolkit' version '0.2.5'
+    id 'org.moddedmc.wiki.toolkit' version '0.3.2'
 }
 
 wiki {
