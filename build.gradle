@@ -2,4 +2,21 @@ plugins {
     id 'fabric-loom' version '1.9-SNAPSHOT' apply(false)
     id 'net.neoforged.moddev.legacyforge' version '2.0.107' apply(false)
     id 'me.modmuss50.mod-publish-plugin' version "${modmuss50_mod_publish_version}" apply(false)
+    id 'org.moddedmc.wiki.toolkit' version '0.3.2'
+}
+
+wiki {
+    if (file('key.properties').exists()) {
+        def releaseProp = new Properties()
+        File secretPropsFile = file("key.properties")
+        releaseProp.load(secretPropsFile.newInputStream())
+        wikiAccessToken = releaseProp.getProperty("wikiKey")
+    }
+    docs {
+        // The name of the object (examplemod) should match the registered wiki project ID (if it exists).
+        azurelib {
+            // The path to the folder containing the documentation metadata file (sinytra-wiki.json)
+            root = file('docs/azurelib')
+        }
+    }
 }
