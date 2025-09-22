@@ -2,5 +2,9 @@
     "entities.mdx": {
         "name": "Animating Entities",
         "icon": "Squirrel"
+    },
+    "entity_smartbrainlib.mdx": {
+        "name": "Animating Entities Within SmartBrainLib Tasks",
+        "icon": "Squirrel"
     }
 }
