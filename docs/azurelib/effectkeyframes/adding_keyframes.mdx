@@ -42,7 +42,7 @@ Example:
                             event -> {
                                 if (event.getKeyframeData().getSound().equals("walk")) {
                                     event.getAnimatable()
-                                        .level()
+                                        .level
                                         .playLocalSound(
                                             event.getAnimatable().getX(),
                                             event.getAnimatable().getY(),
@@ -76,7 +76,7 @@ Example:
                                                 event -> {
                                                     if (event.getKeyframeData().getEffect().equals("walk")) {
                                                         event.getAnimatable()
-                                                                .level()
+                                                                .level
                                                                 .addParticle(
                                                                         ParticleTypes.BUBBLE,
                                                                         false, // boolean if particle should always render or not
