@@ -27,6 +27,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
@@ -39,6 +40,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             renderTypeProvider,
             renderLayers,
             preRenderEntry,
+            renderEntry,
             postRenderEntry,
             textureLocationProvider,
             alphaFunction,
@@ -107,6 +109,13 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
+        public Builder setRenderEntry(
+            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry
+        ) {
+            return (AzArmorRendererConfig.Builder) super.setRenderEntry(renderEntry);
+        }
+
+        @Override
         public Builder setPostRenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
@@ -162,6 +171,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::getRenderType,
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
+                baseConfig::renderEntry,
                 baseConfig::postRenderEntry,
                 baseConfig::textureLocation,
                 baseConfig::alpha,

@@ -30,6 +30,8 @@ public class AzRendererConfig<T> {
 
     private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
+    private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry;
+
     private final Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
 
     protected final List<AzRenderLayer<T>> renderLayers;
@@ -48,6 +50,7 @@ public class AzRendererConfig<T> {
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
+        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
@@ -59,6 +62,7 @@ public class AzRendererConfig<T> {
         this.renderTypeFunction = renderTypeFunction;
         this.renderLayers = Collections.unmodifiableList(renderLayers);
         this.preRenderEntry = preRenderEntry;
+        this.renderEntry = renderEntry;
         this.postRenderEntry = postRenderEntry;
         this.textureLocationProvider = textureLocationProvider;
         this.scaleHeight = scaleHeight;
@@ -90,6 +94,10 @@ public class AzRendererConfig<T> {
         return preRenderEntry.apply(animatable);
     }
 
+    public AzRendererPipelineContext<T> renderEntry(AzRendererPipelineContext<T> animatable) {
+        return renderEntry.apply(animatable);
+    }
+
     public AzRendererPipelineContext<T> postRenderEntry(AzRendererPipelineContext<T> animatable) {
         return postRenderEntry.apply(animatable);
     }
@@ -116,6 +124,8 @@ public class AzRendererConfig<T> {
 
         protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry;
 
+        protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry;
+
         protected Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry;
 
         protected final Function<T, ResourceLocation> textureLocationProvider;
@@ -137,6 +147,7 @@ public class AzRendererConfig<T> {
             this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
+            this.renderEntry = $ -> $;
             this.postRenderEntry = $ -> $;
             this.textureLocationProvider = textureLocationProvider;
             this.alphaFunction = $ -> 1.0F;
@@ -169,6 +180,13 @@ public class AzRendererConfig<T> {
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
             this.preRenderEntry = preRenderEntry;
+            return this;
+        }
+
+        public Builder<T> setRenderEntry(
+            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry
+        ) {
+            this.renderEntry = renderEntry;
             return this;
         }
 
@@ -272,6 +290,7 @@ public class AzRendererConfig<T> {
                 renderTypeProvider,
                 renderLayers,
                 preRenderEntry,
+                renderEntry,
                 postRenderEntry,
                 textureLocationProvider,
                 alphaFunction,

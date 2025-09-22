@@ -51,6 +51,9 @@ public class AzModelRenderer<T> {
         for (var bone : model.getTopLevelBones()) {
             renderRecursively(context, bone, isReRender);
         }
+
+        var config = rendererPipeline.config();
+        config.renderEntry(context);
     }
 
     /**
