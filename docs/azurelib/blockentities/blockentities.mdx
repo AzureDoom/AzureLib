@@ -1,0 +1,164 @@
+---
+title: Animating Block Entities
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/blocks/blockentity)
+</Callout>
+
+# How to animate Block Entities
+
+## Creating your custom AzBlockAnimator
+
+For this, you will create a class which extends `AzBlockAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+Example:
+```java
+public class ExampleBEAnimator extends AzBlockAnimator<ExampleBE> {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/examplebe.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleBE> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ExampleBE animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+<Callout variant="info">
+    You can find more about [AzCommands here](../misc/animating/azcommands_101)
+</Callout>
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleBEDispatcher {
+    private static final AzCommand SPINNING_COMMAND = AzCommand.create(
+        "base_controller",
+        "spinning",
+        AzPlayBehaviors.LOOP
+    );
+
+    private final BlockEntity blockEntity;
+
+    public StargateBlockAnimationDispatcher(BlockEntity blockEntity) {
+        this.blockEntity = blockEntity;
+    }
+
+    public void spin(BlockEntity BlockEntity) {
+        SPINNING_COMMAND.sendForBlockEntity(BlockEntity);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleBEDispatcher from above in your BlockEntity class.
+
+```java
+public class ExampleBE extends BlockEntity {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleBEDispatcher dispatcher;
+
+    public ExampleBE(BlockPos pos, BlockState blockState) {
+        super(YourEntityTypes.EXAMPLE_BE, pos, blockState);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleBEDispatcher();
+    }
+}
+```
+
+Now you simply call the dispatcher wherever you want to play the animations.
+
+Example:
+
+<Callout variant="info">
+    This methed is set in your Block Entity class and registered to your Block classes getTicker method.
+</Callout>
+
+```java
+    public static void tick(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        ExampleBE blockEntity
+    ) {
+        if (blockEntity.level != null && level.isClientSide()) {
+            // This is where you now trigger an animation to play
+            blockEntity.animationDispatcher.spin(blockEntity);
+        }
+    }
+```
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom block entity is displayed in the game.
+
+It connects the block entity with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the block entity.
+2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
+3. **Animator**: Animations for the entity, provided by `ExampleBEAnimator`.
+
+The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` and provide the required configuration.
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azblockentityrendererconfig) for all AzBlockEntityRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicblockentitymodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+Example Renderer
+```java
+public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/block/examplebe.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/block/examplebe.png"
+    );
+
+    public ExampleBERenderer() {
+        super(
+            AzBlockEntityRendererConfig.<ExampleBE>builder(GEO, TEX)
+                .setAnimatorProvider(ExampleBEAnimator::new).build()
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Nothing special is required here! Simply call render your block entity render as per the standard use case of your modloader.

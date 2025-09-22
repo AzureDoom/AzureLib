@@ -1,0 +1,67 @@
+---
+title: AzureNavigation 101
+hide_meta: true
+---
+
+<Callout variant="info">
+    Credit to [Bob Mowzie and pau101](https://github.com/BobMowzie/MowziesMobs/blob/master/src/main/java/com/bobmowzie/mowziesmobs/server/ai/MMPathNavigateGround.java) for the info the amazing code and work!
+</Callout>
+<br></br>
+
+# AzureNavigation: Simplifying Pathfinding for Large-Hitbox Mobs
+
+The `AzureNavigation` class is a custom implementation of `GroundPathNavigation` designed to handle advanced pathfinding challenges for mobs, particularly those with **large hitboxes** or unique movement requirements. It works by utilizing the `AzurePathFinder` for optimized node calculations and includes specialized handling for wide mobs to avoid issues with collisions, getting stuck, or inefficient traversals.
+
+This page explains how `AzureNavigation` works, how it improves pathfinding for mobs with larger hitboxes, and highlights its integration with custom pathfinding logic.
+
+## Why Use `AzureNavigation`?
+
+Pathfinding in Minecraft is based on navigating a series of nodes in the game world. For mobs with large hitboxes (like bosses or custom-designed entities), default pathfinding methods can struggle with precision, leading to:
+- **Collisions with terrain** or obstacles.
+- Inefficient movement (e.g., getting stuck at narrow passages).
+- Poor handling of movement across elevation changes (stairs, slabs, etc.).
+
+The `AzureNavigation` class extends the vanilla pathfinding behavior to account for these complexities by introducing:
+1. **Collision-aware movement:** Ensures the mob's bounding box fits within traversable paths.
+2. **Height-sensitive path smoothing:** Adds logic for navigating multi-block height changes like stairs.
+3. **Efficient node skipping:** Implements shortcuts where possible, reducing unnecessary path traversal steps.
+
+## Key Features of `AzureNavigation`
+
+### 1. **Custom Pathfinding via `AzurePathFinder`**
+The `AzureNavigation` system overrides the default `createPathFinder` with the custom `AzurePathFinder`. This custom pathfinder considers not only the center position of a mob but also its full bounding box when calculating valid paths.
+Compared to vanilla, this provides:
+- Improved path calculations for wide mobs to avoid clipping into walls.
+- Adjustments to account for both horizontal and vertical movement more accurately.
+
+### 2. **Bounding Box Awareness in Movement**
+
+One significant improvement of `AzureNavigation` is the **bounding box-based path validation**. The `followThePath` and `tryShortcut` methods take the full collision box of the entity into account, not just its center point. This is especially useful for large mobs that may otherwise clip into walls or narrow pathways.
+
+#### Simplified Explanation:
+- A **base bounding box** is calculated for the mob's current position.
+- Before moving to the next path node, the system checks if the mob can fit in the space without collisions.
+- If a smaller/shorter route is available, it adjusts the path dynamically.
+
+### 3. **Efficient Path Shortcuts**
+
+The `tryShortcut` method improves pathfinding efficiency by finding shorter routes when possible. This is particularly useful for large mobs where traversing long, winding paths can waste time. By sweeping the space ahead of the mob, the navigation system identifies valid path nodes closer to the destination and adjusts accordingly.
+
+### 4. **Accurate Sweeping for Large Entities**
+
+The `sweep` method ensures a large entity can fit through spaces along its path. It checks the bounding box at every potential step along the entity's path using 3D collision tests. This prevents scenarios where:
+- The entity hits terrain while navigating elevations.
+- It enters spaces smaller than its bounding box.
+
+#### What Happens Inside `sweep`:
+
+- Simulates the bounding box's position along a path to detect collisions.
+- Adjusts or aborts the navigation if obstacles are encountered.
+
+## Benefits of `AzureNavigation` for Large-Hitbox Mobs
+
+By combining the features above, `AzureNavigation` provides these key advantages:
+1. **Collision Awareness**: Prevents mobs from entering spaces too small for their bounding boxes.
+2. **Smooth Elevation Handling**: Mobs transition seamlessly across uneven terrain without getting stuck.
+3. **Path Optimization**: Reduces the time needed to calculate and follow paths using shortcuts.
+4. **Large Entity Movement**: Ensures wide mobs fit paths and avoid obstacles effectively.

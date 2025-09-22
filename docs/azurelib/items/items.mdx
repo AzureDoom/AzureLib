@@ -1,0 +1,156 @@
+---
+title: Animating Items
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/items)
+</Callout>
+
+# How to animate Items
+
+## Creating your custom AzItemAnimator
+
+For this, you will create a class which extends `AzItemAnimator`. This class will handle the registration of animation controllers and providing the animation file's location for the animations.
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+
+Example:
+```java
+public class ExampleItemAnimator extends AzItemAnimator {
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "animations/item/exampleitem.animation.json"
+    );
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ItemStack> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+Some highlights of the above example.
+
+- `ANIMATIONS`:
+This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+
+- `registerControllers()`
+Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
+
+## Creating an Animation Dispatcher
+
+<Callout variant="info">
+    You can find more about [AzCommands here](../misc/animating/azcommands_101)
+</Callout>
+
+This class isn't required but is highly suggested to help store your animation commands to call in other classes.
+
+Example:
+```java
+public class ExampleItemDispatcher {
+    private static final AzCommand FIRING_COMMAND = AzCommand.create("base_controller", "firing", AzPlayBehaviors.PLAY_ONCE);
+
+    public void firing(Entity entity, ItemStack itemStack) {
+        FIRING_COMMAND.sendForItem(entity, itemStack);
+    }
+}
+```
+
+## Accessing your Dispatcher to trigger animations
+
+You will now define your ExampleItemDispatcher from above in your Item class.
+
+```java
+public class ExampleItem extends Item {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleItemDispatcher dispatcher;
+
+    public ExampleItem(Properties properties) {
+        super(properties);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleItemDispatcher();
+    }
+}
+```
+
+Now to use the dispatcher, you would simply call it in any method where you want it trigger for, like if I want the firing to happing on use, I would do it like so:
+```java
+    @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        super.onUseTick(level, livingEntity, stack, remainingUseDuration);
+        if (livingEntity instanceof Player player && !level.isClientSide()) {
+            // This is where you now trigger an animation to play
+            dispatcher.firing(player, stack);
+        }
+    }
+```
+
+## Creating your Renderer
+
+This renderer is responsible for how your custom item is displayed in the game.
+
+It connects the item with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the item.
+2. **Texture file (`.png`)**: The visual appearance of the item (applies over the geometry).
+3. **Animator**: Animations for the item, provided by `ExampleItemAnimator`.
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azitemrendererconfig) for all AzItemRendererConfig#builder options.
+
+    See [Dynamic Model Renderers](../misc/rendering/dynamicmodelrenderers#azdynamicitemmodelrenderer) for advanced options such as setting a render type or texture per bone.
+
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+<Callout variant="warning">
+    There is currently a bug in the plugin which exports the displays with an offset applied, please use useNewOffset(true) in your AzItemRendererConfig builder to fix this.
+</Callout>
+
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/exampleitem.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/exampleitem.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(GEO, TEX)
+                .setAnimatorProvider(ExampleItemAnimator::new).build()
+        );
+    }
+}
+```
+
+## Registering your Renderer
+
+Now simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+
+```java
+AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+```
+
+## Registering your Item for proper animation triggering
+
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for NeoForge/Forge like so:
+
+```java
+AzIdentityRegistry.register(YourItemRegistry.YOUR_ITEM, ...);
+```

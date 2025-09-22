@@ -1,0 +1,38 @@
+{
+    "blockbench": {
+        "name": "Blockbench Plugin",
+        "icon": "Film"
+    },
+    "updating": {
+        "name": "Updating Guides",
+        "icon": "Plus"
+    },
+    "armor": {
+        "name": "Armor",
+        "icon": "Shield"
+    },
+    "blockentities": {
+        "name": "Blocks Entities",
+        "icon": "Cuboid"
+    },
+    "entities": {
+        "name": "Entities",
+        "icon": "Squirrel"
+    },
+    "items": {
+        "name": "Items",
+        "icon": "Wrench"
+    },
+    "molang": {
+        "name": "Molang",
+        "icon": "Calculator"
+    },
+    "effectkeyframes": {
+        "name": "Effect Keyframes",
+        "icon": "Sparkles"
+    },
+    "misc": {
+        "name": "Advanced Features",
+        "icon": "Info"
+    }
+}

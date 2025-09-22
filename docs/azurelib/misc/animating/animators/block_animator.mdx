@@ -1,0 +1,62 @@
+---
+title: Block AzAnimator Basics
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have looked at the [AzAnimator Basics](../animators/base_animator)  page
+
+    You can find working examples for [1.21.1 here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.21.x/common/src/main/java/mod/azure/azexamples/blocks/)
+</Callout>
+
+The `AzBlockAnimator` is a framework specifically designed to handle animations for `BlockEntity` instances in AzureLib. By extending the base functionality of `AzAnimator`, it provides an easy-to-use API for creating animation systems tailored to blocks.
+
+## Overview of AzBlockAnimator
+
+The `AzBlockAnimator` builds on the generic animation system outlined in the `AzAnimator` but focuses explicitly on animating **block entities**. It simplifies block animation setup and configuration by abstracting much of the common functionality.
+
+### Key Features
+- Purpose-built for animating `BlockEntity` instances.
+- Maintains compatibility with AzureLib's baked animation and MoLang systems.
+- Fully integrates with the `AzAnimator` APIs, including animation controllers and context handling.
+
+### Constructor
+
+The `AzBlockAnimator` requires a configuration object (`AzAnimatorConfig`) to initialize:
+```java
+public AzBlockAnimator(AzAnimatorConfig config) { super(config); }
+```
+
+To simplify setup, you can use the `defaultConfig` for common scenarios:
+```java
+public YourBlockEntityAnimator() { super(AzAnimatorConfig.defaultConfig()); }
+```
+
+## Example: YourBlockEntityAnimator
+
+Below is a working example of a custom animator for a block entity, `YourBlockEntity`, using the `AzBlockAnimator`.
+
+```java
+java public class YourBlockEntityAnimator extends AzBlockAnimator<YourBlockEntity> {
+    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+        "animations/block/yourblockentity.animation.json"
+    );
+
+    public YourBlockEntityAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<YourBlockEntity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(YourBlockEntity animatable) {
+        return ANIMATIONS;
+    }
+}
+```

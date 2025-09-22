@@ -1,0 +1,60 @@
+---
+title: AzAnimator Basics
+hide_meta: true
+---
+
+The `AzAnimator` is the core system in AzureLib designed to manage the animation logic for various objects, such as entities, block entities, or items. This system provides a reusable framework for integrating MoLang-based animations, custom animation controllers, and smooth transition mechanisms.
+
+## Overview of AzAnimator
+
+The `AzAnimator` is an abstract class with the following key features:
+- It manages animation states and transitions for objects (`T`) like entities, blocks, and items.
+- It caches and reuses animation data for performance.
+- It provides an extensible structure using animation controllers and Molang queries.
+
+### Key Responsibilities
+1. **Controller Registration**
+   Define and register animation controllers responsible for managing behavioral animations.
+
+2. **Animation Execution**
+   Process animations for entities or objects using MoLang queries and baked models.
+
+3. **Custom Animations**
+   Overrideable hooks allow custom animations unique to animated objects.
+
+### Core Methods
+
+<Callout variant="info">
+    Please see [Animation Controller Builder](../misc/animating/animation_controller_builder) page for all options on the controllers.
+</Callout>
+
+#### 1. **`registerControllers`**
+- Abstract method where animation controllers must be created and registered:
+  ```java
+  public abstract void registerControllers(AzAnimationControllerContainer<T> animationControllerContainer);
+  ```
+- **Example Usage:**
+  Define specific controllers (e.g., idle, walking, interactions) for your entity or object.
+
+#### 2. **`getAnimationLocation`**
+- Abstract method for locating the animation file for the animatable object:
+  ```java
+  public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
+  ```
+
+#### 4. **`setCustomAnimations`**
+- Override this method to define custom animations or behaviors:
+  ```java
+  public void setCustomAnimations(T animatable, float partialTicks)
+  ```
+  This is useful for unique animations that aren't predefined in the animation file.
+
+### MoLang Integration
+
+The `applyMolangQueries` method facilitates MoLang runtime queries that affect animation states
+
+#### MoLang Queries Supported:
+- **`LIFE_TIME`**: Determines how long the animation has been running.
+- **`TIME_OF_DAY`**: Retrieves the in-game time.
+- **`ACTOR_COUNT`**: Returns the number of entities in the world.
+- **`MOON_PHASE`**: Identifies the moon cycle.

@@ -1,0 +1,63 @@
+---
+title: Creating a Custom AzDefaultArmorBoneProvider
+hide_meta: true
+---
+
+# How to create a custom AzDefaultArmorBoneProvider
+
+In some cases, you may want to use custom-named bones or restructure the mappings used by your armor models. The default implementation of `AzDefaultArmorBoneProvider` assumes specific bone names (e.g., `armorHead`, `armorBody`). However, if your model uses different bone names, such as `renamedLeftBoot`, you must create a custom provider to override the default behavior.
+
+Below is an example of a custom armor bone provider:
+
+```java
+public class ExampeArmorBoneProvider extends AzDefaultArmorBoneProvider {
+
+    @Override
+    public AzBone getLeftBootBone(AzBakedModel model) {
+        return model.getBone("renamedLeftBoot").orElse(null);
+    }
+
+    @Override
+    public AzBone getLeftLegBone(AzBakedModel model) {
+        return model.getBone("renamedLeftLeg").orElse(null);
+    }
+
+    @Override
+    public AzBone getRightBootBone(AzBakedModel model) {
+        return model.getBone("renamedRightBoot").orElse(null);
+    }
+
+    @Override
+    public AzBone getRightLegBone(AzBakedModel model) {
+        return model.getBone("renamedRightLeg").orElse(null);
+    }
+}
+```
+
+## How to register your custom AzDefaultArmorBoneProvider
+
+In your Armors renderer class, simply call `setBoneProvider` in your `AzArmorRendererConfig` builder.
+
+<Callout variant="info">
+    For 1.20.1 and below use, new ResourceLocation() instead of ResourceLocation.fromNamespaceAndPath()
+</Callout>
+Example:
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+
+    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "geo/armor/examplearmor.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/armor/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(
+            AzArmorRendererConfig.builder(MODEL, TEXTURE)
+                .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
+                .build()
+        );
+    }
+}
+```
