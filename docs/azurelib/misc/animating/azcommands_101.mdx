@@ -165,7 +165,7 @@ public class ExampleEntity extends Monster {
         moveAnalysis.update(); // Analyze the entity's movement state
 
         if (this.level.isClientSide) { // Only execute animation logic on the client
-            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
+            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && isOnGround();
 
             if (isMovingOnGround) {
                 walkCommand.sendForEntity(this); // Send the walk animation if moving
