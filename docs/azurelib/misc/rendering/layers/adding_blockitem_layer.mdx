@@ -15,43 +15,7 @@ The `AzBlockAndItemLayer` handles the rendering logic for these elements by:
 
 ## Setup Instructions
 
-### Step 1: Set Up and Add a Dynamic Model Renderer
-
-Detailed instructions can be found at [Dynamic Model Renderers](../../../misc/rendering/dynamicmodelrenderers)
-
-The resulting implementation of the Dynamic Model Renderer for your EntityRenderer should resemble the following example:
-
-```java
-public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation MODEL_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
-
-    private static final ResourceLocation TEXTURE_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
-
-    @Override
-    protected AzEntityRendererPipeline<YourEntity> createPipeline(AzEntityRendererConfig<YourEntity> config) {
-        return new AzEntityRendererPipeline<>(config, this) {
-
-            @Override
-            protected AzModelRenderer<YourEntity> createModelRenderer(AzLayerRenderer<YourEntity> layerRenderer) {
-                return new YourModelRenderer(this, layerRenderer);
-            }
-        };
-    }
-
-    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
-        super(
-                AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
-                        .build(),
-                context
-        );
-    }
-}
-```
-
-
-### Step 2: Add the Block and Item Layer to Your Renderer
+### Step 1: Add the Block and Item Layer to Your Renderer
 
 Adding the `AzBlockAndItemLayer` to your renderer is straightforward. Use the `addRenderLayer()` method to register the layer in your entity renderer's configuration. Below is an example configuration:
 
@@ -62,17 +26,6 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
     private static final ResourceLocation TEXTURE_LOCATION =
         ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
-
-    @Override
-    protected AzEntityRendererPipeline<YourEntity> createPipeline(AzEntityRendererConfig<YourEntity> config) {
-        return new AzEntityRendererPipeline<>(config, this) {
-
-            @Override
-            protected AzModelRenderer<YourEntity> createModelRenderer(AzLayerRenderer<YourEntity> layerRenderer) {
-                return new YourModelRenderer(this, layerRenderer);
-            }
-        };
-    }
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
@@ -172,17 +125,6 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE_LOCATION =
         ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
-    @Override
-    protected AzEntityRendererPipeline<YourEntity> createPipeline(AzEntityRendererConfig<YourEntity> config) {
-        return new AzEntityRendererPipeline<>(config, this) {
-
-            @Override
-            protected AzModelRenderer<YourEntity> createModelRenderer(AzLayerRenderer<YourEntity> layerRenderer) {
-                return new YourModelRenderer(this, layerRenderer);
-            }
-        };
-    }
-
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
@@ -230,6 +172,3 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
 3. **Performance Issues**:
    - Verify that your item stack/block state providers aren’t performing excessive calculations. Cache results when possible.
-
-4. **Geo Model Textures Renders Texture Atlas Instead**:
-   - Verify that your Entity Renderer has implemented the custom rendering pipeline for a Dynamic Model Renderer.
