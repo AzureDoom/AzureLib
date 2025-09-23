@@ -1,7 +1,6 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -124,7 +123,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var model = getModelForItem(armorStack, slot);
+        var model = getModelForItem(slot);
         var modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
@@ -197,19 +196,19 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ModelPart modelPart,
         HumanoidModel<T> baseModel
     ) {
-		// AzArmor rendering
+        // AzArmor rendering
         var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
         var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
 
         if (renderer != null) {
-			var armorModel = renderer.rendererPipeline().armorModel();
-			var boneContext = renderer.rendererPipeline().context().boneContext();
+            var armorModel = renderer.rendererPipeline().armorModel();
+            var boneContext = renderer.rendererPipeline().context().boneContext();
 
-            renderer.prepForRender(context.animatable(), armorStack, slot, armorModel);
-	        boneContext.applyBoneVisibilityByPart(slot, modelPart, armorModel);
-	        armorModel.renderToBuffer(
+            renderer.prepForRender(context.animatable(), armorStack, slot, baseModel);
+            boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
+            armorModel.renderToBuffer(
                 context.poseStack(),
-	            null,
+                null,
                 context.packedLight(),
                 OverlayTexture.NO_OVERLAY,
                 color
@@ -217,7 +216,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
             return;
         }
 
-		// Vanilla armor rendering
+        // Vanilla armor rendering
         var material = ((ArmorItem) armorStack.getItem()).getMaterial();
 
         for (var layer : material.value().layers()) {
