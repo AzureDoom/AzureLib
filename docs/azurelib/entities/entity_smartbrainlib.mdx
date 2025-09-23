@@ -89,4 +89,7 @@ This example has an entity performing a generic melee attack animation immediate
    - When timing attack animations with the hit calculation, remember that Minecraft performs calculations at a speed of 20 ticks per second
    - To change the delay, such as if the hit calculation should sync at 0.5 seconds, you would set the tick delay to (for example) `AnimatableMeleeAttack<>(10)`, where `10` is the equivalent to `0.5` seconds in real time.
 3. **Stopping all movement to perform an animation:**
-   - With the above in consideration, in the `whenStarting()` method, a status effect can be applied to the entity, as so: `this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10, 20, false, false));`
+      - With the above in consideration, in the `whenStarting()` method, a status effect can be applied to the entity, as so:
+       ```java
+       this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 10, 20, false, false));
+       ```
