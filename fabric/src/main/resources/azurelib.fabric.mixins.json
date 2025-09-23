@@ -16,6 +16,7 @@
     "ItemRendererAccessor",
     "ItemStackMixin_AzItemAnimatorCache",
     "MinecraftMixin",
+    "MixinEntityTypeBuilder_SilenceDataFixerError",
     "MixinHumanoidArmorLayer",
     "MixinItemRenderer",
     "TextureManagerMixin"

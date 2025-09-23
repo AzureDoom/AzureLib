@@ -4,12 +4,17 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.KeyMapping;
 import org.lwjgl.glfw.GLFW;
 
 import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.testing.MarauderRenderer;
+import mod.azure.azurelib.rewrite.testing.Registry;
+import mod.azure.azurelib.rewrite.testing.item.PistolRenderer;
 
 public final class ClientListener implements ClientModInitializer {
 
@@ -66,5 +71,7 @@ public final class ClientListener implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(AnimTriggerPacket.TYPE, (packet, context) -> packet.handle());
         ClientPlayNetworking.registerGlobalReceiver(AnimDataSyncPacket.TYPE, (packet, context) -> packet.handle());
         ClientPlayNetworking.registerGlobalReceiver(SendConfigDataPacket.TYPE, (packet, context) -> packet.handle());
+        AzItemRendererRegistry.register(Registry.PISTOL.get(), PistolRenderer::new);
+        EntityRendererRegistry.register(Registry.MARAUDER.get(), MarauderRenderer::new);
     }
 }

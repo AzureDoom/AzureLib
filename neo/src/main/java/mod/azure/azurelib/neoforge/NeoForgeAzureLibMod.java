@@ -1,9 +1,11 @@
 package mod.azure.azurelib.neoforge;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.monster.Monster;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,6 +17,8 @@ import mod.azure.azurelib.common.internal.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
 import mod.azure.azurelib.neoforge.platform.NeoForgeCommonRegistry;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.rewrite.testing.Registry;
 import mod.azure.azurelib.sblforked.SBLConstants;
 
 @Mod(AzureLib.MOD_ID)
@@ -34,14 +38,26 @@ public final class NeoForgeAzureLibMod {
             NeoForgeCommonRegistry.blockEntityTypeDeferredRegister.register(modEventBus);
         if (NeoForgeCommonRegistry.blockDeferredRegister != null)
             NeoForgeCommonRegistry.blockDeferredRegister.register(modEventBus);
+        if (NeoForgeCommonRegistry.itemDeferredRegister != null)
+            NeoForgeCommonRegistry.itemDeferredRegister.register(modEventBus);
+        if (NeoForgeCommonRegistry.entityTypeDeferredRegister != null)
+            NeoForgeCommonRegistry.entityTypeDeferredRegister.register(modEventBus);
         AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
         modEventBus.addListener(this::init);
+        modEventBus.addListener(this::createEntityAttributes);
         modEventBus.addListener(this::registerMessages);
         SBLConstants.SBL_LOADER.init(modEventBus);
     }
 
     private void init(FMLCommonSetupEvent event) {
         ConfigIO.FILE_WATCH_MANAGER.startService();
+        AzIdentityRegistry.register(
+            Registry.PISTOL.get()
+        );
+    }
+
+    public void createEntityAttributes(final EntityAttributeCreationEvent event) {
+        event.put(Registry.MARAUDER.get(), Monster.createMonsterAttributes().build());
     }
 
     public void registerMessages(RegisterPayloadHandlersEvent event) {

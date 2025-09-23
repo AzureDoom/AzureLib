@@ -3,6 +3,8 @@ package mod.azure.azurelib.fabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.world.entity.monster.Monster;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.AzureLibMod;
@@ -11,6 +13,8 @@ import mod.azure.azurelib.common.internal.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.internal.common.network.packet.*;
 import mod.azure.azurelib.fabric.platform.FabricAzureLibNetwork;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.rewrite.testing.Registry;
 import mod.azure.azurelib.sblforked.SBLConstants;
 
 public final class FabricAzureLibMod implements ModInitializer {
@@ -36,5 +40,12 @@ public final class FabricAzureLibMod implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(AnimTriggerPacket.TYPE, AnimTriggerPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(AnimDataSyncPacket.TYPE, AnimDataSyncPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(SendConfigDataPacket.TYPE, SendConfigDataPacket.CODEC);
+        FabricDefaultAttributeRegistry.register(
+            Registry.MARAUDER.get(),
+            Monster.createMonsterAttributes()
+        );
+        AzIdentityRegistry.register(
+            Registry.PISTOL.get()
+        );
     }
 }

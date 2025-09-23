@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -175,51 +176,50 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-		if (!isReRender) {
-			var config = entityRendererPipeline.config();
+        var config = entityRendererPipeline.config();
 
-			var textureOverride = getTextureOverrideForBone(bone, context.animatable(), context.partialTick());
-			context.setTextureOverride(textureOverride);
+        context.setTextureOverride(getTextureOverrideForBone(bone, context.animatable(), context.partialTick()));
 
-			var renderTypeOverride = getRenderTypeOverrideForBone(
-				bone,
-				context.animatable(),
-				textureOverride,
-				bufferSource,
-				context.partialTick()
-			);
+        ResourceLocation texture = context.getTextureOverride() == null
+            ? config.textureLocation(context.animatable())
+            : context.getTextureOverride();
 
-			if (textureOverride != null && renderTypeOverride != null) {
-				renderTypeOverride = context.getDefaultRenderType(
-					context.animatable(),
-					textureOverride,
-					context.multiBufferSource(),
-					context.partialTick()
-				);
-			}
+        RenderType renderTypeOverride = getRenderTypeOverrideForBone(
+            bone,
+            context.animatable(),
+            texture,
+            bufferSource,
+            context.partialTick()
+        );
 
-			if (renderTypeOverride != null) {
-				context.setRenderType(renderTypeOverride);
-				context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
-				renderType = renderTypeOverride;
-			}
+        if (texture != null && renderTypeOverride == null) {
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
+            renderType = renderTypeOverride;
+        }
 
-			if (
-				!boneRenderOverride(
-					poseStack,
-					bone,
-					bufferSource,
-					buffer,
-					context.partialTick(),
-					context.packedLight(),
-					context.packedOverlay(),
-					context.renderColor()
-				)
-			) {
-				renderCubesOfBone(context, bone);
-			}
-		}
+        if (renderTypeOverride != null) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+            renderType = renderTypeOverride;
+        }
 
+        if (
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.renderColor()
+            )
+        )
+            super.renderCubesOfBone(context, bone);
 
         if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
             context.setVertexConsumer(bufferSource.getBuffer(renderType));

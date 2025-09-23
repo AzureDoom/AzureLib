@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.api.common.registry;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 import java.util.function.Supplier;
@@ -36,13 +37,12 @@ public interface CommonBlockRegistryInterface {
     /**
      * Registers a new Block.
      *
-     * @param modID     The mod ID.
      * @param blockName The name of the block.
      * @param block     A supplier for the block.
      * @param <T>       The type of the block.
      * @return A supplier for the registered block.
      */
-    static <T extends Block> Supplier<T> registerBlock(String modID, String blockName, Supplier<T> block) {
-        return Services.COMMON_REGISTRY.registerBlock(modID, blockName, block);
+    static <T extends Block> Supplier<T> registerBlock(String blockName, Supplier<T> block) {
+        return Services.COMMON_REGISTRY.register(BuiltInRegistries.BLOCK, blockName, block);
     }
 }

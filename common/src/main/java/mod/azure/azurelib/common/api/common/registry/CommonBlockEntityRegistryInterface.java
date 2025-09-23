@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.api.common.registry;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -42,17 +43,15 @@ public interface CommonBlockEntityRegistryInterface {
     /**
      * Registers a new Block Entity.
      *
-     * @param modID           The mod ID.
      * @param blockEntityName The name of the Block Entity.
      * @param blockEntity     A supplier for the block entity type.
      * @param <T>             The type of the block entity.
      * @return A supplier for the registered block entity type.
      */
     static <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(
-        String modID,
         String blockEntityName,
         Supplier<BlockEntityType<T>> blockEntity
     ) {
-        return Services.COMMON_REGISTRY.registerBlockEntity(modID, blockEntityName, blockEntity);
+        return Services.COMMON_REGISTRY.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, blockEntityName, blockEntity);
     }
 }

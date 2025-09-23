@@ -8,6 +8,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.lwjgl.glfw.GLFW;
@@ -22,6 +23,10 @@ import mod.azure.azurelib.common.internal.client.AzureLibClient;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.testing.MarauderRenderer;
+import mod.azure.azurelib.rewrite.testing.Registry;
+import mod.azure.azurelib.rewrite.testing.item.PistolRenderer;
 
 @EventBusSubscriber(modid = AzureLib.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModListener {
@@ -73,5 +78,11 @@ public class ClientModListener {
                 );
             });
         }
+        AzItemRendererRegistry.register(Registry.PISTOL.get(), PistolRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(Registry.MARAUDER.get(), MarauderRenderer::new);
     }
 }
