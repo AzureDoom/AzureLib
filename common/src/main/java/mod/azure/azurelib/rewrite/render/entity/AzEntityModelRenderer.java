@@ -1,13 +1,10 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -92,11 +89,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var poseStack = context.poseStack();
-        var renderType = context.renderType();
 
         poseStack.pushPose();
         RenderUtils.translateMatrixToBone(poseStack, bone);
@@ -127,54 +121,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        var config = entityRendererPipeline.config();
-
-        context.setTextureOverride(getTextureOverrideForBone(bone, context.animatable(), context.partialTick()));
-
-        ResourceLocation texture = context.getTextureOverride() == null
-            ? config.textureLocation(context.animatable())
-            : context.getTextureOverride();
-
-        RenderType renderTypeOverride = getRenderTypeOverrideForBone(
-            bone,
-            context.animatable(),
-            texture,
-            bufferSource,
-            context.partialTick()
-        );
-
-        if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(
-                context.animatable(),
-                texture,
-                context.multiBufferSource(),
-                context.partialTick()
-            );
-            renderType = renderTypeOverride;
-        }
-
-        if (renderTypeOverride != null) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
-            renderType = renderTypeOverride;
-        }
-
-        if (
-            !boneRenderOverride(
-                poseStack,
-                bone,
-                bufferSource,
-                buffer,
-                context.partialTick(),
-                context.packedLight(),
-                context.packedOverlay(),
-                context.renderColor()
-            )
-        )
-            super.renderCubesOfBone(context, bone);
-
-        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderType));
-        }
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
 
         renderCubesOfBone(context, bone);
 
@@ -188,15 +135,15 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
     }
 
     /**
-     * Calculates a linear interpolation (LERP) rotation value for a given entity, taking into account
-     * the entity's current and previous rotations, its head movement, and whether it is mounted on another entity.
-     * Specifically, this method interpolates between the previous and current rotation states, constraining rotational
-     * adjustments to ensure realistic movement, especially when the entity is a passenger.
+     * Calculates a linear interpolation (LERP) rotation value for a given entity, taking into account the entity's
+     * current and previous rotations, its head movement, and whether it is mounted on another entity. Specifically,
+     * this method interpolates between the previous and current rotation states, constraining rotational adjustments to
+     * ensure realistic movement, especially when the entity is a passenger.
      *
-     * @param animatable The entity whose rotation is to be interpolated. Must extend {@link Entity}, and may include subtypes
-     *                   such as {@link LivingEntity} to apply specific logic for living entities.
-     * @param partialTick A float value representing the partial time progression within the current game tick. Used
-     *                    to blend between previous and current states for smoother animations.
+     * @param animatable  The entity whose rotation is to be interpolated. Must extend {@link Entity}, and may include
+     *                    subtypes such as {@link LivingEntity} to apply specific logic for living entities.
+     * @param partialTick A float value representing the partial time progression within the current game tick. Used to
+     *                    blend between previous and current states for smoother animations.
      * @return The interpolated LERP rotation value, which represents the adjusted body rotation of the entity after
      *         considering multiple elements such as head movements and passenger state.
      */

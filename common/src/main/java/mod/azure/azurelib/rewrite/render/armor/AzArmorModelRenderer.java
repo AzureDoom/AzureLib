@@ -76,6 +76,8 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
             );
         }
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         super.renderRecursively(context, bone, isReRender);
 
         poseStack.popPose();
