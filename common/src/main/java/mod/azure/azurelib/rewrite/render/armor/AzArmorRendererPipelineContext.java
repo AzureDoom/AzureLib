@@ -60,6 +60,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         this.baseModel = baseModel;
         this.currentEntity = entity;
         this.currentStack = stack;
+        this.animatable = stack;
         this.currentSlot = slot;
     }
 
