@@ -31,11 +31,11 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
     @Override
     public void render(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
         var poseStack = context.poseStack();
-        poseStack.pushPose();
-        poseStack.translate(0, 24 / 16f, 0);
-        poseStack.scale(-1, -1, 1);
 
+        poseStack.pushPose();
         if (!isReRender) {
+            poseStack.translate(0, 24 / 16f, 0);
+            poseStack.scale(-1, -1, 1);
             var animatable = context.animatable();
             var animator = armorRendererPipeline.renderer().animator();
 

@@ -1,10 +1,12 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
 import com.mojang.math.Matrix4f;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.render.*;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
@@ -69,7 +71,8 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         scaleModelForBaby(armorContext, isReRender);
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
 
-        boneContext.applyBoneVisibilityBySlot(currentSlot);
+        if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
+            boneContext.applyBoneVisibilityBySlot(currentSlot);
         if (config.alpha(context.animatable()) < 1) {
             armorContext.setAlpha(config.alpha(context.animatable()));
             armorContext.setTranslucent(true);
@@ -87,7 +90,8 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
      * models
      */
     public void scaleModelForBaby(AzArmorRendererPipelineContext context, boolean isReRender) {
-        if (!armorModel.young || isReRender) {
+        var currentEntity = context.currentEntity();
+        if (!(currentEntity instanceof AgeableMob ageableMob && ageableMob.isBaby()) || isReRender) {
             return;
         }
 
