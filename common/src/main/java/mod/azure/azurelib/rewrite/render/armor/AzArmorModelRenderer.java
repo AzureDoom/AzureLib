@@ -59,6 +59,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
         // TODO: This is dangerous.
         var ctx = armorRendererPipeline.context();
 
+        poseStack.popPose();
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.last().pose());
             Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
@@ -75,6 +76,10 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
             );
         }
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         super.renderRecursively(context, bone, isReRender);
+
+        poseStack.popPose();
     }
 }

@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.ClientUtils;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends
@@ -32,6 +34,17 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         @Nullable MultiBufferSource bufferSource,
         float partialTick
     ) {
+        var isInvisible = animatable.isInvisible();
+        var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
+
+        if (isInvisible && !isPlayerInvisible) {
+            return RenderType.itemEntityTranslucentCull(texture);
+        }
+
+        if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
+            return RenderType.entityTranslucentEmissive(texture, true);
+        }
+
         return RenderType.entityCutoutNoCull(texture);
     }
 

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -122,9 +121,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderType));
-        }
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
 
         renderCubesOfBone(context, bone);
 

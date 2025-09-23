@@ -1,7 +1,6 @@
 package mod.azure.azurelib.rewrite.render.block;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.core.Direction;
@@ -110,17 +109,9 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderType));
-        }
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
 
-        renderCubesOfBone(context, bone);
-
-        if (!isReRender) {
-            layerRenderer.applyRenderLayersForBone(context, bone);
-        }
-
-        renderChildBones(context, bone, isReRender);
+        super.renderRecursively(context, bone, isReRender);
 
         poseStack.popPose();
     }
