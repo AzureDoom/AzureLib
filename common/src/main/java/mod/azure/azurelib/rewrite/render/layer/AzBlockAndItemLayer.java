@@ -66,10 +66,6 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
         if (stack == null && blockState == null)
             return;
 
-        if (animatable instanceof Entity entity && Minecraft.getInstance().shouldEntityAppearGlowing(entity)) {
-            return;
-        }
-
         context.poseStack().pushPose();
         RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
 
