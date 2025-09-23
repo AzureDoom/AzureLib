@@ -31,7 +31,7 @@ public abstract class AzRendererPipelineContext<T> {
 
     private final AzRendererPipeline<T> rendererPipeline;
 
-    private T animatable;
+    protected T animatable;
 
     private AzBakedModel bakedModel;
 

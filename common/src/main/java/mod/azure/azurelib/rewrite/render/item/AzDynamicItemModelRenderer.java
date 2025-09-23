@@ -21,6 +21,7 @@ import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
  * transformations, layer configurations, and rendering logic for item models in intricate circumstances. It focuses on
  * advanced rendering operations, including recursive rendering of bone hierarchies and vertex-level manipulation.
  */
+@Deprecated(since = "3.0.30", forRemoval = true)
 public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
 
     public AzDynamicItemModelRenderer(
@@ -49,6 +50,7 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
         var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
 
+        poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
             var poseState = new Matrix4f(poseStack.last().pose());
@@ -96,6 +98,10 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
             renderType = renderTypeOverride;
         }
 
+        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderType));
+        }
+
         if (
             !boneRenderOverride(
                 poseStack,
@@ -107,14 +113,19 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
                 context.packedOverlay(),
                 context.renderColor()
             )
-        )
+        ) {
             super.renderCubesOfBone(context, bone);
+        }
+
+        renderCubesOfBone(context, bone);
 
         if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
             context.setVertexConsumer(bufferSource.getBuffer(renderType));
         }
 
-        super.renderRecursively(context, bone, isReRender);
+        renderChildBones(context, bone, isReRender);
+
+        poseStack.popPose();
     }
 
     /**

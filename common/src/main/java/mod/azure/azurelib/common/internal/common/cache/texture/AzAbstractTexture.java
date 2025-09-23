@@ -71,6 +71,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
                     .setShaderState(SHADER_STATE)
                     .setTextureState(textureState)
                     .setTransparencyState(TRANSPARENCY_STATE)
+                    .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .setWriteMaskState(WRITE_MASK)
                     .createCompositeState(isGlowing)
             );
@@ -186,7 +187,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
      *
      * @return The glowlayer resourcepath for the provided input path
      */
-    protected static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
+    public static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
         ResourceLocation path = appendToPath(baseResource, APPENDIX);
 
         generateTexture(

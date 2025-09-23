@@ -7,7 +7,7 @@
 
 neoForge {
     version = "${neo_version}"
-    accessTransformers = ["src/main/resources/META-INF/accesstransformer.cfg"]
+    accessTransformers = ["../common/src/main/resources/META-INF/accesstransformer.cfg"]
 
     parchment {
         minecraftVersion = "${parchment_minecraft}"

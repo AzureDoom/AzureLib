@@ -1,6 +1,5 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -46,39 +45,9 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
+        float lerpBodyRot = getLerpRot(animatable, partialTick);
 
-        LivingEntity livingEntity = animatable instanceof LivingEntity entity ? entity : null;
-
-        boolean shouldSit = animatable.isPassenger() && (animatable.getVehicle() != null);
-        float lerpBodyRot = livingEntity == null
-            ? 0
-            : Mth.rotLerp(
-                partialTick,
-                livingEntity.yBodyRotO,
-                livingEntity.yBodyRot
-            );
-        float lerpHeadRot = livingEntity == null
-            ? 0
-            : Mth.rotLerp(
-                partialTick,
-                livingEntity.yHeadRotO,
-                livingEntity.yHeadRot
-            );
-        float netHeadYaw = lerpHeadRot - lerpBodyRot;
-
-        if (shouldSit && animatable.getVehicle() instanceof LivingEntity livingentity) {
-            lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
-            netHeadYaw = lerpHeadRot - lerpBodyRot;
-            float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
-            lerpBodyRot = lerpHeadRot - clampedHeadYaw;
-
-            if (clampedHeadYaw * clampedHeadYaw > 2500f)
-                lerpBodyRot += clampedHeadYaw * 0.2f;
-
-            netHeadYaw = lerpHeadRot - lerpBodyRot;
-        }
-
-        if (animatable.getPose() == Pose.SLEEPING && livingEntity != null) {
+        if (animatable.getPose() == Pose.SLEEPING && animatable instanceof LivingEntity livingEntity) {
             Direction bedDirection = livingEntity.getBedOrientation();
 
             if (bedDirection != null) {
@@ -92,30 +61,11 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
             }
         }
 
-        float nativeScale = livingEntity != null ? livingEntity.getScale() : 1;
+        float nativeScale = animatable instanceof LivingEntity livingEntity ? livingEntity.getScale() : 1;
         float ageInTicks = animatable.tickCount + partialTick;
-        float limbSwingAmount = 0;
-        float limbSwing = 0;
 
         poseStack.scale(nativeScale, nativeScale, nativeScale);
         applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
-
-        if (!shouldSit && animatable.isAlive() && livingEntity != null) {
-            limbSwingAmount = Mth.lerp(
-                partialTick,
-                livingEntity.walkAnimation.speedOld,
-                livingEntity.walkAnimation.speed()
-            );
-            limbSwing = livingEntity.walkAnimation.position() - livingEntity.walkAnimation.speed() * (1 - partialTick);
-
-            if (livingEntity.isBaby()) {
-                limbSwing *= 3f;
-            }
-
-            if (limbSwingAmount > 1f) {
-                limbSwingAmount = 1f;
-            }
-        }
 
         if (!isReRender) {
             var animator = entityRendererPipeline.getRenderer().getAnimator();
@@ -139,11 +89,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var poseStack = context.poseStack();
-        var renderType = context.renderType();
 
         poseStack.pushPose();
         RenderUtils.translateMatrixToBone(poseStack, bone);
@@ -174,9 +121,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderType));
-        }
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
 
         renderCubesOfBone(context, bone);
 
@@ -187,6 +132,49 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
         renderChildBones(context, bone, isReRender);
 
         poseStack.popPose();
+    }
+
+    /**
+     * Calculates a linear interpolation (LERP) rotation value for a given entity, taking into account the entity's
+     * current and previous rotations, its head movement, and whether it is mounted on another entity. Specifically,
+     * this method interpolates between the previous and current rotation states, constraining rotational adjustments to
+     * ensure realistic movement, especially when the entity is a passenger.
+     *
+     * @param animatable  The entity whose rotation is to be interpolated. Must extend {@link Entity}, and may include
+     *                    subtypes such as {@link LivingEntity} to apply specific logic for living entities.
+     * @param partialTick A float value representing the partial time progression within the current game tick. Used to
+     *                    blend between previous and current states for smoother animations.
+     * @return The interpolated LERP rotation value, which represents the adjusted body rotation of the entity after
+     *         considering multiple elements such as head movements and passenger state.
+     */
+    private static <T extends Entity> float getLerpRot(T animatable, float partialTick) {
+        boolean shouldSit = animatable.isPassenger() && (animatable.getVehicle() != null);
+
+        float lerpBodyRot = animatable instanceof LivingEntity livingEntity
+            ? Mth.rotLerp(
+                partialTick,
+                livingEntity.yBodyRotO,
+                livingEntity.yBodyRot
+            )
+            : animatable.getYRot();
+        float lerpHeadRot = animatable instanceof LivingEntity livingEntity
+            ? Mth.rotLerp(
+                partialTick,
+                livingEntity.yHeadRotO,
+                livingEntity.yHeadRot
+            )
+            : animatable.getYHeadRot();
+
+        if (shouldSit && animatable.getVehicle() instanceof LivingEntity livingentity) {
+            lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
+            float netHeadYaw = lerpHeadRot - lerpBodyRot;
+            float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
+            lerpBodyRot = lerpHeadRot - clampedHeadYaw;
+
+            if (clampedHeadYaw * clampedHeadYaw > 2500f)
+                lerpBodyRot += clampedHeadYaw * 0.2f;
+        }
+        return lerpBodyRot;
     }
 
     /**

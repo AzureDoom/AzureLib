@@ -1,15 +1,11 @@
 package mod.azure.azurelib.rewrite.render.armor;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import mod.azure.azurelib.common.internal.client.util.RenderUtils;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoQuad;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.model.AzBone;
@@ -25,6 +21,7 @@ import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
  * transformations and hierarchies. - Support for texture and render type overrides for specific bones. - Vertex
  * creation for quad meshes, including texture coordinate transformations.
  */
+@Deprecated(since = "3.0.30", forRemoval = true)
 public abstract class AzDynamicArmorModelRenderer extends AzArmorModelRenderer {
 
     public AzDynamicArmorModelRenderer(
@@ -48,78 +45,6 @@ public abstract class AzDynamicArmorModelRenderer extends AzArmorModelRenderer {
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
-        var poseStack = context.poseStack();
-        // TODO: This is dangerous.
-        var ctx = armorRendererPipeline.context();
-        var renderType = context.renderType();
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
-
-        if (bone.isTrackingMatrices()) {
-            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
-            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
-                armorRendererPipeline.entityRenderTranslations
-            );
-
-            bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, armorRendererPipeline.modelRenderTranslations)
-            );
-            bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, new Vector3f()));
-            bone.setWorldSpaceMatrix(
-                RenderUtils.translateMatrix(new Matrix4f(localMatrix), ctx.currentEntity().position().toVector3f())
-            );
-        }
-
-        var config = armorRendererPipeline.config();
-
-        context.setTextureOverride(getTextureOverrideForBone(bone, context.animatable(), context.partialTick()));
-
-        ResourceLocation texture = context.getTextureOverride() == null
-            ? config.textureLocation(context.animatable())
-            : context.getTextureOverride();
-
-        RenderType renderTypeOverride = getRenderTypeOverrideForBone(
-            bone,
-            context.animatable(),
-            texture,
-            bufferSource,
-            context.partialTick()
-        );
-
-        if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(
-                context.animatable(),
-                texture,
-                context.multiBufferSource(),
-                context.partialTick()
-            );
-            renderType = renderTypeOverride;
-        }
-
-        if (renderTypeOverride != null) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
-            renderType = renderTypeOverride;
-        }
-
-        if (
-            !boneRenderOverride(
-                poseStack,
-                bone,
-                bufferSource,
-                buffer,
-                context.partialTick(),
-                context.packedLight(),
-                context.packedOverlay(),
-                context.renderColor()
-            )
-        )
-            super.renderCubesOfBone(context, bone);
-
-        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
-            context.setVertexConsumer(bufferSource.getBuffer(renderType));
-        }
-
         super.renderRecursively(context, bone, isReRender);
     }
 
