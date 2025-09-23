@@ -115,7 +115,6 @@ public record AzCommand(List<AzAction> actions) {
                 )
             )
             .setFreezeTickOffset(controllerName, freezeTickOffset)
-            .setTransitionSpeed(controllerName, transitionLength)
             .setStartTickOffset(controllerName, startTickOffset)
             .setSpeed(controllerName, animationSpeed)
             .setRepeatAmount(controllerName, repeatXTimes)
