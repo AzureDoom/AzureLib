@@ -35,6 +35,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
         poseStack.translate(0, 24 / 16f, 0);
         poseStack.scale(-1, -1, 1);
 
+        poseStack.popPose();
         if (!isReRender) {
             var animatable = context.animatable();
             var animator = armorRendererPipeline.renderer().animator();
@@ -59,6 +60,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
         // TODO: This is dangerous.
         var ctx = armorRendererPipeline.context();
 
+        poseStack.popPose();
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.last().pose());
             Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
@@ -76,6 +78,10 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
             bone.setWorldSpaceMatrix(worldState);
         }
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         super.renderRecursively(context, bone, isReRender);
+
+        poseStack.popPose();
     }
 }
