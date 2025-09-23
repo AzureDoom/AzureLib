@@ -112,7 +112,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
         poseStack.popPose();
 
         renderFinal(context);
-        doPostRenderCleanup();
+        doPostRenderCleanup(context);
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * Use this method to clean up any leftover persistent objects stored during rendering or any other post-render
      * maintenance tasks as required
      */
-    protected void doPostRenderCleanup() {}
+    protected void doPostRenderCleanup(AzRendererPipelineContext<T> context) {}
 
     /**
      * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as

@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.util.ClientUtils;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends
@@ -32,6 +33,13 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         @Nullable MultiBufferSource bufferSource,
         float partialTick
     ) {
+        var isInvisible = animatable.isInvisible();
+        var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
+
+        if (isInvisible && !isPlayerInvisible) {
+            return RenderType.itemEntityTranslucentCull(texture);
+        }
+
         return RenderType.entityCutoutNoCull(texture);
     }
 

@@ -53,9 +53,11 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
+        var poseStack = context.poseStack();
+
+        poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
-            var poseStack = context.poseStack();
             var poseState = new Matrix4f(poseStack.last().pose());
             var localMatrix = RenderUtils.invertAndMultiplyMatrices(
                 poseState,
@@ -73,7 +75,11 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
             bone.setWorldSpaceMatrix(worldState);
         }
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         super.renderRecursively(context, bone, isReRender);
+
+        poseStack.popPose();
     }
 
     public Vec3 getRenderOffset(ItemStack itemStack, float f) {
