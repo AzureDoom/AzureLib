@@ -179,7 +179,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
         }
     }
 
-    public AzArmorModel<?> armorModel() {
+    public AzArmorModel armorModel() {
         return armorModel;
     }
 

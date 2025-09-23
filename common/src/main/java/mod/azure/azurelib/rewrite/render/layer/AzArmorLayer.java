@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -11,7 +12,6 @@ import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
@@ -124,7 +124,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
         var model = getModelForItem(armorStack, slot);
         var modelPart = getModelPartForBone(context, bone, model);
 
@@ -132,12 +131,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
             context.poseStack().pushPose();
             context.poseStack().scale(-1, -1, 1);
 
-            if (renderer != null && context.animatable() instanceof LivingEntity entity) {
+            if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
-                renderAzArmorPiece(context, slot, armorStack, renderer, entity, model, modelPart);
-            } else if (armorStack.getItem() instanceof ArmorItem) {
-                prepModelPartForRender(context, bone, modelPart);
-                renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
+                renderArmorPiece(context, bone, slot, armorStack, modelPart, model);
             }
 
             context.poseStack().popPose();
@@ -190,41 +186,41 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         return null;
     }
 
-    protected void renderAzArmorPiece(
-        AzRendererPipelineContext<T> context,
-        EquipmentSlot slot,
-        ItemStack armorStack,
-        AzArmorRenderer renderer,
-        LivingEntity entity,
-        HumanoidModel<T> model,
-        ModelPart modelPart
-    ) {
-        var renderPipelines = renderer.rendererPipeline();
-        var boneContext = renderPipelines.context().boneContext();
-        var armorModel = renderPipelines.armorModel();
-        var i2 = armorStack.is(
-            ItemTags.DYEABLE
-        ) ? FastColor.ARGB32.opaque(DyedItemColor.getOrDefault(armorStack, -6265536)) : -1;
-
-        renderer.prepForRender(entity, armorStack, slot, model);
-        boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
-        armorModel.renderToBuffer(context.poseStack(), null, context.packedLight(), OverlayTexture.NO_OVERLAY, i2);
-    }
-
     /**
      * Renders an individual armor piece base on the given {@link AzBone} and {@link ItemStack}
      */
-    protected <I extends Item> void renderVanillaArmorPiece(
+    protected <I extends Item> void renderArmorPiece(
         AzRendererPipelineContext<T> context,
         AzBone bone,
         EquipmentSlot slot,
         ItemStack armorStack,
-        ModelPart modelPart
+        ModelPart modelPart,
+        HumanoidModel<T> baseModel
     ) {
+		// AzArmor rendering
+        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
+        var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
+
+        if (renderer != null) {
+			var armorModel = renderer.rendererPipeline().armorModel();
+			var boneContext = renderer.rendererPipeline().context().boneContext();
+
+            renderer.prepForRender(context.animatable(), armorStack, slot, armorModel);
+	        boneContext.applyBoneVisibilityByPart(slot, modelPart, armorModel);
+	        armorModel.renderToBuffer(
+                context.poseStack(),
+	            null,
+                context.packedLight(),
+                OverlayTexture.NO_OVERLAY,
+                color
+            );
+            return;
+        }
+
+		// Vanilla armor rendering
         var material = ((ArmorItem) armorStack.getItem()).getMaterial();
 
         for (var layer : material.value().layers()) {
-            var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
             var buffer = getVanillaArmorBuffer(context, armorStack, slot, bone, layer, false);
 
             modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay(), color);

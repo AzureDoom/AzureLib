@@ -2,9 +2,11 @@ package mod.azure.azurelib.neoforge;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -45,6 +47,7 @@ public final class NeoForgeAzureLibMod {
         AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
         modEventBus.addListener(this::init);
         modEventBus.addListener(this::createEntityAttributes);
+        modEventBus.addListener(this::addCreativeTabs);
         modEventBus.addListener(this::registerMessages);
         SBLConstants.SBL_LOADER.init(modEventBus);
     }
@@ -52,12 +55,27 @@ public final class NeoForgeAzureLibMod {
     private void init(FMLCommonSetupEvent event) {
         ConfigIO.FILE_WATCH_MANAGER.startService();
         AzIdentityRegistry.register(
-            Registry.PISTOL.get()
+            Registry.WOLF_HELMET.get(),
+            Registry.WOLF_CHESTPLATE.get(),
+            Registry.WOLF_LEGGINGS.get(),
+            Registry.WOLF_BOOTS.get()
         );
     }
 
+    public void addCreativeTabs(final BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+            event.accept(Registry.MUTANT_ZOMBIE_SPAWN_EGG.get());
+        }
+        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.accept(Registry.WOLF_HELMET.get());
+            event.accept(Registry.WOLF_CHESTPLATE.get());
+            event.accept(Registry.WOLF_LEGGINGS.get());
+            event.accept(Registry.WOLF_BOOTS.get());
+        }
+    }
+
     public void createEntityAttributes(final EntityAttributeCreationEvent event) {
-        event.put(Registry.MARAUDER.get(), Monster.createMonsterAttributes().build());
+        event.put(Registry.MUTANT_ZOMBIE.get(), Monster.createMonsterAttributes().build());
     }
 
     public void registerMessages(RegisterPayloadHandlersEvent event) {

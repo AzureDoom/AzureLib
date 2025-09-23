@@ -23,10 +23,10 @@ import mod.azure.azurelib.common.internal.client.AzureLibClient;
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
 import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
-import mod.azure.azurelib.rewrite.testing.MarauderRenderer;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.rewrite.testing.MutantZombieRenderer;
 import mod.azure.azurelib.rewrite.testing.Registry;
-import mod.azure.azurelib.rewrite.testing.item.PistolRenderer;
+import mod.azure.azurelib.rewrite.testing.armor.WolfArmorRenderer;
 
 @EventBusSubscriber(modid = AzureLib.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModListener {
@@ -78,11 +78,17 @@ public class ClientModListener {
                 );
             });
         }
-        AzItemRendererRegistry.register(Registry.PISTOL.get(), PistolRenderer::new);
+        AzArmorRendererRegistry.register(
+            WolfArmorRenderer::new,
+            Registry.WOLF_HELMET.get(),
+            Registry.WOLF_CHESTPLATE.get(),
+            Registry.WOLF_LEGGINGS.get(),
+            Registry.WOLF_BOOTS.get()
+        );
     }
 
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(Registry.MARAUDER.get(), MarauderRenderer::new);
+        event.registerEntityRenderer(Registry.MUTANT_ZOMBIE.get(), MutantZombieRenderer::new);
     }
 }
