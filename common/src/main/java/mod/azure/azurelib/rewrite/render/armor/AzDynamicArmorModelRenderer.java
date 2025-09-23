@@ -25,6 +25,7 @@ import mod.azure.azurelib.util.RenderUtils;
  * transformations and hierarchies. - Support for texture and render type overrides for specific bones. - Vertex
  * creation for quad meshes, including texture coordinate transformations.
  */
+@Deprecated(since = "3.1.2", forRemoval = true)
 public abstract class AzDynamicArmorModelRenderer extends AzArmorModelRenderer {
 
     public AzDynamicArmorModelRenderer(

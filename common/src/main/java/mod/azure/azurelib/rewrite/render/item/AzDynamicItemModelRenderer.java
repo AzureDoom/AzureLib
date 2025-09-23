@@ -21,6 +21,7 @@ import mod.azure.azurelib.util.RenderUtils;
  * transformations, layer configurations, and rendering logic for item models in intricate circumstances. It focuses on
  * advanced rendering operations, including recursive rendering of bone hierarchies and vertex-level manipulation.
  */
+@Deprecated(since = "3.1.2", forRemoval = true)
 public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
 
     public AzDynamicItemModelRenderer(
