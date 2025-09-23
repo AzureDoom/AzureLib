@@ -25,20 +25,10 @@ public class NeoForgeCommonRegistry implements CommonRegistry {
                 registryName,
                 (Supplier<Block>) supplier
             );
-        } else if (registry == BuiltInRegistries.ITEM) {
-            return (Supplier<T>) NeoForgeAzureLibMod.itemDeferredRegister.register(
-                registryName,
-                (Supplier<Item>) supplier
-            );
         } else if (registry == BuiltInRegistries.BLOCK_ENTITY_TYPE) {
             return (Supplier<T>) NeoForgeAzureLibMod.blockEntityTypeDeferredRegister.register(
                 registryName,
                 (Supplier<BlockEntityType<?>>) supplier
-            );
-        } else if (registry == BuiltInRegistries.ENTITY_TYPE) {
-            return (Supplier<T>) NeoForgeAzureLibMod.entityTypeDeferredRegister.register(
-                registryName,
-                (Supplier<EntityType<?>>) supplier
             );
         }
 
