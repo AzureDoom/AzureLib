@@ -20,6 +20,7 @@ AzureLib supports using SmartBrainLib to handle animating entities within their 
 Within your entity's `AzEntityAnimator` class, within the `registerControllers` method, you can add a secondary `AzAnimationController`, like so:
 
 <CodeTabs>
+
 ```java !!tabs AzureLib 2.x/Geckolib
 // ... Somewhere in your project
 public static final RawAnimation ATTACK = RawAnimation.begin().then("attack", LoopType.PLAY_ONCE);
@@ -33,6 +34,7 @@ animationControllerContainer.add(
   AzAnimationController.builder(this, "attack_controller").build()
 );
 ```
+
 </CodeTabs>
 
 ## Defining the Dispatcher
@@ -61,6 +63,7 @@ public class MyEntityDispatcher {
 Within your entity's `BrainActivityGroup` method, within the `Behavior[]` lists, you can utilize a lambda to extend the function of an existing Behavior, like so:
 
 <CodeTabs>
+
 ```java !!tabs AzureLib 2.x/Geckolib
 // ... Within getFightTasks()
 (new AnimatableMeleeAttack<>(0)).whenStarting((entity) -> {this.triggerAnim("attackController", "melee");})
@@ -70,6 +73,7 @@ Within your entity's `BrainActivityGroup` method, within the `Behavior[]` lists,
 // ... Within getFightTasks()
 (new AnimatableMeleeAttack<>(0)).whenStarting((entity) -> {this.dispatcher.genericAttack();})
 ```
+
 </CodeTabs>
 
 This example has an entity performing a generic melee attack animation immediately when the attack task begins.
