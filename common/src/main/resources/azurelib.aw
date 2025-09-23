@@ -30,3 +30,11 @@ accessible field net/minecraft/client/model/PlayerModel ear Lnet/minecraft/clien
 accessible field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
 mutable field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
 accessible field com/mojang/blaze3d/vertex/BufferBuilder building Z
+
+accessible class net/minecraft/client/renderer/RenderStateShard$OverlayStateShard
+accessible class net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator
+accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Double
+accessible method net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator <init> (Lcom/mojang/blaze3d/vertex/VertexConsumer;IIII)V
+accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double first Lcom/mojang/blaze3d/vertex/VertexConsumer;
+accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double second Lcom/mojang/blaze3d/vertex/VertexConsumer;
+accessible field net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator delegate Lcom/mojang/blaze3d/vertex/VertexConsumer;
