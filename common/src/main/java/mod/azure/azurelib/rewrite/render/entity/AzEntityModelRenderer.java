@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -173,6 +174,52 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
         }
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+
+		if (!isReRender) {
+			var config = entityRendererPipeline.config();
+
+			var textureOverride = getTextureOverrideForBone(bone, context.animatable(), context.partialTick());
+			context.setTextureOverride(textureOverride);
+
+			var renderTypeOverride = getRenderTypeOverrideForBone(
+				bone,
+				context.animatable(),
+				textureOverride,
+				bufferSource,
+				context.partialTick()
+			);
+
+			if (textureOverride != null && renderTypeOverride != null) {
+				renderTypeOverride = context.getDefaultRenderType(
+					context.animatable(),
+					textureOverride,
+					context.multiBufferSource(),
+					context.partialTick()
+				);
+			}
+
+			if (renderTypeOverride != null) {
+				context.setRenderType(renderTypeOverride);
+				context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+				renderType = renderTypeOverride;
+			}
+
+			if (
+				!boneRenderOverride(
+					poseStack,
+					bone,
+					bufferSource,
+					buffer,
+					context.partialTick(),
+					context.packedLight(),
+					context.packedOverlay(),
+					context.renderColor()
+				)
+			) {
+				renderCubesOfBone(context, bone);
+			}
+		}
+
 
         if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
             context.setVertexConsumer(bufferSource.getBuffer(renderType));

@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -109,6 +111,51 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         }
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+
+        var config = blockEntityRendererPipeline.config();
+
+        context.setTextureOverride(getTextureOverrideForBone(bone, context.animatable(), context.partialTick()));
+
+        ResourceLocation texture = context.getTextureOverride() == null
+            ? config.textureLocation(context.animatable())
+            : context.getTextureOverride();
+
+        RenderType renderTypeOverride = getRenderTypeOverrideForBone(
+            bone,
+            context.animatable(),
+            texture,
+            bufferSource,
+            context.partialTick()
+        );
+
+        if (texture != null && renderTypeOverride == null) {
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
+            renderType = renderTypeOverride;
+        }
+
+        if (renderTypeOverride != null) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+            renderType = renderTypeOverride;
+        }
+
+        if (
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.renderColor()
+            )
+        )
+            super.renderCubesOfBone(context, bone);
 
         if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
             context.setVertexConsumer(bufferSource.getBuffer(renderType));

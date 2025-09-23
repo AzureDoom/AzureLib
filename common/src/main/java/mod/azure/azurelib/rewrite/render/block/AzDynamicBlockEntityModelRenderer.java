@@ -25,6 +25,7 @@ import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
  *
  * @param <T> The type of BlockEntity this renderer is designed to handle.
  */
+@Deprecated(since = "3.0.30", forRemoval = true)
 public abstract class AzDynamicBlockEntityModelRenderer<T extends BlockEntity> extends AzBlockEntityModelRenderer<T> {
 
     public AzDynamicBlockEntityModelRenderer(

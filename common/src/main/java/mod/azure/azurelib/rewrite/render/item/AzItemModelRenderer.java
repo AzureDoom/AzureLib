@@ -1,5 +1,8 @@
 package mod.azure.azurelib.rewrite.render.item;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -52,9 +55,14 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
+        var buffer = context.vertexConsumer();
+        var bufferSource = context.multiBufferSource();
+        var poseStack = context.poseStack();
+        var renderType = context.renderType();
+
+        poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
-            var poseStack = context.poseStack();
             var poseState = new Matrix4f(poseStack.last().pose());
             var localMatrix = RenderUtils.invertAndMultiplyMatrices(
                 poseState,
@@ -69,7 +77,65 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
             );
         }
 
-        super.renderRecursively(context, bone, isReRender);
+        var config = itemRendererPipeline.config();
+
+        context.setTextureOverride(getTextureOverrideForBone(bone, context.animatable(), context.partialTick()));
+
+        ResourceLocation texture = context.getTextureOverride() == null
+            ? config.textureLocation(context.animatable())
+            : context.getTextureOverride();
+
+        RenderType renderTypeOverride = getRenderTypeOverrideForBone(
+            bone,
+            context.animatable(),
+            texture,
+            bufferSource,
+            context.partialTick()
+        );
+
+        if (texture != null && renderTypeOverride == null) {
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
+            renderType = renderTypeOverride;
+        }
+
+        if (renderTypeOverride != null) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderTypeOverride));
+            renderType = renderTypeOverride;
+        }
+
+        if (!isReRender && buffer instanceof BufferBuilder builder && !builder.building) {
+            context.setVertexConsumer(bufferSource.getBuffer(renderType));
+        }
+
+        if (
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.renderColor()
+            )
+        ) {
+            super.renderCubesOfBone(context, bone);
+        }
+
+        renderCubesOfBone(context, bone);
+
+        if (!isReRender) {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+        }
+
+        renderChildBones(context, bone, isReRender);
+
+        poseStack.popPose();
     }
 
     public Vec3 getRenderOffset(ItemStack itemStack, float f) {

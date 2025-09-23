@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -150,6 +151,39 @@ public class AzModelRenderer<T> {
         var color = context.renderColor();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
+
+        if (context.getTextureOverride() != null) {
+            var config = rendererPipeline.config();
+            IntIntPair boneTextureSize = context.computeTextureSize(context.getTextureOverride());
+            IntIntPair entityTextureSize = context.computeTextureSize(config.textureLocation(context.animatable()));
+
+            if (boneTextureSize != null && entityTextureSize != null) {
+                for (var vertex : quad.vertices()) {
+                    var position = vertex.position();
+                    poseStateTransformCache.set(position.x(), position.y(), position.z(), 1.0f);
+                    var vector4f = poseState.transform(poseStateTransformCache);
+
+                    float texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
+                    float texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
+
+                    buffer.addVertex(
+                        vector4f.x(),
+                        vector4f.y(),
+                        vector4f.z(),
+                        -1,
+                        texU,
+                        texV,
+                        packedOverlay,
+                        packedLight,
+                        normal.x(),
+                        normal.y(),
+                        normal.z()
+                    );
+                }
+
+                return;
+            }
+        }
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
