@@ -13,6 +13,7 @@ import mod.azure.azurelib.common.internal.common.config.format.IConfigFormatHand
 import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.internal.common.registry.AzureBlocksEntityRegistry;
 import mod.azure.azurelib.common.internal.common.registry.AzureBlocksRegistry;
+import mod.azure.azurelib.rewrite.testing.Registry;
 
 public final class AzureLibMod {
 
@@ -25,6 +26,7 @@ public final class AzureLibMod {
     public static void initRegistry() {
         AzureBlocksRegistry.init();
         AzureBlocksEntityRegistry.init();
+        Registry.initialize();
     }
 
     /**
