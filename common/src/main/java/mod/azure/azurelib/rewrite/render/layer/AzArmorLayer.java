@@ -67,16 +67,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      */
     @Override
     public void preRender(AzRendererPipelineContext<T> context) {
-        if (!(context.animatable() instanceof LivingEntity livingEntity)) {
-            return;
-        }
+        var animatable = context.animatable();
 
-        this.mainHandStack = livingEntity.getItemBySlot(EquipmentSlot.MAINHAND);
-        this.offhandStack = livingEntity.getItemBySlot(EquipmentSlot.OFFHAND);
-        this.helmetStack = livingEntity.getItemBySlot(EquipmentSlot.HEAD);
-        this.chestplateStack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
-        this.leggingsStack = livingEntity.getItemBySlot(EquipmentSlot.LEGS);
-        this.bootsStack = livingEntity.getItemBySlot(EquipmentSlot.FEET);
+        this.mainHandStack = animatable.getItemBySlot(EquipmentSlot.MAINHAND);
+        this.offhandStack = animatable.getItemBySlot(EquipmentSlot.OFFHAND);
+        this.helmetStack = animatable.getItemBySlot(EquipmentSlot.HEAD);
+        this.chestplateStack = animatable.getItemBySlot(EquipmentSlot.CHEST);
+        this.leggingsStack = animatable.getItemBySlot(EquipmentSlot.LEGS);
+        this.bootsStack = animatable.getItemBySlot(EquipmentSlot.FEET);
     }
 
     @Override
@@ -155,13 +153,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     ) {
         var animatable = context.animatable();
 
-        if (animatable instanceof LivingEntity livingEntity) {
-            for (var slot : EquipmentSlot.values()) {
-                var isHumanoidArmorSlotType = slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR;
+        for (var slot : EquipmentSlot.values()) {
+            var isHumanoidArmorSlotType = slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR;
 
-                if (isHumanoidArmorSlotType && stack == livingEntity.getItemBySlot(slot)) {
-                    return slot;
-                }
+            if (isHumanoidArmorSlotType && stack == animatable.getItemBySlot(slot)) {
+                return slot;
             }
         }
 
