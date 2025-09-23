@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.render.layer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.Entity;
 
@@ -18,55 +19,68 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
     @Override
     public void preRender(AzRendererPipelineContext<T> context) {}
 
-    /**
-     * Handles the main rendering logic for the animatable object in the pipeline context. This includes switching to a
-     * custom {@link RenderType} for glowing textures and rendering the object using the pipeline's re-render mechanism.
-     * <p>
-     * The rendering context's state is modified temporarily to apply a custom render type and packed light. After
-     * rendering, the context is restored to its original state for consistency.
-     * </p>
-     *
-     * @param context the rendering pipeline context, containing the animatable object and rendering state
-     */
     @Override
     public void render(AzRendererPipelineContext<T> context) {
-        var animatable = context.animatable();
         var renderPipeline = context.rendererPipeline();
-        var textureLocation = renderPipeline.config().textureLocation(animatable);
-        var renderType = AutoGlowingTexture.getRenderType(textureLocation);
+        var renderType = determineRenderType(context);
 
-        if (context.animatable() instanceof Entity entity) {
-            var isInvisibleButVisibleToPlayer = entity.isInvisible() && !entity.isInvisibleTo(
-                ClientUtils.getClientPlayer()
-            );
-            var shouldAppearGlowing = Minecraft.getInstance().shouldEntityAppearGlowing(entity);
-
-            if (isInvisibleButVisibleToPlayer) {
-                renderType = RenderType.outline(textureLocation);
-            } else if (shouldAppearGlowing) {
-                renderType = AutoGlowingTexture.getOutlineRenderType(textureLocation);
-            }
-        }
-
-        if (context.renderType() != null) {
-            var prevRenderType = context.renderType();
-            var prevPackedLight = context.packedLight();
-            var prevVertexConsumer = context.vertexConsumer();
-
+        if (renderType != null) {
             context.setRenderType(renderType);
-            context.setPackedLight(0xF00000);
+            context.setPackedLight(getPackedLight(context));
             context.setVertexConsumer(context.multiBufferSource().getBuffer(renderType));
 
             renderPipeline.reRender(context);
-
-            // Restore context for sanity
-            // TODO: Should probably cache the context as a whole somewhere and then restore it (a "previous" context).
-            context.setRenderType(prevRenderType);
-            context.setPackedLight(prevPackedLight);
-            context.setVertexConsumer(prevVertexConsumer);
         }
     }
 
     @Override
     public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {}
+
+    /**
+     * Calculates and returns the packed light value to be used in the rendering pipeline.
+     *
+     * @param context The rendering context that contains information about the current rendering pipeline, the
+     *                animatable entity, and other rendering configurations.
+     * @return The packed light value, typically used to determine the lighting conditions in rendering.
+     */
+    protected int getPackedLight(AzRendererPipelineContext<T> context) {
+        return LightTexture.FULL_SKY;
+    }
+
+    /**
+     * Determines the appropriate RenderType for the animatable entity in the given rendering context. Handles special
+     * cases such as invisibility, glowing appearance, and outline rendering.
+     *
+     * @param context The context containing the animatable and rendering configuration.
+     * @return The appropriate RenderType for rendering the entity.
+     */
+    protected RenderType determineRenderType(AzRendererPipelineContext<T> context) {
+        var animatable = context.animatable();
+        var config = context.rendererPipeline().config();
+        var textureLocation = config.textureLocation(animatable);
+
+        if (!(animatable instanceof Entity entity)) {
+            return AutoGlowingTexture.getRenderType(textureLocation);
+        }
+
+        var isInvisible = entity.isInvisible();
+        var appearsGlowing = Minecraft.getInstance().shouldEntityAppearGlowing(entity);
+        var isPlayerInvisible = entity.isInvisibleTo(ClientUtils.getClientPlayer());
+
+        if (isInvisible) {
+            if (!isPlayerInvisible) {
+                return RenderType.itemEntityTranslucentCull(AutoGlowingTexture.getEmissiveResource(textureLocation));
+            }
+            if (appearsGlowing) {
+                return RenderType.outline(AutoGlowingTexture.getEmissiveResource(textureLocation));
+            }
+            return null;
+        }
+
+        if (appearsGlowing) {
+            return AutoGlowingTexture.getOutlineRenderType(textureLocation);
+        }
+
+        return AutoGlowingTexture.getRenderType(textureLocation);
+    }
 }
