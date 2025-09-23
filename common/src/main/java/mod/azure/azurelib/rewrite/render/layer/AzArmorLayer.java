@@ -125,6 +125,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
         var model = getModelForItem(slot);
         var modelPart = getModelPartForBone(context, bone, model);
+        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
 
         if (!modelPart.cubes.isEmpty()) {
             context.poseStack().pushPose();
@@ -132,7 +133,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
             if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
-                renderArmorPiece(context, bone, slot, armorStack, modelPart, model);
+                if (renderer != null) {
+                    renderAzArmorPiece(renderer, context, bone, slot, armorStack, modelPart, model);
+                } else {
+                    renderArmorPiece(context, bone, slot, armorStack, modelPart);
+                }
             }
 
             context.poseStack().popPose();
@@ -185,6 +190,30 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         return null;
     }
 
+    protected <I extends Item> void renderAzArmorPiece(
+        AzArmorRenderer renderer,
+        AzRendererPipelineContext<T> context,
+        AzBone bone,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        ModelPart modelPart,
+        HumanoidModel<T> baseModel
+    ) {
+        var armorModel = renderer.rendererPipeline().armorModel();
+        var boneContext = renderer.rendererPipeline().context().boneContext();
+        var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
+
+        renderer.prepForRender(context.animatable(), armorStack, slot, baseModel);
+        boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
+        armorModel.renderToBuffer(
+            context.poseStack(),
+            null,
+            context.packedLight(),
+            OverlayTexture.NO_OVERLAY,
+            color
+        );
+    }
+
     /**
      * Renders an individual armor piece base on the given {@link AzBone} and {@link ItemStack}
      */
@@ -193,28 +222,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         AzBone bone,
         EquipmentSlot slot,
         ItemStack armorStack,
-        ModelPart modelPart,
-        HumanoidModel<T> baseModel
+        ModelPart modelPart
     ) {
-        // AzArmor rendering
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
         var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
-
-        if (renderer != null) {
-            var armorModel = renderer.rendererPipeline().armorModel();
-            var boneContext = renderer.rendererPipeline().context().boneContext();
-
-            renderer.prepForRender(context.animatable(), armorStack, slot, baseModel);
-            boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
-            armorModel.renderToBuffer(
-                context.poseStack(),
-                null,
-                context.packedLight(),
-                OverlayTexture.NO_OVERLAY,
-                color
-            );
-            return;
-        }
 
         // Vanilla armor rendering
         var material = ((ArmorItem) armorStack.getItem()).getMaterial();
@@ -295,14 +305,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided
      * {@link ItemStack}
      */
-    protected HumanoidModel<T> getModelForItem(ItemStack stack, EquipmentSlot slot) {
-        var renderer = getRendererForItem(stack);
-
-        if (renderer == null) {
-            return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
-        }
-
-        return (HumanoidModel<T>) renderer.rendererPipeline().armorModel();
+    protected HumanoidModel<T> getModelForItem(EquipmentSlot slot) {
+        return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
     }
 
     /**
