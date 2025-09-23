@@ -18,6 +18,7 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
     public AzArmorModel(AzArmorRendererPipeline rendererPipeline) {
         super(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR));
         this.rendererPipeline = rendererPipeline;
+        this.young = false;
     }
 
     @Override
