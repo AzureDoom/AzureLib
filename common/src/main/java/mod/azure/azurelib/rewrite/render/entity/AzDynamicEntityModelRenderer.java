@@ -24,6 +24,7 @@ import mod.azure.azurelib.util.RenderUtils;
  *
  * @param <T> The type of entity to be rendered, which must extend the Entity class.
  */
+@Deprecated(since = "3.1.2", forRemoval = true)
 public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzEntityModelRenderer<T> {
 
     public AzDynamicEntityModelRenderer(
