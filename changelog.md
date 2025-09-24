@@ -1,3 +1,8 @@
+v3.1.3
+
+### Fixes
+- Fixed AzArmorLayer rotation, now properly rotates armor to entity. Seems to be a bug in only in newer versions of Minecraft where I need to flip the rotation.
+
 v3.1.2
 
 ### Changes
