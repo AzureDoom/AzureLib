@@ -1,5 +1,8 @@
 v3.0.30
 
+### Changes
+- Removed band-aid fix on AzBlockAndItemLayer for when an entity is glowing, no longer needed.
+
 ### Fixes
 - Fixed Entity rendering for entities using items with custom renderers causing rendering issues.
 - Fixed Entity rotation on non-living entities using AzEntityRenderer.
