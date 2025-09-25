@@ -52,10 +52,7 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
-        var renderType = context.renderType();
 
         poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
