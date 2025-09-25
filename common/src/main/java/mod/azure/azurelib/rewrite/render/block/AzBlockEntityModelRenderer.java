@@ -70,11 +70,8 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var poseStack = context.poseStack();
-        var renderType = context.renderType();
 
         poseStack.pushPose();
         RenderUtils.translateMatrixToBone(poseStack, bone);
@@ -111,7 +108,13 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
 
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
 
-        super.renderRecursively(context, bone, isReRender);
+        renderCubesOfBone(context, bone);
+
+        if (!isReRender) {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+        }
+
+        renderChildBones(context, bone, isReRender);
 
         poseStack.popPose();
     }
