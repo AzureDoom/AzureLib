@@ -73,6 +73,8 @@ public class AzModelRenderer<T> {
             layerRenderer.applyRenderLayersForBone(context, bone);
         }
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         renderChildBones(context, bone, isReRender);
         poseStack.popPose();
     }
@@ -137,8 +139,6 @@ public class AzModelRenderer<T> {
             createVerticesOfQuad(context, quad, poseState, normal);
         }
     }
-
-    private final Vector4f poseStateTransformCache = new Vector4f();
 
     /**
      * Applies the {@link GeoQuad Quad's} {@link GeoVertex vertices} to the given {@link VertexConsumer buffer} for
