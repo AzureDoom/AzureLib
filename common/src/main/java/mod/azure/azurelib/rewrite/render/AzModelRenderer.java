@@ -139,8 +139,6 @@ public class AzModelRenderer<T> {
         }
     }
 
-    private final Vector4f poseStateTransformCache = new Vector4f();
-
     /**
      * Applies the {@link GeoQuad Quad's} {@link GeoVertex vertices} to the given {@link VertexConsumer buffer} for
      * rendering
