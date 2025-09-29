@@ -39,8 +39,20 @@ public abstract class AzAnimator<T> {
         var boneCache = new AzBoneCache();
         var timer = new AzAnimationTimer(config);
 
-        this.reusableContext = new AzAnimationContext<>(boneCache, config, timer);
+        this.reusableContext = createReusableContext(config);
     }
+
+	public AzBoneCache createBoneCache() {
+		return new AzBoneCache();
+	}
+
+	public AzAnimationTimer createAzAnimationTimer(AzAnimatorConfig config) {
+		return new AzAnimationTimer(config);
+	}
+
+	public AzAnimationContext<T> createReusableContext(AzAnimatorConfig config) {
+		return new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config));
+	}
 
     public abstract void registerControllers(AzAnimationControllerContainer<T> animationControllerContainer);
 
