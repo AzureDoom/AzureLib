@@ -32,7 +32,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
     public void render(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
         var poseStack = context.poseStack();
 
-        poseStack.popPose();
+        poseStack.pushPose();
         if (!isReRender) {
             poseStack.translate(0, 24 / 16f, 0);
             poseStack.scale(-1, -1, 1);
@@ -59,7 +59,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
         // TODO: This is dangerous.
         var ctx = armorRendererPipeline.context();
 
-        poseStack.popPose();
+        poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
             Matrix4f poseState = new Matrix4f(poseStack.last().pose());
             Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
