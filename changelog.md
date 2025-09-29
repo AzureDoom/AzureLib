@@ -1,3 +1,8 @@
+v3.0.32
+
+### Fixes
+- Fixed glow and layers causing bones to de-render.
+
 v3.0.31
 
 ### Changes
