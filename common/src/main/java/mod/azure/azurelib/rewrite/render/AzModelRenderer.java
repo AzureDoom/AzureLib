@@ -154,8 +154,7 @@ public class AzModelRenderer<T> {
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
-            poseStateTransformCache.set(position.x(), position.y(), position.z(), 1.0f);
-            var vector4f = poseState.transform(poseStateTransformCache);
+            var vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
 
             buffer.vertex(
                 vector4f.x(),
