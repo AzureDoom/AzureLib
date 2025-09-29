@@ -90,11 +90,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
-        var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var poseStack = context.poseStack();
-        var renderType = context.renderType();
 
         poseStack.pushPose();
         RenderUtils.translateMatrixToBone(poseStack, bone);
