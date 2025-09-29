@@ -74,6 +74,8 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
         if (blockState != null)
             renderBlockForBone(context, bone, blockState, animatable);
 
+        context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
+
         context.poseStack().popPose();
     }
 
