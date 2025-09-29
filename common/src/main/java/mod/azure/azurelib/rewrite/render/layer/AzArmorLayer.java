@@ -421,15 +421,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
             path = materialNameSplit[1];
         }
 
-        if (!type.isBlank())
-            type = "_" + type;
-
         String texture = String.format(
-            "%s:textures/models/armor/%s_layer_%d%s.png",
+            "%s:textures/models/armor/%s_layer_%d.png",
             domain,
             path,
-            (slot == EquipmentSlot.LEGS ? 2 : 1),
-            type
+            (slot == EquipmentSlot.LEGS ? 2 : 1)
         );
         return ARMOR_PATH_CACHE.computeIfAbsent(texture, ResourceLocation::new);
     }
