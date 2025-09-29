@@ -138,6 +138,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
 
         if (!modelPart.cubes.isEmpty()) {
             context.poseStack().pushPose();
+            context.poseStack().scale(-1, -1, 1);
 
             if (renderer != null) {
                 prepModelPartForRender(context, bone, modelPart);
