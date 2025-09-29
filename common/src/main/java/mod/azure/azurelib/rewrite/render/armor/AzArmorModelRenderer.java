@@ -33,9 +33,10 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
+        poseStack.translate(0, 24 / 16f, 0);
+        poseStack.scale(-1, -1, 1);
+
         if (!isReRender) {
-            poseStack.translate(0, 24 / 16f, 0);
-            poseStack.scale(-1, -1, 1);
             var animatable = context.animatable();
             var animator = armorRendererPipeline.renderer().animator();
 
