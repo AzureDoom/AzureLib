@@ -67,6 +67,9 @@ public class AzModelRenderer<T> {
 
         poseStack.pushPose();
         RenderUtils.prepMatrixForBone(poseStack, bone);
+
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+
         renderCubesOfBone(context, bone);
 
         if (!isReRender) {
