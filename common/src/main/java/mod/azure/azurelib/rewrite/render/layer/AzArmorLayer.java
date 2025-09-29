@@ -96,6 +96,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
             return;
         }
 
+        context.poseStack().pushPose();
         if (
             armorStack.getItem() instanceof BlockItem blockItem && blockItem
                 .getBlock() instanceof AbstractSkullBlock skullBlock
@@ -104,6 +105,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
         } else {
             renderArmor(context, bone, armorStack);
         }
+
+        context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
+
+        context.poseStack().popPose();
     }
 
     /**
