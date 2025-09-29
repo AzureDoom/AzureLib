@@ -134,8 +134,6 @@ public class AzModelRenderer<T> {
         }
     }
 
-    private final Vector4f poseStateTransformCache = new Vector4f();
-
     /**
      * Applies the {@link GeoQuad Quad's} {@link GeoVertex vertices} to the given {@link VertexConsumer buffer} for
      * rendering
@@ -153,8 +151,7 @@ public class AzModelRenderer<T> {
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
-            poseStateTransformCache.set(position.x(), position.y(), position.z(), 1.0f);
-            var vector4f = poseState.transform(poseStateTransformCache);
+            var vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
 
             buffer.addVertex(
                 vector4f.x(),
