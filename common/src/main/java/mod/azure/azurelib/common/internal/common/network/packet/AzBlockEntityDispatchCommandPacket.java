@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.jetbrains.annotations.NotNull;
 
 import mod.azure.azurelib.common.api.client.helper.ClientUtils;
 import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
@@ -39,13 +40,13 @@ public record AzBlockEntityDispatchCommandPacket(
 
         var animator = AzAnimatorAccessor.getOrNull(blockEntity);
 
-        if (animator != null) {
+        if (animator != null && animator.context().animatable().getBlockPos().equals(blockPos)) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         }
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }
