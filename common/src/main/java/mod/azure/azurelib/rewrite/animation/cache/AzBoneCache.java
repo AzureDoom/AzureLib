@@ -23,13 +23,13 @@ public class AzBoneCache {
     private final Map<String, AzBoneSnapshot> boneSnapshotsByName;
 
     public AzBoneCache() {
-        this.bakedModel = AzBakedModel.EMPTY;
         this.boneSnapshotsByName = new Object2ObjectOpenHashMap<>();
+        setBakedModel(AzBakedModel.EMPTY);
     }
 
     public boolean setActiveModel(AzBakedModel model) {
         var willModelChange = !Objects.equals(bakedModel, model);
-        this.bakedModel = model;
+        setBakedModel(model);
 
         if (willModelChange) {
             snapshot();
@@ -72,6 +72,10 @@ public class AzBoneCache {
         for (var bone : bakedModel.getBonesByName().values()) {
             boneSnapshotsByName.put(bone.getName(), AzBoneSnapshot.copy(bone.getInitialAzSnapshot()));
         }
+    }
+
+    public void setBakedModel(AzBakedModel model) {
+        this.bakedModel = (model != null) ? model : AzBakedModel.EMPTY;
     }
 
     public AzBakedModel getBakedModel() {
