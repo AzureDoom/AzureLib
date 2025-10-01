@@ -37,15 +37,18 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         var isInvisible = animatable.isInvisible();
         var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
 
-        if (isInvisible && !isPlayerInvisible) {
-            return RenderType.itemEntityTranslucentCull(texture);
+        if (isInvisible) {
+            if (!isPlayerInvisible) {
+                return RenderType.itemEntityTranslucentCull(texture);
+            }
+            return null;
         }
 
         if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
-            return RenderType.entityTranslucentEmissive(texture, true);
+            return RenderType.outline(texture);
         }
 
-        return RenderType.entityCutoutNoCull(texture);
+        return RenderType.entityTranslucentCull(texture);
     }
 
     /**
