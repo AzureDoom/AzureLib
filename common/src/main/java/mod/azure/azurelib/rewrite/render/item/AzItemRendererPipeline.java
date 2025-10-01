@@ -31,12 +31,12 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
 
     @Override
     protected AzRendererPipelineContext<ItemStack> createContext(AzRendererPipeline<ItemStack> rendererPipeline) {
-        return new AzItemRendererPipelineContext(rendererPipeline);
+        return config.pipelineContext(this);
     }
 
     @Override
     protected AzItemModelRenderer createModelRenderer(AzLayerRenderer<ItemStack> layerRenderer) {
-        return new AzItemModelRenderer(this, layerRenderer);
+        return (AzItemModelRenderer) config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override

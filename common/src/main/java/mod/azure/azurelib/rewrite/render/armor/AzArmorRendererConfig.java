@@ -6,12 +6,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
@@ -32,11 +32,15 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
-        Function<ItemStack, Float> scaleWidth
+        Function<ItemStack, Float> scaleWidth,
+        BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
+        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction
     ) {
         super(
             animatorProvider,
             modelLocationProvider,
+            modelRendererProvider,
+            pipelineContextFunction,
             renderTypeProvider,
             renderLayers,
             preRenderEntry,
@@ -78,7 +82,26 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.boneProvider = new AzDefaultArmorBoneProvider();
+            this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzArmorModelRenderer(
+                (AzArmorRendererPipeline) entityRendererPipeline,
+                layer
+            );
+            this.pipelineContextFunction = AzArmorRendererPipelineContext::new;
             this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
+        }
+
+        @Override
+        public Builder setModelRenderer(
+            BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
+        ) {
+            return (Builder) super.setModelRenderer(modelRendererProvider);
+        }
+
+        @Override
+        public Builder setPipelineContext(
+            Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
+        ) {
+            return (Builder) super.setPipelineContext(azRendererPipelineAzRendererPipelineContextFunction);
         }
 
         @Override
@@ -176,7 +199,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::textureLocation,
                 baseConfig::alpha,
                 baseConfig::scaleHeight,
-                baseConfig::scaleWidth
+                baseConfig::scaleWidth,
+                baseConfig::modelRendererProvider,
+                baseConfig::pipelineContext
             );
         }
     }
