@@ -195,4 +195,22 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
 ## Registering your Renderer
 
-Nothing special is required here! Simply call render your entity render as per the standard use case of your modloader.
+Basic Example of Fabric and Forge
+
+<CodeTabs>
+
+```java !!tabs Fabric
+@Override
+public void onInitializeClient() {
+    EntityRendererRegistry.register(EntityType.CREEPER, ExampleEntityRenderer::new);
+}
+```
+
+```java !!tabs NeoForge
+@SubscribeEvent
+public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+    event.registerEntityRenderer(ExampleRegistry.EXAMPLE_ENTITY.get(), ExampleEntityRenderer::new);
+}
+```
+
+</CodeTabs>

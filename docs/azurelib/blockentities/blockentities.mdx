@@ -155,4 +155,28 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
 
 ## Registering your Renderer
 
-Nothing special is required here! Simply call render your block entity render as per the standard use case of your modloader.
+Basic Example of Fabric and Forge
+
+<CodeTabs>
+
+```java !!tabs Fabric
+@Override
+public void onInitializeClient() {
+    BlockEntityRenderers.register(
+        ExampleRegistry.EXAMPLE_BE,
+        (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBERenderer()
+    );
+}
+```
+
+```java !!tabs NeoForge
+@SubscribeEvent
+public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+    event.registerBlockEntityRenderer(
+        ExampleRegistry.EXAMPLE_BE.get(),
+        (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBERenderer()
+    );
+}
+```
+
+</CodeTabs>
