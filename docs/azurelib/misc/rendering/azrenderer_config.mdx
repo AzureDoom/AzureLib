@@ -19,6 +19,8 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Scaling options**: Customize object scaling during rendering.
 - **Render layers**: Add extra effects onto the rendering process.
 - **Render Stage Hooks**: Support hooks _before_, _during_, and _after_ rendering through customizable lambdas.
+- **Model Render configuration**: Easily register your own custom ModelRenderer.
+- **Pipeline Context configuration**: Easily modify or register your own Pipeline Context.
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
 
 ## AzArmorRendererConfig
@@ -48,6 +50,8 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                 .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
                 .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
                 .setRenderType(exampleArmor -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomArmorModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomArmorModelRenderer
+                .setPipelineContext(ExampleArmorRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleArmorRendererPipelineContext
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -95,6 +99,8 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                 .setAnimatorProvider(ExampleBEAnimator::new) // Custom animator
                 .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
                 .setRenderType(exampleBEEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomBEModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomBEModelRenderer
+                .setPipelineContext(ExampleBERendererPipelineContext::new) // Sets the Pipeline Context to the ExampleBERendererPipelineContext
                 .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
@@ -149,6 +155,8 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
                 .setRenderType(exampleEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
                 .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
+                .setModelRenderer(ExampleCustomEntityModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomEntityModelRenderer
+                .setPipelineContext(ExampleEntityRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleEntityRendererPipelineContext
                 .setPrerenderEntry(context2 -> {
                     // Insert code you want to run here
                     return context2;
@@ -203,6 +211,8 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .useNewOffset(true) // Use new offset for BlockBench 4.11+
                 .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
                 .setRenderType(exampleItem -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomItemModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomItemModelRenderer
+                .setPipelineContext(ExampleItemRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleItemRendererPipelineContext
                 .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here

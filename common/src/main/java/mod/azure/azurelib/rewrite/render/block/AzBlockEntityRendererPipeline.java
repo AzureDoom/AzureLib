@@ -33,12 +33,12 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
 
     @Override
     protected AzBlockEntityRendererPipelineContext<T> createContext(AzRendererPipeline<T> rendererPipeline) {
-        return new AzBlockEntityRendererPipelineContext<>(this);
+        return (AzBlockEntityRendererPipelineContext<T>) config.pipelineContext(this);
     }
 
     @Override
     protected AzModelRenderer<T> createModelRenderer(AzLayerRenderer<T> layerRenderer) {
-        return new AzBlockEntityModelRenderer<>(this, layerRenderer);
+        return config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override
