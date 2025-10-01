@@ -46,7 +46,6 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
     ) {
         var cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(entity);
         var model = provider.provideBakedModel(entity);
-        var context = rendererPipeline.context();
 
         if (cachedEntityAnimator != null && model != null) {
             cachedEntityAnimator.setActiveModel(model);
