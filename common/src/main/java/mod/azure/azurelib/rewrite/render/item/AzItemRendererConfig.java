@@ -6,12 +6,12 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.render.AzRendererConfig;
-import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
+import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
@@ -38,11 +38,15 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
         boolean useEntityGuiLighting,
-        boolean useNewOffset
+        boolean useNewOffset,
+        BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
+        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction
     ) {
         super(
             animatorProvider,
             modelLocationProvider,
+            modelRendererProvider,
+            pipelineContextFunction,
             renderTypeProvider,
             renderLayers,
             preRenderEntry,
@@ -92,6 +96,25 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             super(modelLocationProvider, textureLocationProvider);
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
+            this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzItemModelRenderer(
+                (AzItemRendererPipeline) entityRendererPipeline,
+                layer
+            );
+            this.pipelineContextFunction = AzItemRendererPipelineContext::new;
+        }
+
+        @Override
+        public Builder setModelRenderer(
+            BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
+        ) {
+            return (Builder) super.setModelRenderer(modelRendererProvider);
+        }
+
+        @Override
+        public Builder setPipelineContext(
+            Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
+        ) {
+            return (Builder) super.setPipelineContext(azRendererPipelineAzRendererPipelineContextFunction);
         }
 
         @Override
@@ -199,7 +222,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::scaleHeight,
                 baseConfig::scaleWidth,
                 useEntityGuiLighting,
-                useNewOffset
+                useNewOffset,
+                baseConfig::modelRendererProvider,
+                baseConfig::pipelineContext
             );
         }
     }

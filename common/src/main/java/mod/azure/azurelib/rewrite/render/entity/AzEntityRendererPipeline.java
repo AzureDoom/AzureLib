@@ -32,12 +32,12 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
 
     @Override
     protected AzRendererPipelineContext<T> createContext(AzRendererPipeline<T> rendererPipeline) {
-        return new AzEntityRendererPipelineContext<>(this);
+        return config.pipelineContext(this);
     }
 
     @Override
     protected AzModelRenderer<T> createModelRenderer(AzLayerRenderer<T> layerRenderer) {
-        return new AzEntityModelRenderer<>(this, layerRenderer);
+        return config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override

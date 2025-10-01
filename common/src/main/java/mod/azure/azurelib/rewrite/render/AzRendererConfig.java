@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -25,6 +26,10 @@ public class AzRendererConfig<T> {
     protected final Supplier<@Nullable AzAnimator<T>> animatorProvider;
 
     protected final Function<T, ResourceLocation> modelLocationProvider;
+
+    private final BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider;
+
+    private final Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction;
 
     protected final Function<T, RenderType> renderTypeFunction;
 
@@ -47,6 +52,8 @@ public class AzRendererConfig<T> {
     public AzRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, ResourceLocation> modelLocationProvider,
+        BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider,
+        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<T>> renderLayers,
         Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
@@ -59,6 +66,8 @@ public class AzRendererConfig<T> {
     ) {
         this.animatorProvider = animatorProvider;
         this.modelLocationProvider = modelLocationProvider;
+        this.modelRendererProvider = modelRendererProvider;
+        this.pipelineContextFunction = pipelineContextFunction;
         this.renderTypeFunction = renderTypeFunction;
         this.renderLayers = Collections.unmodifiableList(renderLayers);
         this.preRenderEntry = preRenderEntry;
@@ -76,6 +85,14 @@ public class AzRendererConfig<T> {
 
     public ResourceLocation modelLocation(T animatable) {
         return modelLocationProvider.apply(animatable);
+    }
+
+    public AzRendererPipelineContext<T> pipelineContext(AzRendererPipeline<T> pipeline) {
+        return pipelineContextFunction.apply(pipeline);
+    }
+
+    public AzModelRenderer<T> modelRendererProvider(AzRendererPipeline<T> pipeline, AzLayerRenderer<T> layerRenderer) {
+        return modelRendererProvider.apply(pipeline, layerRenderer);
     }
 
     public ResourceLocation textureLocation(T animatable) {
@@ -118,6 +135,10 @@ public class AzRendererConfig<T> {
 
         private final Function<T, ResourceLocation> modelLocationProvider;
 
+        protected BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider;
+
+        protected Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction;
+
         protected Function<T, RenderType> renderTypeProvider;
 
         private final List<AzRenderLayer<T>> renderLayers;
@@ -144,6 +165,8 @@ public class AzRendererConfig<T> {
         ) {
             this.animatorProvider = () -> null;
             this.modelLocationProvider = modelLocationProvider;
+            this.modelRendererProvider = AzModelRenderer::new;
+            this.pipelineContextFunction = null;
             this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
@@ -173,6 +196,20 @@ public class AzRendererConfig<T> {
          */
         public Builder<T> addRenderLayer(AzRenderLayer<T> renderLayer) {
             this.renderLayers.add(renderLayer);
+            return this;
+        }
+
+        public Builder<T> setModelRenderer(
+            BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider
+        ) {
+            this.modelRendererProvider = modelRendererProvider;
+            return this;
+        }
+
+        public Builder<T> setPipelineContext(
+            Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction
+        ) {
+            this.pipelineContextFunction = pipelineContextFunction;
             return this;
         }
 
@@ -287,6 +324,8 @@ public class AzRendererConfig<T> {
             return new AzRendererConfig<>(
                 animatorProvider,
                 modelLocationProvider,
+                modelRendererProvider,
+                pipelineContextFunction,
                 renderTypeProvider,
                 renderLayers,
                 preRenderEntry,
