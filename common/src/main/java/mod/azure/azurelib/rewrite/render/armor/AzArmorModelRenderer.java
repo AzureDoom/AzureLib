@@ -79,7 +79,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
             bone.setWorldSpaceMatrix(worldState);
         }
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
         super.renderRecursively(context, bone, isReRender);
 

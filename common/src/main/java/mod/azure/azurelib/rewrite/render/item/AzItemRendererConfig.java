@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
@@ -40,7 +41,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         boolean useEntityGuiLighting,
         boolean useNewOffset,
         BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
-        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction
+        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -55,7 +58,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             textureLocationProvider,
             alphaFunction,
             scaleHeight,
-            scaleWidth
+            scaleWidth,
+            boneTextureOverrideProvider,
+            boneRenderTypeOverrideProvider
         );
         this.useEntityGuiLighting = useEntityGuiLighting;
         this.useNewOffset = useNewOffset;
@@ -104,6 +109,16 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
+        public Builder setBoneRenderTypeOverrideProvider(Function<AzBone, RenderType> boneRenderTypeOverrideProvider) {
+            return (Builder) super.setBoneRenderTypeOverrideProvider(boneRenderTypeOverrideProvider);
+        }
+
+        @Override
+        public Builder setBoneTextureOverrideProvider(Function<AzBone, ResourceLocation> boneTextureOverrideProvider) {
+            return (Builder) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
+        }
+
+        @Override
         public Builder setModelRenderer(
             BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
         ) {
@@ -136,21 +151,21 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         public Builder setPrerenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setRenderEntry(renderEntry);
+            return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -160,17 +175,17 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
-            return (AzItemRendererConfig.Builder) super.setAlpha(alphaFunction);
+            return (Builder) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder setAlpha(float alpha) {
-            return (AzItemRendererConfig.Builder) super.setAlpha(alpha);
+            return (Builder) super.setAlpha(alpha);
         }
 
         @Override
         public Builder setScale(Function<ItemStack, Float> scaleFunction) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder) super.setScale(scaleFunction);
         }
 
         @Override
@@ -178,17 +193,17 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             Function<ItemStack, Float> scaleHeightFunction,
             Function<ItemStack, Float> scaleWidthFunction
         ) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder setScale(float scale) {
-            return (AzItemRendererConfig.Builder) super.setScale(scale);
+            return (Builder) super.setScale(scale);
         }
 
         @Override
         public Builder setScale(float scaleWidth, float scaleHeight) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
+            return (Builder) super.setScale(scaleWidth, scaleHeight);
         }
 
         public Builder useEntityGuiLighting() {
@@ -224,7 +239,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 useEntityGuiLighting,
                 useNewOffset,
                 baseConfig::modelRendererProvider,
-                baseConfig::pipelineContext
+                baseConfig::pipelineContext,
+                baseConfig::boneTextureOverrideProvider,
+                baseConfig::boneRenderTypeOverrideProvider
             );
         }
     }
