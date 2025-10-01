@@ -21,6 +21,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Render Stage Hooks**: Support hooks _before_, _during_, and _after_ rendering through customizable lambdas.
 - **Model Render configuration**: Easily register your own custom ModelRenderer.
 - **Pipeline Context configuration**: Easily modify or register your own Pipeline Context.
+- **Per Bone Texture and RenderTypes**: Easily change the texture or RenderType of a bone through customizable lambdas.
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
 
 ## AzArmorRendererConfig
@@ -42,6 +43,9 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/armor/examplearmor.png"
     );
+    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/armor/examplearmor_extra.png"
+    );
 
     public ExampleArmorRenderer() {
         super(
@@ -52,6 +56,14 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                 .setRenderType(exampleArmor -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
                 .setModelRenderer(ExampleCustomArmorModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomArmorModelRenderer
                 .setPipelineContext(ExampleArmorRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleArmorRendererPipelineContext
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -92,6 +104,9 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/block/examplebe.png"
     );
+    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/block/examplebe_extra.png"
+    );
 
     public ExampleBERenderer() {
         super(
@@ -102,6 +117,14 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                 .setModelRenderer(ExampleCustomBEModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomBEModelRenderer
                 .setPipelineContext(ExampleBERendererPipelineContext::new) // Sets the Pipeline Context to the ExampleBERendererPipelineContext
                 .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here
                     return context;
@@ -144,6 +167,9 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/entity/exampleentity.png"
     );
+    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/entity/exampleentity_extra.png"
+    );
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
@@ -157,6 +183,14 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
                 .setModelRenderer(ExampleCustomEntityModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomEntityModelRenderer
                 .setPipelineContext(ExampleEntityRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleEntityRendererPipelineContext
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
                 .setPrerenderEntry(context2 -> {
                     // Insert code you want to run here
                     return context2;
@@ -202,6 +236,9 @@ public class ExampleItemRenderer extends AzItemRenderer {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/item/exampleitem.png"
     );
+    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID, "textures/item/exampleitem_extra.png"
+    );
 
     public ExampleItemRenderer() {
         super(
@@ -213,6 +250,14 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .setRenderType(exampleItem -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
                 .setModelRenderer(ExampleCustomItemModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomItemModelRenderer
                 .setPipelineContext(ExampleItemRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleItemRendererPipelineContext
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
                 .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
                 .setPrerenderEntry(context -> {
                     // Insert code you want to run here

@@ -77,7 +77,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
             );
         }
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
         super.renderRecursively(context, bone, isReRender);
 

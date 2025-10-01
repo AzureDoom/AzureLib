@@ -61,14 +61,28 @@ public class AzModelRenderer<T> {
      * Renders the provided {@link AzBone} and its associated child bones
      */
     protected void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+        var buffer = context.vertexConsumer();
+        var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
         RenderUtils.prepMatrixForBone(poseStack, bone);
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
-        renderCubesOfBone(context, bone);
+        if (
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.renderColor()
+            )
+        )
+            renderCubesOfBone(context, bone);
 
         if (!isReRender) {
             layerRenderer.applyRenderLayersForBone(context, bone);
@@ -149,26 +163,47 @@ public class AzModelRenderer<T> {
     ) {
         var buffer = context.vertexConsumer();
         var color = context.renderColor();
+        var config = rendererPipeline.config();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
+        var boneTextureSize = context.computeTextureSize(context.getTextureOverride());
+        var entityTextureSize = context.computeTextureSize(config.textureLocation(context.animatable()));
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
             var vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
-
-            buffer.addVertex(
-                vector4f.x(),
-                vector4f.y(),
-                vector4f.z(),
-                color,
-                vertex.texU(),
-                vertex.texV(),
-                packedOverlay,
-                packedLight,
-                normal.x(),
-                normal.y(),
-                normal.z()
-            );
+            if (context.getTextureOverride() != null && boneTextureSize != null && entityTextureSize != null) {
+                var texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
+                var texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
+                context.vertexConsumer()
+                    .addVertex(
+                        vector4f.x(),
+                        vector4f.y(),
+                        vector4f.z(),
+                        -1,
+                        texU,
+                        texV,
+                        context.packedOverlay(),
+                        context.packedLight(),
+                        normal.x(),
+                        normal.y(),
+                        normal.z()
+                    );
+            } else {
+                buffer.addVertex(
+                    vector4f.x(),
+                    vector4f.y(),
+                    vector4f.z(),
+                    color,
+                    vertex.texU(),
+                    vertex.texV(),
+                    packedOverlay,
+                    packedLight,
+                    normal.x(),
+                    normal.y(),
+                    normal.z()
+                );
+            }
         }
     }
 
@@ -252,10 +287,38 @@ public class AzModelRenderer<T> {
      * @return The {@link VertexConsumer} that should be used for rendering, potentially refreshed based on the buffer's
      *         state and the given render context.
      */
-    public VertexConsumer getOrRefreshRenderBuffer(boolean isReRender, AzRendererPipelineContext<T> context) {
+    public VertexConsumer getOrRefreshRenderBuffer(
+        boolean isReRender,
+        AzRendererPipelineContext<T> context,
+        AzBone bone
+    ) {
+        var config = rendererPipeline.config();
         var currentBuffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var renderType = context.renderType();
+
+        context.setTextureOverride(config.boneTextureOverrideProvider(bone));
+
+        var texture = config.boneTextureOverrideProvider(bone) == null
+            ? config.textureLocation(context.animatable())
+            : config.boneTextureOverrideProvider(bone);
+
+        var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
+
+        if (texture != null && renderTypeOverride == null) {
+            renderTypeOverride = context.getDefaultRenderType(
+                context.animatable(),
+                texture,
+                context.multiBufferSource(),
+                context.partialTick()
+            );
+            renderType = renderTypeOverride;
+        }
+
+        if (renderTypeOverride != null) {
+            currentBuffer = bufferSource.getBuffer(renderTypeOverride);
+            renderType = renderTypeOverride;
+        }
 
         if (isReRender) {
             return currentBuffer;

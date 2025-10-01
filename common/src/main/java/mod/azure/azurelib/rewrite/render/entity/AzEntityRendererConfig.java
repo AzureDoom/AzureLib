@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
@@ -41,7 +42,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider,
-        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction
+        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -56,7 +59,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             textureLocationProvider,
             alphaFunction,
             scaleHeight,
-            scaleWidth
+            scaleWidth,
+            boneTextureOverrideProvider,
+            boneRenderTypeOverrideProvider
         );
         this.deathMaxRotationProvider = deathMaxRotationProvider;
         this.shadowRadius = shadowRadius;
@@ -102,6 +107,20 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
+        }
+
+        @Override
+        public Builder<T> setBoneRenderTypeOverrideProvider(
+            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        ) {
+            return (Builder<T>) super.setBoneRenderTypeOverrideProvider(boneRenderTypeOverrideProvider);
+        }
+
+        @Override
+        public Builder<T> setBoneTextureOverrideProvider(
+            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+        ) {
+            return (Builder<T>) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }
 
         @Override
@@ -250,7 +269,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
                 baseConfig::scaleHeight,
                 baseConfig::scaleWidth,
                 baseConfig::modelRendererProvider,
-                baseConfig::pipelineContext
+                baseConfig::pipelineContext,
+                baseConfig::boneTextureOverrideProvider,
+                baseConfig::boneRenderTypeOverrideProvider
             );
         }
     }
