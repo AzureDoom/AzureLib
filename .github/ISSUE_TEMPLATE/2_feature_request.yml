@@ -1,0 +1,65 @@
+name: Feature Request
+description: Suggest an idea or enhancement for the project.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a feature!
+  - type: input
+    id: mod_version
+    attributes:
+      label: Mod Version
+      description: What version of the mod are you using?
+      placeholder: ex. 3.0.10
+    validations:
+      required: true
+  - type: input
+    id: mc_version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you running?
+      placeholder: ex. 1.21.1
+    validations:
+      required: true
+  - type: textarea
+    id: feature_summary
+    attributes:
+      label: Feature summary
+      description: Briefly describe the feature or enhancement you’re requesting.
+      placeholder: A clear, concise summary of the feature.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation and context
+      description: Why is this feature needed? What problem does it solve? How would it improve the project?
+      placeholder: Explain the use case and benefits.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed solution or design
+      description: Describe how you envision this feature working. Include examples, mockups, or API ideas if applicable.
+      placeholder: Outline the approach, UI/UX, or API changes.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: List other approaches and why they’re less ideal.
+    validations:
+      required: false
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Add any other context, screenshots, or references.
+      placeholder: Links, screenshots, or related issues/PRs.
+    validations:
+      required: false
