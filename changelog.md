@@ -1,13 +1,8 @@
-v3.0.32
-
-### Fixes
-- Fixed glow and layers causing bones to de-render.
-
-v3.0.31
+v3.0.33
 
 ### Changes
-- Moved AzAnimator#reuseablecontext to AzAnimator#createReusableContext method for overriding.
+- Move AzBoneCache#bakemodel to setter method.
 
 ### Fixes
-- Fixed Armor layers being flipped (such as auto glow layers).
-- Fixed Block Entity rendering being extra rotated.
+- Fixed block entities animations triggering in a chunk.
+- Fixed Glowing Outline and Invisible not matching vanilla behavior.
