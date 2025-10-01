@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
@@ -40,7 +41,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         boolean useEntityGuiLighting,
         boolean useNewOffset,
         BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
-        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction
+        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -55,7 +58,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             textureLocationProvider,
             alphaFunction,
             scaleHeight,
-            scaleWidth
+            scaleWidth,
+            boneTextureOverrideProvider,
+            boneRenderTypeOverrideProvider
         );
         this.useEntityGuiLighting = useEntityGuiLighting;
         this.useNewOffset = useNewOffset;
@@ -101,6 +106,16 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 layer
             );
             this.pipelineContextFunction = AzItemRendererPipelineContext::new;
+        }
+
+        @Override
+        public Builder setBoneRenderTypeOverrideProvider(Function<AzBone, RenderType> boneRenderTypeOverrideProvider) {
+            return (Builder) super.setBoneRenderTypeOverrideProvider(boneRenderTypeOverrideProvider);
+        }
+
+        @Override
+        public Builder setBoneTextureOverrideProvider(Function<AzBone, ResourceLocation> boneTextureOverrideProvider) {
+            return (Builder) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }
 
         @Override
@@ -224,7 +239,9 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 useEntityGuiLighting,
                 useNewOffset,
                 baseConfig::modelRendererProvider,
-                baseConfig::pipelineContext
+                baseConfig::pipelineContext,
+                baseConfig::boneTextureOverrideProvider,
+                baseConfig::boneRenderTypeOverrideProvider
             );
         }
     }

@@ -88,6 +88,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+        var buffer = context.vertexConsumer();
+        var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var poseStack = context.poseStack();
 
@@ -120,9 +122,24 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context));
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
-        renderCubesOfBone(context, bone);
+        if (
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.red(),
+                context.green(),
+                context.blue(),
+                context.alpha()
+            )
+        )
+            super.renderCubesOfBone(context, bone);
 
         if (!isReRender) {
             layerRenderer.applyRenderLayersForBone(context, bone);

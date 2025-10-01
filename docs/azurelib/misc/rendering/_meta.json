@@ -6,9 +6,5 @@
     "azrenderer_config.mdx": {
         "name": "AzRendererConfigs 101",
         "icon": "Info"
-    },
-    "dynamicmodelrenderers.mdx": {
-        "name": "Dynamic Model Renderers",
-        "icon": "Info"
     }
 }

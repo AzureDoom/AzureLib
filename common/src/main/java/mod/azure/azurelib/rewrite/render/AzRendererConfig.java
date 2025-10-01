@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
 /**
@@ -49,6 +50,10 @@ public class AzRendererConfig<T> {
 
     private final Function<T, Float> scaleWidth;
 
+    private final @Nullable Function<AzBone, ResourceLocation> boneTextureOverrideProvider;
+
+    private final @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider;
+
     public AzRendererConfig(
         Supplier<AzAnimator<T>> animatorProvider,
         Function<T, ResourceLocation> modelLocationProvider,
@@ -62,7 +67,9 @@ public class AzRendererConfig<T> {
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
-        Function<T, Float> scaleWidth
+        Function<T, Float> scaleWidth,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         this.animatorProvider = animatorProvider;
         this.modelLocationProvider = modelLocationProvider;
@@ -77,6 +84,8 @@ public class AzRendererConfig<T> {
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         this.alphaFunction = alphaFunction;
+        this.boneTextureOverrideProvider = boneTextureOverrideProvider;
+        this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
     }
 
     public @Nullable AzAnimator<T> createAnimator() {
@@ -131,6 +140,14 @@ public class AzRendererConfig<T> {
         return scaleWidth.apply(entity);
     }
 
+    public @Nullable ResourceLocation boneTextureOverrideProvider(AzBone bone) {
+        return boneTextureOverrideProvider.apply(bone);
+    }
+
+    public @Nullable RenderType boneRenderTypeOverrideProvider(AzBone bone) {
+        return boneRenderTypeOverrideProvider.apply(bone);
+    }
+
     public static class Builder<T> {
 
         private final Function<T, ResourceLocation> modelLocationProvider;
@@ -159,6 +176,10 @@ public class AzRendererConfig<T> {
 
         protected Function<T, Float> scaleWidth;
 
+        private @Nullable Function<AzBone, ResourceLocation> boneTextureOverrideProvider;
+
+        private @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider;
+
         protected Builder(
             Function<T, ResourceLocation> modelLocationProvider,
             Function<T, ResourceLocation> textureLocationProvider
@@ -176,6 +197,22 @@ public class AzRendererConfig<T> {
             this.alphaFunction = $ -> 1.0F;
             this.scaleHeight = $ -> 1.0F;
             this.scaleWidth = $ -> 1.0F;
+            this.boneTextureOverrideProvider = $ -> null;
+            this.boneRenderTypeOverrideProvider = $ -> null;
+        }
+
+        public Builder<T> setBoneTextureOverrideProvider(
+            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+        ) {
+            this.boneTextureOverrideProvider = boneTextureOverrideProvider;
+            return this;
+        }
+
+        public Builder<T> setBoneRenderTypeOverrideProvider(
+            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        ) {
+            this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
+            return this;
         }
 
         /**
@@ -334,7 +371,9 @@ public class AzRendererConfig<T> {
                 textureLocationProvider,
                 alphaFunction,
                 scaleHeight,
-                scaleWidth
+                scaleWidth,
+                boneTextureOverrideProvider,
+                boneRenderTypeOverrideProvider
             );
         }
     }
