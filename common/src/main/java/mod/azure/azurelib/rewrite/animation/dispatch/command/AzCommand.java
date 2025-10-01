@@ -19,7 +19,6 @@ import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
@@ -215,20 +214,7 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level.isClientSide()) {
             dispatchFromClient(entity);
         } else {
-            if (!AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
-                return;
-            }
-
             var uuid = itemStack.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
-
-            if (uuid == null) {
-                AzureLib.LOGGER.warn(
-                    "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
-                    itemStack.getItem(),
-                    itemStack
-                );
-                return;
-            }
 
             var packet = new AzItemStackDispatchCommandPacket(uuid, this);
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
