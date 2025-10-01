@@ -9,7 +9,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 
 /**
  * A Mixin extension for the `AbstractContainerMenu` class that introduces support for AzureLib-specific ItemStack
@@ -39,7 +40,9 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
     public ItemStack azurelib$syncAzureIDWithRemote(ItemStack itemStack, int count, Operation<ItemStack> original) {
         var copyStack = original.call(itemStack, count);
 
-        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.has(AzureLib.AZ_ID.get())) {
+        var itemRenderer = AzItemRendererRegistry.getOrNull(itemStack.getItem());
+        var armorRenderer = AzArmorRendererRegistry.getOrNull(itemStack);
+        if ((itemRenderer != null || armorRenderer != null) && copyStack.has(AzureLib.AZ_ID.get())) {
             copyStack.remove(AzureLib.AZ_ID.get());
         }
 
@@ -100,7 +103,9 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
         ItemStack comparisonItemStack,
         Operation<Boolean> original
     ) {
-        if (AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
+        var itemRenderer = AzItemRendererRegistry.getOrNull(itemStack.getItem());
+        var armorRenderer = AzArmorRendererRegistry.getOrNull(itemStack);
+        if (itemRenderer != null || armorRenderer != null) {
             return original.call(itemStack, comparisonItemStack) && azurelib$stacksHaveMatchingAzID(
                 itemStack,
                 comparisonItemStack
