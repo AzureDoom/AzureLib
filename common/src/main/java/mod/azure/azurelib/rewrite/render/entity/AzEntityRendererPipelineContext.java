@@ -1,5 +1,6 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -36,11 +37,18 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         var isInvisible = animatable.isInvisible();
         var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
 
-        if (isInvisible && !isPlayerInvisible) {
-            return RenderType.itemEntityTranslucentCull(texture);
+        if (isInvisible) {
+            if (!isPlayerInvisible) {
+                return RenderType.itemEntityTranslucentCull(texture);
+            }
+            return null;
         }
 
-        return RenderType.entityCutoutNoCull(texture);
+        if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
+            return RenderType.outline(texture);
+        }
+
+        return RenderType.entityTranslucentCull(texture);
     }
 
     /**
