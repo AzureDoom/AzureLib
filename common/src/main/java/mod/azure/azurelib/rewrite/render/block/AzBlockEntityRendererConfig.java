@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;
 
@@ -36,7 +37,9 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider,
-        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction
+        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -51,7 +54,9 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
             textureLocationProvider,
             alphaFunction,
             scaleHeight,
-            scaleWidth
+            scaleWidth,
+            boneTextureOverrideProvider,
+            boneRenderTypeOverrideProvider
         );
     }
 
@@ -81,6 +86,20 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 layer
             );
             this.pipelineContextFunction = AzBlockEntityRendererPipelineContext::new;
+        }
+
+        @Override
+        public Builder<T> setBoneRenderTypeOverrideProvider(
+            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        ) {
+            return (Builder<T>) super.setBoneRenderTypeOverrideProvider(boneRenderTypeOverrideProvider);
+        }
+
+        @Override
+        public Builder<T> setBoneTextureOverrideProvider(
+            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+        ) {
+            return (Builder<T>) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }
 
         @Override
@@ -116,21 +135,21 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         public Builder<T> setPrerenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setRenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setRenderEntry(renderEntry);
+            return (Builder<T>) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
             Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -140,32 +159,32 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
         @Override
         public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alphaFunction);
+            return (Builder<T>) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder<T> setAlpha(float alpha) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
+            return (Builder<T>) super.setAlpha(alpha);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleFunction) {
-            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder) super.setScale(scaleFunction);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
-            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder<T> setScale(float scale) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scale);
+            return (Builder<T>) super.setScale(scale);
         }
 
         @Override
         public Builder<T> setScale(float scaleWidth, float scaleHeight) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scaleWidth, scaleHeight);
+            return (Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
         @Override
@@ -185,7 +204,9 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 baseConfig::scaleHeight,
                 baseConfig::scaleWidth,
                 baseConfig::modelRendererProvider,
-                baseConfig::pipelineContext
+                baseConfig::pipelineContext,
+                baseConfig::boneTextureOverrideProvider,
+                baseConfig::boneRenderTypeOverrideProvider
             );
         }
     }

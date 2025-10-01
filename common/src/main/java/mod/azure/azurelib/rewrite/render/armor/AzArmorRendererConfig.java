@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzDefaultArmorBoneProvider;
@@ -34,7 +35,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
         BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
-        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction
+        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -49,7 +52,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             textureLocationProvider,
             alphaFunction,
             scaleHeight,
-            scaleWidth
+            scaleWidth,
+            boneTextureOverrideProvider,
+            boneRenderTypeOverrideProvider
         );
         this.boneProvider = boneProvider;
     }
@@ -91,6 +96,16 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
+        public Builder setBoneRenderTypeOverrideProvider(Function<AzBone, RenderType> boneRenderTypeOverrideProvider) {
+            return (Builder) super.setBoneRenderTypeOverrideProvider(boneRenderTypeOverrideProvider);
+        }
+
+        @Override
+        public Builder setBoneTextureOverrideProvider(Function<AzBone, ResourceLocation> boneTextureOverrideProvider) {
+            return (Builder) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
+        }
+
+        @Override
         public Builder setModelRenderer(
             BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
         ) {
@@ -128,36 +143,36 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         public Builder setPrerenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setRenderEntry(renderEntry);
+            return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
             Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
-            return (AzArmorRendererConfig.Builder) super.setAlpha(alphaFunction);
+            return (Builder) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder setAlpha(float alpha) {
-            return (AzArmorRendererConfig.Builder) super.setAlpha(alpha);
+            return (Builder) super.setAlpha(alpha);
         }
 
         @Override
         public Builder setScale(Function<ItemStack, Float> scaleFunction) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder) super.setScale(scaleFunction);
         }
 
         @Override
@@ -165,17 +180,17 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
             Function<ItemStack, Float> scaleHeightFunction,
             Function<ItemStack, Float> scaleWidthFunction
         ) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder setScale(float scale) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scale);
+            return (Builder) super.setScale(scale);
         }
 
         @Override
         public Builder setScale(float scaleWidth, float scaleHeight) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
+            return (Builder) super.setScale(scaleWidth, scaleHeight);
         }
 
         public Builder setBoneProvider(AzArmorBoneProvider boneProvider) {
@@ -201,7 +216,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::scaleHeight,
                 baseConfig::scaleWidth,
                 baseConfig::modelRendererProvider,
-                baseConfig::pipelineContext
+                baseConfig::pipelineContext,
+                baseConfig::boneTextureOverrideProvider,
+                baseConfig::boneRenderTypeOverrideProvider
             );
         }
     }
