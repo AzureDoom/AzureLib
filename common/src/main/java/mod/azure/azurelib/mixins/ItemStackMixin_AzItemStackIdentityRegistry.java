@@ -60,6 +60,11 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
         var itemRenderer = AzItemRendererRegistry.getOrNull(self.getItem());
         var armorRenderer = AzArmorRendererRegistry.getOrNull(self.getItem());
+
+        // Required due to stupid mods like Occultism and it's stupid strict tags
+        if (itemRenderer == null && armorRenderer == null) {
+            return;
+        }
         var stackTag = self.getOrCreateTag();
 
         if ((itemRenderer != null || armorRenderer != null) && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
