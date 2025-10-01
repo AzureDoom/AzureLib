@@ -2,7 +2,6 @@ package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -77,7 +76,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
 
         entityRendererPipeline.modelRenderTranslations.set(poseStack.last().pose());
 
-        if (!animatable.isInvisibleTo(Minecraft.getInstance().player)) {
+        if (context.vertexConsumer() != null) {
             super.render(context, isReRender);
         }
 

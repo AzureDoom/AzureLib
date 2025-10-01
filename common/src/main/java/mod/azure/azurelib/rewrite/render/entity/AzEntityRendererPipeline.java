@@ -1,6 +1,7 @@
 package mod.azure.azurelib.rewrite.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -71,8 +72,14 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
         var scaleHeight = config.scaleHeight(context.animatable());
 
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
-        if (config.alpha(context.animatable()) < 1) {
-            context.setAlpha(config.alpha(context.animatable()));
+        if (config.alpha(context.animatable()) < 1 || context.animatable().isInvisible()) {
+            var setAlpha = context.animatable().isInvisible()
+                ? (context.animatable()
+                    .isInvisibleTo(
+                        Minecraft.getInstance().player
+                    ) ? 0.0F : 0.38F)
+                : config.alpha(context.animatable());
+            context.setAlpha(setAlpha);
         }
         config.preRenderEntry(context);
     }

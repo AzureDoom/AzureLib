@@ -144,7 +144,7 @@ public class AzRendererConfig<T> {
         ) {
             this.animatorProvider = () -> null;
             this.modelLocationProvider = modelLocationProvider;
-            this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
+            this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
             this.renderEntry = $ -> $;
