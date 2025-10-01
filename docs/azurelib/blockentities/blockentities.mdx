@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.19.2/common/src/main/java/mod/azure/azexamples/blocks/blockentity)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.19.2/common/src/main/java/mod/azure/azexamples/blocks/blockentity)
 </Callout>
 
 # How to animate Block Entities
@@ -155,4 +155,28 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
 
 ## Registering your Renderer
 
-Nothing special is required here! Simply call render your block entity render as per the standard use case of your modloader.
+Basic Example of Fabric and Forge
+
+<CodeTabs>
+
+```java !!tabs Fabric
+@Override
+public void onInitializeClient() {
+    BlockEntityRenderers.register(
+        ExampleRegistry.EXAMPLE_BE,
+        (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBERenderer()
+    );
+}
+```
+
+```java !!tabs Forge
+@SubscribeEvent
+public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+    event.registerBlockEntityRenderer(
+        ExampleRegistry.EXAMPLE_BE.get(),
+        (BlockEntityRendererProvider.Context rendererDispatcherIn) -> new ExampleBERenderer()
+    );
+}
+```
+
+</CodeTabs>
