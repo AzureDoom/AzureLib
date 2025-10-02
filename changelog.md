@@ -1,4 +1,4 @@
-v3.1.7
+v3.1.8
 
-### Fixes
-- Fixed mixin crash with mods such as Occultism whom have a stupid strict tag check.
+### Fixed
+- Fixed a bug with the RenderTypes from the new per bone and RenderTypes that caused the layers to not render correctly.
