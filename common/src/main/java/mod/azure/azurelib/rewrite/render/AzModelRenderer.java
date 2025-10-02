@@ -297,11 +297,11 @@ public class AzModelRenderer<T> {
         var bufferSource = context.multiBufferSource();
         var renderType = context.renderType();
 
-        context.setTextureOverride(config.boneTextureOverrideProvider(bone));
+        if (config.boneTextureOverrideProvider(bone) != null) {
+            context.setTextureOverride(config.boneTextureOverrideProvider(bone));
+        }
 
-        var texture = config.boneTextureOverrideProvider(bone) == null
-            ? config.textureLocation(context.animatable())
-            : config.boneTextureOverrideProvider(bone);
+        var texture = config.boneTextureOverrideProvider(bone);
 
         var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
 
@@ -309,15 +309,13 @@ public class AzModelRenderer<T> {
             renderTypeOverride = context.getDefaultRenderType(
                 context.animatable(),
                 texture,
-                context.multiBufferSource(),
+                bufferSource,
                 context.partialTick()
             );
-            renderType = renderTypeOverride;
         }
 
         if (renderTypeOverride != null) {
-            currentBuffer = bufferSource.getBuffer(renderTypeOverride);
-            renderType = renderTypeOverride;
+            currentBuffer = context.multiBufferSource().getBuffer(renderTypeOverride);
         }
 
         if (isReRender) {

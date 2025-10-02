@@ -57,7 +57,7 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                 .setModelRenderer(ExampleCustomArmorModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomArmorModelRenderer
                 .setPipelineContext(ExampleArmorRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleArmorRendererPipelineContext
                 .setBoneTextureOverrideProvider(bone ->
-                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
                 )
                 .setBoneRenderTypeOverrideProvider(bone ->
                     "exampleBone".equals(bone.getName())
@@ -118,7 +118,7 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                 .setPipelineContext(ExampleBERendererPipelineContext::new) // Sets the Pipeline Context to the ExampleBERendererPipelineContext
                 .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
                 .setBoneTextureOverrideProvider(bone ->
-                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
                 )
                 .setBoneRenderTypeOverrideProvider(bone ->
                     "exampleBone".equals(bone.getName())
@@ -184,7 +184,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .setModelRenderer(ExampleCustomEntityModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomEntityModelRenderer
                 .setPipelineContext(ExampleEntityRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleEntityRendererPipelineContext
                 .setBoneTextureOverrideProvider(bone ->
-                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
                 )
                 .setBoneRenderTypeOverrideProvider(bone ->
                     "exampleBone".equals(bone.getName())
@@ -251,7 +251,7 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .setModelRenderer(ExampleCustomItemModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomItemModelRenderer
                 .setPipelineContext(ExampleItemRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleItemRendererPipelineContext
                 .setBoneTextureOverrideProvider(bone ->
-                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : null
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
                 )
                 .setBoneRenderTypeOverrideProvider(bone ->
                     "exampleBone".equals(bone.getName())
