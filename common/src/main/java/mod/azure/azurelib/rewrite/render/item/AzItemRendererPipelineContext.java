@@ -2,6 +2,7 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +22,18 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
 
     private boolean translucent = false;
 
+    private ItemTransforms.TransformType transformType;
+
     public AzItemRendererPipelineContext(AzRendererPipeline<ItemStack> rendererPipeline) {
         super(rendererPipeline);
+    }
+
+    public ItemTransforms.TransformType getTransformType() {
+        return transformType;
+    }
+
+    public void setTransformType(ItemTransforms.TransformType transformType) {
+        this.transformType = transformType;
     }
 
     /**

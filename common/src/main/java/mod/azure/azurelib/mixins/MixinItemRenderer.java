@@ -41,8 +41,8 @@ public class MixinItemRenderer {
 
         if (renderer != null) {
             switch (transformType) {
-                case GUI -> renderer.renderByGui(itemStack, poseStack, multiBufferSource, i);
-                default -> renderer.renderByItem(itemStack, poseStack, multiBufferSource, i);
+                case GUI -> renderer.renderByGui(itemStack, transformType, poseStack, multiBufferSource, i);
+                default -> renderer.renderByItem(itemStack, transformType, poseStack, multiBufferSource, i);
             }
         }
     }

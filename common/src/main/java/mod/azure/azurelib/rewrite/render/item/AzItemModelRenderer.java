@@ -55,6 +55,37 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
     public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
         var poseStack = context.poseStack();
 
+        var itemRendererConfig = (AzItemRendererConfig) itemRendererPipeline.config();
+        var itemContext = (AzItemRendererPipelineContext) itemRendererPipeline.context();
+        boolean shouldFreezeTransforms = !itemRendererConfig.shouldAnimateInContext(itemContext.getTransformType());
+
+        float origPosX = 0, origPosY = 0, origPosZ = 0;
+        float origRotX = 0, origRotY = 0, origRotZ = 0;
+        float origScaleX = 0, origScaleY = 0, origScaleZ = 0;
+
+        if (shouldFreezeTransforms) {
+            origPosX = bone.getPosX();
+            origPosY = bone.getPosY();
+            origPosZ = bone.getPosZ();
+            origRotX = bone.getRotX();
+            origRotY = bone.getRotY();
+            origRotZ = bone.getRotZ();
+            origScaleX = bone.getScaleX();
+            origScaleY = bone.getScaleY();
+            origScaleZ = bone.getScaleZ();
+
+            var initialSnapshot = bone.getInitialAzSnapshot();
+            bone.setPosX(initialSnapshot.getOffsetX());
+            bone.setPosY(initialSnapshot.getOffsetY());
+            bone.setPosZ(initialSnapshot.getOffsetZ());
+            bone.setRotX(initialSnapshot.getRotX());
+            bone.setRotY(initialSnapshot.getRotY());
+            bone.setRotZ(initialSnapshot.getRotZ());
+            bone.setScaleX(initialSnapshot.getScaleX());
+            bone.setScaleY(initialSnapshot.getScaleY());
+            bone.setScaleZ(initialSnapshot.getScaleZ());
+        }
+
         poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
@@ -78,6 +109,18 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
         super.renderRecursively(context, bone, isReRender);
+
+        if (shouldFreezeTransforms) {
+            bone.setPosX(origPosX);
+            bone.setPosY(origPosY);
+            bone.setPosZ(origPosZ);
+            bone.setRotX(origRotX);
+            bone.setRotY(origRotY);
+            bone.setRotZ(origRotZ);
+            bone.setScaleX(origScaleX);
+            bone.setScaleY(origScaleY);
+            bone.setScaleZ(origScaleZ);
+        }
 
         poseStack.popPose();
     }
