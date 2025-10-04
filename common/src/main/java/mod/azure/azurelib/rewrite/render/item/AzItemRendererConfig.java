@@ -2,12 +2,17 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
@@ -26,6 +31,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
     private final boolean useNewOffset;
 
+    private final Predicate<ItemDisplayContext> shouldAnimateInContext;
+
     private AzItemRendererConfig(
         Supplier<AzAnimator<ItemStack>> animatorProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
@@ -40,6 +47,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         Function<ItemStack, Float> scaleWidth,
         boolean useEntityGuiLighting,
         boolean useNewOffset,
+        Predicate<ItemDisplayContext> shouldAnimateInContext,
         BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
         Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
@@ -64,6 +72,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         );
         this.useEntityGuiLighting = useEntityGuiLighting;
         this.useNewOffset = useNewOffset;
+        this.shouldAnimateInContext = shouldAnimateInContext;
     }
 
     public boolean useEntityGuiLighting() {
@@ -72,6 +81,10 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
     public boolean useNewOffset() {
         return useNewOffset;
+    }
+
+    public boolean shouldAnimateInContext(ItemDisplayContext context) {
+        return shouldAnimateInContext.test(context);
     }
 
     public static Builder builder(
@@ -94,6 +107,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
         private boolean useNewOffset;
 
+        private Predicate<ItemDisplayContext> shouldAnimateInContext;
+
         protected Builder(
             Function<ItemStack, ResourceLocation> modelLocationProvider,
             Function<ItemStack, ResourceLocation> textureLocationProvider
@@ -101,6 +116,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             super(modelLocationProvider, textureLocationProvider);
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
+            this.shouldAnimateInContext = $ -> true;
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzItemModelRenderer(
                 (AzItemRendererPipeline) entityRendererPipeline,
                 layer
@@ -220,6 +236,67 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             return this;
         }
 
+        /**
+         * Sets the Predicate to determine whether an item should be animated in a specific {@link ItemDisplayContext}.
+         *
+         * @param shouldAnimateInContext A Predicate that takes an {@link ItemDisplayContext} and returns true if the
+         *                               animation should occur in that context; false otherwise.
+         * @return The current instance of the {@code Builder} for method chaining.
+         */
+        public Builder setShouldAnimateInContext(Predicate<ItemDisplayContext> shouldAnimateInContext) {
+            this.shouldAnimateInContext = shouldAnimateInContext;
+            return this;
+        }
+
+        /**
+         * Disables animation for specific {@link ItemDisplayContext} instances. The provided contexts are added to a
+         * set, and animations will not occur in the specified contexts.
+         *
+         * @param contextToDisable  The primary {@link ItemDisplayContext} in which animations are to be disabled.
+         * @param contextsToDisable Additional {@link ItemDisplayContext} instances in which animations are to be
+         *                          disabled.
+         * @return The current instance of the {@code Builder} for method chaining.
+         */
+        public Builder disableAnimationInContexts(
+            ItemDisplayContext contextToDisable,
+            ItemDisplayContext... contextsToDisable
+        ) {
+            var disabledContexts = new HashSet<ItemDisplayContext>();
+            disabledContexts.add(contextToDisable);
+
+            if (contextsToDisable.length > 0) {
+                disabledContexts.addAll(Arrays.asList(contextsToDisable));
+            }
+
+            var finalDisabledContexts = Set.copyOf(disabledContexts);
+            this.shouldAnimateInContext = context -> !finalDisabledContexts.contains(context);
+            return this;
+        }
+
+        /**
+         * Enables animation only for the specified {@link ItemDisplayContext} instances. Any contexts not provided in
+         * the parameters will have animations disabled.
+         *
+         * @param contextToEnable  The primary {@link ItemDisplayContext} where animations should be enabled.
+         * @param contextsToEnable Additional {@link ItemDisplayContext} instances where animations should be enabled.
+         * @return The current instance of the {@code Builder} for method chaining.
+         */
+        public Builder enableAnimationOnlyInContexts(
+            ItemDisplayContext contextToEnable,
+            ItemDisplayContext... contextsToEnable
+        ) {
+            var enabledContexts = new HashSet<ItemDisplayContext>();
+            enabledContexts.add(contextToEnable);
+
+            if (contextsToEnable.length > 0) {
+                enabledContexts.addAll(Arrays.asList(contextsToEnable));
+            }
+
+            var finalEnabledContexts = Set.copyOf(enabledContexts);
+            this.shouldAnimateInContext = context -> !finalEnabledContexts.contains(context);
+            return this;
+        }
+
         @Override
         public AzItemRendererConfig build() {
             var baseConfig = super.build();
@@ -238,6 +315,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
                 baseConfig::scaleWidth,
                 useEntityGuiLighting,
                 useNewOffset,
+                shouldAnimateInContext,
                 baseConfig::modelRendererProvider,
                 baseConfig::pipelineContext,
                 baseConfig::boneTextureOverrideProvider,
