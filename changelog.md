@@ -1,4 +1,8 @@
-v3.0.35
+v3.0.36
 
-### Fixed
-- Fixed a bug with the RenderTypes from the new per bone and RenderTypes that caused the layers to not render correctly.
+### Changes
+- Added setShouldAnimateInContext, disableAnimationInContexts, and enableAnimationOnlyInContexts methods to AzItemRendererConfig.
+    - This allows you to disable animations in certain display contexts.
+- Added built-in support for items to render player arms in the first-person view as long as the proper bones exist in the item model.
+    - Import the arms from this bbmodel to your item model and only move them in the animations you want to use them in.
+    - Download the bbmodel here: https://github.com/AzureDoom/AzureLib/blob/1.21.1/player_arms_import.bbmodel
