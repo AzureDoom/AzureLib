@@ -19,6 +19,7 @@ import mod.azure.azurelib.common.internal.common.cache.object.GeoQuad;
 import mod.azure.azurelib.common.internal.common.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererPipelineContext;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone
@@ -277,6 +278,41 @@ public class AzModelRenderer<T> {
     }
 
     /**
+     * Retrieves or refreshes the {@link VertexConsumer} for rendering based on the current buffer state and rendering
+     * context. Depending on the type and state of the current {@link VertexConsumer}, this method determines whether to
+     * reuse the existing buffer or obtain a fresh one from the {@link MultiBufferSource}.
+     *
+     * @param context    The rendering context containing information about the current buffer, the buffer source, and
+     *                   rendering pipeline data.
+     * @param bone       The {@link AzBone} being rendered, which may influence the behavior or context of the buffer
+     *                   retrieval.
+     * @param renderType The {@link RenderType} specifying the desired render characteristics or pipeline for rendering.
+     * @return The appropriate {@link VertexConsumer} for rendering, either the existing buffer or a refreshed/new one.
+     */
+    public VertexConsumer getOrRefreshBufferRenderType(
+        AzItemRendererPipelineContext context,
+        AzBone bone,
+        RenderType renderType
+    ) {
+        var currentBuffer = context.multiBufferSource().getBuffer(renderType);
+        var bufferSource = context.multiBufferSource();
+
+        return switch (currentBuffer) {
+            case BufferBuilder builder when isBufferInactive(builder) -> bufferSource.getBuffer(renderType);
+            case OutlineBufferSource.EntityOutlineGenerator outline when needsBufferRefresh(outline.delegate()) ->
+                new OutlineBufferSource.EntityOutlineGenerator(bufferSource.getBuffer(renderType), outline.color());
+            case VertexMultiConsumer.Double pair when needsBufferRefresh(pair.first) || needsBufferRefresh(
+                pair.second
+            ) ->
+                new VertexMultiConsumer.Double(
+                    needsBufferRefresh(pair.first) ? bufferSource.getBuffer(renderType) : pair.first,
+                    needsBufferRefresh(pair.second) ? bufferSource.getBuffer(renderType) : pair.second
+                );
+            default -> currentBuffer;
+        };
+    }
+
+    /**
      * Retrieves the appropriate {@link VertexConsumer} for rendering, or refreshes the render buffer if needed.
      * Depending on the rendering context and state of the current buffer, this method determines whether to reuse the
      * existing buffer or acquire a new one.
@@ -344,7 +380,7 @@ public class AzModelRenderer<T> {
      * @param buffer The {@link VertexConsumer} instance to evaluate.
      * @return {@code true} if the buffer needs to be refreshed; {@code false} otherwise.
      */
-    private boolean needsBufferRefresh(VertexConsumer buffer) {
+    protected boolean needsBufferRefresh(VertexConsumer buffer) {
         return switch (buffer) {
             case BufferBuilder builder -> isBufferInactive(builder);
             case OutlineBufferSource.EntityOutlineGenerator outline -> needsBufferRefresh(outline.delegate());
@@ -361,7 +397,7 @@ public class AzModelRenderer<T> {
      * @param builder The {@link BufferBuilder} instance to check.
      * @return {@code true} if the buffer is inactive (not building); {@code false} otherwise.
      */
-    private boolean isBufferInactive(BufferBuilder builder) {
+    protected boolean isBufferInactive(BufferBuilder builder) {
         return !builder.building;
     }
 }
