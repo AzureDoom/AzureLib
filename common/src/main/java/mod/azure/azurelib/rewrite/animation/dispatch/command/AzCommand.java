@@ -214,6 +214,17 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level().isClientSide()) {
             dispatchFromClient(entity);
         } else {
+            if (!itemStack.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
+                AzureLib.LOGGER.warn(
+                    AzureLib.MAIN_MARKER,
+                    "Missing '{}' UUID tag on ItemStack (item={}). "
+                        + "Cannot dispatch animation commands. Ensure this is an AzureLib-animated item and that its UUID is assigned.",
+                    AzureLib.ITEM_UUID_TAG,
+                    itemStack.getItem().builtInRegistryHolder().key().location()
+                );
+                return;
+            }
+
             var uuid = itemStack.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
 
             var packet = new AzItemStackDispatchCommandPacket(uuid, this);
