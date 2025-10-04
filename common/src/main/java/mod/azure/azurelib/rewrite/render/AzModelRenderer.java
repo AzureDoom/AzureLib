@@ -18,6 +18,7 @@ import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.rewrite.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
 
 /**
@@ -295,6 +296,56 @@ public class AzModelRenderer<T> {
     }
 
     /**
+     * Retrieves or refreshes the {@link VertexConsumer} for rendering based on the current buffer state and rendering
+     * context. Depending on the type and state of the current {@link VertexConsumer}, this method determines whether to
+     * reuse the existing buffer or obtain a fresh one from the {@link MultiBufferSource}.
+     *
+     * @param context    The rendering context containing information about the current buffer, the buffer source, and
+     *                   rendering pipeline data.
+     * @param bone       The {@link AzBone} being rendered, which may influence the behavior or context of the buffer
+     *                   retrieval.
+     * @param renderType The {@link RenderType} specifying the desired render characteristics or pipeline for rendering.
+     * @return The appropriate {@link VertexConsumer} for rendering, either the existing buffer or a refreshed/new one.
+     */
+    public VertexConsumer getOrRefreshBufferRenderType(
+        AzItemRendererPipelineContext context,
+        AzBone bone,
+        RenderType renderType
+    ) {
+        var currentBuffer = context.multiBufferSource().getBuffer(renderType);
+        var bufferSource = context.multiBufferSource();
+
+        if (currentBuffer instanceof BufferBuilder builder) {
+            if (isBufferInactive(builder)) {
+                return bufferSource.getBuffer(renderType);
+            }
+        } else if (currentBuffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
+            if (needsBufferRefresh(outline.delegate)) {
+                return new OutlineBufferSource.EntityOutlineGenerator(
+                    bufferSource.getBuffer(renderType),
+                    255,
+                    255,
+                    255,
+                    255
+                );
+            }
+        } else if (currentBuffer instanceof VertexMultiConsumer.Double pair) {
+            var firstBuffer = pair.first;
+            var secondBuffer = pair.second;
+            boolean firstNeedsRefresh = needsBufferRefresh(firstBuffer);
+            boolean secondNeedsRefresh = needsBufferRefresh(secondBuffer);
+
+            if (firstNeedsRefresh || secondNeedsRefresh) {
+                return new VertexMultiConsumer.Double(
+                    firstNeedsRefresh ? bufferSource.getBuffer(renderType) : firstBuffer,
+                    secondNeedsRefresh ? bufferSource.getBuffer(renderType) : secondBuffer
+                );
+            }
+        }
+        return currentBuffer;
+    }
+
+    /**
      * Retrieves the appropriate {@link VertexConsumer} for rendering, or refreshes the render buffer if needed.
      * Depending on the rendering context and state of the current buffer, this method determines whether to reuse the
      * existing buffer or acquire a new one.
@@ -377,7 +428,7 @@ public class AzModelRenderer<T> {
      * @param buffer The {@link VertexConsumer} instance to evaluate.
      * @return {@code true} if the buffer needs to be refreshed; {@code false} otherwise.
      */
-    private boolean needsBufferRefresh(VertexConsumer buffer) {
+    protected boolean needsBufferRefresh(VertexConsumer buffer) {
         if (buffer instanceof BufferBuilder builder) {
             return isBufferInactive(builder);
         } else if (buffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
@@ -395,7 +446,7 @@ public class AzModelRenderer<T> {
      * @param builder The {@link BufferBuilder} instance to check.
      * @return {@code true} if the buffer is inactive (not building); {@code false} otherwise.
      */
-    private boolean isBufferInactive(BufferBuilder builder) {
+    protected boolean isBufferInactive(BufferBuilder builder) {
         return !builder.building;
     }
 }
