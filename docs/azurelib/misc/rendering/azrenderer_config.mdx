@@ -26,7 +26,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 
 ## AzArmorRendererConfig
 
-The `AzArmorRendererConfig` is explicitly designed for rendering **animated armor models**. It provides options such as:
+The `AzArmorRendererConfig` is explicitly designed for rendering **animated armor models**. It also provides options such as:
 
 - **Bone providers**: A custom provider for managing custom bone structures
 
@@ -220,9 +220,17 @@ This implementation allows you to define rotations, animations, and layers for t
 
 ## AzItemRendererConfig
 
-The `AzItemRendererConfig` is tailored for rendering **items**.
+The `AzItemRendererConfig` is tailored for rendering **items**. It also provides options such as:
+    - **Context-aware animations** that can be enabled/disabled per display context
+    - **GUI Lighting switch**: Toggle between flat item lighting and entity-style lighting for GUI contexts
+    - **Offset fix**: Fixes items having incorrect positioning when exported from BlockBench 4.11+
+    - **Player Arms Integration**: Automatic rendering of player arms for first-person items when `leftArm` or `rightArm` bones are present
 
-It extends the flexibility of `AzRendererConfig` by adding options for item-specific behaviors, such as GUI lighting and offset adjustments.
+### Player Arms Feature
+
+Items with bones named `leftArm` or `rightArm` will automatically render player arms in first-person view, creating immersive weapon and tool experiences. This feature is automatically disabled if the First Person Model mod is detected to prevent conflicts.
+
+You download the example arms to import [here](https://github.com/AzureDoom/AzureLib/blob/1.21.1/player_arms_import.bbmodel)
 
 ### Example
 
@@ -271,6 +279,9 @@ public class ExampleItemRenderer extends AzItemRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
+                .disableAnimationInContexts(ItemDisplayContext.GUI, ItemDisplayContext.FIXED, ItemDisplayContext.GROUND) // Disable animations in multiple contexts
+                .enableAnimationOnlyInContexts(ItemDisplayContext.FIRST_PERSON_LEFT_HAND, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) // Enable animations in multiple contexts
+                .setShouldAnimateInContext(context -> context != ItemDisplayContext.GUI && context != ItemDisplayContext.FIXED) // Custom animation logic with predicate
                 .setAlpha(exampleItem -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
                 .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
                 .setScale(1.0F, 1.0F) // Scale for width and height
