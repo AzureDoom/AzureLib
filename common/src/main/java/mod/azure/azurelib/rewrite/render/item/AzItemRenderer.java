@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,11 +46,16 @@ public abstract class AzItemRenderer {
 
     public void renderByGui(
         ItemStack stack,
+        ItemDisplayContext transformType,
         @NotNull PoseStack poseStack,
         @NotNull MultiBufferSource source,
         int packedLight
     ) {
         var model = provider.provideBakedModel(stack);
+        var context = rendererPipeline.context();
+        var itemContext = (AzItemRendererPipelineContext) context;
+
+        itemContext.setTransformType(transformType);
 
         prepareAnimator(stack, model);
 
@@ -58,6 +64,7 @@ public abstract class AzItemRenderer {
 
     public void renderByItem(
         ItemStack stack,
+        ItemDisplayContext transformType,
         @NotNull PoseStack poseStack,
         @NotNull MultiBufferSource source,
         int packedLight
@@ -70,6 +77,10 @@ public abstract class AzItemRenderer {
         // TODO: Why the null check here?
         var withGlint = stack != null && stack.hasFoil();
         var buffer = ItemRenderer.getFoilBufferDirect(source, renderType, false, withGlint);
+        var context = rendererPipeline.context();
+        var itemContext = (AzItemRendererPipelineContext) context;
+
+        itemContext.setTransformType(transformType);
 
         prepareAnimator(stack, model);
 
