@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 import mod.azure.azurelib.util.AzureLibUtil;
 
 /**
@@ -58,16 +57,14 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     @Unique
     private void azureLib$initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
-        var itemRenderer = AzItemRendererRegistry.getOrNull(self.getItem());
-        var armorRenderer = AzArmorRendererRegistry.getOrNull(self.getItem());
 
         // Required due to stupid mods like Occultism and it's stupid strict tags
-        if (itemRenderer == null && armorRenderer == null) {
+        if (!AzIdentityRegistry.hasIdentity(self.getItem())) {
             return;
         }
         var stackTag = self.getOrCreateTag();
 
-        if ((itemRenderer != null || armorRenderer != null) && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
+        if (AzIdentityRegistry.hasIdentity(self.getItem()) && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
             stackTag.putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
     }

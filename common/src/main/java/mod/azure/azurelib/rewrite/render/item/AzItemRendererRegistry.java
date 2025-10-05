@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+
 /**
  * The AzItemRendererRegistry class manages the association between items and their renderers in the context of the
  * AzureLib framework. It provides functionality to register and retrieve item renderers dynamically, ensuring that
@@ -20,6 +22,7 @@ public class AzItemRendererRegistry {
 
     public static void register(Item item, Supplier<AzItemRenderer> itemRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(item, itemRendererSupplier);
+        AzIdentityRegistry.register(item);
     }
 
     public static void register(Supplier<AzItemRenderer> itemRendererSupplier, Item item, Item... items) {
