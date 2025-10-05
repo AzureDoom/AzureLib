@@ -1,5 +1,6 @@
 {
   "required": true,
+  "minVersion": "0.8",
   "package": "mod.azure.azurelib.common.internal.mixins",
   "compatibilityLevel": "JAVA_21",
   "injectors": {
