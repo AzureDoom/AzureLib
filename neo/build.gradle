@@ -52,7 +52,7 @@ dependencies {
          changelog = rootProject.file("changelog.md").text
          type = STABLE
          modLoaders.add("neoforge")
-         displayName = "${mod_id} neoforge ${minecraft_version} - ${version}"
+         displayName = "Neoforge ${minecraft_version} - ${version}"
 
          discord {
              webhookUrl = releaseProp.getProperty("discordKey")
