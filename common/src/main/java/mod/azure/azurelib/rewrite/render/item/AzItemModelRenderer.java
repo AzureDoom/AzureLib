@@ -1,10 +1,10 @@
 package mod.azure.azurelib.rewrite.render.item;
 
-import mod.azure.azurelib.platform.Services;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;
@@ -59,11 +59,11 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
         var itemContext = (AzItemRendererPipelineContext) itemRendererPipeline.context();
         boolean shouldFreezeTransforms = !itemRendererConfig.shouldAnimateInContext(itemContext.getTransformType());
 
-	    // Check if this bone should render player arms and that
-	    // https://www.curseforge.com/minecraft/mc-mods/first-person-model isn't loaded
-	    if (AzItemArmRenderUtil.isArmBone(bone) && !Services.PLATFORM.isModLoaded("firstperson")) {
-		    AzItemArmRenderUtil.renderArmForBone(context, bone, this);
-	    }
+        // Check if this bone should render player arms and that
+        // https://www.curseforge.com/minecraft/mc-mods/first-person-model isn't loaded
+        if (AzItemArmRenderUtil.isArmBone(bone) && !Services.PLATFORM.isModLoaded("firstperson")) {
+            AzItemArmRenderUtil.renderArmForBone(context, bone, this);
+        }
 
         float origPosX = 0, origPosY = 0, origPosZ = 0;
         float origRotX = 0, origRotY = 0, origRotZ = 0;
