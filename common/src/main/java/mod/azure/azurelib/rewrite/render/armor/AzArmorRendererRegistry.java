@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+
 public class AzArmorRendererRegistry {
 
     private static final Map<Item, AzArmorRenderer> ITEM_TO_RENDERER = new HashMap<>();
@@ -15,6 +17,7 @@ public class AzArmorRendererRegistry {
 
     public static void register(Item item, Supplier<AzArmorRenderer> armorRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(item, armorRendererSupplier);
+        AzIdentityRegistry.register(item);
     }
 
     public static void register(Supplier<AzArmorRenderer> armorRendererSupplier, Item item, Item... items) {

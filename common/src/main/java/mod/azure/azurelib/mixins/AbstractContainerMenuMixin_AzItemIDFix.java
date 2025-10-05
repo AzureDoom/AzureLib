@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 
 /**
  * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific
@@ -43,12 +42,10 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
     )
     public ItemStack azurelib$syncAzureIDWithRemote(ItemStack itemStack, int count) {
         var copyStack = itemStack.copy();
-        var itemRenderer = AzItemRendererRegistry.getOrNull(itemStack.getItem());
-        var armorRenderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
 
         copyStack.setCount(itemStack.getCount());
 
-        if ((itemRenderer != null || armorRenderer != null) && copyStack.hasTag()) {
+        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.hasTag()) {
             copyStack.getOrCreateTag().remove(AzureLib.ITEM_UUID_TAG);
             copyStack.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
         }
@@ -109,9 +106,7 @@ public abstract class AbstractContainerMenuMixin_AzItemIDFix {
         ItemStack comparisonItemStack,
         Operation<Boolean> original
     ) {
-        var itemRenderer = AzItemRendererRegistry.getOrNull(itemStack.getItem());
-        var armorRenderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
-        if (itemRenderer == null && armorRenderer == null) {
+        if (AzIdentityRegistry.hasIdentity(itemStack.getItem())) {
             return original.call(itemStack, comparisonItemStack);
         }
 
