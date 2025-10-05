@@ -168,6 +168,6 @@ spotless {
     }
 }
 
-tasks.build {
+tasks.named('compileJava', JavaCompile) {
     dependsOn("spotlessApply")
 }
