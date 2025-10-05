@@ -12,8 +12,7 @@ import java.util.UUID;
 
 import mod.azure.azurelib.common.internal.common.AzureLib;
 import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
 
 /**
  * This mixin modifies the {@link ItemStack} class to inject functionality for managing a unique identifier as part of
@@ -33,9 +32,8 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     )
     public void az_addIdentityComponent(ItemLike item, int count, PatchedDataComponentMap components, CallbackInfo ci) {
         var self = AzureLibUtil.<ItemStack>self(this);
-        var itemRenderer = AzItemRendererRegistry.getOrNull(self.getItem());
-        var armorRenderer = AzArmorRendererRegistry.getOrNull(self);
-        if ((itemRenderer != null || armorRenderer != null) && !components.has(AzureLib.AZ_ID.get())) {
+
+        if (AzIdentityRegistry.hasIdentity(self.getItem()) && !components.has(AzureLib.AZ_ID.get())) {
             components.set(AzureLib.AZ_ID.get(), UUID.randomUUID());
         }
     }

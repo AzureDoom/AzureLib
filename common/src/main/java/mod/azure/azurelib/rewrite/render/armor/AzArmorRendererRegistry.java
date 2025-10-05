@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+
 /**
  * Registry for associating custom armor renderers with specific items and optionally their CustomModelData values.
  * Allows flexible registration of {@link AzArmorRenderer} instances to render armor items differently based on their
@@ -52,6 +54,7 @@ public class AzArmorRendererRegistry {
      */
     public static void register(Item item, int customModelData, Supplier<AzArmorRenderer> armorRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(new ArmorKey(item, customModelData), armorRendererSupplier);
+        AzIdentityRegistry.register(item);
     }
 
     /**
