@@ -84,7 +84,7 @@ if (keyPropsFile.exists()) {
         type = STABLE
         modLoaders.add("neoforge")
         modLoaders.add("forge")
-        displayName = "${mod_id} forge ${minecraft_version}"
+        displayName = "${mod_id} forge ${minecraft_version} - ${version}"
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
