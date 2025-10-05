@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "minVersion": "0.8",
   "id": "${mod_id}",
   "version": "${version}",
   "name": "${mod_name}",
