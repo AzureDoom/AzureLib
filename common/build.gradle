@@ -4,6 +4,11 @@ plugins {
     id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
+mixin {
+    add(sourceSets.main, "${mod_id}.mixins.refmap.json")
+    config("${mod_id}.mixins.json")
+}
+
 legacyForge {
     mcpVersion = minecraft_version
     def at = file('src/main/resources/META-INF/accesstransformer.cfg')
