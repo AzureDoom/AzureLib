@@ -1,6 +1,7 @@
-v3.1.10
+v3.1.11
+
+### Changes
+- Arm bones added to items will only be visible in First-Person view.
 
 ### Fixes
-- Fix for Forge events being called before renderers are ready 🙄
-- Adds missing minVersion to mixin files, just quiets that logger.
-- Updates mod description.
+- Fixed bug where the skin texture would be applied to the item bones as well, this only affects 1.20.1 and lower.
