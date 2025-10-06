@@ -50,7 +50,7 @@ if (keyPropsFile.exists()) {
         type = STABLE
         modLoaders.add("fabric")
         modLoaders.add("quilt")
-        displayName = "Fabric ${minecraft_version} - ${version}"
+        displayName = file.map { it.asFile.name }
 
         discord {
             webhookUrl = releaseProp.getProperty("discordKey")
