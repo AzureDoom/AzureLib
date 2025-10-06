@@ -2,8 +2,11 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.stream.Stream;
 
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.rewrite.model.AzBone;
@@ -46,6 +49,21 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
 
         itemRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
+        // Hides the player's arms if the item is in first-person mode
+        var itemContext = (AzItemRendererPipelineContext) itemRendererPipeline.context();
+        var transformType = itemContext.getTransformType();
+        var firstPerson = transformType == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
+            || transformType == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
+        if (!firstPerson) {
+            Stream.of("leftArm", "rightArm")
+                .forEach(
+                    boneName -> itemRendererPipeline.context()
+                        .bakedModel()
+                        .getBone(boneName)
+                        .ifPresent(bone -> bone.setHidden(true))
+                );
+        }
+
         super.render(context, isReRender);
     }
 
@@ -59,12 +77,6 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
         var itemRendererConfig = (AzItemRendererConfig) itemRendererPipeline.config();
         var itemContext = (AzItemRendererPipelineContext) itemRendererPipeline.context();
         boolean shouldFreezeTransforms = !itemRendererConfig.shouldAnimateInContext(itemContext.getTransformType());
-
-        // Check if this bone should render player arms and that
-        // https://www.curseforge.com/minecraft/mc-mods/first-person-model isn't loaded
-        if (AzItemArmRenderUtil.isArmBone(bone) && !Services.PLATFORM.isModLoaded("firstperson")) {
-            AzItemArmRenderUtil.renderArmForBone(context, bone, this);
-        }
 
         float origPosX = 0, origPosY = 0, origPosZ = 0;
         float origRotX = 0, origRotY = 0, origRotZ = 0;
@@ -94,6 +106,13 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
         }
 
         poseStack.pushPose();
+
+        // Check if this bone should render player arms and that
+        // https://www.curseforge.com/minecraft/mc-mods/first-person-model isn't loaded
+        if (AzItemArmRenderUtil.isArmBone(bone) && !Services.PLATFORM.isModLoaded("firstperson")) {
+            AzItemArmRenderUtil.renderArmForBone(context, bone, this);
+        }
+
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
             var poseState = new Matrix4f(poseStack.last().pose());
