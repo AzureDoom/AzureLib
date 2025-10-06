@@ -97,6 +97,9 @@ public class AzItemArmRenderUtil {
             renderRightArm(poseStack, bone, playerEntityModel, playerSkin, packedLight, itemContext, modelRenderer);
         }
 
+        // Only needed for 1.20.1 and lower
+        context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
+
         poseStack.popPose();
     }
 
