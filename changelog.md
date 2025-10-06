@@ -1,6 +1,4 @@
-v3.0.37
+v3.0.38
 
-### Fixes
-- Fix for Forge events being called before renderers are ready 🙄
-- Adds missing minVersion to mixin files, just quiets that logger.
-- Updates mod description.
+### Changes
+- Arm bones added to items will only be visible in First-Person view.
