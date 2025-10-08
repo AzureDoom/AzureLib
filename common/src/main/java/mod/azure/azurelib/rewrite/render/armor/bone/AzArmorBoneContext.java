@@ -194,7 +194,7 @@ public class AzArmorBoneContext {
                 setBoneVisible(this.body, true);
                 setBoneVisible(this.rightArm, true);
                 setBoneVisible(this.leftArm, true);
-	            setBoneVisible(this.waist, false);
+                setBoneVisible(this.waist, false);
             }
             case LEGS -> {
                 setBoneVisible(this.rightLeg, true);
