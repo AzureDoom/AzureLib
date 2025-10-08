@@ -49,7 +49,13 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
             return RenderType.outline(texture);
         }
 
-        return RenderType.entityTranslucentCull(texture);
+        if (
+            animatable instanceof LivingEntity livingEntity && (livingEntity.hurtTime > 1 || livingEntity
+                .isDeadOrDying())
+        ) {
+            return RenderType.entityCutout(texture);
+        }
+
         return defaultRenderType;
     }
 
