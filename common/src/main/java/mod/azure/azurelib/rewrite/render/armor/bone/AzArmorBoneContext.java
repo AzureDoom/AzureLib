@@ -1,12 +1,13 @@
 package mod.azure.azurelib.rewrite.render.armor.bone;
 
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
+
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.util.RenderUtils;
 
 public class AzArmorBoneContext {
 
