@@ -32,23 +32,36 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType,
+        float alpha
     ) {
+        // Handle invisibility first
         var isInvisible = animatable.isInvisible();
-        var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
-
         if (isInvisible) {
-            if (!isPlayerInvisible) {
-                return RenderType.itemEntityTranslucentCull(texture);
-            }
-            return null;
+            var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
+            return isPlayerInvisible ? null : RenderType.itemEntityTranslucentCull(texture);
         }
 
+        // Handle glowing effect
         if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
             return RenderType.outline(texture);
         }
 
-        return RenderType.entityTranslucentCull(texture);
+        // Handle entity damage/death state
+        if (
+            animatable instanceof LivingEntity livingEntity &&
+                (livingEntity.hurtTime > 1 || livingEntity.isDeadOrDying())
+        ) {
+            return RenderType.entityCutout(texture);
+        }
+
+        // Handle transparency
+        if (alpha < 1.0F) {
+            return RenderType.entityTranslucentCull(texture);
+        }
+
+        return defaultRenderType;
     }
 
     /**
