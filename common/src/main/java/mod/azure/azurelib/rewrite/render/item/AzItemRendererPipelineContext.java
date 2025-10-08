@@ -48,7 +48,7 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
     }
 
     @Override
-    public @NotNull RenderType getDefaultRenderType(
+    public RenderType getDefaultRenderType(
         ItemStack animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,

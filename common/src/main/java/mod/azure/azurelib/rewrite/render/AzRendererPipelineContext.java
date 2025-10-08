@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 
 import mod.azure.azurelib.common.internal.client.util.RenderUtils;
 import mod.azure.azurelib.core.object.Color;
@@ -105,9 +104,7 @@ public abstract class AzRendererPipelineContext<T> {
             );
         }
 
-        Objects.requireNonNull(this.renderType);
-
-        if (vertexConsumer == null) {
+        if (vertexConsumer == null && this.renderType != null) {
             this.vertexConsumer = multiBufferSource.getBuffer(this.renderType);
         }
     }
@@ -117,7 +114,7 @@ public abstract class AzRendererPipelineContext<T> {
      * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
      * Override this to change the way a model will render (such as translucent models, etc.)
      */
-    public abstract @NotNull RenderType getDefaultRenderType(
+    public abstract RenderType getDefaultRenderType(
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,

@@ -24,7 +24,7 @@ public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends
     }
 
     @Override
-    public @NotNull RenderType getDefaultRenderType(
+    public RenderType getDefaultRenderType(
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
