@@ -35,32 +35,31 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         RenderType defaultRenderType,
         float alpha
     ) {
-        // Handle invisibility first
-        var isInvisible = animatable.isInvisible();
-        if (isInvisible) {
-            var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
-            return isPlayerInvisible ? null : RenderType.itemEntityTranslucentCull(texture);
-        }
-
-        // Handle glowing effect
-        if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
-            return RenderType.outline(texture);
-        }
+        var translucent = animatable.isInvisible() && !animatable.isInvisibleTo(ClientUtils.getClientPlayer());
+        var visibleBody = !animatable.isInvisible(); // strictly “visible flag”
+        var glowing = Minecraft.getInstance().shouldEntityAppearGlowing(animatable);
+        var hurtOrDead = animatable instanceof LivingEntity living && (living.hurtTime > 1 || living.isDeadOrDying());
 
         // Handle entity damage/death state
-        if (
-            animatable instanceof LivingEntity livingEntity &&
-                (livingEntity.hurtTime > 1 || livingEntity.isDeadOrDying())
-        ) {
+        if (visibleBody && !glowing && hurtOrDead) {
             return RenderType.entityCutout(texture);
         }
 
         // Handle transparency
-        if (alpha < 1.0F) {
+        if (visibleBody && alpha < 1.0F) {
             return RenderType.entityTranslucentCull(texture);
         }
 
-        return defaultRenderType;
+        // --- Vanilla-style fallback ---
+        if (translucent) {
+            return RenderType.itemEntityTranslucentCull(texture);
+        } else if (visibleBody) {
+            return defaultRenderType;
+        } else if (glowing) {
+            return RenderType.outline(texture);
+        } else {
+            return null;
+        }
     }
 
     /**
