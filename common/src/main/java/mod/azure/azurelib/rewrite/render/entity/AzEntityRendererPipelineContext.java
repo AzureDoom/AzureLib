@@ -37,7 +37,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         float alpha
     ) {
         var translucent = animatable.isInvisible() && !animatable.isInvisibleTo(ClientUtils.getClientPlayer());
-        var visibleBody = !animatable.isInvisible(); // strictly “visible flag”
+        var visibleBody = !animatable.isInvisible(); // strictly visible flag
         var glowing = Minecraft.getInstance().shouldEntityAppearGlowing(animatable);
         var hurtOrDead = animatable instanceof LivingEntity living && (living.hurtTime > 1 || living.isDeadOrDying());
 
