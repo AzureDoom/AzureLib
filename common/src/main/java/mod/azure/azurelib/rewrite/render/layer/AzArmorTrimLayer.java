@@ -63,10 +63,10 @@ public class AzArmorTrimLayer implements AzRenderLayer<ItemStack> {
         this.texturePermutations = textureLocationPermutations;
     }
 
-	@Override
+    @Override
     public void preRender(AzRendererPipelineContext<ItemStack> context) {}
 
-	@Override
+    @Override
     public void render(AzRendererPipelineContext<ItemStack> context) {
         var armorPipelineContext = (AzArmorRendererPipelineContext) context;
         var itemstack = armorPipelineContext.currentStack();
