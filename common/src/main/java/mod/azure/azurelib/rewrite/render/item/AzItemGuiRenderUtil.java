@@ -41,7 +41,14 @@ public class AzItemGuiRenderUtil {
                 : Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
         var textureLocation = config.textureLocation(stack);
         var renderType = rendererPipeline.context()
-            .getDefaultRenderType(stack, textureLocation, bSource, partialTick);
+            .getDefaultRenderType(
+                stack,
+                textureLocation,
+                bSource,
+                partialTick,
+                config.getRenderType(stack),
+                config.alpha(stack)
+            );
         var withGlint = currentItemStack != null && currentItemStack.hasFoil();
         var buffer = ItemRenderer.getFoilBufferDirect(source, renderType, true, withGlint);
 

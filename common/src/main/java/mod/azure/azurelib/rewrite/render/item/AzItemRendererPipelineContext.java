@@ -52,10 +52,12 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
         ItemStack animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType,
+        float alpha
     ) {
         return translucent
             ? RenderType.itemEntityTranslucentCull(texture)
-            : RenderType.entityCutoutNoCull(texture);
+            : defaultRenderType;
     }
 }
