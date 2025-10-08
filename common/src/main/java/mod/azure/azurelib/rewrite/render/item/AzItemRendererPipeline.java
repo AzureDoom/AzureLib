@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
+import java.util.stream.Stream;
+
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererConfig;
@@ -64,6 +66,19 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
             var useNewOffset = config.useNewOffset();
             poseStack.translate(0.5f, useNewOffset ? 0.0f : 0.51f, 0.5f);
         }
+
+        // If the item model has the leftArm or rightArm bone, hide them.
+        Stream.of("leftArm", "rightArm")
+            .forEach(
+                boneName -> context
+                    .bakedModel()
+                    .getBone(boneName)
+                    .ifPresent(bone -> {
+                        bone.setHidden(true);
+                        bone.setChildrenHidden(false);
+                    })
+            );
+
         if (config.alpha(context.animatable()) < 1) {
             itemContext.setAlpha(config.alpha(context.animatable()));
             itemContext.setTranslucent(true);
