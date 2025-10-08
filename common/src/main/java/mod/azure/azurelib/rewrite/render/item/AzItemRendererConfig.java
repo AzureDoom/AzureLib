@@ -117,6 +117,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
+            this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzItemModelRenderer(
                 (AzItemRendererPipeline) entityRendererPipeline,
                 layer

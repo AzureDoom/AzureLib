@@ -28,8 +28,10 @@ public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType,
+        float alpha
     ) {
-        return RenderType.entityCutoutNoCull(texture);
+        return defaultRenderType;
     }
 }

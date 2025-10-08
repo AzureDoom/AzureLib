@@ -2,11 +2,8 @@ package mod.azure.azurelib.rewrite.render.item;
 
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.stream.Stream;
 
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.rewrite.model.AzBone;
@@ -48,21 +45,6 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
         var poseStack = context.poseStack();
 
         itemRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
-
-        // Hides the player's arms if the item is in first-person mode
-        var itemContext = (AzItemRendererPipelineContext) itemRendererPipeline.context();
-        var transformType = itemContext.getTransformType();
-        var firstPerson = transformType == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND
-            || transformType == ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
-        if (!firstPerson) {
-            Stream.of("leftArm", "rightArm")
-                .forEach(
-                    boneName -> itemRendererPipeline.context()
-                        .bakedModel()
-                        .getBone(boneName)
-                        .ifPresent(bone -> bone.setHidden(true))
-                );
-        }
 
         super.render(context, isReRender);
     }
@@ -107,9 +89,25 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
 
         poseStack.pushPose();
 
-        // Check if this bone should render player arms and that
-        // https://www.curseforge.com/minecraft/mc-mods/first-person-model isn't loaded
-        if (AzItemArmRenderUtil.isArmBone(bone) && !Services.PLATFORM.isModLoaded("firstperson")) {
+        var animator = itemRendererPipeline.getRenderer().getAnimator();
+        var isAnimationPlaying = false;
+        // Check if the first-person mod is loaded as it has its own arm system for items
+        var firstPerson = Services.PLATFORM.isModLoaded("firstperson");
+        // Check if the bone is an arm bone and the first person mod is loaded
+        var isArmBone = AzItemArmRenderUtil.isArmBone(bone) && !firstPerson;
+
+        if (animator != null) {
+            // Check all animation controllers to see if any are playing
+            for (var controller : animator.getAnimationControllerContainer().getAll()) {
+                if (controller.stateMachine().isPlaying()) {
+                    isAnimationPlaying = true;
+                    break;
+                }
+            }
+        }
+
+        // Check if the bone is an arm bone and an animation is playing
+        if (isArmBone && isAnimationPlaying) {
             AzItemArmRenderUtil.renderArmForBone(context, bone, this);
         }
 
