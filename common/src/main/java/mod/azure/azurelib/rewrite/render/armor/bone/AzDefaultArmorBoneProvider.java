@@ -1,9 +1,8 @@
 package mod.azure.azurelib.rewrite.render.armor.bone;
 
-import org.jetbrains.annotations.Nullable;
-
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.AzBone;
+import org.jetbrains.annotations.Nullable;
 
 public class AzDefaultArmorBoneProvider implements AzArmorBoneProvider {
 
@@ -45,5 +44,10 @@ public class AzDefaultArmorBoneProvider implements AzArmorBoneProvider {
     @Nullable
     public AzBone getLeftBootBone(AzBakedModel model) {
         return model.getBoneOrNull(BONE_ARMOR_LEFT_BOOT_NAME);
+    }
+
+    @Nullable
+    public AzBone getWaistBone(AzBakedModel model) {
+        return model.getBoneOrNull(BONE_ARMOR_WAIST_NAME);
     }
 }

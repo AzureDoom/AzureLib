@@ -1,13 +1,12 @@
 package mod.azure.azurelib.rewrite.render.armor.bone;
 
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.util.RenderUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
-
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.util.RenderUtils;
 
 public class AzArmorBoneContext {
 
@@ -29,6 +28,8 @@ public class AzArmorBoneContext {
 
     public AzBone leftBoot;
 
+    public AzBone waist;
+
     public AzArmorBoneContext() {
         this.head = null;
         this.body = null;
@@ -38,6 +39,7 @@ public class AzArmorBoneContext {
         this.leftLeg = null;
         this.rightBoot = null;
         this.leftBoot = null;
+        this.waist = null;
     }
 
     public void setAllVisible(boolean pVisible) {
@@ -49,6 +51,7 @@ public class AzArmorBoneContext {
         setBoneVisible(this.leftLeg, pVisible);
         setBoneVisible(this.rightBoot, pVisible);
         setBoneVisible(this.leftBoot, pVisible);
+        setBoneVisible(this.waist, pVisible);
     }
 
     /**
@@ -68,6 +71,7 @@ public class AzArmorBoneContext {
         this.leftLeg = boneProvider.getLeftLegBone(model);
         this.rightBoot = boneProvider.getRightBootBone(model);
         this.leftBoot = boneProvider.getLeftBootBone(model);
+        this.waist = boneProvider.getWaistBone(model);
     }
 
     /**
@@ -112,6 +116,10 @@ public class AzArmorBoneContext {
                 RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
                 this.rightBoot.updatePosition(rightLegPart.x + 2, 12 - rightLegPart.y, rightLegPart.z);
             }
+            if (this.waist != null) {
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                this.waist.updatePosition(baseModel.body.x, -(baseModel.body.y), baseModel.body.z);
+            }
         }
 
         if (this.leftLeg != null) {
@@ -123,6 +131,10 @@ public class AzArmorBoneContext {
             if (this.leftBoot != null) {
                 RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
                 this.leftBoot.updatePosition(leftLegPart.x - 2, 12 - leftLegPart.y, leftLegPart.z);
+            }
+            if (this.waist != null) {
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                this.waist.updatePosition(baseModel.body.x, -(baseModel.body.y), baseModel.body.z);
             }
         }
     }
@@ -156,6 +168,14 @@ public class AzArmorBoneContext {
         if (bone != null) {
             bone.setHidden(false);
         }
+
+        if (
+            currentSlot == EquipmentSlot.LEGS &&
+                (currentPart == model.leftLeg || currentPart == model.rightLeg) &&
+                this.waist != null
+        ) {
+            this.waist.setHidden(false);
+        }
     }
 
     /**
@@ -173,10 +193,12 @@ public class AzArmorBoneContext {
                 setBoneVisible(this.body, true);
                 setBoneVisible(this.rightArm, true);
                 setBoneVisible(this.leftArm, true);
+                setBoneVisible(this.waist, false);
             }
             case LEGS -> {
                 setBoneVisible(this.rightLeg, true);
                 setBoneVisible(this.leftLeg, true);
+                setBoneVisible(this.waist, true);
             }
             case FEET -> {
                 setBoneVisible(this.rightBoot, true);
