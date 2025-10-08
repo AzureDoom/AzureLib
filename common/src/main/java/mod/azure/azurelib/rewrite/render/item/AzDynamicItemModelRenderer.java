@@ -89,7 +89,8 @@ public abstract class AzDynamicItemModelRenderer extends AzItemModelRenderer {
                 texture,
                 context.multiBufferSource(),
                 context.partialTick(),
-                config.getRenderType(context.animatable())
+                config.getRenderType(context.animatable()),
+                config.alpha(context.animatable())
             );
             renderType = renderTypeOverride;
         }

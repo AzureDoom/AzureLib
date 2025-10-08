@@ -97,9 +97,19 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
             config.textureLocation(animatable),
             bufferSource,
             partialTick,
-            config.getRenderType(animatable)
+            config.getRenderType(animatable),
+            config.alpha(animatable)
         );
-        context.populate(animatable, model, bufferSource, packedLight, partialTick, poseStack, renderType, buffer);
+        context.populate(
+            animatable,
+            model,
+            bufferSource,
+            packedLight,
+            partialTick,
+            poseStack,
+            renderType,
+            buffer
+        );
 
         poseStack.pushPose();
 

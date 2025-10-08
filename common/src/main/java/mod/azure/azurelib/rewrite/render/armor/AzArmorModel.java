@@ -53,7 +53,8 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
             textureLocation,
             bufferSource,
             partialTick,
-            config.getRenderType(animatable)
+            config.getRenderType(animatable),
+            config.alpha(animatable)
         );
         buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, currentStack.hasFoil());
 

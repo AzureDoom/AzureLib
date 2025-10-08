@@ -28,7 +28,8 @@ public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
-        RenderType defaultRenderType
+        RenderType defaultRenderType,
+        float alpha
     ) {
         return defaultRenderType;
     }

@@ -45,7 +45,8 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
-        RenderType defaultRenderType
+        RenderType defaultRenderType,
+        float alpha
     ) {
         return translucent
             ? RenderType.itemEntityTranslucentCull(texture)

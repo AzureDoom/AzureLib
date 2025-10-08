@@ -99,7 +99,8 @@ public abstract class AzRendererPipelineContext<T> {
                 textureLocation,
                 multiBufferSource,
                 partialTick,
-                rendererPipeline.config().getRenderType(animatable)
+                rendererPipeline.config().getRenderType(animatable),
+                rendererPipeline.config().alpha(animatable)
             );
         }
 
@@ -118,7 +119,8 @@ public abstract class AzRendererPipelineContext<T> {
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
-        RenderType defaultRenderType
+        RenderType defaultRenderType,
+        float alpha
     );
 
     /**

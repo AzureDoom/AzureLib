@@ -52,7 +52,8 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<Ite
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
-        RenderType defaultRenderType
+        RenderType defaultRenderType,
+        float alpha
     ) {
         return translucent
             ? RenderType.itemEntityTranslucentCull(texture)
