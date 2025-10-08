@@ -194,9 +194,9 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                 return;
             }
 
-	        animationQueue.clear();
-	        this.currentSequence = null;
-	        stateMachine.transition();
+            animationQueue.clear();
+            this.currentSequence = null;
+            stateMachine.transition();
         }
     }
 
