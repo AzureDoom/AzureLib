@@ -7,6 +7,10 @@
         "name": "Creating Static (No Animations) Armor",
         "icon": "Shield"
     },
+    "armor_trims.mdx": {
+      "name": "Armor Trims (1.21.x only)",
+      "icon": "Shield"
+    },
     "bone_provider.mdx": {
         "name": "Creating a Custom AzDefaultArmorBoneProvider",
         "icon": "Shield"

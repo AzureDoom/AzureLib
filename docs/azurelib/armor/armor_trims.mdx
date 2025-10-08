@@ -1,0 +1,236 @@
+---
+title: Armor Trims (1.21.x only)
+hide_meta: true
+---
+
+# Armor Trims
+
+AzureLib provides built-in support for Minecraft's armor trim system through the `AzArmorTrimLayer` render layer. This layer enables custom armor models to display armor trims with proper texture mapping and material coloring.
+
+## Implementation Approaches
+
+### Approach 1: Single Texture for All Patterns
+
+This approach uses the same trim texture for all patterns, but applies appropriate material colors. This is recommended when you don't have time to implement every ArmorModel × TrimPattern permutation.
+
+#### Required Assets
+
+1. **Create trim texture**
+   ```
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_trim.png
+   ```
+
+2. **Register in armor trims atlas**
+   ```
+   src/main/resources/assets/minecraft/atlases/armor_trims.json
+   ```
+   ```json
+   {
+     "replace": false,
+     "sources": [
+       {
+         "type": "paletted_permutations",
+         "textures": [
+           "yourmod:armor/trim/your_armor_trim"
+         ],
+         "palette_key": "trims/color_palettes/trim_palette",
+         "permutations": {
+           "quartz": "trims/color_palettes/quartz",
+           "iron": "trims/color_palettes/iron",
+           "gold": "trims/color_palettes/gold",
+           "diamond": "trims/color_palettes/diamond",
+           "netherite": "trims/color_palettes/netherite",
+           "redstone": "trims/color_palettes/redstone",
+           "copper": "trims/color_palettes/copper",
+           "emerald": "trims/color_palettes/emerald",
+           "lapis": "trims/color_palettes/lapis",
+           "amethyst": "trims/color_palettes/amethyst",
+           "iron_darker": "trims/color_palettes/iron_darker",
+           "gold_darker": "trims/color_palettes/gold_darker",
+           "diamond_darker": "trims/color_palettes/diamond_darker",
+           "netherite_darker": "trims/color_palettes/netherite_darker"
+         }
+       }
+     ]
+   }
+   ```
+
+#### Code Implementation
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(AzArmorRendererConfig.builder(GEO, TEX)
+        .addRenderLayer(new AzArmorTrimLayer(
+            ResourceLocation.fromNamespaceAndPath(YOUR_MOD_ID, "armor/trim/your_armor_trim"),
+            false  // supportPatterns = false for single texture
+        )
+        .build());
+    }
+}
+```
+
+### Approach 2: Per-Pattern Textures
+This approach creates individual textures for each trim pattern, following the vanilla implementation. This provides the highest quality results but requires more work.
+
+#### Required Assets
+
+<Callout variant="info">
+    See the [Minecraft Wiki](https://minecraft.wiki/w/Smithing_Template) for all vanilla patterns.
+</Callout>
+1. **Create trim textures for each pattern**
+   ```
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_sentry.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_vex.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_wild.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_coast.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_dune.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_eye.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_host.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_raiser.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_shaper.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_silence.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_snout.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_spire.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_tide.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_ward.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_wayfinder.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_bolt.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_flow.png
+   ```
+
+2. **Register all textures in armor trims atlas**
+   ```json
+   {
+     "replace": false,
+     "sources": [
+       {
+         "type": "paletted_permutations",
+         "textures": [
+           "yourmod:armor/trim/your_armor_sentry",
+           "yourmod:armor/trim/your_armor_vex",
+           "yourmod:armor/trim/your_armor_wild",
+           "yourmod:armor/trim/your_armor_coast",
+           "yourmod:armor/trim/your_armor_dune",
+           "yourmod:armor/trim/your_armor_eye",
+           "yourmod:armor/trim/your_armor_host",
+           "yourmod:armor/trim/your_armor_raiser",
+           "yourmod:armor/trim/your_armor_shaper",
+           "yourmod:armor/trim/your_armor_silence",
+           "yourmod:armor/trim/your_armor_snout",
+           "yourmod:armor/trim/your_armor_spire",
+           "yourmod:armor/trim/your_armor_tide",
+           "yourmod:armor/trim/your_armor_ward",
+           "yourmod:armor/trim/your_armor_wayfinder",
+           "yourmod:armor/trim/your_armor_bolt",
+           "yourmod:armor/trim/your_armor_flow"
+         ],
+         "palette_key": "trims/color_palettes/trim_palette",
+         "permutations": {
+           "quartz": "trims/color_palettes/quartz",
+           "iron": "trims/color_palettes/iron",
+           "gold": "trims/color_palettes/gold",
+           "diamond": "trims/color_palettes/diamond",
+           "netherite": "trims/color_palettes/netherite",
+           "redstone": "trims/color_palettes/redstone",
+           "copper": "trims/color_palettes/copper",
+           "emerald": "trims/color_palettes/emerald",
+           "lapis": "trims/color_palettes/lapis",
+           "amethyst": "trims/color_palettes/amethyst",
+           "iron_darker": "trims/color_palettes/iron_darker",
+           "gold_darker": "trims/color_palettes/gold_darker",
+           "diamond_darker": "trims/color_palettes/diamond_darker",
+           "netherite_darker": "trims/color_palettes/netherite_darker"
+         }
+       }
+     ]
+   }
+   ```
+
+#### Code Implementation
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(AzArmorRendererConfig.builder(GEO, TEX)
+        .addRenderLayer(new AzArmorTrimLayer(
+            ResourceLocation.fromNamespaceAndPath(YOUR_MOD_ID, "armor/trim/your_armor_trim"),
+            true  // supportPatterns = true for per-pattern textures
+        )
+        .build());
+    }
+}
+```
+
+## Advanced Usage
+
+### Custom Texture Location Function
+
+For more complex texture location logic, you can provide a custom function:
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(AzArmorRendererConfig.builder(GEO, TEX)
+        .addRenderLayer(new AzArmorTrimLayer(
+            ResourceLocation.fromNamespaceAndPath(YOUR_MOD_ID, "armor/trim/base"),
+            trim -> {
+                // Custom logic for determining texture location
+                var pattern = trim.pattern().value(); var material = trim.material().value();
+                // Example: use different base textures for different armor slots
+                String basePath = "armor/trim/custom_" + pattern.assetId().getPath();
+                return ResourceLocation.fromNamespaceAndPath(
+                    YOUR_MOD_ID,
+                    basePath + "_" + material.assetName()
+                );
+            }
+        ))
+        .build());
+    }
+}
+```
+
+## Important Notes
+
+- **1.21.x Only**: Armor trims are only supported in Minecraft 1.21 and later versions
+- **Custom Textures Required**: Vanilla trim textures cannot be used with custom armor models
+- **Atlas Registration**: All trim textures must be registered in the `minecraft:armor_trims` atlas
+- **Material Colors**: The system automatically applies appropriate colors based on the trim material using Minecraft's built-in color palettes
+
+## Troubleshooting
+
+### Trims Not Appearing
+- Verify that your trim textures are registered in `armor_trims.json`
+- Check that the texture paths match exactly between your atlas configuration and `AzArmorTrimLayer`
+- Ensure you're testing with items that have trim components applied
+
+### Wrong Colors
+- Verify that you're using the correct material color palettes in your atlas configuration
+- Check that your base trim texture uses the proper grayscale values that can be recolored
