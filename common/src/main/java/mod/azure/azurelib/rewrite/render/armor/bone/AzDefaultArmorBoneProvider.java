@@ -46,4 +46,9 @@ public class AzDefaultArmorBoneProvider implements AzArmorBoneProvider {
     public AzBone getLeftBootBone(AzBakedModel model) {
         return model.getBoneOrNull(BONE_ARMOR_LEFT_BOOT_NAME);
     }
+
+    @Nullable
+    public AzBone getWaistBone(AzBakedModel model) {
+        return model.getBoneOrNull(BONE_ARMOR_WAIST_NAME);
+    }
 }

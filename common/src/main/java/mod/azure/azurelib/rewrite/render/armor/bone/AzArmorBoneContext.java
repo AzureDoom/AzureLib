@@ -29,6 +29,8 @@ public class AzArmorBoneContext {
 
     public AzBone leftBoot;
 
+    public AzBone waist;
+
     public AzArmorBoneContext() {
         this.head = null;
         this.body = null;
@@ -38,6 +40,7 @@ public class AzArmorBoneContext {
         this.leftLeg = null;
         this.rightBoot = null;
         this.leftBoot = null;
+        this.waist = null;
     }
 
     public void setAllVisible(boolean pVisible) {
@@ -49,6 +52,7 @@ public class AzArmorBoneContext {
         setBoneVisible(this.leftLeg, pVisible);
         setBoneVisible(this.rightBoot, pVisible);
         setBoneVisible(this.leftBoot, pVisible);
+        setBoneVisible(this.waist, pVisible);
     }
 
     /**
@@ -68,6 +72,7 @@ public class AzArmorBoneContext {
         this.leftLeg = boneProvider.getLeftLegBone(model);
         this.rightBoot = boneProvider.getRightBootBone(model);
         this.leftBoot = boneProvider.getLeftBootBone(model);
+        this.waist = boneProvider.getWaistBone(model);
     }
 
     /**
@@ -101,6 +106,7 @@ public class AzArmorBoneContext {
             RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
             this.leftArm.updatePosition(leftArmPart.x - 5f, 2f - leftArmPart.y, leftArmPart.z);
         }
+        boolean waistRendered = false;
 
         if (this.rightLeg != null) {
             ModelPart rightLegPart = baseModel.rightLeg;
@@ -111,6 +117,12 @@ public class AzArmorBoneContext {
             if (this.rightBoot != null) {
                 RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
                 this.rightBoot.updatePosition(rightLegPart.x + 2, 12 - rightLegPart.y, rightLegPart.z);
+            }
+            if (this.waist != null) {
+
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                this.waist.updatePosition(baseModel.body.x, -(baseModel.body.y), baseModel.body.z);
+                waistRendered = true;
             }
         }
 
@@ -123,6 +135,12 @@ public class AzArmorBoneContext {
             if (this.leftBoot != null) {
                 RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
                 this.leftBoot.updatePosition(leftLegPart.x - 2, 12 - leftLegPart.y, leftLegPart.z);
+            }
+            if (!waistRendered && this.waist != null) {
+
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                this.waist.updatePosition(baseModel.body.x, -(baseModel.body.y), baseModel.body.z);
+                waistRendered = true;
             }
         }
     }
@@ -138,6 +156,7 @@ public class AzArmorBoneContext {
 
         currentPart.visible = true;
         AzBone bone = null;
+        AzBone waistBone = null;
 
         if (currentPart == model.hat || currentPart == model.head) {
             bone = this.head;
@@ -149,12 +168,18 @@ public class AzArmorBoneContext {
             bone = this.rightArm;
         } else if (currentPart == model.leftLeg) {
             bone = currentSlot == EquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
+            waistBone = currentSlot == EquipmentSlot.LEGS ? this.waist : null;
         } else if (currentPart == model.rightLeg) {
             bone = currentSlot == EquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
+            waistBone = currentSlot == EquipmentSlot.LEGS ? this.waist : null;
+
         }
 
         if (bone != null) {
             bone.setHidden(false);
+        }
+        if (waistBone != null) {
+            waistBone.setHidden(false);
         }
     }
 
@@ -173,10 +198,14 @@ public class AzArmorBoneContext {
                 setBoneVisible(this.body, true);
                 setBoneVisible(this.rightArm, true);
                 setBoneVisible(this.leftArm, true);
+                setBoneVisible(this.waist, false);
+
             }
             case LEGS -> {
                 setBoneVisible(this.rightLeg, true);
                 setBoneVisible(this.leftLeg, true);
+                setBoneVisible(this.waist, true);
+
             }
             case FEET -> {
                 setBoneVisible(this.rightBoot, true);
