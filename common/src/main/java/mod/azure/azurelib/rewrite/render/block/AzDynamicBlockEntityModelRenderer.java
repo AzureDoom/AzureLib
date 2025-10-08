@@ -109,7 +109,8 @@ public abstract class AzDynamicBlockEntityModelRenderer<T extends BlockEntity> e
                 context.animatable(),
                 texture,
                 context.multiBufferSource(),
-                context.partialTick()
+                context.partialTick(),
+                config.getRenderType(context.animatable())
             );
             renderType = renderTypeOverride;
         }

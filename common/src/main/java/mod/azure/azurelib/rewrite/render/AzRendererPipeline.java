@@ -92,7 +92,13 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
         float partialTick,
         int packedLight
     ) {
-        renderType = config.getRenderType(animatable);
+        renderType = context.getDefaultRenderType(
+            animatable,
+            config.textureLocation(animatable),
+            bufferSource,
+            partialTick,
+            config.getRenderType(animatable)
+        );
         context.populate(animatable, model, bufferSource, packedLight, partialTick, poseStack, renderType, buffer);
 
         poseStack.pushPose();

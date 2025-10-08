@@ -73,7 +73,7 @@ public abstract class AzItemRenderer {
         var partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
         var textureLocation = config.textureLocation(stack);
         var renderType = rendererPipeline.context()
-            .getDefaultRenderType(stack, textureLocation, source, partialTick);
+            .getDefaultRenderType(stack, textureLocation, source, partialTick, config.getRenderType(stack));
         // TODO: Why the null check here?
         var withGlint = stack != null && stack.hasFoil();
         var buffer = ItemRenderer.getFoilBufferDirect(source, renderType, false, withGlint);

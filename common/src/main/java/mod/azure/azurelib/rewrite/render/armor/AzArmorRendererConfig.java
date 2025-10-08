@@ -92,7 +92,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
                 layer
             );
             this.pipelineContextFunction = AzArmorRendererPipelineContext::new;
-            this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
+            this.renderTypeProvider = $ -> RenderType.armorCutoutNoCull(textureLocationProvider.apply($));
         }
 
         @Override

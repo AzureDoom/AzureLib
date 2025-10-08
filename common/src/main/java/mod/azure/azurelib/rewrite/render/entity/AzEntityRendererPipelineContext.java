@@ -32,7 +32,8 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType
     ) {
         var isInvisible = animatable.isInvisible();
         var isPlayerInvisible = animatable.isInvisibleTo(ClientUtils.getClientPlayer());
@@ -49,6 +50,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         }
 
         return RenderType.entityTranslucentCull(texture);
+        return defaultRenderType;
     }
 
     /**

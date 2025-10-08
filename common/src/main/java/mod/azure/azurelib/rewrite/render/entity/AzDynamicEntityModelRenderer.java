@@ -104,7 +104,8 @@ public abstract class AzDynamicEntityModelRenderer<T extends Entity> extends AzE
                 context.animatable(),
                 texture,
                 context.multiBufferSource(),
-                context.partialTick()
+                context.partialTick(),
+                config.getRenderType(context.animatable())
             );
             renderType = renderTypeOverride;
         }

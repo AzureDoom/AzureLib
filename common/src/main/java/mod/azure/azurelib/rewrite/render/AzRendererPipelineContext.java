@@ -96,7 +96,13 @@ public abstract class AzRendererPipelineContext<T> {
 
         if (renderType == null) {
             var textureLocation = rendererPipeline.config().textureLocation(animatable);
-            this.renderType = getDefaultRenderType(animatable, textureLocation, multiBufferSource, partialTick);
+            this.renderType = getDefaultRenderType(
+                animatable,
+                textureLocation,
+                multiBufferSource,
+                partialTick,
+                rendererPipeline.config().getRenderType(animatable)
+            );
         }
 
         Objects.requireNonNull(this.renderType);
@@ -115,7 +121,8 @@ public abstract class AzRendererPipelineContext<T> {
         T animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType
     );
 
     /**

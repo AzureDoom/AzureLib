@@ -45,11 +45,12 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
         ItemStack animatable,
         ResourceLocation texture,
         @Nullable MultiBufferSource bufferSource,
-        float partialTick
+        float partialTick,
+        RenderType defaultRenderType
     ) {
         return translucent
             ? RenderType.itemEntityTranslucentCull(texture)
-            : RenderType.armorCutoutNoCull(texture);
+            : defaultRenderType;
     }
 
     public void prepare(
