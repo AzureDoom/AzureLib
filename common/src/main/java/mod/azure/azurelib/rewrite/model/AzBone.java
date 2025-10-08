@@ -438,6 +438,34 @@ public class AzBone implements CoreGeoBone {
     }
 
     @Override
+    public void updateRotation(float xRot, float yRot, float zRot) {
+        setRotX(xRot);
+        setRotY(yRot);
+        setRotZ(zRot);
+    }
+
+    @Override
+    public void updatePosition(float posX, float posY, float posZ) {
+        setPosX(posX);
+        setPosY(posY);
+        setPosZ(posZ);
+    }
+
+    @Override
+    public void updateScale(float scaleX, float scaleY, float scaleZ) {
+        setScaleX(scaleX);
+        setScaleY(scaleY);
+        setScaleZ(scaleZ);
+    }
+
+    @Override
+    public void updatePivot(float pivotX, float pivotY, float pivotZ) {
+        setPivotX(pivotX);
+        setPivotY(pivotY);
+        setPivotZ(pivotZ);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
