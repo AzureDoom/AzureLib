@@ -23,6 +23,8 @@ public interface AzArmorBoneProvider {
 
     String BONE_ARMOR_RIGHT_LEG_NAME = "armorRightLeg";
 
+    String BONE_ARMOR_WAIST_NAME = "armorWaist";
+
     /**
      * Returns the 'head' GeoBone from this model.<br>
      * Override if your geo model has different bone names for these bones
@@ -94,4 +96,13 @@ public interface AzArmorBoneProvider {
      */
     @Nullable
     AzBone getLeftBootBone(AzBakedModel model);
+
+    /**
+     * Returns the 'waist' AzBone from this model.<br>
+     * Override if your geo model has different bone names for these bones
+     *
+     * @return The bone for the waist model piece, or null if not using it
+     */
+    @Nullable
+    AzBone getWaistBone(AzBakedModel model);
 }
