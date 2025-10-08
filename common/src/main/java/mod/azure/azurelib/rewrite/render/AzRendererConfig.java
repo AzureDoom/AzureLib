@@ -188,7 +188,7 @@ public class AzRendererConfig<T> {
             this.modelLocationProvider = modelLocationProvider;
             this.modelRendererProvider = AzModelRenderer::new;
             this.pipelineContextFunction = null;
-            this.renderTypeProvider = $ -> RenderType.entityTranslucentCull(textureLocationProvider.apply($));
+            this.renderTypeProvider = $ -> RenderType.entityCutout(textureLocationProvider.apply($));
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
             this.renderEntry = $ -> $;

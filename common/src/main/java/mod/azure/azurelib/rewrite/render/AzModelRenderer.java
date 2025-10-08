@@ -379,7 +379,9 @@ public class AzModelRenderer<T> {
                 context.animatable(),
                 texture,
                 bufferSource,
-                context.partialTick()
+                context.partialTick(),
+                config.getRenderType(context.animatable()),
+                config.alpha(context.animatable())
             );
         }
 
