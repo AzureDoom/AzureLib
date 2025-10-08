@@ -25,7 +25,7 @@ public interface AzArmorBoneProvider {
     String BONE_ARMOR_WAIST_NAME = "armorWaist";
 
     /**
-     * Returns the 'head' GeoBone from this model.<br>
+     * Returns the 'head' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the head model piece, or null if not using it
@@ -34,7 +34,7 @@ public interface AzArmorBoneProvider {
     AzBone getHeadBone(AzBakedModel model);
 
     /**
-     * Returns the 'body' GeoBone from this model.<br>
+     * Returns the 'body' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the body model piece, or null if not using it
@@ -43,7 +43,7 @@ public interface AzArmorBoneProvider {
     AzBone getBodyBone(AzBakedModel model);
 
     /**
-     * Returns the 'right arm' GeoBone from this model.<br>
+     * Returns the 'right arm' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the right arm model piece, or null if not using it
@@ -52,7 +52,7 @@ public interface AzArmorBoneProvider {
     AzBone getRightArmBone(AzBakedModel model);
 
     /**
-     * Returns the 'left arm' GeoBone from this model.<br>
+     * Returns the 'left arm' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the left arm model piece, or null if not using it
@@ -61,7 +61,7 @@ public interface AzArmorBoneProvider {
     AzBone getLeftArmBone(AzBakedModel model);
 
     /**
-     * Returns the 'right leg' GeoBone from this model.<br>
+     * Returns the 'right leg' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the right leg model piece, or null if not using it
@@ -70,7 +70,7 @@ public interface AzArmorBoneProvider {
     AzBone getRightLegBone(AzBakedModel model);
 
     /**
-     * Returns the 'left leg' GeoBone from this model.<br>
+     * Returns the 'left leg' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the left leg model piece, or null if not using it
@@ -79,7 +79,7 @@ public interface AzArmorBoneProvider {
     AzBone getLeftLegBone(AzBakedModel model);
 
     /**
-     * Returns the 'right boot' GeoBone from this model.<br>
+     * Returns the 'right boot' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the right boot model piece, or null if not using it
@@ -88,7 +88,7 @@ public interface AzArmorBoneProvider {
     AzBone getRightBootBone(AzBakedModel model);
 
     /**
-     * Returns the 'left boot' GeoBone from this model.<br>
+     * Returns the 'left boot' AzBone from this model.<br>
      * Override if your geo model has different bone names for these bones
      *
      * @return The bone for the left boot model piece, or null if not using it
