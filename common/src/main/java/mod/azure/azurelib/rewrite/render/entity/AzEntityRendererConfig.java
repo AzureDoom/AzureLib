@@ -105,6 +105,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
                 layer
             );
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
+            this.renderTypeProvider = $ -> RenderType.entityCutout(textureLocationProvider.apply($));
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
         }
