@@ -298,6 +298,11 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             return this;
         }
 
+        public Builder disableAnimationInAllContexts() {
+            this.shouldAnimateInContext = context -> false;
+            return this;
+        }
+
         @Override
         public AzItemRendererConfig build() {
             var baseConfig = super.build();
