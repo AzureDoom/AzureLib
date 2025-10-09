@@ -24,6 +24,7 @@ This approach uses the same trim texture for all patterns, but applies appropria
    ```
    src/main/resources/assets/minecraft/atlases/armor_trims.json
    ```
+   Example:
    ```json
    {
      "replace": false,
@@ -109,6 +110,10 @@ This approach creates individual textures for each trim pattern, following the v
    ```
 
 2. **Register all textures in armor trims atlas**
+   ```
+   src/main/resources/assets/minecraft/atlases/armor_trims.json
+   ```
+   Example:
    ```json
    {
      "replace": false,
@@ -205,7 +210,7 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                 // Custom logic for determining texture location
                 var pattern = trim.pattern().value(); var material = trim.material().value();
                 // Example: use different base textures for different armor slots
-                String basePath = "armor/trim/custom_" + pattern.assetId().getPath();
+                var basePath = "armor/trim/custom_" + pattern.assetId().getPath();
                 return ResourceLocation.fromNamespaceAndPath(
                     YOUR_MOD_ID,
                     basePath + "_" + material.assetName()
@@ -219,7 +224,7 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
 
 ## Important Notes
 
-- **1.21.x Only**: Armor trims are only supported in Minecraft 1.21 and later versions
+- **1.21.x Only**: Armor trim layer is only supported in Minecraft 1.21.1 and later versions
 - **Custom Textures Required**: Vanilla trim textures cannot be used with custom armor models
 - **Atlas Registration**: All trim textures must be registered in the `minecraft:armor_trims` atlas
 - **Material Colors**: The system automatically applies appropriate colors based on the trim material using Minecraft's built-in color palettes
