@@ -35,10 +35,10 @@ import mod.azure.azurelib.loading.json.raw.PolysUnion;
 import mod.azure.azurelib.loading.json.raw.TextureMesh;
 import mod.azure.azurelib.loading.json.raw.UVFaces;
 import mod.azure.azurelib.loading.json.raw.UVUnion;
-import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
-import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
-import mod.azure.azurelib.rewrite.animation.primitive.AzKeyframes;
+import mod.azure.azurelib.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.animation.primitive.AzKeyframes;
 
 /**
  * Json helper class for various json functions

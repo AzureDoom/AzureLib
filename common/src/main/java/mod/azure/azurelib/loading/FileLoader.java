@@ -17,8 +17,8 @@ import java.nio.charset.Charset;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**

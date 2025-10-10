@@ -7,7 +7,7 @@ package mod.azure.azurelib.core.keyframe.event.data;
 
 import java.util.Objects;
 
-import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframe;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 
 /**
  * Custom instruction {@link AzKeyframe} instruction holder
