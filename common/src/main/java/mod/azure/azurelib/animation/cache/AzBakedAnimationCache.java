@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.cache.AzResourceCache;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.cache.AzResourceCache;
+import mod.azure.azurelib.loading.FileLoader;
 
 /**
  * AzBakedAnimationCache is a singleton cache to manage and store preloaded animation data of type

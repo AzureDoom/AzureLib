@@ -1,13 +1,13 @@
 package mod.azure.azurelib.render.armor;
 
 import com.mojang.math.Matrix4f;
-import mod.azure.azurelib.render.*;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.rewrite.render.*;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +17,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
@@ -299,6 +298,11 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
             var finalEnabledContexts = Set.copyOf(enabledContexts);
             this.shouldAnimateInContext = finalEnabledContexts::contains;
+            return this;
+        }
+
+        public Builder disableAnimationInAllContexts() {
+            this.shouldAnimateInContext = context -> false;
             return this;
         }
 

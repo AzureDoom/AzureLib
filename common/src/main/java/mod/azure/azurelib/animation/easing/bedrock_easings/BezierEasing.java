@@ -5,10 +5,10 @@ import net.minecraft.util.Mth;
 
 import java.util.List;
 
-import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
+import mod.azure.azurelib.core.math.IValue;
 
 /**
  * The BezierEasing class represents an abstract easing type that facilitates smooth transitions in animation using

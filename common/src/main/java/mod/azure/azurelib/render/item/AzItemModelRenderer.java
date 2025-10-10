@@ -5,8 +5,8 @@ import com.mojang.math.Vector3f;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzPhasedRenderer;

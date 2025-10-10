@@ -7,8 +7,8 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 public interface AzEasingType {
 

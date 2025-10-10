@@ -2,9 +2,9 @@ package mod.azure.azurelib.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 
-import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.easing.bedrock_easings.BezierEasing;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 public class AzEasingTypes {
 

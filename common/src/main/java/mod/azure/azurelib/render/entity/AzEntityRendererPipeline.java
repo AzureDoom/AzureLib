@@ -2,13 +2,13 @@ package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.rewrite.render.*;
 
 /**

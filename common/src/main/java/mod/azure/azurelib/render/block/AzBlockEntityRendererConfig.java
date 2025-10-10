@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.block;
 
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,8 +12,9 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
+import mod.azure.azurelib.rewrite.render.*;
 
 /**
  * The {@code AzBlockEntityRendererConfig} class is a specialized configuration for rendering block entities. It extends

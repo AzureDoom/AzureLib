@@ -13,10 +13,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
-import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.RenderUtils;
