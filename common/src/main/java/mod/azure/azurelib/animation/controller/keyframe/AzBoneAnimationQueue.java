@@ -10,8 +10,8 @@ import java.util.Queue;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneSnapshot;
 
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations. Animation points are calculated then pushed

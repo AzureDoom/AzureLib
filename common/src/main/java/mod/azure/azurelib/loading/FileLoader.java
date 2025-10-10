@@ -14,7 +14,7 @@ import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**

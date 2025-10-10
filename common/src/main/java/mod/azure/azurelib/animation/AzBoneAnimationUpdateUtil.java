@@ -3,8 +3,8 @@ package mod.azure.azurelib.animation;
 import mod.azure.azurelib.animation.controller.keyframe.AzBoneAnimationQueue;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneSnapshot;
 
 public class AzBoneAnimationUpdateUtil {
 

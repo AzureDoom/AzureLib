@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
-import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
+import mod.azure.azurelib.model.cache.AzBakedModelCache;
 
 public final class AzureLibCache {
 

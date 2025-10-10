@@ -11,7 +11,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBakedModel;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as

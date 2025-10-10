@@ -22,7 +22,7 @@ import org.joml.Vector3f;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.model.AzBone;
 
 /**
  * Helper class for various methods and functions useful while rendering

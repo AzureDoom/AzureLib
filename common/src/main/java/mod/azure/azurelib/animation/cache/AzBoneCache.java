@@ -7,9 +7,9 @@ import java.util.Objects;
 
 import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzCachedBoneUpdateUtil;
-import mod.azure.azurelib.rewrite.model.AzBakedModel;
-import mod.azure.azurelib.rewrite.model.AzBone;
-import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
+import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneSnapshot;
 
 /**
  * The AzBoneCache class is responsible for managing the state and cache of bones in a baked model. It provides
