@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.layer.AzRenderLayer;

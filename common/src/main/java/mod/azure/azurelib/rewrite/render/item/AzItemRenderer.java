@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.render.AzProvider;
 

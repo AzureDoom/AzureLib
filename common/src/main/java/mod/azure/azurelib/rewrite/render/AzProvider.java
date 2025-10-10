@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.cache.AzBakedModelCache;
 

@@ -5,10 +5,10 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentifiableItemStackAnimatorCache;
-import mod.azure.azurelib.rewrite.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.util.AzureLibUtil;
 
 @Mixin(ItemStack.class)

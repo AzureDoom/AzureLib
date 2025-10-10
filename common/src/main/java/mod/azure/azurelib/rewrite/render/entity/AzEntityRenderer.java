@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.rewrite.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**

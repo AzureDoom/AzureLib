@@ -16,7 +16,7 @@ import org.joml.Vector4f;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;

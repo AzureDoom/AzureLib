@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.rewrite.animation.impl.AzBlockAnimator;
+import mod.azure.azurelib.animation.impl.AzBlockAnimator;
 import mod.azure.azurelib.rewrite.render.AzProvider;
 
 /**

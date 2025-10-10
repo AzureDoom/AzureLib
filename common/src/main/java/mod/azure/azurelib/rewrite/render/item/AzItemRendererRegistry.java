@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
-
 /**
  * The AzItemRendererRegistry class manages the association between items and their renderers in the context of the
  * AzureLib framework. It provides functionality to register and retrieve item renderers dynamically, ensuring that

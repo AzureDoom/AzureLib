@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimatorAccessor;
 
 /**
  * A Mixin class designed to integrate an animation cache mechanism into the {@link Entity} class through the use of the
