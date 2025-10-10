@@ -6,7 +6,6 @@ import java.util.Map;
 
 import mod.azure.azurelib.common.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.common.model.factory.impl.AzBuiltinBakedModelFactory;
-import mod.azure.azurelib.common.util.AzureLibUtil;
 
 /**
  * A registry for managing instances of {@link AzBakedModelFactory} that are used to handle the creation of baked models
@@ -27,8 +26,6 @@ public class AzBakedModelFactoryRegistry {
     /**
      * Register a custom {@link AzBakedModelFactory} to handle loading models in a custom way.<br>
      * <b><u>MUST be called during mod construct</u></b><br>
-     * It is recommended you don't call this directly, and instead call it via
-     * {@link AzureLibUtil#addCustomBakedModelFactory}
      *
      * @param namespace The namespace (modid) to register the factory for
      * @param factory   The factory responsible for model loading under the given namespace
