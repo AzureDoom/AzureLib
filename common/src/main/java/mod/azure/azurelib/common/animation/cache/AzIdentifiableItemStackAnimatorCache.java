@@ -3,9 +3,8 @@ package mod.azure.azurelib.common.animation.cache;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.animation.impl.AzItemAnimator;
@@ -19,8 +18,7 @@ public class AzIdentifiableItemStackAnimatorCache {
 
     private static final AzIdentifiableItemStackAnimatorCache INSTANCE = new AzIdentifiableItemStackAnimatorCache();
 
-    // TODO: Purge animators periodically.
-    private static final Map<UUID, AzItemAnimator> ANIMATORS_BY_UUID = new HashMap<>();
+    private static final WeakHashMap<UUID, AzItemAnimator> ANIMATORS_BY_UUID = new WeakHashMap<>();
 
     public static AzIdentifiableItemStackAnimatorCache getInstance() {
         return INSTANCE;
