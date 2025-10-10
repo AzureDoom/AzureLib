@@ -12,10 +12,10 @@ import net.minecraft.util.GsonHelper;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import mod.azure.azurelib.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
-import mod.azure.azurelib.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**

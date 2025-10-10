@@ -13,11 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.math.Constant;
-import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.core.molang.MolangException;
-import mod.azure.azurelib.core.molang.MolangParser;
-import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.animation.controller.keyframe.AzBoneAnimation;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeStack;
@@ -28,6 +23,11 @@ import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.animation.primitive.AzLoopType;
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.molang.MolangException;
+import mod.azure.azurelib.core.molang.MolangParser;
+import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**

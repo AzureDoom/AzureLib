@@ -5,10 +5,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-import mod.azure.azurelib.core.molang.MolangParser;
-import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
+import mod.azure.azurelib.core.molang.MolangParser;
+import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.util.RenderUtils;
 
 /**

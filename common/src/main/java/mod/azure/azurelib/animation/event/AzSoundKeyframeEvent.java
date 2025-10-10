@@ -5,9 +5,9 @@
  */
 package mod.azure.azurelib.animation.event;
 
-import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbacks;
+import mod.azure.azurelib.core.keyframe.event.data.SoundKeyframeData;
 
 /**
  * The {@link AzKeyframeEvent} specific to the {@link AzKeyframeCallbacks#soundKeyframeHandler()}.<br>

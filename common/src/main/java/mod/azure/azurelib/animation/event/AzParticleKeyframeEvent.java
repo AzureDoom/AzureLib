@@ -5,9 +5,9 @@
  */
 package mod.azure.azurelib.animation.event;
 
-import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbacks;
+import mod.azure.azurelib.core.keyframe.event.data.ParticleKeyframeData;
 
 /**
  * The {@link AzKeyframeEvent} specific to the {@link AzKeyframeCallbacks#particleKeyframeHandler()}.<br>

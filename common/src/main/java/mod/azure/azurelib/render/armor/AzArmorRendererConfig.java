@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.armor;
 
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -13,10 +12,11 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
+import mod.azure.azurelib.rewrite.render.*;
 
 public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 

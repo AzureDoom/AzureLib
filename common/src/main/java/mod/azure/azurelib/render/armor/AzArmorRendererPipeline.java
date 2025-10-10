@@ -1,18 +1,18 @@
 package mod.azure.azurelib.render.armor;
 
 import com.mojang.math.Matrix4f;
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.rewrite.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
+import mod.azure.azurelib.rewrite.render.*;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
 

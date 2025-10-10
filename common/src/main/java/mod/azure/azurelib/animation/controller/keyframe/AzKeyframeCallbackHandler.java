@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.event.AzCustomInstructionKeyframeEvent;
 import mod.azure.azurelib.animation.event.AzParticleKeyframeEvent;
 import mod.azure.azurelib.animation.event.AzSoundKeyframeEvent;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
+import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
 
 /**
  * AzKeyframeCallbackHandler acts as a handler for managing animation keyframe events such as sound, particle, or custom
