@@ -2,10 +2,10 @@ package mod.azure.azurelib.animation.impl;
 
 import net.minecraft.world.item.ItemStack;
 
-import mod.azure.azurelib.core.molang.MolangParser;
-import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
+import mod.azure.azurelib.core.molang.MolangParser;
+import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**

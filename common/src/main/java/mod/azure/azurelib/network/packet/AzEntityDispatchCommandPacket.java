@@ -3,11 +3,11 @@ package mod.azure.azurelib.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.util.client.ClientUtils;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {

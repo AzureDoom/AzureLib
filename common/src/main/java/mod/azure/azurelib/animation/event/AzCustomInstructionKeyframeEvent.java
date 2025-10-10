@@ -1,8 +1,8 @@
 package mod.azure.azurelib.animation.event;
 
-import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbacks;
+import mod.azure.azurelib.core.keyframe.event.data.CustomInstructionKeyframeData;
 
 /**
  * The {@link AzKeyframeEvent} specific to the {@link AzKeyframeCallbacks#customKeyframeHandler()}.<br>

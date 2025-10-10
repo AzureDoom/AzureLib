@@ -7,8 +7,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
-import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.*;
 import mod.azure.azurelib.rewrite.render.armor.bone.AzArmorBoneContext;

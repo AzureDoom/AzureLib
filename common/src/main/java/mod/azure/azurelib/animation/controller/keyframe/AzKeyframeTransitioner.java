@@ -3,13 +3,13 @@ package mod.azure.azurelib.animation.controller.keyframe;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import mod.azure.azurelib.animation.controller.AzAnimationController;
+import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
+import mod.azure.azurelib.animation.controller.AzBoneSnapshotCache;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.object.Axis;
-import mod.azure.azurelib.animation.controller.AzAnimationController;
-import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
-import mod.azure.azurelib.animation.controller.AzBoneSnapshotCache;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneSnapshot;
 

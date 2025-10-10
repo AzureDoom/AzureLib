@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import mod.azure.azurelib.animation.parse.AzBakedAnimationsAdapter;
+import mod.azure.azurelib.animation.parse.AzKeyframesAdapter;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.loading.json.raw.Bone;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
@@ -35,10 +39,6 @@ import mod.azure.azurelib.loading.json.raw.PolysUnion;
 import mod.azure.azurelib.loading.json.raw.TextureMesh;
 import mod.azure.azurelib.loading.json.raw.UVFaces;
 import mod.azure.azurelib.loading.json.raw.UVUnion;
-import mod.azure.azurelib.animation.parse.AzBakedAnimationsAdapter;
-import mod.azure.azurelib.animation.parse.AzKeyframesAdapter;
-import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
-import mod.azure.azurelib.animation.primitive.AzKeyframes;
 
 /**
  * Json helper class for various json functions
