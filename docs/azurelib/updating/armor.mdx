@@ -218,4 +218,16 @@ AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOU
 
 </CodeTabs>
 
-Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge
+Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Forge
+
+## Registering your Armor for proper animation triggering
+
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for Forge like so:
+
+```java
+AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
+                YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+                YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+                YourItemRegistry.YOUR_ARMOR_BOOTS,
+                ...);
+```
