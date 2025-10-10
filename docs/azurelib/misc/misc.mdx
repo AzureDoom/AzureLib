@@ -106,7 +106,7 @@ public ExampleItemRenderer() {
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
-To do this simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge for your ArmorItem
+To do this simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Forge for your ArmorItem
 
 ```java
 AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
