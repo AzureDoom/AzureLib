@@ -11,7 +11,7 @@ import net.minecraft.world.item.SpawnEggItem;
 
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.platform.services.CommonRegistry;
 
 public class FabricCommonRegistry implements CommonRegistry {

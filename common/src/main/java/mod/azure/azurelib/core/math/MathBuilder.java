@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.AzureLibException;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.common.util.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;

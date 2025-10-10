@@ -5,8 +5,10 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import java.util.UUID;
+
+import mod.azure.azurelib.common.animation.AzAnimator;
+import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 
 /**
  * A Mixin class designed to integrate an animation cache mechanism into the {@link Entity} class through the use of the
@@ -15,19 +17,19 @@ import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
  * association to the entity.
  */
 @Mixin(Entity.class)
-public abstract class EntityMixin_AzEntityAnimatorCache implements AzAnimatorAccessor<Entity> {
+public abstract class EntityMixin_AzEntityAnimatorCache implements AzAnimatorAccessor<UUID, Entity> {
 
     @Unique
     @Nullable
-    private AzAnimator<Entity> animator;
+    private AzAnimator<UUID, Entity> animator;
 
     @Override
-    public void setAnimator(@Nullable AzAnimator<Entity> animator) {
+    public void setAnimator(@Nullable AzAnimator<UUID, Entity> animator) {
         this.animator = animator;
     }
 
     @Override
-    public @Nullable AzAnimator<Entity> getAnimatorOrNull() {
+    public @Nullable AzAnimator<UUID, Entity> getAnimatorOrNull() {
         return animator;
     }
 }

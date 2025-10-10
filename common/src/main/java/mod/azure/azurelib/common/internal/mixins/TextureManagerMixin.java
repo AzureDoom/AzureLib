@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
-import mod.azure.azurelib.common.internal.common.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
 
 @Mixin(TextureManager.class)
 public abstract class TextureManagerMixin {

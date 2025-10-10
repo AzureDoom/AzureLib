@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
-import mod.azure.azurelib.common.internal.common.config.io.ConfigIO;
+import mod.azure.azurelib.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.common.config.io.ConfigIO;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin extends ReentrantBlockableEventLoop<Runnable> implements WindowEventHandler {

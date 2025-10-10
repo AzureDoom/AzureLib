@@ -13,8 +13,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-import mod.azure.azurelib.common.internal.common.network.AbstractPacket;
-import mod.azure.azurelib.common.internal.common.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.common.network.AbstractPacket;
+import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.common.platform.Services;
 import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
 

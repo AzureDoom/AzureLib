@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import mod.azure.azurelib.rewrite.animation.AzAnimator;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.common.animation.AzAnimator;
+import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 
 /**
  * Mixin class that implements the {@code AzAnimatorAccessor<BlockEntity>} interface to enable managing and associating
@@ -15,19 +15,19 @@ import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
  * animator cache that can be used to store and retrieve {@link AzAnimator} instances for animation handling.
  */
 @Mixin(BlockEntity.class)
-public abstract class BlockEntityMixin_AzBlockEntityAnimatorCache implements AzAnimatorAccessor<BlockEntity> {
+public abstract class BlockEntityMixin_AzBlockEntityAnimatorCache implements AzAnimatorAccessor<Long, BlockEntity> {
 
     @Unique
     @Nullable
-    private AzAnimator<BlockEntity> animator;
+    private AzAnimator<Long, BlockEntity> animator;
 
     @Override
-    public void setAnimator(@Nullable AzAnimator<BlockEntity> animator) {
+    public void setAnimator(@Nullable AzAnimator<Long, BlockEntity> animator) {
         this.animator = animator;
     }
 
     @Override
-    public @Nullable AzAnimator<BlockEntity> getAnimatorOrNull() {
+    public @Nullable AzAnimator<Long, BlockEntity> getAnimatorOrNull() {
         return animator;
     }
 }

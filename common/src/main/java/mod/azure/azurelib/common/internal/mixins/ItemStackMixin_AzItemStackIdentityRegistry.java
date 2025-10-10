@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.common.internal.common.util.AzureLibUtil;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.common.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.common.util.AzureLibUtil;
 
 /**
  * This mixin modifies the {@link ItemStack} class to inject functionality for managing a unique identifier as part of

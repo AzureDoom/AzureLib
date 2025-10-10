@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mod.azure.azurelib.common.internal.client.AzureLibClient;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolder;
-import mod.azure.azurelib.common.internal.common.config.ConfigHolderRegistry;
+import mod.azure.azurelib.AzureLibClient;
+import mod.azure.azurelib.common.config.ConfigHolder;
+import mod.azure.azurelib.common.config.ConfigHolderRegistry;
 import mod.azure.azurelib.common.platform.Services;
 
 public class ModMenuIntegration implements ModMenuApi {

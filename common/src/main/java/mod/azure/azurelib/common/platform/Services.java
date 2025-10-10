@@ -6,8 +6,6 @@ import mod.azure.azurelib.common.platform.services.*;
 
 public final class Services {
 
-    public static final AzureEvents GEO_RENDER_PHASE_EVENT_FACTORY = load(AzureEvents.class);
-
     public static final AzureLibInitializer INITIALIZER = load(AzureLibInitializer.class);
 
     public static final AzureLibNetwork NETWORK = load(AzureLibNetwork.class);

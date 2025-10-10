@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.MathBuilder;

@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import mod.azure.azurelib.common.internal.common.AzureLib;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.common.animation.cache.AzIdentityRegistry;
 
 /**
  * A Mixin extension for the `AbstractContainerMenu` class that introduces support for AzureLib-specific ItemStack

@@ -7,10 +7,10 @@ package mod.azure.azurelib.core.keyframe.event.data;
 
 import java.util.Objects;
 
-import mod.azure.azurelib.core.keyframe.Keyframe;
+import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe;
 
 /**
- * Custom instruction {@link Keyframe} instruction holder
+ * Custom instruction {@link AzKeyframe} instruction holder
  */
 public class CustomInstructionKeyframeData extends KeyFrameData {
 
@@ -23,7 +23,7 @@ public class CustomInstructionKeyframeData extends KeyFrameData {
     }
 
     /**
-     * Gets the instructions string given by the {@link Keyframe} instruction from the {@code animation.json}
+     * Gets the instructions string given by the {@link AzKeyframe} instruction from the {@code animation.json}
      */
     public String getInstructions() {
         return this.instructions;
