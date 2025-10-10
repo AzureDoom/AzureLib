@@ -18,9 +18,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import mod.azure.azurelib.rewrite.render.layer.AzAutoGlowingLayer;
+
 /**
- * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.renderer.layer.AutoGlowingGeoLayer
- * emissive texture feature} for a given texture
+ * Metadata class that stores the data for AzureLib's {@link AzAutoGlowingLayer emissive texture feature} for a given
+ * texture
  */
 public class GeoGlowingTextureMeta {
 

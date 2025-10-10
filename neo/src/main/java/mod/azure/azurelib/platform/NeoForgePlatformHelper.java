@@ -1,7 +1,5 @@
 package mod.azure.azurelib.platform;
 
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -9,9 +7,6 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
 
-import mod.azure.azurelib.NeoForgeAzureLibMod;
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
@@ -39,21 +34,6 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public boolean isServerEnvironment() {
         return FMLEnvironment.dist.isDedicatedServer();
-    }
-
-    @Override
-    public TickingLightBlock getTickingLightBlock() {
-        return (TickingLightBlock) NeoForgeAzureLibMod.AzureBlocks.TICKING_LIGHT_BLOCK.get();
-    }
-
-    @Override
-    public BlockEntityType<TickingLightEntity> getTickingLightEntity() {
-        return NeoForgeAzureLibMod.AzureEntities.TICKING_LIGHT_ENTITY.get();
-    }
-
-    @Override
-    public Enchantment getIncendairyenchament() {
-        return NeoForgeAzureLibMod.AzureEnchantments.INCENDIARYENCHANTMENT.get();
     }
 
     @Override

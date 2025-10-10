@@ -22,7 +22,7 @@ public class AzIdentityRegistry {
      * Registers one or more items into a static identity set, ensuring that the items are stored for identity tracking.
      *
      * @param first The first non-null item to be registered. This parameter is mandatory.
-     * @param rest  A varargs array of additional items to register. These items can be null, but null values will not
+     * @param rest  A var-args array of additional items to register. These items can be null, but null values will not
      *              be added to the identity set.
      */
     public static void register(@NotNull Item first, Item... rest) {

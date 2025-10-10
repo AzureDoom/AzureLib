@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EntityType;
 
 import java.util.UUID;
 
-@Deprecated(forRemoval = true)
 public class EntityPacketOnClient {
 
     public static void onPacket(Minecraft context, FriendlyByteBuf byteBuf) {

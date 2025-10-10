@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.client.IValidationHandler;
 import mod.azure.azurelib.config.ConfigUtils;
 import mod.azure.azurelib.config.Configurable;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
+import mod.azure.azurelib.config.client.IValidationHandler;
 import mod.azure.azurelib.config.exception.ConfigValueMissingException;
 import mod.azure.azurelib.config.format.IConfigFormat;
 

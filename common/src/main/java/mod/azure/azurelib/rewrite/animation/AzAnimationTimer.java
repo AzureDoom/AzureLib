@@ -2,7 +2,7 @@ package mod.azure.azurelib.rewrite.animation;
 
 import net.minecraft.client.Minecraft;
 
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * AzAnimationTimer is responsible for managing animation progression based on game events and time deltas. It keeps

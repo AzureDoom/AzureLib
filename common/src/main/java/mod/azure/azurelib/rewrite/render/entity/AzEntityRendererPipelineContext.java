@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends

@@ -49,49 +49,6 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
         PACKET_CHANNEL.registerMessage(
             id++,
-            AnimDataSyncPacket.class,
-            AnimDataSyncPacket::encode,
-            AnimDataSyncPacket::receive,
-            this::handlePacket
-        );
-        PACKET_CHANNEL.registerMessage(
-            id++,
-            AnimTriggerPacket.class,
-            AnimTriggerPacket::encode,
-            AnimTriggerPacket::receive,
-            this::handlePacket
-        );
-        PACKET_CHANNEL.registerMessage(
-            id++,
-            EntityAnimDataSyncPacket.class,
-            EntityAnimDataSyncPacket::encode,
-            EntityAnimDataSyncPacket::receive,
-            this::handlePacket
-        );
-        PACKET_CHANNEL.registerMessage(
-            id++,
-            EntityAnimTriggerPacket.class,
-            EntityAnimTriggerPacket::encode,
-            EntityAnimTriggerPacket::receive,
-            this::handlePacket
-        );
-        PACKET_CHANNEL.registerMessage(
-            id++,
-            BlockEntityAnimDataSyncPacket.class,
-            BlockEntityAnimDataSyncPacket::encode,
-            BlockEntityAnimDataSyncPacket::receive,
-            this::handlePacket
-        );
-        PACKET_CHANNEL.registerMessage(
-            id++,
-            BlockEntityAnimTriggerPacket.class,
-            BlockEntityAnimTriggerPacket::encode,
-            BlockEntityAnimTriggerPacket::receive,
-            this::handlePacket
-        );
-
-        PACKET_CHANNEL.registerMessage(
-            id++,
             AzBlockEntityDispatchCommandPacket.class,
             AzBlockEntityDispatchCommandPacket::encode,
             AzBlockEntityDispatchCommandPacket::receive,

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.rewrite.animation.controller.state;
 
 import mod.azure.azurelib.rewrite.animation.controller.state.machine.AzAnimationControllerStateMachine;
-import mod.azure.azurelib.rewrite.util.state.State;
+import mod.azure.azurelib.util.state.State;
 
 /**
  * Represents an abstract animation state within the {@link AzAnimationControllerStateMachine}. Each concrete

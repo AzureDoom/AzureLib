@@ -13,7 +13,7 @@ import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.model.AzBoneMetadata;
 import mod.azure.azurelib.rewrite.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.rewrite.model.factory.primitive.VertexSet;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * A concrete implementation of the {@link AzBakedModelFactory} that constructs baked models, bones, and cubes from raw

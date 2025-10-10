@@ -23,7 +23,7 @@ import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.rewrite.animation.play_behavior.AzPlayBehaviors;
-import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
+import mod.azure.azurelib.util.codec.AzListStreamCodec;
 
 /**
  * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily

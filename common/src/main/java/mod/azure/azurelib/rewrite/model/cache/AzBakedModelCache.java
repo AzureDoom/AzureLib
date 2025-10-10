@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import mod.azure.azurelib.cache.AzResourceCache;
 import mod.azure.azurelib.loading.FileLoader;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.GeometryTree;
-import mod.azure.azurelib.rewrite.AzResourceCache;
 import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.rewrite.model.factory.registry.AzBakedModelFactoryRegistry;
 

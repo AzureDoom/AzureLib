@@ -9,6 +9,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import mod.azure.azurelib.config.client.IValidationHandler;
+
 /**
  * Marker annotation for field to config serialization. Only public instance fields are allowed.
  *
@@ -133,10 +135,9 @@ public @interface Configurable {
 
         /**
          * You must have defined custom method in the same class as where this configurable value is. The method also
-         * requires specific signature with {@code void} return type, value type and
-         * {@link mod.azure.azurelib.client.IValidationHandler} parameter. For example value listener method for int
-         * config field would look like this {@code public void onValueChange(int value, IValidationHandler
-         * validationHandler) {}}
+         * requires specific signature with {@code void} return type, value type and {@link IValidationHandler}
+         * parameter. For example value listener method for int config field would look like this {@code public void
+         * onValueChange(int value, IValidationHandler validationHandler) {}}
          *
          * @return Name of your method
          */

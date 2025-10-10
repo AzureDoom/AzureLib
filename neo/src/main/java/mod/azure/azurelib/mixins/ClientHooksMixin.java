@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
 
 @Mixin(ForgeHooksClient.class)
@@ -26,12 +24,6 @@ public class ClientHooksMixin {
         HumanoidModel<?> _default,
         CallbackInfoReturnable<Model> cir
     ) {
-        if (itemStack.getItem() instanceof GeoItem)
-            cir.setReturnValue(
-                RenderProvider.of(itemStack)
-                    .getGenericArmorModel(entityLiving, itemStack, slot, (HumanoidModel<LivingEntity>) _default)
-            );
-
         var renderer = AzArmorRendererRegistry.getOrNull(itemStack.getItem());
 
         if (renderer != null) {

@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import mod.azure.azurelib.rewrite.animation.dispatch.command.stage.AzAnimationStage;
-import mod.azure.azurelib.rewrite.util.codec.AzListStreamCodec;
+import mod.azure.azurelib.util.codec.AzListStreamCodec;
 
 public record AzAnimationSequence(
     List<AzAnimationStage> stages

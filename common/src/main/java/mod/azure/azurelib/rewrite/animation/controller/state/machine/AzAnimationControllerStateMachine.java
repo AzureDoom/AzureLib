@@ -7,8 +7,8 @@ import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationPau
 import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationPlayState;
 import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationStopState;
 import mod.azure.azurelib.rewrite.animation.controller.state.impl.AzAnimationTransitionState;
-import mod.azure.azurelib.rewrite.util.state.StateMachine;
-import mod.azure.azurelib.rewrite.util.state.StateMachineContext;
+import mod.azure.azurelib.util.state.StateMachine;
+import mod.azure.azurelib.util.state.StateMachineContext;
 
 /**
  * A state machine for managing animation controller states, providing functionality to transition between play, pause,

@@ -12,7 +12,7 @@ import java.util.function.Function;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipeline;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * A {@link AzRenderLayer} responsible for rendering {@link net.minecraft.world.level.block.state.BlockState

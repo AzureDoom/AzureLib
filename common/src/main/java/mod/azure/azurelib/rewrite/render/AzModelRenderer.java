@@ -19,7 +19,7 @@ import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.rewrite.animation.AzAnimator;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.item.AzItemRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone

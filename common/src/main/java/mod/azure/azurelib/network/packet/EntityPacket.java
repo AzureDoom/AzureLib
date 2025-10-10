@@ -6,7 +6,6 @@ import net.minecraft.world.entity.Entity;
 
 import mod.azure.azurelib.platform.Services;
 
-@Deprecated(forRemoval = true)
 public class EntityPacket {
 
     public static Packet<ClientGamePacketListener> createPacket(Entity entity) {

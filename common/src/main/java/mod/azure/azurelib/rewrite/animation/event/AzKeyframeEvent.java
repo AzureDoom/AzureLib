@@ -1,11 +1,11 @@
 package mod.azure.azurelib.rewrite.animation.event;
 
-import mod.azure.azurelib.core.keyframe.Keyframe;
 import mod.azure.azurelib.core.keyframe.event.data.KeyFrameData;
 import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframe;
 
 /**
- * The base class for {@link Keyframe} events.<br>
+ * The base class for {@link AzKeyframe} events.<br>
  * These will be passed to one of the controllers in {@link AzAnimationController} when encountered during animation.
  *
  * @see AzCustomInstructionKeyframeEvent
@@ -57,7 +57,7 @@ public abstract class AzKeyframeEvent<T, E extends KeyFrameData> {
     }
 
     /**
-     * Returns the {@link KeyFrameData} relevant to the encountered {@link Keyframe}
+     * Returns the {@link KeyFrameData} relevant to the encountered {@link AzKeyframe}
      */
     public E getKeyframeData() {
         return this.eventKeyframe;

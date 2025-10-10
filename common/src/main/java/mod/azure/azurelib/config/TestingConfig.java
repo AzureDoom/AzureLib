@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.client.IValidationHandler;
+import mod.azure.azurelib.config.client.IValidationHandler;
 import mod.azure.azurelib.config.validate.ValidationResult;
 
 @Config(id = AzureLib.MOD_ID)

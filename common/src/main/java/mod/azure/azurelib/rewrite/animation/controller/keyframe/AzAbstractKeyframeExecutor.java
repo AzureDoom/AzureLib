@@ -2,9 +2,6 @@ package mod.azure.azurelib.rewrite.animation.controller.keyframe;
 
 import java.util.List;
 
-import mod.azure.azurelib.core.keyframe.AnimationPoint;
-import mod.azure.azurelib.core.keyframe.Keyframe;
-import mod.azure.azurelib.core.keyframe.KeyframeLocation;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.object.Axis;
@@ -19,7 +16,7 @@ public class AzAbstractKeyframeExecutor {
     protected AzAbstractKeyframeExecutor() {}
 
     /**
-     * Convert a {@link KeyframeLocation} to an {@link AnimationPoint}
+     * Convert a {@link AzKeyframeLocation} to an {@link AzAnimationPoint}
      */
     protected AzAnimationPoint getAnimationPointAtTick(
         List<AzKeyframe<IValue>> frames,
@@ -56,7 +53,7 @@ public class AzAbstractKeyframeExecutor {
     }
 
     /**
-     * Returns the {@link Keyframe} relevant to the current tick time
+     * Returns the {@link AzKeyframe} relevant to the current tick time
      *
      * @param frames     The list of {@code Keyframes} to filter through
      * @param ageInTicks The current tick time

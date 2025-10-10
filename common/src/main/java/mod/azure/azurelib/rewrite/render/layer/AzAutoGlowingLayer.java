@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
 import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 /**
  * A {@link AzRenderLayer} dedicated to rendering the auto-generated glow layer functionality provided by AzureLib. This

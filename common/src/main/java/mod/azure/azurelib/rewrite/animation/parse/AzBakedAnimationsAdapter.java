@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.core.keyframe.BoneAnimation;
-import mod.azure.azurelib.core.keyframe.KeyframeStack;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;
@@ -147,7 +145,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      * considers the maximum keyframe time for rotation, position, and scale transformations for each bone and
      * determines the longest timeline among them.
      *
-     * @param boneAnimations An array of {@link BoneAnimation} instances representing the animations for individual
+     * @param boneAnimations An array of {@link AzBoneAnimation} instances representing the animations for individual
      *                       bones. Each bone animation includes keyframe stacks for rotation, position, and scale
      *                       transformations.
      * @return The maximum length of the animation timeline. If no keyframes are present, it defaults to
@@ -260,12 +258,12 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
     }
 
     /**
-     * Processes a JSON object representing bone animations and constructs an array of {@link BoneAnimation} instances.
-     * Each bone's animation includes keyframe stacks for position, rotation, and scale transformations.
+     * Processes a JSON object representing bone animations and constructs an array of {@link AzBoneAnimation}
+     * instances. Each bone's animation includes keyframe stacks for position, rotation, and scale transformations.
      *
      * @param bonesObj The JSON object containing bone animation data, where each key is the bone name and the value is
      *                 an object with keyframe data for scale, position, and rotation.
-     * @return An array of {@link BoneAnimation} instances representing the deserialized animations for each bone.
+     * @return An array of {@link AzBoneAnimation} instances representing the deserialized animations for each bone.
      * @throws MolangException If an error occurs during the processing of keyframes or Molang expressions.
      */
     private AzBoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws MolangException {
@@ -295,7 +293,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
     }
 
     /**
-     * Builds a {@link KeyframeStack} containing keyframes for X, Y, and Z-axis transformations based on the provided
+     * Builds a {@link AzKeyframeStack} containing keyframes for X, Y, and Z-axis transformations based on the provided
      * animation data. The method processes a list of paired time-stamped keyframe data, interprets the JSON structures,
      * applies appropriate transformations for rotations (if specified), and generates keyframes with defined easing
      * behaviors.
@@ -305,7 +303,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      *                      within the animation timeline.
      * @param isForRotation A boolean indicating whether the keyframe transformations should account for rotation. If
      *                      true, the keyframe values undergo additional processing to convert angles to radians.
-     * @return A {@link KeyframeStack} containing three lists of keyframes for X, Y, and Z transformations,
+     * @return A {@link AzKeyframeStack} containing three lists of keyframes for X, Y, and Z transformations,
      *         respectively.
      * @throws MolangException If an error occurs during the parsing or interpretation of Molang expressions in the
      *                         keyframe data.

@@ -12,8 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Utility class for rendering item-specific player arms in Minecraft. This class provides methods for determining

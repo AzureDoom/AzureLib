@@ -16,7 +16,7 @@ import mod.azure.azurelib.rewrite.model.AzBone;
 import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * The AzBlockEntityModelRenderer is a specialized model renderer class for rendering block entities in a 3D space. It

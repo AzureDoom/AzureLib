@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import mod.azure.azurelib.cache.AzResourceCache;
 import mod.azure.azurelib.loading.FileLoader;
-import mod.azure.azurelib.rewrite.AzResourceCache;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
 
 /**

@@ -16,7 +16,6 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
-    "ItemRendererAccessor",
     "MinecraftMixin",
     "MixinItemRenderer",
     "TextureManagerMixin",

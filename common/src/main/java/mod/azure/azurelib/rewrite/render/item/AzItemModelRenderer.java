@@ -10,7 +10,7 @@ import mod.azure.azurelib.rewrite.render.AzLayerRenderer;
 import mod.azure.azurelib.rewrite.render.AzModelRenderer;
 import mod.azure.azurelib.rewrite.render.AzPhasedRenderer;
 import mod.azure.azurelib.rewrite.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * AzItemModelRenderer is a specialized implementation of {@link AzModelRenderer} for rendering {@link ItemStack}

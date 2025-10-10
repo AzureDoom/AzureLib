@@ -12,14 +12,12 @@ import java.util.List;
 import java.util.Objects;
 
 import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.core.animatable.model.CoreGeoBone;
-import mod.azure.azurelib.core.state.BoneSnapshot;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  */
-public class AzBone implements CoreGeoBone {
+public class AzBone {
 
     private final AzBoneMetadata metadata;
 
@@ -73,232 +71,184 @@ public class AzBone implements CoreGeoBone {
         this.modelSpaceMatrix.identity();
     }
 
-    @Override
     public String getName() {
         return metadata.name();
     }
 
-    @Override
     public AzBone getParent() {
         return metadata.parent();
     }
 
-    @Override
     public float getRotX() {
         return this.rotation.x;
     }
 
-    @Override
     public void setRotX(float value) {
         this.rotation.x = value;
 
         markRotationAsChanged();
     }
 
-    @Override
     public float getRotY() {
         return this.rotation.y;
     }
 
-    @Override
     public void setRotY(float value) {
         this.rotation.y = value;
 
         markRotationAsChanged();
     }
 
-    @Override
     public float getRotZ() {
         return this.rotation.z;
     }
 
-    @Override
     public void setRotZ(float value) {
         this.rotation.z = value;
 
         markRotationAsChanged();
     }
 
-    @Override
     public float getPosX() {
         return this.position.x;
     }
 
-    @Override
     public void setPosX(float value) {
         this.position.x = value;
 
         markPositionAsChanged();
     }
 
-    @Override
     public float getPosY() {
         return this.position.y;
     }
 
-    @Override
     public void setPosY(float value) {
         this.position.y = value;
 
         markPositionAsChanged();
     }
 
-    @Override
     public float getPosZ() {
         return this.position.z;
     }
 
-    @Override
     public void setPosZ(float value) {
         this.position.z = value;
 
         markPositionAsChanged();
     }
 
-    @Override
     public float getScaleX() {
         return this.scale.x;
     }
 
-    @Override
     public void setScaleX(float value) {
         this.scale.x = value;
 
         markScaleAsChanged();
     }
 
-    @Override
     public float getScaleY() {
         return this.scale.y;
     }
 
-    @Override
     public void setScaleY(float value) {
         this.scale.y = value;
 
         markScaleAsChanged();
     }
 
-    @Override
     public float getScaleZ() {
         return this.scale.z;
     }
 
-    @Override
     public void setScaleZ(float value) {
         this.scale.z = value;
 
         markScaleAsChanged();
     }
 
-    @Override
     public boolean isHidden() {
         return this.hidden;
     }
 
-    @Override
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
 
         setChildrenHidden(hidden);
     }
 
-    @Override
     public void setChildrenHidden(boolean hideChildren) {
         this.childrenHidden = hideChildren;
     }
 
-    @Override
     public float getPivotX() {
         return this.pivot.x;
     }
 
-    @Override
     public void setPivotX(float value) {
         this.pivot.x = value;
     }
 
-    @Override
     public float getPivotY() {
         return this.pivot.y;
     }
 
-    @Override
     public void setPivotY(float value) {
         this.pivot.y = value;
     }
 
-    @Override
     public float getPivotZ() {
         return this.pivot.z;
     }
 
-    @Override
     public void setPivotZ(float value) {
         this.pivot.z = value;
     }
 
-    @Override
     public boolean isHidingChildren() {
         return this.childrenHidden;
     }
 
-    @Override
     public void markScaleAsChanged() {
         this.scaleChanged = true;
     }
 
-    @Override
     public void markRotationAsChanged() {
         this.rotationChanged = true;
     }
 
-    @Override
     public void markPositionAsChanged() {
         this.positionChanged = true;
     }
 
-    @Override
     public boolean hasScaleChanged() {
         return this.scaleChanged;
     }
 
-    @Override
     public boolean hasRotationChanged() {
         return this.rotationChanged;
     }
 
-    @Override
     public boolean hasPositionChanged() {
         return this.positionChanged;
     }
 
-    @Override
     public void resetStateChanges() {
         this.scaleChanged = false;
         this.rotationChanged = false;
         this.positionChanged = false;
     }
 
-    /**
-     * @deprecated DO NOT USE OR I WILL FIND YOU.
-     */
-    @Override
-    @Deprecated(forRemoval = true)
-    public BoneSnapshot getInitialSnapshot() {
-        throw new UnsupportedOperationException();
-    }
-
     public AzBoneSnapshot getInitialAzSnapshot() {
         return this.initialSnapshot;
     }
 
-    @Override
     public List<AzBone> getChildBones() {
         return this.children;
     }
 
-    @Override
     public void saveInitialSnapshot() {
         if (this.initialSnapshot == null) {
             this.initialSnapshot = new AzBoneSnapshot(this);
@@ -437,35 +387,30 @@ public class AzBone implements CoreGeoBone {
         setRotZ(getRotZ() + source.getRotZ() - source.getInitialAzSnapshot().getRotZ());
     }
 
-    @Override
     public void updateRotation(float xRot, float yRot, float zRot) {
         setRotX(xRot);
         setRotY(yRot);
         setRotZ(zRot);
     }
 
-    @Override
     public void updatePosition(float posX, float posY, float posZ) {
         setPosX(posX);
         setPosY(posY);
         setPosZ(posZ);
     }
 
-    @Override
     public void updateScale(float scaleX, float scaleY, float scaleZ) {
         setScaleX(scaleX);
         setScaleY(scaleY);
         setScaleZ(scaleZ);
     }
 
-    @Override
     public void updatePivot(float pivotX, float pivotY, float pivotZ) {
         setPivotX(pivotX);
         setPivotY(pivotY);
         setPivotZ(pivotZ);
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -476,7 +421,6 @@ public class AzBone implements CoreGeoBone {
         return hashCode() == obj.hashCode();
     }
 
-    @Override
     public int hashCode() {
         return Objects.hash(
             getName(),

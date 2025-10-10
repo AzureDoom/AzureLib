@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.loading.json.raw.Bone;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
@@ -36,9 +35,6 @@ import mod.azure.azurelib.loading.json.raw.PolysUnion;
 import mod.azure.azurelib.loading.json.raw.TextureMesh;
 import mod.azure.azurelib.loading.json.raw.UVFaces;
 import mod.azure.azurelib.loading.json.raw.UVUnion;
-import mod.azure.azurelib.loading.json.typeadapter.BakedAnimationsAdapter;
-import mod.azure.azurelib.loading.json.typeadapter.KeyFramesAdapter;
-import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.rewrite.animation.parse.AzBakedAnimationsAdapter;
 import mod.azure.azurelib.rewrite.animation.parse.AzKeyframesAdapter;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
@@ -63,8 +59,6 @@ public final class JsonUtil {
         .registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
         .registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
         .registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
-        .registerTypeAdapter(Animation.Keyframes.class, new KeyFramesAdapter())
-        .registerTypeAdapter(BakedAnimations.class, new BakedAnimationsAdapter())
         .registerTypeAdapter(AzKeyframes.class, new AzKeyframesAdapter())
         .registerTypeAdapter(AzBakedAnimations.class, new AzBakedAnimationsAdapter())
         .create();

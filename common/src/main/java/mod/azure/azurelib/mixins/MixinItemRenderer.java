@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import mod.azure.azurelib.animatable.GeoItem;
-import mod.azure.azurelib.animatable.client.RenderProvider;
 import mod.azure.azurelib.rewrite.render.item.AzItemRendererRegistry;
 
 /**
@@ -38,13 +36,6 @@ public class MixinItemRenderer {
         BakedModel bakedModel,
         CallbackInfo ci
     ) {
-        // TODO: Remove this along with Geo-code.
-        if (itemStack.getItem() instanceof GeoItem) {
-            RenderProvider.of(itemStack)
-                .getCustomRenderer()
-                .renderByItem(itemStack, transformType, poseStack, multiBufferSource, i, j);
-        }
-
         var item = itemStack.getItem();
         var renderer = AzItemRendererRegistry.getOrNull(item);
 

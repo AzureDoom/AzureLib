@@ -9,7 +9,7 @@ import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.rewrite.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.rewrite.animation.dispatch.command.AzCommand;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 

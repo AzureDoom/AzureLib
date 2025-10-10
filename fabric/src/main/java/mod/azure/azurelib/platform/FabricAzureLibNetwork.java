@@ -30,37 +30,9 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void registerClientReceiverPackets() {
         ClientPlayNetworking.registerGlobalReceiver(
-            ANIM_DATA_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, AnimDataSyncPacket.receive(buf))
-        );
-        ClientPlayNetworking.registerGlobalReceiver(
-            ANIM_TRIGGER_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, AnimTriggerPacket.receive(buf))
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-            ENTITY_ANIM_DATA_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, EntityAnimDataSyncPacket.receive(buf))
-        );
-        ClientPlayNetworking.registerGlobalReceiver(
-            ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, EntityAnimTriggerPacket.receive(buf))
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
-            BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, BlockEntityAnimDataSyncPacket.receive(buf))
-        );
-        ClientPlayNetworking.registerGlobalReceiver(
-            BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID,
-            (client, $2, buf, $4) -> this.handlePacket(client, BlockEntityAnimTriggerPacket.receive(buf))
-        );
-
-        ClientPlayNetworking.registerGlobalReceiver(
             CUSTOM_ENTITY_ID,
             (client, handler, buf, responseSender) -> EntityPacketOnClient.onPacket(client, buf)
         );
-
         ClientPlayNetworking.registerGlobalReceiver(
             AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID,
             (client, $2, buf, $4) -> this.handlePacket(client, AzEntityDispatchCommandPacket.receive(buf))

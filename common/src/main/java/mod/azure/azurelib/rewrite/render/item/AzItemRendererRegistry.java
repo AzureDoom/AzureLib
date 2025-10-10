@@ -22,7 +22,6 @@ public class AzItemRendererRegistry {
 
     public static void register(Item item, Supplier<AzItemRenderer> itemRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(item, itemRendererSupplier);
-        AzIdentityRegistry.register(item);
     }
 
     public static void register(Supplier<AzItemRenderer> itemRendererSupplier, Item item, Item... items) {

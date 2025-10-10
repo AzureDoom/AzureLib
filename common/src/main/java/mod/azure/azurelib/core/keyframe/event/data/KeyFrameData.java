@@ -3,18 +3,14 @@
  * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
-/*
- * Copyright (c) 2020. Author: Bernie G. (Gecko)
- */
-
 package mod.azure.azurelib.core.keyframe.event.data;
 
 import java.util.Objects;
 
-import mod.azure.azurelib.core.keyframe.Keyframe;
+import mod.azure.azurelib.rewrite.animation.controller.keyframe.AzKeyframe;
 
 /**
- * Base class for custom {@link Keyframe} events.<br>
+ * Base class for custom {@link AzKeyframe} events.<br>
  *
  * @see ParticleKeyframeData
  * @see SoundKeyframeData

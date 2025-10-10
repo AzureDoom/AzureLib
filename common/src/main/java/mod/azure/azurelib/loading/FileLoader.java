@@ -1,8 +1,3 @@
-/**
- * This class is a fork of the matching class found in the Geckolib repository. Original source:
- * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
- * https://github.com/bernie-g/geckolib/blob/main/LICENSE
- */
 package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
@@ -16,12 +11,10 @@ import java.nio.charset.Charset;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibException;
-import mod.azure.azurelib.cache.object.BakedGeoModel;
-import mod.azure.azurelib.core.animation.Animation;
 import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.loading.object.BakedAnimations;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.rewrite.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.rewrite.model.AzBakedModel;
 import mod.azure.azurelib.util.JsonUtil;
 
 /**
@@ -31,22 +24,6 @@ public final class FileLoader {
 
     private FileLoader() {
         throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Load up and deserialize an animation JSON file to its respective {@link Animation} components
-     *
-     * @param location The resource path of the animation file
-     * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
-     * @deprecated
-     */
-    public static BakedAnimations loadAnimationsFile(ResourceLocation location, ResourceManager manager) {
-        try {
-            return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), BakedAnimations.class);
-        } catch (Exception e) {
-            logError(location);
-            return null;
-        }
     }
 
     /**
@@ -65,7 +42,7 @@ public final class FileLoader {
     }
 
     /**
-     * Load up and deserialize a geo model JSON file to its respective {@link BakedGeoModel} format
+     * Load up and deserialize a geo model JSON file to its respective {@link AzBakedModel} format
      *
      * @param location The resource path of the model file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
