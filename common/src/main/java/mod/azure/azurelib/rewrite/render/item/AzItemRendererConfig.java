@@ -294,7 +294,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             }
 
             var finalEnabledContexts = Set.copyOf(enabledContexts);
-            this.shouldAnimateInContext = context -> !finalEnabledContexts.contains(context);
+            this.shouldAnimateInContext = finalEnabledContexts::contains;
             return this;
         }
 
