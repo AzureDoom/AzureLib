@@ -6,9 +6,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.rewrite.animation.controller.AzAnimationController;
-import mod.azure.azurelib.rewrite.animation.primitive.AzQueuedAnimation;
+import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.controller.AzAnimationController;
+import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
 
 /**
  * Helper class for segregating client-side code

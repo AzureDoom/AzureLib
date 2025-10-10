@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import mod.azure.azurelib.rewrite.render.armor.AzArmorRendererRegistry;
+import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 
 /**
  * Render hook for injecting AzureLib's armor rendering functionalities

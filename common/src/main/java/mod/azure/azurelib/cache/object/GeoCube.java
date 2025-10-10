@@ -7,7 +7,7 @@ package mod.azure.azurelib.cache.object;
 
 import net.minecraft.world.phys.Vec3;
 
-import mod.azure.azurelib.rewrite.model.AzBone;
+import mod.azure.azurelib.model.AzBone;
 
 /**
  * Baked cuboid for a {@link AzBone}

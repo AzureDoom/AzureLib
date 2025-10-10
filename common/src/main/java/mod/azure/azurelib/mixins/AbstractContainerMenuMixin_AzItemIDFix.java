@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.rewrite.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 
 /**
  * A Mixin extension for the {@code AbstractContainerMenu} class that introduces support for AzureLib-specific
