@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,27 +17,26 @@ import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
-import mod.azure.azurelib.rewrite.render.*;
 
-public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
+public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private final AzArmorBoneProvider boneProvider;
 
     private AzArmorRendererConfig(
-        Supplier<AzAnimator<ItemStack>> animatorProvider,
+        Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
         AzArmorBoneProvider boneProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
-        List<AzRenderLayer<ItemStack>> renderLayers,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
+        List<AzRenderLayer<UUID, ItemStack>> renderLayers,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
-        BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
-        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
+        BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
+        Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
         Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
         Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
@@ -78,7 +78,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
 
-    public static class Builder extends AzRendererConfig.Builder<ItemStack> {
+    public static class Builder extends AzRendererConfig.Builder<UUID, ItemStack> {
 
         private AzArmorBoneProvider boneProvider;
 
@@ -108,20 +108,20 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setModelRenderer(
-            BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
+            BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider
         ) {
             return (Builder) super.setModelRenderer(modelRendererProvider);
         }
 
         @Override
         public Builder setPipelineContext(
-            Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
+            Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
         ) {
             return (Builder) super.setPipelineContext(azRendererPipelineAzRendererPipelineContextFunction);
         }
 
         @Override
-        public Builder addRenderLayer(AzRenderLayer<ItemStack> renderLayer) {
+        public Builder addRenderLayer(AzRenderLayer<UUID, ItemStack> renderLayer) {
             return (Builder) super.addRenderLayer(renderLayer);
         }
 
@@ -136,27 +136,27 @@ public class AzArmorRendererConfig extends AzRendererConfig<ItemStack> {
         }
 
         @Override
-        public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
+        public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<UUID, ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
         }
 
         @Override
         public Builder setPrerenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry
         ) {
             return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPostRenderEntry(preRenderEntry);
         }

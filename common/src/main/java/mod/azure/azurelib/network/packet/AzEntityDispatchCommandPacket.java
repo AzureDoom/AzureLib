@@ -8,7 +8,7 @@ import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {
 

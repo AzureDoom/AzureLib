@@ -15,19 +15,21 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
  * to handle complex rendering tasks by separating responsibilities into different components, such as layer rendering
  * and model rendering.
  *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
  * @param <T> The type of the object to be rendered.
  */
-public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
+public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T> {
 
-    protected final AzRendererConfig<T> config;
+    protected final AzRendererConfig<K, T> config;
 
-    private final AzRendererPipelineContext<T> context;
+    private final AzRendererPipelineContext<K, T> context;
 
-    private final AzLayerRenderer<T> layerRenderer;
+    private final AzLayerRenderer<K, T> layerRenderer;
 
-    private final AzModelRenderer<T> modelRenderer;
+    private final AzModelRenderer<K, T> modelRenderer;
 
-    protected AzRendererPipeline(AzRendererConfig<T> config) {
+    protected AzRendererPipeline(AzRendererConfig<K, T> config) {
         this.config = config;
         this.context = createContext(this);
         this.layerRenderer = createLayerRenderer(config);
@@ -42,7 +44,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * @param rendererPipeline the renderer pipeline for which the context is to be created
      * @return a new instance of {@link AzRendererPipelineContext} specific to the given renderer pipeline
      */
-    protected abstract AzRendererPipelineContext<T> createContext(AzRendererPipeline<T> rendererPipeline);
+    protected abstract AzRendererPipelineContext<K, T> createContext(AzRendererPipeline<K, T> rendererPipeline);
 
     /**
      * Creates an instance of {@link AzModelRenderer} using the provided {@link AzLayerRenderer}. This method is part of
@@ -53,7 +55,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      *                      within the model rendering process
      * @return a new instance of {@link AzModelRenderer} configured with the provided layer renderer
      */
-    protected abstract AzModelRenderer<T> createModelRenderer(AzLayerRenderer<T> layerRenderer);
+    protected abstract AzModelRenderer<K, T> createModelRenderer(AzLayerRenderer<K, T> layerRenderer);
 
     /**
      * Creates an instance of {@link AzLayerRenderer} using the provided {@link AzRendererConfig}. This method is
@@ -65,7 +67,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * @return A newly created {@link AzLayerRenderer} instance configured based on the specified
      *         {@link AzRendererConfig}.
      */
-    protected abstract AzLayerRenderer<T> createLayerRenderer(AzRendererConfig<T> config);
+    protected abstract AzLayerRenderer<K, T> createLayerRenderer(AzRendererConfig<K, T> config);
 
     /**
      * Update the current frame of a {@link AnimatableTexture potentially animated} texture used by this
@@ -106,15 +108,10 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
 
         preRender(context, false);
 
-        // TODO:
-        // if (firePreRenderEvent(poseStack, model, bufferSource, partialTick, packedLight)) {
         layerRenderer.preApplyRenderLayers(context);
         modelRenderer.render(context, false);
         layerRenderer.applyRenderLayers(context);
         postRender(context, false);
-        // TODO:
-        // firePostRenderEvent(poseStack, model, bufferSource, partialTick, packedLight);
-        // }
 
         poseStack.popPose();
 
@@ -127,7 +124,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * Usually you'd use this for rendering alternate {@link RenderType} layers or for sub-model rendering whilst inside
      * a {@link AzRenderLayer} or similar
      */
-    public void reRender(AzRendererPipelineContext<T> context) {
+    public void reRender(AzRendererPipelineContext<K, T> context) {
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
@@ -143,7 +140,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * Call after all other rendering work has taken place, including reverting the {@link PoseStack}'s state. This
      * method is <u>not</u> called in {@link AzRendererPipeline#reRender re-render}
      */
-    protected void renderFinal(AzRendererPipelineContext<T> context) {}
+    protected void renderFinal(AzRendererPipelineContext<K, T> context) {}
 
     /**
      * Called after all render operations are completed and the render pass is considered functionally complete.
@@ -151,7 +148,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * Use this method to clean up any leftover persistent objects stored during rendering or any other post-render
      * maintenance tasks as required
      */
-    protected void doPostRenderCleanup(AzRendererPipelineContext<T> context) {}
+    protected void doPostRenderCleanup(AzRendererPipelineContext<K, T> context) {}
 
     /**
      * Scales the {@link PoseStack} in preparation for rendering the model, excluding when re-rendering the model as
@@ -160,7 +157,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * entities)
      */
     protected void scaleModelForRender(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<K, T> context,
         float widthScale,
         float heightScale,
         boolean isReRender
@@ -177,7 +174,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * @return An instance of {@link AzRendererConfig} that contains the configuration details for this rendering
      *         pipeline, including animator, model location, texture location, render layers, and scaling parameters.
      */
-    public AzRendererConfig<T> config() {
+    public AzRendererConfig<K, T> config() {
         return config;
     }
 
@@ -187,7 +184,7 @@ public abstract class AzRendererPipeline<T> implements AzPhasedRenderer<T> {
      * @return An instance of {@link AzRendererPipelineContext} representing the context for the current rendering
      *         pipeline, containing relevant rendering data and configurations for processing animations and models.
      */
-    public AzRendererPipelineContext<T> context() {
+    public AzRendererPipelineContext<K, T> context() {
         return context;
     }
 }

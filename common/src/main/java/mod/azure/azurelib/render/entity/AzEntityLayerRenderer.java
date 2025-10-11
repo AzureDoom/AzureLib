@@ -3,6 +3,7 @@ package mod.azure.azurelib.render.entity;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.render.AzLayerRenderer;
@@ -15,9 +16,9 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
  *
  * @param <T> The type of animatable entity this renderer is applied to.
  */
-public class AzEntityLayerRenderer<T extends Entity> extends AzLayerRenderer<T> {
+public class AzEntityLayerRenderer<T extends Entity> extends AzLayerRenderer<UUID, T> {
 
-    public AzEntityLayerRenderer(Supplier<Collection<AzRenderLayer<T>>> renderLayerSupplier) {
+    public AzEntityLayerRenderer(Supplier<Collection<AzRenderLayer<UUID, T>>> renderLayerSupplier) {
         super(renderLayerSupplier);
     }
 
@@ -25,7 +26,7 @@ public class AzEntityLayerRenderer<T extends Entity> extends AzLayerRenderer<T> 
      * Render the various {@link AzRenderLayer RenderLayers} that have been registered to this renderer
      */
     @Override
-    public void applyRenderLayers(AzRendererPipelineContext<T> context) {
+    public void applyRenderLayers(AzRendererPipelineContext<UUID, T> context) {
         var animatable = context.animatable();
 
         if (!animatable.isSpectator()) {

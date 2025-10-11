@@ -10,9 +10,11 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends
@@ -21,9 +23,9 @@ import mod.azure.azurelib.util.ClientUtils;
  *
  * @param <T> the type of entity being rendered, extending {@code Entity}
  */
-public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendererPipelineContext<T> {
+public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendererPipelineContext<UUID, T> {
 
-    public AzEntityRendererPipelineContext(AzRendererPipeline<T> rendererPipeline) {
+    public AzEntityRendererPipelineContext(AzRendererPipeline<UUID, T> rendererPipeline) {
         super(rendererPipeline);
     }
 

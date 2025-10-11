@@ -9,34 +9,54 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
 
 /**
  * Render layer base class for rendering additional layers of effects or textures over an existing model at runtime.<br>
- * Contains the base boilerplate and helper code for various render layer features
+ * <p>
+ * This interface defines the lifecycle hooks used by the rendering pipeline to apply custom visual effects, overlays,
+ * or transformations on top of the base model.<br>
+ * <p>
+ *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
+ * @param <T> The type of the animatable object this layer is applied to.
+ * @see AzRendererPipeline
  */
-public interface AzRenderLayer<T> {
+public interface AzRenderLayer<K, T> {
 
     /**
-     * This method is called by the {@link AzRendererPipeline} before rendering, immediately after
-     * {@link AzRendererPipeline#preRender} has been called.<br>
-     * This allows for RenderLayers to perform pre-render manipulations such as hiding or showing bones
+     * Called by the {@link AzRendererPipeline} before rendering begins, immediately after
+     * {@link AzRendererPipeline#preRender}.
+     * <p>
+     * Allows render layers to perform setup tasks such as hiding/showing bones or other pre-render state modifications.
+     *
+     * @param context The active renderer context containing pipeline state, the animatable instance, and the associated
+     *                key {@code K}.
      */
-    void preRender(AzRendererPipelineContext<T> context);
+    void preRender(AzRendererPipelineContext<K, T> context);
 
     /**
-     * This is the method that is actually called by the render for your render layer to function.<br>
-     * This is called <i>after</i> the animatable has been rendered, but before supplementary rendering like nametags.
+     * Called by the renderer after the main animatable has been rendered, but before supplementary features (like name
+     * tags).
+     * <p>
+     * This is the primary method to implement custom render layer logic.
+     *
+     * @param context The active renderer context containing pipeline state, the animatable instance, and the associated
+     *                key {@code K}.
      */
-    void render(AzRendererPipelineContext<T> context);
+    void render(AzRendererPipelineContext<K, T> context);
 
     /**
-     * This method is called by the {@link AzRendererPipeline} for each bone being rendered.<br>
-     * This is a more expensive call, particularly if being used to render something on a different buffer.<br>
-     * It does however have the benefit of having the matrix translations and other transformations already applied from
-     * render-time.<br>
-     * It's recommended to avoid using this unless necessary.<br>
-     * <br>
+     * Called by the {@link AzRendererPipeline} for each {@link AzBone} being rendered.<br>
+     * <p>
+     * This is more expensive than {@link #render} since it occurs per-bone, but it has the advantage of having all
+     * matrix transformations already applied.<br>
+     * <p>
      * The {@link AzBone} in question has already been rendered by this stage.<br>
-     * <br>
-     * If you <i>do</i> use it, and you render something that changes the {@link VertexConsumer buffer}, you need to
-     * reset it back to the previous buffer using {@link MultiBufferSource#getBuffer} before ending the method
+     * <p>
+     * <b>Important:</b> If you modify the {@link VertexConsumer buffer}, reset it to the previous one via
+     * {@link MultiBufferSource#getBuffer} before returning.
+     *
+     * @param context The active renderer context containing pipeline state, the animatable instance, and the associated
+     *                key {@code K}.
+     * @param bone    The bone currently being rendered.
      */
-    void renderForBone(AzRendererPipelineContext<T> context, AzBone bone);
+    void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone);
 }

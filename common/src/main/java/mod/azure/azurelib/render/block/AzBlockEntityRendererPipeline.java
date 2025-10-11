@@ -7,7 +7,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.rewrite.render.*;
 
 /**
  * AzBlockEntityRendererPipeline is a specific implementation of the {@link AzRendererPipeline} tailored for rendering
@@ -16,7 +15,7 @@ import mod.azure.azurelib.rewrite.render.*;
  *
  * @param <T> The type of {@link BlockEntity} that this renderer pipeline is designed to render.
  */
-public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRendererPipeline<T> {
+public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRendererPipeline<Long, T> {
 
     private final AzBlockEntityRenderer<T> blockEntityRenderer;
 
@@ -33,17 +32,17 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
     }
 
     @Override
-    protected AzBlockEntityRendererPipelineContext<T> createContext(AzRendererPipeline<T> rendererPipeline) {
+    protected AzBlockEntityRendererPipelineContext<T> createContext(AzRendererPipeline<Long, T> rendererPipeline) {
         return (AzBlockEntityRendererPipelineContext<T>) config.pipelineContext(this);
     }
 
     @Override
-    protected AzModelRenderer<T> createModelRenderer(AzLayerRenderer<T> layerRenderer) {
+    protected AzModelRenderer<Long, T> createModelRenderer(AzLayerRenderer<Long, T> layerRenderer) {
         return config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override
-    protected AzLayerRenderer<T> createLayerRenderer(AzRendererConfig<T> config) {
+    protected AzLayerRenderer<Long, T> createLayerRenderer(AzRendererConfig<Long, T> config) {
         return new AzLayerRenderer<>(config::renderLayers);
     }
 
@@ -65,7 +64,7 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
      * {@link PoseStack} translations made here are kept until the end of the render process
      */
     @Override
-    public void preRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void preRender(AzRendererPipelineContext<Long, T> context, boolean isReRender) {
         var poseStack = context.poseStack();
         this.entityRenderTranslations.load(poseStack.last().pose());
 
@@ -79,7 +78,7 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void postRender(AzRendererPipelineContext<Long, T> context, boolean isReRender) {
         config.postRenderEntry(context);
     }
 

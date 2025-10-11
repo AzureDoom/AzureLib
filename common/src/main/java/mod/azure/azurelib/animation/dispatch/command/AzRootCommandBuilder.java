@@ -5,7 +5,6 @@ import java.util.function.UnaryOperator;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
 import mod.azure.azurelib.animation.easing.AzEasingType;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 
 /**
  * AzRootCommandBuilder is a concrete implementation of AzCommandBuilder that provides methods specifically tailored for

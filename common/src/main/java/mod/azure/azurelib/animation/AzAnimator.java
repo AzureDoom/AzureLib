@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.WeakHashMap;
+
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
@@ -11,7 +13,6 @@ import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
-import mod.azure.azurelib.model.AzBakedModel;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -20,12 +21,16 @@ import mod.azure.azurelib.model.AzBakedModel;
  *
  * @param <T> The type of object this animator will animate (e.g., an entity, block entity, or item stack).
  */
-public abstract class AzAnimator<T> {
+public abstract class AzAnimator<K, T> {
 
-    private final AzAnimationContext<T> reusableContext;
+    private AzAnimationContext<T> currentContext;
+
+    private final WeakHashMap<K, AzAnimationContext<T>> contextCache = new WeakHashMap<>();
 
     // Holds animation controllers.
     private final AzAnimationControllerContainer<T> animationControllerContainer;
+
+    protected final AzAnimatorConfig config;
 
     public boolean reloadAnimations;
 
@@ -36,10 +41,7 @@ public abstract class AzAnimator<T> {
     protected AzAnimator(AzAnimatorConfig config) {
         this.animationControllerContainer = new AzAnimationControllerContainer<>();
 
-        var boneCache = new AzBoneCache();
-        var timer = new AzAnimationTimer(config);
-
-        this.reusableContext = createReusableContext(config);
+        this.config = config;
     }
 
     public AzBoneCache createBoneCache() {
@@ -50,8 +52,13 @@ public abstract class AzAnimator<T> {
         return new AzAnimationTimer(config);
     }
 
-    public AzAnimationContext<T> createReusableContext(AzAnimatorConfig config) {
-        return new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config));
+    public AzAnimationContext<T> getOrCreateContext(K uuid) {
+        var ctx = contextCache.computeIfAbsent(
+            uuid,
+            a -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+        );
+        this.currentContext = ctx;
+        return ctx;
     }
 
     public abstract void registerControllers(AzAnimationControllerContainer<T> animationControllerContainer);
@@ -59,10 +66,10 @@ public abstract class AzAnimator<T> {
     public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
 
     public void animate(T animatable, float partialTicks, boolean updateTimer) {
-        reusableContext.animatable = animatable;
+        this.currentContext.animatable = animatable;
 
-        var boneCache = reusableContext.boneCache();
-        var timer = reusableContext.timer();
+        var boneCache = this.currentContext.boneCache();
+        var timer = this.currentContext.timer();
 
         if (updateTimer) {
             timer.tick();
@@ -78,7 +85,7 @@ public abstract class AzAnimator<T> {
 
             this.reloadAnimations = false;
 
-            boneCache.update(reusableContext);
+            boneCache.update(this.currentContext);
         }
 
         setCustomAnimations(animatable, partialTicks);
@@ -107,20 +114,6 @@ public abstract class AzAnimator<T> {
      * @param partialTicks The partial tick for smooth animations.
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
-        // TODO: Refactor this method by moving all logic from the old applyMolangQueries(animatable, animTime)
-        // method directly into this one, ensuring that the old method is no longer called.
-        // This will consolidate the logic to ensure that partial tick support is fully integrated here.
-        applyMolangQueries(animatable, animTime);
-    }
-
-    /**
-     * Existing method for applying MoLang queries.
-     *
-     * @param animatable The animatable being animated.
-     * @param animTime   Animation time in seconds.
-     */
-    @Deprecated
-    private void applyMolangQueries(T animatable, double animTime) {
         var level = Minecraft.getInstance().level;
         var parser = MolangParser.INSTANCE;
 
@@ -143,19 +136,6 @@ public abstract class AzAnimator<T> {
      */
     public void setCustomAnimations(T animatable, float partialTicks) {}
 
-    public void setActiveModel(AzBakedModel model) {
-        var modelChanged = reusableContext.boneCache().setActiveModel(model);
-
-        if (modelChanged) {
-            // If the model changed, we need to clear the bone animation queue cache for every controller.
-            // TODO: We shouldn't have to remember to do this. If the baked model changes, then the bone cache
-            // should be re-instantiated. If the bone cache is re-instantiated, then so should the bone animation
-            // queue caches.
-            animationControllerContainer.getAll()
-                .forEach(controller -> controller.boneAnimationQueueCache().clear());
-        }
-    }
-
     /**
      * Get the baked animation object used for rendering from the given resource path
      */
@@ -171,7 +151,7 @@ public abstract class AzAnimator<T> {
     }
 
     public AzAnimationContext<T> context() {
-        return reusableContext;
+        return currentContext;
     }
 
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {

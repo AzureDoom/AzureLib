@@ -11,27 +11,27 @@ import java.util.Optional;
  *
  * @param <T> The type of the target object that the animator applies to.
  */
-public interface AzAnimatorAccessor<T> {
+public interface AzAnimatorAccessor<K, T> {
 
     @Nullable
-    AzAnimator<T> getAnimatorOrNull();
+    AzAnimator<K, T> getAnimatorOrNull();
 
-    void setAnimator(AzAnimator<T> animator);
+    void setAnimator(AzAnimator<K, T> animator);
 
-    default Optional<AzAnimator<T>> getAnimator() {
+    default Optional<AzAnimator<K, T>> getAnimator() {
         return Optional.ofNullable(getAnimatorOrNull());
     }
 
     @SuppressWarnings("unchecked")
-    static <T> AzAnimatorAccessor<T> cast(T target) {
-        return (AzAnimatorAccessor<T>) target;
+    static <K, T> AzAnimatorAccessor<K, T> cast(T target) {
+        return (AzAnimatorAccessor<K, T>) target;
     }
 
-    static <T> AzAnimator<T> getOrNull(T target) {
-        return cast(target).getAnimatorOrNull();
+    static <K, T> AzAnimator<K, T> getOrNull(T target) {
+        return AzAnimatorAccessor.<K, T>cast(target).getAnimatorOrNull();
     }
 
-    static <T> Optional<AzAnimator<T>> get(T target) {
+    static <K, T> Optional<AzAnimator<K, T>> get(T target) {
         return Optional.ofNullable(getOrNull(target));
     }
 }

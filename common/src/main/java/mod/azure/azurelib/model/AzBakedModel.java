@@ -35,6 +35,14 @@ public class AzBakedModel {
         return bonesByName;
     }
 
+    public AzBakedModel deepCopy() {
+        List<AzBone> copied = new ArrayList<>(this.topLevelBones.size());
+        for (AzBone bone : this.topLevelBones) {
+            copied.add(bone.deepCopy()); // each child deepCopy() calls saveInitialSnapshot()
+        }
+        return new AzBakedModel(copied); // this will rebuild bonesByName internally
+    }
+
     public @Nullable AzBone getBoneOrNull(String name) {
         return bonesByName.get(name);
     }

@@ -10,6 +10,8 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.render.AzProvider;
 
@@ -27,7 +29,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     private final AzEntityRendererConfig<T> config;
 
-    protected final AzProvider<T> provider;
+    protected final AzProvider<UUID, T> provider;
 
     protected final AzEntityRendererPipeline<T> rendererPipeline;
 
@@ -37,7 +39,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
         this.config = config;
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUUID);
         this.rendererPipeline = createPipeline(config);
     }
 
@@ -72,10 +74,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     ) {
         var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity);
         var azBakedModel = provider.provideBakedModel(entity);
-
-        if (cachedEntityAnimator != null && azBakedModel != null) {
-            cachedEntityAnimator.setActiveModel(azBakedModel);
-        }
 
         this.shadowRadius = config.shadowRadius(entity);
 

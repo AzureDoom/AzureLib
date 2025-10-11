@@ -8,19 +8,29 @@ import net.minecraft.world.entity.Entity;
 import mod.azure.azurelib.cache.texture.AutoGlowingTexture;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.ClientUtils;
+import mod.azure.azurelib.util.client.ClientUtils;
 
 /**
  * A {@link AzRenderLayer} dedicated to rendering the auto-generated glow layer functionality provided by AzureLib. This
  * utilizes texture files with the <i>_glowing</i> suffix to create glowing effects for models.
  */
-public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
+public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
     @Override
-    public void preRender(AzRendererPipelineContext<T> context) {}
+    public void preRender(AzRendererPipelineContext<K, T> context) {}
 
+    /**
+     * Handles the main rendering logic for the animatable object in the pipeline context. This includes switching to a
+     * custom {@link RenderType} for glowing textures and rendering the object using the pipeline's re-render mechanism.
+     * <p>
+     * The rendering context's state is modified temporarily to apply a custom render type and packed light. After
+     * rendering, the context is restored to its original state for consistency.
+     * </p>
+     *
+     * @param context the rendering pipeline context, containing the animatable object and rendering state
+     */
     @Override
-    public void render(AzRendererPipelineContext<T> context) {
+    public void render(AzRendererPipelineContext<K, T> context) {
         var renderPipeline = context.rendererPipeline();
         var renderType = determineRenderType(context);
 
@@ -34,7 +44,7 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
     }
 
     @Override
-    public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {}
+    public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {}
 
     /**
      * Calculates and returns the packed light value to be used in the rendering pipeline.
@@ -43,7 +53,7 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
      *                animatable entity, and other rendering configurations.
      * @return The packed light value, typically used to determine the lighting conditions in rendering.
      */
-    protected int getPackedLight(AzRendererPipelineContext<T> context) {
+    protected int getPackedLight(AzRendererPipelineContext<K, T> context) {
         return LightTexture.FULL_SKY;
     }
 
@@ -54,7 +64,7 @@ public class AzAutoGlowingLayer<T> implements AzRenderLayer<T> {
      * @param context The context containing the animatable and rendering configuration.
      * @return The appropriate RenderType for rendering the entity.
      */
-    protected RenderType determineRenderType(AzRendererPipelineContext<T> context) {
+    protected RenderType determineRenderType(AzRendererPipelineContext<K, T> context) {
         var animatable = context.animatable();
         var config = context.rendererPipeline().config();
         var textureLocation = config.textureLocation(animatable);

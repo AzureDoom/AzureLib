@@ -1,4 +1,4 @@
-package mod.azure.azurelib.util;
+package mod.azure.azurelib.util.client;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;

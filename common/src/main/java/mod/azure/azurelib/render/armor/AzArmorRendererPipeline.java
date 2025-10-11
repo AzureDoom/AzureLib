@@ -5,12 +5,13 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.rewrite.render.*;
 
-public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
+public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack> {
 
     private final AzArmorModel<?> armorModel;
 
@@ -20,24 +21,26 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
 
     protected Matrix4f modelRenderTranslations = new Matrix4f();
 
-    public AzArmorRendererPipeline(AzRendererConfig<ItemStack> config, AzArmorRenderer armorRenderer) {
+    public AzArmorRendererPipeline(AzRendererConfig<UUID, ItemStack> config, AzArmorRenderer armorRenderer) {
         super(config);
         this.armorModel = new AzArmorModel<>(this);
         this.armorRenderer = armorRenderer;
     }
 
     @Override
-    protected AzRendererPipelineContext<ItemStack> createContext(AzRendererPipeline<ItemStack> rendererPipeline) {
+    protected AzRendererPipelineContext<UUID, ItemStack> createContext(
+        AzRendererPipeline<UUID, ItemStack> rendererPipeline
+    ) {
         return config.pipelineContext(this);
     }
 
     @Override
-    protected AzModelRenderer<ItemStack> createModelRenderer(AzLayerRenderer<ItemStack> layerRenderer) {
+    protected AzModelRenderer<UUID, ItemStack> createModelRenderer(AzLayerRenderer<UUID, ItemStack> layerRenderer) {
         return config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override
-    protected AzLayerRenderer<ItemStack> createLayerRenderer(AzRendererConfig<ItemStack> config) {
+    protected AzLayerRenderer<UUID, ItemStack> createLayerRenderer(AzRendererConfig<UUID, ItemStack> config) {
         return new AzLayerRenderer<>(config::renderLayers);
     }
 
@@ -51,7 +54,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     @Override
-    public void preRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void preRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         var armorContext = (AzArmorRendererPipelineContext) context;
         var baseModel = armorContext.baseModel();
         var boneContext = armorContext.boneContext();
@@ -82,7 +85,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void postRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         config.postRenderEntry(context);
     }
 

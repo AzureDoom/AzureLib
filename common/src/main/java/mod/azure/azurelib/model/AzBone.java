@@ -314,7 +314,7 @@ public class AzBone {
     }
 
     public void setModelSpaceMatrix(Matrix4f matrix) {
-        this.modelSpaceMatrix.multiply(matrix);
+        this.modelSpaceMatrix.load(matrix);
     }
 
     public Matrix4f getLocalSpaceMatrix() {
@@ -324,7 +324,7 @@ public class AzBone {
     }
 
     public void setLocalSpaceMatrix(Matrix4f matrix) {
-        this.localSpaceMatrix.multiply(matrix);
+        this.localSpaceMatrix.load(matrix);
     }
 
     public Matrix4f getWorldSpaceMatrix() {
@@ -418,6 +418,38 @@ public class AzBone {
         setRotX(getRotX() + source.getRotX() - source.getInitialAzSnapshot().getRotX());
         setRotY(getRotY() + source.getRotY() - source.getInitialAzSnapshot().getRotY());
         setRotZ(getRotZ() + source.getRotZ() - source.getInitialAzSnapshot().getRotZ());
+    }
+
+    public AzBone deepCopy() {
+        AzBone copy = new AzBone(this.metadata);
+
+        // Copy basic flags
+        copy.hidden = this.hidden;
+        copy.childrenHidden = this.childrenHidden;
+
+        // Copy transforms
+        copy.pivot.load(this.pivot);
+        copy.position.load(this.position);
+        copy.rotation.load(this.rotation);
+        copy.scale.load(this.scale);
+
+        // matrices
+        copy.modelSpaceMatrix.load(this.modelSpaceMatrix);
+        copy.localSpaceMatrix.load(this.localSpaceMatrix);
+        copy.worldSpaceMatrix.load(this.worldSpaceMatrix);
+
+        // Copy cubes (geometry)
+        copy.cubes.addAll(this.cubes); // shallow copy OK if cubes are immutable
+
+        // Copy children recursively
+        for (AzBone child : this.children) {
+            copy.children.add(child.deepCopy());
+        }
+
+        // Finally, initialize a snapshot for this bone
+        copy.saveInitialSnapshot();
+
+        return copy;
     }
 
     public boolean equals(Object obj) {

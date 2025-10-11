@@ -6,10 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -25,7 +22,7 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
  * {@link AzRendererConfig} specifically for handling {@link ItemStack}. Provides additional settings specific to item
  * rendering, such as GUI lighting and custom offsets.
  */
-public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
+public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private final boolean useEntityGuiLighting;
 
@@ -34,13 +31,13 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
     private final Predicate<ItemTransforms.TransformType> shouldAnimateInContext;
 
     private AzItemRendererConfig(
-        Supplier<AzAnimator<ItemStack>> animatorProvider,
+        Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
         Function<ItemStack, RenderType> renderTypeProvider,
-        List<AzRenderLayer<ItemStack>> renderLayers,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry,
-        Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> postRenderEntry,
+        List<AzRenderLayer<UUID, ItemStack>> renderLayers,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
+        Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
         Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
@@ -48,8 +45,8 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         boolean useEntityGuiLighting,
         boolean useNewOffset,
         Predicate<ItemTransforms.TransformType> shouldAnimateInContext,
-        BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider,
-        Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> pipelineContextFunction,
+        BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
+        Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
         Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
         Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
@@ -101,7 +98,7 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
 
-    public static class Builder extends AzRendererConfig.Builder<ItemStack> {
+    public static class Builder extends AzRendererConfig.Builder<UUID, ItemStack> {
 
         private boolean useEntityGuiLighting;
 
@@ -114,10 +111,10 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
             Function<ItemStack, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
-            this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
+            this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzItemModelRenderer(
                 (AzItemRendererPipeline) entityRendererPipeline,
                 layer
@@ -137,20 +134,20 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setModelRenderer(
-            BiFunction<AzRendererPipeline<ItemStack>, AzLayerRenderer<ItemStack>, AzModelRenderer<ItemStack>> modelRendererProvider
+            BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider
         ) {
             return (Builder) super.setModelRenderer(modelRendererProvider);
         }
 
         @Override
         public Builder setPipelineContext(
-            Function<AzRendererPipeline<ItemStack>, AzRendererPipelineContext<ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
+            Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> azRendererPipelineAzRendererPipelineContextFunction
         ) {
             return (Builder) super.setPipelineContext(azRendererPipelineAzRendererPipelineContextFunction);
         }
 
         @Override
-        public Builder addRenderLayer(AzRenderLayer<ItemStack> renderLayer) {
+        public Builder addRenderLayer(AzRenderLayer<UUID, ItemStack> renderLayer) {
             return (Builder) super.addRenderLayer(renderLayer);
         }
 
@@ -166,27 +163,27 @@ public class AzItemRendererConfig extends AzRendererConfig<ItemStack> {
 
         @Override
         public Builder setPrerenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> renderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry
         ) {
             return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
-            Function<AzRendererPipelineContext<ItemStack>, AzRendererPipelineContext<ItemStack>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
             return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
-        public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<ItemStack>> animatorProvider) {
+        public Builder setAnimatorProvider(Supplier<@Nullable AzAnimator<UUID, ItemStack>> animatorProvider) {
             return (Builder) super.setAnimatorProvider(animatorProvider);
         }
 

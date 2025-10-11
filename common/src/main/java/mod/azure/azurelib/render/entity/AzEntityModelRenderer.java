@@ -10,11 +10,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * AzEntityModelRenderer is a class responsible for rendering animated 3D entity models in a pipeline-based rendering
@@ -23,11 +25,14 @@ import mod.azure.azurelib.util.RenderUtils;
  *
  * @param <T> The type of entity that this renderer applies to, extends the {@link Entity} class.
  */
-public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> {
+public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUID, T> {
 
     protected final AzEntityRendererPipeline<T> entityRendererPipeline;
 
-    public AzEntityModelRenderer(AzEntityRendererPipeline<T> entityRendererPipeline, AzLayerRenderer<T> layerRenderer) {
+    public AzEntityModelRenderer(
+        AzEntityRendererPipeline<T> entityRendererPipeline,
+        AzLayerRenderer<UUID, T> layerRenderer
+    ) {
         super(entityRendererPipeline, layerRenderer);
         this.entityRendererPipeline = entityRendererPipeline;
     }
@@ -38,7 +43,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      * {@link AzEntityRendererPipeline#postRender} will be called directly after
      */
     @Override
-    public void render(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void render(AzRendererPipelineContext<UUID, T> context, boolean isReRender) {
         var animatable = context.animatable();
         var partialTick = context.partialTick();
         var poseStack = context.poseStack();
@@ -88,7 +93,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<T> 
      * Renders the provided {@link AzBone} and its associated child bones
      */
     @Override
-    public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+    public void renderRecursively(AzRendererPipelineContext<UUID, T> context, AzBone bone, boolean isReRender) {
         var buffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var entity = context.animatable();

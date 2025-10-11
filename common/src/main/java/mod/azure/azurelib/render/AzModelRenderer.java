@@ -19,26 +19,28 @@ import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * AzModelRenderer provides a generic and extensible base class for rendering models by processing hierarchical bone
  * structures recursively. It leverages a rendering pipeline and a layer renderer to facilitate advanced rendering
  * tasks, including layer application and animated texture processing.
  *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
  * @param <T> the type of animatable object this renderer supports
  */
-public class AzModelRenderer<T> {
+public class AzModelRenderer<K, T> {
 
     private final Matrix4f poseStateCache = new Matrix4f();
 
     private final Vector3f normalCache = new Vector3f();
 
-    private final AzRendererPipeline<T> rendererPipeline;
+    private final AzRendererPipeline<K, T> rendererPipeline;
 
-    protected final AzLayerRenderer<T> layerRenderer;
+    protected final AzLayerRenderer<K, T> layerRenderer;
 
-    public AzModelRenderer(AzRendererPipeline<T> rendererPipeline, AzLayerRenderer<T> layerRenderer) {
+    public AzModelRenderer(AzRendererPipeline<K, T> rendererPipeline, AzLayerRenderer<K, T> layerRenderer) {
         this.layerRenderer = layerRenderer;
         this.rendererPipeline = rendererPipeline;
     }
@@ -46,7 +48,7 @@ public class AzModelRenderer<T> {
     /**
      * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
      */
-    protected void render(AzRendererPipelineContext<T> context, boolean isReRender) {
+    protected void render(AzRendererPipelineContext<K, T> context, boolean isReRender) {
         var animatable = context.animatable();
         var model = context.bakedModel();
 
@@ -63,7 +65,7 @@ public class AzModelRenderer<T> {
     /**
      * Renders the provided {@link AzBone} and its associated child bones
      */
-    protected void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+    protected void renderRecursively(AzRendererPipelineContext<K, T> context, AzBone bone, boolean isReRender) {
         var buffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
@@ -101,7 +103,7 @@ public class AzModelRenderer<T> {
     /**
      * Renders the {@link GeoCube GeoCubes} associated with a given {@link AzBone}
      */
-    protected void renderCubesOfBone(AzRendererPipelineContext<T> context, AzBone bone) {
+    protected void renderCubesOfBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
         if (bone.isHidden()) {
             return;
         }
@@ -122,7 +124,7 @@ public class AzModelRenderer<T> {
      * Note that this does not render the bone itself. That should be done through
      * {@link AzModelRenderer#renderCubesOfBone} separately
      */
-    protected void renderChildBones(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+    protected void renderChildBones(AzRendererPipelineContext<K, T> context, AzBone bone, boolean isReRender) {
         if (bone.isHidingChildren())
             return;
 
@@ -135,7 +137,7 @@ public class AzModelRenderer<T> {
      * Renders an individual {@link GeoCube}.<br>
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
-    protected void renderCube(AzRendererPipelineContext<T> context, GeoCube cube) {
+    protected void renderCube(AzRendererPipelineContext<K, T> context, GeoCube cube) {
         var poseStack = context.poseStack();
 
         RenderUtils.translateToPivotPoint(poseStack, cube);
@@ -143,14 +145,14 @@ public class AzModelRenderer<T> {
         RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
 
         var normalisedPoseState = poseStack.last().normal();
-        Matrix4f poseState = poseStack.last().pose();
+        var poseState = poseStack.last().pose();
 
         for (var quad : cube.quads()) {
             if (quad == null) {
                 continue;
             }
 
-            Vector3f normal = quad.normal().copy();
+            var normal = quad.normal().copy();
 
             normal.transform(normalisedPoseState);
 
@@ -164,7 +166,7 @@ public class AzModelRenderer<T> {
      * rendering
      */
     protected void createVerticesOfQuad(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<K, T> context,
         GeoQuad quad,
         Matrix4f poseState,
         Vector3f normal
@@ -295,7 +297,7 @@ public class AzModelRenderer<T> {
         return null;
     }
 
-    public void handleAnimation(AzAnimator<T> animator, T animatable, float partialTick) {
+    public void handleAnimation(AzAnimator<K, T> animator, T animatable, float partialTick) {
         animator.animate(animatable, partialTick);
     }
 
@@ -362,7 +364,7 @@ public class AzModelRenderer<T> {
      */
     public VertexConsumer getOrRefreshRenderBuffer(
         boolean isReRender,
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<K, T> context,
         AzBone bone
     ) {
         var config = rendererPipeline.config();

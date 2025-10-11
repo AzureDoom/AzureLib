@@ -11,11 +11,6 @@ import net.minecraft.world.entity.Entity;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
 
-class LockHolder { // Package private class
-
-    public static Object LOCK = new Object();
-}
-
 public interface AzureLibNetwork {
 
     ResourceLocation CUSTOM_ENTITY_ID = AzureLib.modResource("spawn_entity");
