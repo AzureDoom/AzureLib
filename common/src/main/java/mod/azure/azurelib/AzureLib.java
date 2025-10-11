@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.registry.AzureBlocksEntityRegistry;
+import mod.azure.azurelib.registry.AzureBlocksRegistry;
 
 /**
  * Base class for AzureLib!<br>
@@ -32,6 +34,8 @@ public class AzureLib {
             Services.INITIALIZER.initialize();
         }
         hasInitialized = true;
+        AzureBlocksEntityRegistry.init();
+        AzureBlocksRegistry.init();
     }
 
     public static ResourceLocation modResource(String name) {

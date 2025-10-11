@@ -10,7 +10,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.entities.TickingLightEntity;
+import mod.azure.azurelib.blocks.TickingLightEntity;
+import mod.azure.azurelib.registry.AzureBlocksRegistry;
 
 /**
  * Helper class for various AzureLib-specific functions.
@@ -80,7 +81,7 @@ public final class AzureLibUtil {
             entity.level
                 .setBlockAndUpdate(
                     lightBlockPos,
-                    mod.azure.azurelib.platform.Services.PLATFORM.getTickingLightBlock().defaultBlockState()
+                    AzureBlocksRegistry.TICKING_LIGHT_BLOCK.get().defaultBlockState()
                 );
         } else if (
             AzureLibUtil.checkDistance(lightBlockPos, entity.blockPosition()) && entity.level
@@ -116,7 +117,7 @@ public final class AzureLibUtil {
                     if (
                         state.isAir() || state.getBlock()
                             .equals(
-                                mod.azure.azurelib.platform.Services.PLATFORM.getTickingLightBlock()
+                                AzureBlocksRegistry.TICKING_LIGHT_BLOCK.get()
                             )
                     )
                         return offsetPos;

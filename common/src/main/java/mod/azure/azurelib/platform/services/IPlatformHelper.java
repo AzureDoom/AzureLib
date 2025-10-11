@@ -1,11 +1,6 @@
 package mod.azure.azurelib.platform.services;
 
-import net.minecraft.world.level.block.entity.BlockEntityType;
-
 import java.nio.file.Path;
-
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
 
 public interface IPlatformHelper {
 
@@ -43,14 +38,6 @@ public interface IPlatformHelper {
     Path getGameDir();
 
     boolean isServerEnvironment();
-
-    default BlockEntityType<TickingLightEntity> getTickingLightEntity() {
-        return null;
-    }
-
-    default TickingLightBlock getTickingLightBlock() {
-        return null;
-    }
 
     Path modsDir();
 

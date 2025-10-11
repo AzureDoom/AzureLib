@@ -4,9 +4,12 @@ import java.util.ServiceLoader;
 
 import mod.azure.azurelib.platform.services.AzureLibInitializer;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.platform.services.CommonRegistry;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 public class Services {
+
+    public static final CommonRegistry COMMON_REGISTRY = load(CommonRegistry.class);
 
     public static final AzureLibInitializer INITIALIZER = load(AzureLibInitializer.class);
 
