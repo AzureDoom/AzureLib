@@ -12,7 +12,7 @@ import mod.azure.azurelib.animation.AzAnimatorConfig;
  *
  * @param <T> The type of {@link BlockEntity} that this animator will manage animations for.
  */
-public abstract class AzBlockAnimator<T extends BlockEntity> extends AzAnimator<T> {
+public abstract class AzBlockAnimator<T extends BlockEntity> extends AzAnimator<Long, T> {
 
     protected AzBlockAnimator(AzAnimatorConfig config) {
         super(config);

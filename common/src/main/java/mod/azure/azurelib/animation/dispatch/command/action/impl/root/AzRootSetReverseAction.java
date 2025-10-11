@@ -29,7 +29,7 @@ public record AzRootSetReverseAction(
     );
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(

@@ -6,6 +6,9 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
@@ -13,15 +16,24 @@ import mod.azure.azurelib.render.AzRendererConfig;
 
 public class AzArmorRenderer {
 
-    private final AzProvider<ItemStack> provider;
+    private final AzProvider<UUID, ItemStack> provider;
 
     private final AzArmorRendererPipeline rendererPipeline;
 
     @Nullable
     private AzItemAnimator reusedAzItemAnimator;
 
-    public AzArmorRenderer(AzRendererConfig<ItemStack> config) {
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+    public AzArmorRenderer(AzRendererConfig<UUID, ItemStack> config) {
+	    this.provider = new AzProvider<>(
+		    config::createAnimator,
+		    config::modelLocation,
+		    animator -> {
+			    if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
+				    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
+			    }
+			    return UUID.randomUUID();
+		    }
+	    );
         this.rendererPipeline = createPipeline(config);
     }
 
@@ -57,21 +69,15 @@ public class AzArmorRenderer {
     }
 
     private void prepareAnimator(ItemStack stack, AzBakedModel model) {
-        var cachedEntityAnimator = (AzItemAnimator) provider.provideAnimator(stack);
-
-        if (cachedEntityAnimator != null && model != null) {
-            cachedEntityAnimator.setActiveModel(model);
-        }
-
         // Point the renderer's current animator reference to the cached entity animator before rendering.
-        reusedAzItemAnimator = cachedEntityAnimator;
+        reusedAzItemAnimator = (AzItemAnimator) provider.provideAnimator(stack);
     }
 
     public @Nullable AzItemAnimator animator() {
         return reusedAzItemAnimator;
     }
 
-    public AzProvider<ItemStack> provider() {
+    public AzProvider<UUID, ItemStack> provider() {
         return provider;
     }
 

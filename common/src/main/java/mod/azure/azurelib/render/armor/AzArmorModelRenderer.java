@@ -4,6 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
@@ -11,13 +13,13 @@ import mod.azure.azurelib.render.AzPhasedRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;
 
-public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
+public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
     protected final AzArmorRendererPipeline armorRendererPipeline;
 
     public AzArmorModelRenderer(
         AzArmorRendererPipeline armorRendererPipeline,
-        AzLayerRenderer<ItemStack> layerRenderer
+        AzLayerRenderer<UUID, ItemStack> layerRenderer
     ) {
         super(armorRendererPipeline, layerRenderer);
         this.armorRendererPipeline = armorRendererPipeline;
@@ -29,7 +31,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
      * will be called directly after
      */
     @Override
-    public void render(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void render(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
@@ -56,7 +58,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<ItemStack> {
      * Renders the provided {@link AzBone} and its associated child bones
      */
     @Override
-    public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
+    public void renderRecursively(AzRendererPipelineContext<UUID, ItemStack> context, AzBone bone, boolean isReRender) {
         var poseStack = context.poseStack();
         // TODO: This is dangerous.
         var ctx = armorRendererPipeline.context();

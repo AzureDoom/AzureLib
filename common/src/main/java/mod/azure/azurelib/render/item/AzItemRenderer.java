@@ -9,6 +9,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
@@ -25,7 +28,7 @@ public abstract class AzItemRenderer {
 
     private final AzItemRendererConfig config;
 
-    private final AzProvider<ItemStack> provider;
+    private final AzProvider<UUID, ItemStack> provider;
 
     public final AzItemRendererPipeline rendererPipeline;
 
@@ -36,7 +39,16 @@ public abstract class AzItemRenderer {
         AzItemRendererConfig config
     ) {
         this.rendererPipeline = createPipeline(config);
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+        this.provider = new AzProvider<>(
+            config::createAnimator,
+            config::modelLocation,
+            animator -> {
+                if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
+                    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
+                }
+                return UUID.randomUUID();
+            }
+        );
         this.config = config;
     }
 
@@ -94,14 +106,8 @@ public abstract class AzItemRenderer {
     }
 
     private void prepareAnimator(ItemStack stack, AzBakedModel model) {
-        var cachedEntityAnimator = (AzItemAnimator) provider.provideAnimator(stack);
-
-        if (cachedEntityAnimator != null && model != null) {
-            cachedEntityAnimator.setActiveModel(model);
-        }
-
         // Point the renderer's current animator reference to the cached entity animator before rendering.
-        reusedAzItemAnimator = cachedEntityAnimator;
+        reusedAzItemAnimator = (AzItemAnimator) provider.provideAnimator(stack);
     }
 
     public @Nullable AzItemAnimator getAnimator() {

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.UUID;
 
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -37,7 +38,7 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * Supports {@link ArmorItem Vanilla} armor models.<br>
  * Unlike a traditional armor renderer, this renderer renders per-bone, giving much more flexible armor rendering.
  */
-public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
+public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID, T> {
 
     protected static final Map<String, ResourceLocation> ARMOR_PATH_CACHE = new Object2ObjectOpenHashMap<>();
 
@@ -74,7 +75,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @param context The rendering context containing the animatable instance and other necessary data for rendering.
      */
     @Override
-    public void preRender(AzRendererPipelineContext<T> context) {
+    public void preRender(AzRendererPipelineContext<UUID, T> context) {
         this.mainHandStack = context.animatable().getItemBySlot(EquipmentSlot.MAINHAND);
         this.offhandStack = context.animatable().getItemBySlot(EquipmentSlot.OFFHAND);
         this.helmetStack = context.animatable().getItemBySlot(EquipmentSlot.HEAD);
@@ -84,7 +85,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
     }
 
     @Override
-    public void render(AzRendererPipelineContext<T> context) {}
+    public void render(AzRendererPipelineContext<UUID, T> context) {}
 
     /**
      * Renders the given armor or skull block for the specified bone using the provided rendering context. Depending on
@@ -95,7 +96,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @param bone    The specific bone of the model where the armor or skull block will be rendered.
      */
     @Override
-    public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {
+    public void renderForBone(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
         var armorStack = getArmorItemForBone(context, bone);
 
         if (armorStack == null) {
@@ -127,7 +128,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @param armorStack The ItemStack representing the armor item to render.
      */
     public void renderArmor(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         ItemStack armorStack
     ) {
@@ -157,7 +158,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * This is what determines the base model to use for rendering a particular stack
      */
     protected @NotNull EquipmentSlot getEquipmentSlotForBone(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         ItemStack stack
     ) {
@@ -180,7 +181,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      */
     @NotNull
     protected ModelPart getModelPartForBone(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         HumanoidModel<?> baseModel
     ) {
@@ -192,12 +193,12 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Return null if this bone should be ignored
      */
     @Nullable
-    protected ItemStack getArmorItemForBone(AzRendererPipelineContext<T> context, AzBone bone) {
+    protected ItemStack getArmorItemForBone(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
         return null;
     }
 
     protected void renderAzArmorPiece(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         EquipmentSlot slot,
         ItemStack armorStack,
         AzArmorRenderer renderer,
@@ -227,7 +228,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Renders an individual armor piece base on the given {@link AzBone} and {@link ItemStack}
      */
     protected <I extends Item> void renderVanillaArmorPiece(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         EquipmentSlot slot,
         ItemStack armorStack,
@@ -276,7 +277,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      *         effect.
      */
     protected VertexConsumer getVanillaArmorBuffer(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         ItemStack stack,
         EquipmentSlot slot,
         AzBone bone,
@@ -323,7 +324,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * Render a given {@link AbstractSkullBlock} as a worn armor piece in relation to a given {@link AzBone}
      */
     protected void renderSkullAsArmor(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         ItemStack stack,
         AbstractSkullBlock skullBlock
@@ -384,7 +385,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<T> {
      * @param bone       The AzBone to base the translations on
      * @param sourcePart The ModelPart to translate
      */
-    protected void prepModelPartForRender(AzRendererPipelineContext<T> context, AzBone bone, ModelPart sourcePart) {
+    protected void prepModelPartForRender(
+        AzRendererPipelineContext<UUID, T> context,
+        AzBone bone,
+        ModelPart sourcePart
+    ) {
         var firstCube = bone.getCubes().get(0);
         var armorCube = sourcePart.cubes.get(0);
         var armorBoneSizeX = firstCube.size().x();

@@ -19,7 +19,7 @@ import mod.azure.azurelib.render.AzProvider;
  */
 public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
 
-    private final AzProvider<T> provider;
+    private final AzProvider<Long, T> provider;
 
     private final AzBlockEntityRendererPipeline<T> rendererPipeline;
 
@@ -27,7 +27,11 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
     private AzBlockAnimator<T> reusedAzBlockAnimator;
 
     protected AzBlockEntityRenderer(AzBlockEntityRendererConfig<T> config) {
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation);
+        this.provider = new AzProvider<>(
+            config::createAnimator,
+            config::modelLocation,
+            blockEntity -> blockEntity.getBlockPos().asLong()
+        );
         this.rendererPipeline = createPipeline(config);
     }
 
@@ -46,10 +50,6 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
     ) {
         var cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(entity);
         var model = provider.provideBakedModel(entity);
-
-        if (cachedEntityAnimator != null && model != null) {
-            cachedEntityAnimator.setActiveModel(model);
-        }
 
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzBlockAnimator = cachedEntityAnimator;

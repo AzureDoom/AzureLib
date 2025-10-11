@@ -28,7 +28,7 @@ public record AzRootSetEasingTypeAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_easing_type");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(

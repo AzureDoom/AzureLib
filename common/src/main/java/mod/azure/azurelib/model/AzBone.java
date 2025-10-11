@@ -411,6 +411,38 @@ public class AzBone {
         setPivotZ(pivotZ);
     }
 
+    public AzBone deepCopy() {
+        AzBone copy = new AzBone(this.metadata);
+
+        // Copy basic flags
+        copy.hidden = this.hidden;
+        copy.childrenHidden = this.childrenHidden;
+
+        // Copy transforms
+        copy.pivot.set(this.pivot);
+        copy.position.set(this.position);
+        copy.rotation.set(this.rotation);
+        copy.scale.set(this.scale);
+
+        // matrices
+        copy.modelSpaceMatrix.set(this.modelSpaceMatrix);
+        copy.localSpaceMatrix.set(this.localSpaceMatrix);
+        copy.worldSpaceMatrix.set(this.worldSpaceMatrix);
+
+        // Copy cubes (geometry)
+        copy.cubes.addAll(this.cubes); // shallow copy OK if cubes are immutable
+
+        // Copy children recursively
+        for (AzBone child : this.children) {
+            copy.children.add(child.deepCopy());
+        }
+
+        // Finally, initialize a snapshot for this bone
+        copy.saveInitialSnapshot();
+
+        return copy;
+    }
+
     public boolean equals(Object obj) {
         if (this == obj)
             return true;

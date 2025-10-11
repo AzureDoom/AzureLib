@@ -17,9 +17,9 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
  *
  * @param <T> The type of {@link BlockEntity} to be rendered.
  */
-public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends AzRendererPipelineContext<T> {
+public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends AzRendererPipelineContext<Long, T> {
 
-    public AzBlockEntityRendererPipelineContext(AzRendererPipeline<T> rendererPipeline) {
+    public AzBlockEntityRendererPipelineContext(AzRendererPipeline<Long, T> rendererPipeline) {
         super(rendererPipeline);
     }
 

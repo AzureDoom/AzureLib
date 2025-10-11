@@ -33,7 +33,7 @@ public class AzRootCancelAllAction implements AzAction {
     private AzRootCancelAllAction() {}
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         var controllerContainer = animator.getAnimationControllerContainer();
         var controllers = controllerContainer.getAll();
 

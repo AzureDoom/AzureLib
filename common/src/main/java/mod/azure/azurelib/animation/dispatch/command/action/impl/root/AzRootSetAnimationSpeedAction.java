@@ -27,7 +27,7 @@ public record AzRootSetAnimationSpeedAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_animation_speed");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(

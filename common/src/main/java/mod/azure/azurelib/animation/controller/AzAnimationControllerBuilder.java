@@ -18,7 +18,7 @@ import mod.azure.azurelib.animation.property.AzAnimationProperties;
  */
 public class AzAnimationControllerBuilder<T> {
 
-    private final AzAnimator<T> animator;
+    private final AzAnimator<?, T> animator;
 
     private final String name;
 
@@ -26,7 +26,7 @@ public class AzAnimationControllerBuilder<T> {
 
     private AzKeyframeCallbacks<T> keyframeCallbacks;
 
-    public AzAnimationControllerBuilder(AzAnimator<T> animator, String name) {
+    public AzAnimationControllerBuilder(AzAnimator<?, T> animator, String name) {
         this.animator = animator;
         this.name = name;
         this.animationProperties = AzAnimationProperties.DEFAULT;

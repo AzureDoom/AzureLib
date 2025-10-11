@@ -4,6 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.render.AzLayerRenderer;
@@ -16,11 +18,14 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * AzItemModelRenderer is a specialized implementation of {@link AzModelRenderer} for rendering {@link ItemStack}
  * objects. It provides customized rendering logic for rendering item models in a layered and recursive manner.
  */
-public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
+public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
     protected final AzItemRendererPipeline itemRendererPipeline;
 
-    public AzItemModelRenderer(AzItemRendererPipeline itemRendererPipeline, AzLayerRenderer<ItemStack> layerRenderer) {
+    public AzItemModelRenderer(
+        AzItemRendererPipeline itemRendererPipeline,
+        AzLayerRenderer<UUID, ItemStack> layerRenderer
+    ) {
         super(itemRendererPipeline, layerRenderer);
         this.itemRendererPipeline = itemRendererPipeline;
     }
@@ -31,7 +36,7 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
      * will be called directly after
      */
     @Override
-    public void render(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void render(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         if (!isReRender) {
             var animatable = context.animatable();
             var animator = itemRendererPipeline.getRenderer().getAnimator();
@@ -52,7 +57,7 @@ public class AzItemModelRenderer extends AzModelRenderer<ItemStack> {
      * Renders the provided {@link AzBone} and its associated child bones
      */
     @Override
-    public void renderRecursively(AzRendererPipelineContext<ItemStack> context, AzBone bone, boolean isReRender) {
+    public void renderRecursively(AzRendererPipelineContext<UUID, ItemStack> context, AzBone bone, boolean isReRender) {
         var poseStack = context.poseStack();
 
         var itemRendererConfig = (AzItemRendererConfig) itemRendererPipeline.config();

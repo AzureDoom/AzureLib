@@ -58,7 +58,7 @@ public class ItemStackMixin_AzItemStackIdentityRegistry {
     private void azureLib$initializeAzIdOnStack(Object stackObject, CompoundTag tag) {
         var self = AzureLibUtil.<ItemStack>self(stackObject);
 
-        // Required due to stupid mods like Occultism and it's stupid strict tags
+        // Required due to stupid mods like Occultism, and its stupid strict tags
         if (!AzIdentityRegistry.hasIdentity(self.getItem())) {
             return;
         }

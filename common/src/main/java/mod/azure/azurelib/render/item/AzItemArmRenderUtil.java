@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -58,9 +60,9 @@ public class AzItemArmRenderUtil {
      * @param modelRenderer The model renderer instance (needed for buffer methods)
      */
     public static void renderArmForBone(
-        AzRendererPipelineContext<ItemStack> context,
+        AzRendererPipelineContext<UUID, ItemStack> context,
         AzBone bone,
-        AzModelRenderer<ItemStack> modelRenderer
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         var itemContext = (AzItemRendererPipelineContext) context;
 
@@ -113,7 +115,7 @@ public class AzItemArmRenderUtil {
         net.minecraft.resources.ResourceLocation playerSkin,
         int packedLight,
         AzItemRendererPipelineContext itemContext,
-        AzModelRenderer<ItemStack> modelRenderer
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         poseStack.scale(0.67f, 1.33f, 0.67f);
         poseStack.translate(-0.25, -0.43625, 0.1625);
@@ -149,7 +151,7 @@ public class AzItemArmRenderUtil {
         net.minecraft.resources.ResourceLocation playerSkin,
         int packedLight,
         AzItemRendererPipelineContext itemContext,
-        AzModelRenderer<ItemStack> modelRenderer
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         poseStack.scale(0.67f, 1.33f, 0.67f);
         poseStack.translate(0.25, -0.43625, 0.1625);

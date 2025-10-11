@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
@@ -18,7 +19,7 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
  * This pipeline includes methods and configurations designed for item rendering and leverages additional utilities such
  * as translation matrices and scaling functionalities for accurate rendering.
  */
-public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
+public class AzItemRendererPipeline extends AzRendererPipeline<UUID, ItemStack> {
 
     private final AzItemRenderer itemRenderer;
 
@@ -32,17 +33,19 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     @Override
-    protected AzRendererPipelineContext<ItemStack> createContext(AzRendererPipeline<ItemStack> rendererPipeline) {
+    protected AzRendererPipelineContext<UUID, ItemStack> createContext(
+        AzRendererPipeline<UUID, ItemStack> rendererPipeline
+    ) {
         return config.pipelineContext(this);
     }
 
     @Override
-    protected AzItemModelRenderer createModelRenderer(AzLayerRenderer<ItemStack> layerRenderer) {
+    protected AzItemModelRenderer createModelRenderer(AzLayerRenderer<UUID, ItemStack> layerRenderer) {
         return (AzItemModelRenderer) config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override
-    protected AzLayerRenderer<ItemStack> createLayerRenderer(AzRendererConfig<ItemStack> config) {
+    protected AzLayerRenderer<UUID, ItemStack> createLayerRenderer(AzRendererConfig<UUID, ItemStack> config) {
         return new AzLayerRenderer<>(config::renderLayers);
     }
 
@@ -52,7 +55,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
      * {@link PoseStack} translations made here are kept until the end of the render process
      */
     @Override
-    public void preRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void preRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         var itemContext = (AzItemRendererPipelineContext) context;
         var poseStack = context.poseStack();
         this.itemRenderTranslations = new Matrix4f(poseStack.last().pose());
@@ -87,7 +90,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<ItemStack> {
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<ItemStack> context, boolean isReRender) {
+    public void postRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         config.postRenderEntry(context);
     }
 
