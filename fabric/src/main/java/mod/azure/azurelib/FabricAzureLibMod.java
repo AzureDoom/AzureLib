@@ -2,24 +2,16 @@ package mod.azure.azurelib;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import mod.azure.azurelib.config.AzureLibConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
-import mod.azure.azurelib.entities.TickingLightBlock;
-import mod.azure.azurelib.entities.TickingLightEntity;
 import mod.azure.azurelib.platform.FabricAzureLibNetwork;
 
 public final class FabricAzureLibMod implements ModInitializer {
-
-    public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY;
-
-    public static final TickingLightBlock TICKING_LIGHT_BLOCK = new TickingLightBlock();
 
     @Override
     public void onInitialize() {
@@ -27,18 +19,6 @@ public final class FabricAzureLibMod implements ModInitializer {
         AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
         AzureLib.initialize();
         new FabricAzureLibNetwork();
-
-        Registry.register(
-            Registry.BLOCK,
-            AzureLib.modResource("lightblock"),
-            FabricAzureLibMod.TICKING_LIGHT_BLOCK
-        );
-        FabricAzureLibMod.TICKING_LIGHT_ENTITY = Registry.register(
-            Registry.BLOCK_ENTITY_TYPE,
-            AzureLib.MOD_ID + ":lightblock",
-            FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, FabricAzureLibMod.TICKING_LIGHT_BLOCK)
-                .build(null)
-        );
 
         ServerLifecycleEvents.SERVER_STOPPING.register((server) -> ConfigIO.FILE_WATCH_MANAGER.stopService());
     }

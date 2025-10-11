@@ -1,4 +1,4 @@
-package mod.azure.azurelib.entities;
+package mod.azure.azurelib.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,11 +8,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -20,7 +18,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.ToIntFunction;
 
-import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.registry.AzureBlocksEntityRegistry;
 
 public class TickingLightBlock extends BaseEntityBlock {
 
@@ -38,15 +35,8 @@ public class TickingLightBlock extends BaseEntityBlock {
 
     public static final ToIntFunction<BlockState> LIGHT_EMISSION = state -> state.getValue(LIGHT_LEVEL);
 
-    public TickingLightBlock() {
-        super(
-            BlockBehaviour.Properties.of(Material.AIR)
-                .sound(SoundType.CANDLE)
-                .lightLevel(TickingLightBlock.LIGHT_EMISSION)
-                .noDrops()
-                .noCollission()
-                .noOcclusion()
-        );
+    public TickingLightBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(
             this.stateDefinition.any().setValue(LIGHT_LEVEL, 15).setValue(WATERLOGGED, Boolean.FALSE)
         );
@@ -97,7 +87,7 @@ public class TickingLightBlock extends BaseEntityBlock {
         @NotNull BlockState state,
         @NotNull BlockEntityType<T> type
     ) {
-        return createTickerHelper(type, Services.PLATFORM.getTickingLightEntity(), TickingLightEntity::tick);
+        return createTickerHelper(type, AzureBlocksEntityRegistry.TICKING_LIGHT_ENTITY.get(), TickingLightEntity::tick);
     }
 
     @Override
