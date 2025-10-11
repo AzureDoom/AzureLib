@@ -15,7 +15,7 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * The AzBlockEntityModelRenderer is a specialized model renderer class for rendering block entities in a 3D space. It
@@ -24,13 +24,13 @@ import mod.azure.azurelib.util.RenderUtils;
  *
  * @param <T> The type of BlockEntity that this renderer is responsible for
  */
-public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRenderer<T> {
+public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRenderer<Long, T> {
 
     protected final AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline;
 
     public AzBlockEntityModelRenderer(
         AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline,
-        AzLayerRenderer<T> layerRenderer
+        AzLayerRenderer<Long, T> layerRenderer
     ) {
         super(blockEntityRendererPipeline, layerRenderer);
         this.blockEntityRendererPipeline = blockEntityRendererPipeline;
@@ -42,7 +42,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
      * {@link AzBlockEntityRendererPipeline#postRender} will be called directly after
      */
     @Override
-    public void render(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void render(AzRendererPipelineContext<Long, T> context, boolean isReRender) {
         var entity = context.animatable();
         var poseStack = context.poseStack();
 
@@ -68,7 +68,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
      * Renders the provided {@link AzBone} and its associated child bones
      */
     @Override
-    public void renderRecursively(AzRendererPipelineContext<T> context, AzBone bone, boolean isReRender) {
+    public void renderRecursively(AzRendererPipelineContext<Long, T> context, AzBone bone, boolean isReRender) {
         var buffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var entity = context.animatable();

@@ -14,20 +14,22 @@ import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.AzBakedModel;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides
  * generic rendering properties and behavior that can be extended to customize rendering for different types of
  * animatable objects.
  *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
  * @param <T> the type of the animatable object being rendered
  */
-public abstract class AzRendererPipelineContext<T> {
+public abstract class AzRendererPipelineContext<K, T> {
 
     public ResourceLocation textureOverride;
 
-    private final AzRendererPipeline<T> rendererPipeline;
+    private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected T animatable;
 
@@ -58,7 +60,7 @@ public abstract class AzRendererPipelineContext<T> {
     protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
         new Object2ObjectOpenHashMap<>();
 
-    protected AzRendererPipelineContext(AzRendererPipeline<T> rendererPipeline) {
+    protected AzRendererPipelineContext(AzRendererPipeline<K, T> rendererPipeline) {
         this.rendererPipeline = rendererPipeline;
     }
 
@@ -109,8 +111,8 @@ public abstract class AzRendererPipelineContext<T> {
                 textureLocation,
                 multiBufferSource,
                 partialTick,
-                rendererPipeline.config.getRenderType(animatable),
-                rendererPipeline.config.alpha(animatable)
+                rendererPipeline.config().getRenderType(animatable),
+                rendererPipeline.config().alpha(animatable)
             );
         }
 
@@ -152,7 +154,7 @@ public abstract class AzRendererPipelineContext<T> {
         return OverlayTexture.NO_OVERLAY;
     }
 
-    public AzRendererPipeline<T> rendererPipeline() {
+    public AzRendererPipeline<K, T> rendererPipeline() {
         return rendererPipeline;
     }
 

@@ -30,7 +30,7 @@ public record AzControllerSetAnimationSpeedAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("controller/set_animation_speed");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         var controller = animator.getAnimationControllerContainer().getOrNull(controllerName);
 
         if (controller != null) {

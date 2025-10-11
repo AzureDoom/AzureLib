@@ -27,7 +27,7 @@ public record AzRootSetRepeatTimesAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_repeat_times_tick_offset");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(

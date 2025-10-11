@@ -31,7 +31,7 @@ public interface AzAction {
         new AzActionCodec().encode(byteBuf, this);
     }
 
-    void handle(AzDispatchSide originSide, AzAnimator<?> animator);
+    void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator);
 
     ResourceLocation getResourceLocation();
 }

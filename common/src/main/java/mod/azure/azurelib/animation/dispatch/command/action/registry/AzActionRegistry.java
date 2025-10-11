@@ -13,8 +13,6 @@ import java.util.function.Function;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.controller.*;
-import mod.azure.azurelib.rewrite.animation.dispatch.command.action.impl.root.*;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their

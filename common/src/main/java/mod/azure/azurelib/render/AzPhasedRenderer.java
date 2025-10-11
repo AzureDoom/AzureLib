@@ -10,20 +10,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
  * This is part of a flexible rendering system that enables complex rendering logic while maintaining separation of
  * concerns and modularity.
  *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
  * @param <T> The type of animatable object being rendered.
  */
-public interface AzPhasedRenderer<T> {
+public interface AzPhasedRenderer<K, T> {
 
     /**
      * Called before rendering the model to buffer. Allows for render modifications and preparatory work such as scaling
      * and translating.<br>
      * {@link PoseStack} translations made here are kept until the end of the render process
      */
-    void preRender(AzRendererPipelineContext<T> context, boolean isReRender);
+    void preRender(AzRendererPipelineContext<K, T> context, boolean isReRender);
 
     /**
      * Called after rendering the model to buffer. Post-render modifications should be performed here.<br>
      * {@link PoseStack} transformations will be unused and lost once this method ends
      */
-    void postRender(AzRendererPipelineContext<T> context, boolean isReRender);
+    void postRender(AzRendererPipelineContext<K, T> context, boolean isReRender);
 }

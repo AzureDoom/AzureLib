@@ -12,14 +12,14 @@ import java.util.function.Function;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * A {@link AzRenderLayer} responsible for rendering {@link net.minecraft.world.level.block.state.BlockState
  * BlockStates} or {@link net.minecraft.world.item.ItemStack ItemStacks} onto a specified {@link AzRendererPipeline}.
  * This layer handles the rendering of physical elements, such as blocks and items, associated with animation bones.
  */
-public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
+public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
 
     protected final Function<AzBone, ItemStack> itemStackProvider;
 
@@ -40,10 +40,10 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
     }
 
     @Override
-    public void preRender(AzRendererPipelineContext<T> context) {}
+    public void preRender(AzRendererPipelineContext<K, T> context) {}
 
     @Override
-    public void render(AzRendererPipelineContext<T> context) {}
+    public void render(AzRendererPipelineContext<K, T> context) {}
 
     /**
      * Renders an {@link ItemStack} or {@link BlockState} associated with the specified bone in the rendering context.
@@ -57,7 +57,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param bone    the bone for which to render associated elements
      */
     @Override
-    public void renderForBone(AzRendererPipelineContext<T> context, AzBone bone) {
+    public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
         var animatable = context.animatable();
         var stack = itemStackForBone(bone, animatable);
         var blockState = blockStateForBone(bone, animatable);
@@ -122,7 +122,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param itemStack the {@link ItemStack} to render
      */
     protected void renderItemForBone(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<K, T> context,
         AzBone bone,
         ItemStack itemStack,
         T animatable
@@ -166,7 +166,7 @@ public class AzBlockAndItemLayer<T> implements AzRenderLayer<T> {
      * @param blockState the {@link BlockState} to render
      */
     protected void renderBlockForBone(
-        AzRendererPipelineContext<T> context,
+        AzRendererPipelineContext<K, T> context,
         AzBone bone,
         BlockState blockState,
         T animatable

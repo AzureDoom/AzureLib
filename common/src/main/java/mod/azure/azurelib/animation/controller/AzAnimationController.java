@@ -30,7 +30,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AzAnimationController.class);
 
-    public static <T> AzAnimationControllerBuilder<T> builder(AzAnimator<T> animator, String name) {
+    public static <T> AzAnimationControllerBuilder<T> builder(AzAnimator<?, T> animator, String name) {
         return new AzAnimationControllerBuilder<>(animator, name);
     }
 
@@ -40,7 +40,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     private final AzAnimationControllerStateMachine<T> stateMachine;
 
-    private final AzAnimator<T> animator;
+    private final AzAnimator<?, T> animator;
 
     private final AzBoneAnimationQueueCache<T> boneAnimationQueueCache;
 
@@ -54,7 +54,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     AzAnimationController(
         String name,
-        AzAnimator<T> animator,
+        AzAnimator<?, T> animator,
         AzAnimationProperties animationProperties,
         AzKeyframeCallbacks<T> keyframeCallbacks
     ) {

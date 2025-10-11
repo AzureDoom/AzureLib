@@ -3,7 +3,6 @@ package mod.azure.azurelib.animation.cache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.Map;
-import java.util.Objects;
 
 import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzCachedBoneUpdateUtil;
@@ -18,6 +17,8 @@ import mod.azure.azurelib.model.AzBoneSnapshot;
  */
 public class AzBoneCache {
 
+    private AzBakedModel templateModel;
+
     private AzBakedModel bakedModel;
 
     private final Map<String, AzBoneSnapshot> boneSnapshotsByName;
@@ -28,14 +29,23 @@ public class AzBoneCache {
     }
 
     public boolean setActiveModel(AzBakedModel model) {
-        var willModelChange = !Objects.equals(bakedModel, model);
-        setBakedModel(model);
-
-        if (willModelChange) {
-            snapshot();
+        if (model == null) {
+            this.templateModel = null;
+            this.bakedModel = AzBakedModel.EMPTY;
+            boneSnapshotsByName.clear();
+            return true;
         }
 
-        return willModelChange;
+        if (this.templateModel == model) {
+            return false;
+        }
+
+        this.templateModel = model;
+        this.bakedModel = model.deepCopy();
+        boneSnapshotsByName.clear();
+        snapshot();
+
+        return true;
     }
 
     public void update(AzAnimationContext<?> context) {

@@ -5,11 +5,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * The {@code AzEntityAnimator} class extends {@link AzAnimator} to provide specialized animation management for
@@ -19,7 +21,7 @@ import mod.azure.azurelib.util.RenderUtils;
  *
  * @param <T> The type of entity this animator is designed to manage.
  */
-public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<T> {
+public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID, T> {
 
     protected AzEntityAnimator() {
         super();

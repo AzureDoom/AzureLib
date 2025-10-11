@@ -1,4 +1,4 @@
-package mod.azure.azurelib.util;
+package mod.azure.azurelib.util.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;

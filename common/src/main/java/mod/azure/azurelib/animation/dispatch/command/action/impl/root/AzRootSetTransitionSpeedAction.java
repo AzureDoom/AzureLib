@@ -34,7 +34,7 @@ public record AzRootSetTransitionSpeedAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_transition_speed");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(

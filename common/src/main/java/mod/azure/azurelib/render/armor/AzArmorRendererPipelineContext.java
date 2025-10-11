@@ -11,12 +11,14 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 
-public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<ItemStack> {
+public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UUID, ItemStack> {
 
     private final AzArmorBoneContext boneContext;
 
@@ -30,7 +32,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<It
 
     private boolean translucent = false;
 
-    public AzArmorRendererPipelineContext(AzRendererPipeline<ItemStack> rendererPipeline) {
+    public AzArmorRendererPipelineContext(AzRendererPipeline<UUID, ItemStack> rendererPipeline) {
         super(rendererPipeline);
         this.baseModel = null;
         this.boneContext = new AzArmorBoneContext();

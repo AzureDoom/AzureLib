@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -14,7 +15,6 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
-import mod.azure.azurelib.rewrite.render.*;
 
 /**
  * Configures the rendering behavior for custom entities in the game. This extends {@link AzRendererConfig}, adding
@@ -22,28 +22,28 @@ import mod.azure.azurelib.rewrite.render.*;
  *
  * @param <T> the entity type this configuration applies to, extending {@link Entity}
  */
-public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T> {
+public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<UUID, T> {
 
     private final Function<T, Float> deathMaxRotationProvider;
 
     private final Function<T, Float> shadowRadius;
 
     private AzEntityRendererConfig(
-        Supplier<AzAnimator<T>> animatorProvider,
+        Supplier<AzAnimator<UUID, T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
         Function<T, Float> shadowRadius,
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
-        List<AzRenderLayer<T>> renderLayers,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry,
-        Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> postRenderEntry,
+        List<AzRenderLayer<UUID, T>> renderLayers,
+        Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry,
+        Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry,
+        Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> postRenderEntry,
         Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
-        BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider,
-        Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> pipelineContextFunction,
+        BiFunction<AzRendererPipeline<UUID, T>, AzLayerRenderer<UUID, T>, AzModelRenderer<UUID, T>> modelRendererProvider,
+        Function<AzRendererPipeline<UUID, T>, AzRendererPipelineContext<UUID, T>> pipelineContextFunction,
         Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
         Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
@@ -90,7 +90,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
 
-    public static class Builder<T extends Entity> extends AzRendererConfig.Builder<T> {
+    public static class Builder<T extends Entity> extends AzRendererConfig.Builder<UUID, T> {
 
         private Function<T, Float> deathMaxRotationProvider;
 
@@ -127,20 +127,20 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         @Override
         public Builder<T> setModelRenderer(
-            BiFunction<AzRendererPipeline<T>, AzLayerRenderer<T>, AzModelRenderer<T>> modelRendererProvider
+            BiFunction<AzRendererPipeline<UUID, T>, AzLayerRenderer<UUID, T>, AzModelRenderer<UUID, T>> modelRendererProvider
         ) {
             return (Builder<T>) super.setModelRenderer(modelRendererProvider);
         }
 
         @Override
         public Builder<T> setPipelineContext(
-            Function<AzRendererPipeline<T>, AzRendererPipelineContext<T>> azRendererPipelineAzRendererPipelineContextFunction
+            Function<AzRendererPipeline<UUID, T>, AzRendererPipelineContext<UUID, T>> azRendererPipelineAzRendererPipelineContextFunction
         ) {
             return (Builder<T>) super.setPipelineContext(azRendererPipelineAzRendererPipelineContextFunction);
         }
 
         @Override
-        public Builder<T> addRenderLayer(AzRenderLayer<T> renderLayer) {
+        public Builder<T> addRenderLayer(AzRenderLayer<UUID, T> renderLayer) {
             return (Builder<T>) super.addRenderLayer(renderLayer);
         }
 
@@ -156,27 +156,27 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<T
 
         @Override
         public Builder<T> setPrerenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry
         ) {
             return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setRenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> renderEntry
+            Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry
         ) {
             return (Builder<T>) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
-            Function<AzRendererPipelineContext<T>, AzRendererPipelineContext<T>> preRenderEntry
+            Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry
         ) {
             return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
-        public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<T>> animatorProvider) {
+        public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<UUID, T>> animatorProvider) {
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
         }
 

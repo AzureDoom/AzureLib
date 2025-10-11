@@ -28,7 +28,7 @@ import java.util.List;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.util.AzureLibUtil;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Wrapper for {@link SimpleTexture SimpleTexture} implementation allowing for casual use of animated non-atlas textures

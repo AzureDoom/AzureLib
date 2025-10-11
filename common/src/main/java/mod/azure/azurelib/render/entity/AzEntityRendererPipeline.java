@@ -7,9 +7,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 
+import java.util.UUID;
+
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.rewrite.render.*;
 
 /**
  * Represents a renderer pipeline specifically designed for rendering entities. This pipeline facilitates stages of
@@ -18,7 +19,7 @@ import mod.azure.azurelib.rewrite.render.*;
  *
  * @param <T> The type of entity this renderer pipeline handles. Extends from the base {@link Entity}.
  */
-public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeline<T> {
+public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeline<UUID, T> {
 
     private final AzEntityRenderer<T> entityRenderer;
 
@@ -32,17 +33,17 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     }
 
     @Override
-    protected AzRendererPipelineContext<T> createContext(AzRendererPipeline<T> rendererPipeline) {
+    protected AzRendererPipelineContext<UUID, T> createContext(AzRendererPipeline<UUID, T> rendererPipeline) {
         return config.pipelineContext(this);
     }
 
     @Override
-    protected AzModelRenderer<T> createModelRenderer(AzLayerRenderer<T> layerRenderer) {
+    protected AzModelRenderer<UUID, T> createModelRenderer(AzLayerRenderer<UUID, T> layerRenderer) {
         return config.modelRendererProvider(this, layerRenderer);
     }
 
     @Override
-    protected AzLayerRenderer<T> createLayerRenderer(AzRendererConfig<T> config) {
+    protected AzLayerRenderer<UUID, T> createLayerRenderer(AzRendererConfig<UUID, T> config) {
         return new AzEntityLayerRenderer<>(config::renderLayers);
     }
 
@@ -64,7 +65,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
      * {@link PoseStack} translations made here are kept until the end of the render process
      */
     @Override
-    public void preRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void preRender(AzRendererPipelineContext<UUID, T> context, boolean isReRender) {
         var poseStack = context.poseStack();
         this.entityRenderTranslations.load(poseStack.last().pose());
 
@@ -86,7 +87,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     }
 
     @Override
-    public void postRender(AzRendererPipelineContext<T> context, boolean isReRender) {
+    public void postRender(AzRendererPipelineContext<UUID, T> context, boolean isReRender) {
         config.postRenderEntry(context);
     }
 
@@ -97,7 +98,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
      *                stack, light information, and buffer source
      */
     @Override
-    public void renderFinal(AzRendererPipelineContext<T> context) {
+    public void renderFinal(AzRendererPipelineContext<UUID, T> context) {
         var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
         var packedLight = context.packedLight();

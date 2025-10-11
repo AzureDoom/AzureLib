@@ -34,7 +34,7 @@ public record AzControllerPlayAnimationSequenceAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("controller/play_animation_sequence");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         var controller = animator.getAnimationControllerContainer().getOrNull(controllerName);
 
         if (controller != null) {

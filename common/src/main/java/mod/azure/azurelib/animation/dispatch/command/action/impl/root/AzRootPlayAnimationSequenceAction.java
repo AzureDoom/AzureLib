@@ -28,7 +28,7 @@ public record AzRootPlayAnimationSequenceAction(
     public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/play_animation_sequence");
 
     @Override
-    public void handle(AzDispatchSide originSide, AzAnimator<?> animator) {
+    public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
         var controllerContainer = animator.getAnimationControllerContainer();
         var controllers = controllerContainer.getAll();
 

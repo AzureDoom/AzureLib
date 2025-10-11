@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.util.RenderUtils;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 public class AzArmorBoneContext {
 
