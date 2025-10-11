@@ -83,7 +83,7 @@ If you need to adjust transformations (such as scaling or positioning) for any a
 
 ```java
 @Override
-protected void prepModelPartForRender(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ModelPart sourcePart) {
+protected void prepModelPartForRender(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ModelPart sourcePart) {
     context.poseStack().translate(0.0F, 0.2F, 0.0F);
     context.poseStack().scale(1.2F, 1.2F, 1.2F);
     super.prepModelPartForRender(context, bone, sourcePart);
@@ -98,7 +98,7 @@ The `AzArmorLayer` also supports rendering skull blocks (e.g., player heads) dyn
 
 ```java
 @Override
-protected void renderSkullAsArmor(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
+protected void renderSkullAsArmor(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
     context.poseStack().scale(1.5F, 1.5F, 1.5F); // Make the skull larger
     context.poseStack().translate(0.0D, 0.25D, 0.0D); // Adjust position
     super.renderSkullAsArmor(context, bone, stack, skullBlock);
@@ -129,7 +129,7 @@ Here’s how you would set it up in the `AzArmorLayer`:
 
 ```java
 @Override
-protected ItemStack getArmorItemForBone(AzRendererPipelineContext<ExampleEntity> context, AzBone bone) {
+protected ItemStack getArmorItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone) {
     return switch (bone.getName()) {
         case "helmetBone" -> context.animatable().getItemBySlot(EquipmentSlot.HEAD);
         case "chestPlateBone" -> context.animatable().getItemBySlot(EquipmentSlot.CHEST);
@@ -138,7 +138,7 @@ protected ItemStack getArmorItemForBone(AzRendererPipelineContext<ExampleEntity>
 }
 
 @Override
-protected void renderSkullAsArmor(AzRendererPipelineContext<ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
+protected void renderSkullAsArmor(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack stack, AbstractSkullBlock skullBlock) {
     context.poseStack().scale(1.2F, 1.2F, 1.2F);
     context.poseStack().translate(0.0D, 0.4D, 0.0D);
     super.renderSkullAsArmor(context, bone, stack, skullBlock);
