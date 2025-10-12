@@ -67,7 +67,7 @@ public class AzAnimationTimer {
         var deltaRenderTick = currentRenderTick - lastGameTickTime;
 
         if (wasPausedLastFrame && !minecraft.isPaused()) {
-            // If this is the first frame of the game play time, we need to set a flag and adjust the deltaRenderTick.
+            // If this is the first frame of the game playtime, we need to set a flag and adjust the deltaRenderTick.
             this.wasPausedLastFrame = false;
             // To account for the deltaRenderTick being massive on exiting the game pause state, we simply set
             // it to 0. This will result in no difference being added to animTime, allowing animations to
