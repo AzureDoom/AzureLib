@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
 
-import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
@@ -142,10 +141,6 @@ public abstract class AzAnimator<K, T> {
     public AzBakedAnimation getAnimation(T animatable, String name) {
         var location = getAnimationLocation(animatable);
         var bakedAnimations = AzBakedAnimationCache.getInstance().getNullable(location);
-
-        if (bakedAnimations == null) {
-            throw new AzureLibException(location, "Unable to find animation.");
-        }
 
         return bakedAnimations.getAnimation(name);
     }
