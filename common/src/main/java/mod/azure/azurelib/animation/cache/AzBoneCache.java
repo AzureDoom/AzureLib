@@ -25,13 +25,13 @@ public class AzBoneCache {
 
     public AzBoneCache() {
         this.boneSnapshotsByName = new Object2ObjectOpenHashMap<>();
-        setBakedModel(AzBakedModel.EMPTY);
+        setBakedModel(AzBakedModel.getDefault());
     }
 
     public boolean setActiveModel(AzBakedModel model) {
         if (model == null) {
             this.templateModel = null;
-            this.bakedModel = AzBakedModel.EMPTY;
+            this.bakedModel = AzBakedModel.getDefault();
             boneSnapshotsByName.clear();
             return true;
         }
@@ -85,7 +85,7 @@ public class AzBoneCache {
     }
 
     public void setBakedModel(AzBakedModel model) {
-        this.bakedModel = (model != null) ? model : AzBakedModel.EMPTY;
+        this.bakedModel = (model != null) ? model : AzBakedModel.getDefault();
     }
 
     public AzBakedModel getBakedModel() {
