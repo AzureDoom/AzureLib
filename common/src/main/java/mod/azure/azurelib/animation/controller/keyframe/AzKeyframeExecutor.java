@@ -44,7 +44,6 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
     public void execute(@NotNull AzQueuedAnimation currentAnimation, T animatable, boolean crashWhenCantFindBone) {
         var keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
         var controllerTimer = animationController.controllerTimer();
-        var transitionLength = animationController.animationProperties().transitionLength();
 
         final double finalAdjustedTick = controllerTimer.getAdjustedTick();
 
@@ -70,9 +69,6 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             updatePosition(positionKeyframes, boneAnimationQueue, adjustedTick);
             updateScale(scaleKeyframes, boneAnimationQueue, adjustedTick);
         }
-
-        // TODO: Is this correct???
-        controllerTimer.addToAdjustedTick(transitionLength);
 
         keyframeCallbackHandler.handle(animatable, controllerTimer.getAdjustedTick());
     }
