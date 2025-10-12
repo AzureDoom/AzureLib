@@ -52,6 +52,10 @@ public class AzProvider<K, T> {
         var modelLocation = modelLocationProvider.apply(animatable);
         var shared = AzBakedModelCache.getInstance().getNullable(modelLocation);
 
+        if (shared == null) {
+            return AzBakedModel.getDefault();
+        }
+
         // Try to return the per-instance model if an animator/context already exists
         var animator = AzAnimatorAccessor.getOrNull(animatable);
         if (animator == null) {
