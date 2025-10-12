@@ -10,7 +10,6 @@ import mod.azure.azurelib.common.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.common.animation.cache.AzBoneCache;
 import mod.azure.azurelib.common.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.common.util.AzureLibException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 
@@ -143,10 +142,6 @@ public abstract class AzAnimator<K, T> {
     public AzBakedAnimation getAnimation(T animatable, String name) {
         var location = getAnimationLocation(animatable);
         var bakedAnimations = AzBakedAnimationCache.getInstance().getNullable(location);
-
-        if (bakedAnimations == null) {
-            throw new AzureLibException(location, "Unable to find animation.");
-        }
 
         return bakedAnimations.getAnimation(name);
     }

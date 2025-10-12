@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.cache.AzResourceCache;
 import mod.azure.azurelib.common.loading.FileLoader;
 import mod.azure.azurelib.common.loading.json.raw.Model;
@@ -38,6 +39,16 @@ public class AzBakedModelCache extends AzResourceCache {
     public CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
             Model model = FileLoader.loadModelFile(resource, resourceManager);
+
+            if (model == null) {
+                var defaultModelLocation = AzureLib.modResource("geo/default_model.geo.json");
+                model = FileLoader.loadModelFile(defaultModelLocation, resourceManager);
+                var defaultBaked = AzBakedModelFactoryRegistry
+                    .getForNamespace(resource.getNamespace())
+                    .constructGeoModel(GeometryTree.fromModel(model));
+
+                AzBakedModel.setDefault(defaultBaked);
+            }
 
             return AzBakedModelFactoryRegistry.getForNamespace(resource.getNamespace())
                 .constructGeoModel(GeometryTree.fromModel(model));

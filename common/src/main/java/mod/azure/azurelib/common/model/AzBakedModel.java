@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class AzBakedModel {
 
-    public static final AzBakedModel EMPTY = new AzBakedModel(List.of());
+    private static AzBakedModel defaultModel = new AzBakedModel(List.of());
 
     private final Map<String, AzBone> bonesByName;
 
@@ -57,5 +57,13 @@ public class AzBakedModel {
 
     public List<AzBone> getTopLevelBones() {
         return topLevelBones;
+    }
+
+    public static AzBakedModel getDefault() {
+        return defaultModel;
+    }
+
+    public static void setDefault(AzBakedModel model) {
+        defaultModel = model != null ? model : new AzBakedModel(List.of());
     }
 }
