@@ -24,16 +24,16 @@ public class AzArmorRenderer {
     private AzItemAnimator reusedAzItemAnimator;
 
     public AzArmorRenderer(AzRendererConfig<UUID, ItemStack> config) {
-	    this.provider = new AzProvider<>(
-		    config::createAnimator,
-		    config::modelLocation,
-		    animator -> {
-			    if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
-				    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
-			    }
-			    return UUID.randomUUID();
-		    }
-	    );
+        this.provider = new AzProvider<>(
+            config::createAnimator,
+            config::modelLocation,
+            animator -> {
+                if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
+                    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
+                }
+                return UUID.randomUUID();
+            }
+        );
         this.rendererPipeline = createPipeline(config);
     }
 
