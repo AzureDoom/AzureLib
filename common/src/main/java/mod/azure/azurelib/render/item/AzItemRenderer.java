@@ -63,8 +63,8 @@ public abstract class AzItemRenderer {
         @NotNull MultiBufferSource source,
         int packedLight
     ) {
-        var model = provider.provideBakedModel(stack);
         var context = rendererPipeline.context();
+        var model = provider.provideBakedModel(context.currentEntity(), stack);
         var itemContext = (AzItemRendererPipelineContext) context;
 
         itemContext.setTransformType(transformType);
@@ -81,22 +81,22 @@ public abstract class AzItemRenderer {
         @NotNull MultiBufferSource source,
         int packedLight
     ) {
-        var model = provider.provideBakedModel(stack);
+        var context = rendererPipeline.context();
+        var model = provider.provideBakedModel(context.currentEntity(), stack);
         var partialTick = Minecraft.getInstance().getFrameTime();
-        var textureLocation = config.textureLocation(stack);
+        var textureLocation = config.textureLocation(context.currentEntity(), stack);
         var renderType = rendererPipeline.context()
             .getDefaultRenderType(
                 stack,
                 textureLocation,
                 source,
                 partialTick,
-                config.getRenderType(stack),
+                config.getRenderType(context.currentEntity(), stack),
                 config.alpha(stack)
             );
         // TODO: Why the null check here?
         var withGlint = stack != null && stack.hasFoil();
         var buffer = ItemRenderer.getFoilBufferDirect(source, renderType, false, withGlint);
-        var context = rendererPipeline.context();
         var itemContext = (AzItemRendererPipelineContext) context;
 
         itemContext.setTransformType(transformType);
@@ -108,7 +108,10 @@ public abstract class AzItemRenderer {
 
     private void prepareAnimator(ItemStack stack, AzBakedModel model) {
         // Point the renderer's current animator reference to the cached entity animator before rendering.
-        reusedAzItemAnimator = (AzItemAnimator) provider.provideAnimator(stack);
+        reusedAzItemAnimator = (AzItemAnimator) provider.provideAnimator(
+            rendererPipeline.context().currentEntity(),
+            stack
+        );
     }
 
     public @Nullable AzItemAnimator getAnimator() {
