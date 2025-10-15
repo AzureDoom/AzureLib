@@ -3,6 +3,7 @@ package mod.azure.azurelib.render;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -26,15 +27,15 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
  */
 public class AzRendererConfig<K, T> {
 
-    protected final Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
+    private final Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
 
-    protected final Function<T, ResourceLocation> modelLocationProvider;
+    private final BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider;
 
     private final BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider;
 
     private final Function<AzRendererPipeline<K, T>, AzRendererPipelineContext<K, T>> pipelineContextFunction;
 
-    protected final Function<T, RenderType> renderTypeFunction;
+    private final BiFunction<@Nullable Entity, T, RenderType> renderTypeFunction;
 
     private final Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> preRenderEntry;
 
@@ -42,9 +43,9 @@ public class AzRendererConfig<K, T> {
 
     private final Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry;
 
-    protected final List<AzRenderLayer<K, T>> renderLayers;
+    private final List<AzRenderLayer<K, T>> renderLayers;
 
-    protected final Function<T, ResourceLocation> textureLocationProvider;
+    private final BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider;
 
     private final Function<T, Float> alphaFunction;
 
@@ -58,20 +59,20 @@ public class AzRendererConfig<K, T> {
 
     public AzRendererConfig(
         Supplier<AzAnimator<K, T>> animatorProvider,
-        Function<T, ResourceLocation> modelLocationProvider,
+        BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
         BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider,
         Function<AzRendererPipeline<K, T>, AzRendererPipelineContext<K, T>> pipelineContextFunction,
-        Function<T, RenderType> renderTypeFunction,
+        BiFunction<@Nullable Entity, T, RenderType> renderTypeFunction,
         List<AzRenderLayer<K, T>> renderLayers,
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> preRenderEntry,
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> renderEntry,
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry,
-        Function<T, ResourceLocation> textureLocationProvider,
+        BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
-        @Nullable Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
+        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         this.animatorProvider = animatorProvider;
         this.modelLocationProvider = modelLocationProvider;
@@ -83,9 +84,9 @@ public class AzRendererConfig<K, T> {
         this.renderEntry = renderEntry;
         this.postRenderEntry = postRenderEntry;
         this.textureLocationProvider = textureLocationProvider;
+        this.alphaFunction = alphaFunction;
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
-        this.alphaFunction = alphaFunction;
         this.boneTextureOverrideProvider = boneTextureOverrideProvider;
         this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
     }
@@ -94,12 +95,16 @@ public class AzRendererConfig<K, T> {
         return animatorProvider.get();
     }
 
-    public ResourceLocation modelLocation(T animatable) {
-        return modelLocationProvider.apply(animatable);
+    public ResourceLocation modelLocation(@Nullable Entity entity, T animatable) {
+        return modelLocationProvider.apply(entity, animatable);
     }
 
     public AzRendererPipelineContext<K, T> pipelineContext(AzRendererPipeline<K, T> pipeline) {
         return pipelineContextFunction.apply(pipeline);
+    }
+
+    public ResourceLocation textureLocation(@Nullable Entity entity, T animatable) {
+        return textureLocationProvider.apply(entity, animatable);
     }
 
     public AzModelRenderer<K, T> modelRendererProvider(
@@ -109,12 +114,8 @@ public class AzRendererConfig<K, T> {
         return modelRendererProvider.apply(pipeline, layerRenderer);
     }
 
-    public ResourceLocation textureLocation(T animatable) {
-        return textureLocationProvider.apply(animatable);
-    }
-
-    public RenderType getRenderType(T entity) {
-        return renderTypeFunction.apply(entity);
+    public RenderType getRenderType(@Nullable Entity entity, T animatable) {
+        return renderTypeFunction.apply(entity, animatable);
     }
 
     public List<AzRenderLayer<K, T>> renderLayers() {
@@ -155,15 +156,15 @@ public class AzRendererConfig<K, T> {
 
     public static class Builder<K, T> {
 
-        private final Function<T, ResourceLocation> modelLocationProvider;
+        protected final BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider;
 
         protected BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider;
 
         protected Function<AzRendererPipeline<K, T>, AzRendererPipelineContext<K, T>> pipelineContextFunction;
 
-        protected Function<T, RenderType> renderTypeProvider;
+        protected BiFunction<@Nullable Entity, T, RenderType> renderTypeProvider;
 
-        private final List<AzRenderLayer<K, T>> renderLayers;
+        public final List<AzRenderLayer<K, T>> renderLayers;
 
         protected Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> preRenderEntry;
 
@@ -171,7 +172,7 @@ public class AzRendererConfig<K, T> {
 
         protected Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry;
 
-        protected final Function<T, ResourceLocation> textureLocationProvider;
+        protected final BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider;
 
         protected Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
 
@@ -186,14 +187,14 @@ public class AzRendererConfig<K, T> {
         private @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider;
 
         protected Builder(
-            Function<T, ResourceLocation> modelLocationProvider,
-            Function<T, ResourceLocation> textureLocationProvider
+            BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
+            BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider
         ) {
             this.animatorProvider = () -> null;
             this.modelLocationProvider = modelLocationProvider;
             this.modelRendererProvider = AzModelRenderer::new;
             this.pipelineContextFunction = null;
-            this.renderTypeProvider = $ -> RenderType.entityCutout(textureLocationProvider.apply($));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(a, b));
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
             this.renderEntry = $ -> $;
@@ -217,27 +218,6 @@ public class AzRendererConfig<K, T> {
             Function<AzBone, RenderType> boneRenderTypeOverrideProvider
         ) {
             this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
-            return this;
-        }
-
-        /**
-         * Sets the animator provider for the builder. The animator provider is responsible for supplying an instance of
-         * {@link AzAnimator} that defines the animation logic for the target object.
-         *
-         * @param animatorProvider a {@link Supplier} that provides a {@link AzAnimator} instance or null if no custom
-         *                         animation logic is required
-         * @return the updated {@code Builder} instance for chaining configuration methods
-         */
-        public Builder<K, T> setAnimatorProvider(Supplier<@Nullable AzAnimator<K, T>> animatorProvider) {
-            this.animatorProvider = animatorProvider;
-            return this;
-        }
-
-        /**
-         * Adds a {@link AzRenderLayer} to this config, to be called after the main model is rendered each frame
-         */
-        public Builder<K, T> addRenderLayer(AzRenderLayer<K, T> renderLayer) {
-            this.renderLayers.add(renderLayer);
             return this;
         }
 
@@ -273,6 +253,27 @@ public class AzRendererConfig<K, T> {
             Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry
         ) {
             this.postRenderEntry = postRenderEntry;
+            return this;
+        }
+
+        /**
+         * Sets the animator provider for the builder. The animator provider is responsible for supplying an instance of
+         * {@link AzAnimator} that defines the animation logic for the target object.
+         *
+         * @param animatorProvider a {@link Supplier} that provides a {@link AzAnimator} instance or null if no custom
+         *                         animation logic is required
+         * @return the updated {@code Builder} instance for chaining configuration methods
+         */
+        public Builder<K, T> setAnimatorProvider(Supplier<@Nullable AzAnimator<K, T>> animatorProvider) {
+            this.animatorProvider = animatorProvider;
+            return this;
+        }
+
+        /**
+         * Adds a {@link AzRenderLayer} to this config, to be called after the main model is rendered each frame
+         */
+        public Builder<K, T> addRenderLayer(AzRenderLayer<K, T> renderLayer) {
+            this.renderLayers.add(renderLayer);
             return this;
         }
 

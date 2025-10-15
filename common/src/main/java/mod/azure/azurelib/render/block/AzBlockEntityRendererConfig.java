@@ -2,6 +2,7 @@ package mod.azure.azurelib.render.block;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,13 +27,13 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
     private AzBlockEntityRendererConfig(
         Supplier<AzAnimator<Long, T>> animatorProvider,
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, RenderType> renderTypeFunction,
+        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, RenderType> renderTypeFunction,
         List<AzRenderLayer<Long, T>> renderLayers,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> preRenderEntry,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> renderEntry,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> postRenderEntry,
-        Function<T, ResourceLocation> textureLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
@@ -64,12 +65,12 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder<>($ -> modelLocation, $ -> textureLocation);
+        return new Builder<>((a, b) -> modelLocation, (a, b) -> textureLocation);
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, ResourceLocation> textureLocationProvider
+	    BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -77,8 +78,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     public static class Builder<T extends BlockEntity> extends AzRendererConfig.Builder<Long, T> {
 
         protected Builder(
-            Function<T, ResourceLocation> modelLocationProvider,
-            Function<T, ResourceLocation> textureLocationProvider
+	        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+	        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzBlockEntityModelRenderer<>(
@@ -122,11 +123,11 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         public Builder<T> setRenderType(RenderType renderType) {
-            this.renderTypeProvider = $ -> renderType;
+            this.renderTypeProvider = (a, b) -> renderType;
             return this;
         }
 
-        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+        public Builder<T> setRenderType(BiFunction<Entity, T, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
         }

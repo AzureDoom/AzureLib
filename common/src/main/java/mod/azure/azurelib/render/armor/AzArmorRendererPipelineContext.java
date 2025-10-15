@@ -24,8 +24,6 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     private HumanoidModel<?> baseModel;
 
-    private Entity currentEntity;
-
     private EquipmentSlot currentSlot;
 
     private ItemStack currentStack;

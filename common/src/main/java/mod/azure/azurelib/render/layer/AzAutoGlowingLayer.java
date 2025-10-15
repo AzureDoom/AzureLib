@@ -67,7 +67,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
     protected RenderType determineRenderType(AzRendererPipelineContext<K, T> context) {
         var animatable = context.animatable();
         var config = context.rendererPipeline().config();
-        var textureLocation = config.textureLocation(animatable);
+        var textureLocation = config.textureLocation(context.currentEntity(), animatable);
 
         if (!(animatable instanceof Entity entity)) {
             return AutoGlowingTexture.getRenderType(textureLocation);
