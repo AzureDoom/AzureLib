@@ -48,7 +48,10 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
         int packedLight,
         int packedOverlay
     ) {
-        var cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(rendererPipeline.context().currentEntity(), entity);
+        var cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(
+            rendererPipeline.context().currentEntity(),
+            entity
+        );
         var model = provider.provideBakedModel(rendererPipeline.context().currentEntity(), entity);
 
         // Point the renderer's current animator reference to the cached entity animator before rendering.

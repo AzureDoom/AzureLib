@@ -69,8 +69,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
-	    BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-	    BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -78,8 +78,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     public static class Builder<T extends BlockEntity> extends AzRendererConfig.Builder<Long, T> {
 
         protected Builder(
-	        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-	        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+            BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+            BiFunction<Entity, T, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzBlockEntityModelRenderer<>(
