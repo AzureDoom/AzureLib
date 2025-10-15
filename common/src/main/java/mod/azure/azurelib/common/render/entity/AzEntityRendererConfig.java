@@ -84,7 +84,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     }
 
     public static <T extends Entity> Builder<T> builder(
-	    BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
         BiFunction<Entity, T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
@@ -97,7 +97,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         protected Function<T, Float> shadowRadius;
 
         public Builder(
-	        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+            BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
             BiFunction<Entity, T, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
