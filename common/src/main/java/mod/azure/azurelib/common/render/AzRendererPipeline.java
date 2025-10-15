@@ -96,10 +96,10 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
     ) {
         renderType = context.getDefaultRenderType(
             animatable,
-            config.textureLocation(animatable),
+            config.textureLocation(context.currentEntity, animatable),
             bufferSource,
             partialTick,
-            config.getRenderType(animatable),
+            config.getRenderType(context.currentEntity, animatable),
             config.alpha(animatable)
         );
         context.populate(

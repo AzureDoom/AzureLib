@@ -60,7 +60,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
 
         blockEntityRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
 
-        var textureLocation = blockEntityRendererPipeline.config().textureLocation(entity);
+        var textureLocation = blockEntityRendererPipeline.config().textureLocation(context.currentEntity(), entity);
         RenderSystem.setShaderTexture(0, textureLocation);
         super.render(context, isReRender);
     }

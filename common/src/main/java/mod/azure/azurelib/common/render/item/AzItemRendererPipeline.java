@@ -106,7 +106,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<UUID, ItemStack> 
      */
     @Override
     public void updateAnimatedTextureFrame(ItemStack animatable) {
-        AnimatableTexture.setAndUpdate(config.textureLocation(animatable));
+        AnimatableTexture.setAndUpdate(config.textureLocation(context().currentEntity(), animatable));
     }
 
     public AzItemRenderer getRenderer() {

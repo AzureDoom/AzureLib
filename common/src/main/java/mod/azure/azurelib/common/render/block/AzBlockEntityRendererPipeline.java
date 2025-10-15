@@ -59,7 +59,7 @@ public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRend
      */
     @Override
     public void updateAnimatedTextureFrame(T entity) {
-        AnimatableTexture.setAndUpdate(config.textureLocation(entity));
+        AnimatableTexture.setAndUpdate(config.textureLocation(context().currentEntity(), entity));
     }
 
     /**

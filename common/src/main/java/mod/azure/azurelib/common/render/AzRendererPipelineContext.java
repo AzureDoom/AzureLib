@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -32,6 +33,8 @@ public abstract class AzRendererPipelineContext<K, T> {
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected T animatable;
+
+    protected @Nullable Entity currentEntity;
 
     private AzBakedModel bakedModel;
 
@@ -95,13 +98,13 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.renderColor = getRenderColor(animatable, partialTick, packedLight).argbInt();
 
         if (renderType == null) {
-            var textureLocation = rendererPipeline.config().textureLocation(animatable);
+            var textureLocation = rendererPipeline.config().textureLocation(currentEntity, animatable);
             this.renderType = getDefaultRenderType(
                 animatable,
                 textureLocation,
                 multiBufferSource,
                 partialTick,
-                rendererPipeline.config().getRenderType(animatable),
+                rendererPipeline.config().getRenderType(currentEntity, animatable),
                 rendererPipeline.config().alpha(animatable)
             );
         }
@@ -148,6 +151,10 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     public T animatable() {
         return animatable;
+    }
+
+    public @Nullable Entity currentEntity() {
+        return currentEntity;
     }
 
     public AzBakedModel bakedModel() {

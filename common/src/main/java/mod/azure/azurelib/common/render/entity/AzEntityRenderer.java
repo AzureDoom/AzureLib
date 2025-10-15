@@ -49,7 +49,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     @Override
     public final @NotNull ResourceLocation getTextureLocation(@NotNull T animatable) {
-        return config.textureLocation(animatable);
+        return config.textureLocation(animatable, animatable);
     }
 
     public void superRender(
@@ -72,8 +72,8 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         @NotNull MultiBufferSource bufferSource,
         int packedLight
     ) {
-        var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity);
-        var azBakedModel = provider.provideBakedModel(entity);
+        var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        var azBakedModel = provider.provideBakedModel(entity, entity);
 
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzEntityAnimator = cachedEntityAnimator;

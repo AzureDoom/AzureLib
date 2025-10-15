@@ -168,7 +168,9 @@ public class AzModelRenderer<K, T> {
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        var entityTextureSize = context.computeTextureSize(config.textureLocation(context.animatable()));
+        var entityTextureSize = context.computeTextureSize(
+            config.textureLocation(context.currentEntity(), context.animatable())
+        );
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
@@ -309,7 +311,7 @@ public class AzModelRenderer<K, T> {
                 texture,
                 bufferSource,
                 context.partialTick(),
-                config.getRenderType(context.animatable()),
+                config.getRenderType(context.currentEntity(), context.animatable()),
                 config.alpha(context.animatable())
             );
         }
