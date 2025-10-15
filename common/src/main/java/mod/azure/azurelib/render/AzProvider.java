@@ -1,9 +1,11 @@
 package mod.azure.azurelib.render;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -25,13 +27,13 @@ public class AzProvider<K, T> {
 
     private final Supplier<AzAnimator<K, T>> animatorSupplier;
 
-    private final Function<T, ResourceLocation> modelLocationProvider;
+    private final BiFunction<Entity, T, ResourceLocation> modelLocationProvider;
 
     private final Function<T, K> UUIDProvider;
 
     public AzProvider(
         Supplier<AzAnimator<K, T>> animatorSupplier,
-        Function<T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
         Function<T, K> UUIDProvider
     ) {
         this.animatorSupplier = animatorSupplier;
@@ -47,9 +49,9 @@ public class AzProvider<K, T> {
      * @param animatable the animatable object for which the baked model should be retrieved, must not be null
      * @return the baked model associated with the animatable object, or null if no model is found
      */
-    public @Nullable AzBakedModel provideBakedModel(@NotNull T animatable) {
+    public @Nullable AzBakedModel provideBakedModel(@Nullable Entity entity, @NotNull T animatable) {
         // Always have a safe fallback
-        var modelLocation = modelLocationProvider.apply(animatable);
+        var modelLocation = modelLocationProvider.apply(entity, animatable);
         var shared = AzBakedModelCache.getInstance().getNullable(modelLocation);
 
         if (shared == null) {
@@ -83,7 +85,7 @@ public class AzProvider<K, T> {
      * @return an {@link AzAnimator} instance associated with the animatable object, or null if the animator could not
      *         be created or retrieved
      */
-    public @Nullable AzAnimator<K, T> provideAnimator(T animatable) {
+    public @Nullable AzAnimator<K, T> provideAnimator(@Nullable Entity entity, T animatable) {
         // TODO: Instead of caching the entire animator itself, we're going to want to cache the relevant data for the
         // entity.
         var accessor = AzAnimatorAccessor.<K, T>cast(animatable);
@@ -96,7 +98,7 @@ public class AzProvider<K, T> {
                 var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
 
                 // Install a deep-copied model into the bone cache BEFORE controllers
-                var modelLocation = modelLocationProvider.apply(animatable);
+                var modelLocation = modelLocationProvider.apply(entity, animatable);
                 var shared = AzBakedModelCache.getInstance().getNullable(modelLocation);
                 if (shared != null) {
                     ctx.boneCache().setActiveModel(shared); // setActiveModel deep-copies internally

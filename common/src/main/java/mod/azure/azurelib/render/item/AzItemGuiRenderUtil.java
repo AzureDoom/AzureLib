@@ -33,19 +33,20 @@ public class AzItemGuiRenderUtil {
             Lighting.setupForFlatItems();
         }
 
+        var context = rendererPipeline.context();
         var partialTick = Minecraft.getInstance().getFrameTime();
         var bSource =
             source instanceof MultiBufferSource.BufferSource bufferSource
                 ? bufferSource
                 : Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
-        var textureLocation = config.textureLocation(stack);
+        var textureLocation = config.textureLocation(context.currentEntity(), stack);
         var renderType = rendererPipeline.context()
             .getDefaultRenderType(
                 stack,
                 textureLocation,
                 bSource,
                 partialTick,
-                config.getRenderType(stack),
+                config.getRenderType(context.currentEntity(), stack),
                 config.alpha(stack)
             );
         var withGlint = currentItemStack != null && currentItemStack.hasFoil();

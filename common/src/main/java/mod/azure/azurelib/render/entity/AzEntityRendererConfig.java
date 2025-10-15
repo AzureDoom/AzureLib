@@ -32,13 +32,13 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         Supplier<AzAnimator<UUID, T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
         Function<T, Float> shadowRadius,
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, RenderType> renderTypeFunction,
+        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, RenderType> renderTypeFunction,
         List<AzRenderLayer<UUID, T>> renderLayers,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> postRenderEntry,
-        Function<T, ResourceLocation> textureLocationProvider,
+        BiFunction<Entity, T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
@@ -80,12 +80,12 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder<>($ -> modelLocation, $ -> textureLocation);
+        return new Builder<>((a, b) -> modelLocation, (a, b) -> textureLocation);
     }
 
     public static <T extends Entity> Builder<T> builder(
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, ResourceLocation> textureLocationProvider
+        BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -97,8 +97,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         protected Function<T, Float> shadowRadius;
 
         protected Builder(
-            Function<T, ResourceLocation> modelLocationProvider,
-            Function<T, ResourceLocation> textureLocationProvider
+            BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
+            BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzEntityModelRenderer<>(
@@ -106,7 +106,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 layer
             );
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
-            this.renderTypeProvider = $ -> RenderType.entityCutout(textureLocationProvider.apply($));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(a, b));
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
         }
@@ -145,11 +145,11 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         }
 
         public Builder<T> setRenderType(RenderType renderType) {
-            this.renderTypeProvider = $ -> renderType;
+            this.renderTypeProvider = (a, b) -> renderType;
             return this;
         }
 
-        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+        public Builder<T> setRenderType(BiFunction<Entity, T, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
         }

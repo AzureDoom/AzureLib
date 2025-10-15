@@ -2,6 +2,7 @@ package mod.azure.azurelib.render.item;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -32,13 +33,13 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
-        Function<ItemStack, ResourceLocation> modelLocationProvider,
-        Function<ItemStack, RenderType> renderTypeProvider,
+        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<UUID, ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
-        Function<ItemStack, ResourceLocation> textureLocationProvider,
+        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
@@ -88,12 +89,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder($ -> modelLocation, $ -> textureLocation);
+        return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
     }
 
     public static Builder builder(
-        Function<ItemStack, ResourceLocation> modelLocationProvider,
-        Function<ItemStack, ResourceLocation> textureLocationProvider
+        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
+        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
     ) {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
@@ -107,11 +108,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private Predicate<ItemDisplayContext> shouldAnimateInContext;
 
         protected Builder(
-            Function<ItemStack, ResourceLocation> modelLocationProvider,
-            Function<ItemStack, ResourceLocation> textureLocationProvider
+            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
+            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
-            this.renderTypeProvider = $ -> RenderType.entityCutoutNoCull(textureLocationProvider.apply($));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(a, b));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
@@ -152,11 +153,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         public Builder setRenderType(RenderType renderType) {
-            this.renderTypeProvider = $ -> renderType;
+            this.renderTypeProvider = (a, b) -> renderType;
             return this;
         }
 
-        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+        public Builder setRenderType(BiFunction<Entity, ItemStack, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
         }

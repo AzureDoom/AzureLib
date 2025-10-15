@@ -53,7 +53,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         var currentEntity = context().currentEntity();
 
         if (currentEntity != null) {
-            AnimatableTexture.setAndUpdate(config.textureLocation(animatable));
+            AnimatableTexture.setAndUpdate(config.textureLocation(currentEntity, animatable));
         }
     }
 
@@ -68,7 +68,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         var scaleHeight = config.scaleHeight(context.animatable());
 
         var animatable = armorContext.animatable();
-        var model = armorRenderer.provider().provideBakedModel(animatable);
+        var model = armorRenderer.provider().provideBakedModel(context().currentEntity(), animatable);
         var poseStack = armorContext.poseStack();
 
         this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());

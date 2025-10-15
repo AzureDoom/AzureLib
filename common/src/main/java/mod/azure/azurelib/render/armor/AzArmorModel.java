@@ -50,18 +50,18 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
         var config = rendererPipeline.config();
         var animatable = context.animatable();
         var partialTick = mc.getFrameTime();
-        var textureLocation = config.textureLocation(animatable);
+        var textureLocation = config.textureLocation(currentEntity, animatable);
         var renderType = context.getDefaultRenderType(
             animatable,
             textureLocation,
             bufferSource,
             partialTick,
-            config.getRenderType(animatable),
+            config.getRenderType(context.currentEntity(), animatable),
             config.alpha(animatable)
         );
         buffer = ItemRenderer.getArmorFoilBuffer(bufferSource, renderType, false, currentStack.hasFoil());
 
-        var model = rendererPipeline.renderer().provider().provideBakedModel(animatable);
+        var model = rendererPipeline.renderer().provider().provideBakedModel(currentEntity, animatable);
         rendererPipeline.render(poseStack, model, animatable, bufferSource, null, buffer, 0, partialTick, packedLight);
     }
 

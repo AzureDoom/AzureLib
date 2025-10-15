@@ -39,7 +39,11 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
         this.config = config;
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUUID);
+        this.provider = new AzProvider<>(
+            config::createAnimator,
+            config::modelLocation,
+            Entity::getUUID
+        );
         this.rendererPipeline = createPipeline(config);
     }
 
@@ -49,7 +53,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     @Override
     public final @NotNull ResourceLocation getTextureLocation(@NotNull T animatable) {
-        return config.textureLocation(animatable);
+        return config.textureLocation(animatable, animatable);
     }
 
     public void superRender(
@@ -72,8 +76,8 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         @NotNull MultiBufferSource bufferSource,
         int packedLight
     ) {
-        var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity);
-        var azBakedModel = provider.provideBakedModel(entity);
+        var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        var azBakedModel = provider.provideBakedModel(entity, entity);
 
         this.shadowRadius = config.shadowRadius(entity);
 
