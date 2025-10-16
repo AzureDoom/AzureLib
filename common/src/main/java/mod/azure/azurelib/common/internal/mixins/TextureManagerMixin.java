@@ -19,7 +19,7 @@ import java.util.Map;
 
 import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
 
-@Mixin(TextureManager.class)
+@Mixin(value = TextureManager.class, priority = 900)
 public abstract class TextureManagerMixin {
 
     @Shadow
