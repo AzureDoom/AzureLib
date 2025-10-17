@@ -127,6 +127,11 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
         AzEntityLeashRenderUtil.renderLeash(entityRenderer, mob, partialTick, poseStack, bufferSource, leashHolder);
     }
 
+    @Override
+    protected void doPostRenderCleanup(AzRendererPipelineContext<UUID, T> context) {
+        context.setCurrentEntity(null);
+    }
+
     public AzEntityRenderer<T> getRenderer() {
         return entityRenderer;
     }

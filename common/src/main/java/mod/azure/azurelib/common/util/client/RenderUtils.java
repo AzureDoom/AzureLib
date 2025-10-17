@@ -47,22 +47,35 @@ public class RenderUtils {
     }
 
     public static void rotateMatrixAroundBone(PoseStack poseStack, AzBone bone) {
-        if (bone.getRotZ() != 0)
-            poseStack.mulPose(Axis.ZP.rotation(bone.getRotZ()));
+        float rotX = bone.getRotX();
+        float rotY = bone.getRotY();
+        float rotZ = bone.getRotZ();
 
-        if (bone.getRotY() != 0)
-            poseStack.mulPose(Axis.YP.rotation(bone.getRotY()));
+        if (rotZ != 0)
+            poseStack.mulPose(Z_QUATERNION_CACHE.rotationXYZ(0f, 0f, rotZ));
 
-        if (bone.getRotX() != 0)
-            poseStack.mulPose(Axis.XP.rotation(bone.getRotX()));
+        if (rotY != 0)
+            poseStack.mulPose(Y_QUATERNION_CACHE.rotationXYZ(0f, rotY, 0f));
+
+        if (rotX != 0)
+            poseStack.mulPose(X_QUATERNION_CACHE.rotationXYZ(rotX, 0f, 0f));
     }
 
     public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
         Vec3 rotation = cube.rotation();
 
-        poseStack.mulPose(Z_QUATERNION_CACHE.rotationXYZ(0, 0, (float) rotation.z()));
-        poseStack.mulPose(Y_QUATERNION_CACHE.rotationXYZ(0, (float) rotation.y(), 0));
-        poseStack.mulPose(X_QUATERNION_CACHE.rotationXYZ((float) rotation.x(), 0, 0));
+        if (rotation.z() != 0f) {
+            Z_QUATERNION_CACHE.identity().rotateZ((float) rotation.z());
+            poseStack.mulPose(Z_QUATERNION_CACHE);
+        }
+        if (rotation.y() != 0f) {
+            Y_QUATERNION_CACHE.identity().rotateY((float) rotation.y());
+            poseStack.mulPose(Y_QUATERNION_CACHE);
+        }
+        if (rotation.x() != 0f) {
+            X_QUATERNION_CACHE.identity().rotateX((float) rotation.x());
+            poseStack.mulPose(X_QUATERNION_CACHE);
+        }
     }
 
     public static void scaleMatrixForBone(PoseStack poseStack, AzBone bone) {

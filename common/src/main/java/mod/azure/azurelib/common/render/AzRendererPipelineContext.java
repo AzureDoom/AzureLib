@@ -153,6 +153,10 @@ public abstract class AzRendererPipelineContext<K, T> {
         return animatable;
     }
 
+    public void setCurrentEntity(Entity currentEntity) {
+        this.currentEntity = currentEntity;
+    }
+
     public @Nullable Entity currentEntity() {
         return currentEntity;
     }

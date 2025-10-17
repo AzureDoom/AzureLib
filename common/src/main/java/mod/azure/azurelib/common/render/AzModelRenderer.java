@@ -32,6 +32,8 @@ public class AzModelRenderer<K, T> {
 
     private final Matrix4f poseStateCache = new Matrix4f();
 
+    private final Vector3f normalScratch = new Vector3f();
+
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected final AzLayerRenderer<K, T> layerRenderer;
@@ -145,7 +147,9 @@ public class AzModelRenderer<K, T> {
                 continue;
             }
 
-            var normal = normalisedPoseState.transform(new Vector3f(quad.normal()));
+            normalScratch.set(quad.normal());
+            normalisedPoseState.transform(normalScratch);
+            var normal = normalScratch;
 
             RenderUtils.fixInvertedFlatCube(cube, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
