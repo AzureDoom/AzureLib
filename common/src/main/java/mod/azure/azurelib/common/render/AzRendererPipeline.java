@@ -117,15 +117,10 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
 
         preRender(context, false);
 
-        // TODO:
-        // if (firePreRenderEvent(poseStack, model, bufferSource, partialTick, packedLight)) {
         layerRenderer.preApplyRenderLayers(context);
         modelRenderer.render(context, false);
         layerRenderer.applyRenderLayers(context);
         postRender(context, false);
-        // TODO:
-        // firePostRenderEvent(poseStack, model, bufferSource, partialTick, packedLight);
-        // }
 
         poseStack.popPose();
 
