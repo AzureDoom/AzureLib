@@ -1,5 +1,9 @@
 package mod.azure.azurelib.render.item;
 
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.*;
+import mod.azure.azurelib.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -12,11 +16,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
  * Configuration class for rendering items using customized settings in an animation framework. Extends
@@ -33,13 +32,13 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
-        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, ItemStack, RenderType> renderTypeProvider,
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<UUID, ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
-        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
@@ -53,15 +52,15 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     ) {
         super(
             animatorProvider,
-            modelLocationProvider,
+            (a, b) -> modelLocationProvider.apply(b),
             modelRendererProvider,
             pipelineContextFunction,
-            renderTypeProvider,
+            (a, b) -> renderTypeProvider.apply(b),
             renderLayers,
             preRenderEntry,
             renderEntry,
             postRenderEntry,
-            textureLocationProvider,
+            (a, b) -> textureLocationProvider.apply(b),
             alphaFunction,
             scaleHeight,
             scaleWidth,
@@ -89,12 +88,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
+        return new Builder($ -> modelLocation, $ -> textureLocation);
     }
 
     public static Builder builder(
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider
     ) {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
@@ -108,11 +107,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private Predicate<ItemTransforms.TransformType> shouldAnimateInContext;
 
         protected Builder(
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+            Function<ItemStack, ResourceLocation> modelLocationProvider,
+            Function<ItemStack, ResourceLocation> textureLocationProvider
         ) {
-            super(modelLocationProvider, textureLocationProvider);
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(a, b));
+            super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(b));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
@@ -154,6 +153,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         public Builder setRenderType(RenderType renderType) {
             this.renderTypeProvider = (a, b) -> renderType;
+            return this;
+        }
+
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = (a, b) -> renderTypeProvider.apply(b);
             return this;
         }
 
@@ -236,11 +240,10 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Sets the Predicate to determine whether an item should be animated in a specific
-         * {@link ItemTransforms.TransformType}.
+         * Sets the Predicate to determine whether an item should be animated in a specific {@link ItemTransforms.TransformType}.
          *
-         * @param shouldAnimateInContext A Predicate that takes an {@link ItemTransforms.TransformType} and returns true
-         *                               if the animation should occur in that context; false otherwise.
+         * @param shouldAnimateInContext A Predicate that takes an {@link ItemTransforms.TransformType} and returns true if the
+         *                               animation should occur in that context; false otherwise.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder setShouldAnimateInContext(Predicate<ItemTransforms.TransformType> shouldAnimateInContext) {
@@ -249,13 +252,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Disables animation for specific {@link ItemTransforms.TransformType} instances. The provided contexts are
-         * added to a set, and animations will not occur in the specified contexts.
+         * Disables animation for specific {@link ItemTransforms.TransformType} instances. The provided contexts are added to a
+         * set, and animations will not occur in the specified contexts.
          *
-         * @param contextToDisable  The primary {@link ItemTransforms.TransformType} in which animations are to be
+         * @param contextToDisable  The primary {@link ItemTransforms.TransformType} in which animations are to be disabled.
+         * @param contextsToDisable Additional {@link ItemTransforms.TransformType} instances in which animations are to be
          *                          disabled.
-         * @param contextsToDisable Additional {@link ItemTransforms.TransformType} instances in which animations are to
-         *                          be disabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder disableAnimationInContexts(
@@ -275,12 +277,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Enables animation only for the specified {@link ItemTransforms.TransformType} instances. Any contexts not
-         * provided in the parameters will have animations disabled.
+         * Enables animation only for the specified {@link ItemTransforms.TransformType} instances. Any contexts not provided in
+         * the parameters will have animations disabled.
          *
          * @param contextToEnable  The primary {@link ItemTransforms.TransformType} where animations should be enabled.
-         * @param contextsToEnable Additional {@link ItemTransforms.TransformType} instances where animations should be
-         *                         enabled.
+         * @param contextsToEnable Additional {@link ItemTransforms.TransformType} instances where animations should be enabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder enableAnimationOnlyInContexts(
