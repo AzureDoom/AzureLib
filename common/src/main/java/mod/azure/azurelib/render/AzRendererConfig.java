@@ -1,6 +1,9 @@
 package mod.azure.azurelib.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -11,10 +14,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
  * The {@code AzRendererConfig} class is a configuration class used for defining rendering configurations for generic
@@ -95,12 +94,20 @@ public class AzRendererConfig<K, T> {
         return animatorProvider.get();
     }
 
+    public ResourceLocation modelLocation(T animatable) {
+        return modelLocation(null, animatable);
+    }
+
     public ResourceLocation modelLocation(@Nullable Entity entity, T animatable) {
         return modelLocationProvider.apply(entity, animatable);
     }
 
     public AzRendererPipelineContext<K, T> pipelineContext(AzRendererPipeline<K, T> pipeline) {
         return pipelineContextFunction.apply(pipeline);
+    }
+
+    public ResourceLocation textureLocation(T animatable) {
+        return textureLocation(null, animatable);
     }
 
     public ResourceLocation textureLocation(@Nullable Entity entity, T animatable) {
@@ -112,6 +119,10 @@ public class AzRendererConfig<K, T> {
         AzLayerRenderer<K, T> layerRenderer
     ) {
         return modelRendererProvider.apply(pipeline, layerRenderer);
+    }
+
+    public RenderType getRenderType(T animatable) {
+        return getRenderType(null, animatable);
     }
 
     public RenderType getRenderType(@Nullable Entity entity, T animatable) {

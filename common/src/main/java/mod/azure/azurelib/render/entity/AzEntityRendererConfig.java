@@ -1,5 +1,9 @@
 package mod.azure.azurelib.render.entity;
 
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.*;
+import mod.azure.azurelib.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -10,11 +14,6 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
  * Configures the rendering behavior for custom entities in the game. This extends {@link AzRendererConfig}, adding
@@ -32,13 +31,13 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         Supplier<AzAnimator<UUID, T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
         Function<T, Float> shadowRadius,
-        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, T, RenderType> renderTypeFunction,
+        Function<T, RenderType> renderTypeFunction,
+        Function<T, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<UUID, T>> renderLayers,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> postRenderEntry,
-        BiFunction<Entity, T, ResourceLocation> textureLocationProvider,
+        Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
@@ -49,15 +48,15 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     ) {
         super(
             animatorProvider,
-            modelLocationProvider,
+            (a, b) -> modelLocationProvider.apply(b),
             modelRendererProvider,
             pipelineContextFunction,
-            renderTypeFunction,
+            (a, b) -> renderTypeFunction.apply(b),
             renderLayers,
             preRenderEntry,
             renderEntry,
             postRenderEntry,
-            textureLocationProvider,
+            (a, b) -> textureLocationProvider.apply(b),
             alphaFunction,
             scaleHeight,
             scaleWidth,
@@ -80,12 +79,12 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder<>((a, b) -> modelLocation, (a, b) -> textureLocation);
+        return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }
 
     public static <T extends Entity> Builder<T> builder(
-        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+        Function<T, ResourceLocation> modelLocationProvider,
+        Function<T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -96,17 +95,17 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
         protected Function<T, Float> shadowRadius;
 
-        protected Builder(
-            BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-            BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+        public Builder(
+            Function<T, ResourceLocation> modelLocationProvider,
+            Function<T, ResourceLocation> textureLocationProvider
         ) {
-            super(modelLocationProvider, textureLocationProvider);
+            super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzEntityModelRenderer<>(
                 (AzEntityRendererPipeline<T>) entityRendererPipeline,
                 layer
             );
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(a, b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(b));
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
         }
@@ -149,6 +148,11 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
             return this;
         }
 
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = (a, b) -> renderTypeProvider.apply(b);
+            return this;
+        }
+
         public Builder<T> setRenderType(BiFunction<Entity, T, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
@@ -178,6 +182,11 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         @Override
         public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<UUID, T>> animatorProvider) {
             return (Builder<T>) super.setAnimatorProvider(animatorProvider);
+        }
+
+        public Builder<T> setDeathMaxRotation(float angle) {
+            this.deathMaxRotationProvider = $ -> angle;
+            return this;
         }
 
         @Override
@@ -210,15 +219,11 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
             return (Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
-        public Builder<T> setDeathMaxRotation(float angle) {
-            this.deathMaxRotationProvider = $ -> angle;
-            return this;
-        }
-
         /**
          * Sets a provider for the max rotation value for dying entities.<br>
          * You might want to modify this for different aesthetics, such as a
          * {@link net.minecraft.world.entity.monster.Spider} flipping upside down on death.<br>
+         * Functionally equivalent to {@link net.minecraft.client.renderer.entity.LivingEntityRenderer#getFlipDegrees}
          */
         public Builder<T> setDeathMaxRotation(Function<T, Float> deathMaxRotationProvider) {
             this.deathMaxRotationProvider = deathMaxRotationProvider;
@@ -259,8 +264,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
                 shadowRadius,
-                baseConfig::modelLocation,
                 baseConfig::getRenderType,
+                baseConfig::modelLocation,
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
                 baseConfig::renderEntry,
