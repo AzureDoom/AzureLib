@@ -29,7 +29,12 @@ public class AzArmorRenderer {
         this.provider = new AzProvider<>(
             config::createAnimator,
             config::modelLocation,
-            animator -> animator.get(AzureLib.AZ_ID.get())
+            animator -> {
+                if (animator.get(AzureLib.AZ_ID.get()) != null) {
+                    return UUID.randomUUID();
+                }
+                return animator.get(AzureLib.AZ_ID.get());
+            }
         );
         this.rendererPipeline = createPipeline(config);
     }
