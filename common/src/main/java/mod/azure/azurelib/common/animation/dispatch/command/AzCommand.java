@@ -95,6 +95,7 @@ public record AzCommand(List<AzAction> actions) {
         return create(controllerName, animationName, playBehavior, 0F, 1F, 0F, 0F, 0F, false);
     }
 
+    // TODO: Fix transition length overriding transition lenght on the base create method
     public static AzCommand create(
         String controllerName,
         String animationName,
@@ -132,6 +133,7 @@ public record AzCommand(List<AzAction> actions) {
      * @param animationSpeed  the speed at which the animation should play
      * @return an AzCommand instance configured with the specified animation settings
      */
+    // TODO: Fix transition length overriding transition lenght on the base create method
     public static AzCommand createRoot(
         String animationName,
         AzPlayBehavior playBehavior,
