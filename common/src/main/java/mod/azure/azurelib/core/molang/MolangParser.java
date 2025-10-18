@@ -243,23 +243,23 @@ public class MolangParser extends MathBuilder {
      * This should be used wherever per-call accuracy is not needed.
      */
     public void setMemoizedValue(String name, DoubleSupplier value) {
-	    var variable = getVariable(name);
+        var variable = getVariable(name);
 
-	    variable.set(new DoubleSupplier() {
+        variable.set(new DoubleSupplier() {
 
-		    private boolean computed = false;
+            private boolean computed = false;
 
-		    private double cachedValue;
+            private double cachedValue;
 
-		    @Override
-		    public double getAsDouble() {
-			    if (!computed) {
-				    cachedValue = value.getAsDouble();
-				    computed = true;
-			    }
-			    return cachedValue;
-		    }
-	    });
+            @Override
+            public double getAsDouble() {
+                if (!computed) {
+                    cachedValue = value.getAsDouble();
+                    computed = true;
+                }
+                return cachedValue;
+            }
+        });
     }
 
     /**
