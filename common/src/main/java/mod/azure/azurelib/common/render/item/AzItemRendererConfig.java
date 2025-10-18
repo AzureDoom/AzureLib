@@ -33,13 +33,13 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
-        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, ItemStack, RenderType> renderTypeProvider,
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<UUID, ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
-        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
@@ -53,15 +53,15 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     ) {
         super(
             animatorProvider,
-            modelLocationProvider,
+            (a, b) -> modelLocationProvider.apply(b),
             modelRendererProvider,
             pipelineContextFunction,
-            renderTypeProvider,
+            (a, b) -> renderTypeProvider.apply(b),
             renderLayers,
             preRenderEntry,
             renderEntry,
             postRenderEntry,
-            textureLocationProvider,
+            (a, b) -> textureLocationProvider.apply(b),
             alphaFunction,
             scaleHeight,
             scaleWidth,
@@ -89,12 +89,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
+        return new Builder($ -> modelLocation, $ -> textureLocation);
     }
 
     public static Builder builder(
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider
     ) {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
@@ -108,11 +108,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private Predicate<ItemDisplayContext> shouldAnimateInContext;
 
         protected Builder(
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+            Function<ItemStack, ResourceLocation> modelLocationProvider,
+            Function<ItemStack, ResourceLocation> textureLocationProvider
         ) {
-            super(modelLocationProvider, textureLocationProvider);
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(a, b));
+            super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(b));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
