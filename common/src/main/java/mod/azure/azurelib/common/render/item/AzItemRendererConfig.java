@@ -157,6 +157,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             return this;
         }
 
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = (a, b) -> renderTypeProvider.apply(b);
+            return this;
+        }
+
         public Builder setRenderType(BiFunction<Entity, ItemStack, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;

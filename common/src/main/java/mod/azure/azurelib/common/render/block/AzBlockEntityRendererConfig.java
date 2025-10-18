@@ -127,6 +127,11 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
             return this;
         }
 
+        public Builder<T> setRenderType(Function<T, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = (a, b) -> renderTypeProvider.apply(b);
+            return this;
+        }
+
         public Builder<T> setRenderType(BiFunction<Entity, T, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
