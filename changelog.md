@@ -1,15 +1,25 @@
-v3.1.12
+v3.2.0
+
+***THIS IS A BREAKING CHANGE, PLEASE ENSURE THE MODS THAT USE AZURELIB ARE UPDATED FIRST TO THIS VERSION, PLEASE GIVE THEM TIME TO UPDATE***
 
 ### Changes
-- Hide arms bones always in items and only render arms when animations are playing for items.
-- Added alpha value to getDefaultRenderType
-- Made entityCutout the default entity render type.
-- Removed Dynamic renderers as they are broken and no longer needed.
-- Add an optional Waist Bone for armors. (Credit to cleannrooster)
-- Added all missing Math functions, currently matching: https://bedrock.dev/docs/1.21.0.0/1.21.120.22/Molang#Math%20Functions now
-
+- Removed old Geckolib 3.x code.
+- Layers, Model Renderers, and Animators now take a Key to identify themselves.
+    - This will Long for Block Entities or UUID for Items (This includes Armor) and Entities.
+- Adds AzItemRendererConfig#disableAnimationInAllContexts
+- Per-instance model isolation for animations
+    - Implemented AzBone.deepCopy() (copies transforms, matrices, cubes, children, then saveInitialSnapshot()).
+    - Implemented AzBakedModel.deepCopy() (rebuilds a fresh bone tree via bone.deepCopy()).
+- Deprecated pattern: do not call animator.setActiveModel(...) in the render loop (model is installed once during provideAnimator).
+- Due to servers being weird with animations, AzIdentityRegistry#regsiter is required again to work properly with item and armor animations.
+- Added fallback geo model for missing models.
+- Extended AzRendererConfig and its Builder to BiFunction<Entity, T, ResourceLocation> model/texture/render type location providers.
+    - Enables entity-aware model/texture/render type selection across all render configurations.
+    - Subclasses like AzArmorRendererConfig now automatically support entity–item–based model lookups without custom overrides.
 
 ### Fixes
-- Fixed builder config render type config completely overwriting the default render type setups
-- Fixes hurt/death red overlay from not working on entities
-- Fixes when an invalid animation name is used, the controller/state machine will become stuck and no longer update
+- Fixed animation state leaking between instances that share the same geo model by isolating bones per animator.
+- Fixed enableAnimationOnlyInContexts not working properly
+- Fixed animation speed property not working properly
+- Fixed Animated textures breaking with ~~Gankolib~~ Geckolib
+- Fixed a crash with armor if a bone is missing from the armor model.
