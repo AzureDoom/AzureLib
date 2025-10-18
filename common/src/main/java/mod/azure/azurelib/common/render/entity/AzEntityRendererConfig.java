@@ -32,13 +32,13 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         Supplier<AzAnimator<UUID, T>> animatorProvider,
         Function<T, Float> deathMaxRotationProvider,
         Function<T, Float> shadowRadius,
-        BiFunction<Entity, T, RenderType> renderTypeFunction,
-        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        Function<T, RenderType> renderTypeFunction,
+        Function<T, ResourceLocation> modelLocationProvider,
         List<AzRenderLayer<UUID, T>> renderLayers,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> postRenderEntry,
-        BiFunction<Entity, T, ResourceLocation> textureLocationProvider,
+        Function<T, ResourceLocation> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
@@ -49,15 +49,15 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     ) {
         super(
             animatorProvider,
-            modelLocationProvider,
+            (a, b) -> modelLocationProvider.apply(b),
             modelRendererProvider,
             pipelineContextFunction,
-            renderTypeFunction,
+            (a, b) -> renderTypeFunction.apply(b),
             renderLayers,
             preRenderEntry,
             renderEntry,
             postRenderEntry,
-            textureLocationProvider,
+            (a, b) -> textureLocationProvider.apply(b),
             alphaFunction,
             scaleHeight,
             scaleWidth,
@@ -80,12 +80,12 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder<>((a, b) -> modelLocation, (a, b) -> textureLocation);
+        return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }
 
     public static <T extends Entity> Builder<T> builder(
-        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+        Function<T, ResourceLocation> modelLocationProvider,
+        Function<T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -97,16 +97,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         protected Function<T, Float> shadowRadius;
 
         public Builder(
-            BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
-            BiFunction<Entity, T, ResourceLocation> textureLocationProvider
+            Function<T, ResourceLocation> modelLocationProvider,
+            Function<T, ResourceLocation> textureLocationProvider
         ) {
-            super(modelLocationProvider, textureLocationProvider);
+            super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzEntityModelRenderer<>(
                 (AzEntityRendererPipeline<T>) entityRendererPipeline,
                 layer
             );
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(a, b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(b));
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
         }
@@ -260,7 +260,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
                 shadowRadius,
-                renderTypeProvider,
+                baseConfig::getRenderType,
                 baseConfig::modelLocation,
                 baseConfig.renderLayers(),
                 baseConfig::preRenderEntry,
