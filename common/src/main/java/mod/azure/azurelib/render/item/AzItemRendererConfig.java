@@ -1,9 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +12,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.*;
+import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
  * Configuration class for rendering items using customized settings in an animation framework. Extends
@@ -240,10 +241,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Sets the Predicate to determine whether an item should be animated in a specific {@link ItemTransforms.TransformType}.
+         * Sets the Predicate to determine whether an item should be animated in a specific
+         * {@link ItemTransforms.TransformType}.
          *
-         * @param shouldAnimateInContext A Predicate that takes an {@link ItemTransforms.TransformType} and returns true if the
-         *                               animation should occur in that context; false otherwise.
+         * @param shouldAnimateInContext A Predicate that takes an {@link ItemTransforms.TransformType} and returns true
+         *                               if the animation should occur in that context; false otherwise.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder setShouldAnimateInContext(Predicate<ItemTransforms.TransformType> shouldAnimateInContext) {
@@ -252,12 +254,13 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Disables animation for specific {@link ItemTransforms.TransformType} instances. The provided contexts are added to a
-         * set, and animations will not occur in the specified contexts.
+         * Disables animation for specific {@link ItemTransforms.TransformType} instances. The provided contexts are
+         * added to a set, and animations will not occur in the specified contexts.
          *
-         * @param contextToDisable  The primary {@link ItemTransforms.TransformType} in which animations are to be disabled.
-         * @param contextsToDisable Additional {@link ItemTransforms.TransformType} instances in which animations are to be
+         * @param contextToDisable  The primary {@link ItemTransforms.TransformType} in which animations are to be
          *                          disabled.
+         * @param contextsToDisable Additional {@link ItemTransforms.TransformType} instances in which animations are to
+         *                          be disabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder disableAnimationInContexts(
@@ -277,11 +280,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         /**
-         * Enables animation only for the specified {@link ItemTransforms.TransformType} instances. Any contexts not provided in
-         * the parameters will have animations disabled.
+         * Enables animation only for the specified {@link ItemTransforms.TransformType} instances. Any contexts not
+         * provided in the parameters will have animations disabled.
          *
          * @param contextToEnable  The primary {@link ItemTransforms.TransformType} where animations should be enabled.
-         * @param contextsToEnable Additional {@link ItemTransforms.TransformType} instances where animations should be enabled.
+         * @param contextsToEnable Additional {@link ItemTransforms.TransformType} instances where animations should be
+         *                         enabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder enableAnimationOnlyInContexts(
