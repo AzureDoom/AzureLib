@@ -119,15 +119,25 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         }
 
         switch (currentSlot) {
-            case HEAD -> setBoneScale(boneContext.head, baseModel.head);
+            case HEAD -> {
+                if (boneContext.head != null)
+                    setBoneScale(boneContext.head, baseModel.head);
+            }
             case CHEST -> {
-                setBoneScale(boneContext.leftArm, baseModel.leftArm);
-                setBoneScale(boneContext.rightArm, baseModel.rightArm);
-                setBoneScale(boneContext.body, baseModel.body);
+                if (boneContext.head != null)
+                    setBoneScale(boneContext.leftArm, baseModel.leftArm);
+                if (boneContext.rightArm != null)
+                    setBoneScale(boneContext.rightArm, baseModel.rightArm);
+                if (boneContext.body != null)
+                    setBoneScale(boneContext.body, baseModel.body);
+                if (boneContext.waist != null)
+                    setBoneScale(boneContext.waist, baseModel.body);
             }
             case FEET, LEGS -> {
-                setBoneScale(boneContext.leftLeg, baseModel.leftLeg);
-                setBoneScale(boneContext.rightLeg, baseModel.rightLeg);
+                if (boneContext.leftLeg != null)
+                    setBoneScale(boneContext.leftLeg, baseModel.leftLeg);
+                if (boneContext.rightLeg != null)
+                    setBoneScale(boneContext.rightLeg, baseModel.rightLeg);
             }
         }
     }
