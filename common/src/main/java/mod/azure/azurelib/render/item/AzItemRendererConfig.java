@@ -1,5 +1,9 @@
 package mod.azure.azurelib.render.item;
 
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.*;
+import mod.azure.azurelib.render.layer.AzRenderLayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -12,11 +16,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.*;
-import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
  * Configuration class for rendering items using customized settings in an animation framework. Extends
@@ -33,13 +32,13 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
-        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, ItemStack, RenderType> renderTypeProvider,
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, RenderType> renderTypeProvider,
         List<AzRenderLayer<UUID, ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
-        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
@@ -53,15 +52,15 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     ) {
         super(
             animatorProvider,
-            modelLocationProvider,
+            (a, b) -> modelLocationProvider.apply(b),
             modelRendererProvider,
             pipelineContextFunction,
-            renderTypeProvider,
+            (a, b) -> renderTypeProvider.apply(b),
             renderLayers,
             preRenderEntry,
             renderEntry,
             postRenderEntry,
-            textureLocationProvider,
+            (a, b) -> textureLocationProvider.apply(b),
             alphaFunction,
             scaleHeight,
             scaleWidth,
@@ -89,12 +88,12 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
-        return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
+        return new Builder($ -> modelLocation, $ -> textureLocation);
     }
 
     public static Builder builder(
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+        Function<ItemStack, ResourceLocation> modelLocationProvider,
+        Function<ItemStack, ResourceLocation> textureLocationProvider
     ) {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
@@ -108,11 +107,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private Predicate<ItemDisplayContext> shouldAnimateInContext;
 
         protected Builder(
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> modelLocationProvider,
-            BiFunction<@Nullable Entity, ItemStack, ResourceLocation> textureLocationProvider
+            Function<ItemStack, ResourceLocation> modelLocationProvider,
+            Function<ItemStack, ResourceLocation> textureLocationProvider
         ) {
-            super(modelLocationProvider, textureLocationProvider);
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(a, b));
+            super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(b));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
@@ -157,6 +156,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             return this;
         }
 
+        public Builder setRenderType(Function<ItemStack, RenderType> renderTypeProvider) {
+            this.renderTypeProvider = (a, b) -> renderTypeProvider.apply(b);
+            return this;
+        }
+
         public Builder setRenderType(BiFunction<Entity, ItemStack, RenderType> renderTypeProvider) {
             this.renderTypeProvider = renderTypeProvider;
             return this;
@@ -166,21 +170,21 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         public Builder setPrerenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setRenderEntry(renderEntry);
+            return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
-            return (AzItemRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -190,17 +194,17 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
-            return (AzItemRendererConfig.Builder) super.setAlpha(alphaFunction);
+            return (Builder) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder setAlpha(float alpha) {
-            return (AzItemRendererConfig.Builder) super.setAlpha(alpha);
+            return (Builder) super.setAlpha(alpha);
         }
 
         @Override
         public Builder setScale(Function<ItemStack, Float> scaleFunction) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder) super.setScale(scaleFunction);
         }
 
         @Override
@@ -208,17 +212,17 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             Function<ItemStack, Float> scaleHeightFunction,
             Function<ItemStack, Float> scaleWidthFunction
         ) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder setScale(float scale) {
-            return (AzItemRendererConfig.Builder) super.setScale(scale);
+            return (Builder) super.setScale(scale);
         }
 
         @Override
         public Builder setScale(float scaleWidth, float scaleHeight) {
-            return (AzItemRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
+            return (Builder) super.setScale(scaleWidth, scaleHeight);
         }
 
         public Builder useEntityGuiLighting() {
