@@ -28,27 +28,50 @@ import mod.azure.azurelib.model.AzBone;
  */
 public final class RenderUtils {
 
+    private static final Quaternion QX = new Quaternion(0, 0, 0, 1);
+
+    private static final Quaternion QY = new Quaternion(0, 0, 0, 1);
+
+    private static final Quaternion QZ = new Quaternion(0, 0, 0, 1);
+
     public static void translateMatrixToBone(PoseStack poseStack, AzBone bone) {
         poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
     }
 
     public static void rotateMatrixAroundBone(PoseStack poseStack, AzBone bone) {
-        if (bone.getRotZ() != 0)
-            poseStack.mulPose(Vector3f.ZP.rotation(bone.getRotZ()));
+        var rz = bone.getRotZ();
+        var ry = bone.getRotY();
+        var rx = bone.getRotX();
 
-        if (bone.getRotY() != 0)
-            poseStack.mulPose(Vector3f.YP.rotation(bone.getRotY()));
-
-        if (bone.getRotX() != 0)
-            poseStack.mulPose(Vector3f.XP.rotation(bone.getRotX()));
+        if (rz != 0f) {
+            setQuatFromRotZ(QZ, rz);
+            poseStack.mulPose(QZ);
+        }
+        if (ry != 0f) {
+            setQuatFromRotY(QY, ry);
+            poseStack.mulPose(QY);
+        }
+        if (rx != 0f) {
+            setQuatFromRotX(QX, rx);
+            poseStack.mulPose(QX);
+        }
     }
 
     public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
         Vec3 rotation = cube.rotation();
 
-        poseStack.mulPose(new Quaternion(0, 0, (float) rotation.z(), false));
-        poseStack.mulPose(new Quaternion(0, (float) rotation.y(), 0, false));
-        poseStack.mulPose(new Quaternion((float) rotation.x(), 0, 0, false));
+        if (rotation.z() != 0f) {
+            setQuatFromRotZ(QZ, (float) rotation.z());
+            poseStack.mulPose(QZ);
+        }
+        if (rotation.y() != 0f) {
+            setQuatFromRotY(QY, (float) rotation.y());
+            poseStack.mulPose(QY);
+        }
+        if (rotation.x() != 0f) {
+            setQuatFromRotX(QX, (float) rotation.x());
+            poseStack.mulPose(QX);
+        }
     }
 
     public static void scaleMatrixForBone(PoseStack poseStack, AzBone bone) {
@@ -109,6 +132,27 @@ public final class RenderUtils {
             Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90)
         );
         poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+    }
+
+    private static void setQuatFromRotX(Quaternion q, float angleRad) {
+        float h = angleRad * 0.5f;
+        float s = Mth.sin(h);
+        float c = Mth.cos(h);
+        q.set(s, 0f, 0f, c);
+    }
+
+    private static void setQuatFromRotY(Quaternion q, float angleRad) {
+        float h = angleRad * 0.5f;
+        float s = Mth.sin(h);
+        float c = Mth.cos(h);
+        q.set(0f, s, 0f, c);
+    }
+
+    private static void setQuatFromRotZ(Quaternion q, float angleRad) {
+        float h = angleRad * 0.5f;
+        float s = Mth.sin(h);
+        float c = Mth.cos(h);
+        q.set(0f, 0f, s, c);
     }
 
     /**
