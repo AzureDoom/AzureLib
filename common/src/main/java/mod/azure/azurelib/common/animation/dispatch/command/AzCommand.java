@@ -95,7 +95,7 @@ public record AzCommand(List<AzAction> actions) {
         return create(controllerName, animationName, playBehavior, 0F, 1F, 0F, 0F, 0F, false);
     }
 
-    // TODO: Fix transition length overriding transition lenght on the base create method
+    // TODO: Fix transition length overriding transition length on the base create method
     public static AzCommand create(
         String controllerName,
         String animationName,
