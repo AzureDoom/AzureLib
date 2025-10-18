@@ -152,7 +152,9 @@ public class AzModelRenderer<K, T> {
                 continue;
             }
 
-            var normal = normalisedPoseState.transform(new Vector3f(quad.normal()));
+	        normalCache.set(quad.normal());
+	        normalisedPoseState.transform(normalCache);
+	        var normal = normalCache;
 
             RenderUtils.fixInvertedFlatCube(cube, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
