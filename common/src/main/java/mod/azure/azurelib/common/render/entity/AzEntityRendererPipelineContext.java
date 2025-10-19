@@ -44,7 +44,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
 
         // Handle entity damage/death state
         if (visibleBody && !glowing && hurtOrDead) {
-            return RenderType.entityCutout(texture);
+            return defaultRenderType;
         }
 
         // Handle transparency
