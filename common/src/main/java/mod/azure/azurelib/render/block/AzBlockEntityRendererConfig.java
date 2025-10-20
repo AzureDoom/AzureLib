@@ -87,7 +87,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 layer
             );
             this.pipelineContextFunction = AzBlockEntityRendererPipelineContext::new;
-	        this.renderTypeProvider = (a, b) -> RenderType.entityTranslucent(textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderType.entityTranslucent(textureLocationProvider.apply(b));
         }
 
         @Override

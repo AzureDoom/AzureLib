@@ -44,24 +44,24 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         var hurtOrDead = animatable instanceof LivingEntity living && (living.hurtTime > 1 || living.isDeadOrDying());
 
         // Handle entity damage/death state
-	    if (visibleBody && !glowing && hurtOrDead) {
-		    if (
-			    defaultRenderType == RenderType.entityTranslucentCull(texture) || defaultRenderType == RenderType
-				                                                                                           .entityTranslucent(texture)
-		    ) {
-			    return RenderType.entityCutoutNoCull(texture);
-		    }
-		    return defaultRenderType;
-	    }
+        if (visibleBody && !glowing && hurtOrDead) {
+            if (
+                defaultRenderType == RenderType.entityTranslucentCull(texture) || defaultRenderType == RenderType
+                    .entityTranslucent(texture)
+            ) {
+                return RenderType.entityCutoutNoCull(texture);
+            }
+            return defaultRenderType;
+        }
 
-	    // Handle transparency
-	    if (visibleBody && alpha < 1.0F) {
-		    return RenderType.entityTranslucent(texture);
-	    }
+        // Handle transparency
+        if (visibleBody && alpha < 1.0F) {
+            return RenderType.entityTranslucent(texture);
+        }
 
-	    // --- Vanilla-style fallback ---
-	    if (translucent) {
-		    return RenderType.entityTranslucent(texture);
+        // --- Vanilla-style fallback ---
+        if (translucent) {
+            return RenderType.entityTranslucent(texture);
         } else if (visibleBody) {
             return defaultRenderType;
         } else if (glowing) {
