@@ -55,12 +55,12 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
 
         // Handle transparency
         if (visibleBody && alpha < 1.0F) {
-            return RenderType.entityTranslucentCull(texture);
+            return RenderType.entityTranslucent(texture);
         }
 
         // --- Vanilla-style fallback ---
         if (translucent) {
-            return RenderType.itemEntityTranslucentCull(texture);
+            return RenderType.entityTranslucent(texture);
         } else if (visibleBody) {
             return defaultRenderType;
         } else if (glowing) {
