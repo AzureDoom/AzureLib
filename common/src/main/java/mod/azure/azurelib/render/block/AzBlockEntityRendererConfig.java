@@ -87,6 +87,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 layer
             );
             this.pipelineContextFunction = AzBlockEntityRendererPipelineContext::new;
+	        this.renderTypeProvider = (a, b) -> RenderType.entityTranslucent(textureLocationProvider.apply(b));
         }
 
         @Override
@@ -175,12 +176,12 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleFunction) {
-            return (Builder) super.setScale(scaleFunction);
+            return (Builder<T>) super.setScale(scaleFunction);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
-            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder<T>) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
@@ -194,7 +195,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         @Override
-        public AzBlockEntityRendererConfig build() {
+        public AzBlockEntityRendererConfig<T> build() {
             var baseConfig = super.build();
 
             return new AzBlockEntityRendererConfig<>(
