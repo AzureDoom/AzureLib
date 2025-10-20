@@ -25,11 +25,11 @@ import mod.azure.azurelib.common.model.cache.AzBakedModelCache;
  */
 public class AzProvider<K, T> {
 
-    private final Supplier<AzAnimator<K, T>> animatorSupplier;
+    protected final Supplier<AzAnimator<K, T>> animatorSupplier;
 
-    private final BiFunction<Entity, T, ResourceLocation> modelLocationProvider;
+    protected final BiFunction<Entity, T, ResourceLocation> modelLocationProvider;
 
-    private final Function<T, K> UUIDProvider;
+    protected final Function<T, K> UUIDProvider;
 
     public AzProvider(
         Supplier<AzAnimator<K, T>> animatorSupplier,
