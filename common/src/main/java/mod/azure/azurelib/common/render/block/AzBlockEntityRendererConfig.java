@@ -142,60 +142,60 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         public Builder<T> setPrerenderEntry(
             Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> preRenderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setRenderEntry(
             Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> renderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setRenderEntry(renderEntry);
+            return (Builder<T>) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
             Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> preRenderEntry
         ) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setAnimatorProvider(Supplier<@Nullable AzAnimator<Long, T>> animatorProvider) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setAnimatorProvider(animatorProvider);
+            return (Builder<T>) super.setAnimatorProvider(animatorProvider);
         }
 
         @Override
         public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alphaFunction);
+            return (Builder<T>) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder<T> setAlpha(float alpha) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
+            return (Builder<T>) super.setAlpha(alpha);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleFunction) {
-            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder<T>) super.setScale(scaleFunction);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
-            return (AzBlockEntityRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder<T>) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder<T> setScale(float scale) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scale);
+            return (Builder<T>) super.setScale(scale);
         }
 
         @Override
         public Builder<T> setScale(float scaleWidth, float scaleHeight) {
-            return (AzBlockEntityRendererConfig.Builder<T>) super.setScale(scaleWidth, scaleHeight);
+            return (Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
         @Override
-        public AzBlockEntityRendererConfig build() {
+        public AzBlockEntityRendererConfig<T> build() {
             var baseConfig = super.build();
 
             return new AzBlockEntityRendererConfig<>(

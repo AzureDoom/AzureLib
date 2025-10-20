@@ -35,7 +35,7 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
         this.rendererPipeline = createPipeline(config);
     }
 
-    protected AzBlockEntityRendererPipeline<T> createPipeline(AzBlockEntityRendererConfig config) {
+    protected AzBlockEntityRendererPipeline<T> createPipeline(AzBlockEntityRendererConfig<T> config) {
         return new AzBlockEntityRendererPipeline<>(config, this);
     }
 
