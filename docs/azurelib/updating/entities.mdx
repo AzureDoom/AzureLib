@@ -166,7 +166,8 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
-                .setAnimatorProvider(ExampleEntityAnimator::new).build()
+                .setAnimatorProvider(ExampleEntityAnimator::new).build(),
+            context
         );
     }
 }
