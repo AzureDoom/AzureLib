@@ -13,6 +13,7 @@ A guide for converting AzureLib/Geckolib Entities to the new 3.x code.
 
 ```java !!tabs AzureLib 2.x/Geckolib
 public class ExampleEntity extends Entity implements GeoEntity  {
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     // Geckolib used GeckoLibUtil
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
@@ -22,7 +23,10 @@ public class ExampleEntity extends Entity implements GeoEntity  {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // Where you registered your Controllers and such
+        controllers.add(
+            new AnimationController<>(this, "base_controller", 0,
+                state -> state.setAndContinue(IDLE))
+        );
     }
 
     @Override
@@ -47,7 +51,7 @@ public class ExampleEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             animationDispatcher.idle();
         }
     }
@@ -80,10 +84,14 @@ As you can see here, you no longer need to implement a Geo interface to your cla
 
 ```java !!tabs AzureLib 3.x
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
-    private static final ResourceLocation ANIMATIONS = new ResourceLocation(
+    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "animations/entity/example_entity.animation.json"
     );
+
+    public ExampleEntityAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
 
     @Override
     public void registerControllers(AzAnimationControllerContainer<ExampleEntity> animationControllerContainer) {
@@ -136,7 +144,7 @@ public class ExampleEntityDispatcher {
 ```java !!tabs AzureLib 2.x/Geckolib
 public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer() {
-        super(new DefaultedEntityGeoModel<>(new ResourceLocation(
+        super(new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(
             YOUR_MOD_ID, "example_entity"
         )));
     }
@@ -145,17 +153,17 @@ public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
 
 ```java !!tabs AzureLib 3.x
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation GEO = new ResourceLocation(
+    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "geo/entity/example_entity.geo.json"
     );
 
-    private static final ResourceLocation TEX = new ResourceLocation(
+    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "textures/entity/example_entity.png"
     );
 
-    public ExampleEntityRenderer() {
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
                 .setAnimatorProvider(ExampleEntityAnimator::new).build()
@@ -170,7 +178,7 @@ This is where you will now register the ResourceLocation model and texture of yo
 
 ## Registering
 
-Basic Example of Fabric and Forge
+Basic Example of Fabric and NeoForge
 
 <CodeTabs>
 
@@ -181,7 +189,7 @@ public void onInitializeClient() {
 }
 ```
 
-```java !!tabs Forge
+```java !!tabs NeoForge
 @SubscribeEvent
 public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
     event.registerEntityRenderer(ExampleRegistry.EXAMPLE_ENTITY.get(), ExampleEntityRenderer::new);
