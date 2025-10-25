@@ -9,6 +9,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import mod.azure.azurelib.config.TestingConfig;
+import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.network.Networking;
 
@@ -29,6 +31,7 @@ public final class NeoForgeAzureLibMod {
     public NeoForgeAzureLibMod(FMLJavaModLoadingContext loadingContext) {
         IEventBus modEventBus = loadingContext.getModEventBus();
         AzureLib.initialize();
+        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         BLOCKS.register(modEventBus);
         TILE_TYPES.register(modEventBus);
         modEventBus.addListener(this::init);

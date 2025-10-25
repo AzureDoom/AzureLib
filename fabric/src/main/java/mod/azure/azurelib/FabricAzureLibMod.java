@@ -1,5 +1,7 @@
 package mod.azure.azurelib;
 
+import mod.azure.azurelib.config.TestingConfig;
+import mod.azure.azurelib.config.format.ConfigFormats;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
@@ -11,6 +13,7 @@ public final class FabricAzureLibMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ConfigIO.FILE_WATCH_MANAGER.startService();
+        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         AzureLib.initialize();
         new FabricAzureLibNetwork();
 
