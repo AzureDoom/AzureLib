@@ -1,0 +1,46 @@
+---
+title: Rendering Items with Arms in First Person
+hide_meta: true
+---
+
+## Overview
+
+<Callout variant="info">
+    This page assumes you already setup items with animatons as per [Animating Items](../items/items)
+</Callout>
+
+AzureLib now includes built-in support for rendering **player arms** in the **first-person view** for items, as long as the correct bones are defined in the item's model.
+This makes it easy to create immersive first-person item animations (like holding weapons, tools, or devices) without needing to manually sync custom arm models.
+
+## How It Works
+
+If your item model contains the proper **arm bones**, AzureLib will automatically render them in first-person view when the player is holding the item.
+To enable this, you’ll need to **import pre-defined arm bones** into your `.bbmodel` and animate them where needed.
+
+## Adding Arms to Your Item Model
+
+1. **Download the pre-built arms model**:
+   [player_arms_import.bbmodel](https://github.com/AzureDoom/AzureLib/blob/1.21.1/player_arms_import.bbmodel)
+
+2. **Open your item’s `.bbmodel`** in Blockbench.
+
+3. **Import** the arm bones from the downloaded model into your own item model.
+   - Keep the bone hierarchy and naming intact.
+   - Do **not move or reposition** these bones in the **base** of your model.
+   - The arm bones are **hidden by default** and will **only appear when animated**.
+   - Only **move/animate** these bones in the animations where you want arms visible in first person.
+
+4. **Export** your updated model and recompile your resource pack or mod.
+
+## Example Usage
+
+A live working example can be found in the AzureLib example repository:
+
+👉 [Gun With Arm Example](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.20.1/common/src/main/java/mod/azure/azexamples/items/gunwitharm)
+
+## Notes
+
+- Make sure your animation only affects the imported arm bones when necessary.
+- The arm bones will **only render during active animations** that reference them.
+- For non-first person views, the arms won’t be shown.
+- Always test your item in-game to verify bone alignment and arm positioning.
