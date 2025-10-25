@@ -32,6 +32,7 @@ body:
         - Fabric
         - Forge (1.20.1 and older)
         - NeoForge
+        - Multiloader
       default: 0
     validations:
       required: true
@@ -39,7 +40,7 @@ body:
     id: modloader_version
     attributes:
       label: Mod Loader Version
-      description: What version of Fabric Loader/Forge/NeoForge are you running?
+      description: What version or versions of Fabric Loader/Forge/NeoForge are you running?
       value: "Fabric Loader x.x.x"
     validations:
       required: true
