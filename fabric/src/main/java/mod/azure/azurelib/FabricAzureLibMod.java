@@ -1,12 +1,12 @@
 package mod.azure.azurelib;
 
+import mod.azure.azurelib.config.TestingConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.*;
 
-import mod.azure.azurelib.config.AzureLibConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.platform.FabricAzureLibNetwork;
@@ -16,7 +16,7 @@ public final class FabricAzureLibMod implements ModInitializer {
     @Override
     public void onInitialize() {
         ConfigIO.FILE_WATCH_MANAGER.startService();
-        AzureLibMod.config = AzureLibMod.registerConfig(AzureLibConfig.class, ConfigFormats.json()).getConfigInstance();
+        AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         AzureLib.initialize();
         new FabricAzureLibNetwork();
 
