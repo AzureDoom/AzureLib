@@ -13,6 +13,7 @@ A guide for converting AzureLib/Geckolib Entities to the new 3.x code.
 
 ```java !!tabs AzureLib 2.x/Geckolib
 public class ExampleEntity extends Entity implements GeoEntity  {
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     // Geckolib used GeckoLibUtil
     private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 
@@ -22,7 +23,10 @@ public class ExampleEntity extends Entity implements GeoEntity  {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        // Where you registered your Controllers and such
+        controllers.add(
+            new AnimationController<>(this, "base_controller", 0,
+                state -> state.setAndContinue(IDLE))
+        );
     }
 
     @Override
@@ -47,7 +51,7 @@ public class ExampleEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             animationDispatcher.idle();
         }
     }
@@ -84,6 +88,10 @@ public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
         YOUR_MOD_ID,
         "animations/entity/example_entity.animation.json"
     );
+
+    public ExampleEntityAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
 
     @Override
     public void registerControllers(AzAnimationControllerContainer<ExampleEntity> animationControllerContainer) {
@@ -155,7 +163,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
         "textures/entity/example_entity.png"
     );
 
-    public ExampleEntityRenderer() {
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
                 .setAnimatorProvider(ExampleEntityAnimator::new).build()
