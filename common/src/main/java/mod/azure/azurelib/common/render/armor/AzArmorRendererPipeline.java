@@ -2,14 +2,13 @@ package mod.azure.azurelib.common.render.armor;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
 import java.util.UUID;
 
-import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.common.render.AzLayerRenderer;
@@ -85,8 +84,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
         scaleBoneWithModelPart(armorContext, boneContext, isReRender);
 
-        if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
-            boneContext.applyBoneVisibilityBySlot(currentSlot);
+        boneContext.applyBoneVisibilityBySlot(currentSlot);
 
         var alphaValue = config.alpha(context.animatable());
         if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha(armorContext.currentEntity()) < 1) {
@@ -174,7 +172,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
      */
     public void scaleModelForBaby(AzArmorRendererPipelineContext context, boolean isReRender) {
         var currentEntity = context.currentEntity();
-        if (!(currentEntity instanceof AgeableMob ageableMob && ageableMob.isBaby()) || isReRender) {
+        if (!(currentEntity instanceof LivingEntity ageableMob && ageableMob.isBaby()) || isReRender) {
             return;
         }
 
