@@ -1,9 +1,8 @@
 package mod.azure.azurelib.common.render.layer;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -82,23 +81,21 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
         var pattern = armorTrim.pattern().value();
 
         var bakery = Minecraft.getInstance().getModelManager();
-        var armorTrimsAtlas = bakery.getAtlas(Sheets.ARMOR_TRIMS_SHEET); // Any way to get this from context?
+        var armorTrimsAtlas = bakery.getAtlas(Sheets.ARMOR_TRIMS_SHEET);
 
         var renderPipeline = context.rendererPipeline();
         var trimLocation = texturePermutations.apply(armorTrim);
 
         var sprite = armorTrimsAtlas.getSprite(trimLocation);
         var renderType = Sheets.armorTrimsSheet(pattern.decal());
-        var vertexConsumer = sprite.wrap(context.multiBufferSource().getBuffer(renderType));
+        var vertexConsumer = sprite.wrap(
+            ItemRenderer.getArmorFoilBuffer(context.multiBufferSource(), renderType, itemstack.hasFoil())
+        );
 
         if (context.renderType() != null) {
-            RenderType prevRenderType = context.renderType();
-            VertexConsumer prevVertexConsumer = context.vertexConsumer();
             context.setRenderType(renderType);
             context.setVertexConsumer(vertexConsumer);
             renderPipeline.reRender(context);
-            context.setRenderType(prevRenderType);
-            context.setVertexConsumer(prevVertexConsumer);
         }
     }
 
