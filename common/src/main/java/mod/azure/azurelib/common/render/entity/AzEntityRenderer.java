@@ -48,7 +48,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     }
 
     @Override
-    public final @NotNull ResourceLocation getTextureLocation(@NotNull T animatable) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull T animatable) {
         return config.textureLocation(animatable, animatable);
     }
 
