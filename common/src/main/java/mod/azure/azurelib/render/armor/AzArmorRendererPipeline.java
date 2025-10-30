@@ -3,8 +3,8 @@ package mod.azure.azurelib.render.armor;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
@@ -160,7 +160,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
      */
     public void scaleModelForBaby(AzArmorRendererPipelineContext context, boolean isReRender) {
         var currentEntity = context.currentEntity();
-        if (!(currentEntity instanceof AgeableMob ageableMob && ageableMob.isBaby()) || isReRender) {
+        if (!(currentEntity instanceof LivingEntity ageableMob && ageableMob.isBaby()) || isReRender) {
             return;
         }
 
