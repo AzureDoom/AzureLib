@@ -11,22 +11,23 @@ This guide will walk you through implementing a custom render layer using the `A
 ## Key Components of the `AzRenderLayer` Interface
 
 The `AzRenderLayer` interface defines the structure for your custom render layer with the following methods:
-1. `void preRender(AzRendererPipelineContext<K, T> context)`
+
+1. `void preRender(AzRendererPipelineContext\<K, T> context)`
     - Invoked before the base model is rendered.
     - Used for pre-render manipulations, such as modifying bone visibility or applying transformations to the model.
 
-2. `void render(AzRendererPipelineContext<K, T> context)`
+2. `void render(AzRendererPipelineContext\<K, T> context)`
     - The main rendering logic for your layer. Called after the base model is rendered but before supplementary rendering (e.g., name tags).
     - This is where your custom visual elements, such as textures or effects, are defined and rendered.
 
-3. `void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone)`
+3. `void renderForBone(AzRendererPipelineContext\<K, T> context, AzBone bone)`
     - Called once for each bone in the model.
     - Allows you to render additional elements tied specifically to individual bones.
     - This method is computationally expensive, so it should only be used when necessary. If it modifies the render buffer, ensure to reset it using `MultiBufferSource#getBuffer` before exiting the method.
 
 ## Unique Key (K)
 
-AzRenderLayer is generic on a key type parameter K, which identifies the animatable object being rendered. The renderer provides this key via the AzRendererPipelineContext<K, T> each time the layer is invoked.
+AzRenderLayer is generic on a key type parameter K, which identifies the animatable object being rendered. The renderer provides this key via the AzRendererPipelineContext\<K, T> each time the layer is invoked.
 
 - K — The type of the key used to identify the animatable object. Typically, this is a UUID for entities or items, and a Long for block entities.
 - T — The type of the animatable object that this layer applies to.
