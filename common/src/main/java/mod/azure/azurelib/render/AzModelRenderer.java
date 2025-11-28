@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -32,13 +33,11 @@ import mod.azure.azurelib.util.client.RenderUtils;
  */
 public class AzModelRenderer<K, T> {
 
-    private final Matrix4f poseStateCache = new Matrix4f();
-
-    private final Vector3f normalCache = new Vector3f();
-
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected final AzLayerRenderer<K, T> layerRenderer;
+
+    private IntIntPair entityTextureSize;
 
     public AzModelRenderer(AzRendererPipeline<K, T> rendererPipeline, AzLayerRenderer<K, T> layerRenderer) {
         this.layerRenderer = layerRenderer;
@@ -172,16 +171,13 @@ public class AzModelRenderer<K, T> {
         Vector3f normal
     ) {
         var buffer = context.vertexConsumer();
-        var config = rendererPipeline.config();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        var entityTextureSize = context.computeTextureSize(
-            config.textureLocation(context.currentEntity(), context.animatable())
-        );
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
+
             Vector4f vector4f = new Vector4f(position.x(), position.y(), position.z(), 1);
 
             vector4f.transform(poseState);
@@ -458,5 +454,15 @@ public class AzModelRenderer<K, T> {
      */
     protected boolean isBufferInactive(BufferBuilder builder) {
         return !builder.building;
+    }
+
+    public void cacheTexture(AzRendererPipelineContext<K, T> context) {
+        this.entityTextureSize = context.computeTextureSize(
+            rendererPipeline.config().textureLocation(context.currentEntity(), context.animatable())
+        );
+    }
+
+    public void clearCacheTexture() {
+        this.entityTextureSize = null;
     }
 }

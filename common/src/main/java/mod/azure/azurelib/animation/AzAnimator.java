@@ -4,10 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.WeakHashMap;
 
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
+import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangParser;
@@ -18,6 +20,8 @@ import mod.azure.azurelib.core.molang.MolangQueries;
  * entities, blocks, or items. It provides a reusable structure for animating objects, allowing the integration of a
  * variety of animation controllers and custom animations.
  *
+ * @param <K> The type of the key used to identify the animatable object. Typically, a UUID for items/entities and Long
+ *            for BlockEntities.
  * @param <T> The type of object this animator will animate (e.g., an entity, block entity, or item stack).
  */
 public abstract class AzAnimator<K, T> {
@@ -26,10 +30,11 @@ public abstract class AzAnimator<K, T> {
 
     private final WeakHashMap<K, AzAnimationContext<T>> contextCache = new WeakHashMap<>();
 
-    // Holds animation controllers.
     private final AzAnimationControllerContainer<T> animationControllerContainer;
 
     protected final AzAnimatorConfig config;
+
+    private Collection<AzAnimationController<T>> cachedControllers;
 
     public boolean reloadAnimations;
 
@@ -77,8 +82,10 @@ public abstract class AzAnimator<K, T> {
         preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
 
         if (!boneCache.isEmpty()) {
+            if (cachedControllers == null)
+                cachedControllers = animationControllerContainer.getAll();
 
-            for (var controller : animationControllerContainer.getAll()) {
+            for (var controller : cachedControllers) {
                 controller.update();
             }
 
