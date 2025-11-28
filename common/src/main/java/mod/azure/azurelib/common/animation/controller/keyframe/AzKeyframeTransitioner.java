@@ -43,7 +43,8 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var transitionLength = animationController.animationProperties().transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
-        MolangParser.INSTANCE.setValue(MolangQueries.ANIM_TIME, () -> 0);
+        double finalAdjustedTick = adjustedTick;
+        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var bone = bones.get(boneAnimation.boneName());
@@ -85,9 +86,9 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         }
 
         var initialSnapshot = bone.getInitialAzSnapshot();
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), 0, true, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), 0, true, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), 0, true, Axis.Z);
+        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, true, Axis.X);
+        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, true, Axis.Y);
+        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, true, Axis.Z);
 
         queue.addNextRotation(null, adjustedTick, transitionLength, snapshot, initialSnapshot, x, y, z);
     }
