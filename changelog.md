@@ -1,10 +1,11 @@
-v3.2.1
+v3.2.2
+
+***WARNING THIS IS A BREAKING CHANGE FROM 3.1.X, PLEASE ALLOW MOD DEVS TIME TO UPDATE THEIR MOD TO THIS VERSION***
 
 ### Changes
-- Set the default render type of Block Entities to translucent.
-- Made AzProvider variables protected instead of private.
+- Cached controllers, some animations points, and other related data to reduce memory usage.
 
 ### Fixes
-- Fixed quads disappearing when entity gets hurt.
-- Fixed quads rendering with cull when invisible and viewed in spectator mode.
-- Fixed AzBlockEntityRendererConfig builder using a generic type instead of the correct one.
+- Fixed Armor scaling on baby mobs.
+- Fixed an issue where the model cache would not update when a model was changed.
+- Fixed an issue where items couldn't use client side AzCommands.
