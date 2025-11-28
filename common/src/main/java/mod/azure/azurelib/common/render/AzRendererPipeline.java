@@ -118,7 +118,9 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         preRender(context, false);
 
         layerRenderer.preApplyRenderLayers(context);
+        modelRenderer.cacheTexture(context);
         modelRenderer.render(context, false);
+        modelRenderer.clearCacheTexture();
         layerRenderer.applyRenderLayers(context);
         postRender(context, false);
 

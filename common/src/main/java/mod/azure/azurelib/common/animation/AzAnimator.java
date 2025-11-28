@@ -4,10 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.WeakHashMap;
 
 import mod.azure.azurelib.common.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.common.animation.cache.AzBoneCache;
+import mod.azure.azurelib.common.animation.controller.AzAnimationController;
 import mod.azure.azurelib.common.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangParser;
@@ -31,6 +33,8 @@ public abstract class AzAnimator<K, T> {
     private final AzAnimationControllerContainer<T> animationControllerContainer;
 
     protected final AzAnimatorConfig config;
+
+    private Collection<AzAnimationController<T>> cachedControllers;
 
     public boolean reloadAnimations;
 
@@ -78,8 +82,10 @@ public abstract class AzAnimator<K, T> {
         preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
 
         if (!boneCache.isEmpty()) {
+            if (cachedControllers == null)
+                cachedControllers = animationControllerContainer.getAll();
 
-            for (var controller : animationControllerContainer.getAll()) {
+            for (var controller : cachedControllers) {
                 controller.update();
             }
 

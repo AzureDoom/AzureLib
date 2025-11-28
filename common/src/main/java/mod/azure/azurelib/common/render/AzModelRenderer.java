@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -34,9 +35,13 @@ public class AzModelRenderer<K, T> {
 
     private final Vector3f normalScratch = new Vector3f();
 
+    private final Vector4f quadPosition = new Vector4f();
+
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected final AzLayerRenderer<K, T> layerRenderer;
+
+    private IntIntPair entityTextureSize;
 
     public AzModelRenderer(AzRendererPipeline<K, T> rendererPipeline, AzLayerRenderer<K, T> layerRenderer) {
         this.layerRenderer = layerRenderer;
@@ -168,17 +173,13 @@ public class AzModelRenderer<K, T> {
     ) {
         var buffer = context.vertexConsumer();
         var color = context.renderColor();
-        var config = rendererPipeline.config();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        var entityTextureSize = context.computeTextureSize(
-            config.textureLocation(context.currentEntity(), context.animatable())
-        );
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
-            var vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
+            var vector4f = poseState.transform(quadPosition.set(position.x(), position.y(), position.z(), 1.0f));
             if (context.getTextureOverride() != null && boneTextureSize != null && entityTextureSize != null) {
                 var texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
                 var texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
@@ -369,5 +370,15 @@ public class AzModelRenderer<K, T> {
      */
     protected boolean isBufferInactive(BufferBuilder builder) {
         return !builder.building;
+    }
+
+    public void cacheTexture(AzRendererPipelineContext<K, T> context) {
+        this.entityTextureSize = context.computeTextureSize(
+            rendererPipeline.config().textureLocation(context.currentEntity(), context.animatable())
+        );
+    }
+
+    public void clearCacheTexture() {
+        this.entityTextureSize = null;
     }
 }

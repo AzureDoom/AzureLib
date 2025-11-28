@@ -37,6 +37,13 @@ public class AzAnimationControllerStateMachine<T> extends StateMachine<AzAnimati
         return new Context<>();
     }
 
+    public void initializeContext(AzAnimationController<T> controller, AzAnimationContext<T> animContext) {
+        var ctx = getContext();
+        ctx.animationController = controller;
+        ctx.animationContext = animContext;
+        ctx.stateMachine = this;
+    }
+
     public void update() {
         super.update(getContext());
     }

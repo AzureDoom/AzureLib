@@ -93,23 +93,31 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.packedOverlay = getPackedOverlay(animatable, 0, partialTick);
         this.partialTick = partialTick;
         this.poseStack = poseStack;
-        this.renderType = renderType;
-        this.vertexConsumer = vertexConsumer;
+        if (vertexConsumer != null) {
+            this.vertexConsumer = vertexConsumer;
+        }
         this.renderColor = getRenderColor(animatable, partialTick, packedLight).argbInt();
 
         if (renderType == null) {
-            var textureLocation = rendererPipeline.config().textureLocation(currentEntity, animatable);
+            var cfg = rendererPipeline.config();
+            var texture = cfg.textureLocation(currentEntity, animatable);
+
             this.renderType = getDefaultRenderType(
                 animatable,
-                textureLocation,
+                texture,
                 multiBufferSource,
                 partialTick,
-                rendererPipeline.config().getRenderType(currentEntity, animatable),
-                rendererPipeline.config().alpha(animatable)
+                cfg.getRenderType(currentEntity, animatable),
+                cfg.alpha(animatable)
             );
+        } else {
+            if (this.renderType != renderType) {
+                this.vertexConsumer = null;
+            }
+            this.renderType = renderType;
         }
 
-        if (vertexConsumer == null && this.renderType != null) {
+        if (this.vertexConsumer == null && this.renderType != null) {
             this.vertexConsumer = multiBufferSource.getBuffer(this.renderType);
         }
     }
