@@ -212,7 +212,7 @@ public record AzCommand(List<AzAction> actions) {
      */
     public void sendForItem(Entity entity, ItemStack itemStack) {
         if (entity.level().isClientSide()) {
-            dispatchFromClient(entity);
+            dispatchFromClient(itemStack);
         } else {
             if (!itemStack.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
                 AzureLib.LOGGER.warn(
