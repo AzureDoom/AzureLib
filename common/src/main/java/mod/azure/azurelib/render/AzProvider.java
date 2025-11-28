@@ -56,6 +56,8 @@ public class AzProvider<K, T> {
             return AzBakedModel.getDefault();
 
         var animator = AzAnimatorAccessor.getOrNull(animatable);
+        if (animator == null)
+            return shared;
         var ctx = animator.context();
 
         var cache = ctx.boneCache();

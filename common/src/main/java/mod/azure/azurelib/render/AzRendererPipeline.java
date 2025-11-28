@@ -76,7 +76,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
      *
      * @see AnimatableTexture#setAndUpdate
      */
-    protected abstract void updateAnimatedTextureFrame(T animatable);
+    public abstract void updateAnimatedTextureFrame(T animatable);
 
     /**
      * Initial access point for rendering. It all begins here.<br>
@@ -109,7 +109,9 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         preRender(context, false);
 
         layerRenderer.preApplyRenderLayers(context);
+        modelRenderer.cacheTexture(context);
         modelRenderer.render(context, false);
+        modelRenderer.clearCacheTexture();
         layerRenderer.applyRenderLayers(context);
         postRender(context, false);
 
