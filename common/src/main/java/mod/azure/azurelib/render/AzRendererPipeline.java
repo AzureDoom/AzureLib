@@ -76,7 +76,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
      *
      * @see AnimatableTexture#setAndUpdate
      */
-    protected abstract void updateAnimatedTextureFrame(T animatable);
+    public abstract void updateAnimatedTextureFrame(T animatable);
 
     /**
      * Initial access point for rendering. It all begins here.<br>

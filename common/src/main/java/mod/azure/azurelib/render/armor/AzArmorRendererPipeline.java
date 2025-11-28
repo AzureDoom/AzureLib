@@ -49,7 +49,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     }
 
     @Override
-    protected void updateAnimatedTextureFrame(ItemStack animatable) {
+    public void updateAnimatedTextureFrame(ItemStack animatable) {
         var currentEntity = context().currentEntity();
 
         if (currentEntity != null) {
