@@ -23,9 +23,9 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
 
     private final AzEntityRenderer<T> entityRenderer;
 
-    protected Matrix4f entityRenderTranslations = new Matrix4f();
+    public Matrix4f entityRenderTranslations = new Matrix4f();
 
-    protected Matrix4f modelRenderTranslations = new Matrix4f();
+    public Matrix4f modelRenderTranslations = new Matrix4f();
 
     public AzEntityRendererPipeline(AzEntityRendererConfig<T> config, AzEntityRenderer<T> entityRenderer) {
         super(config);
