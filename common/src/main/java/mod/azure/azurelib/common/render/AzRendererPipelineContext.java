@@ -93,9 +93,7 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.packedOverlay = getPackedOverlay(animatable, 0, partialTick);
         this.partialTick = partialTick;
         this.poseStack = poseStack;
-        if (vertexConsumer != null) {
-            this.vertexConsumer = vertexConsumer;
-        }
+        this.vertexConsumer = vertexConsumer;
         this.renderColor = getRenderColor(animatable, partialTick, packedLight).argbInt();
 
         if (renderType == null) {
@@ -111,9 +109,6 @@ public abstract class AzRendererPipelineContext<K, T> {
                 cfg.alpha(animatable)
             );
         } else {
-            if (this.renderType != renderType) {
-                this.vertexConsumer = null;
-            }
             this.renderType = renderType;
         }
 
