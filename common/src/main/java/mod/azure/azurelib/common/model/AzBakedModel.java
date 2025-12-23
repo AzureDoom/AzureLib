@@ -16,9 +16,16 @@ public class AzBakedModel {
 
     private final List<AzBone> topLevelBones;
 
+    private final UUID modelUUID;
+
     public AzBakedModel(List<AzBone> topLevelBones) {
+        this(topLevelBones, UUID.randomUUID());
+    }
+
+    public AzBakedModel(List<AzBone> topLevelBones, UUID modelUUID) {
         this.topLevelBones = Collections.unmodifiableList(topLevelBones);
         this.bonesByName = Collections.unmodifiableMap(mapBonesByName(topLevelBones));
+        this.modelUUID = modelUUID;
     }
 
     private Map<String, AzBone> mapBonesByName(List<AzBone> bones) {
@@ -40,7 +47,7 @@ public class AzBakedModel {
         for (AzBone bone : this.topLevelBones) {
             copied.add(bone.deepCopy()); // each child deepCopy() calls saveInitialSnapshot()
         }
-        return new AzBakedModel(copied); // this will rebuild bonesByName internally
+        return new AzBakedModel(copied, this.modelUUID); // this will rebuild bonesByName internally
     }
 
     public @Nullable AzBone getBoneOrNull(String name) {
@@ -57,6 +64,10 @@ public class AzBakedModel {
 
     public List<AzBone> getTopLevelBones() {
         return topLevelBones;
+    }
+
+    public UUID getModelUUID() {
+        return modelUUID;
     }
 
     public static AzBakedModel getDefault() {
