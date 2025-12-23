@@ -2,10 +2,7 @@ package mod.azure.azurelib.animation.controller.keyframe;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
@@ -30,14 +27,6 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
 
     private final AzBoneAnimationQueueCache<T> boneAnimationQueueCache;
 
-    private double currentAnimTimeSeconds;
-
-    private final DoubleSupplier animTimeSupplier = () -> currentAnimTimeSeconds;
-
-    private final Map<String, BoneCache> boneCache = new HashMap<>();
-
-    protected static final AzAnimationPoint EMPTY_POINT = new AzAnimationPoint(null, 0, 0, 0, 0);
-
     public AzKeyframeExecutor(
         AzAnimationController<T> animationController,
         AzBoneAnimationQueueCache<T> boneAnimationQueueCache
@@ -56,129 +45,79 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
         var keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
         var controllerTimer = animationController.controllerTimer();
 
-        final double adjustedTick = controllerTimer.getAdjustedTick();
-        this.currentAnimTimeSeconds = adjustedTick / 20d;
+        final double finalAdjustedTick = controllerTimer.getAdjustedTick();
 
-        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, animTimeSupplier);
+        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
-            var boneName = boneAnimation.boneName();
-            var boneQueue = boneAnimationQueueCache.getOrNull(boneName);
-            if (boneQueue == null) {
+            var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
+
+            if (boneAnimationQueue == null) {
                 if (crashWhenCantFindBone) {
-                    throw new NoSuchElementException("Could not find bone: " + boneName);
+                    throw new NoSuchElementException("Could not find bone: " + boneAnimation.boneName());
                 }
+
                 continue;
             }
 
-            var cache = boneCache.computeIfAbsent(boneName, n -> new BoneCache());
-            if (cache.lastTick == adjustedTick)
-                continue; // already updated this tick
-            cache.lastTick = adjustedTick;
+            var rotationKeyframes = boneAnimation.rotationKeyframes();
+            var positionKeyframes = boneAnimation.positionKeyframes();
+            var scaleKeyframes = boneAnimation.scaleKeyframes();
+            var adjustedTick = controllerTimer.getAdjustedTick();
 
-            var rot = boneAnimation.rotationKeyframes();
-            var pos = boneAnimation.positionKeyframes();
-            var scl = boneAnimation.scaleKeyframes();
-
-            if (stackIsNotEmpty(rot))
-                updateRotation(rot, boneQueue, adjustedTick, cache);
-            if (stackIsNotEmpty(pos))
-                updatePosition(pos, boneQueue, adjustedTick, cache);
-            if (stackIsNotEmpty(scl))
-                updateScale(scl, boneQueue, adjustedTick, cache);
+            updateRotation(rotationKeyframes, boneAnimationQueue, adjustedTick);
+            updatePosition(positionKeyframes, boneAnimationQueue, adjustedTick);
+            updateScale(scaleKeyframes, boneAnimationQueue, adjustedTick);
         }
 
-        keyframeCallbackHandler.handle(animatable, adjustedTick);
-    }
-
-    private boolean stackIsNotEmpty(AzKeyframeStack<?> stack) {
-        return !stack.xKeyframes().isEmpty() || !stack.yKeyframes().isEmpty() || !stack.zKeyframes().isEmpty();
+        keyframeCallbackHandler.handle(animatable, controllerTimer.getAdjustedTick());
     }
 
     private void updateRotation(
         AzKeyframeStack<AzKeyframe<IValue>> keyframes,
         AzBoneAnimationQueue queue,
-        double tick,
-        BoneCache cache
+        double adjustedTick
     ) {
-        AzAnimationPoint newX = getAnimationPointAtTick(keyframes.xKeyframes(), tick, true, Axis.X);
-        AzAnimationPoint newY = getAnimationPointAtTick(keyframes.yKeyframes(), tick, true, Axis.Y);
-        AzAnimationPoint newZ = getAnimationPointAtTick(keyframes.zKeyframes(), tick, true, Axis.Z);
+        if (keyframes.xKeyframes().isEmpty()) {
+            return;
+        }
 
-        if (cache.rotX != EMPTY_POINT && cache.rotX != newX)
-            recyclePoint(cache.rotX);
-        if (cache.rotY != EMPTY_POINT && cache.rotY != newY)
-            recyclePoint(cache.rotY);
-        if (cache.rotZ != EMPTY_POINT && cache.rotZ != newZ)
-            recyclePoint(cache.rotZ);
+        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, true, Axis.X);
+        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, true, Axis.Y);
+        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, true, Axis.Z);
 
-        cache.rotX = getOrDefault(newX, cache.rotX);
-        cache.rotY = getOrDefault(newY, cache.rotY);
-        cache.rotZ = getOrDefault(newZ, cache.rotZ);
-
-        queue.addRotations(cache.rotX, cache.rotY, cache.rotZ);
+        queue.addRotations(x, y, z);
     }
 
     private void updatePosition(
         AzKeyframeStack<AzKeyframe<IValue>> keyframes,
         AzBoneAnimationQueue queue,
-        double tick,
-        BoneCache cache
+        double adjustedTick
     ) {
-        AzAnimationPoint newX = getAnimationPointAtTick(keyframes.xKeyframes(), tick, false, Axis.X);
-        AzAnimationPoint newY = getAnimationPointAtTick(keyframes.yKeyframes(), tick, false, Axis.Y);
-        AzAnimationPoint newZ = getAnimationPointAtTick(keyframes.zKeyframes(), tick, false, Axis.Z);
+        if (keyframes.xKeyframes().isEmpty()) {
+            return;
+        }
 
-        if (cache.posX != EMPTY_POINT && cache.posX != newX)
-            recyclePoint(cache.posX);
-        if (cache.posY != EMPTY_POINT && cache.posY != newY)
-            recyclePoint(cache.posY);
-        if (cache.posZ != EMPTY_POINT && cache.posZ != newZ)
-            recyclePoint(cache.posZ);
+        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
+        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
+        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
 
-        cache.posX = getOrDefault(newX, cache.posX);
-        cache.posY = getOrDefault(newY, cache.posY);
-        cache.posZ = getOrDefault(newZ, cache.posZ);
-
-        queue.addPositions(cache.posX, cache.posY, cache.posZ);
+        queue.addPositions(x, y, z);
     }
 
     private void updateScale(
         AzKeyframeStack<AzKeyframe<IValue>> keyframes,
         AzBoneAnimationQueue queue,
-        double tick,
-        BoneCache cache
+        double adjustedTick
     ) {
-        AzAnimationPoint newX = getAnimationPointAtTick(keyframes.xKeyframes(), tick, false, Axis.X);
-        AzAnimationPoint newY = getAnimationPointAtTick(keyframes.yKeyframes(), tick, false, Axis.Y);
-        AzAnimationPoint newZ = getAnimationPointAtTick(keyframes.zKeyframes(), tick, false, Axis.Z);
+        if (keyframes.xKeyframes().isEmpty()) {
+            return;
+        }
 
-        if (cache.sclX != EMPTY_POINT && cache.sclX != newX)
-            recyclePoint(cache.sclX);
-        if (cache.sclY != EMPTY_POINT && cache.sclY != newY)
-            recyclePoint(cache.sclY);
-        if (cache.sclZ != EMPTY_POINT && cache.sclZ != newZ)
-            recyclePoint(cache.sclZ);
+        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
+        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
+        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
 
-        cache.sclX = getOrDefault(newX, cache.sclX);
-        cache.sclY = getOrDefault(newY, cache.sclY);
-        cache.sclZ = getOrDefault(newZ, cache.sclZ);
-
-        queue.addScales(cache.sclX, cache.sclY, cache.sclZ);
-    }
-
-    private static AzAnimationPoint getOrDefault(AzAnimationPoint value, AzAnimationPoint fallback) {
-        return value != null ? value : fallback;
-    }
-
-    private static class BoneCache {
-
-        double lastTick = -1;
-
-        AzAnimationPoint rotX = EMPTY_POINT, rotY = EMPTY_POINT, rotZ = EMPTY_POINT;
-
-        AzAnimationPoint posX = EMPTY_POINT, posY = EMPTY_POINT, posZ = EMPTY_POINT;
-
-        AzAnimationPoint sclX = EMPTY_POINT, sclY = EMPTY_POINT, sclZ = EMPTY_POINT;
+        queue.addScales(x, y, z);
     }
 }
