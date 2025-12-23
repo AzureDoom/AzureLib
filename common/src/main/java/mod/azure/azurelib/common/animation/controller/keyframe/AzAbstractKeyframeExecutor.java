@@ -1,6 +1,5 @@
 package mod.azure.azurelib.common.animation.controller.keyframe;
 
-import java.util.ArrayDeque;
 import java.util.List;
 
 import mod.azure.azurelib.core.math.Constant;
@@ -14,10 +13,6 @@ import mod.azure.azurelib.core.object.Axis;
  */
 public class AzAbstractKeyframeExecutor {
 
-    private static final int MAX_POOL_SIZE = 512;
-
-    private static final ArrayDeque<AzAnimationPoint> pointPool = new ArrayDeque<>(MAX_POOL_SIZE);
-
     protected AzAbstractKeyframeExecutor() {}
 
     /**
@@ -29,11 +24,9 @@ public class AzAbstractKeyframeExecutor {
         boolean isRotation,
         Axis axis
     ) {
-        if (frames.isEmpty()) {
-            return obtainPoint(null, 0, 0, 0, 0);
-        }
-
-        AzKeyframeLocation<AzKeyframe<IValue>> location = getCurrentKeyframeLocation(frames, tick);
+        AzKeyframeLocation<AzKeyframe<IValue>> location = frames.isEmpty()
+            ? new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0)
+            : getCurrentKeyframeLocation(frames, tick);
         var currentFrame = location.keyframe();
         var startValue = currentFrame.startValue().get();
         var endValue = currentFrame.endValue().get();
@@ -51,7 +44,7 @@ public class AzAbstractKeyframeExecutor {
             }
         }
 
-        return obtainPoint(currentFrame, location.startTick(), currentFrame.length(), startValue, endValue);
+        return new AzAnimationPoint(currentFrame, location.startTick(), currentFrame.length(), startValue, endValue);
     }
 
     /**
@@ -76,29 +69,5 @@ public class AzAbstractKeyframeExecutor {
         }
 
         return new AzKeyframeLocation<>(frames.get(frames.size() - 1), ageInTicks);
-    }
-
-    protected static AzAnimationPoint obtainPoint(
-        AzKeyframe<?> keyframe,
-        double currentTick,
-        double len,
-        double start,
-        double end
-    ) {
-        AzAnimationPoint p = pointPool.pollFirst();
-        if (p == null) {
-            return new AzAnimationPoint(keyframe, currentTick, len, start, end);
-        }
-        p.reinit(keyframe, currentTick, len, start, end);
-        return p;
-    }
-
-    protected static void recyclePoint(AzAnimationPoint point) {
-        if (point == null)
-            return;
-        if (pointPool.size() < MAX_POOL_SIZE) {
-            point.reset();
-            pointPool.addFirst(point);
-        }
     }
 }

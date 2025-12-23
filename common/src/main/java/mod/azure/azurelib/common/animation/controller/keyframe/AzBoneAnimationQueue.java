@@ -5,7 +5,7 @@
  */
 package mod.azure.azurelib.common.animation.controller.keyframe;
 
-import java.util.ArrayDeque;
+import java.util.LinkedList;
 import java.util.Queue;
 
 import mod.azure.azurelib.AzureLib;
@@ -34,15 +34,15 @@ public record AzBoneAnimationQueue(
         // TODO: Optimize
         this(
             bone,
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>(),
-            new ArrayDeque<>()
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>(),
+            new LinkedList<>()
         );
     }
 
@@ -62,9 +62,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.positionXQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.positionXQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -83,9 +81,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.positionYQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.positionYQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -104,9 +100,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.positionZQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.positionZQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -172,9 +166,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.scaleXQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.scaleXQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -193,9 +185,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.scaleYQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.scaleYQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -214,9 +204,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.scaleZQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.scaleZQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -282,9 +270,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.rotationXQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.rotationXQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -303,9 +289,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.rotationYQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.rotationYQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
@@ -324,9 +308,7 @@ public record AzBoneAnimationQueue(
         double startValue,
         double endValue
     ) {
-        this.rotationZQueue.add(
-            AzAbstractKeyframeExecutor.obtainPoint(keyframe, lerpedTick, transitionLength, startValue, endValue)
-        );
+        this.rotationZQueue.add(new AzAnimationPoint(keyframe, lerpedTick, transitionLength, startValue, endValue));
     }
 
     /**
