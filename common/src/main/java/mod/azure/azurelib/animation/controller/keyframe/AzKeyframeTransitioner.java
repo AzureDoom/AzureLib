@@ -43,7 +43,8 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var transitionLength = animationController.animationProperties().transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
-        MolangParser.INSTANCE.setValue(MolangQueries.ANIM_TIME, () -> 0);
+        double finalAdjustedTick = adjustedTick;
+        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var bone = bones.get(boneAnimation.boneName());

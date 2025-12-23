@@ -52,8 +52,6 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     private AzAnimationProperties animationProperties;
 
-    private final AzAnimationControllerStateMachine.Context<T> cachedContext;
-
     AzAnimationController(
         String name,
         AzAnimator<?, T> animator,
@@ -84,8 +82,6 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         );
 
         this.stateMachine = new AzAnimationControllerStateMachine<>(stateHolder, this, animator.context());
-        this.stateMachine.initializeContext(this, animator.context());
-        this.cachedContext = stateMachine.getContext();
     }
 
     /**
@@ -146,7 +142,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         // Adjust the tick before making any updates.
         controllerTimer.update();
         // Run state machine updates.
-        stateMachine.update(cachedContext);
+        stateMachine.update();
         // Update bone animation queue cache.
         boneAnimationQueueCache.update(animationProperties.easingType());
     }
