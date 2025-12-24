@@ -60,6 +60,21 @@ public class AzActionRegistry {
             AzRootSetEasingTypeAction::encode
         );
         register(
+            AzRootSetFreezeTickAction.RESOURCE_LOCATION,
+            AzRootSetFreezeTickAction::decode,
+            AzRootSetFreezeTickAction::encode
+        );
+        register(
+            AzRootSetRepeatTimesAction.RESOURCE_LOCATION,
+            AzRootSetRepeatTimesAction::decode,
+            AzRootSetRepeatTimesAction::encode
+        );
+        register(
+            AzRootSetReverseAction.RESOURCE_LOCATION,
+            AzRootSetReverseAction::decode,
+            AzRootSetReverseAction::encode
+        );
+        register(
             AzRootSetTransitionSpeedAction.RESOURCE_LOCATION,
             AzRootSetTransitionSpeedAction::decode,
             AzRootSetTransitionSpeedAction::encode
