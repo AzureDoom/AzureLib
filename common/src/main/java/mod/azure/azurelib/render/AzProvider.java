@@ -99,12 +99,35 @@ public class AzProvider<K, T> {
             if (ctx != null && shared != null) {
                 var baked = ctx.boneCache().getBakedModel();
 
-                if (!baked.equals(shared)) {
+                if (!baked.getModelUUID().equals(shared.getModelUUID())) {
                     ctx.boneCache().setActiveModel(shared);
+                    // Recache the animator on model change
+                    cachedAnimator = cacheAnimator(accessor, shared, animatable);
                 }
+                // TODO: Their might be cases where the animator changes without the model changing
             }
         }
 
+        return cachedAnimator;
+    }
+
+    /***
+     * Returns an {@link AzAnimator} based of accessor and the current animation supplier
+     *
+     * @return AzAnimator returns itself again
+     */
+    private AzAnimator<K, T> cacheAnimator(AzAnimatorAccessor<K, T> accessor, AzBakedModel shared, T animatable) {
+        var cachedAnimator = animatorSupplier.get();
+        if (cachedAnimator != null) {
+            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
+
+            if (shared != null) {
+                ctx.boneCache().setActiveModel(shared);
+            }
+
+            cachedAnimator.registerControllers(cachedAnimator.getAnimationControllerContainer());
+            accessor.setAnimator(cachedAnimator);
+        }
         return cachedAnimator;
     }
 }
