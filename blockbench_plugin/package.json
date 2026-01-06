@@ -1,6 +1,6 @@
 {
   "name": "azurelib_utils",
-  "version": "2.0.0-alpha25",
+  "version": "2.0.0",
   "private": true,
   "description": "AzureLib Animator",
   "main": "index.js",
