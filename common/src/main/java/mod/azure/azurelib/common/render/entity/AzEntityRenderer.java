@@ -72,6 +72,11 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         @NotNull MultiBufferSource bufferSource,
         int packedLight
     ) {
+        // If the entity is invisible, then we don't need to render it
+        if (entity.isInvisible()) {
+            return;
+        }
+
         var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         var azBakedModel = provider.provideBakedModel(entity, entity);
 
