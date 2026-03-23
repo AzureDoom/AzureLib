@@ -12,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.AzBakedModel;
@@ -118,11 +117,11 @@ public abstract class AzRendererPipelineContext<K, T> {
                 rendererPipeline.config().getRenderType(currentEntity, animatable),
                 rendererPipeline.config().alpha(animatable)
             );
+        } else {
+            this.renderType = renderType;
         }
 
-        Objects.requireNonNull(this.renderType);
-
-        if (vertexConsumer == null) {
+        if (this.vertexConsumer == null && this.renderType != null) {
             this.vertexConsumer = multiBufferSource.getBuffer(this.renderType);
         }
     }

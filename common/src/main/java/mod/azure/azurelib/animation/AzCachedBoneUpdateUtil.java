@@ -30,6 +30,10 @@ public class AzCachedBoneUpdateUtil {
         var initialSnapshot = bone.getInitialAzSnapshot();
         var saveSnapshot = boneSnapshots.get(bone.getName());
 
+        if (saveSnapshot == null) {
+            return;
+        }
+
         if (saveSnapshot.isPosAnimInProgress()) {
             saveSnapshot.stopPosAnim(animTime);
         }

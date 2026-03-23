@@ -27,7 +27,8 @@ public abstract class AzResourceCache {
         "born_in_chaos_v1",
         "neoforge",
         "brutality",
-        "crazythings"
+        "crazythings",
+        "block_factorys_bosses"
     );
 
     protected final <T> CompletableFuture<Void> loadResources(
