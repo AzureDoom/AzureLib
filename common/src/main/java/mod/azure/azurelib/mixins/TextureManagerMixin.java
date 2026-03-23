@@ -24,14 +24,14 @@ public abstract class TextureManagerMixin {
     public abstract void register(ResourceLocation resourceLocation, AbstractTexture abstractTexture);
 
     @Inject(
-            method = "getTexture(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/AbstractTexture;",
-            at = @At("RETURN"),
-            cancellable = true,
-            require = 0
+        method = "getTexture(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/AbstractTexture;",
+        at = @At("RETURN"),
+        cancellable = true,
+        require = 0
     )
     private void azurelib$replaceAnimatableTexture(
-            ResourceLocation location,
-            CallbackInfoReturnable<AbstractTexture> cir
+        ResourceLocation location,
+        CallbackInfoReturnable<AbstractTexture> cir
     ) {
         AbstractTexture currentTexture = cir.getReturnValue();
 
