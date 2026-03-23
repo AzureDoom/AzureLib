@@ -193,6 +193,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     protected <I extends Item> void renderAzArmorPiece(
         AzArmorRenderer renderer,
         AzRendererPipelineContext<UUID, T> context,
@@ -205,8 +206,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         var armorModel = renderer.rendererPipeline().armorModel();
         var boneContext = renderer.rendererPipeline().context().boneContext();
         var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
+        var animatable = context.animatable();
 
-        renderer.prepForRender(context.animatable(), armorStack, slot, baseModel);
+        renderer.prepForRender(animatable, armorStack, slot, baseModel);
         boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
         armorModel.renderToBuffer(
             context.poseStack(),
