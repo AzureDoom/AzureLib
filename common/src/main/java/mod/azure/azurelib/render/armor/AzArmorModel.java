@@ -35,6 +35,9 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
         var mc = Minecraft.getInstance();
         var context = rendererPipeline.context();
         var currentEntity = context.currentEntity();
+        if (currentEntity == null) {
+            return;
+        }
         var currentStack = context.currentStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
 
