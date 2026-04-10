@@ -36,6 +36,12 @@ repositories {
         name = 'Parchment'
         url = 'https://maven.parchmentmc.org'
     }
+    maven {
+        url = 'https://www.cursemaven.com'
+        content {
+            includeGroup "curse.maven"
+        }
+    }
     exclusiveContent {
         forRepository {
             maven {
