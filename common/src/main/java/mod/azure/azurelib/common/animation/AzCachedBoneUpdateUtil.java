@@ -92,6 +92,10 @@ public class AzCachedBoneUpdateUtil {
         var initialSnapshot = bone.getInitialAzSnapshot();
         var saveSnapshot = boneSnapshots.get(bone.getName());
 
+        if (saveSnapshot == null) {
+            return;
+        }
+
         if (saveSnapshot.isRotAnimInProgress()) {
             saveSnapshot.stopRotAnim(animTime);
         }
@@ -137,6 +141,10 @@ public class AzCachedBoneUpdateUtil {
 
         var initialSnapshot = bone.getInitialAzSnapshot();
         var saveSnapshot = boneSnapshots.get(bone.getName());
+
+        if (saveSnapshot == null) {
+            return;
+        }
 
         if (saveSnapshot.isScaleAnimInProgress()) {
             saveSnapshot.stopScaleAnim(animTime);
