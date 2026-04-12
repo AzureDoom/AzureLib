@@ -9,6 +9,7 @@ import org.joml.Matrix4f;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.common.render.AzLayerRenderer;
@@ -84,7 +85,8 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
         scaleBoneWithModelPart(armorContext, boneContext, isReRender);
 
-        boneContext.applyBoneVisibilityBySlot(currentSlot);
+        if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
+            boneContext.applyBoneVisibilityBySlot(currentSlot);
 
         var alphaValue = config.alpha(context.animatable());
         if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha(armorContext.currentEntity()) < 1) {
