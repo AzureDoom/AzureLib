@@ -91,11 +91,17 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
                     ItemRenderer.getArmorFoilBuffer(context.multiBufferSource(), renderType, false, itemstack.hasFoil())
                 );
 
+                var prevRenderType = context.renderType();
+                var prevVertexConsumer = context.vertexConsumer();
+
                 if (context.renderType() != null) {
                     context.setRenderType(renderType);
                     context.setVertexConsumer(vertexConsumer);
                     renderPipeline.reRender(context);
                 }
+
+                context.setRenderType(prevRenderType);
+                context.setVertexConsumer(prevVertexConsumer);
             });
     }
 
