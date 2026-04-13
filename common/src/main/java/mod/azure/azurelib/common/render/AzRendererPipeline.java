@@ -131,23 +131,23 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
     }
 
     /**
-     * Re-renders the specified rendering pipeline context. This method initiates
-     * a re-rendering process using default animation application behavior.
+     * Re-renders the specified rendering pipeline context. This method initiates a re-rendering process using default
+     * animation application behavior.
      *
-     * @param context The rendering pipeline context ({@link AzRendererPipelineContext})
-     *                that contains the configurations and data needed for rendering.
+     * @param context The rendering pipeline context ({@link AzRendererPipelineContext}) that contains the
+     *                configurations and data needed for rendering.
      */
     public void reRender(AzRendererPipelineContext<K, T> context) {
         reRender(context, false);
     }
 
     /**
-     * Re-renders the current context using the specified animation settings.
-     * This method performs pre-render, render, and post-render operations while preserving
-     * the original animation application state and restoring it after execution.
+     * Re-renders the current context using the specified animation settings. This method performs pre-render, render,
+     * and post-render operations while preserving the original animation application state and restoring it after
+     * execution.
      *
-     * @param context The rendering pipeline context ({@link AzRendererPipelineContext}) containing
-     *                the necessary rendering configurations and data.
+     * @param context        The rendering pipeline context ({@link AzRendererPipelineContext}) containing the necessary
+     *                       rendering configurations and data.
      * @param applyAnimation A boolean indicating whether animation should be applied during re-rendering.
      */
     public void reRender(AzRendererPipelineContext<K, T> context, boolean applyAnimation) {

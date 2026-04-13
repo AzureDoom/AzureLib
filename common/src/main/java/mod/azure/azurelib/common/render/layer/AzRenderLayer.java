@@ -1,10 +1,10 @@
 package mod.azure.azurelib.common.render.layer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.common.model.AzBakedModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 
+import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.common.model.AzBakedModel;
 import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.common.render.AzRendererPipeline;
 import mod.azure.azurelib.common.render.AzRendererPipelineContext;
@@ -63,13 +63,12 @@ public interface AzRenderLayer<K, T> {
     void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone);
 
     /**
-     * Re-renders the given renderer pipeline context using a specified baked model.
-     * The method temporarily replaces the current baked model with the provided
-     * one, triggers a re-render, and restores the original baked model upon completion.
-     * If the specified model is {@code null}, a default baked model is used.
+     * Re-renders the given renderer pipeline context using a specified baked model. The method temporarily replaces the
+     * current baked model with the provided one, triggers a re-render, and restores the original baked model upon
+     * completion. If the specified model is {@code null}, a default baked model is used.
      *
-     * @param context The active renderer pipeline context containing the pipeline state,
-     *                the animatable instance, and other rendering properties.
+     * @param context The active renderer pipeline context containing the pipeline state, the animatable instance, and
+     *                other rendering properties.
      * @param model   The baked model that will temporarily replace the current one for a re-render.
      */
     default void reRenderWithBakedModel(AzRendererPipelineContext<K, T> context, AzBakedModel model) {
