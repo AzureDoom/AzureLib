@@ -60,6 +60,8 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     private VertexConsumer vertexConsumer;
 
+    private boolean applyAnimationOnReRender;
+
     protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
         new Object2ObjectOpenHashMap<>();
 
@@ -175,6 +177,18 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     public AzBakedModel bakedModel() {
         return bakedModel;
+    }
+
+    public void setBakedModel(@Nullable AzBakedModel bakedModel) {
+        this.bakedModel = bakedModel != null ? bakedModel : AzBakedModel.getDefault();
+    }
+
+    public boolean applyAnimationOnReRender() {
+        return this.applyAnimationOnReRender;
+    }
+
+    public void setApplyAnimationOnReRender(boolean applyAnimationOnReRender) {
+        this.applyAnimationOnReRender = applyAnimationOnReRender;
     }
 
     public MultiBufferSource multiBufferSource() {
