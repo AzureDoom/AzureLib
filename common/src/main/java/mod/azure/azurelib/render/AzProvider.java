@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.model.AzBakedModel;
@@ -58,7 +59,7 @@ public class AzProvider<K, T> {
         var animator = AzAnimatorAccessor.getOrNull(animatable);
         if (animator == null)
             return shared;
-        var ctx = animator.context();
+        var ctx = animator.getOrCreateContext(UUIDProvider.apply(animatable));
 
         var cache = ctx.boneCache();
         if (cache == null || cache.isEmpty())
@@ -86,7 +87,6 @@ public class AzProvider<K, T> {
             cachedAnimator = animatorSupplier.get();
             if (cachedAnimator != null) {
                 var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
-
                 if (shared != null) {
                     ctx.boneCache().setActiveModel(shared);
                 }
@@ -95,7 +95,7 @@ public class AzProvider<K, T> {
                 accessor.setAnimator(cachedAnimator);
             }
         } else {
-            var ctx = cachedAnimator.context();
+            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
             if (ctx != null && shared != null) {
                 var baked = ctx.boneCache().getBakedModel();
 
@@ -119,8 +119,15 @@ public class AzProvider<K, T> {
     private AzAnimator<K, T> cacheAnimator(AzAnimatorAccessor<K, T> accessor, AzBakedModel shared, T animatable) {
         var cachedAnimator = animatorSupplier.get();
         if (cachedAnimator != null) {
-            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
+            var uuid = UUIDProvider.apply(animatable);
+            var ctx = cachedAnimator.getOrCreateContext(uuid);
 
+            AzureLib.LOGGER.warn(
+                "provideAnimator bind key={}, animator={}, context={}",
+                uuid,
+                System.identityHashCode(cachedAnimator),
+                System.identityHashCode(ctx)
+            );
             if (shared != null) {
                 ctx.boneCache().setActiveModel(shared);
             }

@@ -47,6 +47,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
         var animator = AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(itemStackId);
 
         if (animator != null) {
+            animator.getOrCreateContext(itemStackId);
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         }
     }

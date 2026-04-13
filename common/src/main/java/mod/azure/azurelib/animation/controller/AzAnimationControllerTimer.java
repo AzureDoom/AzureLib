@@ -1,7 +1,6 @@
 package mod.azure.azurelib.animation.controller;
 
 import mod.azure.azurelib.animation.AzAnimationContext;
-import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 
 /**
  * A timer utility that integrates directly with an {@link AzAnimationController} to track and adjust tick values for
@@ -21,11 +20,10 @@ public class AzAnimationControllerTimer<T> {
         this.animationController = animationController;
     }
 
-    public void update() {
-        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
-        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
+    public void update(AzAnimationContext<T> animContext) {
+        var timer = animContext.timer();
         double animationSpeed = animationController.animationProperties().animationSpeed();
-        double tick = animContext.timer().getAnimTime();
+        double tick = timer.getAnimTime();
         double tickStartOffset = animationController.animationProperties().startTickOffset();
         double freezeTick = animationController.animationProperties().freezeTickOffset();
 
@@ -40,12 +38,10 @@ public class AzAnimationControllerTimer<T> {
     /**
      * Resets the internal state of the animation timer. This method updates the tick offset value to the current
      * animation time retrieved from the associated animation context's timer and resets the adjusted tick to zero. It
-     * effectively synchronizes the timer with the current state of the animation controller, ensuring that subsequent
-     * tick calculations reflect the reset starting point.
+     * effectively synchronizes the timer with the current state of the animation controller, ensuring that later tick
+     * calculations reflect the reset starting point.
      */
-    public void reset() {
-        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
-        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
+    public void reset(AzAnimationContext<?> animContext) {
         this.tickOffset = animContext.timer().getAnimTime();
         this.adjustedTick = 0;
     }

@@ -52,7 +52,7 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
         var animator = AzAnimatorAccessor.getOrNull(blockEntity);
 
-        if (animator != null && animator.context().animatable().getBlockPos().equals(blockPos)) {
+        if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         }
     }

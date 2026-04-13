@@ -72,14 +72,14 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
      * @param context The context of the animation controller state machine, providing the animation context, animation
      *                controller, and references required for processing the transition.
      */
-    private void prepareTransition(AzAnimationControllerStateMachine.Context<?> context) {
+    private void prepareTransition(AzAnimationControllerStateMachine.Context<T> context) {
         var animContext = context.animationContext();
         var boneCache = animContext.boneCache();
         var controller = context.animationController();
         var boneSnapshotCache = controller.boneSnapshotCache();
         var controllerTimer = controller.controllerTimer();
 
-        controllerTimer.reset();
+        controllerTimer.reset(controller.context());
         controller.keyframeManager().keyframeCallbackHandler().reset();
 
         var nextAnimation = controller.animationQueue().next();

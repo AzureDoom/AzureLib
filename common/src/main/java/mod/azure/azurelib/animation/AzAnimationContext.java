@@ -1,6 +1,16 @@
 package mod.azure.azurelib.animation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import mod.azure.azurelib.animation.cache.AzBoneCache;
+import mod.azure.azurelib.animation.controller.AzAnimationController;
+import mod.azure.azurelib.animation.controller.AzAnimationControllerTimer;
+import mod.azure.azurelib.animation.controller.AzAnimationQueue;
+import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
+import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
 
 /**
  * The {@code AzAnimationContext} class provides a context for managing animation-related state and behaviors for
@@ -19,6 +29,8 @@ public class AzAnimationContext<T> {
 
     // Package-private for mutability purposes.
     T animatable;
+
+    private final Map<AzAnimationController<?>, ControllerState> controllerStates = new HashMap<>();
 
     public AzAnimationContext(
         AzBoneCache boneCache,
@@ -67,5 +79,24 @@ public class AzAnimationContext<T> {
      */
     public AzAnimationTimer timer() {
         return timer;
+    }
+
+    public ControllerState getControllerState(AzAnimationController<T> controller) {
+        return controllerStates.computeIfAbsent(controller, c -> new ControllerState());
+    }
+
+    public class ControllerState {
+
+        public AzQueuedAnimation currentAnimation;
+
+        public AzAnimationSequence currentSequence;
+
+        public AzDispatchSide currentSequenceOrigin;
+
+        public AzAnimationQueue animationQueue = new AzAnimationQueue();
+
+        public AzAnimationControllerTimer<T> timer;
+
+        public AzAnimationControllerStateMachine<T> stateMachine;
     }
 }

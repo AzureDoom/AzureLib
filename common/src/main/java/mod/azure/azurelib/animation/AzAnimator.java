@@ -66,10 +66,11 @@ public abstract class AzAnimator<K, T> {
     public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
 
     public void animate(T animatable, float partialTicks, boolean updateTimer) {
-        this.currentContext.animatable = animatable;
+        var context = this.currentContext;
+        context.animatable = animatable;
 
-        var boneCache = this.currentContext.boneCache();
-        var timer = this.currentContext.timer();
+        var boneCache = context.boneCache();
+        var timer = context.timer();
 
         if (updateTimer) {
             timer.tick();
@@ -79,12 +80,11 @@ public abstract class AzAnimator<K, T> {
 
         if (!boneCache.isEmpty()) {
             for (var controller : animationControllerContainer.getAll()) {
-                controller.update();
+                controller.update(context);
             }
 
             this.reloadAnimations = false;
-
-            boneCache.update(this.currentContext);
+            boneCache.update(context);
         }
 
         setCustomAnimations(animatable, partialTicks);

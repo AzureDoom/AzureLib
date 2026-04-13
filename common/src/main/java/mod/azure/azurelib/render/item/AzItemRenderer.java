@@ -43,10 +43,14 @@ public abstract class AzItemRenderer {
             config::createAnimator,
             config::modelLocation,
             animator -> {
-                if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
-                    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
+                var tag = animator.getTag();
+                if (tag != null && tag.contains(AzureLib.ITEM_UUID_TAG)) {
+                    return tag.getUUID(AzureLib.ITEM_UUID_TAG);
                 }
-                return UUID.randomUUID();
+
+                var uuid = UUID.randomUUID();
+                animator.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, uuid);
+                return uuid;
             }
         );
         this.config = config;

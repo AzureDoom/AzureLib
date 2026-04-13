@@ -30,7 +30,7 @@ public class AzAnimationPlayState<T> extends AzAnimationState<T> {
         var controller = context.animationController();
         var controllerTimer = controller.controllerTimer();
 
-        controllerTimer.reset();
+        controllerTimer.reset(controller.context());
     }
 
     /**
