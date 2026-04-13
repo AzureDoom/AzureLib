@@ -214,8 +214,7 @@ public record AzCommand(List<AzAction> actions) {
         if (entity.level().isClientSide()) {
             dispatchFromClient(itemStack);
         } else {
-            var tag = itemStack.getTag();
-            if (tag == null || !tag.contains(AzureLib.ITEM_UUID_TAG)) {
+            if (!itemStack.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
                 AzureLib.LOGGER.warn(
                     AzureLib.MAIN_MARKER,
                     "Missing '{}' UUID tag on ItemStack (item={}). "
@@ -236,27 +235,8 @@ public record AzCommand(List<AzAction> actions) {
     private <T> void dispatchFromClient(T animatable) {
         var animator = AzAnimatorAccessor.getOrNull(animatable);
 
-        if (animator == null) {
-            return;
+        if (animator != null) {
+            actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
         }
-
-        if (animatable instanceof ItemStack itemStack) {
-            var tag = itemStack.getTag();
-
-            if (tag == null || !tag.contains(AzureLib.ITEM_UUID_TAG)) {
-                AzureLib.LOGGER.warn(
-                    AzureLib.MAIN_MARKER,
-                    "Missing '{}' UUID tag on ItemStack (item={}). "
-                        + "Cannot dispatch animation commands from client.",
-                    AzureLib.ITEM_UUID_TAG,
-                    itemStack.getItem().builtInRegistryHolder().key().location()
-                );
-                return;
-            }
-
-            animator.getOrCreateContext(tag.getUUID(AzureLib.ITEM_UUID_TAG));
-        }
-
-        actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
     }
 }

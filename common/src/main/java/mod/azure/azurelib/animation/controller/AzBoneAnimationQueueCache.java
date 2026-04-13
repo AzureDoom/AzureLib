@@ -21,17 +21,11 @@ public class AzBoneAnimationQueueCache<T> {
 
     private final Map<String, AzBoneAnimationQueue> boneAnimationQueues;
 
-    private AzBoneCache boneCache;
+    private final AzBoneCache boneCache;
 
-    public AzBoneAnimationQueueCache() {
+    public AzBoneAnimationQueueCache(AzBoneCache boneCache) {
         this.boneAnimationQueues = new Object2ObjectOpenHashMap<>();
-    }
-
-    public void bind(AzBoneCache boneCache) {
-        if (this.boneCache != boneCache) {
-            this.boneCache = boneCache;
-            this.boneAnimationQueues.clear();
-        }
+        this.boneCache = boneCache;
     }
 
     /**
@@ -43,10 +37,6 @@ public class AzBoneAnimationQueueCache<T> {
      *                   position, and scale
      */
     public void update(AzEasingType easingType) {
-        if (boneCache == null) {
-            return;
-        }
-
         var boneSnapshots = boneCache.getBoneSnapshotsByName();
 
         for (var boneAnimation : boneAnimationQueues.values()) {
@@ -72,10 +62,6 @@ public class AzBoneAnimationQueueCache<T> {
      *         does not exist
      */
     public @Nullable AzBoneAnimationQueue getOrNull(String boneName) {
-        if (boneCache == null) {
-            return null;
-        }
-
         var bone = boneCache.getBakedModel().getBoneOrNull(boneName);
 
         if (bone == null) {

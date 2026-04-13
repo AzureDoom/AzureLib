@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation.play_behavior;
 
+import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 
 public class AzPlayBehaviors {
@@ -23,7 +24,7 @@ public class AzPlayBehaviors {
 
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
-                var controller = context.animationController();
+                AzAnimationController<?> controller = context.animationController();
                 var maxRepeats = controller.animationProperties().repeatXTimes();
 
                 currentRepeatCount++;
@@ -33,7 +34,7 @@ public class AzPlayBehaviors {
                     var keyframeManager = controller.keyframeManager();
                     var keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
 
-                    controllerTimer.reset(controller.context());
+                    controllerTimer.reset();
                     keyframeCallbackHandler.reset();
 
                     context.stateMachine().play();
@@ -93,7 +94,7 @@ public class AzPlayBehaviors {
             var keyframeManager = controller.keyframeManager();
             var keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
 
-            controllerTimer.reset(controller.context());
+            controllerTimer.reset();
             keyframeCallbackHandler.reset();
         }
     });

@@ -2,12 +2,12 @@ package mod.azure.azurelib.animation.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbacks;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeManager;
@@ -28,9 +28,17 @@ import mod.azure.azurelib.animation.property.AzAnimationProperties;
  */
 public class AzAnimationController<T> extends AzAbstractAnimationController {
 
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AzAnimationController.class);
+
     public static <T> AzAnimationControllerBuilder<T> builder(AzAnimator<?, T> animator, String name) {
         return new AzAnimationControllerBuilder<>(animator, name);
     }
+
+    private final AzAnimationControllerTimer<T> controllerTimer;
+
+    private final AzAnimationQueue animationQueue;
+
+    private final AzAnimationControllerStateMachine<T> stateMachine;
 
     private final AzAnimator<?, T> animator;
 
@@ -39,6 +47,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     private final AzBoneSnapshotCache boneSnapshotCache;
 
     private final AzKeyframeManager<T> keyframeManager;
+
+    protected AzQueuedAnimation currentAnimation;
 
     private AzAnimationProperties animationProperties;
 
@@ -51,9 +61,11 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         super(name);
 
         this.animator = animator;
+        this.controllerTimer = new AzAnimationControllerTimer<>(this);
         this.animationProperties = animationProperties;
 
-        this.boneAnimationQueueCache = new AzBoneAnimationQueueCache<>();
+        this.animationQueue = new AzAnimationQueue();
+        this.boneAnimationQueueCache = new AzBoneAnimationQueueCache<>(animator.context().boneCache());
         this.boneSnapshotCache = new AzBoneSnapshotCache();
         this.keyframeManager = new AzKeyframeManager<>(
             this,
@@ -61,61 +73,45 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             boneSnapshotCache,
             keyframeCallbacks
         );
-    }
 
-    private AzAnimationContext<T>.ControllerState state() {
-        var context = context();
+        var stateHolder = new AzAnimationControllerStateMachine.StateHolder<T>(
+            new AzAnimationPlayState<>(),
+            new AzAnimationPauseState<>(),
+            new AzAnimationStopState<>(),
+            new AzAnimationTransitionState<>()
+        );
 
-        if (context == null) {
-            throw new IllegalStateException("No active animation context for controller " + name());
-        }
-
-        return context.getControllerState(this);
-    }
-
-    private AzAnimationControllerTimer<T> timer(AzAnimationContext<T> context) {
-        var state = context.getControllerState(this);
-
-        if (state.timer == null) {
-            state.timer = new AzAnimationControllerTimer<>(this);
-        }
-
-        return state.timer;
-    }
-
-    private AzAnimationControllerStateMachine<T> stateMachine(AzAnimationContext<T> context) {
-        var state = context.getControllerState(this);
-
-        if (state.stateMachine == null) {
-            var stateHolder = new AzAnimationControllerStateMachine.StateHolder<T>(
-                new AzAnimationPlayState<>(),
-                new AzAnimationPauseState<>(),
-                new AzAnimationStopState<>(),
-                new AzAnimationTransitionState<>()
-            );
-
-            state.stateMachine = new AzAnimationControllerStateMachine<>(stateHolder, this);
-        }
-
-        return state.stateMachine;
+        this.stateMachine = new AzAnimationControllerStateMachine<>(stateHolder, this, animator.context());
     }
 
     /**
-     * Determines if the animation process managed by this controller has fully completed.
+     * Determines if the animation process managed by this controller has fully completed. <br>
+     * This method combines the parent class's condition for animation completion with an additional check to verify if
+     * the state machine is in a stopped state. The state machine being stopped indicates that no subsequent animations
+     * or transitions are active.
+     *
+     * @return true if the parent controller and state machine both indicate that the animation process has fully
+     *         finished, false otherwise.
      */
     @Override
     public boolean hasAnimationFinished() {
-        var context = context();
-
-        if (context == null) {
-            return false;
-        }
-
-        return stateMachine(context).isStopped();
+        return super.hasAnimationFinished() && stateMachine.isStopped();
     }
 
     /**
      * Attempts to create a queue of animations from the provided animation sequence for the given animatable object.
+     * This method processes each stage of the supplied animation sequence, retrieves the corresponding animation, and
+     * adds it to the queue with its specified play behavior.
+     * <p>
+     * If any stage in the sequence references an animation that cannot be found, the method logs a warning and returns
+     * an empty list, indicating that the animation queue could not be fully created.
+     *
+     * @param animatable The animatable object for which the animation queue is being created. The object determines the
+     *                   context in which animations are retrieved and applied.
+     * @param sequence   An {@link AzAnimationSequence} object representing a sequential list of animation stages, each
+     *                   containing metadata necessary to retrieve and configure animations.
+     * @return A list of {@link AzQueuedAnimation} objects representing the created animation queue. Returns an empty
+     *         list if any stage references a non-existent animation.
      */
     public List<AzQueuedAnimation> tryCreateAnimationQueue(T animatable, AzAnimationSequence sequence) {
         var stages = sequence.stages();
@@ -125,7 +121,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             var animation = animator.getAnimation(animatable, stage.name());
 
             if (animation == null) {
-                AzureLib.LOGGER.warn(
+                LOGGER.warn(
                     "Unable to find animation: {} for {}",
                     stage.name(),
                     animatable.getClass().getSimpleName()
@@ -142,73 +138,65 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     /**
      * This method is called every frame to populate the animation point queues, and process animation state logic.
      */
-    public void update(AzAnimationContext<T> context) {
-        var state = context.getControllerState(this);
-        var controllerTimer = timer(context);
-        var stateMachine = stateMachine(context);
-
-        controllerTimer.update(context);
-        boneAnimationQueueCache.bind(context.boneCache());
-
-        // Make sure the state machine is using the active context for this frame
-        stateMachine.update(context);
-
-        // Lazily build queued animations once we have a live context
-        if (state.currentSequence != null && state.animationQueue.isEmpty() && state.currentAnimation == null) {
-            var animatable = context.animatable();
-            var animations = tryCreateAnimationQueue(animatable, state.currentSequence);
-
-            if (!animations.isEmpty()) {
-                state.animationQueue.clear();
-                state.animationQueue.addAll(animations);
-
-                if (stateMachine.isStopped()) {
-                    stateMachine.transition();
-                }
-            }
-        }
-
+    public void update() {
+        // Adjust the tick before making any updates.
+        controllerTimer.update();
+        // Run state machine updates.
+        stateMachine.update();
+        // Update bone animation queue cache.
         boneAnimationQueueCache.update(animationProperties.easingType());
     }
 
     /**
-     * Executes an animation sequence for a given dispatch side. With a context-backed state, this method should only
-     * queue intent/state changes. Actual playback startup happens in update(context).
+     * Executes an animation sequence for a given dispatch side and updates the state machine accordingly. This method
+     * determines if an animation sequence can be executed based on its origin side and whether the current animation
+     * sequence has finished. It also transitions the state machine and handles the addition of new animations to the
+     * animation queue.
+     *
+     * @param originSide The side (client or server) from which the animation sequence originates. This determines
+     *                   whether the sequence can override a currently running sequence.
+     * @param sequence   The {@link AzAnimationSequence} object representing the ordered list of animation stages to be
+     *                   processed. Must not be null.
      */
     public void run(AzDispatchSide originSide, @NotNull AzAnimationSequence sequence) {
-        var context = context();
-
-        if (context == null) {
-            AzureLib.LOGGER.warn("run() with null context on controller {}", name());
-            return;
-        }
-
-        var state = context.getControllerState(this);
-        var stateMachine = stateMachine(context);
-
-        if (state.currentSequenceOrigin == AzDispatchSide.SERVER && originSide == AzDispatchSide.CLIENT) {
-            if (!stateMachine.isStopped()) {
+        if (currentSequenceOrigin == AzDispatchSide.SERVER && originSide == AzDispatchSide.CLIENT) {
+            if (!hasAnimationFinished()) {
+                // If we're playing a server-side sequence, ignore client-side sequences.
                 return;
             }
         }
 
-        state.currentSequenceOrigin = originSide;
+        this.currentSequenceOrigin = originSide;
+
+        if (stateMachine.isStopped()) {
+            stateMachine.transition();
+        }
+
+        if (currentSequence == null || !currentSequence.equals(sequence)) {
+            this.currentAnimation = null;
+        }
+
+        var animatable = animator.context().animatable();
 
         if (sequence.stages().isEmpty()) {
-            state.currentSequence = null;
-            state.currentAnimation = null;
-            state.animationQueue.clear();
             stateMachine.stop();
             return;
         }
 
-        if (
-            !sequence.equals(state.currentSequence)
-                || (state.currentAnimation == null && state.animationQueue.isEmpty())
-        ) {
-            state.currentSequence = sequence;
-            state.currentAnimation = null;
-            state.animationQueue.clear();
+        if (!sequence.equals(currentSequence)) {
+            var animations = tryCreateAnimationQueue(animatable, sequence);
+
+            if (!animations.isEmpty()) {
+                animationQueue.clear();
+                animationQueue.addAll(animations);
+                this.currentSequence = sequence;
+                stateMachine.transition();
+                return;
+            }
+
+            animationQueue.clear();
+            this.currentSequence = null;
+            stateMachine.transition();
         }
     }
 
@@ -216,12 +204,20 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         return animationProperties;
     }
 
+    /**
+     * Sets the animation properties for this controller. This method assigns the provided {@link AzAnimationProperties}
+     * object to the controller to define various attributes for animation behavior, such as speed, easing type,
+     * transition length, and start tick offset.
+     *
+     * @param animationProperties The {@link AzAnimationProperties} object containing the desired animation properties.
+     *                            This parameter must not be null.
+     */
     public void setAnimationProperties(AzAnimationProperties animationProperties) {
         this.animationProperties = animationProperties;
     }
 
     public AzAnimationQueue animationQueue() {
-        return state().animationQueue;
+        return animationQueue;
     }
 
     public AzBoneAnimationQueueCache<T> boneAnimationQueueCache() {
@@ -233,17 +229,11 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     }
 
     public AzAnimationControllerTimer<T> controllerTimer() {
-        var context = context();
-
-        if (context == null) {
-            throw new IllegalStateException("No active animation context for controller " + name());
-        }
-
-        return timer(context);
+        return controllerTimer;
     }
 
     public @Nullable AzQueuedAnimation currentAnimation() {
-        return state().currentAnimation;
+        return currentAnimation;
     }
 
     public AzKeyframeManager<T> keyframeManager() {
@@ -251,26 +241,23 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     }
 
     public AzAnimationControllerStateMachine<T> stateMachine() {
-        var context = context();
-
-        if (context == null) {
-            throw new IllegalStateException("No active animation context for controller " + name());
-        }
-
-        return stateMachine(context);
+        return stateMachine;
     }
 
-    public AzAnimationContext<T> context() {
-        return animator.context();
-    }
-
+    /**
+     * Sets the current animation to be played and updates the associated state variables. This method assigns the given
+     * {@link AzQueuedAnimation} as the current animation and clears the current animation sequence and its origin if
+     * the provided animation is null.
+     *
+     * @param currentAnimation The {@link AzQueuedAnimation} to be set as the current animation. May be null, in which
+     *                         case the current sequence and sequence origin are cleared.
+     */
     public void setCurrentAnimation(AzQueuedAnimation currentAnimation) {
-        var state = state();
-        state.currentAnimation = currentAnimation;
+        this.currentAnimation = currentAnimation;
 
         if (currentAnimation == null) {
-            state.currentSequence = null;
-            state.currentSequenceOrigin = null;
+            this.currentSequence = null;
+            this.currentSequenceOrigin = null;
         }
     }
 }

@@ -20,15 +20,16 @@ public class AzAnimationControllerStateMachine<T> extends StateMachine<AzAnimati
 
     private final StateHolder<T> stateHolder;
 
-    private final AzAnimationController<T> animationController;
-
     public AzAnimationControllerStateMachine(
         StateHolder<T> stateHolder,
-        AzAnimationController<T> animationController
+        AzAnimationController<T> animationController,
+        AzAnimationContext<T> animationContext
     ) {
         super(stateHolder.stopState());
         this.stateHolder = stateHolder;
-        this.animationController = animationController;
+        getContext().stateMachine = this;
+        getContext().animationController = animationController;
+        getContext().animationContext = animationContext;
     }
 
     @Override
@@ -36,13 +37,15 @@ public class AzAnimationControllerStateMachine<T> extends StateMachine<AzAnimati
         return new Context<>();
     }
 
-    public void update(AzAnimationContext<T> animationContext) {
+    public void initializeContext(AzAnimationController<T> controller, AzAnimationContext<T> animContext) {
         var ctx = getContext();
+        ctx.animationController = controller;
+        ctx.animationContext = animContext;
         ctx.stateMachine = this;
-        ctx.animationController = animationController;
-        ctx.animationContext = animationContext;
+    }
 
-        super.update(ctx);
+    public void update() {
+        super.update(getContext());
     }
 
     public void pause() {
