@@ -32,7 +32,8 @@ public abstract class AzResourceCache {
         "born_in_chaos_v1",
         "neoforge",
         "brutality",
-        "crazythings"
+        "crazythings",
+        "twilightforest"
     );
 
     /**
