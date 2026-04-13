@@ -25,8 +25,8 @@ public class ItemMixin_EnsureCraftHasID {
      * @param player The {@link Player} performing the crafting action. Not directly used in this method.
      * @param ci     The {@link CallbackInfo} provided by the Mixin framework. Used to control execution flow if needed.
      */
-    @Inject(method = "onCraft", at = @At("HEAD"))
-    public void azureLib$onCraftByPatch(ItemStack stack, Level level, Player player, CallbackInfo ci) {
+    @Inject(method = "onCraftedBy", at = @At("HEAD"))
+    public void azureLib$onCraftedByPatch(ItemStack stack, Level level, Player player, CallbackInfo ci) {
         var stackTag = stack.getOrCreateTag();
 
         if (AzIdentityRegistry.hasIdentity(stack.getItem()) && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
