@@ -1,7 +1,8 @@
-v3.1.5
+v3.1.6
 
 ### Fixes
-- Fixed some edge cases with AzCachedBoneUpdateUtil
-- Fixed a bug that caused double rendering with armor trims.
-- Fixed an issue where Azure armor used in AzArmorRender would not properly move with the entity.
-- Added ItemMixin_EnsureCraftHasID to ensure items have an az_id UUID component when crafted if it has an identity registered.
+- Fixed mixin crash.
+
+
+### Changes
+- Added reRenderWithBakedModel for AzRenderLayer so modders can change the model on layers more easily.
