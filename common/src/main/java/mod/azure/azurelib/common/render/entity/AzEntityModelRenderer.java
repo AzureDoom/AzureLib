@@ -71,7 +71,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         poseStack.scale(nativeScale, nativeScale, nativeScale);
         applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
 
-        if (!isReRender) {
+        if (!isReRender || context.applyAnimationOnReRender()) {
             var animator = entityRendererPipeline.getRenderer().getAnimator();
 
             if (animator != null) {

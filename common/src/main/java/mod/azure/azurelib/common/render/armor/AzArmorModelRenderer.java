@@ -38,7 +38,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
         poseStack.translate(0, 24 / 16f, 0);
         poseStack.scale(-1, -1, 1);
 
-        if (!isReRender) {
+        if (!isReRender || context.applyAnimationOnReRender()) {
             var animatable = context.animatable();
             var animator = armorRendererPipeline.renderer().animator();
 
