@@ -38,7 +38,7 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
      */
     @Override
     public void render(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
-        if (!isReRender) {
+        if (!isReRender || context.applyAnimationOnReRender()) {
             var animatable = context.animatable();
             var animator = itemRendererPipeline.getRenderer().getAnimator();
 

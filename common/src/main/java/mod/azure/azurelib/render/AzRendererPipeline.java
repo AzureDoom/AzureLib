@@ -122,20 +122,38 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
     }
 
     /**
-     * Re-renders the provided {@link AzBakedModel}.<br>
-     * Usually you'd use this for rendering alternate {@link RenderType} layers or for sub-model rendering whilst inside
-     * a {@link AzRenderLayer} or similar
+     * Re-renders the specified rendering pipeline context. This method initiates a re-rendering process using default
+     * animation application behavior.
+     *
+     * @param context The rendering pipeline context ({@link AzRendererPipelineContext}) that contains the
+     *                configurations and data needed for rendering.
      */
     public void reRender(AzRendererPipelineContext<K, T> context) {
+        reRender(context, false);
+    }
+
+    /**
+     * Re-renders the current context using the specified animation settings. This method performs pre-render, render,
+     * and post-render operations while preserving the original animation application state and restoring it after
+     * execution.
+     *
+     * @param context        The rendering pipeline context ({@link AzRendererPipelineContext}) containing the necessary
+     *                       rendering configurations and data.
+     * @param applyAnimation A boolean indicating whether animation should be applied during re-rendering.
+     */
+    public void reRender(AzRendererPipelineContext<K, T> context, boolean applyAnimation) {
         var poseStack = context.poseStack();
+        var oldFlag = context.applyAnimationOnReRender();
+
+        context.setApplyAnimationOnReRender(applyAnimation);
 
         poseStack.pushPose();
-
         preRender(context, true);
         modelRenderer.render(context, true);
         postRender(context, true);
-
         poseStack.popPose();
+
+        context.setApplyAnimationOnReRender(oldFlag);
     }
 
     /**
