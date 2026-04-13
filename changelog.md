@@ -1,5 +1,7 @@
-v3.2.5
+v3.2.6
 
 ### Fixes
-- Fixed the texture issue regarding animated textures.
-- Fixed some edge cases with AzCachedBoneUpdateUtil
+- Added ItemMixin_EnsureCraftHasID to ensure items have an az_id UUID tag when crafted if it has an identity registered.
+
+### Changes
+- Added reRenderWithBakedModel for AzRenderLayer so modders can change the model on layers more easily.
