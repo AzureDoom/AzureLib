@@ -1,7 +1,5 @@
 package mod.azure.azurelib.mixins;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 
 @Mixin(Item.class)
 public class ItemMixin_EnsureCraftHasID {
