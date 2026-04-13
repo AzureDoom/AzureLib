@@ -9,6 +9,7 @@
   },
   "mixins": [
     "AbstractContainerMenuMixin_AzItemIDFix",
+    "ItemMixin_EnsureCraftHasID",
     "ItemStackMixin_AzItemStackIdentityRegistry",
     "PlayerListMixin"
   ],
