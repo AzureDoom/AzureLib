@@ -27,8 +27,8 @@ public class ItemMixin_EnsureCraftHasID {
      * @param player The {@link Player} who performed the crafting action.
      * @param ci     The {@link CallbackInfo} containing the context of the method call.
      */
-    @Inject(method = "onCraft", at = @At("HEAD"))
-    public void azureLib$onCraftByPatch(ItemStack stack, Level level, Player player, CallbackInfo ci) {
+    @Inject(method = "onCraftedBy", at = @At("HEAD"))
+    public void azureLib$onCraftedByPatch(ItemStack stack, Level level, Player player, CallbackInfo ci) {
         if (AzIdentityRegistry.hasIdentity(stack.getItem()) && !stack.has(AzureLib.AZ_ID.get())) {
             stack.set(AzureLib.AZ_ID.get(), UUID.randomUUID());
         }
