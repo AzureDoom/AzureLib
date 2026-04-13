@@ -1,5 +1,5 @@
-v3.1.5
+v3.1.6
 
 ### Fixes
-- Fixed the texture issue regarding animated textures.
-- Fixed some edge cases with AzCachedBoneUpdateUtil
+- Fixed a bug that caused double rendering with armor trims.
+- Added ItemMixin_EnsureCraftHasID to ensure items have an az_id UUID tag when crafted if it has an identity registered.
