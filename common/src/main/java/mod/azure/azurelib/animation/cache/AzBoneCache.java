@@ -92,6 +92,10 @@ public class AzBoneCache {
         return bakedModel;
     }
 
+    public AzBakedModel getTemplateModel() {
+        return this.templateModel;
+    }
+
     public Map<String, AzBoneSnapshot> getBoneSnapshotsByName() {
         return boneSnapshotsByName;
     }
