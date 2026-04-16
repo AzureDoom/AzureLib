@@ -43,7 +43,7 @@ public abstract class TextureManagerMixin {
         ResourceLocation location,
         CallbackInfoReturnable<AbstractTexture> cir
     ) {
-        AbstractTexture currentTexture = cir.getReturnValue();
+        var currentTexture = cir.getReturnValue();
 
         if (currentTexture == null || currentTexture.getClass() != SimpleTexture.class) {
             return;
@@ -54,7 +54,7 @@ public abstract class TextureManagerMixin {
             return;
         }
 
-        Boolean cached = azurelib$animationCache.get(location);
+        var cached = azurelib$animationCache.get(location);
         if (cached != null && !cached) {
             return;
         }
@@ -64,7 +64,7 @@ public abstract class TextureManagerMixin {
             return;
         }
 
-        AnimatableTexture animatableTexture = new AnimatableTexture(location);
+        var animatableTexture = new AnimatableTexture(location);
 
         try {
             loadTexture(location, animatableTexture);
@@ -88,7 +88,7 @@ public abstract class TextureManagerMixin {
 
     @Unique
     private boolean azurelib$hasAnimationMetadata(ResourceLocation texture) {
-        ResourceLocation mcmeta = ResourceLocation.fromNamespaceAndPath(
+        var mcmeta = ResourceLocation.fromNamespaceAndPath(
             texture.getNamespace(),
             texture.getPath() + ".mcmeta"
         );
