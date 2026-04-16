@@ -27,10 +27,13 @@ public class ItemMixin_EnsureCraftHasID {
      */
     @Inject(method = "onCraftedBy", at = @At("HEAD"))
     public void azureLib$onCraftByPatch(ItemStack stack, Level level, Player player, CallbackInfo ci) {
-        var stackTag = stack.getOrCreateTag();
+        if (!AzIdentityRegistry.hasIdentity(stack.getItem()))
+            return;
 
-        if (AzIdentityRegistry.hasIdentity(stack.getItem()) && !stackTag.hasUUID(AzureLib.ITEM_UUID_TAG)) {
-            stackTag.putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
-        }
+        var existingTag = stack.getTag();
+        if (existingTag != null && existingTag.hasUUID(AzureLib.ITEM_UUID_TAG))
+            return;
+
+        stack.getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
     }
 }
