@@ -1,8 +1,4 @@
-v3.1.7
+v3.1.8
 
 ### Fixes
-- Fixed mixin crash.
-
-
-### Changes
-- Added reRenderWithBakedModel for AzRenderLayer so modders can change the model on layers more easily.
+- Fixed empty nbt on crafted items.
