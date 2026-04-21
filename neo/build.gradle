@@ -40,7 +40,6 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     compileOnly "maven.modrinth:shoulder-surfing-reloaded:1.21.1-4.14.3+neoforge"
-    implementation "curse.maven:the-twilight-forest-227639:7797302"
 }
 
  def keyPropsFile = new File(rootProject.projectDir, "key.properties")
