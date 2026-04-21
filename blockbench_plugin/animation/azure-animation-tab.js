@@ -2,13 +2,16 @@
  * AzureLib Animator — Unified Animation Tab
  * ------------------------------------------
  * Replaces the Minecraft Bedrock animation tab with a fully custom
- * AnimationFormat that supports both AzureLib custom easings AND
+ * AnimationCodec that supports both AzureLib custom easings AND
  * Bedrock catmullrom/lerp_mode keyframes in one unified JSON.
  *
  * Keyframe schema auto-detection:
  *   - AzureLib:  { "vector": [...], "easing": "easeInSine", "easingArgs": [...] }
  *   - Bedrock:   { "post": [...], "lerp_mode": "catmullrom" }
  *   - Both can coexist in the same animation file.
+ *
+ * Built on Blockbench's AnimationCodec API — no monkey-patching of
+ * Animator.buildFile / Animator.loadFile, no hiding of built-in menu items.
  *
  * © 2025 AzureDoom — MIT License
  */
@@ -23,6 +26,15 @@ import { IKManager } from './azure-ik.js';
 
 export const AZURE_ANIM_FORMAT_ID = 'azure_animation';
 export const FORMAT_VERSION = '1.8.0';
+
+/**
+ * Stores top-level animation include metadata by source file path so we can
+ * round-trip the user's custom include system without forcing a dedicated UI.
+ *
+ * Key: animation file path (or '' for unpathed/ephemeral files)
+ * Value: normalised includes array
+ */
+const animationIncludesByPath = new Map();
 
 /** Bedrock lerp modes that this plugin understands natively. */
 const BEDROCK_LERP_MODES = new Set(['linear', 'catmullrom']);
@@ -72,19 +84,247 @@ function normTime(t) {
   return String(t).replace(/^(-?\d+)\.0+$/, '$1');
 }
 
+function normalizeAnimationIncludes(includes) {
+  if (!Array.isArray(includes) || !includes.length) return [];
+
+  return includes
+    .filter(entry => entry && typeof entry === 'object')
+    .map(entry => ({
+      file_id: String(entry.file_id || '').trim(),
+      animations: Array.isArray(entry.animations)
+        ? entry.animations
+            .map(name => String(name || '').trim())
+            .filter(Boolean)
+        : [],
+    }))
+    .filter(entry => entry.file_id && entry.animations.length);
+}
+
+function cloneAnimationIncludes(includes) {
+  return normalizeAnimationIncludes(includes).map(entry => ({
+    file_id: entry.file_id,
+    animations: [...entry.animations],
+  }));
+}
+
+function getAnimationIncludesForPath(path) {
+  return cloneAnimationIncludes(animationIncludesByPath.get(path || '') || []);
+}
+
+function setAnimationIncludesForPath(path, includes) {
+  const key = path || '';
+  const normal = normalizeAnimationIncludes(includes);
+  if (normal.length) animationIncludesByPath.set(key, normal);
+  else animationIncludesByPath.delete(key);
+}
+
+function applyAnimationIncludes(out, includes) {
+  const normal = cloneAnimationIncludes(includes);
+  if (normal.length) out.includes = normal;
+  else delete out.includes;
+  return out;
+}
+
+
+function getIncludesTargetPath() {
+  const selected = Animation?.selected;
+  if (selected) return selected.path || '';
+
+  const uniquePaths = [...new Set(Animation.all.map(anim => anim.path || ''))];
+  if (uniquePaths.length === 1) return uniquePaths[0];
+
+  return '';
+}
+
+function getAnimationNamesForPath(path) {
+  return Animation.all
+    .filter(anim => (anim.path || '') === (path || '') && anim.name)
+    .map(anim => anim.name)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function findDuplicateIncludedAnimationNames(includes) {
+  const seen = new Map();
+  const duplicates = [];
+
+  includes.forEach((entry, entryIndex) => {
+    (entry.animations || []).forEach(name => {
+      const key = String(name || '').trim();
+      if (!key) return;
+
+      const previous = seen.get(key);
+      if (previous !== undefined) {
+        duplicates.push({ name: key, firstIndex: previous, secondIndex: entryIndex });
+      } else {
+        seen.set(key, entryIndex);
+      }
+    });
+  });
+
+  return duplicates;
+}
+
+function showAnimationIncludesDialog() {
+  const targetPath = getIncludesTargetPath();
+  const current = getAnimationIncludesForPath(targetPath);
+  const animationNames = getAnimationNamesForPath(targetPath);
+  const fileLabel = targetPath || 'Unsaved animation file';
+
+  const dialog = new Dialog({
+    id: 'azl_animation_includes_editor',
+    title: 'Edit Animation Includes',
+    width: 760,
+    component: {
+      data() {
+        return {
+          targetPath,
+          fileLabel,
+          rows: current.length
+            ? current.map(entry => ({
+                file_id: entry.file_id,
+                animations_text: entry.animations.join(', '),
+              }))
+            : [{ file_id: '', animations_text: '' }],
+          animationNames,
+          exampleAnimationNames: animationNames.join(', '),
+        };
+      },
+      methods: {
+        addRow() {
+          this.rows.push({ file_id: '', animations_text: '' });
+        },
+        removeRow(index) {
+          this.rows.splice(index, 1);
+          if (!this.rows.length) this.addRow();
+        },
+      },
+      template: `
+        <div class="dialog_content azure_includes_dialog" style="display:flex;flex-direction:column;gap:12px;min-width:0;">
+          <div style="min-width:0;">
+            <p style="margin:0;"><strong>Editing file:</strong> <span style="word-break:break-all;">{{ fileLabel }}</span></p>
+            <p style="margin:6px 0 0 0;opacity:0.8;">
+              These entries are saved at the top level of the animation JSON as <code>includes</code>.
+            </p>
+            <p v-if="exampleAnimationNames" style="margin:6px 0 0 0;opacity:0.8;line-height:1.45;">
+              Animations currently in this file: <code style="white-space:pre-wrap;word-break:break-word;">{{ exampleAnimationNames }}</code>
+            </p>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <strong>Include Entries</strong>
+            <button
+              type="button"
+              style="position:static;display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;min-height:32px;white-space:nowrap;"
+              @click="addRow()"
+            >
+              Add Include
+            </button>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow:auto;padding-right:4px;min-width:0;">
+            <div
+              v-for="(row, index) in rows"
+              :key="index"
+              style="display:block;padding:12px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;background:rgba(255,255,255,0.03);box-sizing:border-box;min-width:0;"
+            >
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
+                <div style="font-weight:600;opacity:0.95;">Include {{ index + 1 }}</div>
+                <button
+                  type="button"
+                  style="position:static;display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;min-height:28px;white-space:nowrap;"
+                  @click="removeRow(index)"
+                >
+                  Remove
+                </button>
+              </div>
+          
+              <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+                <label style="display:flex;flex-direction:column;gap:4px;width:100%;min-width:0;">
+                  <span>File ID</span>
+                  <input
+                    type="text"
+                    class="dark_bordered"
+                    style="display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;"
+                    v-model="row.file_id"
+                    placeholder="mod_id:path/to/other_animation.json"
+                  />
+                </label>
+          
+                <label style="display:flex;flex-direction:column;gap:4px;width:100%;min-width:0;">
+                  <span>Animations (comma-separated)</span>
+                  <textarea
+                    class="dark_bordered"
+                    rows="3"
+                    style="display:block;width:100%;min-width:0;max-width:100%;resize:vertical;box-sizing:border-box;line-height:1.4;"
+                    v-model="row.animations_text"
+                    placeholder="animation_name_1, animation_name_2"
+                  ></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+    },
+    onConfirm() {
+      const rows = dialog.content_vue?.rows || [];
+      const normalized = normalizeAnimationIncludes(rows.map(row => ({
+        file_id: row.file_id,
+        animations: String(row.animations_text || '')
+          .split(',')
+          .map(name => name.trim())
+          .filter(Boolean),
+      })));
+
+      const duplicates = findDuplicateIncludedAnimationNames(normalized);
+      if (duplicates.length) {
+        const preview = duplicates
+          .slice(0, 6)
+          .map(dup => `${dup.name} (entries ${dup.firstIndex + 1} and ${dup.secondIndex + 1})`)
+          .join('\n');
+      
+        if (typeof Blockbench.showMessageBox === 'function') {
+          Blockbench.showMessageBox({
+            title: 'Duplicate Included Animations',
+            message:
+              'Each included animation name must be unique across all include entries.\n\n' +
+              preview +
+              (duplicates.length > 6 ? `\n…and ${duplicates.length - 6} more.` : ''),
+          });
+        } else {
+          Blockbench.showQuickMessage('Duplicate included animation names detected.', 2400);
+        }
+      
+        return false;
+      }
+
+      setAnimationIncludesForPath(targetPath, normalized);
+      Blockbench.showQuickMessage(
+        normalized.length
+          ? `Saved ${normalized.length} animation include${normalized.length === 1 ? '' : 's'}.`
+          : 'Cleared animation includes.',
+        2000
+      );
+    },
+  });
+
+  dialog.show();
+}
+
 // ---------------------------------------------------------------------------
 // Animation file builder (export)
 // ---------------------------------------------------------------------------
 
 /**
  * Serialise all open Animation objects into the unified AzureLib JSON structure.
- * Called by Animator.buildFile when our format is active.
+ * Kept as a convenience for callers that want everything in the project.
+ * The codec itself uses compileFile(animations) so it can scope by file path.
  */
 export function buildAzureAnimationFile() {
-  const out = {
+  const out = applyAnimationIncludes({
     format_version: FORMAT_VERSION,
     animations: {},
-  };
+  }, getAnimationIncludesForPath(''));
 
   for (const anim of Animation.all) {
     if (!anim.name) continue;
@@ -333,6 +573,8 @@ export function loadAzureAnimationFile(file, filter) {
   const json = file.json || (typeof autoParseJSON === 'function' ? autoParseJSON(file.content) : JSON.parse(file.content));
   if (!json || typeof json.animations !== 'object') return [];
 
+  setAnimationIncludesForPath(file?.path, json.includes);
+
   const animsOut = [];
 
   for (const name in json.animations) {
@@ -569,16 +811,9 @@ function ensureEffectsAnimator(anim) {
 }
 
 // ---------------------------------------------------------------------------
-// Export / Import helpers (called by codec save hooks and menu actions)
+// Pretty-printer (kept from the original — formats arrays inline)
 // ---------------------------------------------------------------------------
 
-let _exportAction = null;
-let _importAction = null;
-
-/**
- * Export all open animations as a unified AzureLib JSON file.
- * Called by the codec when the user saves/exports.
- */
 /**
  * JSON serialiser that pretty-prints with tabs but keeps arrays compact on one line.
  * This matches the original Bedrock/AzureLib animation file format exactly.
@@ -603,181 +838,469 @@ function serializeAnimationJson(obj) {
   );
 }
 
-export function exportAzureAnimation() {
-  const json = buildAzureAnimationFile();
-  const content = serializeAnimationJson(json);
-  const defaultPath = Animation.all.find(a => a.path)?.path || '';
+// ---------------------------------------------------------------------------
+// AnimationCodec — the public-facing format integration
+// ---------------------------------------------------------------------------
 
-  Blockbench.export({
-    resource_id: 'azure_animation',
-    type: 'AzureLib Animation',
-    extensions: ['json'],
-    name: (Project?.name || 'animation') + '.animation',
-    startpath: defaultPath,
-    content,
-  }, path => {
-    Animation.all.forEach(a => { if (!a.path) a.path = path; });
-    Blockbench.showQuickMessage('Animation exported!', 1500);
-  });
+/**
+ * Filesystem helpers — only used in the desktop app. Guarded so the codec
+ * still works in the web build (where save/reload-by-path are no-ops).
+ */
+const _fs = (typeof require === 'function' && typeof isApp !== 'undefined' && isApp)
+  ? require('fs')
+  : null;
+
+/**
+ * Try to recover a previously written file's JSON (for in-place merges).
+ * Returns null if the file is missing or unparseable, never throws.
+ */
+function _readExistingAnimationFile(path) {
+  if (!_fs || !path) return null;
+  try {
+    if (!_fs.existsSync(path)) return null;
+    const raw = _fs.readFileSync(path, 'utf-8');
+    const parsed = typeof autoParseJSON === 'function'
+      ? autoParseJSON(raw, false)
+      : JSON.parse(raw);
+    return (parsed && typeof parsed.animations === 'object') ? parsed : null;
+  } catch (_) {
+    return null;
+  }
 }
 
 /**
- * Open a file picker and import one or more AzureLib animation JSON files.
+ * Lazily-created codec instance.
+ *
+ * IMPORTANT:
+ * Do not construct AnimationCodec at module load, because the blockbench-plugins
+ * validator evaluates the bundle in a VM before the full app/runtime exists.
  */
-export function importAzureAnimation() {
-  Blockbench.import({
-    resource_id: 'azure_animation',
-    type: 'AzureLib Animation',
-    extensions: ['json'],
-    readtype: 'text',
-    multiple: true,
-  }, files => {
-    if (!files || !files.length) return;
-    Undo.initEdit({ animations: [] });
-    const added = [];
-    for (const f of files) {
+export let azureAnimationCodec = null;
+
+export function createAzureAnimationCodec() {
+  if (azureAnimationCodec) return azureAnimationCodec;
+
+  if (typeof AnimationCodec === 'undefined') {
+    console.warn('[AzureLib] AnimationCodec API is unavailable in this Blockbench version.');
+    return null;
+  }
+
+  azureAnimationCodec = new AnimationCodec(AZURE_ANIM_FORMAT_ID, {
+    multiple_per_file: true,
+
+    // ---- Import side ---------------------------------------------------
+
+    pickFile() {
+      Blockbench.import({
+        resource_id: 'azure_animation',
+        type: 'AzureLib Animation',
+        extensions: ['json'],
+        readtype: 'text',
+        multiple: true,
+      }, async (files) => {
+        if (!files || !files.length) return;
+        for (const file of files) {
+          await this.importFile(file);
+        }
+      });
+    },
+
+    importFile(file, auto_loaded) {
+      let parsed;
       try {
-        f.json = typeof autoParseJSON === 'function'
-          ? autoParseJSON(f.content)
-          : JSON.parse(f.content);
-        added.push(...loadAzureAnimationFile(f));
-      } catch (e) {
-        console.error('[AzureLib] Failed to parse animation file:', f.name, e);
-        Blockbench.showQuickMessage(`Failed to load ${f.name}`, 2000);
+        parsed = typeof autoParseJSON === 'function'
+          ? autoParseJSON(file.content, false)
+          : JSON.parse(file.content);
+      } catch (error) {
+        console.error('[AzureLib] Failed to parse animation file:', error);
+        Blockbench.showQuickMessage('[AzureLib] Failed to parse animation file.');
+        return [];
       }
-    }
-    Undo.finishEdit('Import AzureLib animations', { animations: added });
+
+      file.json = parsed;
+      return this.loadFile(file, null, auto_loaded);
+    },
+
+    loadFile(file, animation_filter, auto_loaded) {
+      const json = file?.json || (
+        typeof autoParseJSON === 'function'
+          ? autoParseJSON(file.content, false)
+          : JSON.parse(file.content)
+      );
+
+      if (!json || typeof json.animations !== 'object') {
+        Blockbench.showQuickMessage('[AzureLib] No animations found in file.');
+        return [];
+      }
+
+      const path = file.path || '';
+      setAnimationIncludesForPath(path, json.includes || []);
+
+      const created = [];
+      const entries = Object.entries(json.animations);
+
+      for (const [name, animData] of entries) {
+        if (Array.isArray(animation_filter) && animation_filter.length && !animation_filter.includes(name)) {
+          continue;
+        }
+
+        const anim = new Animation({
+          name,
+          path,
+          saved_name: name,
+          loop:
+            animData.loop === true ? 'loop'
+            : animData.loop === 'hold_on_last_frame' ? 'hold'
+            : animData.loop || 'once',
+          override: !!animData.override_previous_animation,
+          anim_time_update: animData.anim_time_update || '',
+          blend_weight: animData.blend_weight || '',
+          length: Number(animData.animation_length || 0),
+        }).add();
+
+        anim.saved = true;
+
+        if (animData.bones && typeof animData.bones === 'object') {
+          for (const [boneName, boneData] of Object.entries(animData.bones)) {
+            let animator = anim.animators[boneName];
+            if (!animator) {
+              animator = new BoneAnimator(boneName, anim);
+              anim.animators[boneName] = animator;
+            }
+
+            for (const channel of ['position', 'rotation', 'scale']) {
+              const channelData = boneData?.[channel];
+              if (!channelData) continue;
+
+              const addKf = (time, entry) => {
+                const parsedKf = parseKeyframeData(entry, channel, time);
+                if (!parsedKf) return;
+
+                const kf = animator.addKeyframe({
+                  time,
+                  channel,
+                  interpolation: parsedKf.interpolation,
+                  data_points: parsedKf.data_points,
+                  easing: parsedKf.easing,
+                  easingArgs: parsedKf.easingArgs,
+                  uniform: parsedKf.uniform,
+                });
+
+                if (kf && parsedKf.interpolation) {
+                  kf.interpolation = parsedKf.interpolation;
+                }
+                if (kf && parsedKf.easing) {
+                  kf.easing = parsedKf.easing;
+                }
+                if (kf && parsedKf.easingArgs) {
+                  kf.easingArgs = parsedKf.easingArgs;
+                }
+              };
+
+              if (Array.isArray(channelData) || isAzureKeyframe(channelData) || isBedrockKeyframe(channelData)) {
+                addKf(0, channelData);
+              } else if (typeof channelData === 'object') {
+                for (const rawT in channelData) {
+                  const time = parseFloat(rawT);
+                  if (Number.isNaN(time)) continue;
+                  addKf(time, channelData[rawT]);
+                }
+              }
+            }
+          }
+        }
+
+        const effectAnimator = anim.animators.effects;
+
+        if (effectAnimator) {
+          const addEffectKeyframe = (time, channel, data_points) => {
+            effectAnimator.addKeyframe({
+              time,
+              channel,
+              data_points,
+            });
+          };
+
+          if (animData.sound_effects && typeof animData.sound_effects === 'object') {
+            for (const [rawT, entry] of Object.entries(animData.sound_effects)) {
+              const time = parseFloat(rawT);
+              if (Number.isNaN(time)) continue;
+              const list = Array.isArray(entry) ? entry : [entry];
+              addEffectKeyframe(time, 'sound', list.map(p => typeof p === 'string' ? { effect: p } : { ...p }));
+            }
+          }
+
+          if (animData.particle_effects && typeof animData.particle_effects === 'object') {
+            for (const [rawT, entry] of Object.entries(animData.particle_effects)) {
+              const time = parseFloat(rawT);
+              if (Number.isNaN(time)) continue;
+              const list = Array.isArray(entry) ? entry : [entry];
+              addEffectKeyframe(time, 'particle', list.map(p => ({ ...p })));
+            }
+          }
+
+          if (animData.timeline && typeof animData.timeline === 'object') {
+            for (const [rawT, script] of Object.entries(animData.timeline)) {
+              const time = parseFloat(rawT);
+              if (Number.isNaN(time)) continue;
+              addEffectKeyframe(time, 'timeline', [{ script: String(script || '') }]);
+            }
+          }
+        }
+
+        created.push(anim);
+      }
+
+      if (!auto_loaded && created.length) {
+        const first = created[0];
+        if (first) {
+          Animation.selected = first;
+        }
+      }
+
+      return created;
+    },
+
+    // ---- Export side ---------------------------------------------------
+
+    compileFile(animations = Animation.all) {
+      const scoped = Array.isArray(animations) ? animations : Animation.all;
+      const path = scoped.length ? (scoped[0].path || '') : '';
+      const out = applyAnimationIncludes({
+        format_version: FORMAT_VERSION,
+        animations: {},
+      }, getAnimationIncludesForPath(path));
+
+      for (const anim of scoped) {
+        if (!anim?.name) continue;
+        out.animations[anim.name] = serializeAnimation(anim);
+      }
+
+      return out;
+    },
+
+    write(content, path) {
+      return serializeAnimationJson(content);
+    },
+
+    /**
+     * Save a single animation back into its source file while preserving
+     * sibling animations and includes.
+     */
+    saveAnimation(animation, save_as) {
+      const compileSingleFile = () => applyAnimationIncludes({
+        format_version: FORMAT_VERSION,
+        animations: {
+          [animation.name]: serializeAnimation(animation),
+        },
+      }, getAnimationIncludesForPath(animation.path));
+
+      if (!isApp || !animation.path || save_as) {
+        Blockbench.export({
+          resource_id: 'azure_animation',
+          type: 'AzureLib Animation',
+          extensions: ['json'],
+          name: (Project?.geometry_name || Project?.name || 'animation') + '.animation',
+          startpath: animation.path,
+          content: serializeAnimationJson(compileSingleFile()),
+        }, (real_path) => {
+          const previousPath = animation.path || '';
+          const includes = getAnimationIncludesForPath(previousPath);
+          setAnimationIncludesForPath(real_path, includes);
+
+          if (real_path !== previousPath && previousPath) {
+            animationIncludesByPath.delete(previousPath);
+          }
+
+          animation.path = real_path;
+          animation.saved = true;
+          animation.saved_name = animation.name;
+        });
+        return;
+      }
+
+      let content = compileSingleFile();
+      const existing = _readExistingAnimationFile(animation.path);
+
+      if (existing) {
+        const fresh = content.animations[animation.name];
+        content = existing;
+
+        if (animation.saved_name && animation.saved_name !== animation.name) {
+          delete content.animations[animation.saved_name];
+        }
+
+        content.animations[animation.name] = fresh;
+        applyAnimationIncludes(content, getAnimationIncludesForPath(animation.path));
+
+        const fileKeys = Object.keys(content.animations);
+        const projectKeys = Animation.all
+          .filter(a => a.path === animation.path)
+          .map(a => a.name);
+
+        let changed = false;
+        let cursor = 0;
+
+        for (const key of projectKeys) {
+          const at = fileKeys.indexOf(key);
+          if (at === -1) continue;
+
+          if (at < cursor) {
+            fileKeys.splice(at, 1);
+            fileKeys.splice(cursor, 0, key);
+            changed = true;
+          } else {
+            cursor = at;
+          }
+        }
+
+        if (changed) {
+          const sorted = {};
+          fileKeys.forEach(k => {
+            sorted[k] = content.animations[k];
+          });
+          content.animations = sorted;
+        }
+      }
+
+      Blockbench.writeFile(animation.path, {
+        content: serializeAnimationJson(content),
+      }, (real_path) => {
+        animation.saved = true;
+        animation.saved_name = animation.name;
+        animation.path = real_path;
+      });
+    },
+
+    /**
+     * Export all animations that share the given path.
+     */
+    exportFile(path, save_as) {
+      const filterPath = path || '';
+      const animations = Animation.all.filter(a => (a.path || '') === filterPath);
+
+      if (!save_as && isApp && path && _fs && _fs.existsSync(path)) {
+        animations.forEach(a => {
+          if (!a.saved) a.save();
+        });
+        return;
+      }
+
+      const content = serializeAnimationJson(this.compileFile(animations));
+
+      Blockbench.export({
+        resource_id: 'azure_animation',
+        type: 'AzureLib Animation',
+        extensions: ['json'],
+        name: (Project?.geometry_name || Project?.name || 'animation') + '.animation',
+        startpath: path,
+        content,
+      }, (real_path) => {
+        const previousPath = filterPath || '';
+        const includes = getAnimationIncludesForPath(previousPath);
+        setAnimationIncludesForPath(real_path, includes);
+
+        if (real_path !== previousPath && previousPath) {
+          animationIncludesByPath.delete(previousPath);
+        }
+
+        animations.forEach(a => {
+          a.path = real_path;
+          a.saved = true;
+          a.saved_name = a.name;
+        });
+      });
+    },
+
+    deleteAnimationFromFile(animation) {
+      if (!_fs || !animation.path) return;
+
+      const existing = _readExistingAnimationFile(animation.path);
+      if (!existing || !existing.animations?.[animation.name]) return;
+
+      delete existing.animations[animation.name];
+      applyAnimationIncludes(existing, getAnimationIncludesForPath(animation.path));
+
+      Blockbench.writeFile(animation.path, {
+        content: serializeAnimationJson(existing),
+      });
+    },
   });
+
+  return azureAnimationCodec;
 }
 
 // ---------------------------------------------------------------------------
-// Registration — hooks Animator; adds Export/Import actions to Animation menu
+// Legacy export wrappers — keep external callers working.
 // ---------------------------------------------------------------------------
 
-/**
- * The exact menu label strings Blockbench uses for animation import/export.
- * We match by name at runtime so we don't depend on internal BarItem IDs.
- */
-const BUILTIN_ANIM_LABELS = new Set([
-  'Import Animations',
-  'Export Animations...',
-  'Save All Animations',
-]);
+export function exportAzureAnimation() {
+  const codec = createAzureAnimationCodec();
+  if (!codec?.exportFile) return;
 
-// Map of label → { item, originalCondition } for patched items
-const _patchedBuiltins = new Map();
-
-/**
- * Hide Blockbench's built-in animation Import/Export menu entries when the
- * AzureLib format is active. Matches by display name since internal IDs vary
- * across Blockbench versions.
- */
-function _hideBuiltinAnimationActions() {
-  for (const [id, item] of Object.entries(BarItems)) {
-    if (!item || _patchedBuiltins.has(id)) continue;
-    const label = item.name ?? item.label ?? '';
-    if (!BUILTIN_ANIM_LABELS.has(label)) continue;
-
-    const orig = item.condition;
-    _patchedBuiltins.set(id, { item, orig });
-    item.condition = (...args) => {
-      if (Format?.id === 'azure_model') return false;
-      return typeof orig === 'function' ? orig(...args) : orig ?? true;
-    };
-  }
+  const anyPath = Animation.all.find(a => a.path)?.path || '';
+  codec.exportFile(anyPath, true);
 }
 
-function _restoreBuiltinAnimationActions() {
-  for (const [id, { item, orig }] of _patchedBuiltins) {
-    item.condition = orig;
-  }
-  _patchedBuiltins.clear();
+export function importAzureAnimation() {
+  const codec = createAzureAnimationCodec();
+  codec?.pickFile?.();
 }
+
+// ---------------------------------------------------------------------------
+// Registration
+// ---------------------------------------------------------------------------
+
+let editAnimationIncludesAction = null;
 
 export function registerAzureAnimationFormat() {
-  // Hook Animator so our serialiser/parser run when azure_model is active
-  _hookAnimator();
+  const codec = createAzureAnimationCodec();
+  if (!codec) {
+    console.warn(
+      '[AzureLib] AnimationCodec API is unavailable in this Blockbench version. ' +
+      'Animation import/export will not work. Please update Blockbench.'
+    );
+    return;
+  }
 
-  // Register FABRIK IK system
-  // IKManager.register();
+  if (!editAnimationIncludesAction) {
+    editAnimationIncludesAction = new Action('azl_edit_animation_includes', {
+      name: 'Edit Animation Includes',
+      description: 'Edit AzureLib animation include entries for the current animation file',
+      icon: 'playlist_add',
+      category: 'animation',
+      condition: () => Format?.id === 'azure_model' && Animator.open,
+      click: () => showAnimationIncludesDialog(),
+    });
 
-  // Hide the built-in export/import actions for our format
-  _hideBuiltinAnimationActions();
+    try {
+      MenuBar.menus?.animation?.addAction(editAnimationIncludesAction);
+    } catch (_) {}
+  }
 
-  // Import before Export
-  _importAction = new Action('azure_import_animation', {
-    name: 'Import AzureLib Animation',
-    description: 'Load a unified AzureLib + Bedrock animation JSON',
-    icon: 'file_download',
-    category: 'animation',
-    condition: () => Format?.id === 'azure_model' && Animator.open,
-    click: importAzureAnimation,
-  });
+  if (!Formats?.azure_animation) {
+    Formats.azure_animation = {
+      id: AZURE_ANIM_FORMAT_ID,
+      name: 'Azure Animation',
+      animation_codec: codec,
+    };
+  }
 
-  _exportAction = new Action('azure_export_animation', {
-    name: 'Export AzureLib Animation',
-    description: 'Save animations as a unified AzureLib + Bedrock JSON',
-    icon: 'file_upload',
-    category: 'animation',
-    condition: () => Format?.id === 'azure_model' && Animator.open,
-    click: exportAzureAnimation,
-  });
-
-  // Add our actions to the Animation menu (import first, then export)
-  try {
-    MenuBar.menus?.animation?.addAction?.(_importAction);
-    MenuBar.menus?.animation?.addAction?.(_exportAction);
-  } catch (_) {}
-
-  console.log('[AzureLib] Azure animation format registered');
+  console.log('[AzureLib] Azure animation codec registered');
 }
 
 export function unregisterAzureAnimationFormat() {
-  _unhookAnimator();
-  _restoreBuiltinAnimationActions();
-  // IKManager.unregister();
+  editAnimationIncludesAction?.delete();
+  editAnimationIncludesAction = null;
 
-  try { _exportAction?.delete(); } catch (_) {}
-  try { _importAction?.delete(); } catch (_) {}
-  _exportAction = null;
-  _importAction = null;
+  try {
+    delete Formats?.azure_animation;
+  } catch {}
 
-  console.log('[AzureLib] Azure animation format unregistered');
-}
+  if (azureAnimationCodec && AnimationCodec?.codecs) {
+    delete AnimationCodec.codecs[AZURE_ANIM_FORMAT_ID];
+  }
 
-// ---------------------------------------------------------------------------
-// Animator hook (overrides buildFile / loadFile for our format)
-// ---------------------------------------------------------------------------
-
-let _origBuildFile = null;
-let _origLoadFile = null;
-let _hooked = false;
-
-function _hookAnimator() {
-  if (_hooked) return;
-  _origBuildFile = Animator.buildFile;
-  _origLoadFile = Animator.loadFile;
-
-  Animator.buildFile = function (...args) {
-    if (Format?.id === 'azure_model') {
-      return buildAzureAnimationFile();
-    }
-    return _origBuildFile.apply(this, args);
-  };
-
-  Animator.loadFile = function (file, filter) {
-    if (Format?.id === 'azure_model') {
-      return loadAzureAnimationFile(file, filter);
-    }
-    return _origLoadFile.call(this, file, filter);
-  };
-
-  _hooked = true;
-}
-
-function _unhookAnimator() {
-  if (!_hooked) return;
-  if (_origBuildFile) Animator.buildFile = _origBuildFile;
-  if (_origLoadFile) Animator.loadFile = _origLoadFile;
-  _hooked = false;
+  azureAnimationCodec = null;
+  console.log('[AzureLib] Azure animation codec unregistered');
 }
