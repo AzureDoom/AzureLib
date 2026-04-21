@@ -114,6 +114,10 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      *         list if any stage references a non-existent animation.
      */
     public List<AzQueuedAnimation> tryCreateAnimationQueue(T animatable, AzAnimationSequence sequence) {
+        if (animatable == null) {
+            LOGGER.warn("Unable to create animation queue: animatable is null");
+            return List.of();
+        }
         var stages = sequence.stages();
         var animations = new ArrayList<AzQueuedAnimation>();
 
