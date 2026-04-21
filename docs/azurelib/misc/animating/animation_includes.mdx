@@ -34,11 +34,11 @@ Below is an example of how the property is defined within an animation JSON file
   },
   "includes": [
     {
-      "file_id": "mod_id:path/to/other_animation.json",
+      "file_id": "mod_id:animations/other_animation.json",
       "animations": ["animation_name_1", "animation_name_2"]
     },
     {
-      "file_id": "mod_id:path/to/another_animation.json",
+      "file_id": "mod_id:animations/another_animation.json",
       "animations": ["another_animation_name"]
     }
   ]
@@ -46,7 +46,8 @@ Below is an example of how the property is defined within an animation JSON file
 ```
 
 ### Explanation
-1. **`file_id`**: Specifies the location of the external JSON file containing animations. This should follow the format `mod_id:path/to/file.json`.
+
+1. **`file_id`**: Specifies the location of the external JSON file containing animations. This should follow the format `mod_id:path/to/file.json`, where the path is relative to the `assets/mod_id/` folder. For example, `mod_id:animations/other_animation.json` resolves to `assets/mod_id/animations/other_animation.json`.
 2. **`animations`**: A list of animations from the specified file to include into the current context. These animations can then be referenced by their names.
 
 ## Loading Included Animations
@@ -54,6 +55,20 @@ The framework automatically manages includes by resolving referenced animations 
 1. When you request an animation using `getAnimation`, the system first looks for it in the animations directly declared in the current JSON file.
 2. If the animation is not found, it checks the `includes` for matching entries.
 3. For a matching entry, the specified file is loaded, and the animation is retrieved from it.
+
+## Using the Blockbench Plugin
+
+The [Azurelib Blockbench plugin](https://www.blockbench.net/plugins/azurelib_utils) supports managing animation includes directly through the **Animation** tab, without needing to edit the JSON manually.
+
+To add or edit includes via the plugin:
+1. Open your model in Blockbench with the Azurelib plugin installed.
+2. Navigate to the **Animate** section.
+3. Now click the **Animation** tab
+4. Click **Edit Animation Includes** to open the includes editor dialog.
+5. Use **Add Include** to add a new entry, then fill in:
+   - **File ID**: The resource location of the animation file to include, e.g. `mod_id:animations/other_animation.json` (path is relative to `assets/mod_id/`).
+   - **Animations**: A comma-separated list of animation names to pull from that file.
+6. Click **Confirm** to save your changes. The `includes` block in your animation JSON will be updated automatically.
 
 ## Practical Example
 
@@ -86,7 +101,7 @@ The framework automatically manages includes by resolving referenced animations 
   },
   "includes": [
     {
-      "file_id": "mod_id:example.json",
+      "file_id": "mod_id:animations/example.json",
       "animations": ["wave_animation"]
     }
   ]
@@ -108,4 +123,4 @@ The framework automatically manages includes by resolving referenced animations 
 
 ### 3. **Missing Files or Animations**
 - If a `file_id` or animation name is invalid or missing, the referenced animation cannot be loaded.
-- **Solution**: Double-check paths and animation names.
+- **Solution**: Double-check paths and animation names. Remember that the path in `file_id` is relative to `assets/mod_id/`, so `mod_id:animations/example.json` maps to `assets/mod_id/animations/example.json`.
