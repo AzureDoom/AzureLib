@@ -185,27 +185,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
 
         JsonObject animationJsonList = jsonObj.getAsJsonObject("animations");
         JsonArray includeListJSONObj = jsonObj.getAsJsonArray("includes");
-        Map<String, ResourceLocation> includes = null;
-        if (includeListJSONObj != null) {
-            includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
-            for (JsonElement entry : includeListJSONObj) {
-                JsonObject obj = entry.getAsJsonObject();
-                ResourceLocation fileId = new ResourceLocation(obj.get("file_id").getAsString());
-                for (JsonElement animName : obj.getAsJsonArray("animations")) {
-                    String ani = animName.getAsString();
-                    if (includes.containsKey(ani)) {
-                        AzureLib.LOGGER.warn(
-                            "Animation {} is already included! File already including: {}  File trying to include from again: {}",
-                            ani,
-                            includes.get(ani),
-                            fileId
-                        );
-                    } else {
-                        includes.put(ani, fileId);
-                    }
-                }
-            }
-        }
+        Map<String, ResourceLocation> includes = readIncludes(includeListJSONObj);
 
         Map<String, AzBakedAnimation> animations = new Object2ObjectOpenHashMap<>(animationJsonList.size());
 
@@ -216,12 +196,97 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                     bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), context)
                 );
             } catch (MolangException ex) {
-                AzureLib.LOGGER.error("Unable to parse animation: {}", entry.getKey());
-                ex.printStackTrace();
+                AzureLib.LOGGER.error("Unable to parse animation '{}'", entry.getKey(), ex);
             }
         }
 
         return new AzBakedAnimations(animations, includes);
+    }
+
+    /**
+     * Reads and processes a JSON array of include entries, mapping animation names to their corresponding file
+     * identifiers.
+     * <p>
+     * Each entry in the provided JSON array is expected to be a JSON object containing a "file_id" and an "animations"
+     * array. Valid animation names from the "animations" array are mapped to the associated "file_id". Invalid or
+     * malformed entries are logged and skipped during processing.
+     *
+     * @param includeListJSONObj a JSON array containing the include entries to be processed. Each entry must be a JSON
+     *                           object with a "file_id" field (string) and an "animations" field (array of strings).
+     * @return a map associating animation names (as strings) with their respective file identifiers (as
+     *         {@code ResourceLocation}), or {@code null} if the input array is null, empty, or if no valid mappings are
+     *         found.
+     */
+    private static Map<String, ResourceLocation> readIncludes(JsonArray includeListJSONObj) {
+        if (includeListJSONObj == null || includeListJSONObj.isEmpty())
+            return null;
+
+        Map<String, ResourceLocation> includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
+
+        for (JsonElement entry : includeListJSONObj) {
+            if (!entry.isJsonObject()) {
+                AzureLib.LOGGER.warn("Skipping malformed include entry: {}", entry);
+                continue;
+            }
+
+            JsonObject obj = entry.getAsJsonObject();
+
+            if (!obj.has("file_id")) {
+                AzureLib.LOGGER.warn("Include entry is missing 'file_id': {}", obj);
+                continue;
+            }
+
+            if (!obj.has("animations") || !obj.get("animations").isJsonArray()) {
+                AzureLib.LOGGER.warn(
+                    "Include entry for file '{}' is missing a valid 'animations' array: {}",
+                    obj.get("file_id").getAsString(),
+                    obj
+                );
+                continue;
+            }
+
+            ResourceLocation fileId;
+            try {
+                fileId = new ResourceLocation(obj.get("file_id").getAsString());
+            } catch (Exception ex) {
+                AzureLib.LOGGER.warn(
+                    "Invalid include file_id '{}': {}",
+                    obj.get("file_id").getAsString(),
+                    ex.getMessage()
+                );
+                continue;
+            }
+
+            for (JsonElement animName : obj.getAsJsonArray("animations")) {
+                if (!animName.isJsonPrimitive() || !animName.getAsJsonPrimitive().isString()) {
+                    AzureLib.LOGGER.warn(
+                        "Skipping non-string animation name in include file {}: {}",
+                        fileId,
+                        animName
+                    );
+                    continue;
+                }
+
+                String ani = animName.getAsString();
+
+                if (ani.isBlank()) {
+                    AzureLib.LOGGER.warn("Skipping blank animation name in include file {}", fileId);
+                    continue;
+                }
+
+                ResourceLocation previous = includes.putIfAbsent(ani, fileId);
+                if (previous != null) {
+                    AzureLib.LOGGER.warn(
+                        "Animation '{}' is already included. First source: {}, duplicate source: {}",
+                        ani,
+                        previous,
+                        fileId
+                    );
+                }
+            }
+        }
+
+        return includes.isEmpty() ? null : includes;
     }
 
     /**
