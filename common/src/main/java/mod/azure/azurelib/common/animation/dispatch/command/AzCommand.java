@@ -133,7 +133,7 @@ public record AzCommand(List<AzAction> actions) {
      * @param animationSpeed  the speed at which the animation should play
      * @return an AzCommand instance configured with the specified animation settings
      */
-    // TODO: Fix transition length overriding transition lenght on the base create method
+    // TODO: Fix transition length overriding transition length on the base create method
     public static AzCommand createRoot(
         String animationName,
         AzPlayBehavior playBehavior,
@@ -152,7 +152,6 @@ public record AzCommand(List<AzAction> actions) {
                 )
             )
             .setFreezeTickOffset(freezeTickOffset)
-            .setTransitionSpeed(transitionLength)
             .setStartTickOffset(startTickOffset)
             .setSpeed(animationSpeed)
             .setRepeatAmount(repeatXTimes)
