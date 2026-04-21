@@ -24,6 +24,9 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
         var renderPipeline = context.rendererPipeline();
         var renderType = determineRenderType(context);
 
+        var prevRenderType = context.renderType();
+        var prevVertexConsumer = context.vertexConsumer();
+
         if (renderType != null) {
             context.setRenderType(renderType);
             context.setPackedLight(getPackedLight(context));
@@ -31,6 +34,9 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
             renderPipeline.reRender(context);
         }
+
+        context.setRenderType(prevRenderType);
+        context.setVertexConsumer(prevVertexConsumer);
     }
 
     @Override
