@@ -60,13 +60,16 @@ dependencies {
             prefer '0.4.1'
         }
     }
-    modImplementation "net.arna:jcraft-forge:0.18.0+b4"
-    modImplementation "curse.maven:architectury-api-419699:5137938"
-    modImplementation "curse.maven:playeranimator-658587:4587214"
-    modImplementation "curse.maven:cloth-config-348521:5729105"
+    //modImplementation "net.arna:jcraft-forge:0.18.0+b17"
+    //modImplementation "curse.maven:architectury-api-419699:5137938"
+    //modImplementation "curse.maven:playeranimator-658587:4587214"
+    //modImplementation "curse.maven:cloth-config-348521:5729105"
     // Testing a crash (Confirmed no crash with using MixinExtras!)
     //modImplementation("maven.modrinth:easy-anvils:v8.0.2-1.20.1-Forge")
     //modImplementation("maven.modrinth:puzzles-lib:v8.1.32-1.20.1-Forge")
+    // Testing a crash
+    //modImplementation "curse.maven:bossesrise-1314084:7702006"
+    //modImplementation "curse.maven:geckolib-388172:7553267"
 }
 
 jar {
