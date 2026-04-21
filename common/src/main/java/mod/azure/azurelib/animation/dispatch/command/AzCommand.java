@@ -160,7 +160,6 @@ public record AzCommand(List<AzAction> actions) {
                 )
             )
             .setFreezeTickOffset(freezeTickOffset)
-            .setTransitionSpeed(transitionLength)
             .setStartTickOffset(startTickOffset)
             .setSpeed(animationSpeed)
             .setRepeatAmount(repeatXTimes)
