@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.loading.json.raw.Bone;
 import mod.azure.azurelib.common.loading.json.raw.MinecraftGeometry;
 import mod.azure.azurelib.common.loading.json.raw.Model;
@@ -28,15 +29,24 @@ public record GeometryTree(
         Map<String, BoneStructure> topLevelBones = new Object2ObjectOpenHashMap<>();
         MinecraftGeometry geometry = model.minecraftGeometry()[0];
         List<Bone> bones = new ObjectArrayList<>(geometry.bones());
-        int index = bones.size() - 1;
+        Map<String, Bone> allBonesByName = new Object2ObjectOpenHashMap<>();
 
-        while (true) {
-            Bone bone = bones.get(index);
+        for (Bone bone : geometry.bones()) {
+            allBonesByName.put(bone.name(), bone);
+        }
 
-            if (bone.parent() == null) {
-                topLevelBones.put(bone.name(), new BoneStructure(bone));
-                bones.remove(index);
-            } else {
+        while (!bones.isEmpty()) {
+            int remainingBeforePass = bones.size();
+
+            for (int index = bones.size() - 1; index >= 0; index--) {
+                Bone bone = bones.get(index);
+
+                if (bone.parent() == null || bone.parent().isBlank()) {
+                    topLevelBones.put(bone.name(), new BoneStructure(bone));
+                    bones.remove(index);
+                    continue;
+                }
+
                 BoneStructure structure = findBoneStructureInTree(topLevelBones, bone.parent());
 
                 if (structure != null) {
@@ -45,13 +55,39 @@ public record GeometryTree(
                 }
             }
 
-            if (index == 0) {
-                index = bones.size() - 1;
+            if (bones.size() == remainingBeforePass) {
+                boolean salvagedAny = false;
 
-                if (index == -1)
-                    break;
-            } else {
-                index--;
+                for (int index = bones.size() - 1; index >= 0; index--) {
+                    Bone bone = bones.get(index);
+                    String parentName = bone.parent();
+
+                    if (!allBonesByName.containsKey(parentName)) {
+                        AzureLib.LOGGER.error(
+                            "Invalid model bone hierarchy: bone '{}' references missing parent '{}'. Treating as top-level bone.",
+                            bone.name(),
+                            parentName
+                        );
+
+                        topLevelBones.put(bone.name(), new BoneStructure(bone));
+                        bones.remove(index);
+                        salvagedAny = true;
+                    }
+                }
+
+                if (!salvagedAny) {
+                    for (Bone bone : bones) {
+                        AzureLib.LOGGER.error(
+                            "Invalid model bone hierarchy: unable to resolve bone '{}' with parent '{}'. Treating as top-level bone.",
+                            bone.name(),
+                            bone.parent()
+                        );
+
+                        topLevelBones.put(bone.name(), new BoneStructure(bone));
+                    }
+
+                    bones.clear();
+                }
             }
         }
 
