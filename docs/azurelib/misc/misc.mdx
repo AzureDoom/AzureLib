@@ -104,6 +104,66 @@ public ExampleItemRenderer() {
 }
 ```
 
+## Overriding the Texture of a Specific Bone
+
+Use `setBoneTextureOverrideProvider` when you want one bone in a model to render with a different texture than the rest of the model. The provider receives the `AzBone` currently being rendered, so you can check the bone name and return the texture you want that bone to use.
+
+A common use case is giving a cape, accessory, or other extra model part its own texture without creating a separate render layer.
+
+```java
+public class GremlinRenderer extends AzEntityRenderer {
+
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        "YOUR_MOD_ID", "geo/entity/gremlin.geo.json"
+    );
+
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        "YOUR_MOD_ID", "textures/entity/gremlin.png"
+    );
+
+    private static final ResourceLocation CAPE_TEXTURE = new ResourceLocation(
+        "YOUR_MOD_ID", "textures/entity/gremlin_cape.png"
+    );
+
+    public GremlinRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.builder(MODEL, TEXTURE)
+                .setBoneTextureOverrideProvider(bone ->
+                    "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : TEXTURE
+                )
+                .setShadowRadius(0.5F)
+                .build(),
+            context
+        );
+    }
+}
+```
+
+In this example, only the bone named `bipedCape` uses `gremlin_cape.png`. Every other bone falls back to the normal entity texture.
+
+<Callout variant="info">
+Make sure the bone name matches the name in your Blockbench model exactly. If the name does not match, the override will never be selected.
+</Callout>
+
+### Using a Custom RenderType for the Bone
+
+If the alternate bone texture needs a different render type, you can also use `setBoneRenderTypeOverrideProvider` alongside the texture override.
+
+```java
+AzEntityRendererConfig.builder(MODEL, TEXTURE)
+    .setBoneTextureOverrideProvider(bone ->
+        "glowLayer".equals(bone.getName()) ? GLOW_TEXTURE : TEXTURE
+    )
+    .setBoneRenderTypeOverrideProvider(bone ->
+        "glowLayer".equals(bone.getName())
+            ? RenderType.eyes(GLOW_TEXTURE)
+            : null
+    )
+    .build();
+```
+
+If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default render type for the overridden texture. Use `setBoneRenderTypeOverrideProvider` only when the bone needs special rendering behavior, such as emissive-style rendering.
+
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
 To do this simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Forge for your ArmorItem
