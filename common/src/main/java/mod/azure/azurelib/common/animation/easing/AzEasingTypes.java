@@ -236,9 +236,9 @@ public class AzEasingTypes {
 
                 if (easingArgs.size() < 2)
                     return Interpolations.lerp(
-                        buildTransformer(easingValue).apply(lerpValue),
                         animationPoint.animationStartValue(),
-                        animationPoint.animationEndValue()
+                        animationPoint.animationEndValue(),
+                        buildTransformer(easingValue).apply(lerpValue)
                     );
 
                 return AzEasingUtil.catmullRom(
