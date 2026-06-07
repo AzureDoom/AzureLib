@@ -104,8 +104,6 @@ public ExampleItemRenderer() {
 }
 ```
 
-## Overriding the Texture of a Specific Bone
-
 Use `setBoneTextureOverrideProvider` when you want one bone in a model to render with a different texture than the rest of the model. The provider receives the `AzBone` currently being rendered, so you can check the bone name and return the texture you want that bone to use.
 
 A common use case is giving a cape, accessory, or other extra model part its own texture without creating a separate render layer.
@@ -129,7 +127,7 @@ public class GremlinRenderer extends AzEntityRenderer {
         super(
             AzEntityRendererConfig.builder(MODEL, TEXTURE)
                 .setBoneTextureOverrideProvider(bone ->
-                    "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : TEXTURE
+                    "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : null
                 )
                 .setShadowRadius(0.5F)
                 .build(),
@@ -139,26 +137,78 @@ public class GremlinRenderer extends AzEntityRenderer {
 }
 ```
 
-In this example, only the bone named `bipedCape` uses `gremlin_cape.png`. Every other bone falls back to the normal entity texture.
+In this example, only the bone named `bipedCape` uses `gremlin_cape.png`. Every other bone returns `null`, which means AzureLib will keep using the normal entity texture.
 
 <Callout variant="info">
 Make sure the bone name matches the name in your Blockbench model exactly. If the name does not match, the override will never be selected.
 </Callout>
 
-### Using a Custom RenderType for the Bone
+### Using Entity-Aware Bone Texture Overrides
 
-If the alternate bone texture needs a different render type, you can also use `setBoneRenderTypeOverrideProvider` alongside the texture override.
+If your texture override depends on the entity being rendered, use the entity-aware overload of `setBoneTextureOverrideProvider`.
+
+This is useful when the same bone should use different textures based on entity state, variant, owner data, equipment, or any other entity-specific condition.
+
+```java
+AzEntityRendererConfig.builder(MODEL, TEXTURE)
+    .setBoneTextureOverrideProvider((entity, bone) -> {
+        if (entity != null && entity.isSuperman() && "bipedCape".equals(bone.getName())) {
+            return CAPE_TEXTURE;
+        }
+
+        return null;
+    })
+    .setShadowRadius(0.5F)
+    .build();
+```
+
+The original bone-only overload is still supported:
 
 ```java
 AzEntityRendererConfig.builder(MODEL, TEXTURE)
     .setBoneTextureOverrideProvider(bone ->
-        "glowLayer".equals(bone.getName()) ? GLOW_TEXTURE : TEXTURE
+        "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : null
+    )
+    .build();
+```
+
+Use the bone-only overload when the override only depends on the bone. Use the entity-aware overload when the override also needs access to the entity.
+
+### Using a Custom RenderType for a Bone
+
+If the alternate bone texture needs a different render type, use `setBoneRenderTypeOverrideProvider` alongside the texture override.
+
+```java
+AzEntityRendererConfig.builder(MODEL, TEXTURE)
+    .setBoneTextureOverrideProvider(bone ->
+        "glowLayer".equals(bone.getName()) ? GLOW_TEXTURE : null
     )
     .setBoneRenderTypeOverrideProvider(bone ->
         "glowLayer".equals(bone.getName())
             ? RenderType.eyes(GLOW_TEXTURE)
             : null
     )
+    .build();
+```
+
+If the render type depends on the entity being rendered, use the entity-aware overload:
+
+```java
+AzEntityRendererConfig.builder(MODEL, TEXTURE)
+    .setBoneTextureOverrideProvider((entity, bone) -> {
+        if (entity != null && entity.isGlowing() && "glowLayer".equals(bone.getName())) {
+            return GLOW_TEXTURE;
+        }
+
+        return null;
+    })
+    .setBoneRenderTypeOverrideProvider((entity, bone) -> {
+        if (entity != null && entity.isGlowing() && "glowLayer".equals(bone.getName())) {
+            return RenderType.eyes(GLOW_TEXTURE);
+        }
+
+        return null;
+    })
     .build();
 ```
 

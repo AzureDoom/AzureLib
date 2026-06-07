@@ -301,14 +301,15 @@ public class AzModelRenderer<K, T> {
         var currentBuffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var renderType = context.renderType();
+        var animatable = context.animatable();
 
-        if (config.boneTextureOverrideProvider(bone) != null) {
-            context.setTextureOverride(config.boneTextureOverrideProvider(bone));
+        if (config.boneTextureOverrideProvider(animatable, bone) != null) {
+            context.setTextureOverride(config.boneTextureOverrideProvider(animatable, bone));
         }
 
-        var texture = config.boneTextureOverrideProvider(bone);
+        var texture = config.boneTextureOverrideProvider(animatable, bone);
 
-        var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
+        var renderTypeOverride = config.boneRenderTypeOverrideProvider(animatable, bone);
 
         if (texture != null && renderTypeOverride == null) {
             renderTypeOverride = context.getDefaultRenderType(

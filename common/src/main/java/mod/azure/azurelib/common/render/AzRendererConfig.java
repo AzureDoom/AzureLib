@@ -53,9 +53,9 @@ public class AzRendererConfig<K, T> {
 
     private final Function<T, Float> scaleWidth;
 
-    private final @Nullable Function<AzBone, ResourceLocation> boneTextureOverrideProvider;
+    private final BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider;
 
-    private final @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider;
+    private final BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
     public AzRendererConfig(
         Supplier<AzAnimator<K, T>> animatorProvider,
@@ -71,8 +71,8 @@ public class AzRendererConfig<K, T> {
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
-        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         this.animatorProvider = animatorProvider;
         this.modelLocationProvider = modelLocationProvider;
@@ -159,11 +159,19 @@ public class AzRendererConfig<K, T> {
     }
 
     public @Nullable ResourceLocation boneTextureOverrideProvider(AzBone bone) {
-        return boneTextureOverrideProvider.apply(bone);
+        return boneTextureOverrideProvider(null, bone);
+    }
+
+    public @Nullable ResourceLocation boneTextureOverrideProvider(@Nullable T entity, AzBone bone) {
+        return boneTextureOverrideProvider.apply(entity, bone);
     }
 
     public @Nullable RenderType boneRenderTypeOverrideProvider(AzBone bone) {
-        return boneRenderTypeOverrideProvider.apply(bone);
+        return boneRenderTypeOverrideProvider(null, bone);
+    }
+
+    public @Nullable RenderType boneRenderTypeOverrideProvider(@Nullable T entity, AzBone bone) {
+        return boneRenderTypeOverrideProvider.apply(entity, bone);
     }
 
     public static class Builder<K, T> {
@@ -194,9 +202,9 @@ public class AzRendererConfig<K, T> {
 
         protected Function<T, Float> scaleWidth;
 
-        private @Nullable Function<AzBone, ResourceLocation> boneTextureOverrideProvider;
+        private BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider;
 
-        private @Nullable Function<AzBone, RenderType> boneRenderTypeOverrideProvider;
+        private BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
         protected Builder(
             BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
@@ -215,19 +223,33 @@ public class AzRendererConfig<K, T> {
             this.alphaFunction = $ -> 1.0F;
             this.scaleHeight = $ -> 1.0F;
             this.scaleWidth = $ -> 1.0F;
-            this.boneTextureOverrideProvider = $ -> null;
-            this.boneRenderTypeOverrideProvider = $ -> null;
+            this.boneTextureOverrideProvider = (entity, bone) -> null;
+            this.boneRenderTypeOverrideProvider = (entity, bone) -> null;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
-            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+                Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+        ) {
+            this.boneTextureOverrideProvider = (entity, bone) -> boneTextureOverrideProvider.apply(bone);
+            return this;
+        }
+
+        public Builder<K, T> setBoneTextureOverrideProvider(
+                BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider
         ) {
             this.boneTextureOverrideProvider = boneTextureOverrideProvider;
             return this;
         }
 
         public Builder<K, T> setBoneRenderTypeOverrideProvider(
-            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+                Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        ) {
+            this.boneRenderTypeOverrideProvider = (entity, bone) -> boneRenderTypeOverrideProvider.apply(bone);
+            return this;
+        }
+
+        public Builder<K, T> setBoneRenderTypeOverrideProvider(
+                BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
         ) {
             this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
             return this;

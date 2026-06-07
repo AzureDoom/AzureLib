@@ -44,8 +44,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<UUID, T>, AzLayerRenderer<UUID, T>, AzModelRenderer<UUID, T>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, T>, AzRendererPipelineContext<UUID, T>> pipelineContextFunction,
-        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,

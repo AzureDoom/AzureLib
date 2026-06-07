@@ -39,8 +39,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<Long, T>, AzLayerRenderer<Long, T>, AzModelRenderer<Long, T>> modelRendererProvider,
         Function<AzRendererPipeline<Long, T>, AzRendererPipelineContext<Long, T>> pipelineContextFunction,
-        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
