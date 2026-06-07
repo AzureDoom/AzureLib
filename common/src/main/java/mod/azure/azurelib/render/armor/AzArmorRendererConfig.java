@@ -38,8 +38,8 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         Function<ItemStack, Float> scaleWidth,
         BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
-        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable ItemStack, AzBone, ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable ItemStack, AzBone, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,

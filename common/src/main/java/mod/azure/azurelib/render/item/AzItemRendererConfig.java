@@ -48,8 +48,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         Predicate<ItemTransforms.TransformType> shouldAnimateInContext,
         BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
-        Function<AzBone, ResourceLocation> boneTextureOverrideProvider,
-        Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable ItemStack, ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable ItemStack, RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
