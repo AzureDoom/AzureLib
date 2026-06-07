@@ -39,7 +39,7 @@ public class AzEasingTypeRegistry {
     }
 
     public static AzEasingType register(String name, AzEasingType easingType) {
-        return register(name, easingType::buildTransformer);
+        return EASING_TYPES.computeIfAbsent(name, $ -> easingType);
     }
 
     public static AzEasingType getOrDefault(String name, @NotNull AzEasingType defaultValue) {
