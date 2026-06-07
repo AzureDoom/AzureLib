@@ -371,9 +371,10 @@ public class AzModelRenderer<K, T> {
         var currentBuffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var renderType = context.renderType();
+        var animatable = context.animatable();
 
-        if (config.boneTextureOverrideProvider(bone) != null) {
-            context.setTextureOverride(config.boneTextureOverrideProvider(bone));
+        if (config.boneTextureOverrideProvider(animatable, animatable, bone) != null) {
+            context.setTextureOverride(config.boneTextureOverrideProvider(animatable, animatable, bone));
         }
 
         var texture = config.boneTextureOverrideProvider(bone);
