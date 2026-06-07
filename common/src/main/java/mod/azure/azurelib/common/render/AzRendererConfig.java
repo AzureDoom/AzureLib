@@ -228,28 +228,28 @@ public class AzRendererConfig<K, T> {
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
-                Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
         ) {
             this.boneTextureOverrideProvider = (entity, bone) -> boneTextureOverrideProvider.apply(bone);
             return this;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
-                BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider
+            BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider
         ) {
             this.boneTextureOverrideProvider = boneTextureOverrideProvider;
             return this;
         }
 
         public Builder<K, T> setBoneRenderTypeOverrideProvider(
-                Function<AzBone, RenderType> boneRenderTypeOverrideProvider
+            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
         ) {
             this.boneRenderTypeOverrideProvider = (entity, bone) -> boneRenderTypeOverrideProvider.apply(bone);
             return this;
         }
 
         public Builder<K, T> setBoneRenderTypeOverrideProvider(
-                BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
+            BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
         ) {
             this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
             return this;
