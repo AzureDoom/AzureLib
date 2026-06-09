@@ -29,6 +29,10 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
 
     protected final AzEntityRendererPipeline<T> entityRendererPipeline;
 
+    private final Matrix4f scratchPoseState = new Matrix4f();
+
+    private final Matrix4f scratchLocalMatrix = new Matrix4f();
+
     public AzEntityModelRenderer(
         AzEntityRendererPipeline<T> entityRendererPipeline,
         AzLayerRenderer<UUID, T> layerRenderer
@@ -105,24 +109,21 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         RenderUtils.scaleMatrixForBone(poseStack, bone);
 
         if (bone.isTrackingMatrices()) {
-            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
-            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
+            scratchPoseState.set(poseStack.last().pose());
+            var localMatrix = RenderUtils.invertAndMultiplyMatrices(
+                scratchPoseState,
                 entityRendererPipeline.entityRenderTranslations
             );
-
             bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, entityRendererPipeline.modelRenderTranslations)
+                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, entityRendererPipeline.modelRenderTranslations)
             );
-            bone.setLocalSpaceMatrix(
-                RenderUtils.translateMatrix(
-                    localMatrix,
-                    entityRendererPipeline.getRenderer().getRenderOffset(entity, 1).toVector3f()
-                )
+            scratchLocalMatrix.set(localMatrix);
+            RenderUtils.translateMatrixInPlace(
+                scratchLocalMatrix,
+                entityRendererPipeline.getRenderer().getRenderOffset(entity, 1).toVector3f()
             );
-            bone.setWorldSpaceMatrix(
-                RenderUtils.translateMatrix(new Matrix4f(localMatrix), entity.position().toVector3f())
-            );
+            bone.setLocalSpaceMatrix(localMatrix);
+            bone.setWorldSpaceMatrix(scratchLocalMatrix);
         }
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);

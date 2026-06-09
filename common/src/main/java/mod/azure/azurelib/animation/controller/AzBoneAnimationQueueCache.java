@@ -75,6 +75,16 @@ public class AzBoneAnimationQueueCache<T> {
      * Clears all the animation queues stored in the cache. This method removes all mappings of bone names to their
      * respective {@code AzBoneAnimationQueue} objects, effectively resetting the cache to an empty state.
      */
+    public void prepareFrame() {
+        for (var queue : boneAnimationQueues.values()) {
+            queue.clearFrame();
+        }
+    }
+
+    /**
+     * Clears all the animation queues stored in the cache. This method removes all mappings of bone names to their
+     * respective {@code AzBoneAnimationQueue} objects, effectively resetting the cache to an empty state.
+     */
     public void clear() {
         boneAnimationQueues.clear();
     }

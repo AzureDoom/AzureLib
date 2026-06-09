@@ -4,11 +4,13 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OutlineBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -34,11 +36,15 @@ public class AzModelRenderer<K, T> {
 
     private final Matrix4f poseStateCache = new Matrix4f();
 
-    private final Vector3f normalCache = new Vector3f();
+    private final Vector3f normalScratch = new Vector3f();
+
+    private final Vector4f quadPosition = new Vector4f();
 
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected final AzLayerRenderer<K, T> layerRenderer;
+
+    private IntIntPair entityTextureSize;
 
     public AzModelRenderer(AzRendererPipeline<K, T> rendererPipeline, AzLayerRenderer<K, T> layerRenderer) {
         this.layerRenderer = layerRenderer;
@@ -110,12 +116,14 @@ public class AzModelRenderer<K, T> {
 
         var poseStack = context.poseStack();
 
+        var lastEntry = poseStack.last();
+        var savedPose = new Matrix4f(lastEntry.pose());
+        var savedNormal = new Matrix3f(lastEntry.normal());
+
         for (var cube : bone.getCubes()) {
-            poseStack.pushPose();
-
             renderCube(context, cube);
-
-            poseStack.popPose();
+            lastEntry.pose().set(savedPose);
+            lastEntry.normal().set(savedNormal);
         }
     }
 
@@ -147,16 +155,21 @@ public class AzModelRenderer<K, T> {
         var normalisedPoseState = poseStack.last().normal();
         var poseState = poseStateCache.set(poseStack.last().pose());
 
+        var size = cube.size();
+        var isFlat = size.x() == 0 || size.y() == 0 || size.z() == 0;
+
         for (var quad : cube.quads()) {
             if (quad == null) {
                 continue;
             }
 
-            normalCache.set(quad.normal());
-            normalisedPoseState.transform(normalCache);
-            var normal = normalCache;
+            normalScratch.set(quad.normal());
+            normalisedPoseState.transform(normalScratch);
+            var normal = normalScratch;
 
-            RenderUtils.fixInvertedFlatCube(cube, normal);
+            if (isFlat) {
+                RenderUtils.fixInvertedFlatCube(cube, normal);
+            }
             createVerticesOfQuad(context, quad, poseState, normal);
         }
     }
@@ -172,38 +185,35 @@ public class AzModelRenderer<K, T> {
         Vector3f normal
     ) {
         var buffer = context.vertexConsumer();
-        var config = rendererPipeline.config();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
-        var boneTextureSize = context.computeTextureSize(context.getTextureOverride());
-        var entityTextureSize = context.computeTextureSize(
-            config.textureLocation(context.currentEntity, context.animatable())
-        );
+        var textureOverride = context.getTextureOverride();
+        var boneTextureSize = textureOverride != null ? context.computeTextureSize(textureOverride) : null;
+        boolean useOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
+        float uScale = useOverride ? (float) entityTextureSize.firstInt() / boneTextureSize.firstInt() : 1f;
+        float vScale = useOverride ? (float) entityTextureSize.secondInt() / boneTextureSize.secondInt() : 1f;
+        float nx = normal.x(), ny = normal.y(), nz = normal.z();
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
-            var vector4f = poseState.transform(new Vector4f(position.x(), position.y(), position.z(), 1.0f));
-
-            if (context.getTextureOverride() != null && boneTextureSize != null && entityTextureSize != null) {
-                var texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
-                var texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
-                context.vertexConsumer()
-                    .vertex(
-                        vector4f.x(),
-                        vector4f.y(),
-                        vector4f.z(),
-                        context.red(),
-                        context.green(),
-                        context.blue(),
-                        context.alpha(),
-                        texU,
-                        texV,
-                        context.packedOverlay(),
-                        context.packedLight(),
-                        normal.x(),
-                        normal.y(),
-                        normal.z()
-                    );
+            var vector4f = poseState.transform(quadPosition.set(position.x(), position.y(), position.z(), 1.0f));
+            if (useOverride) {
+                buffer.vertex(
+                    vector4f.x(),
+                    vector4f.y(),
+                    vector4f.z(),
+                    context.red(),
+                    context.green(),
+                    context.blue(),
+                    context.alpha(),
+                    vertex.texU() * uScale,
+                    vertex.texV() * vScale,
+                    packedOverlay,
+                    packedLight,
+                    nx,
+                    ny,
+                    nz
+                );
             } else {
                 buffer.vertex(
                     vector4f.x(),
@@ -217,9 +227,9 @@ public class AzModelRenderer<K, T> {
                     vertex.texV(),
                     packedOverlay,
                     packedLight,
-                    normal.x(),
-                    normal.y(),
-                    normal.z()
+                    nx,
+                    ny,
+                    nz
                 );
             }
         }
@@ -373,11 +383,11 @@ public class AzModelRenderer<K, T> {
         var renderType = context.renderType();
         var animatable = context.animatable();
 
-        if (config.boneTextureOverrideProvider(animatable, animatable, bone) != null) {
-            context.setTextureOverride(config.boneTextureOverrideProvider(animatable, animatable, bone));
-        }
+        var texture = config.boneTextureOverrideProvider(animatable, bone);
 
-        var texture = config.boneTextureOverrideProvider(bone);
+        if (texture != null) {
+            context.setTextureOverride(texture);
+        }
 
         var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
 
@@ -457,5 +467,15 @@ public class AzModelRenderer<K, T> {
      */
     protected boolean isBufferInactive(BufferBuilder builder) {
         return !builder.building;
+    }
+
+    public void cacheTexture(AzRendererPipelineContext<K, T> context) {
+        this.entityTextureSize = context.computeTextureSize(
+            rendererPipeline.config().textureLocation(context.currentEntity(), context.animatable())
+        );
+    }
+
+    public void clearCacheTexture() {
+        this.entityTextureSize = null;
     }
 }
