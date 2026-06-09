@@ -15,6 +15,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
+import mod.azure.azurelib.render.lod.AzLodConfig;
 
 /**
  * Configures the rendering behavior for custom entities in the game. This extends {@link AzRendererConfig}, adding
@@ -27,6 +28,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     private final Function<T, Float> deathMaxRotationProvider;
 
     private final Function<T, Float> shadowRadius;
+
+    private final AzLodConfig lodConfig;
 
     private AzEntityRendererConfig(
         Supplier<AzAnimator<UUID, T>> animatorProvider,
@@ -45,7 +48,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         BiFunction<AzRendererPipeline<UUID, T>, AzLayerRenderer<UUID, T>, AzModelRenderer<UUID, T>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, T>, AzRendererPipelineContext<UUID, T>> pipelineContextFunction,
         BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
-        BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider,
+        AzLodConfig lodConfig
     ) {
         super(
             animatorProvider,
@@ -66,6 +70,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         );
         this.deathMaxRotationProvider = deathMaxRotationProvider;
         this.shadowRadius = shadowRadius;
+        this.lodConfig = lodConfig;
     }
 
     public float getDeathMaxRotation(T entity) {
@@ -74,6 +79,10 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
     public float shadowRadius(T entity) {
         return shadowRadius.apply(entity);
+    }
+
+    public AzLodConfig lodConfig() {
+        return lodConfig != null ? lodConfig : AzLodConfig.DEFAULT;
     }
 
     public static <T extends Entity> Builder<T> builder(
@@ -95,6 +104,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         private Function<T, Float> deathMaxRotationProvider;
 
         protected Function<T, Float> shadowRadius;
+
+        protected AzLodConfig lodConfig = AzLodConfig.DEFAULT;
 
         public Builder(
             Function<T, ResourceLocation> modelLocationProvider,
@@ -257,6 +268,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
             return this;
         }
 
+        /**
+         * Configures distance-based LOD for this renderer.
+         *
+         * @see AzLodConfig.Builder
+         */
+        public Builder<T> withLodConfig(AzLodConfig config) {
+            this.lodConfig = config;
+            return this;
+        }
+
         @Override
         public AzEntityRendererConfig<T> build() {
             var baseConfig = super.build();
@@ -278,7 +299,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 baseConfig::modelRendererProvider,
                 baseConfig::pipelineContext,
                 baseConfig::boneTextureOverrideProvider,
-                baseConfig::boneRenderTypeOverrideProvider
+                baseConfig::boneRenderTypeOverrideProvider,
+                lodConfig
             );
         }
     }

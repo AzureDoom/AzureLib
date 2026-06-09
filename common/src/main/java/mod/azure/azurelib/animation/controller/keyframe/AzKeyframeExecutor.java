@@ -3,6 +3,7 @@ package mod.azure.azurelib.animation.controller.keyframe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
@@ -27,6 +28,10 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
 
     private final AzBoneAnimationQueueCache<T> boneAnimationQueueCache;
 
+    private double currentAdjustedTick;
+
+    private final DoubleSupplier animTimeSupplier = () -> currentAdjustedTick / 20d;
+
     public AzKeyframeExecutor(
         AzAnimationController<T> animationController,
         AzBoneAnimationQueueCache<T> boneAnimationQueueCache
@@ -45,9 +50,8 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
         var keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
         var controllerTimer = animationController.controllerTimer();
 
-        final double finalAdjustedTick = controllerTimer.getAdjustedTick();
-
-        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
+        currentAdjustedTick = controllerTimer.getAdjustedTick();
+        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, animTimeSupplier);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
@@ -65,12 +69,12 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             var scaleKeyframes = boneAnimation.scaleKeyframes();
             var adjustedTick = controllerTimer.getAdjustedTick();
 
-            updateRotation(rotationKeyframes, boneAnimationQueue, adjustedTick);
-            updatePosition(positionKeyframes, boneAnimationQueue, adjustedTick);
-            updateScale(scaleKeyframes, boneAnimationQueue, adjustedTick);
+            updateRotation(rotationKeyframes, boneAnimationQueue, currentAdjustedTick);
+            updatePosition(positionKeyframes, boneAnimationQueue, currentAdjustedTick);
+            updateScale(scaleKeyframes, boneAnimationQueue, currentAdjustedTick);
         }
 
-        keyframeCallbackHandler.handle(animatable, controllerTimer.getAdjustedTick());
+        keyframeCallbackHandler.handle(animatable, currentAdjustedTick);
     }
 
     private void updateRotation(

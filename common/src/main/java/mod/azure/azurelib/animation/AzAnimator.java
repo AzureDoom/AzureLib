@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
@@ -34,6 +35,27 @@ public abstract class AzAnimator<K, T> {
     protected final AzAnimatorConfig config;
 
     public boolean reloadAnimations;
+
+    private double molangAnimTime;
+
+    private float molangPartialTicks;
+
+    private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
+
+    private final DoubleSupplier actorCountSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getEntityCount() : 0;
+    };
+
+    private final DoubleSupplier timeOfDaySupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getDayTime() / 24000f : 0;
+    };
+
+    private final DoubleSupplier moonPhaseSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getMoonPhase() : 0;
+    };
 
     protected AzAnimator() {
         this(AzAnimatorConfig.defaultConfig());
@@ -114,17 +136,18 @@ public abstract class AzAnimator<K, T> {
      * @param partialTicks The partial tick for smooth animations.
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
-        var level = Minecraft.getInstance().level;
-        var parser = MolangParser.INSTANCE;
-
-        if (level == null) {
+        if (Minecraft.getInstance().level == null) {
             return;
         }
 
-        parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
-        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, level::getEntityCount);
-        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> level.getDayTime() / 24000f);
-        parser.setMemoizedValue(MolangQueries.MOON_PHASE, level::getMoonPhase);
+        this.molangAnimTime = animTime;
+        this.molangPartialTicks = partialTicks;
+
+        var parser = MolangParser.INSTANCE;
+        parser.setMemoizedValue(MolangQueries.LIFE_TIME, lifetimeSupplier);
+        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, actorCountSupplier);
+        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, timeOfDaySupplier);
+        parser.setMemoizedValue(MolangQueries.MOON_PHASE, moonPhaseSupplier);
     }
 
     /**

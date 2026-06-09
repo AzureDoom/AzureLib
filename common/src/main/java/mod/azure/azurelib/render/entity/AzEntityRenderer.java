@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -10,10 +11,13 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.render.AzProvider;
+import mod.azure.azurelib.render.lod.AzLodConfig;
+import mod.azure.azurelib.render.lod.AzLodManager;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base
@@ -35,6 +39,8 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;
+
+    private final Map<UUID, AzLodManager> lodManagers = new Object2ObjectOpenHashMap<>();
 
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
@@ -81,17 +87,25 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         reusedAzEntityAnimator = cachedEntityAnimator;
 
         // Execute the render pipeline.
-        rendererPipeline.render(
-            poseStack,
-            azBakedModel,
-            entity,
-            bufferSource,
-            null,
-            null,
-            entityYaw,
-            partialTick,
-            packedLight
-        );
+        var lodConfig = config.lodConfig();
+        if (lodConfig != AzLodConfig.DISABLED && azBakedModel != null) {
+            var lodManager = lodManagers.computeIfAbsent(entity.getUUID(), id -> new AzLodManager(lodConfig));
+            boolean shouldAnimate = lodManager.update(entity, azBakedModel);
+            if (!shouldAnimate) {
+                rendererPipeline.render(
+                    poseStack,
+                    azBakedModel,
+                    entity,
+                    bufferSource,
+                    null,
+                    null,
+                    entityYaw,
+                    partialTick,
+                    packedLight
+                );
+                return;
+            }
+        }
     }
 
     /**
