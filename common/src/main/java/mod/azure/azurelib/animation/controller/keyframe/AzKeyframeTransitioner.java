@@ -2,6 +2,7 @@ package mod.azure.azurelib.animation.controller.keyframe;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
@@ -28,6 +29,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
 
     private final AzBoneSnapshotCache boneSnapshotCache;
 
+    private double currentAdjustedTick;
+
+    private final DoubleSupplier animTimeSupplier = () -> currentAdjustedTick / 20d;
+
     public AzKeyframeTransitioner(
         AzAnimationController<T> animationController,
         AzBoneAnimationQueueCache<T> boneAnimationQueueCache,
@@ -43,8 +48,8 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var transitionLength = animationController.animationProperties().transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
-        double finalAdjustedTick = adjustedTick;
-        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, () -> finalAdjustedTick / 20d);
+        currentAdjustedTick = adjustedTick;
+        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, animTimeSupplier);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var bone = bones.get(boneAnimation.boneName());

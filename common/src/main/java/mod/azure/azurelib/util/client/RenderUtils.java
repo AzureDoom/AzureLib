@@ -28,6 +28,8 @@ import mod.azure.azurelib.model.AzBone;
  */
 public final class RenderUtils {
 
+    private static final Matrix4f INVERT_SCRATCH = new Matrix4f();
+
     private static final Quaternion QX = new Quaternion(0, 0, 0, 1);
 
     private static final Quaternion QY = new Quaternion(0, 0, 0, 1);
@@ -110,13 +112,15 @@ public final class RenderUtils {
         translateAwayFromPivotPoint(poseStack, bone);
     }
 
+    /**
+     * Inverts {@code inputMatrix} and multiplies it by {@code baseMatrix}, returning the result as a new
+     * {@link Matrix4f}. Uses a static scratch buffer for the inversion to avoid per-call heap allocation.
+     */
     public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {
-        inputMatrix = new Matrix4f(inputMatrix);
-
-        inputMatrix.invert();
-        inputMatrix.multiply(baseMatrix);
-
-        return inputMatrix;
+        INVERT_SCRATCH.load(inputMatrix);
+        INVERT_SCRATCH.invert();
+        INVERT_SCRATCH.multiply(baseMatrix);
+        return new Matrix4f(INVERT_SCRATCH);
     }
 
     /**
@@ -132,6 +136,25 @@ public final class RenderUtils {
             Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90)
         );
         poseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+    }
+
+    /**
+     * Returns a new {@link Matrix4f} equal to {@code matrix} translated by {@code vector}. The original matrix is not
+     * mutated.
+     */
+    public static Matrix4f translateMatrix(Matrix4f matrix, Vector3f vector) {
+        Matrix4f copy = matrix.copy();
+        copy.translate(vector);
+        return copy;
+    }
+
+    /**
+     * Translates {@code matrix} in-place by {@code vector} and returns it. Use this instead of {@link #translateMatrix}
+     * when you already own the matrix and don't need the original preserved, to avoid the extra allocation.
+     */
+    public static Matrix4f translateMatrixInPlace(Matrix4f matrix, Vector3f vector) {
+        matrix.translate(vector);
+        return matrix;
     }
 
     private static void setQuatFromRotX(Quaternion q, float angleRad) {

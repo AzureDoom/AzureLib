@@ -29,6 +29,10 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
 
     protected final AzEntityRendererPipeline<T> entityRendererPipeline;
 
+    private final Matrix4f scratchPoseState = new Matrix4f();
+
+    private final Matrix4f scratchLocalMatrix = new Matrix4f();
+
     public AzEntityModelRenderer(
         AzEntityRendererPipeline<T> entityRendererPipeline,
         AzLayerRenderer<UUID, T> layerRenderer
@@ -106,20 +110,22 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         RenderUtils.scaleMatrixForBone(poseStack, bone);
 
         if (bone.isTrackingMatrices()) {
-            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
-            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
+            scratchPoseState.load(poseStack.last().pose());
+            var localMatrix = RenderUtils.invertAndMultiplyMatrices(
+                scratchPoseState,
                 entityRendererPipeline.entityRenderTranslations
             );
-            Matrix4f worldState = localMatrix.copy();
-
             bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, entityRendererPipeline.modelRenderTranslations)
+                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, entityRendererPipeline.modelRenderTranslations)
+            );
+            scratchLocalMatrix.load(localMatrix);
+            var offset = entityRendererPipeline.getRenderer().getRenderOffset(entity, 1);
+            RenderUtils.translateMatrixInPlace(
+                scratchLocalMatrix,
+                new Vector3f((float) offset.x, (float) offset.y, (float) offset.z)
             );
             bone.setLocalSpaceMatrix(localMatrix);
-
-            worldState.translate(new Vector3f(entity.position()));
-            bone.setWorldSpaceMatrix(worldState);
+            bone.setWorldSpaceMatrix(scratchLocalMatrix);
         }
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);

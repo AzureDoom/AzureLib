@@ -32,7 +32,7 @@ The `AzArmorRendererConfig` is explicitly designed for rendering **animated armo
 
 ### Example
 
-Here’s an example of setting up an armor renderer with full configuration options:
+Here's an example of setting up an armor renderer with full configuration options:
 
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
@@ -94,7 +94,7 @@ The `AzBlockEntityRendererConfig` specializes in rendering **block entities**.
 
 ### Example
 
-Here’s an example of setting up a block entity renderer with full configuration options:
+Here's an example of setting up a block entity renderer with full configuration options:
 
 ```java
 public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
@@ -149,15 +149,15 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
 }
 ```
 
-This configuration adds scaling, render layers, hooks for pre- and post-rendering, and full animation support.
-
 ## AzEntityRendererConfig
 
 The `AzEntityRendererConfig` supports rendering **entities** with death-specific behaviors such as rotation when the entity dies.
 
+It also includes built-in **distance-based LOD** (Level of Detail) support — see [LOD Configuration](#lod-configuration) below.
+
 ### Example
 
-Here’s an example of setting up an entity renderer with full configuration options:
+Here's an example of setting up an entity renderer with full configuration options:
 
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
@@ -209,6 +209,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .setScale(1.0F) // Scale for width and height being the same
                 .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .withLodConfig(AzLodConfig.DEFAULT) // LOD config — this is the default, shown here explicitly for clarity
                 .build(),
             context
         );
@@ -217,6 +218,48 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 ```
 
 This implementation allows you to define rotations, animations, and layers for the entity.
+
+### LOD Configuration
+
+`AzEntityRendererConfig` includes a built-in distance-based LOD system that reduces rendering and animation cost for distant entities. **No model changes are required** — LOD is applied entirely at the renderer level.
+
+`AzLodConfig.DEFAULT` is applied automatically to all entity renderers. It provides sensible defaults that work well for most complex models without any configuration needed.
+
+Two independent systems are controlled via `AzLodConfig`:
+
+**Bone LOD** hides bones beyond a maximum hierarchy depth past a distance threshold. Bones deeper than the limit — detail chains like tails, fingers, and decorative spines — are hidden at distance while the main limb structure remains visible.
+
+**Animation LOD** reduces the animation update rate past a distance threshold. Instead of advancing the animation controller every frame, updates are throttled to every N ticks. The entity still renders at its last computed pose on skipped frames, so it remains visually smooth while paying a fraction of the CPU cost.
+
+#### Presets
+
+| Preset | Bone LOD | Animation LOD |
+|---|---|---|
+| `AzLodConfig.DEFAULT` | 20 blocks, depth ≤ 3 | 28 blocks, every 2 ticks |
+| `AzLodConfig.DISABLED` | No culling | No throttling |
+
+#### Custom Configuration
+
+Use `AzLodConfig.builder()` to tune thresholds for your specific mob:
+
+```java
+.withLodConfig(
+    AzLodConfig.builder()
+        .boneLod(24, 2)  // past 24 blocks, hide bones deeper than depth 2
+        .animLod(32, 3)  // past 32 blocks, animate every 3 ticks
+        .build()
+)
+```
+
+`boneLod(distance, maxDepth)` — at `distance` blocks, only bones at hierarchy depth ≤ `maxDepth` remain visible. Depth 0 is the root bones, depth 1 their direct children, and so on. A value of `3` retains the main body structure for most models. Use lower values (e.g. `2`) for horde mobs where you're willing to lose more detail at range, or higher values for boss mobs where close-up fidelity matters more.
+
+`animLod(distance, tickInterval)` — at `distance` blocks, the animation controller advances once every `tickInterval` ticks instead of every frame. A value of `2` halves the animation CPU cost; `4` reduces it to a quarter. The entity's pose between updates is held from the previous update, so it remains visually smooth.
+
+To disable LOD entirely for a specific renderer — for example, a boss entity that should always render at full detail:
+
+```java
+.withLodConfig(AzLodConfig.DISABLED)
+```
 
 ## AzItemRendererConfig
 
@@ -234,7 +277,7 @@ You download the example arms to import [here](https://github.com/AzureDoom/Azur
 
 ### Example
 
-Here’s an example of setting up an item renderer with full configuration options:
+Here's an example of setting up an item renderer with full configuration options:
 
 ```java
 public class ExampleItemRenderer extends AzItemRenderer {
