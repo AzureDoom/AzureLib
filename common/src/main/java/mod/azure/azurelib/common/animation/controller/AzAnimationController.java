@@ -145,6 +145,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     public void update() {
         // Adjust the tick before making any updates.
         controllerTimer.update();
+        // Prepares bone cache for animations on a frame.
+        boneAnimationQueueCache.prepareFrame();
         // Run state machine updates.
         stateMachine.update();
         // Update bone animation queue cache.

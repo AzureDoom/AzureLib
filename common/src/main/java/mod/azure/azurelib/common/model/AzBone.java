@@ -34,6 +34,8 @@ public class AzBone {
 
     private boolean hidden;
 
+    private boolean lodHidden;
+
     private boolean childrenHidden = false;
 
     private final Vector3f pivot;
@@ -180,6 +182,16 @@ public class AzBone {
 
     public void setChildrenHidden(boolean hideChildren) {
         this.childrenHidden = hideChildren;
+    }
+
+    /** Returns true if this bone was hidden by the LOD system (not by the model dontRender flag). */
+    public boolean getLodHidden() {
+        return lodHidden;
+    }
+
+    /** Marks whether this bone was hidden by the LOD system. */
+    public void setLodHidden(boolean lodHidden) {
+        this.lodHidden = lodHidden;
     }
 
     public float getPivotX() {
@@ -415,6 +427,7 @@ public class AzBone {
 
         // Copy basic flags
         copy.hidden = this.hidden;
+        copy.lodHidden = this.lodHidden;
         copy.childrenHidden = this.childrenHidden;
 
         // Copy transforms

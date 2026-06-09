@@ -34,7 +34,7 @@ import mod.azure.azurelib.common.model.AzBone;
  */
 public class RenderUtils {
 
-    private static final Matrix4f TRANSLATE_MATRIX_CACHE = new Matrix4f();
+    private static final Matrix4f INVERT_SCRATCH = new Matrix4f();
 
     private static final Quaternionf X_QUATERNION_CACHE = new Quaternionf();
 
@@ -114,13 +114,15 @@ public class RenderUtils {
         translateAwayFromPivotPoint(poseStack, bone);
     }
 
+    /**
+     * Inverts {@code inputMatrix} and multiplies it by {@code baseMatrix}, returning the result as a new
+     * {@link Matrix4f}. Uses a static scratch buffer for the inversion to avoid per-call heap allocation.
+     */
     public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {
-        inputMatrix = new Matrix4f(inputMatrix);
-
-        inputMatrix.invert();
-        inputMatrix.mul(baseMatrix);
-
-        return inputMatrix;
+        INVERT_SCRATCH.set(inputMatrix);
+        INVERT_SCRATCH.invert();
+        INVERT_SCRATCH.mul(baseMatrix);
+        return new Matrix4f(INVERT_SCRATCH);
     }
 
     /**
@@ -132,12 +134,19 @@ public class RenderUtils {
     }
 
     /**
-     * Add a positional vector to a matrix. This is specifically implemented to act as a translation of an x/y/z
-     * coordinate triplet to a render matrix
+     * Returns a new {@link Matrix4f} equal to {@code matrix} translated by {@code vector}. The original matrix is not
+     * mutated.
      */
     public static Matrix4f translateMatrix(Matrix4f matrix, Vector3f vector) {
-        TRANSLATE_MATRIX_CACHE.m30(vector.x).m31(vector.y).m32(vector.z);
-        return matrix.add(TRANSLATE_MATRIX_CACHE);
+        return new Matrix4f(matrix).translate(vector);
+    }
+
+    /**
+     * Translates {@code matrix} in-place by {@code vector} and returns it. Use this instead of {@link #translateMatrix}
+     * when you already own the matrix and don't need the original preserved, to avoid the extra allocation.
+     */
+    public static Matrix4f translateMatrixInPlace(Matrix4f matrix, Vector3f vector) {
+        return matrix.translate(vector);
     }
 
     /**
