@@ -1,11 +1,7 @@
 package mod.azure.azurelib.animation.easing.bedrock_easings;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Represents a cubic Bézier curve in 2D space, defined by four control points. The control points are used to calculate
- * the shape of the curve.
+ * Represents a cubic Bézier curve in 2D space, defined by four control points.
  * <p>
  * <b>Author:</b> <a href="https://github.com/ZigyTheBird">ZigyTheBird</a>
  *
@@ -21,31 +17,11 @@ public record CubicBezierCurve(
     Vector2d endPoint
 ) {
 
-    /**
-     * A constant representing the weight of the control points in a cubic Bézier curve calculation. Used to multiply
-     * the influence of the first and second control points when computing the curve. This value ensures proper
-     * weighting in the mathematical representation of the curve.
-     */
     private static final int BEZIER_WEIGHT = 3;
 
     /**
-     * Computes a point on the Bézier curve for a given parameter t.
-     *
-     * @param progress The parameter must be between 0 and 1.
-     * @return The computed point on the curve.
-     */
-    public Vector2d getPoint(float progress) {
-        // TODO: look at maybe returning null instead isntancing a new Vector2D. Requires testing.
-        return getPoint(progress, new Vector2d());
-    }
-
-    /**
-     * Computes (or updates) a point on the curve with the given parameter.
-     *
-     * @param progress The parameter must be between 0 and 1.
-     * @param target   An optional target Vector2d to store the result.
-     * @return The computed point on the curve.
-     * @throws IllegalArgumentException If t is outside the range [0, 1].
+     * Computes (or updates) a point on the curve for a given parameter {@code progress} in [0, 1]. Writes the result
+     * into {@code target} to avoid allocation.
      */
     public Vector2d getPoint(float progress, Vector2d target) {
         if (progress < 0 || progress > 1) {
@@ -62,34 +38,54 @@ public record CubicBezierCurve(
         float oneMinusProgressCubed = oneMinusProgressSquared * oneMinusProgress;
         float progressCubed = progressSquared * progress;
 
-        target.x = oneMinusProgressCubed * startPoint.x() + BEZIER_WEIGHT * oneMinusProgressSquared * progress
-            * controlPoint1.x() + BEZIER_WEIGHT * oneMinusProgress * progressSquared
-                * controlPoint2.x() + progressCubed * endPoint.x();
-        target.y = oneMinusProgressCubed * startPoint.y() + BEZIER_WEIGHT * oneMinusProgressSquared * progress
-            * controlPoint1.y() + BEZIER_WEIGHT * oneMinusProgress * progressSquared
-                * controlPoint2.y() + progressCubed * endPoint.y();
+        target.x = oneMinusProgressCubed * startPoint.x()
+            + BEZIER_WEIGHT * oneMinusProgressSquared * progress * controlPoint1.x()
+            + BEZIER_WEIGHT * oneMinusProgress * progressSquared * controlPoint2.x()
+            + progressCubed * endPoint.x();
+        target.y = oneMinusProgressCubed * startPoint.y()
+            + BEZIER_WEIGHT * oneMinusProgressSquared * progress * controlPoint1.y()
+            + BEZIER_WEIGHT * oneMinusProgress * progressSquared * controlPoint2.y()
+            + progressCubed * endPoint.y();
 
         return target;
     }
 
     /**
-     * Computes a series of points along the Bézier curve, divided evenly.
+     * Evaluates the curve y-value at a given x (time) using binary search on the parameter {@code t}, exploiting the
+     * fact that x is monotonically increasing for well-formed animation curves.
+     * <p>
+     * This replaces the previous O(resolution) approach of sampling 200+ points and scanning for the nearest two.
+     * Binary search converges in ~20 iterations regardless of resolution, with zero heap allocation beyond the two
+     * scratch {@link Vector2d} instances passed in.
+     * </p>
      *
-     * @param divisions The number of divisions must be greater than 0.
-     * @return A list of computed points.
-     * @throws IllegalArgumentException If divisions are less than or equal to zero.
+     * @param time     Target x value (time along the curve)
+     * @param scratchA Reusable Vector2d scratch — caller owns this, it will be overwritten
+     * @param scratchB Reusable Vector2d scratch — caller owns this, it will be overwritten
+     * @return Interpolated y value at the given time
      */
-    public List<Vector2d> getPoints(int divisions) {
-        if (divisions <= 0) {
-            throw new IllegalArgumentException("Divisions must be greater than 0.");
+    public double evaluateAtTime(double time, Vector2d scratchA, Vector2d scratchB) {
+        float lo = 0f, hi = 1f;
+
+        for (int i = 0; i < 20; i++) {
+            float mid = (lo + hi) * 0.5f;
+            getPoint(mid, scratchA);
+            if (scratchA.x < time) {
+                lo = mid;
+            } else {
+                hi = mid;
+            }
         }
 
-        List<Vector2d> points = new ArrayList<>();
+        getPoint(lo, scratchA);
+        getPoint(hi, scratchB);
 
-        for (int step = 0; step <= divisions; step++) {
-            points.add(getPoint((float) step / divisions));
+        double dx = scratchB.x - scratchA.x;
+        if (Math.abs(dx) < 1e-10) {
+            return scratchA.y;
         }
 
-        return points;
+        double frac = (time - scratchA.x) / dx;
+        return scratchA.y + frac * (scratchB.y - scratchA.y);
     }
 }
