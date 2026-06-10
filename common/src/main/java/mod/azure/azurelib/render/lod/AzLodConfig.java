@@ -12,10 +12,6 @@ package mod.azure.azurelib.render.lod;
  * <li><b>Animation LOD</b> — reduces animation update frequency past a distance. Beyond {@code animLodDistance},
  * animations only update every {@code animLodTickInterval} ticks instead of every frame.</li>
  * </ul>
- * <p>
- * Use {@link #builder()} to construct an instance. The defaults are deliberately conservative — no LOD applied — so
- * existing renderers are unaffected until you opt in via {@link AzEntityRendererConfig.Builder#lodConfig}.
- * </p>
  */
 public final class AzLodConfig {
 
