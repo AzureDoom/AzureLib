@@ -75,19 +75,19 @@ public class AzModelRenderer<K, T> {
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
         if (
-                !boneRenderOverride(
-                        poseStack,
-                        bone,
-                        bufferSource,
-                        buffer,
-                        context.partialTick(),
-                        context.packedLight(),
-                        context.packedOverlay(),
-                        context.red(),
-                        context.green(),
-                        context.blue(),
-                        context.alpha()
-                )
+            !boneRenderOverride(
+                poseStack,
+                bone,
+                bufferSource,
+                buffer,
+                context.partialTick(),
+                context.packedLight(),
+                context.packedOverlay(),
+                context.red(),
+                context.green(),
+                context.blue(),
+                context.alpha()
+            )
         )
             renderCubesOfBone(context, bone);
 
@@ -173,11 +173,11 @@ public class AzModelRenderer<K, T> {
      * rendering
      */
     protected void createVerticesOfQuad(
-            AzRendererPipelineContext<K, T> context,
-            GeoQuad quad,
-            Matrix4f poseMatrix,
-            Matrix3f normalMatrix,
-            Vector3f normal
+        AzRendererPipelineContext<K, T> context,
+        GeoQuad quad,
+        Matrix4f poseMatrix,
+        Matrix3f normalMatrix,
+        Vector3f normal
     ) {
         var buffer = context.vertexConsumer();
         var packedOverlay = context.packedOverlay();
@@ -193,20 +193,20 @@ public class AzModelRenderer<K, T> {
             var position = vertex.position();
             if (useOverride) {
                 buffer.vertex(poseMatrix, position.x(), position.y(), position.z())
-                        .color(context.red(), context.green(), context.blue(), context.alpha())
-                        .uv(vertex.texU() * uScale, vertex.texV() * vScale)
-                        .overlayCoords(packedOverlay)
-                        .uv2(packedLight)
-                        .normal(normalMatrix, nx, ny, nz)
-                        .endVertex();
+                    .color(context.red(), context.green(), context.blue(), context.alpha())
+                    .uv(vertex.texU() * uScale, vertex.texV() * vScale)
+                    .overlayCoords(packedOverlay)
+                    .uv2(packedLight)
+                    .normal(normalMatrix, nx, ny, nz)
+                    .endVertex();
             } else {
                 buffer.vertex(poseMatrix, position.x(), position.y(), position.z())
-                        .color(context.red(), context.green(), context.blue(), context.alpha())
-                        .uv(vertex.texU(), vertex.texV())
-                        .overlayCoords(packedOverlay)
-                        .uv2(packedLight)
-                        .normal(normalMatrix, nx, ny, nz)
-                        .endVertex();
+                    .color(context.red(), context.green(), context.blue(), context.alpha())
+                    .uv(vertex.texU(), vertex.texV())
+                    .overlayCoords(packedOverlay)
+                    .uv2(packedLight)
+                    .normal(normalMatrix, nx, ny, nz)
+                    .endVertex();
             }
         }
     }
@@ -230,17 +230,17 @@ public class AzModelRenderer<K, T> {
      *         behavior has been applied; otherwise, the default rendering will proceed.
      */
     public boolean boneRenderOverride(
-            PoseStack poseStack,
-            AzBone bone,
-            MultiBufferSource bufferSource,
-            VertexConsumer buffer,
-            float partialTick,
-            int packedLight,
-            int packedOverlay,
-            float red,
-            float green,
-            float blue,
-            float alpha
+        PoseStack poseStack,
+        AzBone bone,
+        MultiBufferSource bufferSource,
+        VertexConsumer buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay,
+        float red,
+        float green,
+        float blue,
+        float alpha
     ) {
         return false;
     }
@@ -258,11 +258,11 @@ public class AzModelRenderer<K, T> {
      */
     @Nullable
     public RenderType getRenderTypeOverrideForBone(
-            AzBone bone,
-            T animatable,
-            ResourceLocation texturePath,
-            MultiBufferSource bufferSource,
-            float partialTick
+        AzBone bone,
+        T animatable,
+        ResourceLocation texturePath,
+        MultiBufferSource bufferSource,
+        float partialTick
     ) {
         return null;
     }
@@ -300,9 +300,9 @@ public class AzModelRenderer<K, T> {
      * @return The appropriate {@link VertexConsumer} for rendering, either the existing buffer or a refreshed/new one.
      */
     public VertexConsumer getOrRefreshBufferRenderType(
-            AzItemRendererPipelineContext context,
-            AzBone bone,
-            RenderType renderType
+        AzItemRendererPipelineContext context,
+        AzBone bone,
+        RenderType renderType
     ) {
         var currentBuffer = context.multiBufferSource().getBuffer(renderType);
         var bufferSource = context.multiBufferSource();
@@ -314,11 +314,11 @@ public class AzModelRenderer<K, T> {
         } else if (currentBuffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
             if (needsBufferRefresh(outline.delegate)) {
                 return new OutlineBufferSource.EntityOutlineGenerator(
-                        bufferSource.getBuffer(renderType),
-                        255,
-                        255,
-                        255,
-                        255
+                    bufferSource.getBuffer(renderType),
+                    255,
+                    255,
+                    255,
+                    255
                 );
             }
         } else if (currentBuffer instanceof VertexMultiConsumer.Double pair) {
@@ -329,8 +329,8 @@ public class AzModelRenderer<K, T> {
 
             if (firstNeedsRefresh || secondNeedsRefresh) {
                 return new VertexMultiConsumer.Double(
-                        firstNeedsRefresh ? bufferSource.getBuffer(renderType) : firstBuffer,
-                        secondNeedsRefresh ? bufferSource.getBuffer(renderType) : secondBuffer
+                    firstNeedsRefresh ? bufferSource.getBuffer(renderType) : firstBuffer,
+                    secondNeedsRefresh ? bufferSource.getBuffer(renderType) : secondBuffer
                 );
             }
         }
@@ -349,9 +349,9 @@ public class AzModelRenderer<K, T> {
      *         state and the given render context.
      */
     public VertexConsumer getOrRefreshRenderBuffer(
-            boolean isReRender,
-            AzRendererPipelineContext<K, T> context,
-            AzBone bone
+        boolean isReRender,
+        AzRendererPipelineContext<K, T> context,
+        AzBone bone
     ) {
         var config = rendererPipeline.config();
         var currentBuffer = context.vertexConsumer();
@@ -369,12 +369,12 @@ public class AzModelRenderer<K, T> {
 
         if (texture != null && renderTypeOverride == null) {
             renderTypeOverride = context.getDefaultRenderType(
-                    context.animatable(),
-                    texture,
-                    bufferSource,
-                    context.partialTick(),
-                    config.getRenderType(context.currentEntity(), context.animatable()),
-                    config.alpha(context.animatable())
+                context.animatable(),
+                texture,
+                bufferSource,
+                context.partialTick(),
+                config.getRenderType(context.currentEntity(), context.animatable()),
+                config.alpha(context.animatable())
             );
         }
 
@@ -393,11 +393,11 @@ public class AzModelRenderer<K, T> {
         } else if (currentBuffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
             if (needsBufferRefresh(outline.delegate)) {
                 return new OutlineBufferSource.EntityOutlineGenerator(
-                        bufferSource.getBuffer(renderType),
-                        255,
-                        255,
-                        255,
-                        255
+                    bufferSource.getBuffer(renderType),
+                    255,
+                    255,
+                    255,
+                    255
                 );
             }
         } else if (currentBuffer instanceof VertexMultiConsumer.Double pair) {
@@ -408,8 +408,8 @@ public class AzModelRenderer<K, T> {
 
             if (firstNeedsRefresh || secondNeedsRefresh) {
                 return new VertexMultiConsumer.Double(
-                        firstNeedsRefresh ? bufferSource.getBuffer(renderType) : firstBuffer,
-                        secondNeedsRefresh ? bufferSource.getBuffer(renderType) : secondBuffer
+                    firstNeedsRefresh ? bufferSource.getBuffer(renderType) : firstBuffer,
+                    secondNeedsRefresh ? bufferSource.getBuffer(renderType) : secondBuffer
                 );
             }
         }
@@ -447,7 +447,7 @@ public class AzModelRenderer<K, T> {
 
     public void cacheTexture(AzRendererPipelineContext<K, T> context) {
         this.entityTextureSize = context.computeTextureSize(
-                rendererPipeline.config().textureLocation(context.currentEntity(), context.animatable())
+            rendererPipeline.config().textureLocation(context.currentEntity(), context.animatable())
         );
     }
 
