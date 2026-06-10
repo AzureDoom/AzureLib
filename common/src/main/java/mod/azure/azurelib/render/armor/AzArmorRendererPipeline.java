@@ -123,7 +123,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
                     setBoneScale(boneContext.head, baseModel.head);
             }
             case CHEST -> {
-                if (boneContext.head != null)
+                if (boneContext.leftArm != null)
                     setBoneScale(boneContext.leftArm, baseModel.leftArm);
                 if (boneContext.rightArm != null)
                     setBoneScale(boneContext.rightArm, baseModel.rightArm);
