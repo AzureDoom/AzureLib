@@ -27,8 +27,8 @@ public final class AzLodConfig {
     );
 
     public static final AzLodConfig DEFAULT = builder()
-        .boneLod(20, 3)
-        .animLod(28, 2)
+        .boneLod(40, 3)
+        .animLod(48, 2)
         .build();
 
     private final double boneLodDistanceSq;
@@ -87,7 +87,7 @@ public final class AzLodConfig {
          * Beyond {@code distance} blocks, hide bones deeper than {@code maxDepth} in the hierarchy.
          * <p>
          * Example: {@code boneLod(24, 2)} — past 24 blocks, only render the top 3 levels of bones (depths 0, 1, 2).
-         * Tail chains, finger bones, and other fine-detail sub-trees deeper than depth 2 become invisible without any
+         * Tail chains, finger bones, and other fine-detail subtrees deeper than depth 2 become invisible without any
          * model changes.
          * </p>
          *
