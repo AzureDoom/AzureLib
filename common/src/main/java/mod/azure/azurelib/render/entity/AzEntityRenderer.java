@@ -110,6 +110,18 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
                 return;
             }
         }
+
+        rendererPipeline.render(
+            poseStack,
+            azBakedModel,
+            entity,
+            bufferSource,
+            null,
+            null,
+            entityYaw,
+            partialTick,
+            packedLight
+        );
     }
 
     /**
