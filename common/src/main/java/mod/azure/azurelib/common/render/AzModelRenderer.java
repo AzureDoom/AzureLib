@@ -38,6 +38,10 @@ public class AzModelRenderer<K, T> {
 
     private final Vector4f quadPosition = new Vector4f();
 
+    private final Matrix4f savedPoseScratch = new Matrix4f();
+
+    private final Matrix3f savedNormalScratch = new Matrix3f();
+
     private final AzRendererPipeline<K, T> rendererPipeline;
 
     protected final AzLayerRenderer<K, T> layerRenderer;
@@ -112,13 +116,13 @@ public class AzModelRenderer<K, T> {
         var poseStack = context.poseStack();
 
         var lastEntry = poseStack.last();
-        var savedPose = new Matrix4f(lastEntry.pose());
-        var savedNormal = new Matrix3f(lastEntry.normal());
+        savedPoseScratch.set(lastEntry.pose());
+        savedNormalScratch.set(lastEntry.normal());
 
         for (var cube : bone.getCubes()) {
             renderCube(context, cube);
-            lastEntry.pose().set(savedPose);
-            lastEntry.normal().set(savedNormal);
+            lastEntry.pose().set(savedPoseScratch);
+            lastEntry.normal().set(savedNormalScratch);
         }
     }
 

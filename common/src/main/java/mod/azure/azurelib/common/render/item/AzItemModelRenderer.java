@@ -23,6 +23,8 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
     protected final AzItemRendererPipeline itemRendererPipeline;
 
+    private final Matrix4f scratchPoseState = new Matrix4f();
+
     public AzItemModelRenderer(
         AzItemRendererPipeline itemRendererPipeline,
         AzLayerRenderer<UUID, ItemStack> layerRenderer
@@ -49,7 +51,7 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
         var poseStack = context.poseStack();
 
-        itemRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
+        this.itemRendererPipeline.modelRenderTranslations.set(poseStack.last().pose());
 
         super.render(context, isReRender);
     }
@@ -121,14 +123,14 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
         if (bone.isTrackingMatrices()) {
             var animatable = context.animatable();
-            var poseState = new Matrix4f(poseStack.last().pose());
+            scratchPoseState.set(poseStack.last().pose());
             var localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
+                scratchPoseState,
                 itemRendererPipeline.itemRenderTranslations
             );
 
             bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, itemRendererPipeline.modelRenderTranslations)
+                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, itemRendererPipeline.modelRenderTranslations)
             );
             bone.setLocalSpaceMatrix(
                 RenderUtils.translateMatrix(localMatrix, getRenderOffset(animatable, 1).toVector3f())
