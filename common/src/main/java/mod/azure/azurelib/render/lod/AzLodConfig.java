@@ -27,8 +27,8 @@ public final class AzLodConfig {
     );
 
     public static final AzLodConfig DEFAULT = builder()
-        .boneLod(20, 3)
-        .animLod(28, 2)
+        .boneLod(40, 3)
+        .animLod(48, 2)
         .build();
 
     private final double boneLodDistanceSq;
