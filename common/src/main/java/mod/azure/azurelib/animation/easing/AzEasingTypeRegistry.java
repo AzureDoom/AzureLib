@@ -4,15 +4,16 @@ import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public class AzEasingTypeRegistry {
 
     private static final Map<String, AzEasingType> EASING_TYPES = new HashMap<>();
+
+    private static String normalizeName(String name) {
+        return name.toLowerCase(Locale.ROOT);
+    }
 
     /**
      * Register an {@code EasingType} with AzureLib for handling animation transitions and value curves.<br>
@@ -24,11 +25,13 @@ public class AzEasingTypeRegistry {
      * @return The {@code EasingType} you registered
      */
     public static AzEasingType register(String name, Function<Double, Double2DoubleFunction> transformer) {
+        var normalizedName = normalizeName(name);
+
         return EASING_TYPES.computeIfAbsent(name, ($) -> new AzEasingType() {
 
             @Override
             public String name() {
-                return name;
+                return normalizedName;
             }
 
             @Override
@@ -39,15 +42,15 @@ public class AzEasingTypeRegistry {
     }
 
     public static AzEasingType register(String name, AzEasingType easingType) {
-        return EASING_TYPES.computeIfAbsent(name, $ -> easingType);
+        return EASING_TYPES.computeIfAbsent(normalizeName(name), $ -> easingType);
     }
 
     public static AzEasingType getOrDefault(String name, @NotNull AzEasingType defaultValue) {
-        return EASING_TYPES.getOrDefault(name, defaultValue);
+        return EASING_TYPES.getOrDefault(normalizeName(name), defaultValue);
     }
 
     public static @Nullable AzEasingType getOrNull(String name) {
-        return EASING_TYPES.get(name);
+        return EASING_TYPES.get(normalizeName(name));
     }
 
     public static Collection<AzEasingType> getValues() {
