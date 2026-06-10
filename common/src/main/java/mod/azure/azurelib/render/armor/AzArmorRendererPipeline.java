@@ -1,6 +1,8 @@
 package mod.azure.azurelib.render.armor;
 
 import com.mojang.math.Matrix4f;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -9,7 +11,10 @@ import java.util.UUID;
 
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
+import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
+import mod.azure.azurelib.util.client.ModelPartScaleCompat;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack> {
 
@@ -74,6 +79,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         boneContext.applyBaseTransformations(baseModel);
         scaleModelForBaby(armorContext, isReRender);
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
+        scaleBoneWithModelPart(armorContext, boneContext, isReRender);
 
         if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
             boneContext.applyBoneVisibilityBySlot(currentSlot);
@@ -87,6 +93,66 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     @Override
     public void postRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         config.postRenderEntry(context);
+    }
+
+    /**
+     * Scales the specified bone based on the model part associated with the current {@link EquipmentSlot}. This method
+     * adjusts the scaling for various armor parts such as head, chest, legs, and feet during rendering. The scaling is
+     * not performed if {@code isReRender} is set to true.
+     *
+     * @param context     The {@link AzArmorRendererPipelineContext} providing the rendering context, including the base
+     *                    model, current slot, and other relevant information for the rendering pipeline.
+     * @param boneContext The {@link AzArmorBoneContext} specifying the bones that correspond to the armor model parts.
+     * @param isReRender  A boolean flag indicating if this is a re-rendering pass. When true, scaling logic is skipped
+     *                    as it is generally unnecessary during re-rendering.
+     */
+    public void scaleBoneWithModelPart(
+        AzArmorRendererPipelineContext context,
+        AzArmorBoneContext boneContext,
+        boolean isReRender
+    ) {
+        HumanoidModel<?> baseModel = context.baseModel();
+        EquipmentSlot currentSlot = context.currentSlot();
+
+        if (isReRender) {
+            return;
+        }
+
+        switch (currentSlot) {
+            case HEAD -> {
+                if (boneContext.head != null)
+                    setBoneScale(boneContext.head, baseModel.head);
+            }
+            case CHEST -> {
+                if (boneContext.leftArm != null)
+                    setBoneScale(boneContext.leftArm, baseModel.leftArm);
+                if (boneContext.rightArm != null)
+                    setBoneScale(boneContext.rightArm, baseModel.rightArm);
+                if (boneContext.body != null)
+                    setBoneScale(boneContext.body, baseModel.body);
+                if (boneContext.waist != null)
+                    setBoneScale(boneContext.waist, baseModel.body);
+            }
+            case FEET, LEGS -> {
+                if (boneContext.leftLeg != null)
+                    setBoneScale(boneContext.leftLeg, baseModel.leftLeg);
+                if (boneContext.rightLeg != null)
+                    setBoneScale(boneContext.rightLeg, baseModel.rightLeg);
+            }
+        }
+    }
+
+    /**
+     * Sets the scale of the specified bone based on the scaling parameters defined in the given model part.
+     *
+     * @param bone      The {@link AzBone} instance representing the bone to be scaled.
+     * @param modelPart The {@link ModelPart} containing the scale values (xScale, yScale, zScale) that will be applied
+     *                  to the bone.
+     */
+    private void setBoneScale(AzBone bone, ModelPart modelPart) {
+        bone.setScaleX(ModelPartScaleCompat.getXScale(modelPart));
+        bone.setScaleY(ModelPartScaleCompat.getYScale(modelPart));
+        bone.setScaleZ(ModelPartScaleCompat.getZScale(modelPart));
     }
 
     /**
