@@ -121,7 +121,7 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
             var animatable = context.animatable();
             scratchPoseState.set(poseStack.last().pose());
             var localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                    scratchPoseState,
+                scratchPoseState,
                 itemRendererPipeline.itemRenderTranslations
             );
 
