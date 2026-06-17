@@ -54,18 +54,6 @@ if (keyPropsFile.exists()) {
         modLoaders.add("quilt")
         displayName = file.map { it.asFile.name }
 
-        discord {
-            webhookUrl = releaseProp.getProperty("discordKey")
-            dryRunWebhookUrl = releaseProp.getProperty("discordKey2")
-            username = "AzureBot"
-            avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
-            content = changelog.map { "# A new version of AzureLib for Fabric has been released for 1.18.2 \n" + it}
-            setPlatforms(publishMods.platforms.curseforge, publishMods.platforms.modrinth)
-            style {
-                look = "MODERN"
-                thumbnailUrl = "https://cdn.modrinth.com/data/7zlUOZvb/8b2cb16452c1d3bb33574519a6f5cf4ce86f13a3_96.webp"
-            }
-        }
         curseforge {
             projectId = "817423"
             projectSlug = "azurelib"
