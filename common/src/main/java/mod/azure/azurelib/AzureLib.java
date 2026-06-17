@@ -5,8 +5,6 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -28,8 +26,6 @@ public final class AzureLib {
 
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
-    public static final Marker MAIN_MARKER = MarkerManager.getMarker("main");
-
     public static final Supplier<DataComponentType<UUID>> AZ_ID = Services.PLATFORM
         .registerDataComponent(
             "az_id",
@@ -38,8 +34,6 @@ public final class AzureLib {
         );
 
     public static boolean hasInitialized;
-
-    public static boolean hasKeyBindsInitialized;
 
     private AzureLib() {
         throw new UnsupportedOperationException();

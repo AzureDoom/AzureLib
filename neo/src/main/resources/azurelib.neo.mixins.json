@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "mod.azure.azurelib.common.internal.mixins",
+  "package": "mod.azure.azurelib.mixins",
   "compatibilityLevel": "JAVA_21",
   "injectors": {
     "defaultRequire": 1
@@ -9,14 +9,12 @@
   "mixins": [
     "AbstractContainerMenuMixin_AzItemIDFix",
     "ItemMixin_EnsureCraftHasID",
-    "ItemStackMixin_AzItemStackIdentityRegistry",
-    "PlayerListMixin"
+    "ItemStackMixin_AzItemStackIdentityRegistry"
   ],
   "client": [
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
-    "MinecraftMixin",
     "MixinItemRenderer",
     "TextureManagerMixin"
   ]

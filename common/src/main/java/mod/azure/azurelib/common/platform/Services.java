@@ -12,8 +12,6 @@ public final class Services {
 
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
 
-    public static final CommonRegistry COMMON_REGISTRY = load(CommonRegistry.class);
-
     private Services() {
         throw new UnsupportedOperationException();
     }

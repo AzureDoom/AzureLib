@@ -168,7 +168,6 @@ public class RenderUtils {
             originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(texture)).get();
         } catch (Exception e) {
             AzureLib.LOGGER.warn("Failed to load image for id {}", texture);
-            e.printStackTrace();
         }
 
         if (originalTexture == null)
@@ -182,7 +181,6 @@ public class RenderUtils {
                 : NativeImage.read(mc.getResourceManager().getResource(texture).get().open());
         } catch (Exception e) {
             AzureLib.LOGGER.error("Failed to read image for id {}", texture);
-            e.printStackTrace();
         }
 
         return image == null ? null : IntIntImmutablePair.of(image.getWidth(), image.getHeight());
