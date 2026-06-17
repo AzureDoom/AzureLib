@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,16 +22,16 @@ import mod.azure.azurelib.cache.texture.AnimatableTexture;
 public abstract class TextureManagerMixin {
 
     @Unique
-    private final Map<ResourceLocation, Boolean> azurelib$animationCache = new HashMap<>();
+    private final Map<Identifier, Boolean> azurelib$animationCache = new HashMap<>();
 
     @Unique
-    private final Map<ResourceLocation, AnimatableTexture> azurelib$textureCache = new HashMap<>();
+    private final Map<Identifier, AnimatableTexture> azurelib$textureCache = new HashMap<>();
 
     @Shadow
-    public abstract void register(ResourceLocation resourceLocation, AbstractTexture abstractTexture);
+    public abstract void register(Identifier resourceLocation, AbstractTexture abstractTexture);
 
     @Shadow
-    protected abstract AbstractTexture loadTexture(ResourceLocation path, AbstractTexture texture);
+    protected abstract AbstractTexture loadTexture(Identifier path, AbstractTexture texture);
 
     @Inject(
         method = "getTexture(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/AbstractTexture;",
@@ -40,7 +40,7 @@ public abstract class TextureManagerMixin {
         require = 0
     )
     private void azurelib$replaceAnimatableTexture(
-        ResourceLocation location,
+            Identifier location,
         CallbackInfoReturnable<AbstractTexture> cir
     ) {
         var currentTexture = cir.getReturnValue();
@@ -87,8 +87,8 @@ public abstract class TextureManagerMixin {
     }
 
     @Unique
-    private boolean azurelib$hasAnimationMetadata(ResourceLocation texture) {
-        var mcmeta = ResourceLocation.fromNamespaceAndPath(
+    private boolean azurelib$hasAnimationMetadata(Identifier texture) {
+        var mcmeta = Identifier.fromNamespaceAndPath(
             texture.getNamespace(),
             texture.getPath() + ".mcmeta"
         );

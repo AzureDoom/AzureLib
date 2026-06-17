@@ -21,7 +21,7 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public boolean isDevelopmentEnvironment() {
-        return !FMLLoader.isProduction();
+        return !FMLLoader.getCurrent().isProduction();
     }
 
     @Override
@@ -31,12 +31,12 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public Path getGameDir() {
-        return FMLLoader.getGamePath();
+        return FMLLoader.getCurrent().getGameDir();
     }
 
     @Override
     public boolean isServerEnvironment() {
-        return FMLEnvironment.dist.isDedicatedServer();
+        return FMLEnvironment.getDist().isDedicatedServer();
     }
 
     @Override
@@ -49,6 +49,6 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public boolean isEnvironmentClient() {
-        return FMLEnvironment.dist.isClient();
+        return FMLEnvironment.getDist().isClient();
     }
 }

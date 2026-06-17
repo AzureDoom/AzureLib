@@ -71,7 +71,7 @@ public record ClientUtils() {
      * @return the current animation tick as a double, or 0.0 if the animation tick is unavailable
      */
     public static double getCurrentAnimationTick(Object target, String controllerName) {
-        if (target instanceof Entity entity && !entity.level().isClientSide) {
+        if (target instanceof Entity entity && !entity.level().isClientSide()) {
             AzureLib.LOGGER.warn("Animation tick can only be retrieved on the client side for target: {}", target);
             return 0D;
         }

@@ -3,7 +3,7 @@ package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
@@ -20,7 +20,7 @@ public record AzRootSetFreezeTickAction(
         AzRootSetFreezeTickAction::new
     );
 
-    public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/set_freeze_tick_offset");
+    public static final Identifier RESOURCE_LOCATION = AzureLib.modResource("root/set_freeze_tick_offset");
 
     @Override
     public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
@@ -34,7 +34,7 @@ public record AzRootSetFreezeTickAction(
     }
 
     @Override
-    public ResourceLocation getResourceLocation() {
+    public Identifier getResourceLocation() {
         return RESOURCE_LOCATION;
     }
 }

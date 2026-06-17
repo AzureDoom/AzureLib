@@ -18,7 +18,6 @@ import mod.azure.azurelib.render.AzRendererConfig;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
-import mod.azure.azurelib.render.armor.compat.ShoulderSurfingCompat;
 
 public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack> {
 
@@ -89,9 +88,6 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
             boneContext.applyBoneVisibilityBySlot(currentSlot);
 
         var alphaValue = config.alpha(context.animatable());
-        if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha(armorContext.currentEntity()) < 1) {
-            alphaValue = ShoulderSurfingCompat.getAlpha(armorContext.currentEntity());
-        }
 
         if (alphaValue < 1.0F) {
             var alpha = (int) (alphaValue * 0xFF) << 24;

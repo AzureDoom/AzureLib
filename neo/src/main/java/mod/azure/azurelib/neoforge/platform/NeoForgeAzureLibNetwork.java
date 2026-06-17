@@ -12,7 +12,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
@@ -47,12 +46,7 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     @Override
     public void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos) {
-        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(blockPos), packet);
-    }
-
-    @Override
-    public void sendClientPacket(ServerPlayer player, String id) {
-        PacketDistributor.sendToPlayer(player, new SendConfigDataPacket(id));
+        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(blockPos.getX(), blockPos.getZ()), packet);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.model.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +30,7 @@ public class AzBakedModelCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<ResourceLocation, AzBakedModel> bakedModels;
+    private final Map<Identifier, AzBakedModel> bakedModels;
 
     private AzBakedModelCache() {
         this.bakedModels = new Object2ObjectOpenHashMap<>();
@@ -55,7 +55,7 @@ public class AzBakedModelCache extends AzResourceCache {
         }, bakedModels::put);
     }
 
-    public @Nullable AzBakedModel getNullable(ResourceLocation resourceLocation) {
+    public @Nullable AzBakedModel getNullable(Identifier resourceLocation) {
         return bakedModels.get(resourceLocation);
     }
 }

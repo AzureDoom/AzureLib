@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
@@ -86,7 +86,7 @@ public abstract class AzAnimator<K, T> {
 
     public abstract void registerControllers(AzAnimationControllerContainer<T> animationControllerContainer);
 
-    public abstract @NotNull ResourceLocation getAnimationLocation(T animatable);
+    public abstract @NotNull Identifier getAnimationLocation(T animatable);
 
     public void animate(T animatable, float partialTicks, boolean updateTimer) {
         this.currentContext.animatable = animatable;

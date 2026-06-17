@@ -1,6 +1,6 @@
 package mod.azure.azurelib.render;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,13 +27,13 @@ public class AzProvider<K, T> {
 
     protected final Supplier<AzAnimator<K, T>> animatorSupplier;
 
-    protected final BiFunction<Entity, T, ResourceLocation> modelLocationProvider;
+    protected final BiFunction<Entity, T, Identifier> modelLocationProvider;
 
     protected final Function<T, K> UUIDProvider;
 
     public AzProvider(
         Supplier<AzAnimator<K, T>> animatorSupplier,
-        BiFunction<Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, T, Identifier> modelLocationProvider,
         Function<T, K> UUIDProvider
     ) {
         this.animatorSupplier = animatorSupplier;

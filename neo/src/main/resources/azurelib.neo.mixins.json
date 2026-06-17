@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "mod.azure.azurelib.mixins",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "injectors": {
     "defaultRequire": 1
   },
@@ -17,5 +17,8 @@
     "ItemStackMixin_AzItemAnimatorCache",
     "MixinItemRenderer",
     "TextureManagerMixin"
-  ]
+  ],
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

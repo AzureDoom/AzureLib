@@ -21,7 +21,7 @@ import mod.azure.azurelib.animation.parse.AzBakedAnimationsAdapter;
 import mod.azure.azurelib.animation.parse.AzKeyframesAdapter;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.animation.primitive.AzKeyframes;
-import mod.azure.azurelib.common.loading.json.raw.*;
+import mod.azure.azurelib.loading.json.raw.*;
 
 /**
  * Json helper class for various json functions

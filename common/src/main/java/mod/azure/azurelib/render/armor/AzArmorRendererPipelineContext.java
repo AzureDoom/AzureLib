@@ -3,7 +3,7 @@ package mod.azure.azurelib.render.armor;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -42,7 +42,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
     @Override
     public RenderType getDefaultRenderType(
         ItemStack animatable,
-        ResourceLocation texture,
+        Identifier texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,

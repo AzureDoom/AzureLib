@@ -1,6 +1,6 @@
 package mod.azure.azurelib.animation.dispatch.command.action;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
@@ -18,5 +18,5 @@ public interface AzAction {
 
     void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator);
 
-    ResourceLocation getResourceLocation();
+    Identifier getResourceLocation();
 }

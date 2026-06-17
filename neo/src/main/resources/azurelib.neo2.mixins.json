@@ -2,12 +2,15 @@
   "required": true,
   "minVersion": "0.8",
   "package": "mod.azure.azurelib.neoforge.mixins",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
     "ClientHooksMixin",
     "MixinHumanoidArmorLayer"
-  ]
+  ],
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

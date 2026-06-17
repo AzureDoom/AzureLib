@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -28,11 +29,11 @@ import mod.azure.azurelib.platform.Services;
  */
 public class AutoGlowingTexture extends AzAbstractTexture {
 
-    protected final ResourceLocation textureBase;
+    protected final Identifier textureBase;
 
-    protected final ResourceLocation glowLayer;
+    protected final Identifier glowLayer;
 
-    public AutoGlowingTexture(ResourceLocation originalLocation, ResourceLocation location) {
+    public AutoGlowingTexture(Identifier originalLocation, Identifier location) {
         super(originalLocation);
         this.textureBase = originalLocation;
         this.glowLayer = location;

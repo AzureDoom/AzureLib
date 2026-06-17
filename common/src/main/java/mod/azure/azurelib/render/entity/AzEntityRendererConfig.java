@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.entity;
 
 import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.common.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 
@@ -37,18 +37,18 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         Function<T, Float> deathMaxRotationProvider,
         Function<T, Float> shadowRadius,
         Function<T, RenderType> renderTypeFunction,
-        Function<T, ResourceLocation> modelLocationProvider,
+        Function<T, Identifier> modelLocationProvider,
         List<AzRenderLayer<UUID, T>> renderLayers,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry,
         Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> postRenderEntry,
-        Function<T, ResourceLocation> textureLocationProvider,
+        Function<T, Identifier> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<UUID, T>, AzLayerRenderer<UUID, T>, AzModelRenderer<UUID, T>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, T>, AzRendererPipelineContext<UUID, T>> pipelineContextFunction,
-        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider,
         BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider,
         AzLodConfig lodConfig
     ) {
@@ -87,15 +87,15 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     }
 
     public static <T extends Entity> Builder<T> builder(
-        ResourceLocation modelLocation,
-        ResourceLocation textureLocation
+            Identifier modelLocation,
+            Identifier textureLocation
     ) {
         return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }
 
     public static <T extends Entity> Builder<T> builder(
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, ResourceLocation> textureLocationProvider
+        Function<T, Identifier> modelLocationProvider,
+        Function<T, Identifier> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -109,8 +109,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         protected AzLodConfig lodConfig = AzLodConfig.DEFAULT;
 
         public Builder(
-            Function<T, ResourceLocation> modelLocationProvider,
-            Function<T, ResourceLocation> textureLocationProvider
+            Function<T, Identifier> modelLocationProvider,
+            Function<T, Identifier> textureLocationProvider
         ) {
             super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzEntityModelRenderer<>(
@@ -132,7 +132,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
         @Override
         public Builder<T> setBoneTextureOverrideProvider(
-            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+            Function<AzBone, Identifier> boneTextureOverrideProvider
         ) {
             return (Builder<T>) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }
@@ -235,7 +235,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         /**
          * Sets a provider for the max rotation value for dying entities.<br>
          * You might want to modify this for different aesthetics, such as a
-         * {@link net.minecraft.world.entity.monster.Spider} flipping upside down on death.<br>
+         * {@link net.minecraft.world.entity.monster.spider.Spider} flipping upside down on death.<br>
          * Functionally equivalent to {@link net.minecraft.client.renderer.entity.LivingEntityRenderer#getFlipDegrees}
          */
         public Builder<T> setDeathMaxRotation(Function<T, Float> deathMaxRotationProvider) {

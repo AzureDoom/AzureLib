@@ -2,7 +2,7 @@ package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
@@ -20,7 +20,7 @@ public class AzRootCancelAllAction implements AzAction {
 
     public static final StreamCodec<FriendlyByteBuf, AzRootCancelAllAction> CODEC = StreamCodec.unit(INSTANCE);
 
-    public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("root/cancel_all");
+    public static final Identifier RESOURCE_LOCATION = AzureLib.modResource("root/cancel_all");
 
     private AzRootCancelAllAction() {}
 
@@ -33,7 +33,7 @@ public class AzRootCancelAllAction implements AzAction {
     }
 
     @Override
-    public ResourceLocation getResourceLocation() {
+    public Identifier getResourceLocation() {
         return RESOURCE_LOCATION;
     }
 }

@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.armor;
 
 import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.common.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
@@ -28,18 +28,18 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
         AzArmorBoneProvider boneProvider,
         BiFunction<Entity, ItemStack, RenderType> renderTypeProvider,
-        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
+        BiFunction<Entity, ItemStack, Identifier> modelLocationProvider,
         List<AzRenderLayer<UUID, ItemStack>> renderLayers,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry,
         Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> postRenderEntry,
-        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider,
+        BiFunction<Entity, ItemStack, Identifier> textureLocationProvider,
         Function<ItemStack, Float> alphaFunction,
         Function<ItemStack, Float> scaleHeight,
         Function<ItemStack, Float> scaleWidth,
         BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
-        BiFunction<@Nullable ItemStack, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable ItemStack, AzBone, @Nullable Identifier> boneTextureOverrideProvider,
         BiFunction<@Nullable ItemStack, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
@@ -67,15 +67,15 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     }
 
     public static Builder builder(
-        ResourceLocation modelLocation,
-        ResourceLocation textureLocation
+            Identifier modelLocation,
+            Identifier textureLocation
     ) {
         return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
     }
 
     public static Builder builder(
-        BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
-        BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider
+        BiFunction<Entity, ItemStack, Identifier> modelLocationProvider,
+        BiFunction<Entity, ItemStack, Identifier> textureLocationProvider
     ) {
         return new Builder(modelLocationProvider, textureLocationProvider);
     }
@@ -85,8 +85,8 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private AzArmorBoneProvider boneProvider;
 
         protected Builder(
-            BiFunction<Entity, ItemStack, ResourceLocation> modelLocationProvider,
-            BiFunction<Entity, ItemStack, ResourceLocation> textureLocationProvider
+            BiFunction<Entity, ItemStack, Identifier> modelLocationProvider,
+            BiFunction<Entity, ItemStack, Identifier> textureLocationProvider
         ) {
             super(modelLocationProvider, textureLocationProvider);
             this.boneProvider = new AzDefaultArmorBoneProvider();
@@ -104,7 +104,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         @Override
-        public Builder setBoneTextureOverrideProvider(Function<AzBone, ResourceLocation> boneTextureOverrideProvider) {
+        public Builder setBoneTextureOverrideProvider(Function<AzBone, Identifier> boneTextureOverrideProvider) {
             return (Builder) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }
 

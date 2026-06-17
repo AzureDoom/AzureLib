@@ -15,7 +15,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -157,7 +157,7 @@ public class RenderUtils {
      * @return The dimensions (width x height) of the texture, or null if unable to find or read the file
      */
     @Nullable
-    public static IntIntPair getTextureDimensions(ResourceLocation texture) {
+    public static IntIntPair getTextureDimensions(Identifier texture) {
         if (texture == null)
             return null;
 

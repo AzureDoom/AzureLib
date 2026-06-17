@@ -1,7 +1,7 @@
 package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.io.IOUtils;
@@ -32,7 +32,7 @@ public final class FileLoader {
      * @param location The resource path of the animation file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
-    public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, ResourceManager manager) {
+    public static AzBakedAnimations loadAzAnimationsFile(Identifier location, ResourceManager manager) {
         try {
             return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
         } catch (Exception e) {
@@ -47,7 +47,7 @@ public final class FileLoader {
      * @param location The resource path of the model file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
-    public static Model loadModelFile(ResourceLocation location, ResourceManager manager) {
+    public static Model loadModelFile(Identifier location, ResourceManager manager) {
         try {
             return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public final class FileLoader {
      * @param manager  The resource manager responsible for accessing the resource.
      * @return The parsed JSON file as a {@link JsonObject}, or {@code null} if an error occurs.
      */
-    public static JsonObject loadFile(ResourceLocation location, ResourceManager manager) {
+    public static JsonObject loadFile(Identifier location, ResourceManager manager) {
         try {
             return GsonHelper.fromJson(JsonUtil.GEO_GSON, getFileContents(location, manager), JsonObject.class);
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public final class FileLoader {
      * @param location The resource path of the file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
-    public static String getFileContents(ResourceLocation location, ResourceManager manager) {
+    public static String getFileContents(Identifier location, ResourceManager manager) {
         try (InputStream inputStream = manager.getResourceOrThrow(location).open()) {
             return IOUtils.toString(inputStream, Charset.defaultCharset());
         } catch (Exception e) {

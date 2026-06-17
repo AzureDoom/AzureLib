@@ -3,7 +3,7 @@ package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
@@ -23,7 +23,7 @@ public record AzControllerSetRepeatTimesAction(
         AzControllerSetRepeatTimesAction::new
     );
 
-    public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource(
+    public static final Identifier RESOURCE_LOCATION = AzureLib.modResource(
         "controller/set_repeat_times_tick_offset"
     );
 
@@ -39,7 +39,7 @@ public record AzControllerSetRepeatTimesAction(
     }
 
     @Override
-    public ResourceLocation getResourceLocation() {
+    public Identifier getResourceLocation() {
         return RESOURCE_LOCATION;
     }
 }

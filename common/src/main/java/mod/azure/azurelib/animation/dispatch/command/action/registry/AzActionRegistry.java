@@ -5,23 +5,23 @@ import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
-import mod.azure.azurelib.common.animation.dispatch.command.action.impl.controller.*;
-import mod.azure.azurelib.common.animation.dispatch.command.action.impl.root.*;
+import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
+import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
- * associated {@link ResourceLocation} identifiers and codecs. This registry enables efficient encoding, decoding, and
+ * associated {@link Identifier} identifiers and codecs. This registry enables efficient encoding, decoding, and
  * dispatching of animation-related actions within the animation system. <br>
  * Key Responsibilities:
  * <ul>
- * <li>Maintain a bidirectional mapping between {@link ResourceLocation} identifiers and short integer IDs for efficient
+ * <li>Maintain a bidirectional mapping between {@link Identifier} identifiers and short integer IDs for efficient
  * serialization/deserialization.</li>
  * <li>Register {@link AzAction} implementations and their corresponding {@link StreamCodec} instances.</li>
  * <li>Provide methods for retrieving codecs and IDs based on resource locations or integer IDs.
@@ -29,7 +29,7 @@ import mod.azure.azurelib.common.animation.dispatch.command.action.impl.root.*;
  */
 public class AzActionRegistry {
 
-    private static final Map<ResourceLocation, Short> RESOURCE_LOCATION_TO_ID = new Object2ShortArrayMap<>();
+    private static final Map<Identifier, Short> RESOURCE_LOCATION_TO_ID = new Object2ShortArrayMap<>();
 
     private static final Map<Short, StreamCodec<FriendlyByteBuf, ? extends AzAction>> CODEC_BY_ID =
         new HashMap<>();
@@ -66,7 +66,7 @@ public class AzActionRegistry {
     private AzActionRegistry() {}
 
     public static @Nullable <A, T extends StreamCodec<FriendlyByteBuf, A>> T getCodecOrNull(
-        ResourceLocation resourceLocation
+            Identifier resourceLocation
     ) {
         var id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
         @SuppressWarnings("unchecked")
@@ -80,12 +80,12 @@ public class AzActionRegistry {
         return codec;
     }
 
-    public static @Nullable Short getIdOrNull(ResourceLocation resourceLocation) {
+    public static @Nullable Short getIdOrNull(Identifier resourceLocation) {
         return RESOURCE_LOCATION_TO_ID.get(resourceLocation);
     }
 
     private static <A extends AzAction> void register(
-        ResourceLocation resourceLocation,
+            Identifier resourceLocation,
         StreamCodec<FriendlyByteBuf, A> codec
     ) {
         var id = RESOURCE_LOCATION_TO_ID.computeIfAbsent(resourceLocation, $ -> NEXT_FREE_ID++);

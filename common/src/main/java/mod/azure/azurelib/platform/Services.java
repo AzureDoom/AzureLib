@@ -2,7 +2,6 @@ package mod.azure.azurelib.platform;
 
 import java.util.ServiceLoader;
 
-import mod.azure.azurelib.common.platform.services.*;
 import mod.azure.azurelib.platform.services.AzureLibInitializer;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.platform.services.IPlatformHelper;

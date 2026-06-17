@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,7 +54,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull T animatable) {
+    public @NotNull Identifier getTextureLocation(@NotNull T animatable) {
         return config.textureLocation(animatable, animatable);
     }
 

@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +53,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
         true
     );
 
-    protected static final BiFunction<ResourceLocation, Boolean, RenderType> GLOWING_RENDER_TYPE = Util.memoize(
+    protected static final BiFunction<Identifier, Boolean, RenderType> GLOWING_RENDER_TYPE = Util.memoize(
         (texture, isGlowing) -> {
             RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(
                 texture,
@@ -80,7 +81,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
 
     protected static final String APPENDIX = "_glowmask";
 
-    public AzAbstractTexture(ResourceLocation location) {
+    public AzAbstractTexture(Identifier location) {
         super(location);
     }
 
@@ -96,7 +97,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
      * Generates the texture instance for the given path with the given appendix if it hasn't already been generated
      */
     protected static void generateTexture(
-        ResourceLocation texturePath,
+            Identifier texturePath,
         Consumer<TextureManager> textureManagerConsumer
     ) {
         if (!RenderSystem.isOnRenderThreadOrInit())
@@ -123,11 +124,11 @@ public abstract class AzAbstractTexture extends SimpleTexture {
         image.upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), blur, clamp, false, true);
     }
 
-    public static ResourceLocation appendToPath(ResourceLocation location, String suffix) {
+    public static Identifier appendToPath(Identifier location, String suffix) {
         String path = location.getPath();
         int i = path.lastIndexOf('.');
 
-        return ResourceLocation.fromNamespaceAndPath(
+        return Identifier.fromNamespaceAndPath(
             location.getNamespace(),
             path.substring(0, i) + suffix + path.substring(i)
         );
@@ -150,7 +151,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
     /**
      * Debugging function to write out the generated glowmap image to disk
      */
-    protected void printDebugImageToDisk(ResourceLocation id, NativeImage newImage) {
+    protected void printDebugImageToDisk(Identifier id, NativeImage newImage) {
         try {
             File file = new File(Services.PLATFORM.getGameDir().toFile(), "GeoTexture Debug Printouts");
 
@@ -187,8 +188,8 @@ public abstract class AzAbstractTexture extends SimpleTexture {
      *
      * @return The glowlayer resourcepath for the provided input path
      */
-    public static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
-        ResourceLocation path = appendToPath(baseResource, APPENDIX);
+    public static Identifier getEmissiveResource(Identifier baseResource) {
+        Identifier path = appendToPath(baseResource, APPENDIX);
 
         generateTexture(
             path,
@@ -203,7 +204,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
      *
      * @param texture The texture of the resource to apply a glow layer to
      */
-    public static RenderType getRenderType(ResourceLocation texture) {
+    public static RenderType getRenderType(Identifier texture) {
         return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), false);
     }
 
@@ -213,7 +214,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
      *
      * @param texture The texture of the resource to apply a glow layer to
      */
-    public static RenderType getOutlineRenderType(ResourceLocation texture) {
+    public static RenderType getOutlineRenderType(Identifier texture) {
         return GLOWING_RENDER_TYPE.apply(getEmissiveResource(texture), true);
     }
 }

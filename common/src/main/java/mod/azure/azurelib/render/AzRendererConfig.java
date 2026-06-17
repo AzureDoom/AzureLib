@@ -2,7 +2,7 @@ package mod.azure.azurelib.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +29,7 @@ public class AzRendererConfig<K, T> {
 
     private final Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
 
-    private final BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider;
+    private final BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider;
 
     private final BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider;
 
@@ -45,7 +45,7 @@ public class AzRendererConfig<K, T> {
 
     private final List<AzRenderLayer<K, T>> renderLayers;
 
-    private final BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider;
+    private final BiFunction<@Nullable Entity, T, Identifier> textureLocationProvider;
 
     private final Function<T, Float> alphaFunction;
 
@@ -53,13 +53,13 @@ public class AzRendererConfig<K, T> {
 
     private final Function<T, Float> scaleWidth;
 
-    private final BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider;
+    private final BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider;
 
     private final BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
     public AzRendererConfig(
         Supplier<AzAnimator<K, T>> animatorProvider,
-        BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
+        BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider,
         BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider,
         Function<AzRendererPipeline<K, T>, AzRendererPipelineContext<K, T>> pipelineContextFunction,
         BiFunction<@Nullable Entity, T, RenderType> renderTypeFunction,
@@ -67,11 +67,11 @@ public class AzRendererConfig<K, T> {
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> preRenderEntry,
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> renderEntry,
         Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry,
-        BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider,
+        BiFunction<@Nullable Entity, T, Identifier> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
-        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider,
         BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         this.animatorProvider = animatorProvider;
@@ -95,11 +95,11 @@ public class AzRendererConfig<K, T> {
         return animatorProvider.get();
     }
 
-    public ResourceLocation modelLocation(T animatable) {
+    public Identifier modelLocation(T animatable) {
         return modelLocation(null, animatable);
     }
 
-    public ResourceLocation modelLocation(@Nullable Entity entity, T animatable) {
+    public Identifier modelLocation(@Nullable Entity entity, T animatable) {
         return modelLocationProvider.apply(entity, animatable);
     }
 
@@ -107,11 +107,11 @@ public class AzRendererConfig<K, T> {
         return pipelineContextFunction.apply(pipeline);
     }
 
-    public ResourceLocation textureLocation(T animatable) {
+    public Identifier textureLocation(T animatable) {
         return textureLocation(null, animatable);
     }
 
-    public ResourceLocation textureLocation(@Nullable Entity entity, T animatable) {
+    public Identifier textureLocation(@Nullable Entity entity, T animatable) {
         return textureLocationProvider.apply(entity, animatable);
     }
 
@@ -158,11 +158,11 @@ public class AzRendererConfig<K, T> {
         return scaleWidth.apply(entity);
     }
 
-    public @Nullable ResourceLocation boneTextureOverrideProvider(AzBone bone) {
+    public @Nullable Identifier boneTextureOverrideProvider(AzBone bone) {
         return boneTextureOverrideProvider(null, bone);
     }
 
-    public @Nullable ResourceLocation boneTextureOverrideProvider(@Nullable T entity, AzBone bone) {
+    public @Nullable Identifier boneTextureOverrideProvider(@Nullable T entity, AzBone bone) {
         return boneTextureOverrideProvider.apply(entity, bone);
     }
 
@@ -176,7 +176,7 @@ public class AzRendererConfig<K, T> {
 
     public static class Builder<K, T> {
 
-        protected final BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider;
+        protected final BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider;
 
         protected BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider;
 
@@ -192,7 +192,7 @@ public class AzRendererConfig<K, T> {
 
         protected Function<AzRendererPipelineContext<K, T>, AzRendererPipelineContext<K, T>> postRenderEntry;
 
-        protected final BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider;
+        protected final BiFunction<@Nullable Entity, T, Identifier> textureLocationProvider;
 
         protected Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
 
@@ -202,13 +202,13 @@ public class AzRendererConfig<K, T> {
 
         protected Function<T, Float> scaleWidth;
 
-        private BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider;
+        private BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider;
 
         private BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
         protected Builder(
-            BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
-            BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider
+            BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider,
+            BiFunction<@Nullable Entity, T, Identifier> textureLocationProvider
         ) {
             this.animatorProvider = () -> null;
             this.modelLocationProvider = modelLocationProvider;
@@ -228,14 +228,14 @@ public class AzRendererConfig<K, T> {
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
-            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+            Function<AzBone, Identifier> boneTextureOverrideProvider
         ) {
             this.boneTextureOverrideProvider = (entity, bone) -> boneTextureOverrideProvider.apply(bone);
             return this;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
-            BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider
+            BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider
         ) {
             this.boneTextureOverrideProvider = boneTextureOverrideProvider;
             return this;

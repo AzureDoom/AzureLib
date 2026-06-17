@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.block;
 
 import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.common.render.*;
+import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
@@ -28,19 +28,19 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
     private AzBlockEntityRendererConfig(
         Supplier<AzAnimator<Long, T>> animatorProvider,
-        Function<T, ResourceLocation> modelLocationProvider,
+        Function<T, Identifier> modelLocationProvider,
         Function<T, RenderType> renderTypeFunction,
         List<AzRenderLayer<Long, T>> renderLayers,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> preRenderEntry,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> renderEntry,
         Function<AzRendererPipelineContext<Long, T>, AzRendererPipelineContext<Long, T>> postRenderEntry,
-        Function<T, ResourceLocation> textureLocationProvider,
+        Function<T, Identifier> textureLocationProvider,
         Function<T, Float> alphaFunction,
         Function<T, Float> scaleHeight,
         Function<T, Float> scaleWidth,
         BiFunction<AzRendererPipeline<Long, T>, AzLayerRenderer<Long, T>, AzModelRenderer<Long, T>> modelRendererProvider,
         Function<AzRendererPipeline<Long, T>, AzRendererPipelineContext<Long, T>> pipelineContextFunction,
-        BiFunction<@Nullable T, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider,
         BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
@@ -63,15 +63,15 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
-        ResourceLocation modelLocation,
-        ResourceLocation textureLocation
+            Identifier modelLocation,
+        Identifier textureLocation
     ) {
         return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
-        Function<T, ResourceLocation> modelLocationProvider,
-        Function<T, ResourceLocation> textureLocationProvider
+        Function<T, Identifier> modelLocationProvider,
+        Function<T, Identifier> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
@@ -79,8 +79,8 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     public static class Builder<T extends BlockEntity> extends AzRendererConfig.Builder<Long, T> {
 
         protected Builder(
-            Function<T, ResourceLocation> modelLocationProvider,
-            Function<T, ResourceLocation> textureLocationProvider
+            Function<T, Identifier> modelLocationProvider,
+            Function<T, Identifier> textureLocationProvider
         ) {
             super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzBlockEntityModelRenderer<>(
@@ -100,7 +100,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
 
         @Override
         public Builder<T> setBoneTextureOverrideProvider(
-            Function<AzBone, ResourceLocation> boneTextureOverrideProvider
+            Function<AzBone, Identifier> boneTextureOverrideProvider
         ) {
             return (Builder<T>) super.setBoneTextureOverrideProvider(boneTextureOverrideProvider);
         }

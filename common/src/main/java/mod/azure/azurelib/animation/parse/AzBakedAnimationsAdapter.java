@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -185,7 +185,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
 
         JsonObject animationJsonList = jsonObj.getAsJsonObject("animations");
         JsonArray includeListJSONObj = jsonObj.getAsJsonArray("includes");
-        Map<String, ResourceLocation> includes = readIncludes(includeListJSONObj);
+        Map<String, Identifier> includes = readIncludes(includeListJSONObj);
 
         Map<String, AzBakedAnimation> animations = new Object2ObjectOpenHashMap<>(animationJsonList.size());
 
@@ -214,14 +214,14 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      * @param includeListJSONObj a JSON array containing the include entries to be processed. Each entry must be a JSON
      *                           object with a "file_id" field (string) and an "animations" field (array of strings).
      * @return a map associating animation names (as strings) with their respective file identifiers (as
-     *         {@code ResourceLocation}), or {@code null} if the input array is null, empty, or if no valid mappings are
+     *         {@code Identifier}), or {@code null} if the input array is null, empty, or if no valid mappings are
      *         found.
      */
-    private static Map<String, ResourceLocation> readIncludes(JsonArray includeListJSONObj) {
+    private static Map<String, Identifier> readIncludes(JsonArray includeListJSONObj) {
         if (includeListJSONObj == null || includeListJSONObj.isEmpty())
             return null;
 
-        Map<String, ResourceLocation> includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
+        Map<String, Identifier> includes = new Object2ObjectOpenHashMap<>(includeListJSONObj.size());
 
         for (JsonElement entry : includeListJSONObj) {
             if (!entry.isJsonObject()) {
@@ -245,9 +245,9 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                 continue;
             }
 
-            ResourceLocation fileId;
+            Identifier fileId;
             try {
-                fileId = ResourceLocation.parse(obj.get("file_id").getAsString());
+                fileId = Identifier.parse(obj.get("file_id").getAsString());
             } catch (Exception ex) {
                 AzureLib.LOGGER.warn(
                     "Invalid include file_id '{}': {}",
@@ -274,7 +274,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                     continue;
                 }
 
-                ResourceLocation previous = includes.putIfAbsent(ani, fileId);
+                Identifier previous = includes.putIfAbsent(ani, fileId);
                 if (previous != null) {
                     AzureLib.LOGGER.warn(
                         "Animation '{}' is already included. First source: {}, duplicate source: {}",

@@ -2,7 +2,7 @@ package mod.azure.azurelib.fabric.platform;
 
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -24,7 +24,7 @@ public class FabricAzureLibInitializer implements AzureLibInitializer {
             .registerReloadListener(new IdentifiableResourceReloadListener() {
 
                 @Override
-                public ResourceLocation getFabricId() {
+                public Identifier getFabricId() {
                     return AzureLib.modResource("models");
                 }
 

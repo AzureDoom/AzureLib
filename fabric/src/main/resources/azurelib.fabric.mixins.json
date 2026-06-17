@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "mod.azure.azurelib.mixins",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "injectors": {
     "defaultRequire": 1
   },
@@ -18,5 +18,8 @@
     "MixinHumanoidArmorLayer",
     "MixinItemRenderer",
     "TextureManagerMixin"
-  ]
+  ],
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

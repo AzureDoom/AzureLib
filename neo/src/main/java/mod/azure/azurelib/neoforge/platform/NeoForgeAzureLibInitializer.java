@@ -1,6 +1,5 @@
 package mod.azure.azurelib.neoforge.platform;
 
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 
 import mod.azure.azurelib.cache.AzureLibCache;
@@ -10,7 +9,7 @@ public class NeoForgeAzureLibInitializer implements AzureLibInitializer {
 
     @Override
     public void initialize() {
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist().isClient()) {
             AzureLibCache.registerReloadListener();
         }
     }

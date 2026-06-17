@@ -3,7 +3,7 @@ package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
@@ -24,7 +24,7 @@ public record AzControllerSetTransitionSpeedAction(
             AzControllerSetTransitionSpeedAction::new
         );
 
-    public static final ResourceLocation RESOURCE_LOCATION = AzureLib.modResource("controller/set_transition_speed");
+    public static final Identifier RESOURCE_LOCATION = AzureLib.modResource("controller/set_transition_speed");
 
     @Override
     public void handle(AzDispatchSide originSide, AzAnimator<?, ?> animator) {
@@ -36,7 +36,7 @@ public record AzControllerSetTransitionSpeedAction(
     }
 
     @Override
-    public ResourceLocation getResourceLocation() {
+    public Identifier getResourceLocation() {
         return RESOURCE_LOCATION;
     }
 }

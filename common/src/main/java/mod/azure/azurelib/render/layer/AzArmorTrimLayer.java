@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.armortrim.ArmorTrim;
 
@@ -24,15 +24,15 @@ import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
  */
 public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
 
-    public final ResourceLocation textureBaseLocation;
+    public final Identifier textureBaseLocation;
 
-    public final Function<ArmorTrim, ResourceLocation> texturePermutations;
+    public final Function<ArmorTrim, Identifier> texturePermutations;
 
-    public AzArmorTrimLayer(ResourceLocation baseTexture) {
+    public AzArmorTrimLayer(Identifier baseTexture) {
         this(baseTexture, true);
     }
 
-    public AzArmorTrimLayer(ResourceLocation baseTexture, boolean supportPatterns) {
+    public AzArmorTrimLayer(Identifier baseTexture, boolean supportPatterns) {
         this(
             baseTexture,
             supportPatterns
@@ -40,14 +40,14 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
                     var pattern = trim.pattern().value();
                     var material = trim.material().value();
                     var patternName = pattern.assetId().getPath();
-                    return ResourceLocation.fromNamespaceAndPath(
+                    return Identifier.fromNamespaceAndPath(
                         baseTexture.getNamespace(),
                         baseTexture.getPath() + "_" + patternName + "_" + material.assetName()
                     );
                 }
                 : trim -> {
                     var material = trim.material().value();
-                    return ResourceLocation.fromNamespaceAndPath(
+                    return Identifier.fromNamespaceAndPath(
                         baseTexture.getNamespace(),
                         baseTexture.getPath() + "_" + material.assetName()
                     );
@@ -56,8 +56,8 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
     }
 
     public AzArmorTrimLayer(
-        ResourceLocation baseTexture,
-        Function<ArmorTrim, ResourceLocation> textureLocationPermutations
+            Identifier baseTexture,
+        Function<ArmorTrim, Identifier> textureLocationPermutations
     ) {
         this.textureBaseLocation = baseTexture;
         this.texturePermutations = textureLocationPermutations;

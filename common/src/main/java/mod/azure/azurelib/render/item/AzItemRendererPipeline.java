@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
@@ -102,7 +102,7 @@ public class AzItemRendererPipeline extends AzRendererPipeline<UUID, ItemStack> 
      * GeoRenderer.<br>
      * This should only be called immediately prior to rendering, and only
      *
-     * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+     * @see AnimatableTexture#setAndUpdate(Identifier, int)
      */
     @Override
     public void updateAnimatedTextureFrame(ItemStack animatable) {

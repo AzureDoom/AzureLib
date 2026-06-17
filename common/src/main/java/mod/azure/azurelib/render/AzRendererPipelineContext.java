@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ import mod.azure.azurelib.core.object.Color;
  */
 public abstract class AzRendererPipelineContext<K, T> {
 
-    public ResourceLocation textureOverride;
+    public Identifier textureOverride;
 
     private final AzRendererPipeline<K, T> rendererPipeline;
 
@@ -56,7 +56,7 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     private boolean applyAnimationOnReRender;
 
-    protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
+    protected static final Map<Identifier, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
         new Object2ObjectOpenHashMap<>();
 
     protected AzRendererPipelineContext(AzRendererPipeline<K, T> rendererPipeline) {
@@ -126,7 +126,7 @@ public abstract class AzRendererPipelineContext<K, T> {
      */
     public abstract RenderType getDefaultRenderType(
         T animatable,
-        ResourceLocation texture,
+        Identifier texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
@@ -238,19 +238,19 @@ public abstract class AzRendererPipelineContext<K, T> {
      * Sets the texture override for the current rendering context. This can be used to replace the default texture
      * associated with the animatable object being rendered.
      *
-     * @param textureOverride the {@link ResourceLocation} of the texture to override; passing null will revert back to
+     * @param textureOverride the {@link Identifier} of the texture to override; passing null will revert back to
      *                        the default texture
      */
-    public void setTextureOverride(ResourceLocation textureOverride) {
+    public void setTextureOverride(Identifier textureOverride) {
         this.textureOverride = textureOverride;
     }
 
     /**
      * Retrieves the texture override set for this rendering context, if any.
      *
-     * @return the {@link ResourceLocation} representing the texture override, or null if no override is set.
+     * @return the {@link Identifier} representing the texture override, or null if no override is set.
      */
-    public ResourceLocation getTextureOverride() {
+    public Identifier getTextureOverride() {
         return textureOverride;
     }
 
@@ -260,10 +260,10 @@ public abstract class AzRendererPipelineContext<K, T> {
      * {@code IntIntPair}, where the first value represents the width and the second value represents the height of the
      * texture.
      *
-     * @param texture the {@link ResourceLocation} of the texture whose dimensions need to be computed
+     * @param texture the {@link Identifier} of the texture whose dimensions need to be computed
      * @return an {@link IntIntPair} containing the width and height of the texture
      */
-    public IntIntPair computeTextureSize(ResourceLocation texture) {
+    public IntIntPair computeTextureSize(Identifier texture) {
         return TEXTURE_DIMENSIONS_CACHE.computeIfAbsent(texture, RenderUtils::getTextureDimensions);
     }
 }

@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.block;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends
     @Override
     public RenderType getDefaultRenderType(
         T animatable,
-        ResourceLocation texture,
+        Identifier texture,
         @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,

@@ -1,6 +1,6 @@
 package mod.azure.azurelib.animation.primitive;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -10,7 +10,7 @@ import mod.azure.azurelib.util.AzureLibException;
 
 /**
  * Represents a container for baked animations in the AzureLib framework. This record holds mappings for precompiled
- * animation instances ({@link AzBakedAnimation}) and resource includes ({@link ResourceLocation}) for use in
+ * animation instances ({@link AzBakedAnimation}) and resource includes ({@link Identifier}) for use in
  * animation-driven content. <br>
  * The `AzBakedAnimations` structure provides functionality for retrieving animations by name and supporting external
  * resource references via the includes mapping, enabling extensibility and reuse of animations across various contexts.
@@ -19,7 +19,7 @@ import mod.azure.azurelib.util.AzureLibException;
  */
 public record AzBakedAnimations(
     Map<String, AzBakedAnimation> animations,
-    Map<String, ResourceLocation> includes
+    Map<String, Identifier> includes
 ) {
 
     /**
@@ -29,7 +29,7 @@ public record AzBakedAnimations(
     public AzBakedAnimation getAnimation(String name) {
         AzBakedAnimation result = animations.get(name);
         if (result == null && includes != null) {
-            ResourceLocation otherFileID = includes.getOrDefault(name, null);
+            Identifier otherFileID = includes.getOrDefault(name, null);
             if (otherFileID != null) {
                 AzBakedAnimations otherBakedAnims = AzBakedAnimationCache.getInstance().getNullable(otherFileID);
                 if (otherBakedAnims.equals(this)) {

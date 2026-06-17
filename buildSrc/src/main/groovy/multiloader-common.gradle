@@ -1,5 +1,4 @@
 plugins {
-    id 'com.diffplug.spotless'
     id 'java-library'
     id 'maven-publish'
     id 'idea'
@@ -163,17 +162,17 @@ idea {
     }
 }
 
-spotless {
-    java {
-        eclipse().configFile("$rootDir/eclipse-formatter.xml")
-        endWithNewline()
-        importOrder("", "java", group.toString(), "\\#")
-        indentWithSpaces(4)
-        removeUnusedImports()
-        trimTrailingWhitespace()
-    }
-}
+//spotless {
+//    java {
+//        eclipse().configFile("$rootDir/eclipse-formatter.xml")
+//        endWithNewline()
+//        importOrder("", "java", group.toString(), "\\#")
+//        indentWithSpaces(4)
+//        removeUnusedImports()
+//        trimTrailingWhitespace()
+//    }
+//}
 
-tasks.named('compileJava', JavaCompile) {
-    dependsOn("spotlessApply")
-}
+//tasks.named('compileJava', JavaCompile) {
+//    dependsOn("spotlessApply")
+//}

@@ -2,7 +2,7 @@ package mod.azure.azurelib.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Locale;
@@ -46,8 +46,8 @@ public abstract class AzResourceCache {
      * @param resourceManager The resource manager used to locate and manage resources.
      * @param type            The type of resource to be fetched, typically a folder or category defined in the resource
      *                        pack (e.g., "animations").
-     * @param loader          A function that processes a {@link ResourceLocation} into an object of type {@code T}.
-     * @param map             A consumer that maps the processed resources (keyed by {@link ResourceLocation}) to their
+     * @param loader          A function that processes a {@link Identifier} into an object of type {@code T}.
+     * @param map             A consumer that maps the processed resources (keyed by {@link Identifier}) to their
      *                        corresponding values of type {@code T}.
      * @return A {@code CompletableFuture<Void>} that completes when all resources of the specified type are loaded and
      *         processed.
@@ -56,15 +56,15 @@ public abstract class AzResourceCache {
         Executor executor,
         ResourceManager resourceManager,
         String type,
-        Function<ResourceLocation, T> loader,
-        BiConsumer<ResourceLocation, T> map
+        Function<Identifier, T> loader,
+        BiConsumer<Identifier, T> map
     ) {
         return CompletableFuture.supplyAsync(
             () -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")),
             executor
         )
             .thenApplyAsync(resources -> {
-                var tasks = new Object2ObjectOpenHashMap<ResourceLocation, CompletableFuture<T>>();
+                var tasks = new Object2ObjectOpenHashMap<Identifier, CompletableFuture<T>>();
 
                 for (var resource : resources.keySet()) {
                     tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));

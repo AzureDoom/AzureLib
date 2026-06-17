@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import org.joml.Matrix4f;
@@ -56,7 +56,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
      * GeoRenderer.<br>
      * This should only be called immediately prior to rendering, and only
      *
-     * @see AnimatableTexture#setAndUpdate(ResourceLocation, int)
+     * @see AnimatableTexture#setAndUpdate(Identifier, int)
      */
     @Override
     public void updateAnimatedTextureFrame(T entity) {

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +21,7 @@ import mod.azure.azurelib.loading.FileLoader;
  * Features:
  * <ul>
  * <li>Supports asynchronous loading of animation resources from the in-memory {@code ResourceManager}.
- * <li>Caches animation data keyed by {@link ResourceLocation}.
+ * <li>Caches animation data keyed by {@link Identifier}.
  * <li>Provides access to the cached animations or null values for non-existent records.</li>
  * </ul>
  */
@@ -33,7 +33,7 @@ public class AzBakedAnimationCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<ResourceLocation, AzBakedAnimations> bakedAnimations;
+    private final Map<Identifier, AzBakedAnimations> bakedAnimations;
 
     private AzBakedAnimationCache() {
         this.bakedAnimations = new Object2ObjectOpenHashMap<>();
@@ -49,7 +49,7 @@ public class AzBakedAnimationCache extends AzResourceCache {
         );
     }
 
-    public @Nullable AzBakedAnimations getNullable(ResourceLocation resourceLocation) {
+    public @Nullable AzBakedAnimations getNullable(Identifier resourceLocation) {
         return bakedAnimations.get(resourceLocation);
     }
 }

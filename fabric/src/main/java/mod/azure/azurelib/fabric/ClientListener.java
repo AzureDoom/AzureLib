@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 
 public final class ClientListener implements ClientModInitializer {
 
@@ -22,10 +21,6 @@ public final class ClientListener implements ClientModInitializer {
         );
         ClientPlayNetworking.registerGlobalReceiver(
             AzBlockEntityDispatchCommandPacket.TYPE,
-            (packet, context) -> packet.handle()
-        );
-        ClientPlayNetworking.registerGlobalReceiver(
-            SendConfigDataPacket.TYPE,
             (packet, context) -> packet.handle()
         );
     }

@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -40,7 +41,7 @@ public class AnimatableTexture extends SimpleTexture {
 
     protected boolean isAnimated = false;
 
-    public AnimatableTexture(final ResourceLocation location) {
+    public AnimatableTexture(final Identifier location) {
         super(location);
     }
 
@@ -99,7 +100,7 @@ public class AnimatableTexture extends SimpleTexture {
         return this.isAnimated;
     }
 
-    public static void setAndUpdate(ResourceLocation texturePath) {
+    public static void setAndUpdate(Identifier texturePath) {
         setAndUpdate(texturePath, (int) RenderUtils.getCurrentTick());
     }
 
@@ -109,7 +110,7 @@ public class AnimatableTexture extends SimpleTexture {
      * <p>
      * Use the non-specified method above unless you know what you're doing
      */
-    public static void setAndUpdate(ResourceLocation texturePath, int frameTick) {
+    public static void setAndUpdate(Identifier texturePath, int frameTick) {
         AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(texturePath);
 
         try {
