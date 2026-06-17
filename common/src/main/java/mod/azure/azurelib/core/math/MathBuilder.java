@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.common.util.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;

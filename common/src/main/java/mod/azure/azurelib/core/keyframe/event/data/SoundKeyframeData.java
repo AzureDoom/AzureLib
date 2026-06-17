@@ -7,7 +7,7 @@ package mod.azure.azurelib.core.keyframe.event.data;
 
 import java.util.Objects;
 
-import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 
 /**
  * Sound {@link AzKeyframe} instruction holder

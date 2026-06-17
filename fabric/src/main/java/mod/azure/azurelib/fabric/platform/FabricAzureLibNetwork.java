@@ -13,10 +13,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-import mod.azure.azurelib.common.network.AbstractPacket;
-import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
 public class FabricAzureLibNetwork implements AzureLibNetwork {
 

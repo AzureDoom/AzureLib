@@ -11,9 +11,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-import mod.azure.azurelib.common.network.AbstractPacket;
-import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
-import mod.azure.azurelib.common.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 

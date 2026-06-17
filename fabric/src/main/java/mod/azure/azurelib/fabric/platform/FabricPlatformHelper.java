@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.common.platform.services.IPlatformHelper;
+import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 public class FabricPlatformHelper implements IPlatformHelper {
 

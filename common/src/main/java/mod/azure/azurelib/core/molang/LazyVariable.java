@@ -11,7 +11,7 @@ import mod.azure.azurelib.core.math.Variable;
 
 /**
  * Lazy override of Variable, to allow for deferred value calculation. <br>
- * Optimises rendering as values are not touched until needed (if at all)
+ * Optimizes rendering as values are not touched until needed (if at all)
  */
 public class LazyVariable extends Variable {
 

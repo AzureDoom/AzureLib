@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
+import mod.azure.azurelib.cache.texture.AnimatableTexture;
 
 @Mixin(value = TextureManager.class, priority = 2010)
 public abstract class TextureManagerMixin {

@@ -10,10 +10,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.config.io.ConfigIO;
-import mod.azure.azurelib.common.network.packet.AzBlockEntityDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.AzEntityDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.AzItemStackDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 
 @Mod(AzureLib.MOD_ID)
 public final class NeoForgeAzureLibMod {

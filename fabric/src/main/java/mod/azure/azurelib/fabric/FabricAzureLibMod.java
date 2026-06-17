@@ -6,10 +6,10 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.config.io.ConfigIO;
-import mod.azure.azurelib.common.network.packet.AzBlockEntityDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.AzEntityDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.AzItemStackDispatchCommandPacket;
-import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.fabric.platform.FabricAzureLibNetwork;
 
 public final class FabricAzureLibMod implements ModInitializer {

@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import mod.azure.azurelib.common.platform.Services;
-import mod.azure.azurelib.common.render.armor.compat.ShoulderSurfingCompat;
-import mod.azure.azurelib.common.util.AzureLibUtil;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.render.armor.compat.ShoulderSurfingCompat;
+import mod.azure.azurelib.util.AzureLibUtil;
 
 /**
  * Base class for AzureLib!<br>

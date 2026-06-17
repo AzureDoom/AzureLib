@@ -7,7 +7,7 @@ package mod.azure.azurelib.core.math.functions.limit;
 
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.functions.Function;
-import mod.azure.azurelib.core.utils.MathUtils;
+import mod.azure.azurelib.core.utils.MathHelper;
 
 public class Clamp extends Function {
 
@@ -22,6 +22,6 @@ public class Clamp extends Function {
 
     @Override
     public double get() {
-        return MathUtils.clamp(this.getArg(0), this.getArg(1), this.getArg(2));
+        return MathHelper.clamp(this.getArg(0), this.getArg(1), this.getArg(2));
     }
 }

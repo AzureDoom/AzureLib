@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.common.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
 
 @Mixin(Item.class)
 public class ItemMixin_EnsureCraftHasID {
