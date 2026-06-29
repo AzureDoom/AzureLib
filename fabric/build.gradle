@@ -62,6 +62,8 @@ if (keyPropsFile.exists()) {
             requires {
                 slug = "fabric-api"
             }
+            client = true
+            server = true
         }
         modrinth {
             projectId = "7zlUOZvb"
@@ -70,6 +72,7 @@ if (keyPropsFile.exists()) {
             requires {
                 slug = "fabric-api"
             }
+            environment = CLIENT_AND_SERVER
         }
     }
 }
