@@ -61,11 +61,14 @@ if (keyPropsFile.exists()) {
             requires {
                 slug = "fabric-api"
             }
+            client = true
+            server = true
         }
         modrinth {
             projectId = project.modrinth_id
             accessToken = releaseProp.getProperty('modrinthKey')
             minecraftVersions.add(project.minecraft_version)
+            environment = CLIENT_AND_SERVER
         }
     }
 }

@@ -59,11 +59,14 @@ dependencies {
              projectSlug = project.mod_id
              accessToken = releaseProp.getProperty("curseKey")
              minecraftVersions.add(project.minecraft_version)
+             client = true
+             server = true
          }
          modrinth {
              projectId = project.modrinth_id
              accessToken = releaseProp.getProperty('modrinthKey')
              minecraftVersions.add(project.minecraft_version)
+             environment = CLIENT_AND_SERVER
          }
     }
 }
