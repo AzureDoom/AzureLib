@@ -104,11 +104,14 @@ if (keyPropsFile.exists()) {
             projectSlug = "azurelib"
             accessToken = releaseProp.getProperty("curseKey")
             minecraftVersions.add(project.minecraft_version)
+            client = true
+            server = true
         }
         modrinth {
             projectId = "7zlUOZvb"
             accessToken = releaseProp.getProperty('modrinthKey')
             minecraftVersions.add(project.minecraft_version)
+            environment = CLIENT_AND_SERVER
         }
     }
 }
