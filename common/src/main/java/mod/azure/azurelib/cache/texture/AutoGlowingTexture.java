@@ -5,138 +5,159 @@
  */
 package mod.azure.azurelib.cache.texture;
 
-import com.mojang.blaze3d.pipeline.RenderCall;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.TextureContents;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.platform.Services;
 
-/**
- * Texture object type responsible for AzureLib's emissive render textures
- */
+/** Texture object type responsible for AzureLib's emissive render textures. */
 public class AutoGlowingTexture extends AzAbstractTexture {
-
     protected final Identifier textureBase;
-
     protected final Identifier glowLayer;
 
+    protected @Nullable NativeImage baseImage;
+    protected @Nullable NativeImage glowImage;
+    protected @Nullable TextureMetadataSection textureMeta;
+    protected @Nullable AbstractTexture originalTexture;
+    protected boolean animated;
+
     public AutoGlowingTexture(Identifier originalLocation, Identifier location) {
-        super(originalLocation);
+        super(location);
         this.textureBase = originalLocation;
         this.glowLayer = location;
     }
 
-    /**
-     * Generates the glow layer {@link NativeImage} and appropriately modifies the base texture for use in glow render
-     * layers
-     */
-    @Nullable
     @Override
-    protected RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException {
-        AbstractTexture originalTexture;
+    public TextureContents loadContents(ResourceManager resourceManager) throws IOException {
+        this.originalTexture = Minecraft.getInstance().getTextureManager().getTexture(this.textureBase);
 
-        try {
-            originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(this.textureBase)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new IOException("Failed to load original texture: " + this.textureBase, e);
-        }
-
-        Resource textureBaseResource = resourceManager.getResource(this.textureBase).get();
-        NativeImage baseImage = originalTexture instanceof DynamicTexture dynamicTexture
+        Resource textureBaseResource = resourceManager.getResourceOrThrow(this.textureBase);
+        this.baseImage = this.originalTexture instanceof DynamicTexture dynamicTexture
             ? dynamicTexture.getPixels()
             : NativeImage.read(textureBaseResource.open());
-        NativeImage glowImage = null;
-        Optional<TextureMetadataSection> textureBaseMeta = textureBaseResource.metadata()
-            .getSection(TextureMetadataSection.SERIALIZER);
-        boolean blur = textureBaseMeta.isPresent() && textureBaseMeta.get().isBlur();
-        boolean clamp = textureBaseMeta.isPresent() && textureBaseMeta.get().isClamp();
+        this.textureMeta = textureBaseResource.metadata().getSection(TextureMetadataSection.TYPE).orElse(null);
 
         try {
             Optional<Resource> glowLayerResource = resourceManager.getResource(this.glowLayer);
             GeoGlowingTextureMeta glowLayerMeta = null;
 
             if (glowLayerResource.isPresent()) {
-                glowImage = NativeImage.read(glowLayerResource.get().open());
+                this.glowImage = NativeImage.read(glowLayerResource.get().open());
 
-                if (baseImage.getWidth() != glowImage.getWidth() || baseImage.getHeight() != glowImage.getHeight()) {
+                if (this.baseImage.getWidth() != this.glowImage.getWidth() || this.baseImage.getHeight() != this.glowImage.getHeight()) {
                     AzureLib.LOGGER.error(
                         "Glowmask size mismatch with base texture. Base size: {}x{}, Glowmask size: {}x{}, Location: {}",
-                        baseImage.getWidth(),
-                        baseImage.getHeight(),
-                        glowImage.getWidth(),
-                        glowImage.getHeight(),
-                        this.glowLayer
+                        this.baseImage.getWidth(), this.baseImage.getHeight(), this.glowImage.getWidth(), this.glowImage.getHeight(), this.glowLayer
                     );
-                    return null;
+                    this.glowImage.close();
+                    this.glowImage = null;
                 }
-
-                glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(glowImage);
-            } else {
-                Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata()
-                    .getSection(GeoGlowingTextureMeta.DESERIALIZER);
+                else {
+                    glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(this.glowImage);
+                }
+            }
+            else {
+                Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata().getSection(GeoGlowingTextureMeta.TYPE);
 
                 if (meta.isPresent()) {
                     glowLayerMeta = meta.get();
-                    glowImage = new NativeImage(baseImage.getWidth(), baseImage.getHeight(), true);
+                    this.glowImage = new NativeImage(this.baseImage.getWidth(), this.baseImage.getHeight(), true);
                 }
             }
 
-            if (glowLayerMeta != null) {
-                glowLayerMeta.createImageMask(baseImage, glowImage);
+            if (glowLayerMeta != null && this.glowImage != null) {
+                glowLayerMeta.createImageMask(this.baseImage, this.glowImage);
 
                 if (Services.PLATFORM.isDevelopmentEnvironment()) {
-                    printDebugImageToDisk(this.textureBase, baseImage);
-                    printDebugImageToDisk(this.glowLayer, glowImage);
+                    printDebugImageToDisk(this.textureBase, this.baseImage);
+                    printDebugImageToDisk(this.glowLayer, this.glowImage);
                 }
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             AzureLib.LOGGER.warn("Resource failed to open for glowlayer meta: {}", this.glowLayer, e);
         }
 
-        NativeImage mask = glowImage;
-
-        if (mask == null) {
+        if (this.glowImage == null) {
             String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
-            AzureLib.LOGGER.warn(
-                "Missing glowmask texture. Base texture: {}, Expected glowmask: {}",
-                this.textureBase,
-                expectedGlowmask
-            );
-            return null;
+            AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
+            this.glowImage = new NativeImage(1, 1, true);
+            this.glowImage.setPixel(0, 0, 0);
         }
 
-        boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture
-            .isAnimated();
+        this.animated = this.originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated();
 
-        if (animated)
-            ((AnimatableTexture) originalTexture).animationContents.animatedTexture.setGlowMaskTexture(
-                this,
-                baseImage,
-                mask
-            );
+        return new TextureContents(this.glowImage, this.textureMeta);
+    }
 
-        return () -> {
-            if (!animated)
-                uploadSimple(getId(), mask, blur, clamp);
+    @Override
+    public void apply(@NonNull TextureContents textureContents) {
+        if (this.glowImage == null)
+            return;
 
-            if (originalTexture instanceof DynamicTexture dynamicTexture) {
-                dynamicTexture.upload();
-            } else {
-                uploadSimple(originalTexture.getId(), baseImage, blur, clamp);
+        AddressMode address = textureContents.clamp() ? AddressMode.CLAMP_TO_EDGE : AddressMode.REPEAT;
+        FilterMode filter = textureContents.blur() ? FilterMode.LINEAR : FilterMode.NEAREST;
+        this.sampler = RenderSystem.getSamplerCache().getSampler(address, address, filter, filter, false);
+
+        uploadSimple(this.glowImage);
+
+        if (this.originalTexture instanceof AnimatableTexture animatableTexture && this.baseImage != null) {
+            animatableTexture.animationContents.setGlowMaskTexture(this, this.baseImage, this.glowImage);
+        }
+        else if (this.originalTexture != null && this.baseImage != null) {
+            this.originalTexture.doLoad(this.baseImage);
+        }
+    }
+
+    @Override
+    public void close() {
+        if (this.baseImage != null && !(this.originalTexture instanceof DynamicTexture))
+            this.baseImage.close();
+
+        if (this.glowImage != null && !this.animated)
+            this.glowImage.close();
+
+        super.close();
+    }
+
+    protected void printDebugImageToDisk(Identifier id, NativeImage newImage) {
+        try {
+            File file = new File(Services.PLATFORM.getGameDir().toFile(), "GeoTexture Debug Printouts");
+
+            if (!file.exists()) {
+                file.mkdirs();
             }
-        };
+            else if (!file.isDirectory()) {
+                file.delete();
+                file.mkdirs();
+            }
+
+            file = new File(file, id.getPath().replace('/', '.'));
+
+            if (!file.exists())
+                file.createNewFile();
+
+            newImage.writeToFile(file);
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

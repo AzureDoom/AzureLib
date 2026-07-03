@@ -35,7 +35,7 @@ public class AzEntityNameRenderUtil {
         var entityTeam = entity.getTeam();
 
         if (entityTeam == null) {
-            return Minecraft.renderNames() && entity != minecraft.getCameraEntity() && visibleToClient
+            return !Minecraft.getInstance().gui.hud.isHidden() && entity != minecraft.getCameraEntity() && visibleToClient
                 && !entity.isVehicle();
         }
 
