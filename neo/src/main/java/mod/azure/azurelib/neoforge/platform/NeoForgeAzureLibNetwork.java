@@ -14,6 +14,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
+@SuppressWarnings("unchecked")
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     private static PayloadRegistrar registrar = null;
@@ -28,13 +29,13 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
             registrar.playToClient(
                 payloadType,
                 (StreamCodec<FriendlyByteBuf, P>) codec,
-                (packet, context) -> packet.handle()
+                (packet, _) -> packet.handle()
             );
         } else {
             registrar.playToServer(
                 payloadType,
                 (StreamCodec<FriendlyByteBuf, P>) codec,
-                (packet, context) -> packet.handle()
+                (packet, _) -> packet.handle()
             );
         }
     }

@@ -8,7 +8,6 @@ package mod.azure.azurelib.util;
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.loading.json.raw.*;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +27,7 @@ import mod.azure.azurelib.loading.json.raw.*;
  */
 public record JsonUtil() {
 
-    public static final Gson GEO_GSON = new GsonBuilder().setLenient()
+    public static final Gson GEO_GSON = new GsonBuilder().setStrictness(Strictness.LENIENT)
         .registerTypeAdapter(Bone.class, Bone.deserializer())
         .registerTypeAdapter(Cube.class, Cube.deserializer())
         .registerTypeAdapter(FaceUV.class, FaceUV.deserializer())
@@ -72,6 +71,7 @@ public record JsonUtil() {
      * @param context     The {@link com.google.gson.Gson} context for deserialization
      * @param objectClass The object type that the array contains
      */
+    @SuppressWarnings("unchecked")
     public static <T> T[] jsonArrayToObjectArray(
         JsonArray array,
         JsonDeserializationContext context,

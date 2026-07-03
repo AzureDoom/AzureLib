@@ -4,10 +4,7 @@ import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -18,33 +15,32 @@ import mod.azure.azurelib.platform.services.AzureLibInitializer;
 
 public class FabricAzureLibInitializer implements AzureLibInitializer {
 
+    // TODO: Fix for 26.2
     @Override
     public void initialize() {
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES)
             .registerReloadListener(new IdentifiableResourceReloadListener() {
 
                 @Override
-                public Identifier getFabricId() {
-                    return AzureLib.modResource("models");
+                public @NonNull CompletableFuture<Void> reload(
+                    @NonNull SharedState currentReload,
+                    @NonNull Executor taskExecutor,
+                    PreparationBarrier preparationBarrier,
+                    Executor reloadExecutor
+                ) {
+                    return AzureLibCache.reload(
+                            synchronizer,
+                            manager,
+                            prepareProfiler,
+                            applyProfiler,
+                            prepareExecutor,
+                            applyExecutor
+                    );
                 }
 
                 @Override
-                public @NotNull CompletableFuture<Void> reload(
-                    PreparableReloadListener.PreparationBarrier synchronizer,
-                    ResourceManager manager,
-                    ProfilerFiller prepareProfiler,
-                    ProfilerFiller applyProfiler,
-                    Executor prepareExecutor,
-                    Executor applyExecutor
-                ) {
-                    return AzureLibCache.reload(
-                        synchronizer,
-                        manager,
-                        prepareProfiler,
-                        applyProfiler,
-                        prepareExecutor,
-                        applyExecutor
-                    );
+                public @NonNull Identifier getFabricId() {
+                    return AzureLib.modResource("models");
                 }
             });
     }

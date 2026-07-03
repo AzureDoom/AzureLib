@@ -2,9 +2,9 @@ package mod.azure.azurelib.animation;
 
 import java.util.Map;
 
+import mod.azure.azurelib.core.utils.Interpolations;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
-import mod.azure.azurelib.core.utils.Interpolations;
 
 public class AzCachedBoneUpdateUtil {
 

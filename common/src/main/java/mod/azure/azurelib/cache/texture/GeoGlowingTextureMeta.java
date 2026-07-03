@@ -24,9 +24,11 @@ import java.util.List;
 import mod.azure.azurelib.render.layer.AzAutoGlowingLayer;
 
 /**
- * Metadata class that stores the data for AzureLib's {@link AzAutoGlowingLayer emissive texture feature} for a given texture.
+ * Metadata class that stores the data for AzureLib's {@link AzAutoGlowingLayer emissive texture feature} for a given
+ * texture.
  */
 public class GeoGlowingTextureMeta {
+
     public static final Codec<GeoGlowingTextureMeta> CODEC = Codec.PASSTHROUGH.comapFlatMap(dynamic -> {
         JsonElement element = dynamic.convert(JsonOps.INSTANCE).getValue();
 
@@ -35,17 +37,19 @@ public class GeoGlowingTextureMeta {
 
         try {
             return DataResult.success(fromJson(element.getAsJsonObject()));
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             return DataResult.error(ex::getMessage);
         }
     }, meta -> new Dynamic<>(JsonOps.INSTANCE, new JsonObject()));
 
     /**
-     * 26.x resource metadata uses MetadataSectionType instead of MetadataSectionSerializer.
-     * Prefer a namespaced key for new files, but keep the old key if your existing .mcmeta files use it.
+     * 26.x resource metadata uses MetadataSectionType instead of MetadataSectionSerializer. Prefer a namespaced key for
+     * new files, but keep the old key if your existing .mcmeta files use it.
      */
-    public static final MetadataSectionType<GeoGlowingTextureMeta> TYPE = new MetadataSectionType<>("glowsections", CODEC);
+    public static final MetadataSectionType<GeoGlowingTextureMeta> TYPE = new MetadataSectionType<>(
+        "glowsections",
+        CODEC
+    );
 
     private final List<Pixel> pixels;
 
@@ -70,7 +74,9 @@ public class GeoGlowingTextureMeta {
 
         for (JsonElement element : sectionsArray) {
             if (!(element instanceof JsonObject obj))
-                throw new JsonParseException("Invalid glowsections json format, expected a JsonObject, found: " + element.getClass());
+                throw new JsonParseException(
+                    "Invalid glowsections json format, expected a JsonObject, found: " + element.getClass()
+                );
 
             int x1 = GsonHelper.getAsInt(obj, "x1", GsonHelper.getAsInt(obj, "x", 0));
             int y1 = GsonHelper.getAsInt(obj, "y1", GsonHelper.getAsInt(obj, "y", 0));
@@ -79,7 +85,9 @@ public class GeoGlowingTextureMeta {
             int alpha = GsonHelper.getAsInt(obj, "alpha", GsonHelper.getAsInt(obj, "a", 0));
 
             if (x1 + y1 + x2 + y2 == 0)
-                throw new IllegalArgumentException("Invalid glowsections section object, section must be at least one pixel in size");
+                throw new IllegalArgumentException(
+                    "Invalid glowsections section object, section must be at least one pixel in size"
+                );
 
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
@@ -123,5 +131,9 @@ public class GeoGlowingTextureMeta {
         }
     }
 
-    private record Pixel(int x, int y, int alpha) {}
+    private record Pixel(
+        int x,
+        int y,
+        int alpha
+    ) {}
 }

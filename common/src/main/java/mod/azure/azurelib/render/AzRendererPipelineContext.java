@@ -4,8 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
@@ -13,9 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.util.client.RenderUtils;
-import mod.azure.azurelib.core.object.Color;
 
 /**
  * An abstract base class representing the rendering context for a custom rendering pipeline. This class provides
@@ -238,8 +237,8 @@ public abstract class AzRendererPipelineContext<K, T> {
      * Sets the texture override for the current rendering context. This can be used to replace the default texture
      * associated with the animatable object being rendered.
      *
-     * @param textureOverride the {@link Identifier} of the texture to override; passing null will revert back to
-     *                        the default texture
+     * @param textureOverride the {@link Identifier} of the texture to override; passing null will revert back to the
+     *                        default texture
      */
     public void setTextureOverride(Identifier textureOverride) {
         this.textureOverride = textureOverride;

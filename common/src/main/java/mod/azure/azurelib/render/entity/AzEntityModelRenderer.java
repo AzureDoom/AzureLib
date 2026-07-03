@@ -127,7 +127,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             scratchLocalMatrix.set(localMatrix);
             RenderUtils.translateMatrixInPlace(
                 scratchLocalMatrix,
-                entityRendererPipeline.getRenderer().getRenderOffset(entity, 1).toVector3f()
+                entityRendererPipeline.getRenderer().getRenderOffset(entity).toVector3f()
             );
             bone.setLocalSpaceMatrix(localMatrix);
             bone.setWorldSpaceMatrix(scratchLocalMatrix);

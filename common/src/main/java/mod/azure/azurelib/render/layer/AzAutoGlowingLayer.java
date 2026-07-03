@@ -1,8 +1,7 @@
 package mod.azure.azurelib.render.layer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.entity.Entity;
 
 import mod.azure.azurelib.cache.texture.AzAbstractTexture;

@@ -23,12 +23,12 @@ import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.animation.primitive.AzLoopType;
-import mod.azure.azurelib.util.JsonUtil;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
+import mod.azure.azurelib.util.JsonUtil;
 
 /**
  * {@link com.google.gson.Gson} {@link JsonDeserializer} for {@link AzBakedAnimations}.<br>

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.block;
 
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
@@ -63,7 +62,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
     }
 
     public static <T extends BlockEntity> Builder<T> builder(
-            Identifier modelLocation,
+        Identifier modelLocation,
         Identifier textureLocation
     ) {
         return new Builder<>($ -> modelLocation, $ -> textureLocation);

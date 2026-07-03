@@ -45,13 +45,17 @@ import mod.azure.azurelib.cache.texture.util.Frame;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
- * Wrapper for {@link SimpleTexture} allowing vanilla animated texture metadata on non-atlas textures.
- * Updated for the 1.21.6+/26.2 GPU texture path.
+ * Wrapper for {@link SimpleTexture} allowing vanilla animated texture metadata on non-atlas textures. Updated for the
+ * 1.21.6+/26.2 GPU texture path.
  */
 public class AnimatableTexture extends SimpleTexture implements TickableTexture {
+
     protected @Nullable AnimationContents animationContents = null;
+
     protected int frameWidth;
+
     protected int frameHeight;
+
     protected @Nullable NativeImage baseImage;
 
     public AnimatableTexture(final Identifier location) {
@@ -71,7 +75,10 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
             .map(this::buildAnimationContents)
             .orElse(null);
 
-        return new TextureContents(this.baseImage, resource.metadata().getSection(TextureMetadataSection.TYPE).orElse(null));
+        return new TextureContents(
+            this.baseImage,
+            resource.metadata().getSection(TextureMetadataSection.TYPE).orElse(null)
+        );
     }
 
     @Override
@@ -93,22 +100,30 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
         Objects.requireNonNull(textureId);
 
-        this.texture = gpuDevice.createTexture(textureId::toString, 5, GpuFormat.RGBA8_UNORM, this.frameWidth, this.frameHeight, 1, 1);
+        this.texture = gpuDevice.createTexture(
+            textureId::toString,
+            5,
+            GpuFormat.RGBA8_UNORM,
+            this.frameWidth,
+            this.frameHeight,
+            1,
+            1
+        );
         this.textureView = gpuDevice.createTextureView(this.texture);
 
         uploadFrame(gpuDevice, image, 0, 0, this.texture);
     }
 
     /**
-     * Returns whether the texture found any valid animation metadata when loading.
-     * If false, then this is no different from a standard {@link SimpleTexture}.
+     * Returns whether the texture found any valid animation metadata when loading. If false, then this is no different
+     * from a standard {@link SimpleTexture}.
      */
     public boolean isAnimated() {
         return this.animationContents != null;
     }
 
     public static void setAndUpdate(Identifier texturePath) {
-        setAndUpdate(texturePath, (int)RenderUtils.getCurrentTick());
+        setAndUpdate(texturePath, (int) RenderUtils.getCurrentTick());
     }
 
     /**
@@ -120,10 +135,9 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         try {
             var method = texture.getClass().getMethod("setAnimationFrame", int.class);
             method.invoke(texture, frameTick);
-        }
-        catch (ReflectiveOperationException ignored) {}
+        } catch (ReflectiveOperationException ignored) {}
 
-        //RenderSystem.setShaderTexture(0, texture.getTexture());
+        // RenderSystem.setShaderTexture(0, texture.getTexture());
     }
 
     public void setAnimationFrame(int tick) {
@@ -156,8 +170,20 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         this.frameWidth = frameSize.width();
         this.frameHeight = frameSize.height();
 
-        if (!Mth.isMultipleOf(this.baseImage.getWidth(), this.frameWidth) || !Mth.isMultipleOf(this.baseImage.getHeight(), this.frameHeight)) {
-            AzureLib.LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}", resourceId(), this.baseImage.getWidth(), this.baseImage.getHeight(), this.frameWidth, this.frameHeight);
+        if (
+            !Mth.isMultipleOf(this.baseImage.getWidth(), this.frameWidth) || !Mth.isMultipleOf(
+                this.baseImage.getHeight(),
+                this.frameHeight
+            )
+        ) {
+            AzureLib.LOGGER.error(
+                "Image {} size {},{} is not multiple of frame size {},{}",
+                resourceId(),
+                this.baseImage.getWidth(),
+                this.baseImage.getHeight(),
+                this.frameWidth,
+                this.frameHeight
+            );
             return null;
         }
 
@@ -175,8 +201,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         if (animMeta.frames().isEmpty()) {
             for (int i = 0; i < availableFrames; i++)
                 frames.add(new Frame(i, defaultFrameTime));
-        }
-        else {
+        } else {
             for (AnimationFrame frame : animMeta.frames().get())
                 frames.add(new Frame(frame.index(), frame.timeOr(defaultFrameTime)));
 
@@ -188,12 +213,22 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 boolean validFrame = true;
 
                 if (frame.time() <= 0) {
-                    AzureLib.LOGGER.warn("Invalid frame duration on sprite {} frame {}: {}", resourceId(), frameIndex, frame.time());
+                    AzureLib.LOGGER.warn(
+                        "Invalid frame duration on sprite {} frame {}: {}",
+                        resourceId(),
+                        frameIndex,
+                        frame.time()
+                    );
                     validFrame = false;
                 }
 
                 if (frame.index() < 0 || frame.index() >= availableFrames) {
-                    AzureLib.LOGGER.warn("Invalid frame index on sprite {} frame {}: {}", resourceId(), frameIndex, frame.index());
+                    AzureLib.LOGGER.warn(
+                        "Invalid frame index on sprite {} frame {}: {}",
+                        resourceId(),
+                        frameIndex,
+                        frame.index()
+                    );
                     validFrame = false;
                 }
 
@@ -203,41 +238,62 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                     iterator.remove();
             }
 
-            int[] unusedFrames = IntStream.range(0, availableFrames).filter(frame -> !validFrames.contains(frame)).toArray();
+            int[] unusedFrames = IntStream.range(0, availableFrames)
+                .filter(frame -> !validFrames.contains(frame))
+                .toArray();
 
             if (unusedFrames.length > 0)
                 AzureLib.LOGGER.warn("Unused frames in sprite {}: {}", resourceId(), Arrays.toString(unusedFrames));
         }
 
-        return frames.size() <= 1 ? null : new AnimationContents(List.copyOf(frames), columns, animMeta.interpolatedFrames());
+        return frames.size() <= 1
+            ? null
+            : new AnimationContents(List.copyOf(frames), columns, animMeta.interpolatedFrames());
     }
 
     protected void uploadFrame(GpuDevice gpuDevice, NativeImage image, int x, int y, GpuTexture gpuTexture) {
-        gpuDevice.createCommandEncoder().writeToTexture(gpuTexture, image.getPixelBytes(), 0, 0, x, y, this.frameWidth, this.frameHeight);
+        gpuDevice.createCommandEncoder()
+            .writeToTexture(gpuTexture, image.getPixelBytes(), 0, 0, x, y, this.frameWidth, this.frameHeight);
     }
 
     protected class AnimationContents implements AutoCloseable {
+
         protected final List<Frame> frames;
+
         protected final int frameRowSize;
+
         protected final boolean interpolateFrames;
+
         protected final @Nullable InterpolationData interpolationData;
+
         protected final NativeImage currentFrameBuffer;
 
         protected @Nullable GpuTexture glowMaskTexture;
+
         protected @Nullable NativeImage glowMaskImage;
+
         protected @Nullable NativeImage glowMaskFrameBuffer;
+
         protected @Nullable InterpolationData glowMaskInterpolationData;
 
         int currentFrame;
+
         int subFrame;
+
         int totalFrameTime;
 
         public AnimationContents(List<Frame> frames, int frameRowSize, boolean interpolateFrames) {
             this.frames = frames;
             this.frameRowSize = frameRowSize;
             this.interpolateFrames = interpolateFrames;
-            this.interpolationData = interpolateFrames ? new InterpolationData(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight) : null;
-            this.currentFrameBuffer = new NativeImage(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight, false);
+            this.interpolationData = interpolateFrames
+                ? new InterpolationData(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight)
+                : null;
+            this.currentFrameBuffer = new NativeImage(
+                AnimatableTexture.this.frameWidth,
+                AnimatableTexture.this.frameHeight,
+                false
+            );
 
             for (Frame frame : frames)
                 this.totalFrameTime += frame.time();
@@ -254,10 +310,17 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         public void setGlowMaskTexture(AutoGlowingTexture texture, NativeImage baseImage, NativeImage glowMask) {
             this.glowMaskTexture = texture.getTexture();
             this.glowMaskImage = glowMask;
-            this.glowMaskFrameBuffer = new NativeImage(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight, false);
+            this.glowMaskFrameBuffer = new NativeImage(
+                AnimatableTexture.this.frameWidth,
+                AnimatableTexture.this.frameHeight,
+                false
+            );
 
             if (this.interpolateFrames)
-                this.glowMaskInterpolationData = new InterpolationData(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight);
+                this.glowMaskInterpolationData = new InterpolationData(
+                    AnimatableTexture.this.frameWidth,
+                    AnimatableTexture.this.frameHeight
+                );
 
             if (AnimatableTexture.this.baseImage != null)
                 AnimatableTexture.this.baseImage.copyFrom(baseImage);
@@ -295,11 +358,12 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 this.currentFrame = (this.currentFrame + 1) % this.frames.size();
                 this.subFrame = 0;
                 uploadCurrentFrame(prevFrameInfo.index() != this.frames.get(this.currentFrame).index());
-            }
-            else if (this.interpolationData != null) {
+            } else if (this.interpolationData != null) {
                 this.interpolationData.tickAndUpload(AnimatableTexture.this.baseImage, getTexture());
 
-                if (this.glowMaskInterpolationData != null && this.glowMaskImage != null && this.glowMaskTexture != null)
+                if (
+                    this.glowMaskInterpolationData != null && this.glowMaskImage != null && this.glowMaskTexture != null
+                )
                     this.glowMaskInterpolationData.tickAndUpload(this.glowMaskImage, this.glowMaskTexture);
             }
         }
@@ -312,11 +376,31 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
             int frameX = getFrameColumn(frameIndex) * AnimatableTexture.this.frameWidth;
             int frameY = getFrameRow(frameIndex) * AnimatableTexture.this.frameHeight;
 
-            AnimatableTexture.this.baseImage.copyRect(this.currentFrameBuffer, frameX, frameY, 0, 0, AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight, false, false);
+            AnimatableTexture.this.baseImage.copyRect(
+                this.currentFrameBuffer,
+                frameX,
+                frameY,
+                0,
+                0,
+                AnimatableTexture.this.frameWidth,
+                AnimatableTexture.this.frameHeight,
+                false,
+                false
+            );
             uploadFrame(RenderSystem.getDevice(), this.currentFrameBuffer, 0, 0, getTexture());
 
             if (this.glowMaskImage != null && this.glowMaskFrameBuffer != null && this.glowMaskTexture != null) {
-                this.glowMaskImage.copyRect(this.glowMaskFrameBuffer, frameX, frameY, 0, 0, AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight, false, false);
+                this.glowMaskImage.copyRect(
+                    this.glowMaskFrameBuffer,
+                    frameX,
+                    frameY,
+                    0,
+                    0,
+                    AnimatableTexture.this.frameWidth,
+                    AnimatableTexture.this.frameHeight,
+                    false,
+                    false
+                );
                 uploadFrame(RenderSystem.getDevice(), this.glowMaskFrameBuffer, 0, 0, this.glowMaskTexture);
             }
         }
@@ -339,6 +423,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         }
 
         protected class InterpolationData implements AutoCloseable {
+
             protected final NativeImage buffer;
 
             public InterpolationData(int frameWidth, int frameHeight) {
@@ -352,16 +437,36 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 int nextFrameIndex = frames.get((instance.currentFrame + 1) % frames.size()).index();
 
                 if (currentFrameInfo.index() != nextFrameIndex) {
-                    float partialFrame = instance.subFrame / (float)currentFrameInfo.time();
+                    float partialFrame = instance.subFrame / (float) currentFrameInfo.time();
                     int frameHeight = AnimatableTexture.this.frameHeight;
                     int frameWidth = AnimatableTexture.this.frameWidth;
 
                     for (int pixelY = 0; pixelY < frameHeight; pixelY++) {
                         for (int pixelX = 0; pixelX < frameWidth; pixelX++) {
-                            int framePixel = getPixel(image, instance, currentFrameInfo.index(), pixelX, pixelY, frameWidth, frameHeight);
-                            int nextFramePixel = getPixel(image, instance, nextFrameIndex, pixelX, pixelY, frameWidth, frameHeight);
+                            int framePixel = getPixel(
+                                image,
+                                instance,
+                                currentFrameInfo.index(),
+                                pixelX,
+                                pixelY,
+                                frameWidth,
+                                frameHeight
+                            );
+                            int nextFramePixel = getPixel(
+                                image,
+                                instance,
+                                nextFrameIndex,
+                                pixelX,
+                                pixelY,
+                                frameWidth,
+                                frameHeight
+                            );
 
-                            this.buffer.setPixel(pixelX, pixelY, ARGB.linearLerp(partialFrame, framePixel, nextFramePixel));
+                            this.buffer.setPixel(
+                                pixelX,
+                                pixelY,
+                                ARGB.linearLerp(partialFrame, framePixel, nextFramePixel)
+                            );
                         }
                     }
 
@@ -369,8 +474,19 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 }
             }
 
-            protected int getPixel(NativeImage image, AnimationContents animationInfo, int frameIndex, int x, int y, int frameWidth, int frameHeight) {
-                return image.getPixel(x + animationInfo.getFrameColumn(frameIndex) * frameWidth, y + animationInfo.getFrameRow(frameIndex) * frameHeight);
+            protected int getPixel(
+                NativeImage image,
+                AnimationContents animationInfo,
+                int frameIndex,
+                int x,
+                int y,
+                int frameWidth,
+                int frameHeight
+            ) {
+                return image.getPixel(
+                    x + animationInfo.getFrameColumn(frameIndex) * frameWidth,
+                    y + animationInfo.getFrameRow(frameIndex) * frameHeight
+                );
             }
 
             @Override

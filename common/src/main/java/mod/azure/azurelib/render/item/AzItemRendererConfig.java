@@ -1,7 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import mod.azure.azurelib.render.*;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -87,8 +85,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     }
 
     public static Builder builder(
-            Identifier modelLocation,
-            Identifier textureLocation
+        Identifier modelLocation,
+        Identifier textureLocation
     ) {
         return new Builder($ -> modelLocation, $ -> textureLocation);
     }

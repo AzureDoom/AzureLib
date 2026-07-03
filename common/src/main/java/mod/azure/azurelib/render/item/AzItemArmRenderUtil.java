@@ -2,10 +2,11 @@ package mod.azure.azurelib.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -108,8 +109,8 @@ public class AzItemArmRenderUtil {
     private static void renderLeftArm(
         PoseStack poseStack,
         AzBone bone,
-        net.minecraft.client.model.PlayerModel<?> playerEntityModel,
-        net.minecraft.resources.ResourceLocation playerSkin,
+        PlayerModel playerEntityModel,
+        Identifier playerSkin,
         int packedLight,
         AzItemRendererPipelineContext itemContext,
         AzModelRenderer<UUID, ItemStack> modelRenderer
@@ -144,8 +145,8 @@ public class AzItemArmRenderUtil {
     private static void renderRightArm(
         PoseStack poseStack,
         AzBone bone,
-        net.minecraft.client.model.PlayerModel<?> playerEntityModel,
-        net.minecraft.resources.ResourceLocation playerSkin,
+        PlayerModel playerEntityModel,
+        Identifier playerSkin,
         int packedLight,
         AzItemRendererPipelineContext itemContext,
         AzModelRenderer<UUID, ItemStack> modelRenderer

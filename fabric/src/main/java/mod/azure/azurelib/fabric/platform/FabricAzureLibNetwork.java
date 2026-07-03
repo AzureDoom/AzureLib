@@ -16,6 +16,7 @@ import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
+@SuppressWarnings("unchecked")
 public class FabricAzureLibNetwork implements AzureLibNetwork {
 
     public static <B extends FriendlyByteBuf, P extends AbstractPacket> void registerPacket(
@@ -23,7 +24,7 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
         StreamCodec<B, P> codec
     ) {
         PayloadTypeRegistry.clientboundPlay().register(packetType, (StreamCodec<FriendlyByteBuf, P>) codec);
-        ClientPlayNetworking.registerGlobalReceiver(packetType, (packet, context) -> packet.handle());
+        ClientPlayNetworking.registerGlobalReceiver(packetType, (packet, _) -> packet.handle());
     }
 
     @Override
@@ -37,7 +38,7 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
                 FabricAzureLibNetwork.registerPacket(payloadType, codec);
         } else {
             PayloadTypeRegistry.serverboundPlay().register(payloadType, (StreamCodec<FriendlyByteBuf, P>) codec);
-            ServerPlayNetworking.registerGlobalReceiver(payloadType, (packet, context) -> packet.handle());
+            ServerPlayNetworking.registerGlobalReceiver(payloadType, (packet, _) -> packet.handle());
         }
     }
 

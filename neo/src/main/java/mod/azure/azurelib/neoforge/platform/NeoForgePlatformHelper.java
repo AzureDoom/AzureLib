@@ -9,8 +9,8 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import mod.azure.azurelib.platform.services.IPlatformHelper;
 import mod.azure.azurelib.neoforge.NeoForgeAzureLibMod;
+import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
 

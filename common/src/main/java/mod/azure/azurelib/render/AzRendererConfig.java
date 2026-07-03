@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -220,17 +220,17 @@ public class AzRendererConfig<K, T> {
             this.renderEntry = $ -> $;
             this.postRenderEntry = $ -> $;
             this.textureLocationProvider = textureLocationProvider;
-            this.alphaFunction = $ -> 1.0F;
-            this.scaleHeight = $ -> 1.0F;
-            this.scaleWidth = $ -> 1.0F;
-            this.boneTextureOverrideProvider = (entity, bone) -> null;
-            this.boneRenderTypeOverrideProvider = (entity, bone) -> null;
+            this.alphaFunction = _ -> 1.0F;
+            this.scaleHeight = _ -> 1.0F;
+            this.scaleWidth = _ -> 1.0F;
+            this.boneTextureOverrideProvider = (_, _) -> null;
+            this.boneRenderTypeOverrideProvider = (_, _) -> null;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
             Function<AzBone, Identifier> boneTextureOverrideProvider
         ) {
-            this.boneTextureOverrideProvider = (entity, bone) -> boneTextureOverrideProvider.apply(bone);
+            this.boneTextureOverrideProvider = (_, bone) -> boneTextureOverrideProvider.apply(bone);
             return this;
         }
 

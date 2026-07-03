@@ -1,6 +1,7 @@
 plugins {
     // Required for NeoGradle
-    id "org.jetbrains.gradle.plugin.idea-ext" version "1.1.7"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "1.4.1"
     id 'net.neoforged.moddev' version "${neo_moddev}" apply(false)
     id 'me.modmuss50.mod-publish-plugin' version "${modmuss50_mod_publish_version}" apply(false)
+    id 'com.diffplug.spotless' version "8.8.0" apply(false)
 }

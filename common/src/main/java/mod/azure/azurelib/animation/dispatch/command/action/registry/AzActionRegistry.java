@@ -1,8 +1,6 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
 import it.unimi.dsi.fastutil.objects.Object2ShortArrayMap;
-import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
-import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -66,7 +64,7 @@ public class AzActionRegistry {
     private AzActionRegistry() {}
 
     public static @Nullable <A, T extends StreamCodec<FriendlyByteBuf, A>> T getCodecOrNull(
-            Identifier resourceLocation
+        Identifier resourceLocation
     ) {
         var id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
         @SuppressWarnings("unchecked")
@@ -85,7 +83,7 @@ public class AzActionRegistry {
     }
 
     private static <A extends AzAction> void register(
-            Identifier resourceLocation,
+        Identifier resourceLocation,
         StreamCodec<FriendlyByteBuf, A> codec
     ) {
         var id = RESOURCE_LOCATION_TO_ID.computeIfAbsent(resourceLocation, $ -> NEXT_FREE_ID++);

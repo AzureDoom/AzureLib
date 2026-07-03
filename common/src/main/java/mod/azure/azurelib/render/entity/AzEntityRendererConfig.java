@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
-import mod.azure.azurelib.render.*;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -87,8 +86,8 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     }
 
     public static <T extends Entity> Builder<T> builder(
-            Identifier modelLocation,
-            Identifier textureLocation
+        Identifier modelLocation,
+        Identifier textureLocation
     ) {
         return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }

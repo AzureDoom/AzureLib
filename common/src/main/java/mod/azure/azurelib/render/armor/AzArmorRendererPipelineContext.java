@@ -13,10 +13,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
-import mod.azure.azurelib.core.object.Color;
 
 public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UUID, ItemStack> {
 

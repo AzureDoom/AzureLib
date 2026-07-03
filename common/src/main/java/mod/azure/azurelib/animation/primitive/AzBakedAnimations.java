@@ -10,8 +10,8 @@ import mod.azure.azurelib.util.AzureLibException;
 
 /**
  * Represents a container for baked animations in the AzureLib framework. This record holds mappings for precompiled
- * animation instances ({@link AzBakedAnimation}) and resource includes ({@link Identifier}) for use in
- * animation-driven content. <br>
+ * animation instances ({@link AzBakedAnimation}) and resource includes ({@link Identifier}) for use in animation-driven
+ * content. <br>
  * The `AzBakedAnimations` structure provides functionality for retrieving animations by name and supporting external
  * resource references via the includes mapping, enabling extensibility and reuse of animations across various contexts.
  * <br>

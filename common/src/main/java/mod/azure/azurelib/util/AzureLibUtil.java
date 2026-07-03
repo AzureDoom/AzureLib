@@ -10,6 +10,7 @@ package mod.azure.azurelib.util;
  */
 public record AzureLibUtil() {
 
+    @SuppressWarnings("unchecked")
     public static <T> T self(Object object) {
         return (T) object;
     }

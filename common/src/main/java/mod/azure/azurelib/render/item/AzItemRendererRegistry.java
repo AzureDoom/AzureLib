@@ -31,7 +31,7 @@ public class AzItemRendererRegistry {
     }
 
     public static @Nullable AzItemRenderer getOrNull(Item item) {
-        return ITEM_TO_RENDERER.computeIfAbsent(item, ($) -> {
+        return ITEM_TO_RENDERER.computeIfAbsent(item, (_) -> {
             var rendererSupplier = ITEM_TO_RENDERER_SUPPLIER.get(item);
             return rendererSupplier == null ? null : rendererSupplier.get();
         });

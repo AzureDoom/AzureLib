@@ -29,13 +29,19 @@ import mod.azure.azurelib.platform.Services;
 
 /** Texture object type responsible for AzureLib's emissive render textures. */
 public class AutoGlowingTexture extends AzAbstractTexture {
+
     protected final Identifier textureBase;
+
     protected final Identifier glowLayer;
 
     protected @Nullable NativeImage baseImage;
+
     protected @Nullable NativeImage glowImage;
+
     protected @Nullable TextureMetadataSection textureMeta;
+
     protected @Nullable AbstractTexture originalTexture;
+
     protected boolean animated;
 
     public AutoGlowingTexture(Identifier originalLocation, Identifier location) {
@@ -61,20 +67,26 @@ public class AutoGlowingTexture extends AzAbstractTexture {
             if (glowLayerResource.isPresent()) {
                 this.glowImage = NativeImage.read(glowLayerResource.get().open());
 
-                if (this.baseImage.getWidth() != this.glowImage.getWidth() || this.baseImage.getHeight() != this.glowImage.getHeight()) {
+                if (
+                    this.baseImage.getWidth() != this.glowImage.getWidth() || this.baseImage
+                        .getHeight() != this.glowImage.getHeight()
+                ) {
                     AzureLib.LOGGER.error(
                         "Glowmask size mismatch with base texture. Base size: {}x{}, Glowmask size: {}x{}, Location: {}",
-                        this.baseImage.getWidth(), this.baseImage.getHeight(), this.glowImage.getWidth(), this.glowImage.getHeight(), this.glowLayer
+                        this.baseImage.getWidth(),
+                        this.baseImage.getHeight(),
+                        this.glowImage.getWidth(),
+                        this.glowImage.getHeight(),
+                        this.glowLayer
                     );
                     this.glowImage.close();
                     this.glowImage = null;
-                }
-                else {
+                } else {
                     glowLayerMeta = GeoGlowingTextureMeta.fromExistingImage(this.glowImage);
                 }
-            }
-            else {
-                Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata().getSection(GeoGlowingTextureMeta.TYPE);
+            } else {
+                Optional<GeoGlowingTextureMeta> meta = textureBaseResource.metadata()
+                    .getSection(GeoGlowingTextureMeta.TYPE);
 
                 if (meta.isPresent()) {
                     glowLayerMeta = meta.get();
@@ -90,19 +102,23 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                     printDebugImageToDisk(this.glowLayer, this.glowImage);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             AzureLib.LOGGER.warn("Resource failed to open for glowlayer meta: {}", this.glowLayer, e);
         }
 
         if (this.glowImage == null) {
             String expectedGlowmask = this.textureBase.toString().replace(".png", "_glowmask.png");
-            AzureLib.LOGGER.warn("Missing glowmask texture. Base texture: {}, Expected glowmask: {}", this.textureBase, expectedGlowmask);
+            AzureLib.LOGGER.warn(
+                "Missing glowmask texture. Base texture: {}, Expected glowmask: {}",
+                this.textureBase,
+                expectedGlowmask
+            );
             this.glowImage = new NativeImage(1, 1, true);
             this.glowImage.setPixel(0, 0, 0);
         }
 
-        this.animated = this.originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated();
+        this.animated = this.originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture
+            .isAnimated();
 
         return new TextureContents(this.glowImage, this.textureMeta);
     }
@@ -120,8 +136,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
 
         if (this.originalTexture instanceof AnimatableTexture animatableTexture && this.baseImage != null) {
             animatableTexture.animationContents.setGlowMaskTexture(this, this.baseImage, this.glowImage);
-        }
-        else if (this.originalTexture != null && this.baseImage != null) {
+        } else if (this.originalTexture != null && this.baseImage != null) {
             this.originalTexture.doLoad(this.baseImage);
         }
     }
@@ -143,8 +158,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
 
             if (!file.exists()) {
                 file.mkdirs();
-            }
-            else if (!file.isDirectory()) {
+            } else if (!file.isDirectory()) {
                 file.delete();
                 file.mkdirs();
             }
@@ -155,8 +169,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                 file.createNewFile();
 
             newImage.writeToFile(file);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }

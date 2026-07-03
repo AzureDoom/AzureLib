@@ -56,7 +56,7 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
     }
 
     public AzArmorTrimLayer(
-            Identifier baseTexture,
+        Identifier baseTexture,
         Function<ArmorTrim, Identifier> textureLocationPermutations
     ) {
         this.textureBaseLocation = baseTexture;

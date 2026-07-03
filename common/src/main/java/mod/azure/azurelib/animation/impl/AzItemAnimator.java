@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
-import mod.azure.azurelib.util.client.RenderUtils;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * The {@code AzItemAnimator} class is an abstract extension of the {@code AzAnimator} class, specifically designed to

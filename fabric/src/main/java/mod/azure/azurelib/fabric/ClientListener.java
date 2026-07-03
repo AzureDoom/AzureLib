@@ -13,15 +13,15 @@ public final class ClientListener implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(
             AzEntityDispatchCommandPacket.TYPE,
-            (packet, context) -> packet.handle()
+            (packet, _) -> packet.handle()
         );
         ClientPlayNetworking.registerGlobalReceiver(
             AzItemStackDispatchCommandPacket.TYPE,
-            (packet, context) -> packet.handle()
+            (packet, _) -> packet.handle()
         );
         ClientPlayNetworking.registerGlobalReceiver(
             AzBlockEntityDispatchCommandPacket.TYPE,
-            (packet, context) -> packet.handle()
+            (packet, _) -> packet.handle()
         );
     }
 }

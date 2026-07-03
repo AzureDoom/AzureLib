@@ -1,28 +1,28 @@
 package mod.azure.azurelib.cache.texture;
 
 import com.mojang.blaze3d.GpuFormat;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public abstract class AzAbstractTexture extends SimpleTexture {
+
     protected static final RenderStateShard.ShaderStateShard SHADER_STATE = new RenderStateShard.ShaderStateShard(
         GameRenderer::getRendertypeEntityTranslucentEmissiveShader
     );
@@ -41,11 +41,18 @@ public abstract class AzAbstractTexture extends SimpleTexture {
             RenderSystem.defaultBlendFunc();
         });
 
-    protected static final RenderStateShard.WriteMaskStateShard WRITE_MASK = new RenderStateShard.WriteMaskStateShard(true, true);
+    protected static final RenderStateShard.WriteMaskStateShard WRITE_MASK = new RenderStateShard.WriteMaskStateShard(
+        true,
+        true
+    );
 
     protected static final BiFunction<Identifier, Boolean, RenderType> GLOWING_RENDER_TYPE = Util.memoize(
         (texture, isGlowing) -> {
-            RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(texture, false, false);
+            RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(
+                texture,
+                false,
+                false
+            );
 
             return RenderType.create(
                 "az_glowing_layer",
@@ -73,11 +80,18 @@ public abstract class AzAbstractTexture extends SimpleTexture {
 
     protected static void generateTexture(Identifier texturePath, Consumer<TextureManager> textureManagerConsumer) {
         if (!RenderSystem.isOnRenderThreadOrInit())
-            throw new IllegalThreadStateException("Texture loading called outside of the render thread! This should DEFINITELY not be happening.");
+            throw new IllegalThreadStateException(
+                "Texture loading called outside of the render thread! This should DEFINITELY not be happening."
+            );
 
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-        if (!(textureManager.getTexture(texturePath, MissingTextureAtlasSprite.getTexture()) instanceof AzAbstractTexture))
+        if (
+            !(textureManager.getTexture(
+                texturePath,
+                MissingTextureAtlasSprite.getTexture()
+            ) instanceof AzAbstractTexture)
+        )
             textureManagerConsumer.accept(textureManager);
     }
 
@@ -88,27 +102,43 @@ public abstract class AzAbstractTexture extends SimpleTexture {
 
         Objects.requireNonNull(textureId);
 
-        this.texture = gpuDevice.createTexture(textureId::toString, 5, GpuFormat.RGBA8_UNORM, image.getWidth(), image.getHeight(), 1, 1);
+        this.texture = gpuDevice.createTexture(
+            textureId::toString,
+            5,
+            GpuFormat.RGBA8_UNORM,
+            image.getWidth(),
+            image.getHeight(),
+            1,
+            1
+        );
         this.textureView = gpuDevice.createTextureView(this.texture);
         uploadSimple(this.texture, image);
     }
 
     /** Upload a NativeImage into an existing GPU texture. */
     public static void uploadSimple(GpuTexture texture, NativeImage image) {
-        RenderSystem.getDevice().createCommandEncoder().writeToTexture(texture, image.getPixelBytes(), 0, 0, 0, 0, image.getWidth(), image.getHeight());
+        RenderSystem.getDevice()
+            .createCommandEncoder()
+            .writeToTexture(texture, image.getPixelBytes(), 0, 0, 0, 0, image.getWidth(), image.getHeight());
     }
 
     public static Identifier appendToPath(Identifier location, String suffix) {
         String path = location.getPath();
         int i = path.lastIndexOf('.');
 
-        return Identifier.fromNamespaceAndPath(location.getNamespace(), path.substring(0, i) + suffix + path.substring(i));
+        return Identifier.fromNamespaceAndPath(
+            location.getNamespace(),
+            path.substring(0, i) + suffix + path.substring(i)
+        );
     }
 
     public static Identifier getEmissiveResource(Identifier baseResource) {
         Identifier path = appendToPath(baseResource, APPENDIX);
 
-        generateTexture(path, textureManager -> textureManager.register(path, new AutoGlowingTexture(baseResource, path)));
+        generateTexture(
+            path,
+            textureManager -> textureManager.register(path, new AutoGlowingTexture(baseResource, path))
+        );
 
         return path;
     }

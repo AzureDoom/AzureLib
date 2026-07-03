@@ -40,7 +40,7 @@ public abstract class TextureManagerMixin {
         require = 0
     )
     private void azurelib$replaceAnimatableTexture(
-            Identifier location,
+        Identifier location,
         CallbackInfoReturnable<AbstractTexture> cir
     ) {
         var currentTexture = cir.getReturnValue();

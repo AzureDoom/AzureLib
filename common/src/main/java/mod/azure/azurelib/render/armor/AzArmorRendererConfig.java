@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.armor;
 
-import mod.azure.azurelib.render.*;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
@@ -67,8 +66,8 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     }
 
     public static Builder builder(
-            Identifier modelLocation,
-            Identifier textureLocation
+        Identifier modelLocation,
+        Identifier textureLocation
     ) {
         return new Builder((a, b) -> modelLocation, (a, b) -> textureLocation);
     }
