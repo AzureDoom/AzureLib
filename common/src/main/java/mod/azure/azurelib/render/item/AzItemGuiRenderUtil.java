@@ -42,7 +42,6 @@ public class AzItemGuiRenderUtil {
             .getDefaultRenderType(
                 stack,
                 textureLocation,
-                bSource,
                 partialTick,
                 config.getRenderType(context.currentEntity(), stack),
                 config.alpha(stack)

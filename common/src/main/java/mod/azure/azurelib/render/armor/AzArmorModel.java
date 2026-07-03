@@ -54,7 +54,6 @@ public class AzArmorModel<E extends LivingEntity> extends HumanoidModel<E> {
         var renderType = context.getDefaultRenderType(
             animatable,
             textureLocation,
-            bufferSource,
             partialTick,
             config.getRenderType(currentEntity, animatable),
             config.alpha(animatable)

@@ -1,10 +1,8 @@
 package mod.azure.azurelib.render;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -15,7 +13,6 @@ import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -72,19 +69,15 @@ public class AzModelRenderer<K, T> {
      */
     protected void renderRecursively(AzRendererPipelineContext<K, T> context, AzBone bone, boolean isReRender) {
         var buffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
         RenderUtils.prepMatrixForBone(poseStack, bone);
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
-
         if (
             !boneRenderOverride(
                 poseStack,
                 bone,
-                bufferSource,
                 buffer,
                 context.partialTick(),
                 context.packedLight(),
@@ -181,6 +174,9 @@ public class AzModelRenderer<K, T> {
         Vector3f normal
     ) {
         var buffer = context.vertexConsumer();
+        if (buffer == null) {
+            return;
+        }
         var color = context.renderColor();
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
@@ -232,7 +228,6 @@ public class AzModelRenderer<K, T> {
      *
      * @param poseStack     The pose stack used for handling transformations (rotation, scaling, and translation).
      * @param bone          The bone that is being rendered.
-     * @param bufferSource  The buffer source used for rendering.
      * @param buffer        The vertex consumer buffer used for writing vertex data during rendering.
      * @param partialTick   The partial tick progress for interpolating between frames.
      * @param packedLight   The packed light value for the rendered bone.
@@ -240,10 +235,10 @@ public class AzModelRenderer<K, T> {
      * @param colour        The color modifier for the rendered output.
      * @return A boolean indicating whether the bone's rendering behavior has been overridden successfully.
      */
+    @SuppressWarnings("unused")
     public boolean boneRenderOverride(
         PoseStack poseStack,
         AzBone bone,
-        MultiBufferSource bufferSource,
         VertexConsumer buffer,
         float partialTick,
         int packedLight,
@@ -255,133 +250,6 @@ public class AzModelRenderer<K, T> {
 
     public void handleAnimation(AzAnimator<?, T> animator, T animatable, float partialTick) {
         animator.animate(animatable, partialTick);
-    }
-
-    /**
-     * Retrieves or refreshes the {@link VertexConsumer} for rendering based on the current buffer state and rendering
-     * context. Depending on the type and state of the current {@link VertexConsumer}, this method determines whether to
-     * reuse the existing buffer or obtain a fresh one from the {@link MultiBufferSource}.
-     *
-     * @param context    The rendering context containing information about the current buffer, the buffer source, and
-     *                   rendering pipeline data.
-     * @param bone       The {@link AzBone} being rendered, which may influence the behavior or context of the buffer
-     *                   retrieval.
-     * @param renderType The {@link RenderType} specifying the desired render characteristics or pipeline for rendering.
-     * @return The appropriate {@link VertexConsumer} for rendering, either the existing buffer or a refreshed/new one.
-     */
-    public VertexConsumer getOrRefreshBufferRenderType(
-        AzItemRendererPipelineContext context,
-        AzBone bone,
-        RenderType renderType
-    ) {
-        var currentBuffer = context.multiBufferSource().getBuffer(renderType);
-        var bufferSource = context.multiBufferSource();
-
-        return switch (currentBuffer) {
-            case BufferBuilder builder when isBufferInactive(builder) -> bufferSource.getBuffer(renderType);
-            case OutlineBufferSource.EntityOutlineGenerator outline when needsBufferRefresh(outline.delegate()) ->
-                new OutlineBufferSource.EntityOutlineGenerator(bufferSource.getBuffer(renderType), outline.color());
-            case VertexMultiConsumer.Double pair when needsBufferRefresh(pair.first) || needsBufferRefresh(
-                pair.second
-            ) ->
-                new VertexMultiConsumer.Double(
-                    needsBufferRefresh(pair.first) ? bufferSource.getBuffer(renderType) : pair.first,
-                    needsBufferRefresh(pair.second) ? bufferSource.getBuffer(renderType) : pair.second
-                );
-            default -> currentBuffer;
-        };
-    }
-
-    /**
-     * Retrieves the appropriate {@link VertexConsumer} for rendering, or refreshes the render buffer if needed.
-     * Depending on the rendering context and state of the current buffer, this method determines whether to reuse the
-     * existing buffer or acquire a new one.
-     *
-     * @param isReRender Indicates whether this is a re-render operation. If true, the current buffer is reused.
-     * @param context    The rendering context containing relevant information like the current buffer, buffer source,
-     *                   and render type.
-     * @return The {@link VertexConsumer} that should be used for rendering, potentially refreshed based on the buffer's
-     *         state and the given render context.
-     */
-    public VertexConsumer getOrRefreshRenderBuffer(
-        boolean isReRender,
-        AzRendererPipelineContext<K, T> context,
-        AzBone bone
-    ) {
-        var config = rendererPipeline.config();
-        var currentBuffer = context.vertexConsumer();
-        var bufferSource = context.multiBufferSource();
-        var renderType = context.renderType();
-        var animatable = context.animatable();
-
-        var texture = config.boneTextureOverrideProvider(animatable, bone);
-
-        if (texture != null) {
-            context.setTextureOverride(texture);
-        }
-
-        var renderTypeOverride = config.boneRenderTypeOverrideProvider(animatable, bone);
-
-        if (texture != null && renderTypeOverride == null) {
-            renderTypeOverride = context.getDefaultRenderType(
-                context.animatable(),
-                texture,
-                bufferSource,
-                context.partialTick(),
-                config.getRenderType(context.currentEntity(), context.animatable()),
-                config.alpha(context.animatable())
-            );
-        }
-
-        if (renderTypeOverride != null) {
-            currentBuffer = context.multiBufferSource().getBuffer(renderTypeOverride);
-        }
-
-        if (isReRender) {
-            return currentBuffer;
-        }
-
-        return switch (currentBuffer) {
-            case BufferBuilder builder when isBufferInactive(builder) -> bufferSource.getBuffer(renderType);
-            case OutlineBufferSource.EntityOutlineGenerator outline when needsBufferRefresh(outline.delegate()) ->
-                new OutlineBufferSource.EntityOutlineGenerator(bufferSource.getBuffer(renderType), outline.color());
-            case VertexMultiConsumer.Double pair when needsBufferRefresh(pair.first) || needsBufferRefresh(
-                pair.second
-            ) ->
-                new VertexMultiConsumer.Double(
-                    needsBufferRefresh(pair.first) ? bufferSource.getBuffer(renderType) : pair.first,
-                    needsBufferRefresh(pair.second) ? bufferSource.getBuffer(renderType) : pair.second
-                );
-            default -> currentBuffer;
-        };
-    }
-
-    /**
-     * Determines whether the given {@link VertexConsumer} requires a buffer refresh. This involves checking the
-     * specific type of the {@link VertexConsumer} and applying appropriate logic to evaluate its state.
-     *
-     * @param buffer The {@link VertexConsumer} instance to evaluate.
-     * @return {@code true} if the buffer needs to be refreshed; {@code false} otherwise.
-     */
-    protected boolean needsBufferRefresh(VertexConsumer buffer) {
-        return switch (buffer) {
-            case BufferBuilder builder -> isBufferInactive(builder);
-            case OutlineBufferSource.EntityOutlineGenerator outline -> needsBufferRefresh(outline.delegate());
-            case VertexMultiConsumer.Double pair ->
-                needsBufferRefresh(pair.first) || needsBufferRefresh(pair.second);
-            default -> false;
-        };
-    }
-
-    /**
-     * Determines if the given {@link BufferBuilder} is inactive. A buffer is considered inactive if it is not currently
-     * in the process of building.
-     *
-     * @param builder The {@link BufferBuilder} instance to check.
-     * @return {@code true} if the buffer is inactive (not building); {@code false} otherwise.
-     */
-    protected boolean isBufferInactive(BufferBuilder builder) {
-        return !builder.building;
     }
 
     public void cacheTexture(AzRendererPipelineContext<K, T> context) {

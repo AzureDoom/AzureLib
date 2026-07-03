@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,7 @@ import mod.azure.azurelib.render.lod.AzLodConfig;
  *
  * @param <T> the entity type this configuration applies to, extending {@link Entity}
  */
+@SuppressWarnings("unused")
 public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<UUID, T> {
 
     private final Function<T, Float> deathMaxRotationProvider;
@@ -117,7 +119,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 layer
             );
             this.pipelineContextFunction = AzEntityRendererPipelineContext::new;
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderTypes.entityCutout(textureLocationProvider.apply(b));
             this.deathMaxRotationProvider = $ -> 90F;
             this.shadowRadius = $ -> 0.0F;
         }

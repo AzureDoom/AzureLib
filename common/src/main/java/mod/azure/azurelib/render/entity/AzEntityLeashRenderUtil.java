@@ -20,11 +20,6 @@ import org.joml.Matrix4f;
  */
 public class AzEntityLeashRenderUtil {
 
-    /**
-     * Static rendering code for rendering a leash segment.<br>
-     * It's a like-for-like from {@link net.minecraft.client.renderer.entity.MobRenderer#renderLeash} that had to be
-     * duplicated here for flexible usage
-     */
     public static <T extends Entity, E extends Entity, M extends Mob> void renderLeash(
         AzEntityRenderer<T> azEntityRenderer,
         M mob,

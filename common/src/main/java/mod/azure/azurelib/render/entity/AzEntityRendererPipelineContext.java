@@ -1,13 +1,12 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -32,7 +31,6 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
     public RenderType getDefaultRenderType(
         T animatable,
         Identifier texture,
-        @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
@@ -45,26 +43,26 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         // Handle entity damage/death state
         if (visibleBody && !glowing && hurtOrDead) {
             if (
-                defaultRenderType == RenderType.entityTranslucentCull(texture) || defaultRenderType == RenderType
+                defaultRenderType == RenderTypes.entityTranslucent(texture) || defaultRenderType == RenderTypes
                     .entityTranslucent(texture)
             ) {
-                return RenderType.entityCutoutNoCull(texture);
+                return RenderTypes.entityCutout(texture);
             }
             return defaultRenderType;
         }
 
         // Handle transparency
         if (visibleBody && alpha < 1.0F) {
-            return RenderType.entityTranslucent(texture);
+            return RenderTypes.entityTranslucent(texture);
         }
 
         // --- Vanilla-style fallback ---
         if (translucent) {
-            return RenderType.entityTranslucent(texture);
+            return RenderTypes.entityTranslucent(texture);
         } else if (visibleBody) {
             return defaultRenderType;
         } else if (glowing) {
-            return RenderType.outline(texture);
+            return RenderTypes.outline(texture);
         } else {
             return null;
         }

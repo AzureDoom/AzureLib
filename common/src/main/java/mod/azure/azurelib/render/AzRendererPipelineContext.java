@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
@@ -37,7 +38,7 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     private AzBakedModel bakedModel;
 
-    private MultiBufferSource multiBufferSource;
+    private SubmitNodeCollector submitNodeCollector;
 
     private int packedLight;
 
@@ -67,20 +68,20 @@ public abstract class AzRendererPipelineContext<K, T> {
      * This method initializes the rendering pipeline with data such as the model, buffer source, lighting, and other
      * associated properties for rendering the specified animatable object.
      *
-     * @param animatable        The animatable object that is being rendered.
-     * @param bakedModel        The pre-baked 3D model associated with the animatable object.
-     * @param multiBufferSource The multibuffer source used for rendering vertex data.
-     * @param packedLight       The packed light value for controlling light effects during rendering.
-     * @param partialTick       The partial tick value for interpolating animations or movements.
-     * @param poseStack         The pose stack used to manage rendering transformations.
-     * @param renderType        The render type that determines how the object will be rendered, e.g., opaque,
-     *                          translucent, etc.
-     * @param vertexConsumer    The vertex consumer used for buffering vertex attributes during rendering.
+     * @param animatable          The animatable object that is being rendered.
+     * @param bakedModel          The pre-baked 3D model associated with the animatable object.
+     * @param submitNodeCollector The multibuffer source used for rendering vertex data.
+     * @param packedLight         The packed light value for controlling light effects during rendering.
+     * @param partialTick         The partial tick value for interpolating animations or movements.
+     * @param poseStack           The pose stack used to manage rendering transformations.
+     * @param renderType          The render type that determines how the object will be rendered, e.g., opaque,
+     *                            translucent, etc.
+     * @param vertexConsumer      The vertex consumer used for buffering vertex attributes during rendering.
      */
     public void populate(
         T animatable,
         AzBakedModel bakedModel,
-        MultiBufferSource multiBufferSource,
+        SubmitNodeCollector submitNodeCollector,
         int packedLight,
         float partialTick,
         PoseStack poseStack,
@@ -89,7 +90,7 @@ public abstract class AzRendererPipelineContext<K, T> {
     ) {
         this.animatable = animatable;
         this.bakedModel = bakedModel;
-        this.multiBufferSource = multiBufferSource;
+        this.submitNodeCollector = submitNodeCollector;
         this.packedLight = packedLight;
         this.packedOverlay = getPackedOverlay(animatable, 0, partialTick);
         this.partialTick = partialTick;
@@ -104,7 +105,6 @@ public abstract class AzRendererPipelineContext<K, T> {
             this.renderType = getDefaultRenderType(
                 animatable,
                 texture,
-                multiBufferSource,
                 partialTick,
                 cfg.getRenderType(currentEntity, animatable),
                 cfg.alpha(animatable)
@@ -112,21 +112,11 @@ public abstract class AzRendererPipelineContext<K, T> {
         } else {
             this.renderType = renderType;
         }
-
-        if (this.vertexConsumer == null && this.renderType != null) {
-            this.vertexConsumer = multiBufferSource.getBuffer(this.renderType);
-        }
     }
 
-    /**
-     * Gets the {@link RenderType} to render the given animatable with.<br>
-     * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
-     * Override this to change the way a model will render (such as translucent models, etc.)
-     */
     public abstract RenderType getDefaultRenderType(
         T animatable,
         Identifier texture,
-        @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
@@ -181,8 +171,8 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.applyAnimationOnReRender = applyAnimationOnReRender;
     }
 
-    public MultiBufferSource multiBufferSource() {
-        return multiBufferSource;
+    public SubmitNodeCollector submitNodeCollector() {
+        return submitNodeCollector;
     }
 
     public int packedLight() {

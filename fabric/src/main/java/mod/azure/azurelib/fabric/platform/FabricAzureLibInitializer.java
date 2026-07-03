@@ -29,12 +29,12 @@ public class FabricAzureLibInitializer implements AzureLibInitializer {
                     Executor reloadExecutor
                 ) {
                     return AzureLibCache.reload(
-                            synchronizer,
-                            manager,
-                            prepareProfiler,
-                            applyProfiler,
-                            prepareExecutor,
-                            applyExecutor
+                        synchronizer,
+                        manager,
+                        prepareProfiler,
+                        applyProfiler,
+                        prepareExecutor,
+                        applyExecutor
                     );
                 }
 

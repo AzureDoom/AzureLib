@@ -2,7 +2,7 @@ package mod.azure.azurelib.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,7 +87,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         PoseStack poseStack,
         AzBakedModel model,
         T animatable,
-        MultiBufferSource bufferSource,
+        SubmitNodeCollector submitNodeCollector,
         @Nullable RenderType renderType,
         @Nullable VertexConsumer buffer,
         float yaw,
@@ -97,7 +97,6 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         renderType = context.getDefaultRenderType(
             animatable,
             config.textureLocation(context.currentEntity, animatable),
-            bufferSource,
             partialTick,
             config.getRenderType(context.currentEntity, animatable),
             config.alpha(animatable)
@@ -105,7 +104,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         context.populate(
             animatable,
             model,
-            bufferSource,
+            submitNodeCollector,
             packedLight,
             partialTick,
             poseStack,
@@ -119,7 +118,21 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
 
         layerRenderer.preApplyRenderLayers(context);
         modelRenderer.cacheTexture(context);
-        modelRenderer.render(context, false);
+        var finalRenderType = context.renderType();
+
+        if (finalRenderType != null) {
+            submitNodeCollector.submitCustomGeometry(poseStack, finalRenderType, (pose, vertexConsumer) -> {
+                poseStack.pushPose();
+                poseStack.last().set(pose);
+
+                context.setVertexConsumer(vertexConsumer);
+                modelRenderer.render(context, false);
+                context.setVertexConsumer(null);
+
+                poseStack.popPose();
+            });
+        }
+
         modelRenderer.clearCacheTexture();
         layerRenderer.applyRenderLayers(context);
         postRender(context, false);

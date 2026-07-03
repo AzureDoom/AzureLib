@@ -23,6 +23,7 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
  *
  * @param <T> The type of entity this renderer pipeline handles. Extends from the base {@link Entity}.
  */
+@SuppressWarnings("unused")
 public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeline<UUID, T> {
 
     private final AzEntityRenderer<T> entityRenderer;

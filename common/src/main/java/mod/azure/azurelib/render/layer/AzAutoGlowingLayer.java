@@ -2,6 +2,7 @@ package mod.azure.azurelib.render.layer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.entity.Entity;
 
 import mod.azure.azurelib.cache.texture.AzAbstractTexture;
@@ -76,10 +77,10 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
         if (isInvisible) {
             if (!isPlayerInvisible) {
-                return RenderType.itemEntityTranslucentCull(AzAbstractTexture.getEmissiveResource(textureLocation));
+                return RenderTypes.entityTranslucentCullItemTarget(AzAbstractTexture.getEmissiveResource(textureLocation));
             }
             if (appearsGlowing) {
-                return RenderType.outline(AzAbstractTexture.getEmissiveResource(textureLocation));
+                return RenderTypes.outline(AzAbstractTexture.getEmissiveResource(textureLocation));
             }
             return null;
         }

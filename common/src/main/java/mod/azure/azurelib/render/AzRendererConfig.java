@@ -2,6 +2,7 @@ package mod.azure.azurelib.render;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,7 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
  *            for BlockEntities.
  * @param <T> The type of animatable object this configuration applies to.
  */
+@SuppressWarnings("unused")
 public class AzRendererConfig<K, T> {
 
     private final Supplier<@Nullable AzAnimator<K, T>> animatorProvider;
@@ -214,7 +216,9 @@ public class AzRendererConfig<K, T> {
             this.modelLocationProvider = modelLocationProvider;
             this.modelRendererProvider = AzModelRenderer::new;
             this.pipelineContextFunction = null;
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutout(textureLocationProvider.apply(a, b));
+            this.renderTypeProvider = (entity, animatable) -> RenderTypes.entityCutout(
+                textureLocationProvider.apply(entity, animatable)
+            );
             this.renderLayers = new ObjectArrayList<>();
             this.preRenderEntry = $ -> $;
             this.renderEntry = $ -> $;

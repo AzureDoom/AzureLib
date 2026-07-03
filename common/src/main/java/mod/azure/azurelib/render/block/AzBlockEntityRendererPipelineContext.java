@@ -1,10 +1,8 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -26,7 +24,6 @@ public class AzBlockEntityRendererPipelineContext<T extends BlockEntity> extends
     public RenderType getDefaultRenderType(
         T animatable,
         Identifier texture,
-        @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha

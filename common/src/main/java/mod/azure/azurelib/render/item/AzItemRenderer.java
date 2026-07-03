@@ -86,7 +86,6 @@ public abstract class AzItemRenderer {
             .getDefaultRenderType(
                 stack,
                 textureLocation,
-                source,
                 partialTick,
                 config.getRenderType(context.currentEntity(), stack),
                 config.alpha(stack)

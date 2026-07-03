@@ -135,8 +135,6 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
-
         if (
             !boneRenderOverride(
                 poseStack,
@@ -246,7 +244,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 );
                 poseStack.mulPose(Axis.ZP.rotationDegrees(deathMaxRotation));
                 poseStack.mulPose(Axis.YP.rotationDegrees(270f));
-            } else if (LivingEntityRenderer.isEntityUpsideDown(livingEntity)) {
+            } else if (LivingEntityRenderer.isUpsideDownName(livingEntity.getName().getString())) {
                 poseStack.translate(0, (animatable.getBbHeight() + 0.1f) / nativeScale, 0);
                 poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
             }

@@ -1,8 +1,5 @@
 package mod.azure.azurelib.render.layer;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
@@ -52,9 +49,6 @@ public interface AzRenderLayer<K, T> {
      * matrix transformations already applied.<br>
      * <p>
      * The {@link AzBone} in question has already been rendered by this stage.<br>
-     * <p>
-     * <b>Important:</b> If you modify the {@link VertexConsumer buffer}, reset it to the previous one via
-     * {@link MultiBufferSource#getBuffer} before returning.
      *
      * @param context The active renderer context containing pipeline state, the animatable instance, and the associated
      *                key {@code K}.

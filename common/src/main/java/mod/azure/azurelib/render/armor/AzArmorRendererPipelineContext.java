@@ -1,8 +1,8 @@
 package mod.azure.azurelib.render.armor;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
@@ -43,13 +43,12 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
     public RenderType getDefaultRenderType(
         ItemStack animatable,
         Identifier texture,
-        @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
     ) {
         return translucent
-            ? RenderType.itemEntityTranslucentCull(texture)
+            ? RenderTypes.entityTranslucentCullItemTarget(texture)
             : defaultRenderType;
     }
 

@@ -2,10 +2,9 @@ package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +17,7 @@ import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
+import org.jspecify.annotations.NonNull;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base
@@ -119,24 +119,23 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     }
 
     @Override
-    protected float getShadowRadius(@NotNull T entity) {
-        return config.shadowRadius(entity);
+    protected float getShadowRadius(@NonNull EntityRenderState state) {
+        return config.shadowRadius(state);
     }
 
     /**
      * Whether the entity's nametag should be rendered or not.<br>
-     * Pretty much exclusively used in {@link EntityRenderer#renderNameTag}
      */
     @Override
-    public boolean shouldShowName(@NotNull T entity) {
+    protected boolean shouldShowName(@NonNull Entity entity, double distanceToCameraSq) {
         return AzEntityNameRenderUtil.shouldShowName(entityRenderDispatcher, entity);
     }
 
     // Proxy method override for super.getBlockLightLevel external access.
-    @Override
-    public int getBlockLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
-        return super.getBlockLightLevel(entity, pos);
-    }
+//    @Override
+//    public int getBlockLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
+//        return super.getBlockLightLevel(entity, pos);
+//    }
 
     public AzEntityAnimator<T> getAnimator() {
         return reusedAzEntityAnimator;

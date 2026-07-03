@@ -1,11 +1,10 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -52,13 +51,12 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<UUI
     public RenderType getDefaultRenderType(
         ItemStack animatable,
         Identifier texture,
-        @Nullable MultiBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
     ) {
         return translucent
-            ? RenderType.itemEntityTranslucentCull(texture)
+            ? RenderTypes.entityTranslucentCullItemTarget(texture)
             : defaultRenderType;
     }
 }
