@@ -271,12 +271,19 @@ public class MolangParser extends MathBuilder {
      */
     @Override
     public LazyVariable getVariable(String name) {
+        if (name.startsWith("q.")) {
+            name = "query." + name.substring(2);
+        }
         return VARIABLES.computeIfAbsent(name, key -> new LazyVariable(key, 0));
     }
 
     public LazyVariable getVariable(String name, MolangCompoundValue currentStatement) {
         LazyVariable variable;
 
+        if (name.startsWith("q.")) {
+            name = "query." + name.substring(2);
+        }
+        
         if (currentStatement != null) {
             variable = currentStatement.locals.get(name);
 
