@@ -253,13 +253,39 @@ public class AzEasingUtil {
         };
     }
 
+    /**
+     * Resolves the effective easing type for an animation point, honoring a controller-wide {@code override} where it
+     * is meaningful and falling back to the keyframe's own authored easing where it is not.
+     * <p>
+     * The nuance is data-driven easings. Stateless easings (linear, sine, quad, cubic, ...) are pure functions of the
+     * lerp fraction and are safe to force globally, so an override of that kind always wins. Data-driven easings
+     * (bezier, catmull-rom) instead read the keyframe's
+     * {@link mod.azure.azurelib.animation.controller.keyframe.AzKeyframe#easingArgs()} as type-specific data — bezier
+     * handle (value, time) pairs, catmull-rom neighbor control points. Forcing such a type as an override onto a
+     * keyframe authored with a <i>different</i> type causes it to misread that other type's args as its own, producing
+     * wildly incorrect transforms (e.g. bezier consuming catmull-rom's {@code [prev, next]} values as handles and
+     * flinging the bone off-screen).
+     * </p>
+     * <p>
+     * Therefore a data-driven override is only applied when the keyframe was authored with that exact type; otherwise
+     * we fall back to the keyframe's own easing, which both avoids the corruption and preserves the authored motion
+     * (e.g. a catmull-rom keyframe stays catmull-rom rather than degrading to linear).
+     * </p>
+     *
+     * @param animationPoint The point being interpolated.
+     * @param override       The controller-wide easing override, or {@code null} to use the keyframe's own easing.
+     * @return The interpolated value.
+     */
     public static double lerpWithOverride(AzAnimationPoint animationPoint, AzEasingType override) {
+        var keyframe = animationPoint.keyframe();
+        var authored = keyframe == null ? AzEasingTypes.LINEAR : keyframe.easingType();
+
         var easingType = override;
 
-        if (override == null) {
-            easingType = animationPoint.keyframe() == null
-                ? AzEasingTypes.LINEAR
-                : animationPoint.keyframe().easingType();
+        if (easingType == null) {
+            easingType = authored;
+        } else if (easingType.usesKeyframeData() && easingType != authored) {
+            easingType = authored;
         }
 
         return easingType.apply(animationPoint);
