@@ -283,7 +283,7 @@ public class MolangParser extends MathBuilder {
         if (name.startsWith("q.")) {
             name = "query." + name.substring(2);
         }
-        
+
         if (currentStatement != null) {
             variable = currentStatement.locals.get(name);
 
