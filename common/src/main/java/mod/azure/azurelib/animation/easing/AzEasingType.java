@@ -41,4 +41,13 @@ public interface AzEasingType {
             buildTransformer(easingValue).apply(lerpValue)
         );
     }
+
+    /**
+     * Whether this easing interprets the keyframe's {@code easingArgs} as type-specific data (bezier handles,
+     * catmull-rom neighbors). Such types are only valid on a keyframe authored with that exact type and must not be
+     * force-applied as a controller-wide override.
+     */
+    default boolean usesKeyframeData() {
+        return false;
+    }
 }
