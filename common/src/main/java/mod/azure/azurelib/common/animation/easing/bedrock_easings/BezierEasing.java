@@ -54,8 +54,15 @@ public abstract class BezierEasing implements AzEasingType {
      */
     @Override
     public double apply(AzAnimationPoint animationPoint, Double easingValue, double lerpValue) {
-        List<? extends IValue> easingArgs = animationPoint.keyframe().easingArgs();
-        if (easingArgs.isEmpty()) {
+        var keyframe = animationPoint.keyframe();
+
+        if (keyframe == null) {
+            return handleNoEasingArgs(animationPoint, easingValue, lerpValue);
+        }
+
+        List<? extends IValue> easingArgs = keyframe.easingArgs();
+
+        if (easingArgs.size() < 2) {
             return handleNoEasingArgs(animationPoint, easingValue, lerpValue);
         }
 
@@ -89,6 +96,11 @@ public abstract class BezierEasing implements AzEasingType {
         double time = normalizedTransitionDuration * lerpValue;
 
         return curve.evaluateAtTime(time, scratchA, scratchB);
+    }
+
+    @Override
+    public boolean usesKeyframeData() {
+        return true;
     }
 
     /**
