@@ -24,6 +24,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
     }
 
     @Override
-    public TextureContents loadContents(ResourceManager manager) throws IOException {
+    public @NonNull TextureContents loadContents(ResourceManager manager) throws IOException {
         closeAnimationContents();
 
         Resource resource = manager.getResourceOrThrow(resourceId());
@@ -103,7 +104,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
     }
 
     @Override
-    public void apply(TextureContents textureContents) {
+    public void apply(@NonNull TextureContents textureContents) {
         if (this.sourceImage == null)
             return;
 
@@ -116,7 +117,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
     }
 
     @Override
-    public void doLoad(NativeImage image) {
+    public void doLoad(@NonNull NativeImage image) {
         GpuDevice gpuDevice = RenderSystem.getDevice();
         Identifier textureId = resourceId();
 
@@ -133,7 +134,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         );
         this.textureView = gpuDevice.createTextureView(this.texture);
 
-        upload(this.texture, image, 0, 0, this.frameWidth, this.frameHeight);
+        upload(this.texture, image, this.frameWidth, this.frameHeight);
     }
 
     @Override
@@ -180,14 +181,14 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         }
     }
 
-    /// Write a region of pixel data from [image] into [target] at the given texture-space offset
-    private void upload(GpuTexture target, NativeImage image, int x, int y, int width, int height) {
+    /// Write a region of pixel data from image into target at the given texture-space offset
+    private void upload(GpuTexture target, NativeImage image, int width, int height) {
         if (target == null || target.isClosed())
             return;
 
         RenderSystem.getDevice()
             .createCommandEncoder()
-            .writeToTexture(target, image.getPixelBytes(), 0, 0, x, y, width, height);
+            .writeToTexture(target, image.getPixelBytes(), 0, 0, 0, 0, width, height);
     }
 
     @Override
@@ -439,8 +440,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                         AnimatableTexture.this.upload(
                             AnimatableTexture.this.texture,
                             this.frameBuffer,
-                            0,
-                            0,
                             AnimatableTexture.this.frameWidth,
                             AnimatableTexture.this.frameHeight
                         );
@@ -450,8 +449,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                             AnimatableTexture.this.upload(
                                 glowMaskGpuTexture(),
                                 this.glowmaskFrameBuffer,
-                                0,
-                                0,
                                 AnimatableTexture.this.frameWidth,
                                 AnimatableTexture.this.frameHeight
                             );
@@ -513,8 +510,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                     AnimatableTexture.this.upload(
                         target,
                         interpolatedFrame,
-                        0,
-                        0,
                         AnimatableTexture.this.frameWidth,
                         AnimatableTexture.this.frameHeight
                     );
