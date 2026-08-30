@@ -102,7 +102,7 @@ public abstract class BezierEasing implements AzEasingType {
     public boolean usesKeyframeData() {
         return true;
     }
-    
+
     /**
      * Determines whether the easing process should occur before a specified condition or point in the animation
      * sequence. This method is abstract and must be implemented by subclasses to define the specific behavior of the

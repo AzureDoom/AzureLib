@@ -262,10 +262,10 @@ public class AzEasingUtil {
      * lerp fraction and are safe to force globally, so an override of that kind always wins. Data-driven easings
      * (bezier, catmull-rom) instead read the keyframe's
      * {@link mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe#easingArgs()} as type-specific data —
-     * bezier handle (value, time) pairs, catmull-rom neighbor control points. Forcing such a type as an override onto
-     * a keyframe authored with a <i>different</i> type causes it to misread that other type's args as its own,
-     * producing wildly incorrect transforms (e.g. bezier consuming catmull-rom's {@code [prev, next]} values as handles
-     * and flinging the bone off-screen).
+     * bezier handle (value, time) pairs, catmull-rom neighbor control points. Forcing such a type as an override onto a
+     * keyframe authored with a <i>different</i> type causes it to misread that other type's args as its own, producing
+     * wildly incorrect transforms (e.g. bezier consuming catmull-rom's {@code [prev, next]} values as handles and
+     * flinging the bone off-screen).
      * </p>
      * <p>
      * Therefore a data-driven override is only applied when the keyframe was authored with that exact type; otherwise

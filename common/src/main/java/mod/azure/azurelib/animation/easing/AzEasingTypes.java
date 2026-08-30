@@ -246,9 +246,9 @@ public class AzEasingTypes {
 
                 if (easingArgs.size() < 2) {
                     return Interpolations.lerp(
-                            animationPoint.animationStartValue(),
-                            animationPoint.animationEndValue(),
-                            buildTransformer(easingValue).apply(lerpValue)
+                        animationPoint.animationStartValue(),
+                        animationPoint.animationEndValue(),
+                        buildTransformer(easingValue).apply(lerpValue)
                     );
                 }
 
