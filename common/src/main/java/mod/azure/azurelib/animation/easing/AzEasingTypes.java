@@ -232,14 +232,25 @@ public class AzEasingTypes {
                     return animationPoint.animationEndValue();
                 }
 
-                var easingArgs = animationPoint.keyframe().easingArgs();
+                var keyframe = animationPoint.keyframe();
 
-                if (easingArgs.size() < 2)
+                if (keyframe == null) {
                     return Interpolations.lerp(
                         animationPoint.animationStartValue(),
                         animationPoint.animationEndValue(),
                         buildTransformer(easingValue).apply(lerpValue)
                     );
+                }
+
+                var easingArgs = keyframe.easingArgs();
+
+                if (easingArgs.size() < 2) {
+                    return Interpolations.lerp(
+                            animationPoint.animationStartValue(),
+                            animationPoint.animationEndValue(),
+                            buildTransformer(easingValue).apply(lerpValue)
+                    );
+                }
 
                 return AzEasingUtil.catmullRom(
                     lerpValue,
@@ -248,6 +259,11 @@ public class AzEasingTypes {
                     animationPoint.animationEndValue(),
                     easingArgs.get(1).get()
                 );
+            }
+
+            @Override
+            public boolean usesKeyframeData() {
+                return true;
             }
         }
 
