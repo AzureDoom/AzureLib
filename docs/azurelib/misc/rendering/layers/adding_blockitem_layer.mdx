@@ -30,7 +30,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
-                        .addRenderLayer(new AzBlockAndItemLayer<ExampleEntity>() {
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
                             // Override methods here
                         })
                         .build(),
@@ -91,21 +91,6 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    }
    ```
 
-4. **`renderBlockForBone`**:
-   - Similar to `renderItemForBone`, but handles `BlockState` rendering instead of items.
-   - Adjustments are made to ensure the block fits naturally within the bone space:
-     - A default scaling factor of `0.5f` reduces the block to an appropriate size.
-
-   ```java
-   @Override
-   protected void renderBlockForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, BlockState blockState, ExampleEntity animatable) {
-       context.poseStack().pushPose();
-       context.poseStack().translate(-0.25f, -0.25f, -0.25f);
-       context.poseStack().scale(0.5f, 0.5f, 0.5f);
-       super.renderBlockForBone(context, bone, blockState, animatable);
-   }
-   ```
-
 ### Example Use Case
 
 **Scenario**: Say you have an entity model where the right hand holds a sword, and the left hand holds a shield.
@@ -128,7 +113,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
-                        .addRenderLayer(new AzBlockAndItemLayer<ExampleEntity>() {
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
 
                             @Override
                             public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {
@@ -168,7 +153,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
    - Ensure the bone name in your `itemStackForBone/blockStateForBone` logic matches the name declared in the model file.
 
 2. **Incorrect Positioning**:
-   - Use the `renderItemForBone` or `renderBlockForBone` methods to fine-tune the rotation, translation, and scaling.
+   - Use the `renderItemForBone` methods to fine-tune the rotation, translation, and scaling.
 
 3. **Performance Issues**:
    - Verify that your item stack/block state providers aren’t performing excessive calculations. Cache results when possible.
