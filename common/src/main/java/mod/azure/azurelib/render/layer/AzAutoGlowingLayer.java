@@ -3,6 +3,7 @@ package mod.azure.azurelib.render.layer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.entity.Entity;
 
 import mod.azure.azurelib.cache.texture.AzAbstractTexture;
@@ -26,7 +27,6 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
         var prevRenderType = context.renderType();
         var prevVertexConsumer = context.vertexConsumer();
-        var prevPackedLight = context.packedLight();
 
         if (renderType != null) {
             context.setRenderType(renderType);
@@ -38,7 +38,6 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
         context.setRenderType(prevRenderType);
         context.setVertexConsumer(prevVertexConsumer);
-        context.setPackedLight(prevPackedLight);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
      * @return The packed light value, typically used to determine the lighting conditions in rendering.
      */
     protected int getPackedLight(AzRendererPipelineContext<K, T> context) {
-        return LightTexture.FULL_SKY;
+        return LightCoordsUtil.FULL_SKY;
     }
 
     /**
@@ -77,7 +76,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
         if (isInvisible) {
             if (!isPlayerInvisible) {
-                return RenderTypes.entityTranslucentCullItemTarget(AzAbstractTexture.getEmissiveResource(textureLocation));
+                return RenderTypes.entityTranslucent(AzAbstractTexture.getEmissiveResource(textureLocation));
             }
             if (appearsGlowing) {
                 return RenderTypes.outline(AzAbstractTexture.getEmissiveResource(textureLocation));

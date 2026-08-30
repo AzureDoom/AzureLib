@@ -1,7 +1,8 @@
 package mod.azure.azurelib.render.layer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,23 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * A {@link AzRenderLayer} responsible for rendering {@link net.minecraft.world.level.block.state.BlockState
  * BlockStates} or {@link net.minecraft.world.item.ItemStack ItemStacks} onto a specified {@link AzRendererPipeline}.
  * This layer handles the rendering of physical elements, such as blocks and items, associated with animation bones.
+ * <p>
+ * 26.2 removed the old immediate-mode {@code ItemRenderer#renderStatic}/{@code BlockRenderer#renderSingleBlock} entry
+ * points in favour of resolver + render-state + submit: an {@code ItemModelResolver} populates an
+ * {@code ItemStackRenderState}, which is then handed a {@code SubmitNodeCollector} later. Since this layer runs eagerly
+ * (mid bone-tree walk) rather than at an actual submit callback, the submission itself is deferred via
+ * {@link mod.azure.azurelib.render.AzBufferSource#defer} until the surrounding pipeline's own {@code AzBufferSource} is
+ * replayed.
+ * <p>
+ * {@link BlockState} bones are rendered by wrapping the block in an {@link net.minecraft.world.item.ItemStack} and
+ * reusing the same item pipeline, rather than resolving a {@code BlockModelRenderState} directly. Unlike
+ * {@code ItemModelResolver}, {@code BlockModelResolver} is only ever handed to renderers at construction time (via
+ * {@code EntityRendererProvider.Context}/{@code BlockEntityRendererProvider.Context}) — {@link Minecraft} keeps it as a
+ * constructor-local value with no field or getter, so it can't be reached generically from here the way
+ * {@link Minecraft#getItemModelResolver()} can. This means directional/multipart/other blockstate-dependent visuals
+ * won't be reflected (block items render whatever variant their item model resolves to, not the exact BlockState passed
+ * in) — acceptable for simple decorative blocks, but if you need exact per-BlockState fidelity you'll need to thread a
+ * real BlockModelResolver through your renderer's construction instead.
  */
 public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
 
@@ -72,7 +90,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
             renderItemForBone(context, bone, stack, animatable);
 
         if (blockState != null)
-            renderBlockForBone(context, bone, blockState, animatable);
+            renderItemForBone(context, bone, new ItemStack(blockState.getBlock()), animatable);
 
         context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
 
@@ -127,67 +145,38 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         ItemStack itemStack,
         T animatable
     ) {
+        var minecraft = Minecraft.getInstance();
+        var resolver = minecraft.getItemModelResolver();
+        var displayContext = getTransformTypeForStack(bone, itemStack, animatable);
+        var renderState = new ItemStackRenderState();
+
         if (context.animatable() instanceof LivingEntity livingEntity) {
-            Minecraft.getInstance()
-                .getItemRenderer()
-                .renderStatic(
-                    livingEntity,
-                    itemStack,
-                    getTransformTypeForStack(bone, itemStack, animatable),
-                    false,
-                    context.poseStack(),
-                    context.multiBufferSource(),
-                    livingEntity.level(),
-                    context.packedLight(),
-                    context.packedOverlay(),
-                    livingEntity.getId()
-                );
+            resolver.updateForLiving(renderState, itemStack, displayContext, livingEntity);
+        } else if (context.currentEntity() != null) {
+            resolver.updateForNonLiving(renderState, itemStack, displayContext, context.currentEntity());
+        } else if (minecraft.level != null) {
+            var owner = animatable instanceof ItemOwner itemOwner ? itemOwner : null;
+            var seed = animatable != null ? animatable.hashCode() : 0;
+
+            resolver.updateForTopItem(renderState, itemStack, displayContext, minecraft.level, owner, seed);
         } else {
-            Minecraft.getInstance()
-                .getItemRenderer()
-                .renderStatic(
-                    itemStack,
-                    getTransformTypeForStack(bone, itemStack, animatable),
-                    context.packedLight(),
-                    context.packedOverlay(),
-                    context.poseStack(),
-                    context.multiBufferSource(),
-                    Minecraft.getInstance().level,
-                    context.animatable().hashCode()
-                );
+            return;
         }
-    }
 
-    /**
-     * Renders the given {@link BlockState} for the specified bone in the rendering context. The block is rendered with
-     * adjusted position and scale to fit within the bone's space.
-     *
-     * @param context    the rendering pipeline context
-     * @param bone       the bone where the {@link BlockState} will be rendered
-     * @param blockState the {@link BlockState} to render
-     */
-    protected void renderBlockForBone(
-        AzRendererPipelineContext<K, T> context,
-        AzBone bone,
-        BlockState blockState,
-        T animatable
-    ) {
-        context.poseStack().pushPose();
+        if (renderState.isEmpty()) {
+            return;
+        }
 
-        context.poseStack().translate(-0.25f, -0.25f, -0.25f);
-        context.poseStack().scale(0.5f, 0.5f, 0.5f);
+        var packedLight = context.packedLight();
+        var packedOverlay = context.packedOverlay();
+        var outlineColor = 0;
 
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .renderSingleBlock(
-                blockState,
+        context.multiBufferSource()
+            .defer(
                 context.poseStack(),
-                context.multiBufferSource(),
-                context.packedLight(),
-                OverlayTexture.NO_OVERLAY
+                (poseStack, collector) -> renderState
+                    .submit(poseStack, collector, packedLight, packedOverlay, outlineColor)
             );
-
-        context.poseStack().popPose();
     }
 
 }

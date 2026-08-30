@@ -9,4 +9,8 @@ public class AzureLibException extends RuntimeException {
     public AzureLibException(String message) {
         super(message);
     }
+
+    public AzureLibException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

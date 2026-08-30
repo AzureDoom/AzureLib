@@ -4,8 +4,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzQuad;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
@@ -42,19 +42,19 @@ public abstract class AzBakedModelFactory {
     );
 
     /**
-     * Construct a {@link GeoCube} from the relevant raw input data
+     * Construct a {@link AzCube} from the relevant raw input data
      *
      * @param cube       The raw {@code Cube} comprising the structure and properties of the cube
      * @param properties The loaded properties for the model
      * @param bone       The bone this cube belongs to
      */
-    public abstract GeoCube constructCube(Cube cube, ModelProperties properties, AzBone bone);
+    public abstract AzCube constructCube(Cube cube, ModelProperties properties, AzBone bone);
 
     /**
      * Builtin method to construct the quad list from the various vertices and related data, to make it easier.<br>
      * Vertices have already been mirrored here if {@code mirror} is true
      */
-    public GeoQuad[] buildQuads(
+    public AzQuad[] buildQuads(
         UVUnion uvUnion,
         VertexSet vertices,
         Cube cube,
@@ -62,7 +62,7 @@ public abstract class AzBakedModelFactory {
         float textureHeight,
         boolean mirror
     ) {
-        GeoQuad[] quads = new GeoQuad[6];
+        AzQuad[] quads = new AzQuad[6];
 
         quads[0] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.WEST);
         quads[1] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.EAST);
@@ -77,7 +77,7 @@ public abstract class AzBakedModelFactory {
     /**
      * Build an individual quad
      */
-    public GeoQuad buildQuad(
+    public AzQuad buildQuad(
         VertexSet vertices,
         Cube cube,
         UVUnion uvUnion,
@@ -92,7 +92,7 @@ public abstract class AzBakedModelFactory {
             if (faceUV == null)
                 return null;
 
-            return GeoQuad.build(
+            return AzQuad.build(
                 vertices.verticesForQuad(direction, false, mirror || cube.mirror() == Boolean.TRUE),
                 faceUV.uv(),
                 faceUV.uvSize(),
@@ -134,7 +134,7 @@ public abstract class AzBakedModelFactory {
             };
         };
 
-        return GeoQuad.build(
+        return AzQuad.build(
             vertices.verticesForQuad(direction, true, mirror || cube.mirror() == Boolean.TRUE),
             uvData[0],
             uvData[1],

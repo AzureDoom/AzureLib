@@ -2,8 +2,6 @@ package mod.azure.azurelib.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +12,7 @@ import java.util.UUID;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
 
 /**
@@ -57,7 +56,7 @@ public abstract class AzItemRenderer {
         ItemStack stack,
         ItemDisplayContext transformType,
         @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource source,
+        @NotNull AzBufferSource source,
         int packedLight
     ) {
         var context = rendererPipeline.context();
@@ -75,31 +74,83 @@ public abstract class AzItemRenderer {
         ItemStack stack,
         ItemDisplayContext transformType,
         @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource source,
+        @NotNull AzBufferSource source,
         int packedLight
     ) {
         var context = rendererPipeline.context();
         var model = provider.provideBakedModel(context.currentEntity(), stack);
-        var partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         var textureLocation = config.textureLocation(context.currentEntity(), stack);
         var renderType = rendererPipeline.context()
             .getDefaultRenderType(
                 stack,
                 textureLocation,
+                source,
                 partialTick,
                 config.getRenderType(context.currentEntity(), stack),
                 config.alpha(stack)
             );
-        // TODO: Why the null check here?
-        var withGlint = stack != null && stack.hasFoil();
-        var buffer = ItemRenderer.getFoilBufferDirect(source, renderType, false, withGlint);
         var itemContext = (AzItemRendererPipelineContext) context;
 
         itemContext.setTransformType(transformType);
 
         prepareAnimator(stack, model);
 
-        rendererPipeline.render(poseStack, model, stack, source, renderType, buffer, 0, partialTick, packedLight);
+        rendererPipeline.render(poseStack, model, stack, source, renderType, null, 0, partialTick, packedLight);
+    }
+
+    public void renderSpecial(
+        ItemStack stack,
+        PoseStack poseStack,
+        AzBufferSource source,
+        int packedLight,
+        int packedOverlay
+    ) {
+        var context = rendererPipeline.context();
+        var itemContext =
+            (AzItemRendererPipelineContext) context;
+
+        itemContext.setTransformType(null);
+
+        var model = provider.provideBakedModel(
+            context.currentEntity(),
+            stack
+        );
+
+        var partialTick = Minecraft.getInstance()
+            .getDeltaTracker()
+            .getGameTimeDeltaTicks();
+
+        var textureLocation = config.textureLocation(
+            context.currentEntity(),
+            stack
+        );
+
+        var renderType = context.getDefaultRenderType(
+            stack,
+            textureLocation,
+            source,
+            partialTick,
+            config.getRenderType(
+                context.currentEntity(),
+                stack
+            ),
+            config.alpha(stack)
+        );
+
+        prepareAnimator(stack, model);
+
+        rendererPipeline.render(
+            poseStack,
+            model,
+            stack,
+            source,
+            renderType,
+            null,
+            packedOverlay,
+            partialTick,
+            packedLight
+        );
     }
 
     private void prepareAnimator(ItemStack stack, AzBakedModel model) {

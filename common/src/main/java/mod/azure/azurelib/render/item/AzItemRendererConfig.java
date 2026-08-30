@@ -1,5 +1,7 @@
 package mod.azure.azurelib.render.item;
 
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -111,7 +113,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             Function<ItemStack, Identifier> textureLocationProvider
         ) {
             super((a, b) -> modelLocationProvider.apply(b), (a, b) -> textureLocationProvider.apply(b));
-            this.renderTypeProvider = (a, b) -> RenderType.entityCutoutNoCull(textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderTypes.entityCutout(textureLocationProvider.apply(b));
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;

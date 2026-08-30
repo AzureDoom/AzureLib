@@ -38,7 +38,7 @@ Below is a working example of a custom animator for an animated item using the `
 
 ```java
 java public class YourItemAnimator extends AzItemAnimator {
-    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+    private static final Identifier ANIMATIONS = CommonMod.modResource(
         "animations/item/youritem.animation.json"
     );
 
@@ -55,7 +55,7 @@ java public class YourItemAnimator extends AzItemAnimator {
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+    public @NotNull Identifier getAnimationLocation(ItemStack animatable) {
         return ANIMATIONS;
     }
 }

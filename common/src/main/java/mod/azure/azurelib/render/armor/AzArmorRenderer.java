@@ -1,6 +1,11 @@
 package mod.azure.azurelib.render.armor;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -10,20 +15,19 @@ import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
-import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.AzRendererConfig;
 
 public class AzArmorRenderer {
 
-    private Entity entity;
+    private @Nullable Entity entity;
 
     private final AzProvider<UUID, ItemStack> provider;
 
     private final AzArmorRendererPipeline rendererPipeline;
 
-    @Nullable
-    private AzItemAnimator reusedAzItemAnimator;
+    private @Nullable AzItemAnimator reusedAzItemAnimator;
 
     public AzArmorRenderer(AzArmorRendererConfig config) {
         this.provider = new AzProvider<>(
@@ -33,47 +37,128 @@ public class AzArmorRenderer {
                 if (animator.get(AzureLib.AZ_ID.get()) != null) {
                     return UUID.randomUUID();
                 }
+
                 return animator.get(AzureLib.AZ_ID.get());
             }
         );
         this.rendererPipeline = createPipeline(config);
     }
 
-    protected AzArmorRendererPipeline createPipeline(AzRendererConfig config) {
+    protected AzArmorRendererPipeline createPipeline(AzRendererConfig<UUID, ItemStack> config) {
         return new AzArmorRendererPipeline(config, this);
     }
 
     /**
-     * Prepare the renderer for the current render cycle.<br>
-     * Must be called prior to render as the default HumanoidModel doesn't give render context.<br>
-     * Params have been left nullable so that the renderer can be called for model/texture purposes safely. If you do
-     * grab the renderer using null parameters, you should not use it for actual rendering.
+     * Renders an AzureLib armor piece through Minecraft 26.2's deferred submit pipeline.
+     * <p>
+     * The AzureLib geometry pipeline runs against an identity pose stack. Its recorded local-space geometry is then
+     * submitted through the vanilla armor layer's {@link SubmitNodeCollector} using the original entity pose.
+     * </p>
      *
-     * @param entity    The entity being rendered with the armor on
-     * @param stack     The ItemStack being rendered
-     * @param slot      The slot being rendered
-     * @param baseModel The default (vanilla) model that would have been rendered if this model hadn't replaced it
+     * @return true when AzureLib successfully handled the armor piece; false to allow vanilla to render it instead.
      */
-    public void prepForRender(
+    public boolean render(
+        PoseStack entityPoseStack,
+        SubmitNodeCollector submitNodeCollector,
+        Entity entity,
+        HumanoidRenderState renderState,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> baseModel,
+        int packedLight
+    ) {
+        if (
+            !prepForRender(
+                entity,
+                renderState,
+                stack,
+                slot,
+                baseModel,
+                true,
+                null
+            )
+        ) {
+            return false;
+        }
+
+        return renderPrepared(
+            entityPoseStack,
+            submitNodeCollector,
+            entity,
+            stack,
+            packedLight
+        );
+    }
+
+    private boolean renderPrepared(
+        PoseStack entityPoseStack,
+        SubmitNodeCollector submitNodeCollector,
+        Entity entity,
+        ItemStack stack,
+        int packedLight
+    ) {
+        var geometry = new AzBufferSource();
+        var localPoseStack = new PoseStack();
+        var bakedModel = provider.provideBakedModel(entity, stack);
+        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+
+        rendererPipeline.render(
+            localPoseStack,
+            bakedModel,
+            stack,
+            geometry,
+            null,
+            null,
+            0,
+            partialTick,
+            packedLight
+        );
+
+        geometry.submitAll(submitNodeCollector, entityPoseStack);
+
+        return true;
+    }
+
+    /**
+     * Prepares the renderer for the current armor render pass.
+     */
+    public boolean prepForRender(
         @Nullable Entity entity,
+        @Nullable HumanoidRenderState renderState,
         ItemStack stack,
         @Nullable EquipmentSlot slot,
-        @Nullable HumanoidModel<?> baseModel
+        @Nullable HumanoidModel<?> baseModel,
+        boolean setupBaseModel,
+        @Nullable ModelPart modelPartOverride
     ) {
-        if (entity == null || slot == null || baseModel == null) {
-            return;
+        if (entity == null || renderState == null || slot == null || baseModel == null) {
+            return false;
         }
 
         this.entity = entity;
 
-        rendererPipeline.context().prepare(entity, stack, slot, baseModel);
+        rendererPipeline.context()
+            .prepare(
+                entity,
+                renderState,
+                stack,
+                slot,
+                baseModel,
+                setupBaseModel,
+                modelPartOverride
+            );
 
-        var model = provider.provideBakedModel(entity, stack);
-        prepareAnimator(stack, model);
+        prepareAnimator(stack);
+
+        return true;
     }
 
-    private void prepareAnimator(ItemStack stack, AzBakedModel model) {
-        // Point the renderer's current animator reference to the cached entity animator before rendering.
+    private void prepareAnimator(ItemStack stack) {
+        if (entity == null) {
+            reusedAzItemAnimator = null;
+            return;
+        }
+
         reusedAzItemAnimator = (AzItemAnimator) provider.provideAnimator(entity, stack);
     }
 
@@ -87,5 +172,51 @@ public class AzArmorRenderer {
 
     public AzArmorRendererPipeline rendererPipeline() {
         return rendererPipeline;
+    }
+
+    public boolean renderForBone(
+        PoseStack poseStack,
+        AzBufferSource bufferSource,
+        Entity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> baseModel,
+        ModelPart modelPart,
+        int packedLight
+    ) {
+        var renderState = new HumanoidRenderState();
+
+        if (
+            !prepForRender(
+                entity,
+                renderState,
+                stack,
+                slot,
+                baseModel,
+                false,
+                modelPart
+            )
+        ) {
+            return false;
+        }
+
+        var bakedModel = provider.provideBakedModel(entity, stack);
+        var partialTick = Minecraft.getInstance()
+            .getDeltaTracker()
+            .getGameTimeDeltaTicks();
+
+        rendererPipeline.render(
+            poseStack,
+            bakedModel,
+            stack,
+            bufferSource,
+            null,
+            null,
+            0,
+            partialTick,
+            packedLight
+        );
+
+        return true;
     }
 }

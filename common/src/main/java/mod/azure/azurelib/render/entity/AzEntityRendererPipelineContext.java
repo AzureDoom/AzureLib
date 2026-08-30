@@ -7,9 +7,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.client.ClientUtils;
@@ -31,6 +33,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
     public RenderType getDefaultRenderType(
         T animatable,
         Identifier texture,
+        @Nullable AzBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
@@ -42,10 +45,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
 
         // Handle entity damage/death state
         if (visibleBody && !glowing && hurtOrDead) {
-            if (
-                defaultRenderType == RenderTypes.entityTranslucent(texture) || defaultRenderType == RenderTypes
-                    .entityTranslucent(texture)
-            ) {
+            if (defaultRenderType == RenderTypes.entityTranslucent(texture)) {
                 return RenderTypes.entityCutout(texture);
             }
             return defaultRenderType;

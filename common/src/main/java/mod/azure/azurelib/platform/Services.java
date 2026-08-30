@@ -2,13 +2,10 @@ package mod.azure.azurelib.platform;
 
 import java.util.ServiceLoader;
 
-import mod.azure.azurelib.platform.services.AzureLibInitializer;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 public final class Services {
-
-    public static final AzureLibInitializer INITIALIZER = load(AzureLibInitializer.class);
 
     public static final AzureLibNetwork NETWORK = load(AzureLibNetwork.class);
 

@@ -1,19 +1,20 @@
 package mod.azure.azurelib.render.armor;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 import mod.azure.azurelib.core.object.Color;
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
@@ -22,91 +23,109 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     private final AzArmorBoneContext boneContext;
 
-    private HumanoidModel<?> baseModel;
+    private @Nullable HumanoidModel<?> baseModel;
 
-    private EquipmentSlot currentSlot;
+    private @Nullable HumanoidRenderState renderState;
 
-    private ItemStack currentStack;
+    private @Nullable EquipmentSlot currentSlot;
 
-    private boolean translucent = false;
+    private ItemStack currentStack = ItemStack.EMPTY;
+
+    private boolean translucent;
+
+    private boolean setupBaseModel;
+
+    @Nullable
+    private ModelPart modelPartOverride;
 
     public AzArmorRendererPipelineContext(AzRendererPipeline<UUID, ItemStack> rendererPipeline) {
         super(rendererPipeline);
-        this.baseModel = null;
         this.boneContext = new AzArmorBoneContext();
-        this.currentEntity = null;
-        this.currentSlot = null;
-        this.currentStack = null;
     }
 
     @Override
     public RenderType getDefaultRenderType(
         ItemStack animatable,
         Identifier texture,
+        @Nullable AzBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
     ) {
-        return translucent
-            ? RenderTypes.entityTranslucentCullItemTarget(texture)
-            : defaultRenderType;
+        return translucent ? RenderTypes.entityTranslucent(texture) : defaultRenderType;
     }
 
     public void prepare(
-        @Nullable Entity entity,
+        Entity entity,
+        HumanoidRenderState renderState,
         ItemStack stack,
-        @Nullable EquipmentSlot slot,
-        @Nullable HumanoidModel<?> baseModel
+        EquipmentSlot slot,
+        HumanoidModel<?> baseModel,
+        boolean setupBaseModel,
+        @Nullable ModelPart modelPartOverride
     ) {
         this.baseModel = baseModel;
+        this.renderState = renderState;
         this.currentEntity = entity;
         this.currentStack = stack;
         this.animatable = stack;
         this.currentSlot = slot;
+        this.setupBaseModel = setupBaseModel;
+        this.modelPartOverride = modelPartOverride;
+        this.translucent = false;
     }
 
-    /**
-     * Sets whether the rendering pipeline should render with a translucent effect or not.
-     *
-     * @param translucent A boolean value indicating whether to enable or disable translucency. If true, the rendering
-     *                    pipeline will apply a translucent effect to rendered elements. If false, it will render with
-     *                    an opaque effect.
-     */
     public void setTranslucent(boolean translucent) {
         this.translucent = translucent;
     }
 
-    /**
-     * Gets a tint-applying color to render the given animatable with
-     * <p>
-     * Returns {@link Color#WHITE} by default
-     */
     @Override
     public Color getRenderColor(ItemStack animatable, float partialTick, int packedLight) {
-        return this.currentStack.is(ItemTags.DYEABLE)
-            ? Color.ofOpaque(
-                DyedItemColor.getOrDefault(this.currentStack, -6265536)
-            )
-            : Color.WHITE;
+        return Color.WHITE;
     }
 
     public HumanoidModel<?> baseModel() {
+        if (baseModel == null) {
+            throw new IllegalStateException("Armor renderer context has not been prepared with a base model");
+        }
+
         return baseModel;
+    }
+
+    public HumanoidRenderState renderState() {
+        if (renderState == null) {
+            throw new IllegalStateException("Armor renderer context has not been prepared with a render state");
+        }
+
+        return renderState;
     }
 
     public AzArmorBoneContext boneContext() {
         return boneContext;
     }
 
-    public Entity currentEntity() {
+    @Override
+    public @Nullable Entity currentEntity() {
         return currentEntity;
     }
 
     public EquipmentSlot currentSlot() {
+        if (currentSlot == null) {
+            throw new IllegalStateException("Armor renderer context has not been prepared with an equipment slot");
+        }
+
         return currentSlot;
     }
 
     public ItemStack currentStack() {
         return currentStack;
+    }
+
+    public boolean setupBaseModel() {
+        return setupBaseModel;
+    }
+
+    public @Nullable ModelPart modelPartOverride() {
+        return modelPartOverride;
     }
 }

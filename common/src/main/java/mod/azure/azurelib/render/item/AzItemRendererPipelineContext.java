@@ -5,9 +5,11 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 
@@ -51,12 +53,13 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<UUI
     public RenderType getDefaultRenderType(
         ItemStack animatable,
         Identifier texture,
+        @Nullable AzBufferSource bufferSource,
         float partialTick,
         RenderType defaultRenderType,
         float alpha
     ) {
         return translucent
-            ? RenderTypes.entityTranslucentCullItemTarget(texture)
+            ? RenderTypes.entityTranslucent(texture)
             : defaultRenderType;
     }
 }

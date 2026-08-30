@@ -1,23 +1,24 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.UUID;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
-import mod.azure.azurelib.render.lod.AzLodConfig;
-import mod.azure.azurelib.render.lod.AzLodManager;
-import org.jspecify.annotations.NonNull;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base
@@ -28,8 +29,12 @@ import org.jspecify.annotations.NonNull;
  * Key components: - {@link AzEntityRendererConfig}: Defines configuration options such as textures, models, and
  * animator providers. - {@link AzProvider}: Supplies baked models and animators for entities. -
  * {@link AzEntityRendererPipeline}: Manages rendering logic through a custom pipeline.
+ * <p>
+ * Under 26.2's two-phase model the entire AzureLib pipeline — animation, procedural passes, geometry emission and leash
+ * — runs inside {@link #extractRenderState}, where reading the entity is legal. The resulting vertices are recorded
+ * into the {@link AzEntityRenderState}'s {@link AzBufferSource} and replayed in {@link #submit}.
  */
-public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<T> {
+public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<T, AzEntityRenderState> {
 
     protected final AzEntityRendererConfig<T> config;
 
@@ -40,7 +45,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;
 
-    private final Map<UUID, AzLodManager> lodManagers = new Object2ObjectOpenHashMap<>();
+    private Vec3 currentRenderOffset = Vec3.ZERO;
 
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
@@ -53,89 +58,84 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         return new AzEntityRendererPipeline<>(config, this);
     }
 
-    @Override
     public @NotNull Identifier getTextureLocation(@NotNull T animatable) {
         return config.textureLocation(animatable, animatable);
     }
 
-    public void superRender(
-        @NotNull T entity,
-        float entityYaw,
-        float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource bufferSource,
-        int packedLight
-    ) {
-        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    @Override
+    public @NotNull AzEntityRenderState createRenderState() {
+        return new AzEntityRenderState();
     }
 
     @Override
-    public void render(
-        @NotNull T entity,
-        float entityYaw,
-        float partialTick,
-        @NotNull PoseStack poseStack,
-        @NotNull MultiBufferSource bufferSource,
-        int packedLight
-    ) {
+    public void extractRenderState(@NotNull T entity, @NotNull AzEntityRenderState state, float partialTick) {
+        this.shadowRadius = config.shadowRadius(entity);
+
+        super.extractRenderState(entity, state, partialTick);
+
         var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         var azBakedModel = provider.provideBakedModel(entity, entity);
 
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzEntityAnimator = cachedEntityAnimator;
+        this.currentRenderOffset = getRenderOffset(state);
 
-        // Execute the render pipeline.
-        var lodConfig = config.lodConfig();
-        if (lodConfig != AzLodConfig.DISABLED && azBakedModel != null) {
-            var lodManager = lodManagers.computeIfAbsent(entity.getUUID(), id -> new AzLodManager(lodConfig));
-            boolean shouldAnimate = lodManager.update(entity, azBakedModel);
-            if (!shouldAnimate) {
-                rendererPipeline.render(
-                    poseStack,
-                    azBakedModel,
-                    entity,
-                    bufferSource,
-                    null,
-                    null,
-                    entityYaw,
-                    partialTick,
-                    packedLight
-                );
-                return;
-            }
-        }
+        var geometry = new AzBufferSource();
+        state.geometry = geometry;
 
+        // The pipeline still runs eagerly here (during extract, against an identity pose); the vertices it
+        // records are entity-local and get translated/replayed relative to the camera during submit.
         rendererPipeline.render(
-            poseStack,
+            new PoseStack(),
             azBakedModel,
             entity,
-            bufferSource,
+            geometry,
             null,
             null,
-            entityYaw,
+            bodyYaw(entity, partialTick),
             partialTick,
-            packedLight
+            state.lightCoords
         );
     }
 
     @Override
-    protected float getShadowRadius(@NonNull EntityRenderState state) {
-        return config.shadowRadius(state);
+    public void submit(
+        @NotNull AzEntityRenderState state,
+        @NotNull PoseStack poseStack,
+        @NotNull SubmitNodeCollector collector,
+        @NotNull CameraRenderState cameraRenderState
+    ) {
+        super.submit(state, poseStack, collector, cameraRenderState);
+
+        if (state.geometry != null) {
+            state.geometry.submitAll(collector, poseStack);
+        }
+    }
+
+    private static float bodyYaw(Entity entity, float partialTick) {
+        if (entity instanceof LivingEntity living) {
+            return Mth.rotLerp(partialTick, living.yBodyRotO, living.yBodyRot);
+        }
+
+        return Mth.rotLerp(partialTick, entity.yRotO, entity.getYRot());
+    }
+
+    public Vec3 currentRenderOffset() {
+        return currentRenderOffset;
     }
 
     /**
      * Whether the entity's nametag should be rendered or not.<br>
      */
     @Override
-    protected boolean shouldShowName(@NonNull Entity entity, double distanceToCameraSq) {
+    protected boolean shouldShowName(@NotNull T entity, double distanceToCameraSq) {
         return AzEntityNameRenderUtil.shouldShowName(entityRenderDispatcher, entity);
     }
 
-    // Proxy method override for super.getBlockLightLevel external access.
-//    @Override
-//    public int getBlockLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
-//        return super.getBlockLightLevel(entity, pos);
-//    }
+    @Override
+    public int getBlockLightLevel(@NotNull T entity, @NotNull BlockPos pos) {
+        return super.getBlockLightLevel(entity, pos);
+    }
 
     public AzEntityAnimator<T> getAnimator() {
         return reusedAzEntityAnimator;

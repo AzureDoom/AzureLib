@@ -3,16 +3,18 @@ package mod.azure.azurelib.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.cache.object.GeoQuad;
-import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzQuad;
+import mod.azure.azurelib.cache.object.AzVertex;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -69,15 +71,19 @@ public class AzModelRenderer<K, T> {
      */
     protected void renderRecursively(AzRendererPipelineContext<K, T> context, AzBone bone, boolean isReRender) {
         var buffer = context.vertexConsumer();
+        var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
 
         poseStack.pushPose();
         RenderUtils.prepMatrixForBone(poseStack, bone);
 
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
+
         if (
             !boneRenderOverride(
                 poseStack,
                 bone,
+                bufferSource,
                 buffer,
                 context.partialTick(),
                 context.packedLight(),
@@ -96,23 +102,21 @@ public class AzModelRenderer<K, T> {
     }
 
     /**
-     * Renders the {@link GeoCube GeoCubes} associated with a given {@link AzBone}
+     * Renders the {@link AzCube GeoCubes} associated with a given {@link AzBone}
      */
     protected void renderCubesOfBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        if (bone.isHidden()) {
+        if (bone.isHidden() || context.vertexConsumer() == null) {
             return;
         }
 
         var poseStack = context.poseStack();
 
-        var lastEntry = poseStack.last();
-        savedPoseScratch.set(lastEntry.pose());
-        savedNormalScratch.set(lastEntry.normal());
-
         for (var cube : bone.getCubes()) {
+            poseStack.pushPose();
+
             renderCube(context, cube);
-            lastEntry.pose().set(savedPoseScratch);
-            lastEntry.normal().set(savedNormalScratch);
+
+            poseStack.popPose();
         }
     }
 
@@ -131,10 +135,10 @@ public class AzModelRenderer<K, T> {
     }
 
     /**
-     * Renders an individual {@link GeoCube}.<br>
+     * Renders an individual {@link AzCube}.<br>
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
-    protected void renderCube(AzRendererPipelineContext<K, T> context, GeoCube cube) {
+    protected void renderCube(AzRendererPipelineContext<K, T> context, AzCube cube) {
         var poseStack = context.poseStack();
 
         RenderUtils.translateToPivotPoint(poseStack, cube);
@@ -143,9 +147,6 @@ public class AzModelRenderer<K, T> {
 
         var normalisedPoseState = poseStack.last().normal();
         var poseState = poseStateCache.set(poseStack.last().pose());
-
-        var size = cube.size();
-        var isFlat = size.x() == 0 || size.y() == 0 || size.z() == 0;
 
         for (var quad : cube.quads()) {
             if (quad == null) {
@@ -156,20 +157,18 @@ public class AzModelRenderer<K, T> {
             normalisedPoseState.transform(normalScratch);
             var normal = normalScratch;
 
-            if (isFlat) {
-                RenderUtils.fixInvertedFlatCube(cube, normal);
-            }
+            RenderUtils.fixInvertedFlatCube(cube, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
         }
     }
 
     /**
-     * Applies the {@link GeoQuad Quad's} {@link GeoVertex vertices} to the given {@link VertexConsumer buffer} for
+     * Applies the {@link AzQuad Quad's} {@link AzVertex vertices} to the given {@link VertexConsumer buffer} for
      * rendering
      */
     protected void createVerticesOfQuad(
         AzRendererPipelineContext<K, T> context,
-        GeoQuad quad,
+        AzQuad quad,
         Matrix4f poseState,
         Vector3f normal
     ) {
@@ -181,23 +180,26 @@ public class AzModelRenderer<K, T> {
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var textureOverride = context.getTextureOverride();
-        var boneTextureSize = textureOverride != null ? context.computeTextureSize(textureOverride) : null;
+        var boneTextureSize = context.computeTextureSize(textureOverride);
         boolean useOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
-        float uScale = useOverride ? (float) entityTextureSize.firstInt() / boneTextureSize.firstInt() : 1f;
-        float vScale = useOverride ? (float) entityTextureSize.secondInt() / boneTextureSize.secondInt() : 1f;
         float nx = normal.x(), ny = normal.y(), nz = normal.z();
 
         for (var vertex : quad.vertices()) {
             var position = vertex.position();
             var vector4f = poseState.transform(quadPosition.set(position.x(), position.y(), position.z(), 1.0f));
+
             if (useOverride) {
-                buffer.addVertex(
+                var texU = (vertex.texU() * entityTextureSize.firstInt()) / boneTextureSize.firstInt();
+                var texV = (vertex.texV() * entityTextureSize.secondInt()) / boneTextureSize.secondInt();
+
+                putFull(
+                    buffer,
                     vector4f.x(),
                     vector4f.y(),
                     vector4f.z(),
-                    -1,
-                    vertex.texU() * uScale,
-                    vertex.texV() * vScale,
+                    color,
+                    texU,
+                    texV,
                     packedOverlay,
                     packedLight,
                     nx,
@@ -205,7 +207,8 @@ public class AzModelRenderer<K, T> {
                     nz
                 );
             } else {
-                buffer.addVertex(
+                putFull(
+                    buffer,
                     vector4f.x(),
                     vector4f.y(),
                     vector4f.z(),
@@ -220,6 +223,32 @@ public class AzModelRenderer<K, T> {
                 );
             }
         }
+    }
+
+    /**
+     * 26.2 removed the all-in-one {@code VertexConsumer#addVertex(x, y, z, color, u, v, overlay, light, nx, ny, nz)}
+     * convenience overload in favour of a builder-style chain; this restores a single call site for it.
+     */
+    private static void putFull(
+        VertexConsumer buffer,
+        float x,
+        float y,
+        float z,
+        int color,
+        float u,
+        float v,
+        int overlay,
+        int light,
+        float normalX,
+        float normalY,
+        float normalZ
+    ) {
+        buffer.addVertex(x, y, z)
+            .setColor(color)
+            .setUv(u, v)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(normalX, normalY, normalZ);
     }
 
     /**
@@ -239,6 +268,7 @@ public class AzModelRenderer<K, T> {
     public boolean boneRenderOverride(
         PoseStack poseStack,
         AzBone bone,
+        AzBufferSource bufferSource,
         VertexConsumer buffer,
         float partialTick,
         int packedLight,
@@ -250,6 +280,66 @@ public class AzModelRenderer<K, T> {
 
     public void handleAnimation(AzAnimator<?, T> animator, T animatable, float partialTick) {
         animator.animate(animatable, partialTick);
+    }
+
+    public VertexConsumer getOrRefreshBufferRenderType(
+        AzItemRendererPipelineContext context,
+        AzBone bone,
+        RenderType renderType
+    ) {
+        return context.multiBufferSource().getBuffer(renderType);
+    }
+
+    /**
+     * Retrieves the appropriate {@link VertexConsumer} for rendering, or refreshes the render buffer if needed.
+     * Depending on the rendering context and state of the current buffer, this method determines whether to reuse the
+     * existing buffer or acquire a new one.
+     *
+     * @param isReRender Indicates whether this is a re-render operation. If true, the current buffer is reused.
+     * @param context    The rendering context containing relevant information like the current buffer, buffer source,
+     *                   and render type.
+     * @return The {@link VertexConsumer} that should be used for rendering, potentially refreshed based on the buffer's
+     *         state and the given render context.
+     */
+    public VertexConsumer getOrRefreshRenderBuffer(
+        boolean isReRender,
+        AzRendererPipelineContext<K, T> context,
+        AzBone bone
+    ) {
+        var config = rendererPipeline.config();
+        var bufferSource = context.multiBufferSource();
+
+        var textureOverride = config.boneTextureOverrideProvider(bone);
+        var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
+
+        context.setTextureOverride(textureOverride);
+
+        if (isReRender && textureOverride == null && renderTypeOverride == null) {
+            return context.vertexConsumer();
+        }
+
+        RenderType activeRenderType;
+
+        if (renderTypeOverride != null) {
+            activeRenderType = renderTypeOverride;
+        } else if (textureOverride != null) {
+            activeRenderType = context.getDefaultRenderType(
+                context.animatable(),
+                textureOverride,
+                bufferSource,
+                context.partialTick(),
+                config.getRenderType(context.currentEntity(), context.animatable()),
+                config.alpha(context.animatable())
+            );
+        } else {
+            activeRenderType = context.renderType();
+        }
+
+        if (activeRenderType == null) {
+            return null;
+        }
+
+        return bufferSource.getBuffer(activeRenderType);
     }
 
     public void cacheTexture(AzRendererPipelineContext<K, T> context) {

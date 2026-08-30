@@ -5,53 +5,33 @@
  */
 package mod.azure.azurelib.cache;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
-import mod.azure.azurelib.util.AzureLibException;
 
-public final class AzureLibCache {
+public final class AzureLibCache implements PreparableReloadListener {
 
-    private AzureLibCache() {
-        throw new UnsupportedOperationException();
-    }
-
-    public static void registerReloadListener() {
-        Minecraft mc = Minecraft.getInstance();
-
-        if (mc == null) {
-            return;
-        }
-
-        if (!(mc.getResourceManager() instanceof ReloadableResourceManager resourceManager)) {
-            throw new AzureLibException("AzureLib was initialized too early!");
-        }
-
-        resourceManager.registerReloadListener(AzureLibCache::reload);
-    }
-
-    public static CompletableFuture<Void> reload(
-        PreparationBarrier stage,
-        ResourceManager resourceManager,
-        ProfilerFiller preparationsProfiler,
-        ProfilerFiller reloadProfiler,
-        Executor backgroundExecutor,
-        Executor gameExecutor
+    @Override
+    public @NonNull CompletableFuture<Void> reload(
+        PreparableReloadListener.SharedState sharedState,
+        @NonNull Executor prepExecutor,
+        PreparationBarrier preparationBarrier,
+        @NonNull Executor applicationExecutor
     ) {
+        final ResourceManager resourceManager = sharedState.resourceManager();
+
         return CompletableFuture
             .allOf(
-                AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
-                AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
+                AzBakedAnimationCache.getInstance().loadAnimations(prepExecutor, resourceManager),
+                AzBakedModelCache.getInstance().loadModels(prepExecutor, resourceManager)
             )
-            .thenCompose(stage::wait)
-            .thenAcceptAsync(empty -> {}, gameExecutor);
+            .thenCompose(preparationBarrier::wait)
+            .thenAcceptAsync(empty -> {}, applicationExecutor);
     }
 }

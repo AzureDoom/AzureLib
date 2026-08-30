@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -94,7 +95,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 layer
             );
             this.pipelineContextFunction = AzArmorRendererPipelineContext::new;
-            this.renderTypeProvider = (a, b) -> RenderType.armorCutoutNoCull(textureLocationProvider.apply(a, b));
+            this.renderTypeProvider = (a, b) -> RenderTypes.armorCutoutNoCull(textureLocationProvider.apply(a, b));
         }
 
         @Override

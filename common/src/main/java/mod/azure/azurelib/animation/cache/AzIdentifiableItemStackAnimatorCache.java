@@ -3,8 +3,10 @@ package mod.azure.azurelib.animation.cache;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.WeakHashMap;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
@@ -16,9 +18,19 @@ import mod.azure.azurelib.animation.impl.AzItemAnimator;
  */
 public class AzIdentifiableItemStackAnimatorCache {
 
+    private static final int MAX_CACHED_ANIMATORS = 256;
+
     private static final AzIdentifiableItemStackAnimatorCache INSTANCE = new AzIdentifiableItemStackAnimatorCache();
 
-    private static final WeakHashMap<UUID, AzItemAnimator> ANIMATORS_BY_UUID = new WeakHashMap<>();
+    private static final Map<UUID, AzItemAnimator> ANIMATORS_BY_UUID = Collections.synchronizedMap(
+        new LinkedHashMap<>(16, 0.75F, true) {
+
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, AzItemAnimator> eldest) {
+                return size() > MAX_CACHED_ANIMATORS;
+            }
+        }
+    );
 
     public static AzIdentifiableItemStackAnimatorCache getInstance() {
         return INSTANCE;

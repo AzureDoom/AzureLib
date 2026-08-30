@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -87,7 +88,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 layer
             );
             this.pipelineContextFunction = AzBlockEntityRendererPipelineContext::new;
-            this.renderTypeProvider = (a, b) -> RenderType.entityTranslucent(textureLocationProvider.apply(b));
+            this.renderTypeProvider = (a, b) -> RenderTypes.entityTranslucent(textureLocationProvider.apply(b));
         }
 
         @Override

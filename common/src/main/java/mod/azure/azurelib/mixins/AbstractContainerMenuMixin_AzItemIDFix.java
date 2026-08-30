@@ -30,40 +30,27 @@ public class AbstractContainerMenuMixin_AzItemIDFix {
      * keeping custom IDs only for registered items.
      */
     @WrapOperation(
-        method = "doClick", at = @At(
+        method = "doClick",
+        at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/item/ItemStack;copyWithCount(I)Lnet/minecraft/world/item/ItemStack;",
-            ordinal = 1
+            target = "Lnet/minecraft/world/item/ItemStack;copyWithCount(I)Lnet/minecraft/world/item/ItemStack;"
         )
     )
-    public ItemStack azurelib$syncAzureIDWithRemote(ItemStack itemStack, int count, Operation<ItemStack> original) {
+    private ItemStack azurelib$removeAzureIdFromQuickCraftCopy(
+        ItemStack itemStack,
+        int count,
+        Operation<ItemStack> original
+    ) {
         var copyStack = original.call(itemStack, count);
 
-        if (AzIdentityRegistry.hasIdentity(itemStack.getItem()) && copyStack.has(AzureLib.AZ_ID.get())) {
+        if (
+            AzIdentityRegistry.hasIdentity(itemStack.getItem())
+                && copyStack.has(AzureLib.AZ_ID.get())
+        ) {
             copyStack.remove(AzureLib.AZ_ID.get());
         }
 
         return copyStack;
-    }
-
-    /**
-     * Validates AzureLib-specific IDs (Az ID) between two `ItemStack` objects during remote slot synchronization. This
-     * ensures that items with custom IDs remain synchronized correctly during slot operations.
-     * <p>
-     * Tooltip: Compares two `ItemStack` objects, ensuring their Az IDs (if present) also match.
-     */
-    @WrapOperation(
-        method = "synchronizeSlotToRemote", at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
-        )
-    )
-    public boolean azurelib$syncAzureIDWithRemote(
-        ItemStack itemStack,
-        ItemStack comparisonItemStack,
-        Operation<Boolean> original
-    ) {
-        return azurelib$compareStacksWithAzureID(itemStack, comparisonItemStack, original);
     }
 
     /**

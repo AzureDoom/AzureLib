@@ -109,11 +109,8 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     public void renderFinal(AzRendererPipelineContext<UUID, T> context) {
         var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
-        var packedLight = context.packedLight();
         var partialTick = context.partialTick();
         var poseStack = context.poseStack();
-
-        entityRenderer.superRender(entity, 0, partialTick, poseStack, bufferSource, packedLight);
 
         if (!(entity instanceof Mob mob)) {
             return;
@@ -125,7 +122,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
             return;
         }
 
-        AzEntityLeashRenderUtil.renderLeash(entityRenderer, mob, partialTick, poseStack, bufferSource, leashHolder);
+        AzEntityLeashRenderUtil.renderLeash(mob, partialTick, poseStack, bufferSource, leashHolder);
     }
 
     @Override

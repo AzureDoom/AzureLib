@@ -32,18 +32,11 @@ public final class AzureLib {
                 .networkSynchronized(UUIDUtil.STREAM_CODEC)
         );
 
-    public static boolean hasInitialized;
-
     private AzureLib() {
         throw new UnsupportedOperationException();
     }
 
-    public static void initialize() {
-        if (!hasInitialized) {
-            Services.INITIALIZER.initialize();
-        }
-        hasInitialized = true;
-    }
+    public static void initialize() {}
 
     public static Identifier modResource(String name) {
         return Identifier.fromNamespaceAndPath(MOD_ID, name);

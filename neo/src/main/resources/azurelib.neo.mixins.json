@@ -15,7 +15,8 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
-    "MixinItemRenderer",
+    "MixinHumanoidArmorLayer",
+    "MixinEntityRendererArmorContext",
     "TextureManagerMixin"
   ],
   "overwrites": {

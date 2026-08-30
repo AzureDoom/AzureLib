@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -24,9 +25,11 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.List;
+
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.cache.object.GeoCube;
-import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzQuad;
 import mod.azure.azurelib.model.AzBone;
 
 /**
@@ -61,7 +64,7 @@ public class RenderUtils {
             poseStack.mulPose(X_QUATERNION_CACHE.rotationXYZ(rotX, 0f, 0f));
     }
 
-    public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
+    public static void rotateMatrixAroundCube(PoseStack poseStack, AzCube cube) {
         Vec3 rotation = cube.rotation();
 
         if (rotation.z() != 0f) {
@@ -82,7 +85,7 @@ public class RenderUtils {
         poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
     }
 
-    public static void translateToPivotPoint(PoseStack poseStack, GeoCube cube) {
+    public static void translateToPivotPoint(PoseStack poseStack, AzCube cube) {
         Vec3 pivot = cube.pivot();
         poseStack.translate(pivot.x() / 16f, pivot.y() / 16f, pivot.z() / 16f);
     }
@@ -91,7 +94,7 @@ public class RenderUtils {
         poseStack.translate(bone.getPivotX() / 16f, bone.getPivotY() / 16f, bone.getPivotZ() / 16f);
     }
 
-    public static void translateAwayFromPivotPoint(PoseStack poseStack, GeoCube cube) {
+    public static void translateAwayFromPivotPoint(PoseStack poseStack, AzCube cube) {
         Vec3 pivot = cube.pivot();
 
         poseStack.translate(-pivot.x() / 16f, -pivot.y() / 16f, -pivot.z() / 16f);
@@ -147,6 +150,23 @@ public class RenderUtils {
      */
     public static Matrix4f translateMatrixInPlace(Matrix4f matrix, Vector3f vector) {
         return matrix.translate(vector);
+    }
+
+    public static void transformToBone(PoseStack poseStack, AzBone bone) {
+        final List<AzBone> boneQueue = new ObjectArrayList<>();
+        AzBone parent = bone;
+
+        boneQueue.add(bone);
+
+        while ((parent = parent.getParent()) != null) {
+            boneQueue.add(parent);
+        }
+
+        for (AzBone bone2 : boneQueue.reversed()) {
+            prepMatrixForBone(poseStack, bone2);
+        }
+
+        translateToPivotPoint(poseStack, bone);
     }
 
     /**
@@ -226,11 +246,11 @@ public class RenderUtils {
     }
 
     /**
-     * If a {@link GeoCube} is a 2d plane the {@link GeoQuad Quad's} normal is inverted in an intersecting plane,it can
+     * If a {@link AzCube} is a 2d plane the {@link AzQuad Quad's} normal is inverted in an intersecting plane,it can
      * cause issues with shaders and other lighting tasks.<br>
      * This performs a pseudo-ABS function to help resolve some of those issues.
      */
-    public static void fixInvertedFlatCube(GeoCube cube, Vector3f normal) {
+    public static void fixInvertedFlatCube(AzCube cube, Vector3f normal) {
         if (normal.x() < 0 && (cube.size().y() == 0 || cube.size().z() == 0))
             normal.mul(-1, 1, 1);
 

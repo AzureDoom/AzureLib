@@ -3,7 +3,7 @@ package mod.azure.azurelib.model.factory.impl;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.phys.Vec3;
 
-import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.AzCube;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
 import mod.azure.azurelib.loading.object.BoneStructure;
@@ -61,7 +61,7 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
     }
 
     @Override
-    public GeoCube constructCube(Cube cube, ModelProperties properties, AzBone bone) {
+    public AzCube constructCube(Cube cube, ModelProperties properties, AzBone bone) {
         var mirror = cube.mirror() == Boolean.TRUE;
         var inflate = cube.inflate() != null
             ? cube.inflate() / 16f
@@ -84,6 +84,6 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
             mirror
         );
 
-        return new GeoCube(quads, pivot, rotation, size, inflate, mirror);
+        return new AzCube(quads, pivot, rotation, size, inflate, mirror);
     }
 }

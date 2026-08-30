@@ -238,27 +238,6 @@ public class AzRendererConfig<K, T> {
             return this;
         }
 
-        public Builder<K, T> setBoneTextureOverrideProvider(
-            BiFunction<@Nullable T, AzBone, @Nullable Identifier> boneTextureOverrideProvider
-        ) {
-            this.boneTextureOverrideProvider = boneTextureOverrideProvider;
-            return this;
-        }
-
-        public Builder<K, T> setBoneRenderTypeOverrideProvider(
-            Function<AzBone, RenderType> boneRenderTypeOverrideProvider
-        ) {
-            this.boneRenderTypeOverrideProvider = (entity, bone) -> boneRenderTypeOverrideProvider.apply(bone);
-            return this;
-        }
-
-        public Builder<K, T> setBoneRenderTypeOverrideProvider(
-            BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
-        ) {
-            this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
-            return this;
-        }
-
         public Builder<K, T> setModelRenderer(
             BiFunction<AzRendererPipeline<K, T>, AzLayerRenderer<K, T>, AzModelRenderer<K, T>> modelRendererProvider
         ) {

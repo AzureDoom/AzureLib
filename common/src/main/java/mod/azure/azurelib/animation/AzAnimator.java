@@ -2,10 +2,10 @@ package mod.azure.azurelib.animation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.MoonPhase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
-import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
@@ -36,27 +36,6 @@ public abstract class AzAnimator<K, T> {
 
     public boolean reloadAnimations;
 
-    private double molangAnimTime;
-
-    private float molangPartialTicks;
-
-    private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
-
-    private final DoubleSupplier actorCountSupplier = () -> {
-        var lvl = Minecraft.getInstance().level;
-        return lvl != null ? lvl.getEntityCount() : 0;
-    };
-
-    private final DoubleSupplier timeOfDaySupplier = () -> {
-        var lvl = Minecraft.getInstance().level;
-        return lvl != null ? lvl.getDayTime() / 24000f : 0;
-    };
-
-    private final DoubleSupplier moonPhaseSupplier = () -> {
-        var lvl = Minecraft.getInstance().level;
-        return lvl != null ? lvl.getMoonPhase() : 0;
-    };
-
     protected AzAnimator() {
         this(AzAnimatorConfig.defaultConfig());
     }
@@ -78,7 +57,7 @@ public abstract class AzAnimator<K, T> {
     public AzAnimationContext<T> getOrCreateContext(K uuid) {
         var ctx = contextCache.computeIfAbsent(
             uuid,
-            a -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+            _ -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
         );
         this.currentContext = ctx;
         return ctx;
@@ -136,18 +115,20 @@ public abstract class AzAnimator<K, T> {
      * @param partialTicks The partial tick for smooth animations.
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
-        if (Minecraft.getInstance().level == null) {
+        var level = Minecraft.getInstance().level;
+        var parser = MolangParser.INSTANCE;
+
+        if (level == null) {
             return;
         }
 
-        this.molangAnimTime = animTime;
-        this.molangPartialTicks = partialTicks;
-
-        var parser = MolangParser.INSTANCE;
-        parser.setMemoizedValue(MolangQueries.LIFE_TIME, lifetimeSupplier);
-        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, actorCountSupplier);
-        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, timeOfDaySupplier);
-        parser.setMemoizedValue(MolangQueries.MOON_PHASE, moonPhaseSupplier);
+        parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
+        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, level::getEntityCount);
+        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> level.getDefaultClockTime() / 24000f);
+        parser.setMemoizedValue(
+            MolangQueries.MOON_PHASE,
+            () -> ((double) level.getDefaultClockTime() / MoonPhase.PHASE_LENGTH) % MoonPhase.COUNT
+        );
     }
 
     /**
@@ -157,6 +138,7 @@ public abstract class AzAnimator<K, T> {
      * @param animatable   The object for which custom animations are being set.
      * @param partialTicks The partial tick time used for interpolating animations smoothly between frames.
      */
+    @SuppressWarnings("unused")
     public void setCustomAnimations(T animatable, float partialTicks) {}
 
     /**

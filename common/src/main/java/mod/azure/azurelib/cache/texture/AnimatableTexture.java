@@ -1,7 +1,7 @@
 /**
- * This class is a fork of the matching class found in the Geckolib repository. Original source:
- * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
- * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ * This class is adapted from the equivalent class found in the Geckolib repository, updated for the 26.2 GPU texture
+ * pipeline. Original source: https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT
+ * License. https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
 package mod.azure.azurelib.cache.texture;
 
@@ -16,21 +16,14 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureContents;
-import net.minecraft.client.renderer.texture.TickableTexture;
-import net.minecraft.client.resources.metadata.animation.AnimationFrame;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,57 +37,86 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.texture.util.Frame;
 import mod.azure.azurelib.util.client.RenderUtils;
 
-/**
- * Wrapper for {@link SimpleTexture} allowing vanilla animated texture metadata on non-atlas textures. Updated for the
- * 1.21.6+/26.2 GPU texture path.
- */
 public class AnimatableTexture extends SimpleTexture implements TickableTexture {
 
-    protected @Nullable AnimationContents animationContents = null;
+    protected AnimationContents animationContents = null;
 
+    protected boolean isAnimated = false;
+
+    /// Width in pixels of a single frame. Equal to the full image width for non-animated textures
     protected int frameWidth;
 
+    /// Height in pixels of a single frame. Equal to the full image height for non-animated textures
     protected int frameHeight;
 
-    protected @Nullable NativeImage baseImage;
+    /// The full decoded source image (sprite sheet for animated textures, or the whole image otherwise). Kept alive for
+    /// the lifetime of this texture so [#doLoad(NativeImage)] can be re-invoked from [#apply(TextureContents)]
+    protected NativeImage sourceImage;
 
     public AnimatableTexture(final Identifier location) {
         super(location);
     }
 
     @Override
-    public @NonNull TextureContents loadContents(ResourceManager manager) throws IOException {
+    public TextureContents loadContents(ResourceManager manager) throws IOException {
+        closeAnimationContents();
+
         Resource resource = manager.getResourceOrThrow(resourceId());
-
-        try (InputStream stream = resource.open()) {
-            this.baseImage = NativeImage.read(stream);
-        }
-
-        this.animationContents = resource.metadata()
+        TextureMetadataSection textureMeta = resource.metadata()
+            .getSection(TextureMetadataSection.TYPE)
+            .orElse(null);
+        AnimationMetadataSection animMeta = resource.metadata()
             .getSection(AnimationMetadataSection.TYPE)
-            .map(this::buildAnimationContents)
             .orElse(null);
 
-        return new TextureContents(
-            this.baseImage,
-            resource.metadata().getSection(TextureMetadataSection.TYPE).orElse(null)
-        );
+        if (this.sourceImage != null)
+            this.sourceImage.close();
+
+        try (InputStream inputstream = resource.open()) {
+            this.sourceImage = NativeImage.read(inputstream);
+        }
+
+        if (animMeta == null) {
+            this.frameWidth = this.sourceImage.getWidth();
+            this.frameHeight = this.sourceImage.getHeight();
+
+            return new TextureContents(this.sourceImage, textureMeta);
+        }
+
+        this.animationContents = new AnimationContents(this.sourceImage, animMeta);
+
+        if (!this.animationContents.isValid()) {
+            this.animationContents = null;
+            this.frameWidth = this.sourceImage.getWidth();
+            this.frameHeight = this.sourceImage.getHeight();
+
+            return new TextureContents(this.sourceImage, textureMeta);
+        }
+
+        this.isAnimated = true;
+
+        return new TextureContents(this.sourceImage, textureMeta);
+    }
+
+    public boolean isAnimated() {
+        return this.isAnimated;
     }
 
     @Override
-    public void apply(@NonNull TextureContents textureContents) {
-        if (this.baseImage == null)
+    public void apply(TextureContents textureContents) {
+        if (this.sourceImage == null)
             return;
 
         AddressMode address = textureContents.clamp() ? AddressMode.CLAMP_TO_EDGE : AddressMode.REPEAT;
         FilterMode filter = textureContents.blur() ? FilterMode.LINEAR : FilterMode.NEAREST;
+
         this.sampler = RenderSystem.getSamplerCache().getSampler(address, address, filter, filter, false);
 
-        doLoad(this.baseImage);
+        doLoad(this.sourceImage);
     }
 
     @Override
-    public void doLoad(@NonNull NativeImage image) {
+    public void doLoad(NativeImage image) {
         GpuDevice gpuDevice = RenderSystem.getDevice();
         Identifier textureId = resourceId();
 
@@ -111,387 +133,424 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         );
         this.textureView = gpuDevice.createTextureView(this.texture);
 
-        uploadFrame(gpuDevice, image, 0, 0, this.texture);
+        upload(this.texture, image, 0, 0, this.frameWidth, this.frameHeight);
     }
 
-    /**
-     * Returns whether the texture found any valid animation metadata when loading. If false, then this is no different
-     * from a standard {@link SimpleTexture}.
-     */
-    public boolean isAnimated() {
-        return this.animationContents != null;
+    @Override
+    public void close() {
+        closeAnimationContents();
+
+        if (this.sourceImage != null) {
+            this.sourceImage.close();
+            this.sourceImage = null;
+        }
+
+        super.close();
+    }
+
+    private void closeAnimationContents() {
+        if (this.animationContents != null && this.animationContents.animatedTexture != null) {
+            this.animationContents.animatedTexture.close();
+        }
+        this.animationContents = null;
+        this.isAnimated = false;
     }
 
     public static void setAndUpdate(Identifier texturePath) {
         setAndUpdate(texturePath, (int) RenderUtils.getCurrentTick());
     }
 
-    /**
-     * Setting a specific frame is still best-effort because render passes may be buffered.
-     */
     public static void setAndUpdate(Identifier texturePath, int frameTick) {
         AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(texturePath);
 
-        try {
-            var method = texture.getClass().getMethod("setAnimationFrame", int.class);
-            method.invoke(texture, frameTick);
-        } catch (ReflectiveOperationException ignored) {}
-
-        // RenderSystem.setShaderTexture(0, texture.getTexture());
+        if (texture instanceof AnimatableTexture animatableTexture)
+            animatableTexture.setAnimationFrame(frameTick);
     }
 
     public void setAnimationFrame(int tick) {
-        if (this.animationContents != null)
-            this.animationContents.setCurrentFrame(tick);
+        if (this.animationContents != null && this.animationContents.animatedTexture != null)
+            this.animationContents.animatedTexture.setCurrentFrame(tick);
+    }
+
+    private static void onRenderThread(Runnable renderCall) {
+        if (RenderSystem.isOnRenderThread()) {
+            renderCall.run();
+        } else {
+            RenderSystem.queueFencedTask(renderCall);
+        }
+    }
+
+    /// Write a region of pixel data from [image] into [target] at the given texture-space offset
+    private void upload(GpuTexture target, NativeImage image, int x, int y, int width, int height) {
+        if (target == null || target.isClosed())
+            return;
+
+        RenderSystem.getDevice()
+            .createCommandEncoder()
+            .writeToTexture(target, image.getPixelBytes(), 0, 0, x, y, width, height);
     }
 
     @Override
     public void tick() {
-        if (this.animationContents != null)
+        if (this.animationContents != null) {
             this.animationContents.tick();
+        }
     }
 
-    @Override
-    public void close() {
-        if (this.baseImage != null)
-            this.baseImage.close();
+    protected class AnimationContents {
 
-        if (this.animationContents != null)
-            this.animationContents.close();
+        protected final FrameSize frameSize;
 
-        super.close();
-    }
+        protected final Texture animatedTexture;
 
-    protected @Nullable AnimationContents buildAnimationContents(AnimationMetadataSection animMeta) {
-        if (this.baseImage == null)
-            return null;
-
-        final FrameSize frameSize = animMeta.calculateFrameSize(this.baseImage.getWidth(), this.baseImage.getHeight());
-        this.frameWidth = frameSize.width();
-        this.frameHeight = frameSize.height();
-
-        if (
-            !Mth.isMultipleOf(this.baseImage.getWidth(), this.frameWidth) || !Mth.isMultipleOf(
-                this.baseImage.getHeight(),
-                this.frameHeight
-            )
-        ) {
-            AzureLib.LOGGER.error(
-                "Image {} size {},{} is not multiple of frame size {},{}",
-                resourceId(),
-                this.baseImage.getWidth(),
-                this.baseImage.getHeight(),
-                this.frameWidth,
-                this.frameHeight
-            );
-            return null;
+        private AnimationContents(NativeImage image, AnimationMetadataSection animMeta) {
+            this.frameSize = animMeta.calculateFrameSize(image.getWidth(), image.getHeight());
+            this.animatedTexture = generateAnimatedTexture(image, animMeta);
         }
 
-        final int columns = this.baseImage.getWidth() / this.frameWidth;
-        final int rows = this.baseImage.getHeight() / this.frameHeight;
-        final int availableFrames = columns * rows;
-        final int defaultFrameTime = animMeta.defaultFrameTime();
-        final int frameCount = animMeta.frames().map(List::size).orElse(availableFrames);
-
-        if (frameCount <= 1)
-            return null;
-
-        final List<Frame> frames = new ObjectArrayList<>(frameCount);
-
-        if (animMeta.frames().isEmpty()) {
-            for (int i = 0; i < availableFrames; i++)
-                frames.add(new Frame(i, defaultFrameTime));
-        } else {
-            for (AnimationFrame frame : animMeta.frames().get())
-                frames.add(new Frame(frame.index(), frame.timeOr(defaultFrameTime)));
-
-            int frameIndex = 0;
-            IntSet validFrames = new IntOpenHashSet();
-
-            for (Iterator<Frame> iterator = frames.iterator(); iterator.hasNext(); frameIndex++) {
-                Frame frame = iterator.next();
-                boolean validFrame = true;
-
-                if (frame.time() <= 0) {
-                    AzureLib.LOGGER.warn(
-                        "Invalid frame duration on sprite {} frame {}: {}",
-                        resourceId(),
-                        frameIndex,
-                        frame.time()
-                    );
-                    validFrame = false;
-                }
-
-                if (frame.index() < 0 || frame.index() >= availableFrames) {
-                    AzureLib.LOGGER.warn(
-                        "Invalid frame index on sprite {} frame {}: {}",
-                        resourceId(),
-                        frameIndex,
-                        frame.index()
-                    );
-                    validFrame = false;
-                }
-
-                if (validFrame)
-                    validFrames.add(frame.index());
-                else
-                    iterator.remove();
-            }
-
-            int[] unusedFrames = IntStream.range(0, availableFrames)
-                .filter(frame -> !validFrames.contains(frame))
-                .toArray();
-
-            if (unusedFrames.length > 0)
-                AzureLib.LOGGER.warn("Unused frames in sprite {}: {}", resourceId(), Arrays.toString(unusedFrames));
+        private boolean isValid() {
+            return this.animatedTexture != null;
         }
 
-        return frames.size() <= 1
-            ? null
-            : new AnimationContents(List.copyOf(frames), columns, animMeta.interpolatedFrames());
-    }
-
-    protected void uploadFrame(GpuDevice gpuDevice, NativeImage image, int x, int y, GpuTexture gpuTexture) {
-        gpuDevice.createCommandEncoder()
-            .writeToTexture(gpuTexture, image.getPixelBytes(), 0, 0, x, y, this.frameWidth, this.frameHeight);
-    }
-
-    protected class AnimationContents implements AutoCloseable {
-
-        protected final List<Frame> frames;
-
-        protected final int frameRowSize;
-
-        protected final boolean interpolateFrames;
-
-        protected final @Nullable InterpolationData interpolationData;
-
-        protected final NativeImage currentFrameBuffer;
-
-        protected @Nullable GpuTexture glowMaskTexture;
-
-        protected @Nullable NativeImage glowMaskImage;
-
-        protected @Nullable NativeImage glowMaskFrameBuffer;
-
-        protected @Nullable InterpolationData glowMaskInterpolationData;
-
-        int currentFrame;
-
-        int subFrame;
-
-        int totalFrameTime;
-
-        public AnimationContents(List<Frame> frames, int frameRowSize, boolean interpolateFrames) {
-            this.frames = frames;
-            this.frameRowSize = frameRowSize;
-            this.interpolateFrames = interpolateFrames;
-            this.interpolationData = interpolateFrames
-                ? new InterpolationData(AnimatableTexture.this.frameWidth, AnimatableTexture.this.frameHeight)
-                : null;
-            this.currentFrameBuffer = new NativeImage(
-                AnimatableTexture.this.frameWidth,
-                AnimatableTexture.this.frameHeight,
-                false
-            );
-
-            for (Frame frame : frames)
-                this.totalFrameTime += frame.time();
+        /// Called every client tick by [AnimatableTexture#tick()]. Advances against the shared render-tick counter
+        /// rather than an internal counter, so every instance of a given texture stays in sync without needing its own
+        /// ticking state
+        protected void tick() {
+            if (this.animatedTexture != null)
+                this.animatedTexture.setCurrentFrame((int) RenderUtils.getCurrentTick());
         }
 
-        int getFrameColumn(int frameIndex) {
-            return frameIndex % this.frameRowSize;
-        }
-
-        int getFrameRow(int frameIndex) {
-            return frameIndex / this.frameRowSize;
-        }
-
-        public void setGlowMaskTexture(AutoGlowingTexture texture, NativeImage baseImage, NativeImage glowMask) {
-            this.glowMaskTexture = texture.getTexture();
-            this.glowMaskImage = glowMask;
-            this.glowMaskFrameBuffer = new NativeImage(
-                AnimatableTexture.this.frameWidth,
-                AnimatableTexture.this.frameHeight,
-                false
-            );
-
-            if (this.interpolateFrames)
-                this.glowMaskInterpolationData = new InterpolationData(
-                    AnimatableTexture.this.frameWidth,
-                    AnimatableTexture.this.frameHeight
+        private Texture generateAnimatedTexture(NativeImage image, AnimationMetadataSection animMeta) {
+            if (
+                !Mth.isMultipleOf(image.getWidth(), this.frameSize.width()) || !Mth.isMultipleOf(
+                    image.getHeight(),
+                    this.frameSize.height()
+                )
+            ) {
+                AzureLib.LOGGER.error(
+                    "Image {} size {},{} is not multiple of frame size {},{}",
+                    AnimatableTexture.this.resourceId(),
+                    image.getWidth(),
+                    image.getHeight(),
+                    this.frameSize.width(),
+                    this.frameSize.height()
                 );
 
-            if (AnimatableTexture.this.baseImage != null)
-                AnimatableTexture.this.baseImage.copyFrom(baseImage);
-        }
+                return null;
+            }
 
-        public void setCurrentFrame(int ticks) {
-            if (this.totalFrameTime <= 0)
-                return;
+            int columns = image.getWidth() / this.frameSize.width();
+            int rows = image.getHeight() / this.frameSize.height();
+            int frameCount = columns * rows;
+            List<Frame> frames = new ObjectArrayList<>();
 
-            ticks %= this.totalFrameTime;
-            int accumulated = 0;
+            animMeta.frames()
+                .ifPresent(
+                    animationFrames -> animationFrames.forEach(
+                        animationFrame -> frames.add(
+                            new Frame(animationFrame.index(), animationFrame.time().orElse(animMeta.defaultFrameTime()))
+                        )
+                    )
+                );
 
-            for (int i = 0; i < this.frames.size(); i++) {
-                Frame frame = this.frames.get(i);
-                accumulated += frame.time();
+            if (frames.isEmpty()) {
+                for (int frame = 0; frame < frameCount; ++frame) {
+                    frames.add(new Frame(frame, animMeta.defaultFrameTime()));
+                }
+            } else {
+                int index = 0;
+                IntSet validFrames = new IntOpenHashSet();
 
-                if (ticks < accumulated) {
-                    boolean changedFrame = this.currentFrame != i;
-                    this.currentFrame = i;
-                    this.subFrame = ticks - (accumulated - frame.time());
-                    uploadCurrentFrame(changedFrame);
-                    return;
+                for (Iterator<Frame> iterator = frames.iterator(); iterator.hasNext(); index++) {
+                    Frame frame = iterator.next();
+                    boolean validFrame = true;
+
+                    if (frame.time() <= 0) {
+                        AzureLib.LOGGER.warn(
+                            "Invalid frame duration on sprite {} frame {}: {}",
+                            AnimatableTexture.this.resourceId(),
+                            index,
+                            frame.time()
+                        );
+                        validFrame = false;
+                    }
+
+                    if (frame.index() < 0 || frame.index() >= frameCount) {
+                        AzureLib.LOGGER.warn(
+                            "Invalid frame index on sprite {} frame {}: {}",
+                            AnimatableTexture.this.resourceId(),
+                            index,
+                            frame.index()
+                        );
+                        validFrame = false;
+                    }
+
+                    if (validFrame) {
+                        validFrames.add(frame.index());
+                    } else {
+                        iterator.remove();
+                    }
+                }
+
+                int[] unusedFrames = IntStream.range(0, frameCount)
+                    .filter(frame -> !validFrames.contains(frame))
+                    .toArray();
+
+                if (!(unusedFrames.length == 0)) {
+                    AzureLib.LOGGER.warn(
+                        "Unused frames in sprite {}: {}",
+                        AnimatableTexture.this.resourceId(),
+                        Arrays.toString(unusedFrames)
+                    );
                 }
             }
+
+            if (frames.size() <= 1)
+                return null;
+
+            AnimatableTexture.this.frameWidth = this.frameSize.width();
+            AnimatableTexture.this.frameHeight = this.frameSize.height();
+
+            return new Texture(image, frames.toArray(new Frame[0]), columns, animMeta.interpolatedFrames());
         }
 
-        public void tick() {
-            if (AnimatableTexture.this.baseImage == null)
-                return;
+        protected class Texture implements AutoCloseable {
 
-            this.subFrame++;
-            Frame prevFrameInfo = this.frames.get(this.currentFrame);
+            /// Reference to [AnimatableTexture#sourceImage]. Ownership (and closing) stays with the outer texture
+            /// instance, since this is the same NativeImage it loaded and uploads from
+            protected final NativeImage baseImage;
 
-            if (this.subFrame >= prevFrameInfo.time()) {
-                this.currentFrame = (this.currentFrame + 1) % this.frames.size();
-                this.subFrame = 0;
-                uploadCurrentFrame(prevFrameInfo.index() != this.frames.get(this.currentFrame).index());
-            } else if (this.interpolationData != null) {
-                this.interpolationData.tickAndUpload(AnimatableTexture.this.baseImage, getTexture());
+            protected final Frame[] frames;
 
-                if (
-                    this.glowMaskInterpolationData != null && this.glowMaskImage != null && this.glowMaskTexture != null
-                )
-                    this.glowMaskInterpolationData.tickAndUpload(this.glowMaskImage, this.glowMaskTexture);
+            protected final int framePanelSize;
+
+            protected final boolean interpolating;
+
+            protected final NativeImage frameBuffer;
+
+            protected final NativeImage interpolatedFrame;
+
+            protected final int totalFrameTime;
+
+            protected AutoGlowingTexture glowMaskTexture = null;
+
+            protected NativeImage glowmaskImage = null;
+
+            protected NativeImage glowmaskFrameBuffer = null;
+
+            protected NativeImage glowmaskInterpolatedFrame = null;
+
+            protected int currentFrame;
+
+            protected int currentSubframe;
+
+            private Texture(NativeImage baseImage, Frame[] frames, int framePanelSize, boolean interpolating) {
+                this.baseImage = baseImage;
+                this.frames = frames;
+                this.framePanelSize = framePanelSize;
+                this.interpolating = interpolating;
+                this.frameBuffer = newFrameImage();
+                this.interpolatedFrame = interpolating ? newFrameImage() : null;
+                int time = 0;
+
+                for (Frame frame : this.frames) {
+                    time += frame.time();
+                }
+
+                this.totalFrameTime = time;
             }
-        }
 
-        protected void uploadCurrentFrame(boolean frameChanged) {
-            if (!frameChanged || AnimatableTexture.this.baseImage == null)
-                return;
+            private NativeImage newFrameImage() {
+                return new NativeImage(
+                    AnimationContents.this.frameSize.width(),
+                    AnimationContents.this.frameSize.height(),
+                    true
+                );
+            }
 
-            int frameIndex = this.frames.get(this.currentFrame).index();
-            int frameX = getFrameColumn(frameIndex) * AnimatableTexture.this.frameWidth;
-            int frameY = getFrameRow(frameIndex) * AnimatableTexture.this.frameHeight;
+            private int getFrameX(int frameIndex) {
+                return frameIndex % this.framePanelSize;
+            }
 
-            AnimatableTexture.this.baseImage.copyRect(
-                this.currentFrameBuffer,
-                frameX,
-                frameY,
-                0,
-                0,
-                AnimatableTexture.this.frameWidth,
-                AnimatableTexture.this.frameHeight,
-                false,
-                false
-            );
-            uploadFrame(RenderSystem.getDevice(), this.currentFrameBuffer, 0, 0, getTexture());
+            private int getFrameY(int frameIndex) {
+                return frameIndex / this.framePanelSize;
+            }
 
-            if (this.glowMaskImage != null && this.glowMaskFrameBuffer != null && this.glowMaskTexture != null) {
-                this.glowMaskImage.copyRect(
-                    this.glowMaskFrameBuffer,
-                    frameX,
-                    frameY,
+            private void blitFrame(NativeImage sheet, NativeImage target, int frameIndex) {
+                sheet.copyRect(
+                    target,
+                    getFrameX(frameIndex) * AnimationContents.this.frameSize.width(),
+                    getFrameY(frameIndex) * AnimationContents.this.frameSize.height(),
                     0,
                     0,
-                    AnimatableTexture.this.frameWidth,
-                    AnimatableTexture.this.frameHeight,
+                    AnimationContents.this.frameSize.width(),
+                    AnimationContents.this.frameSize.height(),
                     false,
                     false
                 );
-                uploadFrame(RenderSystem.getDevice(), this.glowMaskFrameBuffer, 0, 0, this.glowMaskTexture);
-            }
-        }
-
-        @Override
-        public void close() {
-            if (this.interpolationData != null)
-                this.interpolationData.close();
-
-            if (this.glowMaskInterpolationData != null)
-                this.glowMaskInterpolationData.close();
-
-            if (this.glowMaskFrameBuffer != null)
-                this.glowMaskFrameBuffer.close();
-
-            if (this.glowMaskImage != null)
-                this.glowMaskImage.close();
-
-            this.currentFrameBuffer.close();
-        }
-
-        protected class InterpolationData implements AutoCloseable {
-
-            protected final NativeImage buffer;
-
-            public InterpolationData(int frameWidth, int frameHeight) {
-                this.buffer = new NativeImage(frameWidth, frameHeight, false);
             }
 
-            protected void tickAndUpload(NativeImage image, GpuTexture gpuTexture) {
-                AnimationContents instance = AnimationContents.this;
-                List<Frame> frames = instance.frames;
-                Frame currentFrameInfo = frames.get(instance.currentFrame);
-                int nextFrameIndex = frames.get((instance.currentFrame + 1) % frames.size()).index();
+            public NativeImage setGlowMaskTexture(
+                AutoGlowingTexture texture,
+                NativeImage baseImage,
+                NativeImage glowMask
+            ) {
+                this.glowMaskTexture = texture;
+                this.glowmaskImage = glowMask;
+                this.glowmaskFrameBuffer = newFrameImage();
+                this.glowmaskInterpolatedFrame = this.interpolating ? newFrameImage() : null;
+                this.baseImage.copyFrom(baseImage);
 
-                if (currentFrameInfo.index() != nextFrameIndex) {
-                    float partialFrame = instance.subFrame / (float) currentFrameInfo.time();
-                    int frameHeight = AnimatableTexture.this.frameHeight;
-                    int frameWidth = AnimatableTexture.this.frameWidth;
+                NativeImage firstFrame = newFrameImage();
 
-                    for (int pixelY = 0; pixelY < frameHeight; pixelY++) {
-                        for (int pixelX = 0; pixelX < frameWidth; pixelX++) {
-                            int framePixel = getPixel(
-                                image,
-                                instance,
-                                currentFrameInfo.index(),
-                                pixelX,
-                                pixelY,
-                                frameWidth,
-                                frameHeight
+                blitFrame(glowMask, firstFrame, 0);
+
+                return firstFrame;
+            }
+
+            private GpuTexture glowMaskGpuTexture() {
+                return this.glowMaskTexture == null ? null : this.glowMaskTexture.getTexture();
+            }
+
+            public void setCurrentFrame(int ticks) {
+                ticks %= this.totalFrameTime;
+
+                if (ticks == this.currentSubframe)
+                    return;
+
+                int lastSubframe = this.currentSubframe;
+                int lastFrame = this.currentFrame;
+                int time = 0;
+
+                for (Frame frame : this.frames) {
+                    time += frame.time();
+
+                    if (ticks < time) {
+                        this.currentFrame = frame.index();
+                        this.currentSubframe = ticks % frame.time();
+
+                        break;
+                    }
+                }
+
+                if (this.currentFrame != lastFrame && this.currentSubframe == 0) {
+                    onRenderThread(() -> {
+                        blitFrame(this.baseImage, this.frameBuffer, this.currentFrame);
+                        AnimatableTexture.this.upload(
+                            AnimatableTexture.this.texture,
+                            this.frameBuffer,
+                            0,
+                            0,
+                            AnimatableTexture.this.frameWidth,
+                            AnimatableTexture.this.frameHeight
+                        );
+
+                        if (this.glowmaskImage != null) {
+                            blitFrame(this.glowmaskImage, this.glowmaskFrameBuffer, this.currentFrame);
+                            AnimatableTexture.this.upload(
+                                glowMaskGpuTexture(),
+                                this.glowmaskFrameBuffer,
+                                0,
+                                0,
+                                AnimatableTexture.this.frameWidth,
+                                AnimatableTexture.this.frameHeight
                             );
-                            int nextFramePixel = getPixel(
-                                image,
-                                instance,
-                                nextFrameIndex,
-                                pixelX,
-                                pixelY,
-                                frameWidth,
-                                frameHeight
-                            );
+                        }
+                    });
+                } else if (this.currentSubframe != lastSubframe && this.interpolating) {
+                    onRenderThread(() -> {
+                        generateInterpolatedFrame(
+                            AnimatableTexture.this.texture,
+                            this.baseImage,
+                            this.interpolatedFrame
+                        );
 
-                            this.buffer.setPixel(
-                                pixelX,
-                                pixelY,
-                                ARGB.linearLerp(partialFrame, framePixel, nextFramePixel)
+                        if (this.glowmaskImage != null) {
+                            generateInterpolatedFrame(
+                                glowMaskGpuTexture(),
+                                this.glowmaskImage,
+                                this.glowmaskInterpolatedFrame
+                            );
+                        }
+                    });
+                }
+            }
+
+            private void generateInterpolatedFrame(
+                GpuTexture target,
+                NativeImage image,
+                NativeImage interpolatedFrame
+            ) {
+                Frame frame = this.frames[this.currentFrame];
+                double frameProgress = 1 - (double) this.currentSubframe / (double) frame.time();
+                int nextFrameIndex = this.frames[(this.currentFrame + 1) % this.frames.length].index();
+
+                if (frame.index() != nextFrameIndex) {
+                    for (int y = 0; y < interpolatedFrame.getHeight(); ++y) {
+                        for (int x = 0; x < interpolatedFrame.getWidth(); ++x) {
+                            int prevFramePixel = getPixel(image, frame.index(), x, y);
+                            int nextFramePixel = getPixel(image, nextFrameIndex, x, y);
+                            int blendedRed = interpolate(
+                                frameProgress,
+                                prevFramePixel >> 16 & 255,
+                                nextFramePixel >> 16 & 255
+                            );
+                            int blendedGreen = interpolate(
+                                frameProgress,
+                                prevFramePixel >> 8 & 255,
+                                nextFramePixel >> 8 & 255
+                            );
+                            int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
+
+                            interpolatedFrame.setPixel(
+                                x,
+                                y,
+                                prevFramePixel & -16777216 | blendedRed << 16 | blendedGreen << 8 | blendedBlue
                             );
                         }
                     }
 
-                    AnimatableTexture.this.uploadFrame(RenderSystem.getDevice(), this.buffer, 0, 0, gpuTexture);
+                    AnimatableTexture.this.upload(
+                        target,
+                        interpolatedFrame,
+                        0,
+                        0,
+                        AnimatableTexture.this.frameWidth,
+                        AnimatableTexture.this.frameHeight
+                    );
                 }
             }
 
-            protected int getPixel(
-                NativeImage image,
-                AnimationContents animationInfo,
-                int frameIndex,
-                int x,
-                int y,
-                int frameWidth,
-                int frameHeight
-            ) {
+            private int getPixel(NativeImage image, int frameIndex, int x, int y) {
                 return image.getPixel(
-                    x + animationInfo.getFrameColumn(frameIndex) * frameWidth,
-                    y + animationInfo.getFrameRow(frameIndex) * frameHeight
+                    x + getFrameX(frameIndex) * AnimationContents.this.frameSize.width(),
+                    y + getFrameY(frameIndex) * AnimationContents.this.frameSize.height()
                 );
+            }
+
+            private int interpolate(double frameProgress, double prevColor, double nextColor) {
+                return (int) (frameProgress * prevColor + (1 - frameProgress) * nextColor);
             }
 
             @Override
             public void close() {
-                this.buffer.close();
+                this.frameBuffer.close();
+
+                if (this.interpolatedFrame != null) {
+                    this.interpolatedFrame.close();
+                }
+
+                if (this.glowmaskImage != null) {
+                    this.glowmaskImage.close();
+                }
+
+                if (this.glowmaskFrameBuffer != null) {
+                    this.glowmaskFrameBuffer.close();
+                }
+
+                if (this.glowmaskInterpolatedFrame != null) {
+                    this.glowmaskInterpolatedFrame.close();
+                }
             }
         }
     }

@@ -1,105 +1,80 @@
 package mod.azure.azurelib.mixins;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 
 @Mixin(value = TextureManager.class, priority = 2010)
 public abstract class TextureManagerMixin {
 
-    @Unique
-    private final Map<Identifier, Boolean> azurelib$animationCache = new HashMap<>();
-
-    @Unique
-    private final Map<Identifier, AnimatableTexture> azurelib$textureCache = new HashMap<>();
+    @Shadow
+    protected abstract TextureContents loadContentsSafe(
+        Identifier textureId,
+        ReloadableTexture texture
+    );
 
     @Shadow
-    public abstract void register(Identifier resourceLocation, AbstractTexture abstractTexture);
+    public abstract void register(
+        Identifier location,
+        AbstractTexture texture
+    );
 
-    @Shadow
-    protected abstract AbstractTexture loadTexture(Identifier path, AbstractTexture texture);
-
-    @Inject(
-        method = "getTexture(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/AbstractTexture;",
-        at = @At("RETURN"),
-        cancellable = true,
+    @WrapOperation(
+        method = "getTexture(Lnet/minecraft/resources/Identifier;)" +
+            "Lnet/minecraft/client/renderer/texture/AbstractTexture;",
+        at = @At(
+            value = "NEW",
+            target = "(Lnet/minecraft/resources/Identifier;)" +
+                "Lnet/minecraft/client/renderer/texture/SimpleTexture;"
+        ),
         require = 0
     )
-    private void azurelib$replaceAnimatableTexture(
+    private SimpleTexture azurelib$replaceAnimatableTexture(
         Identifier location,
-        CallbackInfoReturnable<AbstractTexture> cir
+        Operation<SimpleTexture> original
     ) {
-        var currentTexture = cir.getReturnValue();
+        AnimatableTexture texture =
+            new AnimatableTexture(location);
 
-        if (currentTexture == null || currentTexture.getClass() != SimpleTexture.class) {
-            return;
+        TextureContents contents =
+            loadContentsSafe(location, texture);
+
+        if (texture.isAnimated()) {
+            texture.apply(contents);
+            register(location, texture);
+
+            return texture;
         }
 
-        if (azurelib$textureCache.containsKey(location)) {
-            cir.setReturnValue(azurelib$textureCache.get(location));
-            return;
-        }
+        texture.close();
 
-        var cached = azurelib$animationCache.get(location);
-        if (cached != null && !cached) {
-            return;
-        }
-
-        if (!azurelib$hasAnimationMetadata(location)) {
-            azurelib$animationCache.put(location, false);
-            return;
-        }
-
-        var animatableTexture = new AnimatableTexture(location);
-
-        try {
-            loadTexture(location, animatableTexture);
-        } catch (Exception e) {
-            AzureLib.LOGGER.error("Failed to load texture {}", location);
-            azurelib$animationCache.put(location, false);
-            return;
-        }
-
-        if (!animatableTexture.isAnimated()) {
-            azurelib$animationCache.put(location, false);
-            return;
-        }
-
-        azurelib$animationCache.put(location, true);
-        azurelib$textureCache.put(location, animatableTexture);
-
-        this.register(location, animatableTexture);
-        cir.setReturnValue(animatableTexture);
+        return original.call(location);
     }
 
-    @Unique
-    private boolean azurelib$hasAnimationMetadata(Identifier texture) {
-        var mcmeta = Identifier.fromNamespaceAndPath(
-            texture.getNamespace(),
-            texture.getPath() + ".mcmeta"
-        );
-
-        try {
-            return Minecraft.getInstance()
-                .getResourceManager()
-                .getResource(mcmeta)
-                .isPresent();
-        } catch (Exception e) {
-            return false;
-        }
+    @WrapWithCondition(
+        method = "getTexture(Lnet/minecraft/resources/Identifier;)" +
+            "Lnet/minecraft/client/renderer/texture/AbstractTexture;",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/texture/TextureManager;" +
+                "registerAndLoad(" +
+                "Lnet/minecraft/resources/Identifier;" +
+                "Lnet/minecraft/client/renderer/texture/ReloadableTexture;)V"
+        ),
+        require = 0
+    )
+    private boolean azurelib$skipAnimatedRegistration(
+        TextureManager textureManager,
+        Identifier textureId,
+        ReloadableTexture texture
+    ) {
+        return !(texture instanceof AnimatableTexture);
     }
 }

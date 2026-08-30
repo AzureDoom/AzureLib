@@ -1,26 +1,34 @@
 package mod.azure.azurelib.render.layer;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.model.object.skull.SkullModelBase;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.level.block.AbstractSkullBlock;
+import net.minecraft.world.level.block.SkullBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
-import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
@@ -29,18 +37,31 @@ import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
- * Supports {@link net.minecraft.world.item.ArmorItem Vanilla} armor models.<br>
  * Unlike a traditional armor renderer, this renderer renders per-bone, giving much more flexible armor rendering.
  */
 public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID, T> {
 
-    protected static final HumanoidModel<LivingEntity> INNER_ARMOR_MODEL = new HumanoidModel<>(
-        Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)
+    @SuppressWarnings("DataFlowIssue")
+    protected static final Function<SkullBlock.Type, @Nullable SkullModelBase> SKULL_MODELS = Util.memoize(
+        type -> SkullBlockRenderer.createModel(Minecraft.getInstance().getEntityModels(), type)
     );
 
-    protected static final HumanoidModel<LivingEntity> OUTER_ARMOR_MODEL = new HumanoidModel<>(
-        Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)
-    );
+    protected static ArmorModelSet<HumanoidModel<HumanoidRenderState>> createArmorModels() {
+        return ModelLayers.PLAYER_ARMOR.map(
+            layer -> new HumanoidModel<>(
+                Minecraft.getInstance().getEntityModels().bakeLayer(layer)
+            )
+        );
+    }
+
+    private final Map<AzBone, ArmorModelSet<HumanoidModel<HumanoidRenderState>>> armorModels =
+        new IdentityHashMap<>();
+
+    protected final EquipmentLayerRenderer equipmentRenderer;
+
+    public AzArmorLayer(EntityRendererProvider.Context context) {
+        this.equipmentRenderer = context.getEquipmentRenderer();
+    }
 
     @Nullable
     protected ItemStack mainHandStack;
@@ -107,8 +128,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             renderArmor(context, bone, armorStack);
         }
 
-        context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
-
         context.poseStack().popPose();
     }
 
@@ -127,20 +146,22 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var model = getModelForItem(slot);
+        var model = getModelForItem(bone, slot);
         var modelPart = getModelPartForBone(context, bone, model);
         var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
 
         if (!modelPart.cubes.isEmpty()) {
             context.poseStack().pushPose();
+            RenderUtils.transformToBone(context.poseStack(), bone);
+            RenderUtils.translateAwayFromPivotPoint(context.poseStack(), bone);
             context.poseStack().scale(-1, -1, 1);
 
-            if (armorStack.getItem() instanceof ArmorItem) {
+            if (armorStack.has(DataComponents.EQUIPPABLE)) {
                 prepModelPartForRender(context, bone, modelPart);
                 if (renderer != null) {
                     renderAzArmorPiece(renderer, context, bone, slot, armorStack, modelPart, model);
-                } else {
-                    renderArmorPiece(context, bone, slot, armorStack, modelPart);
+                } else if (HumanoidArmorLayer.shouldRender(armorStack, slot)) {
+                    renderArmorPiece(context, bone, slot, armorStack, modelPart, model);
                 }
             }
 
@@ -192,7 +213,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     protected <I extends Item> void renderAzArmorPiece(
         AzArmorRenderer renderer,
         AzRendererPipelineContext<UUID, T> context,
@@ -200,97 +220,82 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         EquipmentSlot slot,
         ItemStack armorStack,
         ModelPart modelPart,
-        HumanoidModel<T> baseModel
+        HumanoidModel<?> baseModel
     ) {
-        var armorModel = renderer.rendererPipeline().armorModel();
-        var boneContext = renderer.rendererPipeline().context().boneContext();
-        var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
-        var animatable = context.animatable();
-
-        renderer.prepForRender(animatable, armorStack, slot, baseModel);
-        boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
-        armorModel.renderToBuffer(
+        renderer.renderForBone(
             context.poseStack(),
-            null,
-            context.packedLight(),
-            OverlayTexture.NO_OVERLAY,
-            color
+            context.multiBufferSource(),
+            context.animatable(),
+            armorStack,
+            slot,
+            baseModel,
+            modelPart,
+            context.packedLight()
         );
     }
 
     /**
      * Renders an individual armor piece base on the given {@link AzBone} and {@link ItemStack}
      */
-    protected <I extends Item> void renderArmorPiece(
+    protected void renderArmorPiece(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         EquipmentSlot slot,
         ItemStack armorStack,
-        ModelPart modelPart
+        ModelPart modelPart,
+        HumanoidModel<HumanoidRenderState> model
     ) {
-        var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
+        var equippable = armorStack.get(DataComponents.EQUIPPABLE);
 
-        // Vanilla armor rendering
-        var material = ((ArmorItem) armorStack.getItem()).getMaterial();
-
-        for (var layer : material.value().layers()) {
-            var buffer = getVanillaArmorBuffer(context, armorStack, slot, bone, layer, false);
-
-            modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay(), color);
+        if (equippable == null || equippable.assetId().isEmpty()) {
+            return;
         }
 
-        var trim = armorStack.get(DataComponents.TRIM);
+        ResourceKey<EquipmentAsset> assetId = equippable.assetId().get();
+        var layerType = slot == EquipmentSlot.LEGS
+            ? EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS
+            : EquipmentClientInfo.LayerType.HUMANOID;
+        var renderState = new HumanoidRenderState();
 
-        if (trim != null) {
-            var sprite = Minecraft.getInstance()
-                .getModelManager()
-                .getAtlas(Sheets.ARMOR_TRIMS_SHEET)
-                .getSprite(slot == EquipmentSlot.LEGS ? trim.innerTexture(material) : trim.outerTexture(material));
-            var buffer = sprite.wrap(
-                context.multiBufferSource().getBuffer(Sheets.armorTrimsSheet(trim.pattern().value().decal()))
-            );
+        setOnlyPartVisible(model, modelPart);
 
-            modelPart.render(context.poseStack(), buffer, context.packedLight(), context.packedOverlay());
-        }
+        var packedLight = context.packedLight();
 
-        if (armorStack.hasFoil())
-            modelPart.render(
+        context.multiBufferSource()
+            .defer(
                 context.poseStack(),
-                getVanillaArmorBuffer(context, armorStack, slot, bone, null, true),
-                context.packedLight(),
-                context.packedOverlay(),
-                Color.WHITE.argbInt()
+                (poseStack, collector) -> equipmentRenderer.renderLayers(
+                    layerType,
+                    assetId,
+                    model,
+                    renderState,
+                    armorStack,
+                    poseStack,
+                    collector,
+                    packedLight,
+                    renderState.outlineColor
+                )
             );
     }
 
-    /**
-     * Retrieves a {@link VertexConsumer} for rendering vanilla-styled armor. The method determines whether the armor
-     * should apply a glint effect or not and selects the appropriate render type accordingly.
-     *
-     * @param context  The rendering context providing necessary data for rendering, including the animatable instance
-     *                 and the buffer source.
-     * @param stack    The armor {@link ItemStack} being rendered.
-     * @param slot     The {@link EquipmentSlot} the armor piece occupies.
-     * @param bone     The model bone associated with the armor piece.
-     * @param layer    The optional {@link ArmorMaterial.Layer} providing texture resources for rendering the armor.
-     * @param forGlint A flag indicating whether the armor piece should render with a glint effect.
-     * @return The {@link VertexConsumer} used to render the designated armor piece with the appropriate style and
-     *         effect.
-     */
-    protected VertexConsumer getVanillaArmorBuffer(
-        AzRendererPipelineContext<UUID, T> context,
-        ItemStack stack,
-        EquipmentSlot slot,
-        AzBone bone,
-        @Nullable ArmorMaterial.Layer layer,
-        boolean forGlint
-    ) {
-        if (forGlint) {
-            return context.multiBufferSource().getBuffer(RenderType.armorEntityGlint());
-        }
+    protected void setOnlyPartVisible(HumanoidModel<?> model, ModelPart usedPart) {
+        model.head.skipDraw = model.head != usedPart;
+        model.hat.skipDraw = model.hat != usedPart;
+        model.body.skipDraw = model.body != usedPart;
+        model.leftArm.skipDraw = model.leftArm != usedPart;
+        model.rightArm.skipDraw = model.rightArm != usedPart;
+        model.leftLeg.skipDraw = model.leftLeg != usedPart;
+        model.rightLeg.skipDraw = model.rightLeg != usedPart;
+    }
 
-        return context.multiBufferSource()
-            .getBuffer(RenderType.armorCutoutNoCull(layer.texture(slot == EquipmentSlot.LEGS)));
+    protected void restorePartVisibility(HumanoidModel<?> model) {
+        model.head.skipDraw = false;
+        model.hat.skipDraw = false;
+        model.body.skipDraw = false;
+        model.leftArm.skipDraw = false;
+        model.rightArm.skipDraw = false;
+        model.leftLeg.skipDraw = false;
+        model.rightLeg.skipDraw = false;
     }
 
     /**
@@ -309,8 +314,16 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
      * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided
      * {@link ItemStack}
      */
-    protected HumanoidModel<T> getModelForItem(EquipmentSlot slot) {
-        return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
+    protected HumanoidModel<HumanoidRenderState> getModelForItem(
+        AzBone bone,
+        EquipmentSlot slot
+    ) {
+        if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR)
+            return null;
+
+        return armorModels
+            .computeIfAbsent(bone, ignored -> createArmorModels())
+            .get(slot);
     }
 
     /**
@@ -323,24 +336,36 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         AbstractSkullBlock skullBlock
     ) {
         var type = skullBlock.getType();
-        var model = SkullBlockRenderer.createSkullRenderers(Minecraft.getInstance().getEntityModels())
-            .get(type);
-        var renderType = SkullBlockRenderer.getRenderType(type, stack.get(DataComponents.PROFILE));
+        var model = SKULL_MODELS.apply(type);
+
+        if (model == null) {
+            return;
+        }
+
+        var renderType = SkullBlockRenderer.getSkullRenderType(type, null);
+        var packedLight = context.packedLight();
 
         context.poseStack().pushPose();
+
         RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
         context.poseStack().scale(1.1875f, 1.1875f, 1.1875f);
         context.poseStack().translate(-0.5f, 0, -0.5f);
-        SkullBlockRenderer.renderSkull(
-            null,
-            0,
-            0,
-            context.poseStack(),
-            context.multiBufferSource(),
-            context.packedLight(),
-            model,
-            renderType
-        );
+
+        context.multiBufferSource()
+            .defer(
+                context.poseStack(),
+                (poseStack, collector) -> SkullBlockRenderer.submitSkull(
+                    0,
+                    poseStack,
+                    collector,
+                    packedLight,
+                    model,
+                    renderType,
+                    0,
+                    null
+                )
+            );
+
         context.poseStack().popPose();
     }
 

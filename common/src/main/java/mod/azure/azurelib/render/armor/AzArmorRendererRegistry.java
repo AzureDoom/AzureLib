@@ -132,10 +132,12 @@ public class AzArmorRendererRegistry {
      * @return The CustomModelData value, or 0 if not set.
      */
     public static int getCustomModelDataId(ItemStack itemStack) {
-        int customModelDataId = 0;
-        if (itemStack.getComponents().get(DataComponents.CUSTOM_MODEL_DATA) != null) {
-            customModelDataId = itemStack.getComponents().get(DataComponents.CUSTOM_MODEL_DATA).value();
+        var customModelData = itemStack.get(DataComponents.CUSTOM_MODEL_DATA);
+        if (customModelData == null) {
+            return 0;
         }
-        return customModelDataId;
+
+        var legacyValue = customModelData.getFloat(0);
+        return legacyValue != null ? legacyValue.intValue() : 0;
     }
 }

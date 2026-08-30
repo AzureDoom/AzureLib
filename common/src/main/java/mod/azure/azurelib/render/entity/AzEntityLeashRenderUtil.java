@@ -2,14 +2,18 @@ package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+import mod.azure.azurelib.render.AzBufferSource;
 
 /**
  * Utility class for rendering entity leash visuals within the Minecraft rendering engine. This class provides static
@@ -20,12 +24,11 @@ import org.joml.Matrix4f;
  */
 public class AzEntityLeashRenderUtil {
 
-    public static <T extends Entity, E extends Entity, M extends Mob> void renderLeash(
-        AzEntityRenderer<T> azEntityRenderer,
+    public static <M extends Mob, E extends Entity> void renderLeash(
         M mob,
         float partialTick,
         PoseStack poseStack,
-        MultiBufferSource bufferSource,
+        AzBufferSource bufferSource,
         E leashHolder
     ) {
         double lerpBodyAngle = (Mth.lerp(partialTick, mob.yBodyRotO, mob.yBodyRot) * Mth.DEG_TO_RAD) + Mth.HALF_PI;
@@ -42,17 +45,15 @@ public class AzEntityLeashRenderUtil {
         float offsetMod = Mth.invSqrt(xDif * xDif + zDif * zDif) * 0.025f / 2f;
         float xOffset = zDif * offsetMod;
         float zOffset = xDif * offsetMod;
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.leash());
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.leash());
         BlockPos entityEyePos = BlockPos.containing(mob.getEyePosition(partialTick));
         BlockPos holderEyePos = BlockPos.containing(leashHolder.getEyePosition(partialTick));
-        int entityBlockLight = azEntityRenderer.getBlockLightLevel((T) mob, entityEyePos);
+        int entityBlockLight = mob.isOnFire()
+            ? 15
+            : mob.level().getBrightness(LightLayer.BLOCK, entityEyePos);
         int holderBlockLight = leashHolder.isOnFire()
             ? 15
-            : leashHolder.level()
-                .getBrightness(
-                    LightLayer.BLOCK,
-                    holderEyePos
-                );
+            : leashHolder.level().getBrightness(LightLayer.BLOCK, holderEyePos);
         int entitySkyLight = mob.level().getBrightness(LightLayer.SKY, entityEyePos);
         int holderSkyLight = mob.level().getBrightness(LightLayer.SKY, holderEyePos);
 
@@ -106,8 +107,6 @@ public class AzEntityLeashRenderUtil {
 
     /**
      * Static rendering code for rendering a leash segment.<br>
-     * It's a like-for-like from {@link net.minecraft.client.renderer.entity.MobRenderer#addVertexPair} that had to be
-     * duplicated here for flexible usage
      */
     private static void renderLeashPiece(
         VertexConsumer buffer,
@@ -129,7 +128,7 @@ public class AzEntityLeashRenderUtil {
         var piecePosPercent = segment / 24f;
         var lerpBlockLight = (int) Mth.lerp(piecePosPercent, entityBlockLight, holderBlockLight);
         var lerpSkyLight = (int) Mth.lerp(piecePosPercent, entitySkyLight, holderSkyLight);
-        var packedLight = LightTexture.pack(lerpBlockLight, lerpSkyLight);
+        var packedLight = LightCoordsUtil.pack(lerpBlockLight, lerpSkyLight);
         var knotColourMod = segment % 2 == (isLeashKnot ? 1 : 0) ? 0.7f : 1f;
         var red = 0.5f * knotColourMod;
         var green = 0.4f * knotColourMod;
@@ -140,11 +139,40 @@ public class AzEntityLeashRenderUtil {
             : yDif - yDif * (1.0f - piecePosPercent) * (1.0f - piecePosPercent);
         var z = zDif * piecePosPercent;
 
-        buffer.addVertex(positionMatrix, x - xOffset, y + yOffset, z + zOffset)
-            .setColor(red, green, blue, 1)
-            .setLight(packedLight);
-        buffer.addVertex(positionMatrix, x + xOffset, y + width - yOffset, z - zOffset)
-            .setColor(red, green, blue, 1)
+        putColorLight(buffer, positionMatrix, x - xOffset, y + yOffset, z + zOffset, red, green, blue, 1, packedLight);
+        putColorLight(
+            buffer,
+            positionMatrix,
+            x + xOffset,
+            y + width - yOffset,
+            z - zOffset,
+            red,
+            green,
+            blue,
+            1,
+            packedLight
+        );
+    }
+
+    /**
+     * 26.2 removed the {@code VertexConsumer#addVertex(Matrix4f, float, float, float)} convenience overload, so the
+     * matrix transform is done by hand here instead.
+     */
+    private static void putColorLight(
+        VertexConsumer buffer,
+        Matrix4f matrix,
+        float x,
+        float y,
+        float z,
+        float red,
+        float green,
+        float blue,
+        float alpha,
+        int packedLight
+    ) {
+        var position = matrix.transformPosition(x, y, z, new Vector3f());
+        buffer.addVertex(position.x(), position.y(), position.z())
+            .setColor(red, green, blue, alpha)
             .setLight(packedLight);
     }
 

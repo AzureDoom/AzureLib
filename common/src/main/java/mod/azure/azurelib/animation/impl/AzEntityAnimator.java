@@ -49,7 +49,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
 
         parser.setMemoizedValue(
             MolangQueries.DISTANCE_FROM_CAMERA,
-            () -> minecraft.gameRenderer.getMainCamera().getPosition().distanceTo(entity.position())
+            () -> minecraft.gameRenderer.mainCamera().position().distanceTo(entity.position())
         );
         parser.setMemoizedValue(MolangQueries.IN_AIR, () -> RenderUtils.booleanToFloat(!entity.onGround()));
         parser.setMemoizedValue(MolangQueries.IS_ON_GROUND, () -> RenderUtils.booleanToFloat(entity.onGround()));

@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzPhasedRenderer;
@@ -98,10 +97,6 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
         var animator = itemRendererPipeline.getRenderer().getAnimator();
         var isAnimationPlaying = false;
-        // Check if the first-person mod is loaded as it has its own arm system for items
-        var firstPerson = Services.PLATFORM.isModLoaded("firstperson");
-        // Check if the bone is an arm bone and the first person mod is loaded
-        var isArmBone = AzItemArmRenderUtil.isArmBone(bone) && !firstPerson;
 
         if (animator != null) {
             // Check all animation controllers to see if any are playing
@@ -114,11 +109,6 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
                     break;
                 }
             }
-        }
-
-        // Check if the bone is an arm bone and an animation is playing
-        if (isArmBone && isAnimationPlaying) {
-            AzItemArmRenderUtil.renderArmForBone(context, bone, this);
         }
 
         if (bone.isTrackingMatrices()) {

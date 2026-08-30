@@ -1,8 +1,9 @@
 package mod.azure.azurelib.render.block;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -12,10 +13,13 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.List;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
+import mod.azure.azurelib.render.AzVertexCapture;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -28,6 +32,16 @@ import mod.azure.azurelib.util.client.RenderUtils;
 public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRenderer<Long, T> {
 
     protected final AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline;
+
+    private boolean capturing = false;
+
+    private AzVertexCapture captureConsumer = null;
+
+    private RenderType captureRenderType = null;
+
+    private boolean detectedMultipleRenderTypes = false;
+
+    private long capturedBoneHash = 0L;
 
     public AzBlockEntityModelRenderer(
         AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline,
@@ -47,22 +61,120 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         var entity = context.animatable();
         var poseStack = context.poseStack();
 
+        // See AzEntityModelRenderer#render for the rationale; this is the block-entity equivalent.
+        float entityCamX = 0, entityCamY = 0, entityCamZ = 0;
+        int passCamXBits = 0, passCamYBits = 0, passCamZBits = 0;
         if (!isReRender) {
+            var m = poseStack.last().pose();
+            entityCamX = m.m30();
+            entityCamY = m.m31();
+            entityCamZ = m.m32();
+            var bpos = entity.getBlockPos();
+            passCamXBits = Float.floatToRawIntBits(bpos.getX() - entityCamX);
+            passCamYBits = Float.floatToRawIntBits(bpos.getY() - entityCamY);
+            passCamZBits = Float.floatToRawIntBits(bpos.getZ() - entityCamZ);
+        }
 
+        if (!isReRender) {
             poseStack.translate(0.5, 0, 0.5);
             rotateBlock(getFacing(entity), poseStack);
-            var animator = blockEntityRendererPipeline.getRenderer().getAnimator();
 
+            var animator = blockEntityRendererPipeline.getRenderer().getAnimator();
             if (animator != null || context.applyAnimationOnReRender()) {
                 handleAnimation(animator, entity, context.partialTick());
             }
         }
 
-        blockEntityRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
+        if (!isReRender) {
+            var level = entity.getLevel();
+            if (level != null) {
+                AzBlockEntityGeometryCache.maybeReset(level.getGameTime(), context.partialTick());
 
-        var textureLocation = blockEntityRendererPipeline.config().textureLocation(context.currentEntity(), entity);
-        RenderSystem.setShaderTexture(0, textureLocation);
+                var model = context.bakedModel();
+                var blockState = entity.getBlockState();
+                var rt = context.renderType();
+
+                if (rt != null && !anyBoneTracksMatrices(model.getTopLevelBones())) {
+                    long boneHash = hashBones(model.getTopLevelBones());
+                    capturedBoneHash = boneHash;
+
+                    var cacheKey = new AzBlockEntityGeometryCache.CacheKey(
+                        model.getModelUUID(),
+                        blockState,
+                        boneHash,
+                        rt,
+                        passCamXBits,
+                        passCamYBits,
+                        passCamZBits
+                    );
+
+                    var snapshot = AzBlockEntityGeometryCache.get(cacheKey);
+
+                    if (snapshot != null) {
+                        if (!AzBlockEntityGeometryCache.isUncacheable(snapshot)) {
+                            snapshot.replayTo(
+                                context.multiBufferSource(),
+                                entityCamX,
+                                entityCamY,
+                                entityCamZ,
+                                context.packedLight(),
+                                context.packedOverlay(),
+                                context.renderColor()
+                            );
+                            return;
+                        }
+                    } else {
+                        capturing = true;
+                        detectedMultipleRenderTypes = false;
+                        captureRenderType = rt;
+
+                        var realBuffer = context.multiBufferSource().getBuffer(rt);
+                        if (captureConsumer == null) {
+                            captureConsumer = new AzVertexCapture(realBuffer);
+                        } else {
+                            captureConsumer.reset(realBuffer);
+                        }
+                    }
+                }
+            }
+        }
+
+        blockEntityRendererPipeline.modelRenderTranslations.set(poseStack.last().pose());
+
         super.render(context, isReRender);
+
+        if (capturing) {
+            capturing = false;
+
+            var model = context.bakedModel();
+            var blockState = entity.getBlockState();
+            var rt = context.renderType();
+            var cacheKey = new AzBlockEntityGeometryCache.CacheKey(
+                model.getModelUUID(),
+                blockState,
+                capturedBoneHash,
+                rt,
+                passCamXBits,
+                passCamYBits,
+                passCamZBits
+            );
+
+            if (detectedMultipleRenderTypes) {
+                AzBlockEntityGeometryCache.put(cacheKey, AzBlockEntityGeometryCache.uncacheable());
+            } else {
+                AzBlockEntityGeometryCache.put(
+                    cacheKey,
+                    new AzBlockEntityGeometryCache.VertexSnapshot(
+                        captureConsumer.getCapturedData(),
+                        captureConsumer.getVertexCount(),
+                        captureRenderType,
+                        entityCamX,
+                        entityCamY,
+                        entityCamZ
+                    )
+                );
+            }
+        }
     }
 
     /**
@@ -134,6 +246,41 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
     }
 
     /**
+     * While a geometry-cache capture pass is in progress, swaps in {@link #captureConsumer} in place of the real buffer
+     * so every vertex the model renderer emits is also recorded (see {@link AzBlockEntityGeometryCache}).
+     */
+    @Override
+    public VertexConsumer getOrRefreshRenderBuffer(
+        boolean isReRender,
+        AzRendererPipelineContext<Long, T> context,
+        AzBone bone
+    ) {
+        var realConsumer = super.getOrRefreshRenderBuffer(isReRender, context, bone);
+
+        if (!capturing) {
+            return realConsumer;
+        }
+
+        if (realConsumer == captureConsumer) {
+            realConsumer = context.multiBufferSource().getBuffer(captureRenderType);
+        }
+
+        var config = blockEntityRendererPipeline.config();
+        if (
+            config.boneRenderTypeOverrideProvider(bone) != null
+                || config.boneTextureOverrideProvider(bone) != null
+        ) {
+            detectedMultipleRenderTypes = true;
+            return realConsumer;
+        }
+
+        if (captureConsumer.delegate() != realConsumer) {
+            captureConsumer.updateDelegate(realConsumer);
+        }
+        return captureConsumer;
+    }
+
+    /**
      * Attempt to extract a direction from the block so that the model can be oriented correctly
      */
     protected Direction getFacing(T block) {
@@ -160,5 +307,39 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
             case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
             case DOWN -> poseStack.mulPose(Axis.XN.rotationDegrees(90));
         }
+    }
+
+    private static long hashBones(List<AzBone> bones) {
+        long h = 1L;
+        for (var bone : bones) {
+            h = hashBoneRecursive(h, bone);
+        }
+        return h;
+    }
+
+    private static long hashBoneRecursive(long h, AzBone bone) {
+        h = h * 31 + Float.floatToRawIntBits(bone.getPosX());
+        h = h * 31 + Float.floatToRawIntBits(bone.getPosY());
+        h = h * 31 + Float.floatToRawIntBits(bone.getPosZ());
+        h = h * 31 + Float.floatToRawIntBits(bone.getRotX());
+        h = h * 31 + Float.floatToRawIntBits(bone.getRotY());
+        h = h * 31 + Float.floatToRawIntBits(bone.getRotZ());
+        h = h * 31 + Float.floatToRawIntBits(bone.getScaleX());
+        h = h * 31 + Float.floatToRawIntBits(bone.getScaleY());
+        h = h * 31 + Float.floatToRawIntBits(bone.getScaleZ());
+        for (var child : bone.getChildBones()) {
+            h = hashBoneRecursive(h, child);
+        }
+        return h;
+    }
+
+    private static boolean anyBoneTracksMatrices(List<AzBone> bones) {
+        for (var bone : bones) {
+            if (bone.isTrackingMatrices())
+                return true;
+            if (anyBoneTracksMatrices(bone.getChildBones()))
+                return true;
+        }
+        return false;
     }
 }

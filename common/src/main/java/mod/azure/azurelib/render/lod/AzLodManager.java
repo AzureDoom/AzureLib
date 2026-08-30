@@ -49,8 +49,8 @@ public final class AzLodManager {
             return true;
         }
 
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        var camPos = camera.getPosition();
+        var camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        var camPos = camera.position();
         var distSq = entity.distanceToSqr(camPos.x, camPos.y, camPos.z);
 
         applyBoneLod(bakedModel, distSq);

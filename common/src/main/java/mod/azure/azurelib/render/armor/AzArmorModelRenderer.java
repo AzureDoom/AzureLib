@@ -28,7 +28,7 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
     /**
      * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
      * {@link AzPhasedRenderer#preRender} has already been called by this stage, and {@link AzPhasedRenderer#postRender}
-     * will be called directly after
+     * will be called directly after.
      */
     @Override
     public void render(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
@@ -53,14 +53,10 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
         poseStack.popPose();
     }
 
-    /**
-     * Renders the provided {@link AzBone} and its associated child bones
-     */
     @Override
     public void renderRecursively(AzRendererPipelineContext<UUID, ItemStack> context, AzBone bone, boolean isReRender) {
         var poseStack = context.poseStack();
-        // TODO: This is dangerous.
-        var ctx = armorRendererPipeline.context();
+        var armorContext = armorRendererPipeline.context();
 
         poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
@@ -74,15 +70,17 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
                 RenderUtils.invertAndMultiplyMatrices(poseState, armorRendererPipeline.modelRenderTranslations)
             );
             bone.setLocalSpaceMatrix(RenderUtils.translateMatrix(localMatrix, new Vector3f()));
-            bone.setWorldSpaceMatrix(
-                RenderUtils.translateMatrix(new Matrix4f(localMatrix), ctx.currentEntity().position().toVector3f())
-            );
+
+            var entity = armorContext.currentEntity();
+            if (entity != null) {
+                bone.setWorldSpaceMatrix(
+                    RenderUtils.translateMatrix(new Matrix4f(localMatrix), entity.position().toVector3f())
+                );
+            }
         }
 
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
-
         super.renderRecursively(context, bone, isReRender);
-
         poseStack.popPose();
     }
 }

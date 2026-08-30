@@ -10,7 +10,7 @@ import org.joml.Vector4f;
 import java.util.List;
 import java.util.Objects;
 
-import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.AzCube;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
@@ -22,7 +22,7 @@ public class AzBone {
 
     private final List<AzBone> children = new ObjectArrayList<>();
 
-    private final List<GeoCube> cubes = new ObjectArrayList<>();
+    private final List<AzCube> cubes = new ObjectArrayList<>();
 
     private final Matrix4f modelSpaceMatrix = new Matrix4f();
 
@@ -282,7 +282,7 @@ public class AzBone {
         return metadata.reset();
     }
 
-    public List<GeoCube> getCubes() {
+    public List<AzCube> getCubes() {
         return this.cubes;
     }
 
