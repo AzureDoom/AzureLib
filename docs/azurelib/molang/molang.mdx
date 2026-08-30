@@ -23,12 +23,11 @@ public static final String MY_CUSTOM_VALUE = MolangQueries.normalize("query.my_c
 
 ### Step 2: Register Variables
 
-Create a method to register your variables, typically called during initialization:
+Create a method to register your variables, typically called during initialization. Register against the shared `MolangParser.INSTANCE` — don't create a new `MolangParser`, since doing so just re-runs its constructor setup for no benefit:
 
 ```java
 private void registerXModsVariables() {
-    MolangParser molangParser = new MolangParser();
-    molangParser.register(new LazyVariable(AzureLib.MY_CUSTOM_VALUE, 0));
+    MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 0));
 }
 ```
 
@@ -90,6 +89,6 @@ MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 42.0))
 
 1. Always use `MolangQueries.normalize()` when defining query constants
 2. Define query constants as `public static final` fields
-3. Register variables during initialization
+3. Register variables during initialization using `MolangParser.INSTANCE` — never instantiate a new `MolangParser`
 4. Use memoized values when possible for better performance
 5. Keep query names descriptive and consistent
