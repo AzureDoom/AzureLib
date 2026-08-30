@@ -40,11 +40,10 @@ if (keyPropsFile.exists()) {
     publishMods {
         def releaseProp = new Properties()
         releaseProp.load(new FileInputStream(keyPropsFile))
-        file = remapJar.archiveFile
+        file = jar.archiveFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("fabric")
-        modLoaders.add("quilt")
         displayName = file.map { it.asFile.name }
 
         curseforge {
@@ -52,6 +51,9 @@ if (keyPropsFile.exists()) {
             projectSlug = project.mod_id
             accessToken = releaseProp.getProperty("curseKey")
             minecraftVersions.add(project.minecraft_version)
+            javaVersions.add(JavaVersion.VERSION_21)
+            client = true
+            server = true
             requires {
                 slug = "fabric-api"
             }
@@ -60,6 +62,7 @@ if (keyPropsFile.exists()) {
             projectId = project.modrinth_id
             accessToken = releaseProp.getProperty('modrinthKey')
             minecraftVersions.add(project.minecraft_version)
+            environment = CLIENT_AND_SERVER
         }
     }
 }
