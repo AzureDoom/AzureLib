@@ -201,7 +201,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         AzBone bone,
         HumanoidModel<?> baseModel
     ) {
-        return baseModel.body;
+        var stack = getArmorItemForBone(context, bone);
+        var slot = getEquipmentSlotForBone(context, bone, stack);
+
+        return switch (slot) {
+            case HEAD -> baseModel.head;
+            case FEET -> baseModel.leftLeg;
+            default -> baseModel.body;
+        };
     }
 
     /**
