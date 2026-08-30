@@ -30,7 +30,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
-                        .addRenderLayer(new AzBlockAndItemLayer<ExampleEntity>() {
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
                             // Override methods here
                         })
                         .build(),
@@ -128,7 +128,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
-                        .addRenderLayer(new AzBlockAndItemLayer<ExampleEntity>() {
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
 
                             @Override
                             public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {

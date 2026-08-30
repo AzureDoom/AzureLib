@@ -65,7 +65,7 @@ public class ExampleBEDispatcher {
 
     private final BlockEntity blockEntity;
 
-    public StargateBlockAnimationDispatcher(BlockEntity blockEntity) {
+    public ExampleBEDispatcher(BlockEntity blockEntity) {
         this.blockEntity = blockEntity;
     }
 
@@ -109,7 +109,7 @@ Example:
     ) {
         if (blockEntity.level != null && level.isClientSide()) {
             // This is where you now trigger an animation to play
-            blockEntity.animationDispatcher.spin(blockEntity);
+            blockEntity.dispatcher.spin(blockEntity);
         }
     }
 ```
