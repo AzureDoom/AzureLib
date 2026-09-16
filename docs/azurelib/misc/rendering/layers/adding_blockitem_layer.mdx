@@ -85,7 +85,7 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    ```java
    @Override
    protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-       context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+       context.poseStack().rotate(Axis.XP.rotationDegrees(270));
        context.poseStack().translate(0.0D, 0.1D, -0.1D);
        super.renderItemForBone(context, bone, itemStack, animatable);
    }
@@ -135,7 +135,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
                             @Override
                             protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-                                context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+                                context.poseStack().rotate(Axis.XP.rotationDegrees(270));
                                 context.poseStack().translate(0.0D, 0.1D, -0.1D);
                                 super.renderItemForBone(context, bone, itemStack, animatable);
                             }
