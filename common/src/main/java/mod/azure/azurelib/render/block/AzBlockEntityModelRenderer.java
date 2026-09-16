@@ -300,12 +300,12 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
      */
     protected void rotateBlock(Direction facing, PoseStack poseStack) {
         switch (facing) {
-            case SOUTH -> poseStack.mulPose(Axis.YP.rotationDegrees(180));
-            case WEST -> poseStack.mulPose(Axis.YP.rotationDegrees(90));
-            case NORTH -> poseStack.mulPose(Axis.YP.rotationDegrees(0));
-            case EAST -> poseStack.mulPose(Axis.YP.rotationDegrees(270));
-            case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
-            case DOWN -> poseStack.mulPose(Axis.XN.rotationDegrees(90));
+            case SOUTH -> poseStack.rotate(Axis.YP.rotationDegrees(180));
+            case WEST -> poseStack.rotate(Axis.YP.rotationDegrees(90));
+            case NORTH -> poseStack.rotate(Axis.YP.rotationDegrees(0));
+            case EAST -> poseStack.rotate(Axis.YP.rotationDegrees(270));
+            case UP -> poseStack.rotate(Axis.XP.rotationDegrees(90));
+            case DOWN -> poseStack.rotate(Axis.XN.rotationDegrees(90));
         }
     }
 

@@ -2,7 +2,7 @@ package mod.azure.azurelib.cache.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -85,10 +85,10 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
     }
 
     public static RenderType getRenderType(Identifier texture) {
-        return RenderTypes.entityTranslucentEmissive(getEmissiveResource(texture), false);
+        return RenderTypes.breezeEyes(getEmissiveResource(texture));
     }
 
     public static RenderType getOutlineRenderType(Identifier texture) {
-        return RenderTypes.entityTranslucentEmissive(getEmissiveResource(texture), true);
+        return RenderTypes.entityTranslucentEmissive(getEmissiveResource(texture));
     }
 }

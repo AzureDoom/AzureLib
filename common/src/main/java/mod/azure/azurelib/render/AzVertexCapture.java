@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
@@ -56,7 +57,7 @@ public final class AzVertexCapture implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer addVertex(float x, float y, float z) {
+    public @NonNull VertexConsumer addVertex(float x, float y, float z) {
         vX = x;
         vY = y;
         vZ = z;
@@ -65,19 +66,19 @@ public final class AzVertexCapture implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer setColor(int r, int g, int b, int a) {
+    public @NonNull VertexConsumer setColor(int r, int g, int b, int a) {
         delegate.setColor(r, g, b, a);
         return this;
     }
 
     @Override
-    public VertexConsumer setColor(int argb) {
+    public @NonNull VertexConsumer setColor(int argb) {
         delegate.setColor(argb);
         return this;
     }
 
     @Override
-    public VertexConsumer setUv(float u, float v) {
+    public @NonNull VertexConsumer setUv(float u, float v) {
         vU = u;
         vV = v;
         delegate.setUv(u, v);
@@ -85,19 +86,25 @@ public final class AzVertexCapture implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer setUv1(int u, int v) {
+    public @NonNull VertexConsumer setUv1(int u, int v) {
         delegate.setUv1(u, v);
         return this;
     }
 
     @Override
-    public VertexConsumer setUv2(int u, int v) {
+    public @NonNull VertexConsumer setUv2(int u, int v) {
         delegate.setUv2(u, v);
         return this;
     }
 
     @Override
-    public VertexConsumer setNormal(float nx, float ny, float nz) {
+    public @NonNull VertexConsumer setUv3(float v, float v1) {
+        delegate.setUv3(v, v1);
+        return this;
+    }
+
+    @Override
+    public @NonNull VertexConsumer setNormal(float nx, float ny, float nz) {
         ensureCapacity();
 
         var f = vertexCount * FLOAT_STRIDE;
@@ -116,7 +123,7 @@ public final class AzVertexCapture implements VertexConsumer {
     }
 
     @Override
-    public VertexConsumer setLineWidth(float width) {
+    public @NonNull VertexConsumer setLineWidth(float width) {
         delegate.setLineWidth(width);
         return this;
     }

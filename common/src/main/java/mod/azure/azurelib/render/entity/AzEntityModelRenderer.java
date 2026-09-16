@@ -397,7 +397,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         }
 
         if (!animatable.hasPose(Pose.SLEEPING)) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(180f - rotationYaw));
+            poseStack.rotate(Axis.YP.rotationDegrees(180f - rotationYaw));
         }
 
         if (animatable instanceof LivingEntity livingEntity) {
@@ -407,25 +407,25 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             if (livingEntity.deathTime > 0) {
                 float deathRotation = (livingEntity.deathTime + partialTick - 1f) / 20f * 1.6f;
 
-                poseStack.mulPose(
+                poseStack.rotate(
                     Axis.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * deathMaxRotation)
                 );
             } else if (livingEntity.isAutoSpinAttack()) {
-                poseStack.mulPose(Axis.XP.rotationDegrees(-90f - livingEntity.getXRot()));
-                poseStack.mulPose(Axis.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
+                poseStack.rotate(Axis.XP.rotationDegrees(-90f - livingEntity.getXRot()));
+                poseStack.rotate(Axis.YP.rotationDegrees((livingEntity.tickCount + partialTick) * -75f));
             } else if (animatable.hasPose(Pose.SLEEPING)) {
                 Direction bedOrientation = livingEntity.getBedOrientation();
 
-                poseStack.mulPose(
+                poseStack.rotate(
                     Axis.YP.rotationDegrees(
                         bedOrientation != null ? RenderUtils.getDirectionAngle(bedOrientation) : rotationYaw
                     )
                 );
-                poseStack.mulPose(Axis.ZP.rotationDegrees(deathMaxRotation));
-                poseStack.mulPose(Axis.YP.rotationDegrees(270f));
+                poseStack.rotate(Axis.ZP.rotationDegrees(deathMaxRotation));
+                poseStack.rotate(Axis.YP.rotationDegrees(270f));
             } else if (isEntityUpsideDown(livingEntity)) {
                 poseStack.translate(0, (animatable.getBbHeight() + 0.1f) / nativeScale, 0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+                poseStack.rotate(Axis.ZP.rotationDegrees(180f));
             }
         }
     }

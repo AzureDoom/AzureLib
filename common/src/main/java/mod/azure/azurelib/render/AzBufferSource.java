@@ -28,6 +28,7 @@ import java.util.Map;
  * the pose supplied at submit time; the pipeline itself runs against an identity {@link PoseStack} during extraction,
  * so the recorded vertices are entity-local.
  */
+@SuppressWarnings("unused")
 public final class AzBufferSource {
 
     private final Map<RenderType, RecordingConsumer> buffers = new LinkedHashMap<>();
@@ -230,6 +231,11 @@ public final class AzBufferSource {
         @Override
         public @NonNull VertexConsumer setUv2(int u, int v) {
             vLight = (v << 16) | (u & 0xFFFF);
+            return this;
+        }
+
+        @Override
+        public @NonNull VertexConsumer setUv3(float v, float v1) {
             return this;
         }
 
