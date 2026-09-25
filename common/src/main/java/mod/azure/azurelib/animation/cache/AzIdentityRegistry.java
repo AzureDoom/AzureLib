@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import mod.azure.azurelib.AzureLib;
 
@@ -16,7 +17,7 @@ import mod.azure.azurelib.AzureLib;
  */
 public class AzIdentityRegistry {
 
-    private static final Set<Item> IDENTITY_OF_ITEMS = new HashSet<>();
+    private static final Set<Item> IDENTITY_OF_ITEMS = ConcurrentHashMap.newKeySet();
 
     /**
      * Registers one or more items into a static identity set, ensuring that the items are stored for identity tracking.
