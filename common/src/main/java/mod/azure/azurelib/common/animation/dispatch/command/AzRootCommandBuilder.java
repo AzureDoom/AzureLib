@@ -4,6 +4,7 @@ import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.common.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.common.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
+import mod.azure.azurelib.common.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.common.animation.easing.AzEasingType;
 
 /**
@@ -136,6 +137,17 @@ public class AzRootCommandBuilder extends AzCommandBuilder {
     ) {
         var sequence = builderUnaryOperator.apply(new AzAnimationSequenceBuilder()).build();
         actions.add(new AzRootPlayAnimationSequenceAction(sequence));
+        return this;
+    }
+
+    /**
+     * Plays an {@link AzSequence} on every controller of the animator.
+     *
+     * @param sequence the sequence to play
+     * @return the updated instance of {@code AzRootCommandBuilder} for method chaining
+     */
+    public AzRootCommandBuilder playSequence(AzSequence sequence) {
+        actions.add(new AzRootPlayAnimationSequenceAction(sequence.toAnimationSequence()));
         return this;
     }
 }

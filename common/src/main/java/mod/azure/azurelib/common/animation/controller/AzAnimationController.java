@@ -52,6 +52,13 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     private AzAnimationProperties animationProperties;
 
+    /**
+     * How many times the current animation has finished and been replayed by
+     * {@link mod.azure.azurelib.common.animation.play_behavior.AzPlayBehaviors#REPEAT_X_TIMES}. Kept per controller
+     * because play behaviors are shared singletons.
+     */
+    private int repeatCount;
+
     AzAnimationController(
         String name,
         AzAnimator<?, T> animator,
@@ -174,7 +181,11 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
         this.currentSequenceOrigin = originSide;
 
-        if (stateMachine.isStopped()) {
+        // A finished sequence has consumed its queue. Dispatching it again should replay it from the first stage,
+        // rather than being treated as "already playing" and only replaying the last stage.
+        var wasStopped = stateMachine.isStopped();
+
+        if (wasStopped) {
             stateMachine.transition();
         }
 
@@ -189,7 +200,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             return;
         }
 
-        if (!sequence.equals(currentSequence)) {
+        if (wasStopped || !sequence.equals(currentSequence)) {
             var animations = tryCreateAnimationQueue(animatable, sequence);
 
             if (!animations.isEmpty()) {
@@ -260,10 +271,35 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public void setCurrentAnimation(AzQueuedAnimation currentAnimation) {
         this.currentAnimation = currentAnimation;
+        // A new (or canceled) animation must not inherit the previous animation's repeat progress.
+        this.repeatCount = 0;
 
         if (currentAnimation == null) {
             this.currentSequence = null;
             this.currentSequenceOrigin = null;
         }
+    }
+
+    /**
+     * @return how many times the current animation has been repeated so far
+     */
+    public int repeatCount() {
+        return repeatCount;
+    }
+
+    /**
+     * Increments the repeat count of the current animation.
+     *
+     * @return the new repeat count
+     */
+    public int incrementRepeatCount() {
+        return ++repeatCount;
+    }
+
+    /**
+     * Resets the repeat count of the current animation to zero.
+     */
+    public void resetRepeatCount() {
+        this.repeatCount = 0;
     }
 }

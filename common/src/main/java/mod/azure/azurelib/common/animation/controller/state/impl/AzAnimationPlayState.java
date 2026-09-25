@@ -66,8 +66,12 @@ public class AzAnimationPlayState<T> extends AzAnimationState<T> {
             currentAnimation.playBehavior().onFinish(context);
         }
 
-        if (context.stateMachine().isStopped()) {
-            // Nothing more to do at this point since we can't play the animation again, so return.
+        var stateMachine = context.stateMachine();
+
+        if (stateMachine.isStopped() || stateMachine.isTransitioning()) {
+            // Either nothing more will play, or the play behavior moved on to the next queued stage. In the latter
+            // case the controller now holds the next animation and its transition has already snapshot the bones,
+            // so executing the finished animation's keyframes here would flash its first frame for one update.
             return;
         }
 

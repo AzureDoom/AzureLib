@@ -20,7 +20,7 @@ public class AzAnimationPropertiesCodec implements StreamCodec<FriendlyByteBuf, 
 
             switch (code) {
                 case 0 -> properties = properties.withAnimationSpeed(buf.readDouble());
-                case 1 -> properties.withTransitionLength(buf.readFloat());
+                case 1 -> properties = properties.withTransitionLength(buf.readFloat());
                 case 2 -> {
                     var easingType = AzEasingTypeRegistry.getOrDefault(buf.readUtf(), AzEasingTypes.NONE);
                     properties = properties.withEasingType(easingType);
