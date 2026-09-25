@@ -5,8 +5,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -26,10 +26,10 @@ public class AzArmorRendererRegistry {
     ) {}
 
     /** Map storing instantiated renderers for a quick lookup. */
-    private static final Map<ArmorKey, AzArmorRenderer> ITEM_TO_RENDERER = new HashMap<>();
+    private static final Map<ArmorKey, AzArmorRenderer> ITEM_TO_RENDERER = new ConcurrentHashMap<>();
 
     /** Map storing renderer suppliers for lazy initialization. */
-    private static final Map<ArmorKey, Supplier<AzArmorRenderer>> ITEM_TO_RENDERER_SUPPLIER = new HashMap<>();
+    private static final Map<ArmorKey, Supplier<AzArmorRenderer>> ITEM_TO_RENDERER_SUPPLIER = new ConcurrentHashMap<>();
 
     /**
      * Registers a renderer supplier for an item without a specific CustomModelData constraint. The renderer will apply

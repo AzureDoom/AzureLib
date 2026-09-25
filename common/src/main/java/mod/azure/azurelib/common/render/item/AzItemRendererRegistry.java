@@ -3,8 +3,8 @@ package mod.azure.azurelib.common.render.item;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -14,9 +14,9 @@ import java.util.function.Supplier;
  */
 public class AzItemRendererRegistry {
 
-    private static final Map<Item, AzItemRenderer> ITEM_TO_RENDERER = new HashMap<>();
+    private static final Map<Item, AzItemRenderer> ITEM_TO_RENDERER = new ConcurrentHashMap<>();
 
-    private static final Map<Item, Supplier<AzItemRenderer>> ITEM_TO_RENDERER_SUPPLIER = new HashMap<>();
+    private static final Map<Item, Supplier<AzItemRenderer>> ITEM_TO_RENDERER_SUPPLIER = new ConcurrentHashMap<>();
 
     public static void register(Item item, Supplier<AzItemRenderer> itemRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(item, itemRendererSupplier);
