@@ -11,6 +11,10 @@
         "name": "AzCommands 101",
         "icon": "Info"
     },
+    "azsequence.mdx": {
+        "name": "AzSequence",
+        "icon": "Info"
+    },
     "animating_in_code.mdx": {
         "name": "Animating Bones In-Code",
         "icon": "Info"

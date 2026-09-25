@@ -37,7 +37,11 @@ public class AzRootCancelAllAction implements AzAction {
         var controllerContainer = animator.getAnimationControllerContainer();
         var controllers = controllerContainer.getAll();
 
-        controllers.forEach(controller -> controller.setCurrentAnimation(null));
+        controllers.forEach(controller -> {
+            // Clear the queue too, otherwise the next queued stage of a sequence would start playing.
+            controller.animationQueue().clear();
+            controller.setCurrentAnimation(null);
+        });
     }
 
     @Override

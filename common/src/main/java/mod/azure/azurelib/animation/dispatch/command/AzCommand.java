@@ -17,6 +17,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
@@ -103,6 +104,27 @@ public record AzCommand(List<AzAction> actions) {
      */
     public static AzCommand create(String controllerName, String animationName, AzPlayBehavior playBehavior) {
         return create(controllerName, animationName, playBehavior, 0F, 1F, 0F, 0F, 0F, false);
+    }
+
+    /**
+     * Creates a command that plays an {@link AzSequence} on a single controller.
+     *
+     * @param controllerName the name of the animation controller to target
+     * @param sequence       the sequence to play
+     * @return an AzCommand that plays the sequence
+     */
+    public static AzCommand create(String controllerName, AzSequence sequence) {
+        return sequence.toCommand(controllerName);
+    }
+
+    /**
+     * Creates a command that plays an {@link AzSequence} on every controller.
+     *
+     * @param sequence the sequence to play
+     * @return an AzCommand that plays the sequence on all controllers
+     */
+    public static AzCommand createRoot(AzSequence sequence) {
+        return sequence.toRootCommand();
     }
 
     public static AzCommand create(
