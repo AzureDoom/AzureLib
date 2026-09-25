@@ -160,7 +160,7 @@ private void onClientSetup(FMLClientSetupEvent event) {
 
 ## Registering your Armor for proper animation triggering
 
-To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric, or inside `event.enqueueWork(...)` in your `FMLCommonSetupEvent` handler for NeoForge/Forge. `FMLCommonSetupEvent` also runs in parallel across mods, so the same `enqueueWork` rule applies.
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric, or inside `event.enqueueWork(...)` in your `FMLCommonSetupEvent` handler for NeoForge. `FMLCommonSetupEvent` also runs in parallel across mods, so the same `enqueueWork` rule applies.
 
 Fabric:
 
