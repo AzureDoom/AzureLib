@@ -15,21 +15,22 @@ public class AzPlayBehaviors {
     /**
      * Represents a play behavior where an animation is repeated a specified number of times. The behavior resets the
      * animation controller's timer and keyframe callback handler after each iteration and continues playing until the
-     * maximum repeat count is reached. Once the repeat count is met, the animation stops.
+     * maximum repeat count is reached. Once the repeat count is met, the controller moves on to the next queued stage,
+     * or stops if there is none.
+     * <p>
+     * The repeat count is stored on each {@link AzAnimationController}, not on this shared behavior instance, so
+     * controllers repeating at the same time do not interfere with each other.
      */
     public static final AzPlayBehavior REPEAT_X_TIMES = AzPlayBehaviorRegistry.register(
         new AzPlayBehavior("repeat_x_times") {
-
-            private int currentRepeatCount = 0;
 
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
                 AzAnimationController<?> controller = context.animationController();
                 var maxRepeats = controller.animationProperties().repeatXTimes();
+                var repeatCount = controller.incrementRepeatCount();
 
-                currentRepeatCount++;
-
-                if (maxRepeats > 1 && currentRepeatCount <= maxRepeats) {
+                if (maxRepeats > 1 && repeatCount <= maxRepeats) {
                     var controllerTimer = controller.controllerTimer();
                     var keyframeManager = controller.keyframeManager();
                     var keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
@@ -39,8 +40,8 @@ public class AzPlayBehaviors {
 
                     context.stateMachine().play();
                 } else {
-                    context.stateMachine().stop();
-                    currentRepeatCount = 0;
+                    controller.resetRepeatCount();
+                    advanceOrStop(context);
                 }
             }
         }
@@ -85,6 +86,9 @@ public class AzPlayBehaviors {
         }
     );
 
+    /**
+     * A predefined {@link AzPlayBehavior} that loops an animation indefinitely.
+     */
     public static final AzPlayBehavior LOOP = AzPlayBehaviorRegistry.register(new AzPlayBehavior("loop") {
 
         @Override
@@ -100,13 +104,27 @@ public class AzPlayBehaviors {
     });
 
     /**
-     * A predefined {@link AzPlayBehavior} that plays an animation once and stops the state machine upon completion.
+     * A predefined {@link AzPlayBehavior} that plays an animation once. When it finishes, the controller moves on to
+     * the next queued stage of the sequence, or stops if this was the last one.
      */
     public static final AzPlayBehavior PLAY_ONCE = AzPlayBehaviorRegistry.register(new AzPlayBehavior("play_once") {
 
         @Override
         public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
-            context.stateMachine().stop();
+            advanceOrStop(context);
         }
     });
+
+    /**
+     * Transitions to the next queued animation of the current sequence, or stops the state machine if the queue is
+     * empty. Behaviors that "end" an animation should call this rather than {@code stop()}, otherwise the remaining
+     * stages of a multi-stage sequence never play.
+     */
+    public static void advanceOrStop(AzAnimationControllerStateMachine.Context<?> context) {
+        if (context.animationController().animationQueue().isEmpty()) {
+            context.stateMachine().stop();
+        } else {
+            context.stateMachine().transition();
+        }
+    }
 }
