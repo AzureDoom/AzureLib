@@ -31,6 +31,8 @@ public record AzControllerCancelAction(
         var controller = animator.getAnimationControllerContainer().getOrNull(controllerName);
 
         if (controller != null) {
+            // Clear the queue too, otherwise the next queued stage of a sequence would start playing.
+            controller.animationQueue().clear();
             controller.setCurrentAnimation(null);
         }
     }
