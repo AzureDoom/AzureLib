@@ -216,8 +216,27 @@ If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default r
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
-To do this simply call the `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Neoforge/Forge for your ArmorItem
+Call `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric, or inside `event.enqueueWork(...)` in your `FMLClientSetupEvent` handler for NeoForge for your ArmorItem.
+
+<Callout variant="warning">
+    On NeoForge, setup events fire for every mod **at the same time** on parallel worker threads. Always register inside `event.enqueueWork(...)`, which runs your code on the main thread after every mod's handler has finished, so your registrations can't race another mod's. Registering directly in the event handler can cause renderers to go missing at random between launches. Fabric runs its initializers one after another on a single thread, so no wrapper is needed there.
+</Callout>
+
+Fabric:
 
 ```java
-AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
+@Override
+public void onInitializeClient() {
+    AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
+}
+```
+
+NeoForge:
+
+```java
+private void onClientSetup(FMLClientSetupEvent event) {
+    event.enqueueWork(() -> {
+        AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
+    });
+}
 ```
