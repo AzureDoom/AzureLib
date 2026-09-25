@@ -169,23 +169,64 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
 
 ## Registering your Renderer
 
-Now simply call the `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric and `FMLClientSetupEvent` for Forge
+Call `AzArmorRendererRegistry#register()` in your `onInitializeClient` for Fabric, or inside `event.enqueueWork(...)` in your `FMLClientSetupEvent` handler for Forge.
+
+<Callout variant="warning">
+    On Forge, setup events fire for every mod **at the same time** on parallel worker threads. Always register inside `event.enqueueWork(...)`, which runs your code on the main thread after every mod's handler has finished, so your registrations can't race another mod's. Registering directly in the event handler can cause renderers to go missing at random between launches. Fabric runs its initializers one after another on a single thread, so no wrapper is needed there.
+</Callout>
+
+Fabric:
 
 ```java
-AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+@Override
+public void onInitializeClient() {
+    AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+            YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+            YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+            YourItemRegistry.YOUR_ARMOR_BOOTS);
+}
+```
+
+Forge:
+
+```java
+private void onClientSetup(FMLClientSetupEvent event) {
+    event.enqueueWork(() -> {
+        AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
                 YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
                 YourItemRegistry.YOUR_ARMOR_LEGGINGS,
                 YourItemRegistry.YOUR_ARMOR_BOOTS);
+    });
+}
 ```
 
 ## Registering your Armor for proper animation triggering
 
-To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric and `FMLCommonSetupEvent` for Forge like so:
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` in your `onInitialize` for Fabric, or inside `event.enqueueWork(...)` in your `FMLCommonSetupEvent` handler for Forge. `FMLCommonSetupEvent` also runs in parallel across mods, so the same `enqueueWork` rule applies.
+
+Fabric:
 
 ```java
-AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
+@Override
+public void onInitialize() {
+    AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
+            YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+            YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+            YourItemRegistry.YOUR_ARMOR_BOOTS,
+            ...);
+}
+```
+
+Forge:
+
+```java
+private void onCommonSetup(FMLCommonSetupEvent event) {
+    event.enqueueWork(() -> {
+        AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
                 YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
                 YourItemRegistry.YOUR_ARMOR_LEGGINGS,
                 YourItemRegistry.YOUR_ARMOR_BOOTS,
                 ...);
+    });
+}
 ```
