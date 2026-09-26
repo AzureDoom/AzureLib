@@ -63,6 +63,11 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
+            // Bones outside the controller's mask are skipped before their keyframes are evaluated.
+            if (!animationController.boneMask().includes(bone)) {
+                continue;
+            }
+
             var queue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
             var snapshot = boneSnapshotCache.getOrNull(boneAnimation.boneName());
 

@@ -23,6 +23,9 @@ public class AzBoneCache {
 
     private final Map<String, AzBoneSnapshot> boneSnapshotsByName;
 
+    /** Counts animation frames for this animatable; advanced at the end of {@link #update}. */
+    private long currentFrame;
+
     public AzBoneCache() {
         this.boneSnapshotsByName = new Object2ObjectOpenHashMap<>();
         setBakedModel(AzBakedModel.getDefault());
@@ -63,6 +66,15 @@ public class AzBoneCache {
         }
 
         resetBoneTransformationMarkers();
+        currentFrame++;
+    }
+
+    /**
+     * The frame controllers are currently writing. Used to tell whether an earlier controller already wrote a bone
+     * channel this frame, so later controllers blend on top of it rather than on top of the bind pose.
+     */
+    public long currentFrame() {
+        return currentFrame;
     }
 
     /**

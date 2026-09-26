@@ -59,6 +59,7 @@ public class AzActionRegistry {
         register(AzControllerSetFreezeTickAction.RESOURCE_LOCATION, AzControllerSetFreezeTickAction.CODEC);
         register(AzControllerSetRepeatTimesAction.RESOURCE_LOCATION, AzControllerSetRepeatTimesAction.CODEC);
         register(AzControllerSetReverseAction.RESOURCE_LOCATION, AzControllerSetReverseAction.CODEC);
+        register(AzControllerSetWeightAction.RESOURCE_LOCATION, AzControllerSetWeightAction.CODEC);
     }
 
     private AzActionRegistry() {}

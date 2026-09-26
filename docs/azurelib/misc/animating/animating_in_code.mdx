@@ -22,6 +22,10 @@ Example:
 - Now simply do a check ifPresent() and you can start changing the X, Y, Z of the bones in code!
 
 <Callout variant="info">
+    `setCustomAnimations` runs after all of your controllers have been applied and layered, so a value you set here replaces the animated value for that frame. To add movement on top of the animation instead, add to the bone's current value, e.g. `bone.setRotX(bone.getRotX() + offset)`. To mix whole animations together, layer controllers instead; see the Layering Controllers section of the Animation Controller Builder page.
+</Callout>
+
+<Callout variant="info">
     This example would move the legs and arms like players.
 </Callout>
 Example:
