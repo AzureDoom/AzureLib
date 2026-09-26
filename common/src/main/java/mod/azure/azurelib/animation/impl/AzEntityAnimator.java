@@ -1,10 +1,5 @@
 package mod.azure.azurelib.animation.impl;
 
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.animation.AzAnimatorConfig;
-import mod.azure.azurelib.util.client.RenderUtils;
-import mod.azure.azurelib.core.molang.MolangQueries;
-import mod.azure.azurelib.core.molang.MolangVariableRef;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -12,6 +7,12 @@ import net.minecraft.world.entity.LivingEntity;
 
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
+
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimatorConfig;
+import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * The {@code AzEntityAnimator} class extends {@link AzAnimator} to provide specialized animation management for

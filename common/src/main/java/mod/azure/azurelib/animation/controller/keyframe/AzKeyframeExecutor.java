@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
-import mod.azure.azurelib.core.molang.MolangVariableRef;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
@@ -10,8 +9,8 @@ import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 
 /**

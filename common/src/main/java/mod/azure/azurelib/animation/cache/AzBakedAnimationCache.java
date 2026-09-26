@@ -1,7 +1,6 @@
 package mod.azure.azurelib.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import mod.azure.azurelib.core.molang.MolangParser;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +11,7 @@ import java.util.concurrent.Executor;
 
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.cache.AzResourceCache;
+import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.loading.FileLoader;
 
 /**
