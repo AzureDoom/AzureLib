@@ -59,6 +59,15 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     private int repeatCount;
 
+    /** How strongly this controller's animation is applied, from 0 (no effect) to 1 (full). See {@link #setWeight}. */
+    private double weight = 1;
+
+    private AzBlendMode blendMode = AzBlendMode.OVERRIDE;
+
+    private AzBoneMask boneMask = AzBoneMask.ALL;
+
+    private final AzWeightFade weightFade = new AzWeightFade();
+
     AzAnimationController(
         String name,
         AzAnimator<?, T> animator,
@@ -156,8 +165,10 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         boneAnimationQueueCache.prepareFrame();
         // Run state machine updates.
         stateMachine.update();
+        // Advance any weight fade before applying this frame's values.
+        updateWeightFade();
         // Update bone animation queue cache.
-        boneAnimationQueueCache.update(animationProperties.easingType());
+        boneAnimationQueueCache.update(animationProperties.easingType(), weight, blendMode);
     }
 
     /**
@@ -235,6 +246,74 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     public AzAnimationQueue animationQueue() {
         return animationQueue;
+    }
+
+    /**
+     * How strongly this controller's animation is applied to the bones it animates, from 0 to 1.
+     */
+    public double weight() {
+        return weight;
+    }
+
+    /**
+     * Sets how strongly this controller's animation is applied, clamped to 0..1. Controllers are layered in the order
+     * they were added: each one blends its pose over whatever earlier controllers wrote to the same bone this frame, or
+     * over the bind pose if none did. At 1 (the default) the pose fully replaces what is underneath, which is the same
+     * result as before blending existed; at 0 the controller has no effect.
+     */
+    public void setWeight(double weight) {
+        this.weightFade.cancel();
+        this.weight = clampWeight(weight);
+    }
+
+    /**
+     * Moves the weight to {@code targetWeight} over {@code lengthTicks} ticks, starting next frame, so layers can fade
+     * in and out instead of popping. Fades follow the animator's clock: they run smoothly between game ticks, pause
+     * with the game, and are not affected by animation speed. A length of 0 or less sets the weight immediately.
+     * Calling {@link #setWeight} or starting another fade replaces the current one, starting from the current weight.
+     */
+    public void fadeWeight(double targetWeight, double lengthTicks) {
+        if (!(lengthTicks > 0)) {
+            setWeight(targetWeight);
+            return;
+        }
+
+        this.weightFade.start(this.weight, clampWeight(targetWeight), lengthTicks);
+    }
+
+    /** Whether a {@link #fadeWeight} fade is still in progress. */
+    public boolean isFadingWeight() {
+        return weightFade.isActive();
+    }
+
+    private void updateWeightFade() {
+        if (weightFade.isActive()) {
+            weight = weightFade.update(animator.context().timer().getAnimTime());
+        }
+    }
+
+    private static double clampWeight(double weight) {
+        return Double.isNaN(weight) ? 0 : Math.max(0, Math.min(1, weight));
+    }
+
+    /** How this controller combines with earlier controllers on the same bone. */
+    public AzBlendMode blendMode() {
+        return blendMode;
+    }
+
+    /** Sets how this controller combines with earlier controllers on the same bone. See {@link AzBlendMode}. */
+    public void setBlendMode(AzBlendMode blendMode) {
+        this.blendMode = blendMode == null ? AzBlendMode.OVERRIDE : blendMode;
+    }
+
+    /** The bones this controller may animate. */
+    public AzBoneMask boneMask() {
+        return boneMask;
+    }
+
+    /** Limits which bones this controller animates. See {@link AzBoneMask}. */
+    public void setBoneMask(AzBoneMask boneMask) {
+        this.boneMask = boneMask == null ? AzBoneMask.ALL : boneMask;
     }
 
     public AzBoneAnimationQueueCache<T> boneAnimationQueueCache() {

@@ -37,16 +37,52 @@ public class AzBoneAnimationQueueCache<T> {
      *                   position, and scale
      */
     public void update(AzEasingType easingType) {
+        update(easingType, 1, AzBlendMode.OVERRIDE);
+    }
+
+    /**
+     * Applies this frame's values to the bones, combined with what is already there by {@code blendMode} and
+     * {@code weight}. See {@link AzBoneAnimationUpdateUtil} for how controllers layer.
+     */
+    public void update(AzEasingType easingType, double weight, AzBlendMode blendMode) {
         var boneSnapshots = boneCache.getBoneSnapshotsByName();
+        var frame = boneCache.currentFrame();
 
         for (var boneAnimation : boneAnimationQueues.values()) {
             var bone = boneAnimation.bone();
             var snapshot = boneSnapshots.get(bone.getName());
             var initialSnapshot = bone.getInitialAzSnapshot();
 
-            AzBoneAnimationUpdateUtil.updateRotations(boneAnimation, bone, easingType, initialSnapshot, snapshot);
-            AzBoneAnimationUpdateUtil.updatePositions(boneAnimation, bone, easingType, snapshot);
-            AzBoneAnimationUpdateUtil.updateScale(boneAnimation, bone, easingType, snapshot);
+            AzBoneAnimationUpdateUtil.updateRotations(
+                boneAnimation,
+                bone,
+                easingType,
+                initialSnapshot,
+                snapshot,
+                weight,
+                blendMode,
+                frame
+            );
+            AzBoneAnimationUpdateUtil.updatePositions(
+                boneAnimation,
+                bone,
+                easingType,
+                initialSnapshot,
+                snapshot,
+                weight,
+                blendMode,
+                frame
+            );
+            AzBoneAnimationUpdateUtil.updateScale(
+                boneAnimation,
+                bone,
+                easingType,
+                initialSnapshot,
+                snapshot,
+                weight,
+                blendMode,
+                frame
+            );
         }
     }
 

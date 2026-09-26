@@ -49,6 +49,23 @@ public class AzControllerCommandBuilder extends AzCommandBuilder {
         return this;
     }
 
+    /**
+     * Sets a controller's blend weight (0 to 1) immediately. See {@code AzAnimationController#setWeight}.
+     */
+    public AzControllerCommandBuilder setWeight(String controllerName, float weight) {
+        actions.add(new AzControllerSetWeightAction(controllerName, weight, 0));
+        return this;
+    }
+
+    /**
+     * Fades a controller's blend weight (0 to 1) over {@code fadeTicks} ticks. See
+     * {@code AzAnimationController#fadeWeight}.
+     */
+    public AzControllerCommandBuilder fadeWeight(String controllerName, float weight, float fadeTicks) {
+        actions.add(new AzControllerSetWeightAction(controllerName, weight, fadeTicks));
+        return this;
+    }
+
     public AzControllerCommandBuilder cancel(String controllerName) {
         actions.add(new AzControllerCancelAction(controllerName));
         return this;

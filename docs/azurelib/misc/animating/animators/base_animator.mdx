@@ -35,6 +35,7 @@ The `AzAnimator` is an abstract class with the following key features:
   ```
 - **Example Usage:**
   Define specific controllers (e.g., idle, walking, interactions) for your entity or object.
+- Controllers are applied in the order they are added. When several controllers animate the same bone, each one is layered on top of the ones before it; see [Layering Controllers](../misc/animating/animation_controller_builder#layering-controllers).
 
 #### 2. **`getAnimationLocation`**
 - Abstract method for locating the animation file for the animatable object:

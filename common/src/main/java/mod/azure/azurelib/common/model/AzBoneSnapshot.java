@@ -29,6 +29,16 @@ public class AzBoneSnapshot {
 
     private boolean rotAnimInProgress = true;
 
+    /*
+     * The animation frame in which a controller last wrote each channel, used to blend later controllers on top of
+     * earlier ones within the same frame. Frames come from AzBoneCache#currentFrame; -1 means never.
+     */
+    private long rotationWriteFrame = -1;
+
+    private long positionWriteFrame = -1;
+
+    private long scaleWriteFrame = -1;
+
     private boolean posAnimInProgress = true;
 
     private boolean scaleAnimInProgress = true;
@@ -142,6 +152,30 @@ public class AzBoneSnapshot {
     public void stopPosAnim(double tick) {
         this.posAnimInProgress = false;
         this.lastResetPositionTick = tick;
+    }
+
+    public boolean isRotationWrittenInFrame(long frame) {
+        return this.rotationWriteFrame == frame;
+    }
+
+    public boolean isPositionWrittenInFrame(long frame) {
+        return this.positionWriteFrame == frame;
+    }
+
+    public boolean isScaleWrittenInFrame(long frame) {
+        return this.scaleWriteFrame == frame;
+    }
+
+    public void markRotationWritten(long frame) {
+        this.rotationWriteFrame = frame;
+    }
+
+    public void markPositionWritten(long frame) {
+        this.positionWriteFrame = frame;
+    }
+
+    public void markScaleWritten(long frame) {
+        this.scaleWriteFrame = frame;
     }
 
     public void startRotAnim() {
