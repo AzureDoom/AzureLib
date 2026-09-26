@@ -37,7 +37,7 @@ private void registerXModsVariables() {
 
 ### Step 3: Implement Query Updates
 
-Override `applyMolangQueries` in your AzAnimator class to update your query values during animation. One animator instance animates every entity it renders, so create your suppliers once and have them read the entity currently being animated, rather than creating a new lambda every frame:
+Override `applyMolangQueries` in your AzAnimator class to update your query values during animation. Create your suppliers once and have them read the entity currently being animated, rather than creating a new lambda every frame. Binding then allocates nothing:
 
 ```java
 public class MyEntityAnimator extends AzEntityAnimator<MyEntity> {
@@ -48,7 +48,7 @@ public class MyEntityAnimator extends AzEntityAnimator<MyEntity> {
     // The entity currently being animated, set in applyMolangQueries below.
     private MyEntity currentEntity;
 
-    // Created once and reused for every entity and frame.
+    // Created once, when the animator is created.
     private final DoubleSupplier myCustomValue = () -> currentEntity.getChargeLevel();
 
     @Override

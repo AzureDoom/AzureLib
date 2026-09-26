@@ -88,6 +88,33 @@ AzCommand combinedCommand = AzCommand.compose(walkCommand, idleCommand);
 ```
 All actions from the two commands are merged into a single unified command.
 
+### 3. **Changing a Controller's Weight**
+When several controllers are layered on the same bones (see the Layering Controllers section of the Animation Controller Builder page), you can change how strongly a controller is applied from the server. Build the command with `AzCommand.controllerBuilder()`:
+
+``` java
+// Fade the "aim" layer in over 5 ticks.
+AzCommand aimIn = AzCommand.controllerBuilder()
+    .fadeWeight("aim", 1F, 5F)
+    .build();
+
+// Set it back to 0 instantly.
+AzCommand aimOff = AzCommand.controllerBuilder()
+    .setWeight("aim", 0F)
+    .build();
+
+aimIn.sendForEntity(myEntity);
+```
+- `setWeight(controllerName, weight)` changes the weight instantly; `fadeWeight(controllerName, weight, ticks)` moves it there over the given number of ticks.
+- Weights range from `0` (no effect) to `1` (full).
+- A weight stays in place until it is changed again; playing a new animation on the controller doesn't reset it.
+- The same builder can also play animations, so a layer can be faded in and started in one command:
+``` java
+AzCommand startAiming = AzCommand.controllerBuilder()
+    .fadeWeight("aim", 1F, 5F)
+    .play("aim", "AIM_ANIMATION")
+    .build();
+```
+
 ## Sending AzCommands
 Once you've created an AzCommand, you can dispatch it to an entity, block entity, or item stack using the provided methods.
 
@@ -164,8 +191,8 @@ public class ExampleEntity extends Monster {
         super.tick(); // Update base entity behavior
         moveAnalysis.update(); // Analyze the entity's movement state
 
-        if (this.level.isClientSide) { // Only execute animation logic on the client
-            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && isOnGround();
+        if (this.level().isClientSide) { // Only execute animation logic on the client
+            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && onGround();
 
             if (isMovingOnGround) {
                 walkCommand.sendForEntity(this); // Send the walk animation if moving
