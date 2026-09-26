@@ -66,10 +66,14 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
+            // Bones outside the controller's mask are skipped before their keyframes are evaluated.
+            if (!animationController.boneMask().includes(boneAnimationQueue.bone())) {
+                continue;
+            }
+
             var rotationKeyframes = boneAnimation.rotationKeyframes();
             var positionKeyframes = boneAnimation.positionKeyframes();
             var scaleKeyframes = boneAnimation.scaleKeyframes();
-            var adjustedTick = controllerTimer.getAdjustedTick();
 
             updateRotation(rotationKeyframes, boneAnimationQueue, currentAdjustedTick);
             updatePosition(positionKeyframes, boneAnimationQueue, currentAdjustedTick);

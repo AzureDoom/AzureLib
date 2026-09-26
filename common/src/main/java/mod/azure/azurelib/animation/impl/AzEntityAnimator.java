@@ -65,10 +65,10 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
     );
 
     /*
-     * The entity currently being animated. One animator serves every entity of its type, so the query suppliers below
-     * are created once and read these fields rather than capturing the entity in a new lambda every frame. They are set
-     * in applyMolangQueries and all Molang evaluation happens later in the same animate() call. The animator already
-     * retains the last animatable through its current context, so this adds no new retention.
+     * The entity currently being animated. The query suppliers below are created once and read these fields, rather
+     * than capturing the entity in new lambdas every frame, so binding the queries allocates nothing. The fields are
+     * set in applyMolangQueries and all Molang evaluation happens later in the same animate() call. The animator
+     * already holds its animatable through its current context, so this adds no new retention.
      */
     private T currentEntity;
 
