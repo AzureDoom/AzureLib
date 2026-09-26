@@ -7,10 +7,10 @@ package mod.azure.azurelib.core.molang.functions;
 
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.functions.Function;
+import mod.azure.azurelib.core.math.functions.classic.Sin;
 
 /**
- * Replacement function for {@link mod.azure.azurelib.core.math.functions.classic.Sin}, operating in degrees rather than
- * radians
+ * Replacement function for {@link Sin}, operating in degrees rather than radians
  */
 public class SinDegrees extends Function {
 
