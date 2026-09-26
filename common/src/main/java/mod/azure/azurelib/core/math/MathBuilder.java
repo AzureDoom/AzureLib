@@ -14,18 +14,7 @@ import java.util.Map;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
-import mod.azure.azurelib.core.math.functions.classic.ACos;
-import mod.azure.azurelib.core.math.functions.classic.ASin;
-import mod.azure.azurelib.core.math.functions.classic.ATan;
-import mod.azure.azurelib.core.math.functions.classic.ATan2;
-import mod.azure.azurelib.core.math.functions.classic.Abs;
-import mod.azure.azurelib.core.math.functions.classic.Cos;
-import mod.azure.azurelib.core.math.functions.classic.Exp;
-import mod.azure.azurelib.core.math.functions.classic.Ln;
-import mod.azure.azurelib.core.math.functions.classic.Mod;
-import mod.azure.azurelib.core.math.functions.classic.Pow;
-import mod.azure.azurelib.core.math.functions.classic.Sin;
-import mod.azure.azurelib.core.math.functions.classic.Sqrt;
+import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInOutBack;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseOutBack;
@@ -72,17 +61,18 @@ import mod.azure.azurelib.core.math.functions.utility.*;
  * {@link IValue}. TODO: maybe implement constant pool (to reuse same values)? TODO: maybe pre-compute constant
  * expressions?
  */
+@SuppressWarnings({ "unchecked", "unused" })
 public class MathBuilder {
 
     /**
      * Named variables that can be used in math expression by this builder
      */
-    public Map<String, Variable> variables = new HashMap<String, Variable>();
+    public Map<String, Variable> variables = new HashMap<>();
 
     /**
      * Map of functions which can be used in the math expressions
      */
-    public Map<String, Class<? extends Function>> functions = new HashMap<String, Class<? extends Function>>();
+    public Map<String, Class<? extends Function>> functions = new HashMap<>();
 
     public MathBuilder() {
         /* Some default values */
@@ -192,10 +182,10 @@ public class MathBuilder {
     }
 
     /**
-     * Breakdown an expression
+     * Break down an expression
      */
     public String[] breakdown(String expression) throws AzureLibException {
-        /* If given string have illegal characters, then it can't be parsed */
+        /* If given string has illegal characters, then it can't be parsed */
         if (!expression.matches("^[\\w\\d\\s_+-/*%^&|<>=!?:.,()]+$")) {
             throw new AzureLibException("Given expression '" + expression + "' contains illegal characters!");
         }
@@ -232,7 +222,7 @@ public class MathBuilder {
      */
     public List<Object> breakdownChars(String[] chars) {
         List<Object> symbols = new ArrayList<>();
-        String buffer = "";
+        StringBuilder buffer = new StringBuilder();
         int len = chars.length;
 
         for (int i = 0; i < len; i++) {
@@ -246,35 +236,41 @@ public class MathBuilder {
                 if (s.equals("-")) {
                     int size = symbols.size();
 
-                    boolean isFirst = size == 0 && buffer.isEmpty();
+                    boolean isFirst = size == 0 && (buffer.isEmpty());
                     boolean isOperatorBehind = size > 0
                         && (this.isOperator(symbols.get(size - 1)) || symbols.get(size - 1).equals(","))
-                        && buffer.isEmpty();
+                        && (buffer.isEmpty());
 
                     if (isFirst || isOperatorBehind) {
-                        buffer += s;
+                        buffer.append(s);
 
                         continue;
                     }
                 }
 
                 if (longOperator) {
-                    s = chars[i - 1] + s;
-                    buffer = buffer.substring(0, buffer.length() - 1);
+                    String previous = chars[i - 1];
+                    s = previous + s;
+
+                    if (!buffer.isEmpty()) {
+                        buffer = new StringBuilder(buffer.substring(0, buffer.length() - 1));
+                    } else if (!symbols.isEmpty() && previous.equals(symbols.get(symbols.size() - 1))) {
+                        symbols.remove(symbols.size() - 1);
+                    }
                 }
 
                 /* Push buffer and operator */
                 if (!buffer.isEmpty()) {
-                    symbols.add(buffer);
-                    buffer = "";
+                    symbols.add(buffer.toString());
+                    buffer = new StringBuilder();
                 }
 
                 symbols.add(s);
             } else if (s.equals("(")) {
                 /* Push a list of symbols */
                 if (!buffer.isEmpty()) {
-                    symbols.add(buffer);
-                    buffer = "";
+                    symbols.add(buffer.toString());
+                    buffer = new StringBuilder();
                 }
 
                 int counter = 1;
@@ -289,24 +285,24 @@ public class MathBuilder {
                     }
 
                     if (counter == 0) {
-                        symbols.add(this.breakdownChars(buffer.split("(?!^)")));
+                        symbols.add(this.breakdownChars(buffer.toString().split("(?!^)")));
 
                         i = j;
-                        buffer = "";
+                        buffer = new StringBuilder();
 
                         break;
                     } else {
-                        buffer += c;
+                        buffer.append(c);
                     }
                 }
             } else {
                 /* Accumulate the buffer */
-                buffer += s;
+                buffer.append(s);
             }
         }
 
         if (!buffer.isEmpty()) {
-            symbols.add(buffer);
+            symbols.add(buffer.toString());
         }
 
         return symbols;
@@ -342,48 +338,39 @@ public class MathBuilder {
             }
         }
 
-        /* Any other math expression */
-        int lastOp = this.seekLastOperator(symbols);
-        int op = lastOp;
+        /*
+         * Any other math expression: split at the lowest-precedence binary operator, taking the rightmost one on ties
+         * so operators of equal precedence group left to right (a - b - c == (a - b) - c). An operator at the start or
+         * directly after another operator or comma is unary (e.g. the '-' in "2 * -(x)") and is not a split point.
+         */
+        int split = -1;
+        Operation splitOperation = null;
 
-        while (op != -1) {
-            int leftOp = this.seekLastOperator(symbols, op - 1);
+        for (int i = 0; i < size; i++) {
+            Object symbol = symbols.get(i);
 
-            if (leftOp != -1) {
-                Operation left = this.operationForOperator((String) symbols.get(leftOp));
-                Operation right = this.operationForOperator((String) symbols.get(op));
+            if (!(symbol instanceof String sign) || !Operation.OPERATORS.contains(sign))
+                continue;
 
-                if (right.value > left.value) {
-                    IValue leftValue = this.parseSymbols(symbols.subList(0, leftOp));
-                    IValue rightValue = this.parseSymbols(symbols.subList(leftOp + 1, size));
+            if (i == 0 || this.isOperator(symbols.get(i - 1)) || ",".equals(symbols.get(i - 1)))
+                continue;
 
-                    return new Operator(left, leftValue, rightValue);
-                } else if (left.value > right.value) {
-                    Operation initial = this.operationForOperator((String) symbols.get(lastOp));
+            Operation operation = this.operationForOperator(sign);
 
-                    if (initial.value < left.value) {
-                        IValue leftValue = this.parseSymbols(symbols.subList(0, lastOp));
-                        IValue rightValue = this.parseSymbols(symbols.subList(lastOp + 1, size));
-
-                        return new Operator(initial, leftValue, rightValue);
-                    }
-
-                    IValue leftValue = this.parseSymbols(symbols.subList(0, op));
-                    IValue rightValue = this.parseSymbols(symbols.subList(op + 1, size));
-
-                    return new Operator(right, leftValue, rightValue);
-                }
+            if (splitOperation == null || operation.value <= splitOperation.value) {
+                split = i;
+                splitOperation = operation;
             }
-
-            op = leftOp;
         }
 
-        Operation operation = this.operationForOperator((String) symbols.get(lastOp));
+        if (splitOperation == null) {
+            throw new AzureLibException("Couldn't find an operator to parse in " + symbols);
+        }
 
         return new Operator(
-            operation,
-            this.parseSymbols(symbols.subList(0, lastOp)),
-            this.parseSymbols(symbols.subList(lastOp + 1, size))
+            splitOperation,
+            this.parseSymbols(symbols.subList(0, split)),
+            this.parseSymbols(symbols.subList(split + 1, size))
         );
     }
 
@@ -514,7 +501,7 @@ public class MathBuilder {
 
         Class<? extends Function> function = this.functions.get(first);
         Constructor<? extends Function> ctor = function.getConstructor(IValue[].class, String.class);
-        return ctor.newInstance(values.toArray(new IValue[values.size()]), first);
+        return ctor.newInstance(values.toArray(new IValue[0]), first);
     }
 
     /**
@@ -540,13 +527,13 @@ public class MathBuilder {
                     /* Need to account for a negative value variable */
                     if (symbol.startsWith("-")) {
                         symbol = symbol.substring(1);
-                        Variable value = this.getVariable(symbol);
+                        Variable value = this.resolveVariable(symbol);
 
                         if (value != null) {
                             return new Negative(value);
                         }
                     } else {
-                        IValue value = this.getVariable(symbol);
+                        IValue value = this.resolveVariable(symbol);
 
                         /* Avoid NPE */
                         if (value != null) {
@@ -570,6 +557,15 @@ public class MathBuilder {
     }
 
     /**
+     * Resolve a variable referenced by an expression while parsing. Defaults to {@link #getVariable(String)}; parsers
+     * with expression-scoped variables override this so parse-time lookups can see them without slowing down runtime
+     * {@code getVariable} calls.
+     */
+    protected Variable resolveVariable(String name) {
+        return this.getVariable(name);
+    }
+
+    /**
      * Get operation for given operator strings
      */
     protected Operation operationForOperator(String op) throws AzureLibException {
@@ -586,7 +582,7 @@ public class MathBuilder {
      * Whether given object is a variable
      */
     protected boolean isVariable(Object o) {
-        return o instanceof String string && !this.isDecimal((String) o) && !this.isOperator(string);
+        return o instanceof String string && !this.isDecimal(string) && !this.isOperator(string);
     }
 
     protected boolean isOperator(Object o) {

@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
@@ -35,13 +36,36 @@ public class MolangParser extends MathBuilder {
     // Replace base variables map
     public static final Map<String, LazyVariable> VARIABLES = new Object2ObjectOpenHashMap<>();
 
-    public static final MolangVariableHolder ZERO = new MolangVariableHolder(null, new Constant(0));
+    /**
+     * Fallback returned for expressions that fail to parse. The failure is logged once at parse time; evaluating this
+     * must stay silent, since it runs every frame for every keyframe that uses it.
+     */
+    public static final MolangVariableHolder ZERO = constantHolder(0);
 
-    public static final MolangVariableHolder ONE = new MolangVariableHolder(null, new Constant(1));
+    public static final MolangVariableHolder ONE = constantHolder(1);
+
+    /**
+     * Expression-scoped variables of the compound expression currently being parsed on this thread, so reads inside an
+     * expression resolve to variables assigned earlier in it. Thread-local because animation files are parsed in
+     * parallel. Only consulted at parse time.
+     */
+    private static final ThreadLocal<Map<String, LazyVariable>> PARSE_LOCALS = new ThreadLocal<>();
+
+    /** Bumped by every {@link #register} call so {@link MolangVariableRef}s know to re-resolve. */
+    private static volatile int registrationGeneration;
 
     public static final String RETURN = "return ";
 
     public static final MolangParser INSTANCE = new MolangParser();
+
+    /**
+     * Parsed expressions keyed by their source string, so identical keyframe values share one tree instead of being
+     * re-parsed. Concurrent because animation files are loaded in parallel on the background executor.
+     * <p>
+     * Sharing is safe because parsed trees are never mutated after parsing, and every tree is already shared by all
+     * entities playing the animation. Cleared at the start of each animation reload.
+     */
+    private static final Map<String, MolangValue> EXPRESSION_CACHE = new ConcurrentHashMap<>();
 
     public MolangParser() {
         super();
@@ -60,36 +84,86 @@ public class MolangParser extends MathBuilder {
         if (primitive.isNumber())
             return new MolangValue(new Constant(primitive.getAsDouble()));
 
-        if (primitive.isString()) {
-            String string = primitive.getAsString();
-
-            try {
-                return new MolangValue(new Constant(Double.parseDouble(string)));
-            } catch (NumberFormatException ex) {
-                return parseExpression(string);
-            }
-        }
+        if (primitive.isString())
+            return parseCached(primitive.getAsString());
 
         return ZERO;
+    }
+
+    /**
+     * Parse a keyframe value string, reusing a previously parsed tree for an identical string.
+     */
+    public static MolangValue parseCached(String string) {
+        MolangValue cached = EXPRESSION_CACHE.get(string);
+
+        if (cached != null)
+            return cached;
+
+        // Parse outside the map so a slow parse never blocks other keys. If another loader thread parsed the same
+        // string meanwhile, keep its tree so every keyframe still shares a single instance.
+        MolangValue parsed = parseUncached(string);
+        MolangValue raced = EXPRESSION_CACHE.putIfAbsent(string, parsed);
+
+        return raced != null ? raced : parsed;
+    }
+
+    /**
+     * Parse a keyframe value string without consulting or populating the expression cache: a numeric literal becomes a
+     * constant, anything else goes through {@link #parseExpression(String)}.
+     */
+    public static MolangValue parseUncached(String string) {
+        try {
+            return new MolangValue(new Constant(Double.parseDouble(string)));
+        } catch (NumberFormatException ex) {
+            return parseExpression(string);
+        }
+    }
+
+    /**
+     * Drop every cached expression tree. Trees already held by baked animations are unaffected.
+     */
+    public static void clearExpressionCache() {
+        EXPRESSION_CACHE.clear();
+    }
+
+    /**
+     * @return The number of distinct expression strings currently cached
+     */
+    public static int expressionCacheSize() {
+        return EXPRESSION_CACHE.size();
     }
 
     /**
      * Parse a molang expression
      */
     public static MolangValue parseExpression(String expression) {
+        // The scope exists before the first statement is parsed, so an assignment in the first statement has somewhere
+        // to put its variable (previously this was null for the first statement and the parse failed).
+        Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
+        Map<String, LazyVariable> outerLocals = PARSE_LOCALS.get();
         MolangCompoundValue result = null;
 
-        for (String split : expression.toLowerCase(Locale.ROOT).trim().split(";")) {
-            String trimmed = split.trim();
+        PARSE_LOCALS.set(locals);
 
-            if (!trimmed.isEmpty()) {
-                if (result == null) {
-                    result = new MolangCompoundValue(parseOneLine(trimmed, result));
+        try {
+            for (String split : expression.toLowerCase(Locale.ROOT).trim().split(";")) {
+                String trimmed = split.trim();
 
-                    continue;
+                if (!trimmed.isEmpty()) {
+                    MolangValue statement = parseOneLine(trimmed, locals);
+
+                    if (result == null) {
+                        result = new MolangCompoundValue(statement);
+                    } else {
+                        result.values.add(statement);
+                    }
                 }
-
-                result.values.add(parseOneLine(trimmed, result));
+            }
+        } finally {
+            if (outerLocals == null) {
+                PARSE_LOCALS.remove();
+            } else {
+                PARSE_LOCALS.set(outerLocals);
             }
         }
 
@@ -98,19 +172,37 @@ public class MolangParser extends MathBuilder {
             return ZERO;
         }
 
+        result.locals.putAll(locals);
+        result.compact();
+
         return result;
     }
 
     /**
      * Parse a single Molang statement
+     *
+     * @deprecated Kept for subclasses; {@link #parseExpression(String)} no longer uses it. Variables assigned here are
+     *             only visible to later reads when called from within parseExpression.
      */
+    @Deprecated
     protected static MolangValue parseOneLine(
         String expression,
         MolangCompoundValue currentStatement
     ) {
+        Map<String, LazyVariable> locals = currentStatement != null
+            ? currentStatement.locals
+            : new Object2ObjectOpenHashMap<>();
+
+        return parseOneLine(expression, locals);
+    }
+
+    /**
+     * Parse a single Molang statement, putting new expression-scoped variables into {@code locals}.
+     */
+    private static MolangValue parseOneLine(String expression, Map<String, LazyVariable> locals) {
         if (expression.startsWith(RETURN)) {
             try {
-                return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())), true);
+                return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())).simplify(), true);
             } catch (Exception e) {
                 AzureLib.LOGGER.error("Couldn't parse return {} expression! Defaulted to 0", expression);
                 return MolangParser.ZERO;
@@ -125,14 +217,21 @@ public class MolangParser extends MathBuilder {
                     && symbols.get(1).equals("=")
             ) {
                 symbols = symbols.subList(2, symbols.size());
-                LazyVariable variable;
+                String key = normalizeQueryPrefix(name);
+                LazyVariable variable = locals.get(key);
 
-                if (!VARIABLES.containsKey(name) && !currentStatement.locals.containsKey(name)) {
-                    currentStatement.locals.put(name, (variable = new LazyVariable(name, 0)));
-                } else {
-                    variable = INSTANCE.getVariable(name, currentStatement);
+                if (variable == null) {
+                    // temp./t. are expression-scoped by definition. Other names stay global only if already
+                    // registered, as before; otherwise they are scoped to this expression.
+                    if (isTemporary(key) || !VARIABLES.containsKey(key)) {
+                        variable = new LazyVariable(key, 0);
+                        locals.put(key, variable);
+                    } else {
+                        variable = INSTANCE.getVariable(key);
+                    }
                 }
 
+                // Created before the right-hand side is parsed, so "t.x = t.x + 1" reads the same variable.
                 return new MolangVariableHolder(variable, INSTANCE.parseSymbolsMolang(symbols));
             }
 
@@ -214,6 +313,11 @@ public class MolangParser extends MathBuilder {
             variable = LazyVariable.from(variable);
 
         VARIABLES.put(variable.getName(), (LazyVariable) variable);
+        registrationGeneration++;
+    }
+
+    static int registrationGeneration() {
+        return registrationGeneration;
     }
 
     /**
@@ -243,23 +347,7 @@ public class MolangParser extends MathBuilder {
      * This should be used wherever per-call accuracy is not needed.
      */
     public void setMemoizedValue(String name, DoubleSupplier value) {
-        var variable = getVariable(name);
-
-        variable.set(new DoubleSupplier() {
-
-            private boolean computed = false;
-
-            private double cachedValue;
-
-            @Override
-            public double getAsDouble() {
-                if (!computed) {
-                    cachedValue = value.getAsDouble();
-                    computed = true;
-                }
-                return cachedValue;
-            }
-        });
+        getVariable(name).setMemoized(value);
     }
 
     /**
@@ -271,10 +359,47 @@ public class MolangParser extends MathBuilder {
      */
     @Override
     public LazyVariable getVariable(String name) {
-        if (name.startsWith("q.")) {
-            name = "query." + name.substring(2);
+        return VARIABLES.computeIfAbsent(normalizeQueryPrefix(name), key -> new LazyVariable(key, 0));
+    }
+
+    /**
+     * Parse-time lookup: a variable assigned earlier in the expression being parsed wins over the global one.
+     */
+    @Override
+    protected LazyVariable resolveVariable(String name) {
+        Map<String, LazyVariable> locals = PARSE_LOCALS.get();
+
+        if (locals != null) {
+            LazyVariable local = locals.get(normalizeQueryPrefix(name));
+
+            if (local != null)
+                return local;
         }
-        return VARIABLES.computeIfAbsent(name, key -> new LazyVariable(key, 0));
+
+        return getVariable(name);
+    }
+
+    private static String normalizeQueryPrefix(String name) {
+        return name.startsWith("q.") ? "query." + name.substring(2) : name;
+    }
+
+    private static boolean isTemporary(String name) {
+        return name.startsWith("temp.") || name.startsWith("t.");
+    }
+
+    private static MolangVariableHolder constantHolder(double value) {
+        return new MolangVariableHolder(null, new Constant(value)) {
+
+            @Override
+            public double get() {
+                return value;
+            }
+
+            @Override
+            public String toString() {
+                return String.valueOf(value);
+            }
+        };
     }
 
     public LazyVariable getVariable(String name, MolangCompoundValue currentStatement) {
@@ -305,7 +430,7 @@ public class MolangParser extends MathBuilder {
      */
     private IValue parseSymbolsMolang(List<Object> symbols) {
         try {
-            return this.parseSymbols(symbols);
+            return this.parseSymbols(symbols).simplify();
         } catch (Exception e) {
             AzureLib.LOGGER.error("Couldn't parse an expression! Defaulted to 0");
             return ZERO;
