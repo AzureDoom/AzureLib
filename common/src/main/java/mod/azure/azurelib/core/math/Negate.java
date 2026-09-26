@@ -22,6 +22,13 @@ public class Negate implements IValue {
     }
 
     @Override
+    public IValue simplify() {
+        this.value = this.value.simplify();
+
+        return this.value instanceof Constant ? new Constant(this.get()) : this;
+    }
+
+    @Override
     public String toString() {
         return "!" + this.value.toString();
     }
