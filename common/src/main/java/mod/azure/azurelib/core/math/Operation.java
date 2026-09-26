@@ -15,28 +15,28 @@ import java.util.Set;
  */
 public enum Operation {
 
-    ADD("+", 1) {
+    ADD("+", 5) {
 
         @Override
         public double calculate(double a, double b) {
             return a + b;
         }
     },
-    SUB("-", 1) {
+    SUB("-", 5) {
 
         @Override
         public double calculate(double a, double b) {
             return a - b;
         }
     },
-    MUL("*", 2) {
+    MUL("*", 6) {
 
         @Override
         public double calculate(double a, double b) {
             return a * b;
         }
     },
-    DIV("/", 2) {
+    DIV("/", 6) {
 
         @Override
         public double calculate(double a, double b) {
@@ -44,70 +44,70 @@ public enum Operation {
             return a / (b == 0 ? 1 : b);
         }
     },
-    MOD("%", 2) {
+    MOD("%", 6) {
 
         @Override
         public double calculate(double a, double b) {
             return a % b;
         }
     },
-    POW("^", 3) {
+    POW("^", 7) {
 
         @Override
         public double calculate(double a, double b) {
             return Math.pow(a, b);
         }
     },
-    AND("&&", 5) {
+    AND("&&", 2) {
 
         @Override
         public double calculate(double a, double b) {
             return a != 0 && b != 0 ? 1 : 0;
         }
     },
-    OR("||", 5) {
+    OR("||", 1) {
 
         @Override
         public double calculate(double a, double b) {
             return a != 0 || b != 0 ? 1 : 0;
         }
     },
-    LESS("<", 5) {
+    LESS("<", 4) {
 
         @Override
         public double calculate(double a, double b) {
             return a < b ? 1 : 0;
         }
     },
-    LESS_THAN("<=", 5) {
+    LESS_THAN("<=", 4) {
 
         @Override
         public double calculate(double a, double b) {
             return a <= b ? 1 : 0;
         }
     },
-    GREATER_THAN(">=", 5) {
+    GREATER_THAN(">=", 4) {
 
         @Override
         public double calculate(double a, double b) {
             return a >= b ? 1 : 0;
         }
     },
-    GREATER(">", 5) {
+    GREATER(">", 4) {
 
         @Override
         public double calculate(double a, double b) {
             return a > b ? 1 : 0;
         }
     },
-    EQUALS("==", 5) {
+    EQUALS("==", 3) {
 
         @Override
         public double calculate(double a, double b) {
             return equals(a, b) ? 1 : 0;
         }
     },
-    NOT_EQUALS("!=", 5) {
+    NOT_EQUALS("!=", 3) {
 
         @Override
         public double calculate(double a, double b) {
@@ -115,7 +115,7 @@ public enum Operation {
         }
     };
 
-    public final static Set<String> OPERATORS = new HashSet<String>();
+    public final static Set<String> OPERATORS = new HashSet<>();
 
     static {
         for (Operation op : values()) {
@@ -129,11 +129,12 @@ public enum Operation {
     public final String sign;
 
     /**
-     * Value of this operation in relation to other operations (i.e precedence importance)
+     * Precedence of this operation; higher binds tighter. Follows Molang/C ordering, lowest first: {@code ||},
+     * {@code &&}, {@code == !=}, {@code < <= > >=}, {@code + -}, {@code * / %}, {@code ^}.
      */
     public final int value;
 
-    private Operation(String sign, int value) {
+    Operation(String sign, int value) {
         this.sign = sign;
         this.value = value;
     }

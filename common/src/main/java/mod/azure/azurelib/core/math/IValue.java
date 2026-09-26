@@ -15,5 +15,14 @@ public interface IValue {
     /**
      * Get computed or stored value
      */
-    public double get();
+    double get();
+
+    /**
+     * Returns an equivalent value with constant sub-expressions folded and no-op wrappers removed. Called once at parse
+     * time, before the tree is shared; implementations may rewrite their children in place. Must never change what
+     * {@link #get()} returns.
+     */
+    default IValue simplify() {
+        return this;
+    }
 }

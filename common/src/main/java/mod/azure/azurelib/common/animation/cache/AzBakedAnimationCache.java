@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.common.cache.AzResourceCache;
 import mod.azure.azurelib.common.loading.FileLoader;
+import mod.azure.azurelib.core.molang.MolangParser;
 
 /**
  * AzBakedAnimationCache is a singleton cache to manage and store preloaded animation data of type
@@ -40,6 +41,8 @@ public class AzBakedAnimationCache extends AzResourceCache {
     }
 
     public CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager) {
+        MolangParser.clearExpressionCache();
+
         return loadResources(
             backgroundExecutor,
             resourceManager,

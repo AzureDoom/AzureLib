@@ -11,20 +11,32 @@ import mod.azure.azurelib.core.math.Variable;
 
 /**
  * Lazy override of Variable, to allow for deferred value calculation. <br>
- * Optimises rendering as values are not touched until needed (if at all)
+ * Optimizes rendering as values are not touched until needed (if at all).
+ * <p>
+ * Memoization state lives on the variable itself rather than in a wrapper supplier, so re-binding a memoized value
+ * every frame ({@link #setMemoized(DoubleSupplier)}) and setting a constant ({@link #set(double)}) allocate nothing.
  */
 public class LazyVariable extends Variable {
 
     private DoubleSupplier valueSupplier;
 
+    /** When true, {@link #get()} returns {@link #cachedValue} once it has been computed. */
+    private boolean memoized;
+
+    private boolean computed;
+
+    private double cachedValue;
+
     public LazyVariable(String name, double value) {
-        this(name, () -> value);
+        super(name, 0);
+
+        set(value);
     }
 
     public LazyVariable(String name, DoubleSupplier valueSupplier) {
         super(name, 0);
 
-        this.valueSupplier = valueSupplier;
+        set(valueSupplier);
     }
 
     /**
@@ -39,14 +51,29 @@ public class LazyVariable extends Variable {
      */
     @Override
     public void set(double value) {
-        this.valueSupplier = () -> value;
+        this.valueSupplier = null;
+        this.cachedValue = value;
+        this.memoized = true;
+        this.computed = true;
     }
 
     /**
-     * Set the new value supplier for the variable
+     * Set the new value supplier for the variable, evaluated on every {@link #get()}
      */
     public void set(DoubleSupplier valueSupplier) {
         this.valueSupplier = valueSupplier;
+        this.memoized = false;
+        this.computed = false;
+    }
+
+    /**
+     * Set a value supplier that is evaluated at most once, on the first {@link #get()} after this call. Calling this
+     * again resets the memoized value.
+     */
+    public void setMemoized(DoubleSupplier valueSupplier) {
+        this.valueSupplier = valueSupplier;
+        this.memoized = true;
+        this.computed = false;
     }
 
     /**
@@ -54,6 +81,15 @@ public class LazyVariable extends Variable {
      */
     @Override
     public double get() {
+        if (this.memoized) {
+            if (!this.computed) {
+                this.cachedValue = this.valueSupplier.getAsDouble();
+                this.computed = true;
+            }
+
+            return this.cachedValue;
+        }
+
         return this.valueSupplier.getAsDouble();
     }
 }

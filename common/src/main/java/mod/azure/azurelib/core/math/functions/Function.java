@@ -5,7 +5,12 @@
  */
 package mod.azure.azurelib.core.math.functions;
 
+import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.math.functions.utility.DieRoll;
+import mod.azure.azurelib.core.math.functions.utility.DieRollInteger;
+import mod.azure.azurelib.core.math.functions.utility.Random;
+import mod.azure.azurelib.core.math.functions.utility.RandomInteger;
 
 /**
  * Abstract function class This class provides function capability (i.e. giving it arguments and upon {@link #get()}
@@ -35,7 +40,40 @@ public abstract class Function implements IValue {
 
     /**
      * Get the value of nth argument
+     * <p>
+     * Folds this call to a constant when every argument is constant and the function is a built-in pure one. Custom
+     * functions from other mods are never folded: they may read game state even with no arguments.
      */
+    @Override
+    public IValue simplify() {
+        var allConstant = true;
+
+        for (var i = 0; i < this.args.length; i++) {
+            this.args[i] = this.args[i].simplify();
+            allConstant &= this.args[i] instanceof Constant;
+        }
+
+        return allConstant && this.isBuiltInPure() ? new Constant(this.get()) : this;
+    }
+
+    private boolean isBuiltInPure() {
+        Class<?> type = this.getClass();
+
+        if (
+            type == Random.class
+                || type == RandomInteger.class
+                || type == DieRoll.class
+                || type == DieRollInteger.class
+        ) {
+            return false;
+        }
+
+        String pkg = type.getPackageName();
+
+        return pkg.startsWith("mod.azure.azurelib.core.math.functions.")
+            || pkg.equals("mod.azure.azurelib.core.molang.functions");
+    }
+
     public double getArg(int index) {
         if (index < 0 || index >= this.args.length) {
             return 0;

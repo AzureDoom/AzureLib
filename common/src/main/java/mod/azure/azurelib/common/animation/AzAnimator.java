@@ -12,8 +12,8 @@ import mod.azure.azurelib.common.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.common.animation.cache.AzBoneCache;
 import mod.azure.azurelib.common.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -25,6 +25,14 @@ import mod.azure.azurelib.core.molang.MolangQueries;
  * @param <T> The type of object this animator will animate (e.g., an entity, block entity, or item stack).
  */
 public abstract class AzAnimator<K, T> {
+
+    private static final MolangVariableRef LIFE_TIME_REF = new MolangVariableRef(MolangQueries.LIFE_TIME);
+
+    private static final MolangVariableRef ACTOR_COUNT_REF = new MolangVariableRef(MolangQueries.ACTOR_COUNT);
+
+    private static final MolangVariableRef TIME_OF_DAY_REF = new MolangVariableRef(MolangQueries.TIME_OF_DAY);
+
+    private static final MolangVariableRef MOON_PHASE_REF = new MolangVariableRef(MolangQueries.MOON_PHASE);
 
     private AzAnimationContext<T> currentContext;
 
@@ -142,12 +150,10 @@ public abstract class AzAnimator<K, T> {
 
         this.molangAnimTime = animTime;
         this.molangPartialTicks = partialTicks;
-
-        var parser = MolangParser.INSTANCE;
-        parser.setMemoizedValue(MolangQueries.LIFE_TIME, lifetimeSupplier);
-        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, actorCountSupplier);
-        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, timeOfDaySupplier);
-        parser.setMemoizedValue(MolangQueries.MOON_PHASE, moonPhaseSupplier);
+        LIFE_TIME_REF.setMemoized(lifetimeSupplier);
+        ACTOR_COUNT_REF.setMemoized(actorCountSupplier);
+        TIME_OF_DAY_REF.setMemoized(timeOfDaySupplier);
+        MOON_PHASE_REF.setMemoized(moonPhaseSupplier);
     }
 
     /**

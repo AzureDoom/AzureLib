@@ -3,12 +3,13 @@ package mod.azure.azurelib.common.animation.impl;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.common.animation.AzAnimator;
 import mod.azure.azurelib.common.animation.AzAnimatorConfig;
 import mod.azure.azurelib.common.util.client.RenderUtils;
-import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 
 /**
  * The {@code AzItemAnimator} class is an abstract extension of the {@code AzAnimator} class, specifically designed to
@@ -20,6 +21,29 @@ import mod.azure.azurelib.core.molang.MolangQueries;
  * {@code ItemStack}.
  */
 public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
+
+    private static final MolangVariableRef ITEM_CURRENT_DURABILITY_REF = new MolangVariableRef(
+        MolangQueries.ITEM_CURRENT_DURABILITY
+    );
+
+    private static final MolangVariableRef ITEM_IS_ENCHANTED_REF = new MolangVariableRef(
+        MolangQueries.ITEM_IS_ENCHANTED
+    );
+
+    /*
+     * The stack currently being animated. The suppliers below are created once and read this field instead of capturing
+     * the stack in new lambdas every frame; see AzEntityAnimator for the same pattern.
+     */
+    private ItemStack currentStack;
+
+    private final DoubleSupplier currentDurabilitySupplier = () -> {
+        int maxDamage = currentStack.getMaxDamage();
+
+        // Non-damageable items have a max damage of 0; dividing would feed NaN into the bone transforms.
+        return maxDamage <= 0 ? 0 : currentStack.getDamageValue() / (float) maxDamage;
+    };
+
+    private final DoubleSupplier isEnchantedSupplier = () -> RenderUtils.booleanToFloat(currentStack.isEnchanted());
 
     protected AzItemAnimator() {
         super();
@@ -33,15 +57,9 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
     protected void applyMolangQueries(ItemStack animatable, double animTime, float partialTicks) {
         super.applyMolangQueries(animatable, animTime, partialTicks);
 
-        var parser = MolangParser.INSTANCE;
+        this.currentStack = animatable;
 
-        parser.setMemoizedValue(
-            MolangQueries.ITEM_CURRENT_DURABILITY,
-            () -> animatable.getDamageValue() / (float) animatable.getMaxDamage()
-        );
-        parser.setMemoizedValue(
-            MolangQueries.ITEM_IS_ENCHANTED,
-            () -> RenderUtils.booleanToFloat(!animatable.isEnchanted())
-        );
+        ITEM_CURRENT_DURABILITY_REF.setMemoized(currentDurabilitySupplier);
+        ITEM_IS_ENCHANTED_REF.setMemoized(isEnchantedSupplier);
     }
 }
