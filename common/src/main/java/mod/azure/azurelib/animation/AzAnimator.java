@@ -6,6 +6,7 @@ import net.minecraft.world.level.MoonPhase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
@@ -14,6 +15,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -26,6 +28,14 @@ import mod.azure.azurelib.core.molang.MolangQueries;
  */
 public abstract class AzAnimator<K, T> {
 
+    private static final MolangVariableRef LIFE_TIME_REF = new MolangVariableRef(MolangQueries.LIFE_TIME);
+
+    private static final MolangVariableRef ACTOR_COUNT_REF = new MolangVariableRef(MolangQueries.ACTOR_COUNT);
+
+    private static final MolangVariableRef TIME_OF_DAY_REF = new MolangVariableRef(MolangQueries.TIME_OF_DAY);
+
+    private static final MolangVariableRef MOON_PHASE_REF = new MolangVariableRef(MolangQueries.MOON_PHASE);
+
     private AzAnimationContext<T> currentContext;
 
     private final WeakHashMap<K, AzAnimationContext<T>> contextCache = new WeakHashMap<>();
@@ -35,6 +45,27 @@ public abstract class AzAnimator<K, T> {
     protected final AzAnimatorConfig config;
 
     public boolean reloadAnimations;
+
+    private double molangAnimTime;
+
+    private float molangPartialTicks;
+
+    private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
+
+    private final DoubleSupplier actorCountSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getEntityCount() : 0;
+    };
+
+    private final DoubleSupplier timeOfDaySupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getDefaultClockTime() / 24000f : 0;
+    };
+
+    private final DoubleSupplier moonPhaseSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? ((double) lvl.getDefaultClockTime() / MoonPhase.PHASE_LENGTH) % MoonPhase.COUNT : 0;
+    };
 
     protected AzAnimator() {
         this(AzAnimatorConfig.defaultConfig());
@@ -122,13 +153,12 @@ public abstract class AzAnimator<K, T> {
             return;
         }
 
-        parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
-        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, level::getEntityCount);
-        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> level.getDefaultClockTime() / 24000f);
-        parser.setMemoizedValue(
-            MolangQueries.MOON_PHASE,
-            () -> ((double) level.getDefaultClockTime() / MoonPhase.PHASE_LENGTH) % MoonPhase.COUNT
-        );
+        this.molangAnimTime = animTime;
+        this.molangPartialTicks = partialTicks;
+        LIFE_TIME_REF.setMemoized(lifetimeSupplier);
+        ACTOR_COUNT_REF.setMemoized(actorCountSupplier);
+        TIME_OF_DAY_REF.setMemoized(timeOfDaySupplier);
+        MOON_PHASE_REF.setMemoized(moonPhaseSupplier);
     }
 
     /**

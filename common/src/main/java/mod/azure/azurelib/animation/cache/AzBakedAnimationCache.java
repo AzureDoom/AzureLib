@@ -1,6 +1,7 @@
 package mod.azure.azurelib.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import mod.azure.azurelib.core.molang.MolangParser;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +41,8 @@ public class AzBakedAnimationCache extends AzResourceCache {
     }
 
     public CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager) {
+        MolangParser.clearExpressionCache();
+
         return loadResources(
             backgroundExecutor,
             resourceManager,

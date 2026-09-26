@@ -10,6 +10,7 @@ import mod.azure.azurelib.animation.controller.AzBoneSnapshotCache;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
@@ -22,6 +23,8 @@ import mod.azure.azurelib.model.AzBoneSnapshot;
  * @param <T> The type of the animation data handled by the associated animation controller.
  */
 public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
+
+    private static final MolangVariableRef ANIM_TIME_REF = new MolangVariableRef(MolangQueries.ANIM_TIME);
 
     private final AzAnimationController<T> animationController;
 
@@ -49,7 +52,7 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
         currentAdjustedTick = adjustedTick;
-        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, animTimeSupplier);
+        ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var bone = bones.get(boneAnimation.boneName());

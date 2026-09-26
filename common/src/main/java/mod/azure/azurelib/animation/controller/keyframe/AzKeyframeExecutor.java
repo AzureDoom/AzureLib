@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import mod.azure.azurelib.core.molang.MolangVariableRef;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
@@ -23,6 +24,8 @@ import mod.azure.azurelib.core.object.Axis;
  * @param <T> The type of the animatable object to which the keyframe animations will be applied
  */
 public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
+
+    private static final MolangVariableRef ANIM_TIME_REF = new MolangVariableRef(MolangQueries.ANIM_TIME);
 
     private final AzAnimationController<T> animationController;
 
@@ -51,7 +54,7 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
         var controllerTimer = animationController.controllerTimer();
 
         currentAdjustedTick = controllerTimer.getAdjustedTick();
-        MolangParser.INSTANCE.setMemoizedValue(MolangQueries.ANIM_TIME, animTimeSupplier);
+        ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
             var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
