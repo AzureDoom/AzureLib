@@ -11,6 +11,7 @@ import java.util.concurrent.Executor;
 
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.cache.AzResourceCache;
+import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.loading.FileLoader;
 
 /**
@@ -40,6 +41,8 @@ public class AzBakedAnimationCache extends AzResourceCache {
     }
 
     public CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager) {
+        MolangParser.clearExpressionCache();
+
         return loadResources(
             backgroundExecutor,
             resourceManager,

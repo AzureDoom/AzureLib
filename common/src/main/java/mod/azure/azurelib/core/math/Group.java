@@ -10,7 +10,7 @@ package mod.azure.azurelib.core.math;
  */
 public class Group implements IValue {
 
-    private IValue value;
+    private final IValue value;
 
     public Group(IValue value) {
         this.value = value;
@@ -19,6 +19,12 @@ public class Group implements IValue {
     @Override
     public double get() {
         return this.value.get();
+    }
+
+    /** Parentheses only affect parsing; the evaluated tree does not need the extra hop. */
+    @Override
+    public IValue simplify() {
+        return this.value.simplify();
     }
 
     @Override
