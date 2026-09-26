@@ -27,7 +27,6 @@ import mod.azure.azurelib.platform.Services;
  * Abstract texture wrapper for AzureLib textures.<br>
  * Mostly just handles boilerplate
  */
-@Deprecated(forRemoval = true)
 public abstract class GeoAbstractTexture extends AbstractTexture {
 
     /**
