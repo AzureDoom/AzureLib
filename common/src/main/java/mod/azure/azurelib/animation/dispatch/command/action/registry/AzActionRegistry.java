@@ -131,6 +131,11 @@ public class AzActionRegistry {
             AzControllerSetReverseAction::decode,
             AzControllerSetReverseAction::encode
         );
+        register(
+            AzControllerSetWeightAction.RESOURCE_LOCATION,
+            AzControllerSetWeightAction::decode,
+            AzControllerSetWeightAction::encode
+        );
     }
 
     /**
