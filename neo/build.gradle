@@ -68,5 +68,47 @@ dependencies {
              minecraftVersions.add(project.minecraft_version)
              environment = CLIENT_AND_SERVER
          }
+
+         discord {
+             webhookUrl = releaseProp.getProperty("discordKey")
+             username = "Azurelib Update Bot"
+             avatarUrl = "https://cdn.modrinth.com/data/7zlUOZvb/a722b12250c1f42c63dd269f2e4aeefd7611f8fd.png"
+
+             content = changelog.map { text ->
+                 final String mcVersion = project.property("minecraft_version")
+
+                 final String header =
+                         "# A new version of AzureLib has been released for Minecraft ${mcVersion}!\n\n"
+
+                 final String suffix =
+                         "\n\n**Full changelog available on CurseForge and Modrinth below.**"
+
+                 if (header.length() + text.length() + suffix.length() <= 2000) {
+                     return header + text + suffix
+                 }
+
+                 def result = new StringBuilder(header)
+
+                 for (String line : text.readLines()) {
+                     if (result.length() + line.length() + 1 + suffix.length() > 2000) {
+                         break
+                     }
+
+                     result.append(line).append("\n")
+                 }
+
+                 return result.toString().trim() + suffix
+             }
+
+             style {
+                 look = "MODERN"
+                 link = "BUTTON"
+             }
+
+             setPlatforms(
+                     publishMods.platforms.curseforge,
+                     publishMods.platforms.modrinth
+             )
+         }
     }
 }
