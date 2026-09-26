@@ -31,9 +31,9 @@ import mod.azure.azurelib.core.molang.functions.SinDegrees;
  *
  * @see <a href="https://bedrock.dev/docs/1.19.0.0/1.19.30.23/Molang#Math%20Functions">Bedrock Dev - Molang</a>
  */
+@SuppressWarnings("unused")
 public class MolangParser extends MathBuilder {
 
-    // Replace base variables map
     public static final Map<String, LazyVariable> VARIABLES = new Object2ObjectOpenHashMap<>();
 
     /**
@@ -60,7 +60,7 @@ public class MolangParser extends MathBuilder {
 
     /**
      * Parsed expressions keyed by their source string, so identical keyframe values share one tree instead of being
-     * re-parsed. Concurrent because animation files are loaded in parallel on the background executor.
+     * reparsed. Concurrent because animation files are loaded in parallel on the background executor.
      * <p>
      * Sharing is safe because parsed trees are never mutated after parsing, and every tree is already shared by all
      * entities playing the animation. Cleared at the start of each animation reload.
@@ -70,7 +70,6 @@ public class MolangParser extends MathBuilder {
     public MolangParser() {
         super();
 
-        // Remap functions to be intact with Molang specification
         doCoreRemaps();
         registerAdditionalVariables();
     }
@@ -99,8 +98,6 @@ public class MolangParser extends MathBuilder {
         if (cached != null)
             return cached;
 
-        // Parse outside the map so a slow parse never blocks other keys. If another loader thread parsed the same
-        // string meanwhile, keep its tree so every keyframe still shares a single instance.
         MolangValue parsed = parseUncached(string);
         MolangValue raced = EXPRESSION_CACHE.putIfAbsent(string, parsed);
 
@@ -137,8 +134,6 @@ public class MolangParser extends MathBuilder {
      * Parse a molang expression
      */
     public static MolangValue parseExpression(String expression) {
-        // The scope exists before the first statement is parsed, so an assignment in the first statement has somewhere
-        // to put its variable (previously this was null for the first statement and the parse failed).
         Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
         Map<String, LazyVariable> outerLocals = PARSE_LOCALS.get();
         MolangCompoundValue result = null;
@@ -217,12 +212,10 @@ public class MolangParser extends MathBuilder {
                     && symbols.get(1).equals("=")
             ) {
                 symbols = symbols.subList(2, symbols.size());
-                String key = normalizeQueryPrefix(name);
+                String key = normalizeName(name);
                 LazyVariable variable = locals.get(key);
 
                 if (variable == null) {
-                    // temp./t. are expression-scoped by definition. Other names stay global only if already
-                    // registered, as before; otherwise they are scoped to this expression.
                     if (isTemporary(key) || !VARIABLES.containsKey(key)) {
                         variable = new LazyVariable(key, 0);
                         locals.put(key, variable);
@@ -231,7 +224,6 @@ public class MolangParser extends MathBuilder {
                     }
                 }
 
-                // Created before the right-hand side is parsed, so "t.x = t.x + 1" reads the same variable.
                 return new MolangVariableHolder(variable, INSTANCE.parseSymbolsMolang(symbols));
             }
 
@@ -243,7 +235,6 @@ public class MolangParser extends MathBuilder {
     }
 
     private void doCoreRemaps() {
-        // Replace radian based sin and cos with degree-based functions
         this.functions.put("cos", CosDegrees.class);
         this.functions.put("sin", SinDegrees.class);
 
@@ -312,7 +303,7 @@ public class MolangParser extends MathBuilder {
         if (!(variable instanceof LazyVariable))
             variable = LazyVariable.from(variable);
 
-        VARIABLES.put(variable.getName(), (LazyVariable) variable);
+        VARIABLES.put(normalizeName(variable.getName()), (LazyVariable) variable);
         registrationGeneration++;
     }
 
@@ -359,7 +350,7 @@ public class MolangParser extends MathBuilder {
      */
     @Override
     public LazyVariable getVariable(String name) {
-        return VARIABLES.computeIfAbsent(normalizeQueryPrefix(name), key -> new LazyVariable(key, 0));
+        return VARIABLES.computeIfAbsent(normalizeName(name), key -> new LazyVariable(key, 0));
     }
 
     /**
@@ -370,7 +361,7 @@ public class MolangParser extends MathBuilder {
         Map<String, LazyVariable> locals = PARSE_LOCALS.get();
 
         if (locals != null) {
-            LazyVariable local = locals.get(normalizeQueryPrefix(name));
+            LazyVariable local = locals.get(normalizeName(name));
 
             if (local != null)
                 return local;
@@ -379,12 +370,31 @@ public class MolangParser extends MathBuilder {
         return getVariable(name);
     }
 
-    private static String normalizeQueryPrefix(String name) {
-        return name.startsWith("q.") ? "query." + name.substring(2) : name;
+    /**
+     * Expands Molang's short prefixes so both spellings of a name reach the same variable: {@code q.} = {@code query.},
+     * {@code v.} = {@code variable.}, {@code t.} = {@code temp.}, {@code c.} = {@code context.}.
+     */
+    static String normalizeName(String name) {
+        if (name.length() > 2 && name.charAt(1) == '.') {
+            switch (name.charAt(0)) {
+                case 'q':
+                    return "query." + name.substring(2);
+                case 'v':
+                    return "variable." + name.substring(2);
+                case 't':
+                    return "temp." + name.substring(2);
+                case 'c':
+                    return "context." + name.substring(2);
+                default:
+                    break;
+            }
+        }
+
+        return name;
     }
 
-    private static boolean isTemporary(String name) {
-        return name.startsWith("temp.") || name.startsWith("t.");
+    private static boolean isTemporary(String normalizedName) {
+        return normalizedName.startsWith("temp.");
     }
 
     private static MolangVariableHolder constantHolder(double value) {
@@ -405,9 +415,7 @@ public class MolangParser extends MathBuilder {
     public LazyVariable getVariable(String name, MolangCompoundValue currentStatement) {
         LazyVariable variable;
 
-        if (name.startsWith("q.")) {
-            name = "query." + name.substring(2);
-        }
+        name = normalizeName(name);
 
         if (currentStatement != null) {
             variable = currentStatement.locals.get(name);
