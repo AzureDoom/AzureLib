@@ -1,16 +1,20 @@
 package mod.azure.azurelib.render.layer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.object.skull.SkullModelBase;
+import net.minecraft.client.renderer.PlayerSkinRenderCache;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
@@ -23,12 +27,14 @@ import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
@@ -59,8 +65,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
 
     protected final EquipmentLayerRenderer equipmentRenderer;
 
+    protected final PlayerSkinRenderCache skinCache;
+
     public AzArmorLayer(EntityRendererProvider.Context context) {
         this.equipmentRenderer = context.getEquipmentRenderer();
+        this.skinCache = context.getPlayerSkinRenderCache();
     }
 
     @Nullable
@@ -263,26 +272,50 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             ? EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS
             : EquipmentClientInfo.LayerType.HUMANOID;
         var renderState = new HumanoidRenderState();
+        var packedLight = context.packedLight();
+        var poseStack = context.poseStack();
 
         setOnlyPartVisible(model, modelPart);
 
-        var packedLight = context.packedLight();
+        poseStack.pushPose();
+        bakePartPose(poseStack, modelPart);
 
         context.multiBufferSource()
             .defer(
-                context.poseStack(),
-                (poseStack, collector) -> equipmentRenderer.renderLayers(
+                poseStack,
+                (deferredPoseStack, collector) -> equipmentRenderer.renderLayers(
                     layerType,
                     assetId,
                     model,
                     renderState,
                     armorStack,
-                    poseStack,
+                    deferredPoseStack,
                     collector,
                     packedLight,
                     renderState.outlineColor
                 )
             );
+
+        poseStack.popPose();
+    }
+
+    /**
+     * Vanilla's model submission calls {@code setupAnim} when the batch is drawn, which resets every part to its
+     * initial pose and discards the pose set by {@link #prepModelPartForRender}. Bake that pose into the pose stack
+     * instead, and cancel out the initial pose the part will re-apply, so the drawn result matches the prepared part.
+     */
+    protected void bakePartPose(PoseStack poseStack, ModelPart part) {
+        var initial = part.getInitialPose();
+
+        poseStack.translate(part.x / 16f, part.y / 16f, part.z / 16f);
+
+        if (part.xRot != 0 || part.yRot != 0 || part.zRot != 0)
+            poseStack.rotate(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot));
+
+        if (initial.xRot() != 0 || initial.yRot() != 0 || initial.zRot() != 0)
+            poseStack.rotate(new Quaternionf().rotationZYX(initial.zRot(), initial.yRot(), initial.xRot()).invert());
+
+        poseStack.translate(-initial.x() / 16f, -initial.y() / 16f, -initial.z() / 16f);
     }
 
     protected void setOnlyPartVisible(HumanoidModel<?> model, ModelPart usedPart) {
@@ -346,24 +379,28 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         var model = SKULL_MODELS.apply(type);
 
         if (model == null) {
+            AzureLib.LOGGER.error(
+                "Cannot render skull block that doesn't have a registered model! Skull type: {}",
+                type
+            );
             return;
         }
 
-        var renderType = SkullBlockRenderer.getSkullRenderType(type, null);
+        var renderType = getSkullRenderType(type, stack);
         var packedLight = context.packedLight();
+        var poseStack = context.poseStack();
 
-        context.poseStack().pushPose();
+        poseStack.pushPose();
 
-        RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
-        context.poseStack().scale(1.1875f, 1.1875f, 1.1875f);
-        context.poseStack().translate(-0.5f, 0, -0.5f);
+        RenderUtils.transformToBone(poseStack, bone);
+        poseStack.scale(-CustomHeadLayer.SKULL_SCALE, -CustomHeadLayer.SKULL_SCALE, CustomHeadLayer.SKULL_SCALE);
 
         context.multiBufferSource()
             .defer(
-                context.poseStack(),
-                (poseStack, collector) -> SkullBlockRenderer.submitSkull(
+                poseStack,
+                (deferredPoseStack, collector) -> SkullBlockRenderer.submitSkull(
                     0,
-                    poseStack,
+                    deferredPoseStack,
                     collector,
                     packedLight,
                     model,
@@ -373,7 +410,21 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
                 )
             );
 
-        context.poseStack().popPose();
+        poseStack.popPose();
+    }
+
+    /**
+     * Get the {@link RenderType} for a worn skull, using the head's profile skin for player heads
+     */
+    protected RenderType getSkullRenderType(SkullBlock.Type type, ItemStack stack) {
+        if (type == SkullBlock.Types.PLAYER) {
+            var profile = stack.get(DataComponents.PROFILE);
+
+            if (profile != null)
+                return this.skinCache.getOrDefault(profile).renderType();
+        }
+
+        return SkullBlockRenderer.getSkullRenderType(type, null);
     }
 
     /**
