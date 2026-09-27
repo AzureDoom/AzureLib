@@ -5,14 +5,21 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 
 @Mixin(value = TextureManager.class, priority = 2010)
 public abstract class TextureManagerMixin {
+
+    @Shadow
+    @Final
+    private ResourceManager resourceManager;
 
     @Shadow
     protected abstract TextureContents loadContentsSafe(
@@ -40,13 +47,14 @@ public abstract class TextureManagerMixin {
         Identifier location,
         Operation<SimpleTexture> original
     ) {
-        AnimatableTexture texture =
-            new AnimatableTexture(location);
+        if (!azurelib$hasMcmeta(location)) {
+            return original.call(location);
+        }
 
-        TextureContents contents =
-            loadContentsSafe(location, texture);
+        AnimatableTexture texture = new AnimatableTexture(location);
+        TextureContents contents = loadContentsSafe(location, texture);
 
-        if (texture.isAnimated()) {
+        if (texture.hasPendingAnimation()) {
             texture.apply(contents);
             register(location, texture);
 
@@ -54,6 +62,7 @@ public abstract class TextureManagerMixin {
         }
 
         texture.close();
+        contents.image().close();
 
         return original.call(location);
     }
@@ -76,5 +85,12 @@ public abstract class TextureManagerMixin {
         ReloadableTexture texture
     ) {
         return !(texture instanceof AnimatableTexture);
+    }
+
+    @Unique
+    private boolean azurelib$hasMcmeta(Identifier location) {
+        return this.resourceManager.getResource(
+            Identifier.fromNamespaceAndPath(location.getNamespace(), location.getPath() + ".mcmeta")
+        ).isPresent();
     }
 }

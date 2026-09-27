@@ -1,16 +1,9 @@
-/**
- * This class is adapted from the equivalent class found in the Geckolib repository, updated for the 26.2 GPU texture
- * pipeline. Original source: https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT
- * License. https://github.com/bernie-g/geckolib/blob/main/LICENSE
- */
 package mod.azure.azurelib.cache.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.device.GpuDevice;
-import com.mojang.renderpearl.api.textures.AddressMode;
-import com.mojang.renderpearl.api.textures.FilterMode;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -44,15 +37,15 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
     protected boolean isAnimated = false;
 
-    /// Width in pixels of a single frame. Equal to the full image width for non-animated textures
     protected int frameWidth;
 
-    /// Height in pixels of a single frame. Equal to the full image height for non-animated textures
     protected int frameHeight;
 
-    /// The full decoded source image (sprite sheet for animated textures, or the whole image otherwise). Kept alive for
-    /// the lifetime of this texture so [#doLoad(NativeImage)] can be re-invoked from [#apply(TextureContents)]
     protected NativeImage sourceImage;
+
+    protected NativeImage pendingImage;
+
+    protected AnimationContents pendingContents;
 
     public AnimatableTexture(final Identifier location) {
         super(location);
@@ -60,8 +53,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
     @Override
     public @NonNull TextureContents loadContents(ResourceManager manager) throws IOException {
-        closeAnimationContents();
-
         Resource resource = manager.getResourceOrThrow(resourceId());
         TextureMetadataSection textureMeta = resource.metadata()
             .getSection(TextureMetadataSection.TYPE)
@@ -69,34 +60,30 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         AnimationMetadataSection animMeta = resource.metadata()
             .getSection(AnimationMetadataSection.TYPE)
             .orElse(null);
-
-        if (this.sourceImage != null)
-            this.sourceImage.close();
+        NativeImage image;
 
         try (InputStream inputstream = resource.open()) {
-            this.sourceImage = NativeImage.read(inputstream);
+            image = NativeImage.read(inputstream);
         }
 
-        if (animMeta == null) {
-            this.frameWidth = this.sourceImage.getWidth();
-            this.frameHeight = this.sourceImage.getHeight();
+        AnimationContents contents = null;
 
-            return new TextureContents(this.sourceImage, textureMeta);
+        if (animMeta != null) {
+            contents = new AnimationContents(image, animMeta);
+
+            if (!contents.isValid())
+                contents = null;
         }
 
-        this.animationContents = new AnimationContents(this.sourceImage, animMeta);
+        discardPending();
+        this.pendingImage = image;
+        this.pendingContents = contents;
 
-        if (!this.animationContents.isValid()) {
-            this.animationContents = null;
-            this.frameWidth = this.sourceImage.getWidth();
-            this.frameHeight = this.sourceImage.getHeight();
+        return new TextureContents(image, textureMeta);
+    }
 
-            return new TextureContents(this.sourceImage, textureMeta);
-        }
-
-        this.isAnimated = true;
-
-        return new TextureContents(this.sourceImage, textureMeta);
+    public boolean hasPendingAnimation() {
+        return this.pendingContents != null;
     }
 
     public boolean isAnimated() {
@@ -105,15 +92,45 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
     @Override
     public void apply(@NonNull TextureContents textureContents) {
-        if (this.sourceImage == null)
-            return;
+        NativeImage image = this.pendingImage;
+        AnimationContents contents = this.pendingContents;
 
-        AddressMode address = textureContents.clamp() ? AddressMode.CLAMP_TO_EDGE : AddressMode.REPEAT;
-        FilterMode filter = textureContents.blur() ? FilterMode.LINEAR : FilterMode.NEAREST;
+        this.pendingImage = null;
+        this.pendingContents = null;
 
-        this.sampler = RenderSystem.getSamplerCache().getSampler(address, address, filter, filter, false);
+        if (image == null) {
+            image = textureContents.image();
+            contents = null;
+        } else if (textureContents.image() != image) {
+            textureContents.image().close();
+        }
 
-        doLoad(this.sourceImage);
+        AutoGlowingTexture boundGlowmask = this.animationContents != null
+            && this.animationContents.animatedTexture != null
+                ? this.animationContents.animatedTexture.glowMaskTexture
+                : null;
+
+        closeAnimationContents();
+
+        if (this.sourceImage != null && this.sourceImage != image)
+            this.sourceImage.close();
+
+        this.sourceImage = image;
+        this.animationContents = contents;
+        this.isAnimated = contents != null;
+        this.frameWidth = this.isAnimated ? contents.frameSize.width() : image.getWidth();
+        this.frameHeight = this.isAnimated ? contents.frameSize.height() : image.getHeight();
+
+        setSampler(textureContents);
+        doLoad(image);
+
+        if (boundGlowmask != null) {
+            RenderSystem.queueFencedTask(
+                () -> Minecraft.getInstance()
+                    .getTextureManager()
+                    .registerAndLoad(boundGlowmask.glowLayer, boundGlowmask)
+            );
+        }
     }
 
     @Override
@@ -122,6 +139,8 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         Identifier textureId = resourceId();
 
         Objects.requireNonNull(textureId);
+
+        super.close();
 
         this.texture = gpuDevice.createTexture(
             textureId::toString,
@@ -139,6 +158,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
     @Override
     public void close() {
+        discardPending();
         closeAnimationContents();
 
         if (this.sourceImage != null) {
@@ -155,6 +175,17 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         }
         this.animationContents = null;
         this.isAnimated = false;
+    }
+
+    private void discardPending() {
+        if (this.pendingContents != null && this.pendingContents.animatedTexture != null)
+            this.pendingContents.animatedTexture.close();
+
+        if (this.pendingImage != null)
+            this.pendingImage.close();
+
+        this.pendingContents = null;
+        this.pendingImage = null;
     }
 
     public static void setAndUpdate(Identifier texturePath) {
@@ -181,7 +212,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         }
     }
 
-    /// Write a region of pixel data from image into target at the given texture-space offset
     private void upload(GpuTexture target, NativeImage image, int width, int height) {
         if (target == null || target.isClosed())
             return;
@@ -213,9 +243,6 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
             return this.animatedTexture != null;
         }
 
-        /// Called every client tick by [AnimatableTexture#tick()]. Advances against the shared render-tick counter
-        /// rather than an internal counter, so every instance of a given texture stays in sync without needing its own
-        /// ticking state
         protected void tick() {
             if (this.animatedTexture != null)
                 this.animatedTexture.setCurrentFrame((int) RenderUtils.getCurrentTick());
@@ -309,16 +336,11 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
             if (frames.size() <= 1)
                 return null;
 
-            AnimatableTexture.this.frameWidth = this.frameSize.width();
-            AnimatableTexture.this.frameHeight = this.frameSize.height();
-
             return new Texture(image, frames.toArray(new Frame[0]), columns, animMeta.interpolatedFrames());
         }
 
         protected class Texture implements AutoCloseable {
 
-            /// Reference to [AnimatableTexture#sourceImage]. Ownership (and closing) stays with the outer texture
-            /// instance, since this is the same NativeImage it loaded and uploads from
             protected final NativeImage baseImage;
 
             protected final Frame[] frames;
@@ -396,10 +418,12 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 NativeImage baseImage,
                 NativeImage glowMask
             ) {
+                releaseGlowmaskImages();
+
                 this.glowMaskTexture = texture;
-                this.glowmaskImage = glowMask;
                 this.glowmaskFrameBuffer = newFrameImage();
                 this.glowmaskInterpolatedFrame = this.interpolating ? newFrameImage() : null;
+                this.glowmaskImage = glowMask;
                 this.baseImage.copyFrom(baseImage);
 
                 NativeImage firstFrame = newFrameImage();
@@ -407,6 +431,30 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                 blitFrame(glowMask, firstFrame, 0);
 
                 return firstFrame;
+            }
+
+            private void releaseGlowmaskImages() {
+                NativeImage mask = this.glowmaskImage;
+                NativeImage frame = this.glowmaskFrameBuffer;
+                NativeImage interpolated = this.glowmaskInterpolatedFrame;
+
+                this.glowmaskImage = null;
+                this.glowmaskFrameBuffer = null;
+                this.glowmaskInterpolatedFrame = null;
+
+                if (mask == null && frame == null && interpolated == null)
+                    return;
+
+                onRenderThread(() -> {
+                    if (mask != null)
+                        mask.close();
+
+                    if (frame != null)
+                        frame.close();
+
+                    if (interpolated != null)
+                        interpolated.close();
+                });
             }
 
             private GpuTexture glowMaskGpuTexture() {
@@ -444,11 +492,14 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                             AnimatableTexture.this.frameHeight
                         );
 
-                        if (this.glowmaskImage != null) {
-                            blitFrame(this.glowmaskImage, this.glowmaskFrameBuffer, this.currentFrame);
+                        NativeImage glowmask = this.glowmaskImage;
+                        NativeImage glowmaskFrame = this.glowmaskFrameBuffer;
+
+                        if (glowmask != null && glowmaskFrame != null) {
+                            blitFrame(glowmask, glowmaskFrame, this.currentFrame);
                             AnimatableTexture.this.upload(
                                 glowMaskGpuTexture(),
-                                this.glowmaskFrameBuffer,
+                                glowmaskFrame,
                                 AnimatableTexture.this.frameWidth,
                                 AnimatableTexture.this.frameHeight
                             );
@@ -462,11 +513,14 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
                             this.interpolatedFrame
                         );
 
-                        if (this.glowmaskImage != null) {
+                        NativeImage glowmask = this.glowmaskImage;
+                        NativeImage glowmaskInterpolated = this.glowmaskInterpolatedFrame;
+
+                        if (glowmask != null && glowmaskInterpolated != null) {
                             generateInterpolatedFrame(
                                 glowMaskGpuTexture(),
-                                this.glowmaskImage,
-                                this.glowmaskInterpolatedFrame
+                                glowmask,
+                                glowmaskInterpolated
                             );
                         }
                     });
