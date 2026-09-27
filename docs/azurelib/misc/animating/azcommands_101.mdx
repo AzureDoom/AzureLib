@@ -115,6 +115,149 @@ AzCommand startAiming = AzCommand.controllerBuilder()
     .build();
 ```
 
+### 4. **Random Animation Pools**
+A pool plays a random animation from a weighted list, and picks the next one each time the current animation finishes. This is the way to get idle or walk variety (`idle`, then `idle2`, then `idle` again) without timers.
+
+Because the next pick happens when the animation actually ends, nothing about animation length is hardcoded. If a resource pack retimes or replaces an animation, the pool follows it automatically.
+
+#### **Creating a Pool**
+Build a pool with `AzWeightedPoolBehavior.builder`, giving it a unique name and one entry per animation:
+
+**Example**:
+```java
+public static final AzWeightedPoolBehavior IDLE_POOL = AzWeightedPoolBehavior.builder("mymod:example_idle")
+    .add("IDLE_ANIMATION", 6)
+    .add("IDLE_STRETCH_ANIMATION", 3)
+    .addNoRepeat("IDLE_SNIFF_ANIMATION", 1)
+    .build();
+```
+In this example:
+- `"mymod:example_idle"`: The pool's name. It must be unique across all mods, so prefix it with your mod id.
+- `6`, `3`, `1`: Relative weights. These three give 60%, 30% and 10%. Weights don't need to add up to anything in particular.
+- `addNoRepeat`: This animation is never picked twice in a row. See [Preventing Repeats](#preventing-repeats).
+
+<Callout variant="info">
+    Pools must be created during **common** mod initialization so they exist on both the server and the client. Only the pool's name is sent over the network, and the client looks it up by that name. If the client doesn't know the pool, the animation plays once and then stops, with no error. The simplest approach is to keep pools as `static final` fields and make sure their class is loaded from your common init.
+</Callout>
+
+#### **Playing a Pool**
+Turn the pool into a command with the controller it should play on, then send it like any other command:
+
+**Example**:
+```java
+private static final AzCommand IDLE_COMMAND = IDLE_POOL.sequence().toCommand("base");
+
+IDLE_COMMAND.sendForEntity(myEntity);
+```
+- `sequence()` always starts the pool on its first entry, or on the entry chosen with `startWith(...)`.
+- It's safe to send the same pool command every tick. Sending the pool that's already playing does nothing, so it won't restart the chain.
+
+##### **Starting on a Random Entry**
+`sequence()` always starts on the same animation, which means that animation shows up more often than its weight suggests when the pool only runs briefly. Use `randomSequence()` to start on a weighted-random entry instead:
+
+**Example**:
+```java
+private AzCommand currentIdle;
+
+// When the entity enters its idle state:
+currentIdle = IDLE_POOL.randomSequence().toCommand("base");
+
+// Every tick while idle:
+currentIdle.sendForEntity(this);
+```
+<Callout variant="info">
+    Call `randomSequence()` **once** when entering a state, then keep sending that same command. Calling it every tick picks a new start each time, and a different start counts as a new animation, so the pool restarts constantly.
+</Callout>
+
+##### **Using a Pool After Other Animations**
+A pool can be the last stage of a sequence. The earlier stages play once, then the pool takes over:
+
+**Example**:
+```java
+AzSequence.create()
+    .play("WAKE_UP_ANIMATION")
+    .then("IDLE_ANIMATION", IDLE_POOL)
+    .toCommand("base")
+    .sendForEntity(myEntity);
+```
+- The pool should be the **last** stage. If other stages come after it, the pool plays its first animation and then moves on to them, without picking.
+
+#### **Preventing Repeats**
+Base loops are usually designed to repeat seamlessly, but detail animations such as a sniff or a head turn look obvious when they play twice in a row. You can block repeats per animation:
+
+**Example**:
+```java
+AzWeightedPoolBehavior.builder("mymod:example_walk")
+    .add("WALK_ANIMATION", 1)                 // may repeat
+    .addNoRepeat("WALK_SNIFF_ANIMATION", 1)   // never twice in a row
+    .add("WALK_LOOK_ANIMATION", 1, false)     // same as addNoRepeat
+    .build();
+```
+- `avoidImmediateRepeat()` on the builder marks every entry as no-repeat at once.
+- Blocking repeats slightly lowers how often that animation appears overall, because it's sometimes excluded. For example, with `IDLE` at weight 3 and a no-repeat `SNIFF` at weight 1, the sniff appears 20% of the time instead of 25%. Raise its weight a little (1.5 here) if you need the original share.
+
+#### **Things to Know**
+- **Picks happen on each client.** Two players watching the same entity may see different variants. That's usually fine for idles and walks. If every player must see the same animation, choose it on the server and send a normal command instead.
+- **Missing animations are skipped.** If a resource pack removes an entry, the pool tries the other entries. If none of them can be found, the current animation loops. A warning is logged for each missing animation.
+- **Blending uses the controller's transition length,** exactly like switching between any two animations. See the [Animation Controller Builder](../misc/animating/animation_controller_builder) page.
+- **Switching between pools restarts them.** If you switch between an idle pool and a walk pool based on movement, make sure the movement check is stable. A check that flickers for a single tick (for example, between path nodes) will keep restarting the pools and you'll only ever see the first animation. Requiring the new state to hold for a few ticks before switching fixes this.
+
+#### **Full Example**
+```java
+public class ExampleEntity extends PathfinderMob {
+
+    public static final AzWeightedPoolBehavior IDLE_POOL = AzWeightedPoolBehavior.builder("mymod:example_idle")
+        .add("IDLE_ANIMATION", 3)
+        .addNoRepeat("IDLE_SNIFF_ANIMATION", 1)
+        .build();
+
+    public static final AzWeightedPoolBehavior WALK_POOL = AzWeightedPoolBehavior.builder("mymod:example_walk")
+        .add("WALK_ANIMATION", 1)
+        .addNoRepeat("WALK_SNIFF_ANIMATION", 1)
+        .addNoRepeat("WALK_LOOK_ANIMATION", 1)
+        .build();
+
+    private static final int STATE_SWITCH_TICKS = 5;
+
+    private boolean walking;
+    private int pendingStateTicks;
+    private AzCommand currentCommand;
+
+    public ExampleEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Horizontal movement only, and the new state must hold for a few ticks before it counts.
+        var dx = getX() - xo;
+        var dz = getZ() - zo;
+        var movingNow = dx * dx + dz * dz > 1.0E-4;
+
+        if (movingNow == walking) {
+            pendingStateTicks = 0;
+        } else if (++pendingStateTicks >= STATE_SWITCH_TICKS) {
+            walking = movingNow;
+            pendingStateTicks = 0;
+            currentCommand = null; // pick a new start for the new state
+        }
+
+        if (!level().isClientSide()) {
+            return; // Only dispatch on the client, so the server doesn't send a packet every tick
+        }
+
+        if (currentCommand == null) {
+            var pool = walking ? WALK_POOL : IDLE_POOL;
+            currentCommand = pool.randomSequence().toCommand("base");
+        }
+
+        currentCommand.sendForEntity(this);
+    }
+}
+```
+
 ## Sending AzCommands
 Once you've created an AzCommand, you can dispatch it to an entity, block entity, or item stack using the provided methods.
 
@@ -142,6 +285,8 @@ This requires the item stack to have a registered UUID, which is covered in the 
 ## Best Practices
 1. **Reuse Commands**:
     - Define reusable commands for common animations to simplify your rendering logic.
+2. **Use pools instead of timers for variety**:
+    - To randomly vary idle or walk animations, use a [Random Animation Pool](#4-random-animation-pools) rather than counting ticks. Pools follow the real animation length, so they keep working when a resource pack changes an animation.
 
 
 ## Converting from `AnimationController` to `AzCommand`
