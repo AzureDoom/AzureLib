@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
@@ -57,11 +58,16 @@ public class AnimatableTexture extends SimpleTexture {
                 nativeImage = NativeImage.read(inputstream);
             }
 
+            AnimationContents previous = this.animationContents;
             this.animationContents = new AnimationContents(nativeImage, animMeta);
+
+            if (previous != null && previous.animatedTexture != null)
+                onRenderThread(previous.animatedTexture::close);
 
             if (!this.animationContents.isValid()) {
                 nativeImage.close();
 
+                this.isAnimated = false;
                 return;
             }
 
@@ -85,6 +91,14 @@ public class AnimatableTexture extends SimpleTexture {
                     false,
                     false
                 );
+            });
+
+            var glowPath = GeoAbstractTexture.appendToPath(this.location, "_glowmask");
+            RenderSystem.recordRenderCall(() -> {
+                var tm = Minecraft.getInstance().getTextureManager();
+
+                if (tm.getTexture(glowPath, MissingTextureAtlasSprite.getTexture()) instanceof AutoGlowingTexture)
+                    tm.register(glowPath, new AutoGlowingTexture(this.location, glowPath));
             });
         }
     }
