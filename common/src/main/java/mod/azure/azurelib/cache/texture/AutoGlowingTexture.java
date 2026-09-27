@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -124,9 +125,34 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
         AbstractTexture originalTexture;
 
         try {
-            originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(this.textureBase)).get();
+            originalTexture = mc.submit(() -> {
+                var tm = mc.getTextureManager();
+                var tex = tm.getTexture(this.textureBase);
+
+                if (!(tex instanceof AnimatableTexture)) {
+                    boolean hasAnimationMetadata = false;
+
+                    try {
+                        var resource = resourceManager.getResource(this.textureBase);
+
+                        hasAnimationMetadata =
+                            resource.getMetadata(AnimationMetadataSection.SERIALIZER) != null;
+                    } catch (IOException ignored) {}
+
+                    if (hasAnimationMetadata) {
+                        var ours = new AnimatableTexture(this.textureBase);
+                        tm.register(this.textureBase, ours);
+                        tex = ours;
+                    }
+                }
+
+                return tex;
+            }).get();
         } catch (InterruptedException | ExecutionException e) {
-            throw new IOException("Failed to load original texture: " + this.textureBase, e);
+            throw new IOException(
+                "Failed to load original texture: " + this.textureBase,
+                e
+            );
         }
 
         Resource textureBaseResource = resourceManager.getResource(this.textureBase);
