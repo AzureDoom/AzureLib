@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.internal.mixins;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.cache.texture.AnimatableTexture;
@@ -23,9 +25,6 @@ public abstract class TextureManagerMixin {
 
     @Unique
     private final Map<ResourceLocation, Boolean> azurelib$animationCache = new HashMap<>();
-
-    @Unique
-    private final Map<ResourceLocation, AnimatableTexture> azurelib$textureCache = new HashMap<>();
 
     @Shadow
     public abstract void register(ResourceLocation resourceLocation, AbstractTexture abstractTexture);
@@ -46,11 +45,6 @@ public abstract class TextureManagerMixin {
         var currentTexture = cir.getReturnValue();
 
         if (currentTexture == null || currentTexture.getClass() != SimpleTexture.class) {
-            return;
-        }
-
-        if (azurelib$textureCache.containsKey(location)) {
-            cir.setReturnValue(azurelib$textureCache.get(location));
             return;
         }
 
@@ -80,10 +74,14 @@ public abstract class TextureManagerMixin {
         }
 
         azurelib$animationCache.put(location, true);
-        azurelib$textureCache.put(location, animatableTexture);
 
         this.register(location, animatableTexture);
         cir.setReturnValue(animatableTexture);
+    }
+
+    @Inject(method = "reload", at = @At("HEAD"))
+    private void azurelib$clearAnimationCache(CallbackInfoReturnable<CompletableFuture<Void>> cir) {
+        RenderSystem.recordRenderCall(azurelib$animationCache::clear);
     }
 
     @Unique

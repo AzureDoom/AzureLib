@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -48,7 +49,29 @@ public class AutoGlowingTexture extends AzAbstractTexture {
         AbstractTexture originalTexture;
 
         try {
-            originalTexture = mc.submit(() -> mc.getTextureManager().getTexture(this.textureBase)).get();
+            originalTexture = mc.submit(() -> {
+                var tm = mc.getTextureManager();
+                var tex = tm.getTexture(this.textureBase);
+
+                if (
+                    !(tex instanceof AnimatableTexture)
+                        && resourceManager.getResource(this.textureBase)
+                            .flatMap(r -> {
+                                try {
+                                    return r.metadata().getSection(AnimationMetadataSection.SERIALIZER);
+                                } catch (IOException e) {
+                                    return Optional.empty();
+                                }
+                            })
+                            .isPresent()
+                ) {
+                    var ours = new AnimatableTexture(this.textureBase);
+                    tm.register(this.textureBase, ours);
+                    tex = ours;
+                }
+
+                return tex;
+            }).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new IOException("Failed to load original texture: " + this.textureBase, e);
         }
