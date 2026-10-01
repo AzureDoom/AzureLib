@@ -38,7 +38,7 @@ Below is a working example of a custom animator for a block entity, `YourBlockEn
 
 ```java
 java public class YourBlockEntityAnimator extends AzBlockAnimator<YourBlockEntity> {
-    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+    private static final Identifier ANIMATIONS = CommonMod.modResource(
         "animations/block/yourblockentity.animation.json"
     );
 
@@ -55,7 +55,7 @@ java public class YourBlockEntityAnimator extends AzBlockAnimator<YourBlockEntit
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(YourBlockEntity animatable) {
+    public @NotNull Identifier getAnimationLocation(YourBlockEntity animatable) {
         return ANIMATIONS;
     }
 }

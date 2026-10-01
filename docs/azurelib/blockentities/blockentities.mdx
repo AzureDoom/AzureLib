@@ -18,7 +18,7 @@ For this, you will create a class which extends `AzBlockAnimator`. This class wi
 Example:
 ```java
 public class ExampleBEAnimator extends AzBlockAnimator<ExampleBE> {
-    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier ANIMATIONS = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "animations/item/examplebe.animation.json"
     );
@@ -32,7 +32,7 @@ public class ExampleBEAnimator extends AzBlockAnimator<ExampleBE> {
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(ExampleBE animatable) {
+    public @NotNull Identifier getAnimationLocation(ExampleBE animatable) {
         return ANIMATIONS;
     }
 }
@@ -41,7 +41,7 @@ public class ExampleBEAnimator extends AzBlockAnimator<ExampleBE> {
 Some highlights of the above example.
 
 - `ANIMATIONS`:
-This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+This stores the `Identifier` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
 
 - `registerControllers()`
 Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
@@ -132,12 +132,12 @@ The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` and provide th
 Example Renderer
 ```java
 public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier GEO = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "geo/block/examplebe.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "textures/block/examplebe.png"
     );

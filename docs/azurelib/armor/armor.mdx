@@ -18,7 +18,7 @@ For this, you will create a class which extends `AzItemAnimator`. This class wil
 Example:
 ```java
 public class ExampleArmorAnimator extends AzItemAnimator {
-    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier ANIMATIONS = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "animations/item/examplearmor.animation.json"
     );
@@ -32,7 +32,7 @@ public class ExampleArmorAnimator extends AzItemAnimator {
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(ItemStack animatable) {
+    public @NotNull Identifier getAnimationLocation(ItemStack animatable) {
         return ANIMATIONS;
     }
 }
@@ -41,7 +41,7 @@ public class ExampleArmorAnimator extends AzItemAnimator {
 Some highlights of the above example.
 
 - `ANIMATIONS`:
-This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+This stores the `Identifier` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
 
 - `registerControllers()`
 Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
@@ -147,12 +147,12 @@ It connects the armor with the following:
 
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier GEO = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "geo/item/examplearmor.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "textures/item/examplearmor.png"
     );

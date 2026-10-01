@@ -38,7 +38,7 @@ Below is a working example of a custom animator for a entity, `YourEntity`, usin
 
 ```java
 java public class YourEntityAnimator extends AzEntityAnimator<YourEntity> {
-    private static final ResourceLocation ANIMATIONS = CommonMod.modResource(
+    private static final Identifier ANIMATIONS = CommonMod.modResource(
         "animations/entity/yourentity.animation.json"
     );
 
@@ -55,7 +55,7 @@ java public class YourEntityAnimator extends AzEntityAnimator<YourEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(YourEntity animatable) {
+    public @NotNull Identifier getAnimationLocation(YourEntity animatable) {
         return ANIMATIONS;
     }
 }

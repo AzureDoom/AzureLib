@@ -39,11 +39,11 @@ Here’s how you can integrate it into your custom renderer:
 
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation MODEL_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
+    private static final Identifier MODEL_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
-    private static final ResourceLocation TEXTURE_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
+    private static final Identifier TEXTURE_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(

@@ -18,7 +18,7 @@ For this, you will create a class which extends `AzEntityAnimator`. This class w
 Example:
 ```java
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
-    private static final ResourceLocation ANIMATIONS = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier ANIMATIONS = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "animations/entity/example_entity.animation.json"
     );
@@ -32,7 +32,7 @@ public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
     }
 
     @Override
-    public @NotNull ResourceLocation getAnimationLocation(ExampleEntity animatable) {
+    public @NotNull Identifier getAnimationLocation(ExampleEntity animatable) {
         return ANIMATIONS;
     }
 }
@@ -41,7 +41,7 @@ public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
 Some highlights of the above example.
 
 - `ANIMATIONS`:
-This stores the `ResourceLocation` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
+This stores the `Identifier` reference to the animation JSON file. You need to replace `YOUR_MOD_ID` with your mod's ID and ensure the file path matches your JSON animation file.
 
 - `registerControllers()`
 Registers the animation controllers that will define the animation behavior and states for the item. You can multiple if needed.
@@ -171,12 +171,12 @@ The renderer class must extend `AzEntityRenderer<ExampleEntity>` and provide the
 Example Renderer
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation GEO = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier GEO = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "geo/entity/example_entity.geo.json"
     );
 
-    private static final ResourceLocation TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID,
         "textures/entity/example_entity.png"
     );
