@@ -1,13 +1,13 @@
 package mod.azure.azurelib.animation.play_behavior;
 
-import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
-import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
-import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+
+import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 
 /**
  * A play behavior that, whenever its animation finishes, picks the next animation from a weighted pool and plays it
