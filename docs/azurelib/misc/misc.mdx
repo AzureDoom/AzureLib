@@ -111,15 +111,15 @@ A common use case is giving a cape, accessory, or other extra model part its own
 ```java
 public class GremlinRenderer extends AzEntityRenderer {
 
-    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier MODEL = Identifier.fromNamespaceAndPath(
         "YOUR_MOD_ID", "geo/entity/gremlin.geo.json"
     );
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
         "YOUR_MOD_ID", "textures/entity/gremlin.png"
     );
 
-    private static final ResourceLocation CAPE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier CAPE_TEXTURE = Identifier.fromNamespaceAndPath(
         "YOUR_MOD_ID", "textures/entity/gremlin_cape.png"
     );
 
