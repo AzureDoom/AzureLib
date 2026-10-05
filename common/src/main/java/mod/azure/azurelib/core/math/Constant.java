@@ -38,8 +38,8 @@ public class Constant implements IValue {
     }
 
     /**
-     * Returns a shared, immutable constant for {@code value}. Prefer this over the constructor for anything stored in
-     * a parsed expression tree.
+     * Returns a shared, immutable constant for {@code value}. Prefer this over the constructor for anything stored in a
+     * parsed expression tree.
      */
     public static Constant of(double value) {
         Constant pooled = POOL.get(value);

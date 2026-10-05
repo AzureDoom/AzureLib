@@ -5,7 +5,14 @@
  */
 package mod.azure.azurelib.core.math;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.common.util.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;
@@ -46,13 +53,6 @@ import mod.azure.azurelib.core.math.functions.rounding.Floor;
 import mod.azure.azurelib.core.math.functions.rounding.Round;
 import mod.azure.azurelib.core.math.functions.rounding.Trunc;
 import mod.azure.azurelib.core.math.functions.utility.*;
-import mod.azure.azurelib.common.util.AzureLibException;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Math builder This class is responsible for parsing math expressions provided by user in a string to an {@link IValue}
@@ -61,8 +61,8 @@ import java.util.Map;
  * {@link IValue}.
  * <p>
  * {@link #parse(String)} returns a simplified tree: sub-expressions that only involve constants are computed once at
- * parse time (see {@link IValue#simplify()}), and every number in the tree comes from the shared {@link Constant}
- * pool. Names registered with {@link #registerConstant(String, double)} take part in that folding; names registered as
+ * parse time (see {@link IValue#simplify()}), and every number in the tree comes from the shared {@link Constant} pool.
+ * Names registered with {@link #registerConstant(String, double)} take part in that folding; names registered as
  * {@link Variable}s never do, since their value can change at runtime.
  */
 @SuppressWarnings({ "unchecked", "unused" })

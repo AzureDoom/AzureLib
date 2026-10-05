@@ -8,6 +8,13 @@ package mod.azure.azurelib.core.molang;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -18,12 +25,6 @@ import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.CosDegrees;
 import mod.azure.azurelib.core.molang.functions.SinDegrees;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.DoubleSupplier;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
