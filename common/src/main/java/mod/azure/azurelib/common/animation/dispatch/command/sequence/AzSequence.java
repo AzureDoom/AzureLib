@@ -63,6 +63,7 @@ public final class AzSequence {
      */
     private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = Set.of(
         AzPlayBehaviors.LOOP,
+        AzPlayBehaviors.PING_PONG,
         AzPlayBehaviors.HOLD_ON_LAST_FRAME,
         AzPlayBehaviors.FREEZE_ON_FRAME
     );
@@ -144,6 +145,31 @@ public final class AzSequence {
      */
     public AzSequence hold(String animationName) {
         return toBuilder().hold(animationName).build();
+    }
+
+    /**
+     * Returns a new sequence with {@code animationName} appended, played however its animation file says (the
+     * {@code loop}, {@code repeat_times} and {@code freeze_at} set in Blockbench). Only add further stages after it if
+     * the file's behavior finishes (play once, repeat x times).
+     */
+    public AzSequence authored(String animationName) {
+        return toBuilder().authored(animationName).build();
+    }
+
+    /**
+     * Returns a new sequence with {@code animationName} appended as a stage that plays forward and backward
+     * indefinitely (final).
+     */
+    public AzSequence pingPong(String animationName) {
+        return toBuilder().pingPong(animationName).build();
+    }
+
+    /**
+     * Returns a new sequence with {@code animationName} appended as a play-once stage that runs from its last frame to
+     * its first.
+     */
+    public AzSequence playReversed(String animationName) {
+        return toBuilder().playReversed(animationName).build();
     }
 
     /**
@@ -324,6 +350,28 @@ public final class AzSequence {
          */
         public Builder hold(String animationName) {
             return then(animationName, AzPlayBehaviors.HOLD_ON_LAST_FRAME);
+        }
+
+        /**
+         * Appends a stage played however its animation file says. See {@link AzSequence#authored(String)}.
+         */
+        public Builder authored(String animationName) {
+            return then(animationName, AzPlayBehaviors.AS_AUTHORED);
+        }
+
+        /**
+         * Appends a stage that plays forward, then backward, indefinitely. Nothing can follow it.
+         */
+        public Builder pingPong(String animationName) {
+            return then(animationName, AzPlayBehaviors.PING_PONG);
+        }
+
+        /**
+         * Appends a stage that plays once from its last frame to its first, then continues to the next stage. For other
+         * behaviors, use {@code then(name, behavior, p -> p.withShouldReverse(true))}.
+         */
+        public Builder playReversed(String animationName) {
+            return then(animationName, AzPlayBehaviors.PLAY_ONCE, properties -> properties.withShouldReverse(true));
         }
 
         /**

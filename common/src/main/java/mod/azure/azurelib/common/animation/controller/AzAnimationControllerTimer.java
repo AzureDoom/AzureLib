@@ -27,7 +27,7 @@ public class AzAnimationControllerTimer<T> {
         double animationSpeed = animationController.animationProperties().animationSpeed();
         double tick = animContext.timer().getAnimTime();
         double tickStartOffset = animationController.animationProperties().startTickOffset();
-        double freezeTick = animationController.animationProperties().freezeTickOffset();
+        double freezeTick = animationController.effectiveFreezeTickOffset();
 
         if (freezeTick > 0 && adjustedTick >= freezeTick) {
             adjustedTick = freezeTick;
@@ -48,6 +48,25 @@ public class AzAnimationControllerTimer<T> {
         AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
         this.tickOffset = animContext.timer().getAnimTime();
         this.adjustedTick = 0;
+    }
+
+    /**
+     * Moves playback progress to {@code progress} in a way that survives the next {@link #update()}, by solving
+     * {@code update()}'s formula for the tick offset. Unlike {@link #addToAdjustedTick(double)}, which is overwritten
+     * on the next update, this persists.
+     *
+     * @param progress the adjusted tick to continue from
+     */
+    public void seek(double progress) {
+        var properties = animationController.animationProperties();
+        var speed = properties.animationSpeed();
+        var animTime = animationController.stateMachine().getContext().animationContext().timer().getAnimTime();
+
+        if (speed != 0) {
+            this.tickOffset = animTime + properties.startTickOffset() - progress / speed;
+        }
+
+        this.adjustedTick = progress;
     }
 
     /**

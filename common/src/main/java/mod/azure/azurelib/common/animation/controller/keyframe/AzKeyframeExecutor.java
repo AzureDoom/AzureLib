@@ -50,9 +50,7 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
      */
     public void execute(@NotNull AzQueuedAnimation currentAnimation, T animatable, boolean crashWhenCantFindBone) {
         var keyframeCallbackHandler = animationController.keyframeManager().keyframeCallbackHandler();
-        var controllerTimer = animationController.controllerTimer();
-
-        currentAdjustedTick = controllerTimer.getAdjustedTick();
+        currentAdjustedTick = animationController.sampleTick();
         ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
         for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
@@ -80,7 +78,7 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
             updateScale(scaleKeyframes, boneAnimationQueue, currentAdjustedTick);
         }
 
-        keyframeCallbackHandler.handle(animatable, currentAdjustedTick);
+        keyframeCallbackHandler.handle(animatable, currentAdjustedTick, animationController.isPlayingReversed());
     }
 
     private void updateRotation(
