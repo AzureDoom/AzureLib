@@ -5,123 +5,45 @@
  */
 package mod.azure.azurelib.core.math;
 
-import java.util.HashSet;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * Operation enumeration This enumeration provides different hardcoded enumerations of default math operators such
- * addition, substraction, multiplication, division, modulo and power. TODO: maybe convert to classes (for the sake of
- * API)?
+ * The binary operators supported in math and Molang expressions: arithmetic ({@code + - * / % ^}), logical
+ * ({@code && ||}) and comparison ({@code < <= > >= == !=}).
  */
 public enum Operation {
 
-    ADD("+", 5) {
+    ADD("+", 5),
+    SUB("-", 5),
+    MUL("*", 6),
+    DIV("/", 6),
+    MOD("%", 6),
+    POW("^", 7),
+    AND("&&", 2),
+    OR("||", 1),
+    LESS("<", 4),
+    LESS_THAN("<=", 4),
+    GREATER_THAN(">=", 4),
+    GREATER(">", 4),
+    EQUALS("==", 3),
+    NOT_EQUALS("!=", 3);
 
-        @Override
-        public double calculate(double a, double b) {
-            return a + b;
-        }
-    },
-    SUB("-", 5) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a - b;
-        }
-    },
-    MUL("*", 6) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a * b;
-        }
-    },
-    DIV("/", 6) {
-
-        @Override
-        public double calculate(double a, double b) {
-            /* To avoid any exceptions */
-            return a / (b == 0 ? 1 : b);
-        }
-    },
-    MOD("%", 6) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a % b;
-        }
-    },
-    POW("^", 7) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return Math.pow(a, b);
-        }
-    },
-    AND("&&", 2) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a != 0 && b != 0 ? 1 : 0;
-        }
-    },
-    OR("||", 1) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a != 0 || b != 0 ? 1 : 0;
-        }
-    },
-    LESS("<", 4) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a < b ? 1 : 0;
-        }
-    },
-    LESS_THAN("<=", 4) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a <= b ? 1 : 0;
-        }
-    },
-    GREATER_THAN(">=", 4) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a >= b ? 1 : 0;
-        }
-    },
-    GREATER(">", 4) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return a > b ? 1 : 0;
-        }
-    },
-    EQUALS("==", 3) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return equals(a, b) ? 1 : 0;
-        }
-    },
-    NOT_EQUALS("!=", 3) {
-
-        @Override
-        public double calculate(double a, double b) {
-            return !equals(a, b) ? 1 : 0;
-        }
-    };
-
-    public final static Set<String> OPERATORS = new HashSet<>();
+    private static final Map<String, Operation> BY_SIGN = new HashMap<>();
 
     static {
         for (Operation op : values()) {
-            OPERATORS.add(op.sign);
+            BY_SIGN.put(op.sign, op);
         }
     }
+
+    /**
+     * Every operator sign. Unmodifiable: adding a sign here would not make it parseable (see the class docs).
+     */
+    public static final Set<String> OPERATORS = Set.copyOf(BY_SIGN.keySet());
 
     /**
      * String-ified name of this operation
@@ -139,12 +61,38 @@ public enum Operation {
         this.value = value;
     }
 
+    /**
+     * @return the operation for {@code sign}, or {@code null} if it isn't an operator
+     */
+    public static @Nullable Operation fromSign(String sign) {
+        return BY_SIGN.get(sign);
+    }
+
     public static boolean equals(double a, double b) {
         return Math.abs(a - b) < 0.00001;
     }
 
     /**
-     * Calculate the value based on given two doubles
+     * Calculate the value based on given two doubles. The only implementation of each operator: {@link Operator}
+     * evaluates through here and constant folding uses it too, so the two can't drift apart.
      */
-    public abstract double calculate(double a, double b);
+    public double calculate(double a, double b) {
+        return switch (this) {
+            case ADD -> a + b;
+            case SUB -> a - b;
+            case MUL -> a * b;
+            /* To avoid any exceptions */
+            case DIV -> a / (b == 0 ? 1 : b);
+            case MOD -> a % b;
+            case POW -> Math.pow(a, b);
+            case AND -> a != 0 && b != 0 ? 1 : 0;
+            case OR -> a != 0 || b != 0 ? 1 : 0;
+            case LESS -> a < b ? 1 : 0;
+            case LESS_THAN -> a <= b ? 1 : 0;
+            case GREATER_THAN -> a >= b ? 1 : 0;
+            case GREATER -> a > b ? 1 : 0;
+            case EQUALS -> equals(a, b) ? 1 : 0;
+            case NOT_EQUALS -> !equals(a, b) ? 1 : 0;
+        };
+    }
 }

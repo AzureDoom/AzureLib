@@ -67,6 +67,16 @@ public class MolangParser extends MathBuilder {
      */
     private static final Map<String, MolangValue> EXPRESSION_CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * One shared {@link MolangValue} per numeric keyframe value. Most keyframe values in animation files are plain JSON
+     * numbers, which bypass {@link #EXPRESSION_CACHE}, so without this every occurrence of {@code 0} got its own
+     * wrapper. Keyed bit-exactly by {@link Double}, like the {@link Constant} pool. Cleared with the expression cache.
+     */
+    private static final Map<Double, MolangValue> CONSTANT_VALUES = new ConcurrentHashMap<>();
+
+    /** Same bound as the {@link Constant} pool, for the same reason. */
+    private static final int MAX_CONSTANT_VALUES = 16_384;
+
     public MolangParser() {
         super();
 
@@ -81,7 +91,7 @@ public class MolangParser extends MathBuilder {
         JsonPrimitive primitive = element.getAsJsonPrimitive();
 
         if (primitive.isNumber())
-            return new MolangValue(new Constant(primitive.getAsDouble()));
+            return constantValue(primitive.getAsDouble());
 
         if (primitive.isString())
             return parseCached(primitive.getAsString());
@@ -110,17 +120,34 @@ public class MolangParser extends MathBuilder {
      */
     public static MolangValue parseUncached(String string) {
         try {
-            return new MolangValue(new Constant(Double.parseDouble(string)));
+            return constantValue(Double.parseDouble(string));
         } catch (NumberFormatException ex) {
             return parseExpression(string);
         }
     }
 
     /**
-     * Drop every cached expression tree. Trees already held by baked animations are unaffected.
+     * A shared constant {@link MolangValue} for {@code value}.
+     */
+    public static MolangValue constantValue(double value) {
+        MolangValue shared = CONSTANT_VALUES.get(value);
+
+        if (shared != null)
+            return shared;
+
+        if (CONSTANT_VALUES.size() >= MAX_CONSTANT_VALUES)
+            return new MolangValue(Constant.of(value));
+
+        return CONSTANT_VALUES.computeIfAbsent(value, key -> new MolangValue(Constant.of(key)));
+    }
+
+    /**
+     * Drop every cached expression tree and pooled constant. Trees already held by baked animations are unaffected.
      */
     public static void clearExpressionCache() {
         EXPRESSION_CACHE.clear();
+        CONSTANT_VALUES.clear();
+        Constant.clearPool();
     }
 
     /**
@@ -197,7 +224,7 @@ public class MolangParser extends MathBuilder {
     private static MolangValue parseOneLine(String expression, Map<String, LazyVariable> locals) {
         if (expression.startsWith(RETURN)) {
             try {
-                return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())).simplify(), true);
+                return new MolangValue(INSTANCE.parse(expression.substring(RETURN.length())), true);
             } catch (Exception e) {
                 AzureLib.LOGGER.error("Couldn't parse return {} expression! Defaulted to 0", expression);
                 return MolangParser.ZERO;
@@ -257,7 +284,6 @@ public class MolangParser extends MathBuilder {
         remap("max", "math.max");
         remap("min", "math.min");
         remap("mod", "math.mod");
-        remap("pi", "math.pi");
         remap("pow", "math.pow");
         remap("random", "math.random");
         remap("random_integer", "math.random_integer");
@@ -265,6 +291,10 @@ public class MolangParser extends MathBuilder {
         remap("sin", "math.sin");
         remap("sqrt", "math.sqrt");
         remap("trunc", "math.trunc");
+
+        // A constant, not a function, so "math.pi * 2" folds at parse time. This used to be remap("pi", "math.pi"),
+        // but no "pi" function exists, so it registered a null function and math.pi read an unset variable (0).
+        registerConstant("math.pi", Math.PI);
     }
 
     private void registerAdditionalVariables() {
