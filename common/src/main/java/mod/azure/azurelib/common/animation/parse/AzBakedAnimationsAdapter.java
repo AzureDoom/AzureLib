@@ -19,7 +19,11 @@ import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframeStack;
 import mod.azure.azurelib.common.animation.easing.AzEasingType;
 import mod.azure.azurelib.common.animation.easing.AzEasingTypeLoader;
 import mod.azure.azurelib.common.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.common.animation.primitive.*;
+import mod.azure.azurelib.common.animation.primitive.AzAnimationDefaults;
+import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.common.animation.primitive.AzBakedAnimations;
+import mod.azure.azurelib.common.animation.primitive.AzKeyframes;
+import mod.azure.azurelib.common.animation.primitive.AzLoopType;
 import mod.azure.azurelib.common.util.JsonUtil;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -202,7 +206,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
 
     /**
      * Reads and processes a JSON array of include entries, mapping animation names to their corresponding file
-     * identifiers.
+     * ResourceLocations.
      * <p>
      * Each entry in the provided JSON array is expected to be a JSON object containing a "file_id" and an "animations"
      * array. Valid animation names from the "animations" array are mapped to the associated "file_id". Invalid or
@@ -210,7 +214,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      *
      * @param includeListJSONObj a JSON array containing the include entries to be processed. Each entry must be a JSON
      *                           object with a "file_id" field (string) and an "animations" field (array of strings).
-     * @return a map associating animation names (as strings) with their respective file identifiers (as
+     * @return a map associating animation names (as strings) with their respective file ResourceLocations (as
      *         {@code ResourceLocation}), or {@code null} if the input array is null, empty, or if no valid mappings are
      *         found.
      */
@@ -328,9 +332,8 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      * @param bonesObj The JSON object containing bone animation data, where each key is the bone name and the value is
      *                 an object with keyframe data for scale, position, and rotation.
      * @return An array of {@link AzBoneAnimation} instances representing the deserialized animations for each bone.
-     * @throws MolangException If an error occurs during the processing of keyframes or Molang expressions.
      */
-    private AzBoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws MolangException {
+    private AzBoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) {
         AzBoneAnimation[] animations = new AzBoneAnimation[bonesObj.size()];
         int index = 0;
 
@@ -404,13 +407,13 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             MolangValue rawYValue = MolangParser.parseJson(keyframeVector.get(1));
             MolangValue rawZValue = MolangParser.parseJson(keyframeVector.get(2));
             IValue xValue = isForRotation && rawXValue.isConstant()
-                ? new Constant(Math.toRadians(-rawXValue.get()))
+                ? Constant.of(Math.toRadians(-rawXValue.get()))
                 : rawXValue;
             IValue yValue = isForRotation && rawYValue.isConstant()
-                ? new Constant(Math.toRadians(-rawYValue.get()))
+                ? Constant.of(Math.toRadians(-rawYValue.get()))
                 : rawYValue;
             IValue zValue = isForRotation && rawZValue.isConstant()
-                ? new Constant(Math.toRadians(rawZValue.get()))
+                ? Constant.of(Math.toRadians(rawZValue.get()))
                 : rawZValue;
 
             JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
@@ -420,7 +423,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             List<IValue> easingArgs = entryObj != null && entryObj.has("easingArgs")
                 ? JsonUtil.jsonArrayToList(
                     GsonHelper.getAsJsonArray(entryObj, "easingArgs"),
-                    ele -> new Constant(ele.getAsDouble())
+                    ele -> Constant.of(ele.getAsDouble())
                 )
                 : new ObjectArrayList<>();
 
