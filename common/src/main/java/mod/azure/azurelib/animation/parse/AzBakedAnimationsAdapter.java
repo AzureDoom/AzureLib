@@ -332,9 +332,8 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      * @param bonesObj The JSON object containing bone animation data, where each key is the bone name and the value is
      *                 an object with keyframe data for scale, position, and rotation.
      * @return An array of {@link AzBoneAnimation} instances representing the deserialized animations for each bone.
-     * @throws MolangException If an error occurs during the processing of keyframes or Molang expressions.
      */
-    private AzBoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws MolangException {
+    private AzBoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) {
         AzBoneAnimation[] animations = new AzBoneAnimation[bonesObj.size()];
         int index = 0;
 
@@ -408,13 +407,13 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             MolangValue rawYValue = MolangParser.parseJson(keyframeVector.get(1));
             MolangValue rawZValue = MolangParser.parseJson(keyframeVector.get(2));
             IValue xValue = isForRotation && rawXValue.isConstant()
-                ? new Constant(Math.toRadians(-rawXValue.get()))
+                ? Constant.of(Math.toRadians(-rawXValue.get()))
                 : rawXValue;
             IValue yValue = isForRotation && rawYValue.isConstant()
-                ? new Constant(Math.toRadians(-rawYValue.get()))
+                ? Constant.of(Math.toRadians(-rawYValue.get()))
                 : rawYValue;
             IValue zValue = isForRotation && rawZValue.isConstant()
-                ? new Constant(Math.toRadians(rawZValue.get()))
+                ? Constant.of(Math.toRadians(rawZValue.get()))
                 : rawZValue;
 
             JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
@@ -424,7 +423,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             List<IValue> easingArgs = entryObj != null && entryObj.has("easingArgs")
                 ? JsonUtil.jsonArrayToList(
                     GsonHelper.getAsJsonArray(entryObj, "easingArgs"),
-                    ele -> new Constant(ele.getAsDouble())
+                    ele -> Constant.of(ele.getAsDouble())
                 )
                 : new ObjectArrayList<>();
 
