@@ -22,41 +22,40 @@ public class Operator implements IValue {
         this.b = b;
     }
 
-    /**
-     * Same results as {@link Operation#calculate(double, double)}, but switching on the operation here avoids a virtual
-     * call into the enum constant's own class for every arithmetic node evaluated.
-     */
     @Override
     public double get() {
-        double a = this.a.get();
-        double b = this.b.get();
-
-        return switch (this.operation) {
-            case ADD -> a + b;
-            case SUB -> a - b;
-            case MUL -> a * b;
-            case DIV -> a / (b == 0 ? 1 : b);
-            case MOD -> a % b;
-            case POW -> Math.pow(a, b);
-            case AND -> a != 0 && b != 0 ? 1 : 0;
-            case OR -> a != 0 || b != 0 ? 1 : 0;
-            case LESS -> a < b ? 1 : 0;
-            case LESS_THAN -> a <= b ? 1 : 0;
-            case GREATER_THAN -> a >= b ? 1 : 0;
-            case GREATER -> a > b ? 1 : 0;
-            case EQUALS -> Operation.equals(a, b) ? 1 : 0;
-            case NOT_EQUALS -> !Operation.equals(a, b) ? 1 : 0;
-        };
+        return this.operation.calculate(this.a.get(), this.b.get());
     }
 
+    /**
+     * Folds constant operands, then drops operations that are exact no-ops for every input. Only identities that hold
+     * bit-for-bit (including NaN, infinities and -0.0) are used, per the {@link IValue#simplify()} contract: so
+     * {@code x * 1} and {@code x - 0} simplify, but {@code x + 0} (turns -0.0 into 0.0) and {@code x * 0} (NaN,
+     * infinity) do not. Chains like {@code x * 2 * 3} are left alone too, since regrouping them changes rounding.
+     */
     @Override
     public IValue simplify() {
         this.a = this.a.simplify();
         this.b = this.b.simplify();
 
-        return this.a instanceof Constant && this.b instanceof Constant
-            ? new Constant(this.operation.calculate(this.a.get(), this.b.get()))
-            : this;
+        if (this.a instanceof Constant && this.b instanceof Constant) {
+            return Constant.of(this.operation.calculate(this.a.get(), this.b.get()));
+        }
+
+        return switch (this.operation) {
+            case MUL -> isExactly(this.b, 1) ? this.a : isExactly(this.a, 1) ? this.b : this;
+            case DIV, POW -> isExactly(this.b, 1) ? this.a : this;
+            case SUB -> isExactly(this.b, 0) && !isNegativeZero(this.b) ? this.a : this;
+            default -> this;
+        };
+    }
+
+    private static boolean isExactly(IValue value, double expected) {
+        return value instanceof Constant && value.get() == expected;
+    }
+
+    private static boolean isNegativeZero(IValue value) {
+        return Double.doubleToRawLongBits(value.get()) == Double.doubleToRawLongBits(-0.0);
     }
 
     @Override
