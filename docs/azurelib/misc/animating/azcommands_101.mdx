@@ -8,87 +8,193 @@ hide_meta: true
 `AzCommand` is a highly flexible class for controlling animations in AzureLib by dispatching a sequence of animation-related actions. It simplifies animation management by allowing you to manipulate the animation system at three hierarchical levels: **root**, **controller**, and **animation**. This guide will walk you through the basics of using `AzCommand` and how to replace the traditional `AnimationController` approach with it.
 
 ### **The Three Configuration Layers**:
-    - **Root**: Manages all controllers globally.
-    - **Controller**: Configures specific animation controllers.
-    - **Animation**: Configures per-animation properties, automatically reverting to the previous state after the animation finishes.
+    - **Root**: Applies to every controller at once.
+    - **Controller**: Applies to one named controller. Playback properties (speed, transition length, offsets, repeat count, direction) live here and **stay set** until something changes them.
+    - **Animation**: Applies to one animation (a stage of a sequence): its play behavior and, optionally, its direction. These only last while that animation plays.
 
 ## Getting Started with `AzCommand`
 
 ### 1. **Creating an AzCommand**
-Creating an AzCommand involves specifying the controller name, the animation name, and optionally the playback behavior (e.g., loop, play once). Here's how:
+Creating an AzCommand involves specifying the controller name, the animation name, and optionally the play behavior (e.g., loop, play once). Here's how:
 
 **Example**:
 ``` java
-AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+AzCommand walkCommand = AzCommand.create("base", "WALK_ANIMATION");
 ```
 In this example:
-- `"Walk"` is the controller name.
+- `"base"` is the controller name.
 - `"WALK_ANIMATION"` is the animation to play.
-- By default, the play behavior is set to `PLAY_ONCE`. You can customize it like this:
+- No play behavior is given, so the animation plays the way its animation file says: the **Loop Mode** set in Blockbench (see [Setting Play Behaviors in Blockbench](#setting-play-behaviors-in-blockbench)). Animations without a loop mode play once.
+
+To choose the behavior in code instead, pass it as the third argument. A behavior set in code always wins over the animation file:
 
 **Example**:
 ``` java
-AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+AzCommand idleCommand = AzCommand.create("base", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
 ```
 
-#### **Advanced Command Creation**
+<Callout variant="info">
+    These two `create` overloads only play the animation. They don't touch the controller's speed, transition length, offsets, repeat count or direction, so anything set in the controller builder or by an earlier command carries over.
+</Callout>
 
-##### **1. Using `AzCommand.create` with Custom Tick Offset**
-The `create` command now supports specifying a custom **starting tick offset** and playback behavior.
+#### **Play Behaviors**
+| Behavior                             | What it does                                                                                   | Finishes?           |
+|--------------------------------------|------------------------------------------------------------------------------------------------|---------------------|
+| `AzPlayBehaviors.PLAY_ONCE`          | Plays once, then moves on to the next stage (or stops).                                        | Yes                 |
+| `AzPlayBehaviors.LOOP`               | Loops forever.                                                                                 | No                  |
+| `AzPlayBehaviors.HOLD_ON_LAST_FRAME` | Plays once and holds the last frame.                                                           | No                  |
+| `AzPlayBehaviors.PING_PONG`          | Plays forward, then backward, forever, with seamless turnarounds.                              | No                  |
+| `AzPlayBehaviors.REPEAT_X_TIMES`     | Plays the number of times set by the repeat count, then moves on.                              | Yes                 |
+| `AzPlayBehaviors.FREEZE_ON_FRAME`    | Plays until the freeze point, then holds that frame.                                           | No                  |
+| `AzPlayBehaviors.AS_AUTHORED`        | Uses the Loop Mode from the animation file. This is what `create(controller, animation)` uses. | Depends on the file |
+
+- **Repeat count** is the **total** number of plays: `3` plays the animation three times. `1` or less plays it once.
+- **Freeze point** is set in ticks when set from code (`freezeTickOffset`), and in seconds in Blockbench.
+- If both code and the animation file set a repeat count or freeze point, the code's value wins.
+
+#### **Setting Play Behaviors in Blockbench**
+With the AzureLib Animator plugin (2.2.0+), open an animation's **Properties** (double-click it in the Animations panel, or right-click → Properties) and pick its **Loop Mode**: Once, Hold, Loop, Ping-Pong, Repeat or Freeze. Repeat adds a **Repeat Count** field, and Freeze adds a **Freeze At** time with a **Use Playhead Time** button. Blockbench previews all of them on the timeline.
+
+These are saved into the animation file, so in most cases you can play animations with `AzCommand.create(controller, animation)` and never set the behavior in code:
+
+```json
+"attack": { "loop": "repeat_x_times", "repeat_times": 3 },
+"hover":  { "loop": "ping_pong" },
+"pose":   { "loop": "freeze_on_frame", "freeze_at": 1.25 }
+```
+
+#### **Setting Playback Properties**
+To play an animation and set every playback property in one call, use the full `create` overload:
 
 **Example**:
 ```java
-AzCommand spinCommand = AzCommand.create("SpinController", "SPIN_ANIMATION", AzPlayBehaviors.LOOP, 10F);
+AzCommand slamCommand = AzCommand.create(
+    "base",                       // controller
+    "SLAM_ANIMATION",             // animation
+    AzPlayBehaviors.PLAY_ONCE,    // play behavior
+    5F,                           // start tick offset: skip the first 5 ticks
+    1.5F,                         // animation speed: 50% faster
+    4F,                           // transition length: blend in over 4 ticks
+    0F,                           // freeze tick offset (FREEZE_ON_FRAME only)
+    1F,                           // repeat count (REPEAT_X_TIMES only)
+    false                         // play in reverse
+);
 ```
+`AzCommand.createRoot(...)` takes the same arguments without the controller name and applies them to every controller.
 
-In this example:
-- `"SpinController"`: Name of the animation controller.
-- `"SPIN_ANIMATION"`: Name of the animation.
-- `AzPlayBehaviors.LOOP`: Sets the animation playback behavior to loop endlessly.
-- `10F`: Starts the animation 10 ticks into its animation.
+<Callout variant="info">
+    These properties are stored on the controller, so they also apply to every animation played on it afterwards, until another command changes them.
+</Callout>
 
-##### **2. Using `AzCommand.createSpeed` to Set Animation Speed**
-The `createSpeed` command extends the functionality of `create` by allowing you to control the **animation playback speed**. This is useful for dynamically accelerating or decelerating animations based on specific game scenarios.
+To change only some properties, or change them without playing anything, use `AzCommand.controllerBuilder()` (one controller) or `AzCommand.rootBuilder()` (all controllers):
 
 **Example**:
 ```java
-AzCommand runQuicklyCommand = AzCommand.createSpeed("RunController", "RUN_ANIMATION", 1.5F);
+AzCommand sprintCommand = AzCommand.controllerBuilder()
+    .setSpeed("base", 2F)
+    .play("base", "RUN_ANIMATION")
+    .build();
 ```
-In this example:
-- `"RunController"`: Name of the animation controller.
-- `"RUN_ANIMATION"`: Name of the animation to play.
-- `1.5F`: Playback speed, which increases the animation's speed by 50%.
+| Controller builder method                           | Root builder method            | Sets                                                                                   |
+|-----------------------------------------------------|--------------------------------|----------------------------------------------------------------------------------------|
+| `setSpeed(controller, speed)`                       | `setSpeed(speed)`              | Playback speed multiplier (`1` = normal).                                              |
+| `setTransitionSpeed(controller, ticks)`             | `setTransitionSpeed(ticks)`    | Transition length in ticks when switching animations.                                  |
+| `setStartTickOffset(controller, ticks)`             | `setStartTickOffset(ticks)`    | Ticks skipped at the start of each animation.                                          |
+| `setFreezeTickOffset(controller, ticks)`            | `setFreezeTickOffset(ticks)`   | Freeze point for `FREEZE_ON_FRAME`.                                                    |
+| `setRepeatAmount(controller, count)`                | `setRepeatAmount(count)`       | Total plays for `REPEAT_X_TIMES`.                                                      |
+| `setReverseAnimation(controller, reverse)`          | `setReverseAnimation(reverse)` | Play direction (see [Playing Animations in Reverse](#playing-animations-in-reverse)).  |
+| `setEasingType(controller, easing)`                 | `setEasingType(easing)`        | Easing used for transitions.                                                           |
+| `setWeight` / `fadeWeight`                          | —                              | Layer weight (see [Changing a Controller's Weight](#4-changing-a-controllers-weight)). |
+| `play(controller, animation)` / `playSequence(...)` | `playSequence(...)`            | Plays an animation or sequence.                                                        |
+| `cancel(controller)`                                | `cancelAll()`                  | Stops what's playing.                                                                  |
 
-###### **Advanced Speed and Playback Customization**
-You can further specify both the playback behavior and animation speed in combination:
+#### **Playing Animations in Reverse**
+Any animation can play backwards, from its last frame to its first. Keyframes, Molang `query.anim_time` and keyframe events (sounds, particles, custom instructions) all run in reverse, and transitions blend into the animation's last frame instead of its first.
 
-**Example**:
+Reverse a single animation as part of a sequence:
+```java
+AzSequence closeDoor = AzSequence.create().playReversed("DOOR_OPEN_ANIMATION");
 ```
-AzCommand slowCrawlCommand = AzCommand.createSpeed("CrawlController", "CRAWL_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 0.5F);
+Or reverse a whole controller:
+```java
+AzCommand.controllerBuilder()
+    .setReverseAnimation("door", true)
+    .build()
+    .sendForBlockEntity(myDoor);
 ```
-In this example:
-- `AzPlayBehaviors.PLAY_ONCE`: The animation plays once without looping.
-- `0.5F`: Slows the animation to 50% of its normal playback speed.
+- If the controller is in the middle of an animation, it **turns around from its current pose** instead of jumping. A half-open door closes from where it is.
+- A direction set on the animation (`playReversed`, or `withShouldReverse(true)` in a stage) wins over the controller's direction.
+- For an animation that plays forward and then back forever, use `AzPlayBehaviors.PING_PONG`.
 
-###### **Combining Tick Offset and Animation Speed**
-The `create` family of methods provides full customization by allowing both the **starting tick offset** and **playback speed** to be defined simultaneously:
+### 2. **Playing Sequences**
+An `AzSequence` plays several animations one after another on one controller:
 
 **Example**:
 ```java
-AzCommand complexCommand = AzCommand.createSpeed("ComplexController", "COMPLEX_ANIMATION", AzPlayBehaviors.PLAY_ONCE, 5F, 2F);
+static final AzSequence SLAM = AzSequence.builder()
+    .play("WINDUP_ANIMATION")     // plays once, then continues
+    .play("STRIKE_ANIMATION")
+    .loop("IDLE_ANIMATION")       // loops forever
+    .build();
 
+SLAM.toCommand("base").sendForEntity(myEntity);
 ```
-- This command starts the animation at **tick 5** and plays it at **double speed**.
+| Method                               | Stage                                                                              |
+|--------------------------------------|------------------------------------------------------------------------------------|
+| `play(name)`                         | Plays once and continues.                                                          |
+| `loop(name)`                         | Loops forever.                                                                     |
+| `hold(name)`                         | Holds the last frame.                                                              |
+| `pingPong(name)`                     | Plays forward and backward forever.                                                |
+| `playReversed(name)`                 | Plays once backwards and continues.                                                |
+| `authored(name)`                     | Uses the animation file's Loop Mode.                                               |
+| `then(name, behavior)`               | Any behavior.                                                                      |
+| `then(name, behavior, props -> ...)` | Any behavior with stage properties, e.g. `props -> props.withShouldReverse(true)`. |
 
+- Stages that never finish (loop, hold, ping-pong, freeze) must be **last**. Adding a stage after one throws an `IllegalStateException`. `authored(...)` can't be checked this way, so only add stages after it if the file's Loop Mode finishes.
+- Use `toCommand(controller)` for one controller, or `toRootCommand()` for all of them.
+- Sending a sequence that is already playing does nothing, so it's safe to send it every tick.
 
-### 2. **Composing Multiple Commands**
+#### **Sequence Events**
+`event(name, tick)` schedules a named event a number of game ticks after the sequence starts. Events run on the side that ticks an `AzSequencePlayer`, usually the server, which makes them suitable for gameplay such as dealing damage on the right frame:
+
+**Example**:
+```java
+static final AzSequence SLAM = AzSequence.builder()
+    .play("WINDUP_ANIMATION")
+    .event("damage", 12)
+    .play("STRIKE_ANIMATION")
+    .build();
+
+private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", (sequence, event) -> {
+    if (event.is("damage")) {
+        dealSlamDamage();
+    }
+});
+
+public void startSlam() { // server side, e.g. from Goal#start
+    attackPlayer.play(SLAM);
+}
+
+@Override
+public void tick() {
+    super.tick();
+    if (!level().isClientSide()) {
+        attackPlayer.tick();
+    }
+}
+```
+- Event ticks count from the start of the whole sequence, not from the stage they follow.
+- They aren't scaled by animation speed, and each stage starts after the controller's transition length. Account for both when lining an event up with a keyframe.
+- If another animation takes over the controller (hurt, death), call `attackPlayer.cancel()` so pending events don't fire.
+
+### 3. **Composing Multiple Commands**
 If you need to merge several commands into one, you can use the `compose` method. This is helpful for combining animations across multiple controllers:
 ``` java
 AzCommand combinedCommand = AzCommand.compose(walkCommand, idleCommand);
 ```
 All actions from the two commands are merged into a single unified command.
 
-### 3. **Changing a Controller's Weight**
+### 4. **Changing a Controller's Weight**
 When several controllers are layered on the same bones (see the Layering Controllers section of the Animation Controller Builder page), you can change how strongly a controller is applied from the server. Build the command with `AzCommand.controllerBuilder()`:
 
 ``` java
@@ -115,7 +221,7 @@ AzCommand startAiming = AzCommand.controllerBuilder()
     .build();
 ```
 
-### 4. **Random Animation Pools**
+### 5. **Random Animation Pools**
 A pool plays a random animation from a weighted list, and picks the next one each time the current animation finishes. This is the way to get idle or walk variety (`idle`, then `idle2`, then `idle` again) without timers.
 
 Because the next pick happens when the animation actually ends, nothing about animation length is hardcoded. If a resource pack retimes or replaces an animation, the pool follows it automatically.
@@ -286,7 +392,11 @@ This requires the item stack to have a registered UUID, which is covered in the 
 1. **Reuse Commands**:
     - Define reusable commands for common animations to simplify your rendering logic.
 2. **Use pools instead of timers for variety**:
-    - To randomly vary idle or walk animations, use a [Random Animation Pool](#4-random-animation-pools) rather than counting ticks. Pools follow the real animation length, so they keep working when a resource pack changes an animation.
+    - To randomly vary idle or walk animations, use a [Random Animation Pool](#5-random-animation-pools) rather than counting ticks. Pools follow the real animation length, so they keep working when a resource pack changes an animation.
+3. **Set play behaviors in Blockbench**:
+    - Choosing the Loop Mode in Blockbench keeps it next to the animation and lets you preview it. Then `AzCommand.create(controller, animation)` is all your code needs. Pass a behavior in code only when it must differ from the file.
+4. **Remember that controller properties stick**:
+    - Speed, transition length, offsets, repeat count and direction stay on the controller after a command sets them. If one animation needs different settings, set them back afterwards, or keep that animation on its own controller.
 
 
 ## Converting from `AnimationController` to `AzCommand`
@@ -322,8 +432,8 @@ To enhance the new `AzCommand` approach and replace the `isMoving` logic from th
 
 ```java
 public class ExampleEntity extends Monster {
-    private final AzCommand idleCommand = AzCommand.create("Idle", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
-    private final AzCommand walkCommand = AzCommand.create("Walk", "WALK_ANIMATION");
+    private final AzCommand idleCommand = AzCommand.create("base", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
+    private final AzCommand walkCommand = AzCommand.create("base", "WALK_ANIMATION", AzPlayBehaviors.LOOP);
     private final MoveAnalysis moveAnalysis;
 
     public ExampleEntity(EntityType<? extends Monster> entityType, Level level) {
@@ -349,6 +459,8 @@ public class ExampleEntity extends Monster {
 }
 ```
 
+- **One controller**: walk and idle replace each other, so they play on the same controller (`"base"`). Sending the command that's already playing does nothing, so sending every tick is fine.
+- **Loop modes**: if both animations are set to Loop in Blockbench, `AzCommand.create("base", "WALK_ANIMATION")` is enough.
 - **`MoveAnalysis`**: Provides a reliable method to check if the entity is moving horizontally.
 - **Benefits**:
   - Improves code readability and reusability by moving movement logic into `MoveAnalysis`.
