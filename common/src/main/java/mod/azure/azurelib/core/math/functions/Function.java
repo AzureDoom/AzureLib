@@ -53,7 +53,7 @@ public abstract class Function implements IValue {
             allConstant &= this.args[i] instanceof Constant;
         }
 
-        return allConstant && this.isBuiltInPure() ? new Constant(this.get()) : this;
+        return allConstant && this.isBuiltInPure() ? Constant.of(this.get()) : this;
     }
 
     private boolean isBuiltInPure() {
