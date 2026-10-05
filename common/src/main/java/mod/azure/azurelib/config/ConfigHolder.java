@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.adapter.TypeAdapters;
 import mod.azure.azurelib.config.client.IValidationHandler;
@@ -20,6 +19,7 @@ import mod.azure.azurelib.config.format.IConfigFormatHandler;
 import mod.azure.azurelib.config.io.ConfigIO;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.config.value.ObjectValue;
+import mod.azure.azurelib.util.AzureLibException;
 
 /**
  * Manages config values and stores some default parameters of your config class. This class also acts as config

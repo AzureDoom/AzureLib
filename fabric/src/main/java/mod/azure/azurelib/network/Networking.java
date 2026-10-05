@@ -15,11 +15,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
+import mod.azure.azurelib.util.AzureLibException;
 
 public final class Networking {
 
