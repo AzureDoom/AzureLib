@@ -36,9 +36,7 @@ public record AzControllerSetReverseAction(
         var controller = animator.getAnimationControllerContainer().getOrNull(controllerName);
 
         if (controller != null) {
-            controller.setAnimationProperties(
-                controller.animationProperties().withShouldReverse(hasReverse)
-            );
+            controller.setReversing(hasReverse);
         }
     }
 
