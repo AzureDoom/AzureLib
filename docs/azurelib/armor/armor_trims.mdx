@@ -7,6 +7,10 @@ hide_meta: true
 
 AzureLib provides built-in support for Minecraft's armor trim system through the `AzArmorTrimLayer` render layer. This layer enables custom armor models to display armor trims with proper texture mapping and material coloring.
 
+<Callout variant="info">
+    This page is for Minecraft 1.21.1.
+</Callout>
+
 ## Implementation Approaches
 
 ### Approach 1: Single Texture for All Patterns
@@ -101,6 +105,7 @@ This approach creates individual textures for each trim pattern, following the v
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_shaper.png
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_silence.png
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_snout.png
+   src/main/resources/assets/yourmod/textures/armor/trim/your_armor_rib.png
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_spire.png
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_tide.png
    src/main/resources/assets/yourmod/textures/armor/trim/your_armor_ward.png
@@ -132,6 +137,7 @@ This approach creates individual textures for each trim pattern, following the v
            "yourmod:armor/trim/your_armor_shaper",
            "yourmod:armor/trim/your_armor_silence",
            "yourmod:armor/trim/your_armor_snout",
+           "yourmod:armor/trim/your_armor_rib",
            "yourmod:armor/trim/your_armor_spire",
            "yourmod:armor/trim/your_armor_tide",
            "yourmod:armor/trim/your_armor_ward",
