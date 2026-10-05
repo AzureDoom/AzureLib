@@ -29,7 +29,6 @@ public class AzEntityNameRenderUtil {
         }
 
         final var minecraft = Minecraft.getInstance();
-        // TODO: See if we can do this null check better.
         var player = Objects.requireNonNull(minecraft.player);
         var visibleToClient = !entity.isInvisibleTo(player);
         var entityTeam = entity.getTeam();
