@@ -32,7 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 
 public final class FileWatchManager {
