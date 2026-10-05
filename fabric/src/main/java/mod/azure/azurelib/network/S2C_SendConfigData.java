@@ -9,13 +9,13 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;
 import mod.azure.azurelib.network.api.IClientPacket;
 import mod.azure.azurelib.network.api.IPacketDecoder;
 import mod.azure.azurelib.network.api.IPacketEncoder;
+import mod.azure.azurelib.util.AzureLibException;
 
 public class S2C_SendConfigData implements IClientPacket<S2C_SendConfigData.ConfigData> {
 
