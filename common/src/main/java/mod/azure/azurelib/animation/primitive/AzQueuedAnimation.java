@@ -1,6 +1,9 @@
 package mod.azure.azurelib.animation.primitive;
 
+import org.jetbrains.annotations.Nullable;
+
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.animation.property.AzAnimationProperties;
 
 /**
  * Represents an entry in an animation queue, combining an animation and its looping behavior. This record defines a
@@ -16,9 +19,17 @@ import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
  * played.</li>
  * <li>{@code playBehavior}: The {@link AzPlayBehavior} that dictates the looping behavior or termination handling for
  * the animation.</li>
+ * <li>{@code reverseOverride}: the stage's own playback direction, or {@code null} to inherit the controller's
+ * {@link AzAnimationProperties#isReversing()}.</li>
  * </ul>
  */
 public record AzQueuedAnimation(
     AzBakedAnimation animation,
-    AzPlayBehavior playBehavior
-) {}
+    AzPlayBehavior playBehavior,
+    @Nullable Boolean reverseOverride
+) {
+
+    public AzQueuedAnimation(AzBakedAnimation animation, AzPlayBehavior playBehavior) {
+        this(animation, playBehavior, null);
+    }
+}
