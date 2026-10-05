@@ -19,8 +19,8 @@ import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
  * <p>
  * A trim texture is a grayscale image with a {@code palette} section in its {@code .png.mcmeta}. Vanilla's
  * {@link net.minecraft.client.resources.palette.PalettedTextureManager} recolors it with the trim material's palette at
- * runtime, so no atlas or permutation list is needed. The texture is sampled with the armor model's own UVs, so it
- * must have the same dimensions as the armor texture.
+ * runtime, so no atlas or permutation list is needed. The texture is sampled with the armor model's own UVs, so it must
+ * have the same dimensions as the armor texture.
  * <p>
  * Texture ids are relative to {@code textures/} and have no {@code .png}, matching vanilla: {@code yourmod:trims/x}
  * means {@code assets/yourmod/textures/trims/x.png}.
@@ -43,14 +43,14 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
     }
 
     /**
-     * @param supportPatterns {@code true} for one texture per pattern ({@code <baseTexture>_<pattern>}),
-     *                        {@code false} to use {@code baseTexture} for every pattern
+     * @param supportPatterns {@code true} for one texture per pattern ({@code <baseTexture>_<pattern>}), {@code false}
+     *                        to use {@code baseTexture} for every pattern
      */
     public AzArmorTrimLayer(Identifier baseTexture, boolean supportPatterns) {
         this(
-                supportPatterns
-                        ? trim -> baseTexture.withSuffix("_" + trim.pattern().value().assetId().getPath())
-                        : trim -> baseTexture
+            supportPatterns
+                ? trim -> baseTexture.withSuffix("_" + trim.pattern().value().assetId().getPath())
+                : trim -> baseTexture
         );
     }
 
@@ -66,8 +66,8 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
      * {@code trim_overrides}, such as a darker palette when the trim material matches the armor material.
      */
     public AzArmorTrimLayer(
-            Function<ArmorTrim, Identifier> textureForTrim,
-            Function<ArmorTrim, Identifier> paletteForTrim
+        Function<ArmorTrim, Identifier> textureForTrim,
+        Function<ArmorTrim, Identifier> paletteForTrim
     ) {
         this.textureForTrim = textureForTrim;
         this.paletteForTrim = paletteForTrim;
@@ -86,8 +86,8 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
         }
 
         var handle = Minecraft.getInstance()
-                .getPalettedTextureManager()
-                .getOrPrepare(textureForTrim.apply(trim), paletteForTrim.apply(trim));
+            .getPalettedTextureManager()
+            .getOrPrepare(textureForTrim.apply(trim), paletteForTrim.apply(trim));
         var renderType = RenderTypes.armorTrim(handle.textureLocation(), trim.pattern().value().decal());
 
         var prevRenderType = context.renderType();
