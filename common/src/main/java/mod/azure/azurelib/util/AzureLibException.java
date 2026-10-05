@@ -1,4 +1,4 @@
-package mod.azure.azurelib;
+package mod.azure.azurelib.util;
 
 import net.minecraft.resources.ResourceLocation;
 

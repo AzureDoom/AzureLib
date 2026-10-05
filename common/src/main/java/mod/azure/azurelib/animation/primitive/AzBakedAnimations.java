@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 
 /**
