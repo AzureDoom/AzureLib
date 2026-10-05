@@ -25,7 +25,7 @@ public class Negate implements IValue {
     public IValue simplify() {
         this.value = this.value.simplify();
 
-        return this.value instanceof Constant ? new Constant(this.get()) : this;
+        return this.value instanceof Constant ? Constant.of(this.get()) : this;
     }
 
     @Override

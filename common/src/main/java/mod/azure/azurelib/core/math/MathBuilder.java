@@ -5,14 +5,7 @@
  */
 package mod.azure.azurelib.core.math;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;
@@ -53,13 +46,24 @@ import mod.azure.azurelib.core.math.functions.rounding.Floor;
 import mod.azure.azurelib.core.math.functions.rounding.Round;
 import mod.azure.azurelib.core.math.functions.rounding.Trunc;
 import mod.azure.azurelib.core.math.functions.utility.*;
+import mod.azure.azurelib.util.AzureLibException;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Math builder This class is responsible for parsing math expressions provided by user in a string to an {@link IValue}
  * which can be used to compute some value dynamically using different math operators, variables and functions. It works
  * by first breaking down given string into a list of tokens and then putting them together in a binary tree-like
- * {@link IValue}. TODO: maybe implement constant pool (to reuse same values)? TODO: maybe pre-compute constant
- * expressions?
+ * {@link IValue}.
+ * <p>
+ * {@link #parse(String)} returns a simplified tree: sub-expressions that only involve constants are computed once at
+ * parse time (see {@link IValue#simplify()}), and every number in the tree comes from the shared {@link Constant}
+ * pool. Names registered with {@link #registerConstant(String, double)} take part in that folding; names registered as
+ * {@link Variable}s never do, since their value can change at runtime.
  */
 @SuppressWarnings({ "unchecked", "unused" })
 public class MathBuilder {
@@ -74,8 +78,18 @@ public class MathBuilder {
      */
     public Map<String, Class<? extends Function>> functions = new HashMap<>();
 
+    /**
+     * Named values that can never change, so expressions using them are folded at parse time. Checked before
+     * {@link #variables}.
+     */
+    public Map<String, Double> constants = new HashMap<>();
+
     public MathBuilder() {
         /* Some default values */
+        this.registerConstant("PI", Math.PI);
+        this.registerConstant("E", Math.E);
+
+        /* Still registered as variables for code that looks them up through the variable map */
         this.register(new Variable("PI", Math.PI));
         this.register(new Variable("E", Math.E));
 
@@ -175,10 +189,19 @@ public class MathBuilder {
     }
 
     /**
-     * Parse given math expression into a {@link IValue} which can be used to execute math.
+     * Register a named value that never changes. Unlike a {@link Variable}, expressions using it are computed at parse
+     * time: {@code PI * 2} becomes a single constant.
+     */
+    public void registerConstant(String name, double value) {
+        this.constants.put(name, value);
+    }
+
+    /**
+     * Parse given math expression into a {@link IValue} which can be used to execute math. The result is already
+     * simplified, with constant sub-expressions computed.
      */
     public IValue parse(String expression) throws Exception {
-        return this.parseSymbols(this.breakdownChars(this.breakdown(expression)));
+        return this.parseSymbols(this.breakdownChars(this.breakdown(expression))).simplify();
     }
 
     /**
@@ -186,7 +209,7 @@ public class MathBuilder {
      */
     public String[] breakdown(String expression) throws AzureLibException {
         /* If given string has illegal characters, then it can't be parsed */
-        if (!expression.matches("^[\\w\\d\\s_+-/*%^&|<>=!?:.,()]+$")) {
+        if (!expression.matches("^[\\w\\s_+-/*%^&|<>=!?:.,()]+$")) {
             throw new AzureLibException("Given expression '" + expression + "' contains illegal characters!");
         }
 
@@ -522,8 +545,18 @@ public class MathBuilder {
                 }
 
                 if (this.isDecimal(symbol)) {
-                    return new Constant(Double.parseDouble(symbol));
-                } else if (this.isVariable(symbol)) {
+                    return Constant.of(Double.parseDouble(symbol));
+                }
+
+                /* Named constants, possibly negated: "-PI" */
+                boolean negated = symbol.startsWith("-") && symbol.length() > 1;
+                Double constant = this.resolveConstant(negated ? symbol.substring(1) : symbol);
+
+                if (constant != null) {
+                    return Constant.of(negated ? -constant : constant);
+                }
+
+                if (this.isVariable(symbol)) {
                     /* Need to account for a negative value variable */
                     if (symbol.startsWith("-")) {
                         symbol = symbol.substring(1);
@@ -546,7 +579,14 @@ public class MathBuilder {
             AzureLib.LOGGER.error("Failed to convert object to value: {}. Using default fallback.", object, e);
         }
 
-        return new Constant(0);
+        return Constant.of(0);
+    }
+
+    /**
+     * Resolve a named constant referenced by an expression while parsing, or {@code null} if {@code name} isn't one.
+     */
+    protected Double resolveConstant(String name) {
+        return this.constants.get(name);
     }
 
     /**
@@ -569,13 +609,13 @@ public class MathBuilder {
      * Get operation for given operator strings
      */
     protected Operation operationForOperator(String op) throws AzureLibException {
-        for (Operation operation : Operation.values()) {
-            if (operation.sign.equals(op)) {
-                return operation;
-            }
+        Operation operation = Operation.fromSign(op);
+
+        if (operation == null) {
+            throw new AzureLibException("There is no such operator '" + op + "'!");
         }
 
-        throw new AzureLibException("There is no such operator '" + op + "'!");
+        return operation;
     }
 
     /**
