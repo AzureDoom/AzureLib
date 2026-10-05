@@ -7,10 +7,45 @@ public class AzPlayBehaviors {
 
     private AzPlayBehaviors() {}
 
-    // public static final AzPlayBehavior PING_PONG = AzPlayBehaviorRegistry.register(
-    // new AzPlayBehavior("ping_pong") {
-    // }
-    // );
+    /**
+     * Placeholder meaning "use whatever the animation file says" (its {@code loop}, {@code repeat_times} and
+     * {@code freeze_at} fields, as written by the AzureLib Blockbench plugin). It is swapped for the real behavior when
+     * the animation is queued, so it never actually runs; stages that don't set a behavior at all are treated the same
+     * way. Files without a {@code loop} field fall back to {@link #PLAY_ONCE}.
+     */
+    public static final AzPlayBehavior AS_AUTHORED = AzPlayBehaviorRegistry.register(
+        new AzPlayBehavior("as_authored") {
+
+            @Override
+            public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
+                // Unreachable in practice (resolved at queue time); behave like play_once if it ever leaks through.
+                advanceOrStop(context);
+            }
+        }
+    );
+
+    /**
+     * Plays the animation forward, then backward, then forward again, indefinitely. Each leg starts on the pose the
+     * previous one ended on, so the turnaround is seamless without the animation having to be authored as a loop.
+     * <p>
+     * The leg direction is stored on each {@link AzAnimationController} ({@code flipDirection()}), not on this shared
+     * instance. If the stage itself is reversed, the first leg runs backward. Like {@link #LOOP}, it never finishes, so
+     * nothing can be queued after it. Keyframe events fire once per leg as the sampled tick passes them, so an event at
+     * tick 10 fires on the way out and again on the way back; an event exactly at either end fires once per turnaround.
+     */
+    public static final AzPlayBehavior PING_PONG = AzPlayBehaviorRegistry.register(
+        new AzPlayBehavior("ping_pong") {
+
+            @Override
+            public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
+                var controller = context.animationController();
+
+                controller.flipDirection();
+                controller.controllerTimer().reset();
+                controller.keyframeManager().keyframeCallbackHandler().reset();
+            }
+        }
+    );
 
     /**
      * Represents a play behavior where an animation is repeated a specified number of times. The behavior resets the
