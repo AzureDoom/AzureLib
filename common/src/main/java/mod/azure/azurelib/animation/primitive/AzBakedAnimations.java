@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
+import mod.azure.azurelib.util.AzureLibException;
 
 /**
  * Represents a container for baked animations in the AzureLib framework. This record holds mappings for precompiled
