@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
 

@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Map;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.value.ConfigValue;

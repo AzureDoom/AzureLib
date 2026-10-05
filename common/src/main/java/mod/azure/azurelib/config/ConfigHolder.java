@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.AzureLibException;
+import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.client.IValidationHandler;
 import mod.azure.azurelib.config.adapter.TypeAdapter;
 import mod.azure.azurelib.config.adapter.TypeAdapters;
