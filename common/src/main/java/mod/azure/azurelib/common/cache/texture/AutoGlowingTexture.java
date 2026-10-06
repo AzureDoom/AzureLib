@@ -102,6 +102,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                         glowImage.getHeight(),
                         this.glowLayer
                     );
+                    AzGlowCoverage.unregister(this.glowLayer);
                     return null;
                 }
 
@@ -137,11 +138,19 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                 this.textureBase,
                 expectedGlowmask
             );
+            AzGlowCoverage.unregister(this.glowLayer);
             return null;
         }
 
         boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture
             .isAnimated();
+
+        if (animated) {
+            var frameSize = ((AnimatableTexture) originalTexture).animationContents.frameSize;
+            AzGlowCoverage.registerFrames(this.glowLayer, mask, frameSize.width(), frameSize.height());
+        } else {
+            AzGlowCoverage.register(this.glowLayer, mask);
+        }
 
         if (animated)
             ((AnimatableTexture) originalTexture).animationContents.animatedTexture.setGlowMaskTexture(

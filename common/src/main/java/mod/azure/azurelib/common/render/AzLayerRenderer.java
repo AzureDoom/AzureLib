@@ -1,6 +1,7 @@
 package mod.azure.azurelib.common.render;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.common.model.AzBone;
@@ -38,8 +39,16 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        for (var renderLayer : renderLayerSupplier.get()) {
-            renderLayer.renderForBone(context, bone);
+        var layers = renderLayerSupplier.get();
+
+        if (layers instanceof List<AzRenderLayer<K, T>> list) {
+            for (int i = 0, size = list.size(); i < size; i++) {
+                list.get(i).renderForBone(context, bone);
+            }
+        } else {
+            for (var renderLayer : layers) {
+                renderLayer.renderForBone(context, bone);
+            }
         }
     }
 
