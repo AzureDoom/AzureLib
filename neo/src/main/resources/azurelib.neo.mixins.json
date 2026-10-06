@@ -15,6 +15,7 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
+    "ItemStackRenderStateMixin_AzDisplayContext",
     "MixinHumanoidArmorLayer",
     "MixinEntityRendererArmorContext",
     "TextureManagerMixin"

@@ -110,7 +110,7 @@ public abstract class AzItemRenderer {
         var itemContext =
             (AzItemRendererPipelineContext) context;
 
-        itemContext.setTransformType(null);
+        itemContext.setTransformType(AzItemDisplayContextCapture.current());
 
         var model = provider.provideBakedModel(
             context.currentEntity(),
