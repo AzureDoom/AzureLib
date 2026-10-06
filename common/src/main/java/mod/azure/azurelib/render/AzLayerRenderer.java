@@ -38,8 +38,26 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        for (var renderLayer : renderLayerSupplier.get()) {
+        var layers = renderLayerSupplier.get();
+
+        if (layers.isEmpty()) {
+            return;
+        }
+
+        var source = context.isInModelPass() ? context.multiBufferSource() : null;
+        var modelRenderType = context.modelPassRenderType();
+        var totalBefore = source == null ? 0 : source.totalVertexCount();
+        var modelBefore = source == null ? 0 : source.vertexCount(modelRenderType);
+
+        for (var renderLayer : layers) {
             renderLayer.renderForBone(context, bone);
+        }
+
+        if (source != null) {
+            context.recordBoneLayerWrites(
+                source.totalVertexCount() - totalBefore,
+                source.vertexCount(modelRenderType) - modelBefore
+            );
         }
     }
 

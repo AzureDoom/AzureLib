@@ -88,9 +88,21 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
             context.setRenderType(renderType);
             context.setPackedLight(getPackedLight(context));
-            context.setVertexConsumer(context.multiBufferSource().getBuffer(renderType));
 
-            renderPipeline.reRender(context);
+            if (canReuseModelPass(context) && context.isModelPassMirrorable()) {
+                context.multiBufferSource()
+                    .mirror(
+                        context.modelPassRenderType(),
+                        context.modelPassStart(),
+                        context.modelPassEnd(),
+                        renderType,
+                        context.packedLight(),
+                        tint
+                    );
+            } else {
+                context.setVertexConsumer(context.multiBufferSource().getBuffer(renderType));
+                renderPipeline.reRender(context);
+            }
         }
 
         context.setRenderType(prevRenderType);
@@ -101,6 +113,19 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
     @Override
     public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {}
+
+    /**
+     * Whether this layer may reuse the vertices of the main model pass instead of re-rendering the model. The renderer
+     * still checks that the pass is reusable (no bone texture or render type overrides, nothing else drawn into the
+     * model's render type). Override and return {@code false} if your renderer draws the glow pass differently from the
+     * main pass, for example by hiding bones in {@code preRender} when re-rendering.
+     *
+     * @param context The current rendering context
+     * @return {@code true} to allow reusing the model pass
+     */
+    protected boolean canReuseModelPass(AzRendererPipelineContext<K, T> context) {
+        return true;
+    }
 
     /**
      * Returns the ARGB color to tint the glow with. It is multiplied with the renderer's own color, so
