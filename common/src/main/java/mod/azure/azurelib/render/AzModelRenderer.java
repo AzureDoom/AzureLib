@@ -50,6 +50,25 @@ public class AzModelRenderer<K, T> {
 
     private IntIntPair entityTextureSize;
 
+    /**
+     * The buffer and render type the current render pass draws bones into when they have no override. Bones with a
+     * texture or render type override draw into their own buffer, and the bones after them return to this one, so an
+     * override never leaks into sibling or child bones.
+     */
+    @Nullable
+    private VertexConsumer passBuffer;
+
+    @Nullable
+    private RenderType passRenderType;
+
+    /**
+     * Whether an override bone has requested its own buffer since the pass buffer was last used. In 1.20.1 the buffer
+     * source reuses one shared {@link BufferBuilder} for every non-fixed render type, so that request re-points the
+     * pass buffer's builder at the override's render type; it has to be switched back before the pass buffer is used
+     * again.
+     */
+    private boolean passBufferDisplaced;
+
     public AzModelRenderer(AzRendererPipeline<K, T> rendererPipeline, AzLayerRenderer<K, T> layerRenderer) {
         this.layerRenderer = layerRenderer;
         this.rendererPipeline = rendererPipeline;
@@ -63,9 +82,29 @@ public class AzModelRenderer<K, T> {
         var model = context.bakedModel();
 
         rendererPipeline.updateAnimatedTextureFrame(animatable);
+        var previousPassBuffer = this.passBuffer;
+        var previousPassRenderType = this.passRenderType;
+        var previousPassBufferDisplaced = this.passBufferDisplaced;
+        var previousTextureOverride = context.getTextureOverride();
 
-        for (var bone : model.getTopLevelBones()) {
-            renderRecursively(context, bone, isReRender);
+        this.passBuffer = context.vertexConsumer();
+        this.passRenderType = context.renderType();
+        this.passBufferDisplaced = false;
+
+        try {
+            for (var bone : model.getTopLevelBones()) {
+                renderRecursively(context, bone, isReRender);
+            }
+        } finally {
+            if (this.passBuffer != null) {
+                restorePassBuffer(context.multiBufferSource());
+                context.setVertexConsumer(this.passBuffer);
+            }
+
+            context.setTextureOverride(previousTextureOverride);
+            this.passBuffer = previousPassBuffer;
+            this.passRenderType = previousPassRenderType;
+            this.passBufferDisplaced = previousPassBufferDisplaced;
         }
 
         var config = rendererPipeline.config();
@@ -382,43 +421,81 @@ public class AzModelRenderer<K, T> {
         AzBone bone
     ) {
         var config = rendererPipeline.config();
-        var currentBuffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
-        var renderType = context.renderType();
         var animatable = context.animatable();
 
         var texture = config.boneTextureOverrideProvider(animatable, bone);
-
-        if (texture != null) {
-            context.setTextureOverride(texture);
-        }
-
         var renderTypeOverride = config.boneRenderTypeOverrideProvider(bone);
 
+        context.setTextureOverride(texture);
+
         if (texture != null && renderTypeOverride == null) {
+            var baseTexture = config.textureLocation(context.currentEntity(), animatable);
+            var baseRenderType = config.getRenderType(context.currentEntity(), animatable);
+
             renderTypeOverride = context.getDefaultRenderType(
-                context.animatable(),
+                animatable,
                 texture,
                 bufferSource,
                 context.partialTick(),
-                config.getRenderType(context.currentEntity, context.animatable()),
-                config.alpha(context.animatable())
+                retargetRenderType(baseRenderType, baseTexture, texture),
+                config.alpha(animatable)
             );
         }
 
         if (renderTypeOverride != null) {
-            currentBuffer = context.multiBufferSource().getBuffer(renderTypeOverride);
+            passBufferDisplaced = true;
+            return bufferSource.getBuffer(renderTypeOverride);
         }
 
-        if (isReRender) {
-            return currentBuffer;
+        var buffer = passBuffer != null ? passBuffer : context.vertexConsumer();
+        var renderType = passRenderType != null ? passRenderType : context.renderType();
+
+        if (buffer == null || renderType == null) {
+            return buffer;
         }
 
-        if (currentBuffer instanceof BufferBuilder builder) {
+        if (passBuffer != null) {
+            restorePassBuffer(bufferSource);
+        }
+
+        var refreshed = refreshBuffer(buffer, bufferSource, renderType);
+
+        if (refreshed != buffer && passBuffer != null) {
+            passBuffer = refreshed;
+        }
+
+        return refreshed;
+    }
+
+    /**
+     * If an override bone took the shared buffer over for its own render type, switches it back to the pass's render
+     * type. The pass buffer holds the same {@link BufferBuilder} instance, so asking the buffer source for the pass's
+     * render type is enough: it ends the override's batch and restarts the shared builder for this pass, and every
+     * wrapper around it (outline, foil, sprite) keeps working.
+     */
+    private void restorePassBuffer(MultiBufferSource bufferSource) {
+        if (passBufferDisplaced && passRenderType != null) {
+            bufferSource.getBuffer(passRenderType);
+        }
+
+        passBufferDisplaced = false;
+    }
+
+    /**
+     * Returns {@code buffer}, or a fresh buffer for {@code renderType} in its place if the batch it was writing to has
+     * been closed.
+     */
+    protected VertexConsumer refreshBuffer(
+        VertexConsumer buffer,
+        MultiBufferSource bufferSource,
+        RenderType renderType
+    ) {
+        if (buffer instanceof BufferBuilder builder) {
             if (isBufferInactive(builder)) {
                 return bufferSource.getBuffer(renderType);
             }
-        } else if (currentBuffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
+        } else if (buffer instanceof OutlineBufferSource.EntityOutlineGenerator outline) {
             if (needsBufferRefresh(outline.delegate)) {
                 return new OutlineBufferSource.EntityOutlineGenerator(
                     bufferSource.getBuffer(renderType),
@@ -428,7 +505,7 @@ public class AzModelRenderer<K, T> {
                     255
                 );
             }
-        } else if (currentBuffer instanceof VertexMultiConsumer.Double pair) {
+        } else if (buffer instanceof VertexMultiConsumer.Double pair) {
             var firstBuffer = pair.first;
             var secondBuffer = pair.second;
             boolean firstNeedsRefresh = needsBufferRefresh(firstBuffer);
@@ -441,7 +518,59 @@ public class AzModelRenderer<K, T> {
                 );
             }
         }
-        return currentBuffer;
+
+        return buffer;
+    }
+
+    /**
+     * Returns the equivalent of {@code renderType} for a different texture, used for bones with a texture override.
+     * <p>
+     * Render types can't be re-pointed at another texture directly, so this recognizes the standard entity render types
+     * and rebuilds the matching one for {@code newTexture}. Anything else falls back to
+     * {@link RenderType#entityCutout}. For full control over an overridden bone's render type, use the bone render type
+     * override provider instead, which takes precedence over this.
+     * </p>
+     *
+     * @param renderType  the render type configured for the model, built for {@code baseTexture}
+     * @param baseTexture the model's main texture
+     * @param newTexture  the texture the bone should render with
+     */
+    protected RenderType retargetRenderType(
+        @Nullable RenderType renderType,
+        @Nullable ResourceLocation baseTexture,
+        ResourceLocation newTexture
+    ) {
+        if (newTexture.equals(baseTexture)) {
+            return renderType != null ? renderType : RenderType.entityCutout(newTexture);
+        }
+
+        if (renderType != null && baseTexture != null) {
+            if (renderType == RenderType.entityCutoutNoCull(baseTexture)) {
+                return RenderType.entityCutoutNoCull(newTexture);
+            }
+
+            if (renderType == RenderType.entityTranslucent(baseTexture)) {
+                return RenderType.entityTranslucent(newTexture);
+            }
+
+            if (renderType == RenderType.entityTranslucentCull(baseTexture)) {
+                return RenderType.entityTranslucentCull(newTexture);
+            }
+
+            if (renderType == RenderType.entityTranslucentEmissive(baseTexture)) {
+                return RenderType.entityTranslucentEmissive(newTexture);
+            }
+
+            if (renderType == RenderType.entitySolid(baseTexture)) {
+                return RenderType.entitySolid(newTexture);
+            }
+
+            if (renderType == RenderType.armorCutoutNoCull(baseTexture)) {
+                return RenderType.armorCutoutNoCull(newTexture);
+            }
+        }
+
+        return RenderType.entityCutout(newTexture);
     }
 
     /**
