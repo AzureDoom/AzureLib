@@ -5,51 +5,79 @@ hide_meta: true
 
 # How to modify bones in-code to do animations
 
+<Callout variant="info">
+    This page covers the basics. For a full guide with more examples (head tracking, smoothing, hiding and resizing bones), see [Procedural Animation](./procedural_animation).
+</Callout>
+
 - Open your AzAnimator class created for the targeted source you wish to do in-code animations for.
 
-- You will now want to override the method `setCustomAnimations` and start calling for your bones after the super call.
+- Override the method `setCustomAnimations` and get your bones after the `super` call:
 
-Example:
 ```java
     @Override
     public void setCustomAnimations(Creeper animatable, float partialTicks) {
         super.setCustomAnimations(animatable, partialTicks);
         AzBoneCache boneCache = this.context().boneCache();
-        Optional<AzBone> leftArm = boneCache.getBakedModel().getBone("your_bones_name");
+        AzBone leftArm = boneCache.getBakedModel().getBoneOrNull("your_bones_name");
     }
 ```
 
-- Now simply do a check ifPresent() and you can start changing the X, Y, Z of the bones in code!
+- Check that the bone isn't `null` (the name must match Blockbench exactly), and you can start changing its rotation, position and scale in code. Rotations are in radians.
 
-<Callout variant="info">
-    `setCustomAnimations` runs after all of your controllers have been applied and layered, so a value you set here replaces the animated value for that frame. To add movement on top of the animation instead, add to the bone's current value, e.g. `bone.setRotX(bone.getRotX() + offset)`. To mix whole animations together, layer controllers instead; see the Layering Controllers section of the Animation Controller Builder page.
+## Setting Values Without Drift
+
+`setCustomAnimations` runs after all of your controllers have been applied and layered, so a value you set here replaces the animated value for that frame.
+
+**To fully control a bone**, set it from the bone's default pose:
+
+```java
+bone.setRotX(bone.getInitialAzSnapshot().getRotX() + angle);
+```
+
+**To add movement on top of the animation**, only add to the bone's current value if an animation actually moved the bone this frame, and fall back to the default pose otherwise:
+
+```java
+float base = boneCache.wasRotationAnimatedThisFrame(bone)
+    ? bone.getRotX()
+    : bone.getInitialAzSnapshot().getRotX();
+
+bone.setRotX(base + angle);
+```
+
+<Callout variant="warning">
+    Don't write `bone.setRotX(bone.getRotX() + angle)` on its own. If no animation moved the bone this frame, it still holds the value your code set last frame, so the angle is added again every frame and the bone spins away. `wasPositionAnimatedThisFrame` and `wasScaleAnimatedThisFrame` do the same check for position and scale.
 </Callout>
 
+To mix whole animations together, layer controllers instead; see the Layering Controllers section of the [Animation Controller Builder](./animation_controller_builder) page.
+
+## Example
+
 <Callout variant="info">
-    This example would move the legs and arms like players.
+    This example swings the arms and legs like a player's while walking. It sets each limb from its default pose, so it works whether or not your animations also move the limbs.
 </Callout>
-Example:
+
 ```java
     @Override
     public void setCustomAnimations(Creeper animatable, float partialTicks) {
         super.setCustomAnimations(animatable, partialTicks);
-        AzBoneCache boneCache = this.context().boneCache();
-        Optional<AzBone> leftArm = boneCache.getBakedModel().getBone("left_Arm");
-        Optional<AzBone> rightArm = boneCache.getBakedModel().getBone("right_Arm");
-        Optional<AzBone> leftLeg = boneCache.getBakedModel().getBone("left_Leg");
-        Optional<AzBone> rightLeg = boneCache.getBakedModel().getBone("right_Leg");
+        AzBakedModel model = this.context().boneCache().getBakedModel();
 
-        if (leftArm.isPresent())
-            leftArm.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (rightArm.isPresent())
-            rightArm.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * -2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (leftLeg.isPresent())
-            leftLeg.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F + 3.1415927F) * 2.0F * animatable.walkAnimation.speed() * 0.5F);
-        if (rightLeg.isPresent())
-            rightLeg.get().setRotX(
-                Mth.cos(animatable.walkAnimation.position(partialTicks) * 0.6662F) * 1.4F * animatable.walkAnimation.speed() * 0.5F);
+        float walkPosition = animatable.walkAnimation.position(partialTicks) * 0.6662F;
+        float walkSpeed = animatable.walkAnimation.speed(partialTicks);
+
+        float armSwing = Mth.cos(walkPosition) * walkSpeed;
+        float legSwing = Mth.cos(walkPosition) * 1.4F * walkSpeed;
+
+        // Opposite arms and legs swing together, like the player model.
+        swing(model.getBoneOrNull("right_Arm"), -armSwing);
+        swing(model.getBoneOrNull("left_Arm"), armSwing);
+        swing(model.getBoneOrNull("right_Leg"), legSwing);
+        swing(model.getBoneOrNull("left_Leg"), -legSwing);
+    }
+
+    private static void swing(AzBone bone, float angle) {
+        if (bone != null) {
+            bone.setRotX(bone.getInitialAzSnapshot().getRotX() + angle);
+        }
     }
 ```
