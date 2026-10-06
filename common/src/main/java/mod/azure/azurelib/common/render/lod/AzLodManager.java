@@ -5,6 +5,8 @@ import net.minecraft.world.entity.Entity;
 
 import mod.azure.azurelib.common.model.AzBakedModel;
 import mod.azure.azurelib.common.model.AzBone;
+import mod.azure.azurelib.profiling.AzProfileStage;
+import mod.azure.azurelib.profiling.AzProfiler;
 
 /**
  * Applies {@link AzLodConfig} rules to an entity each render frame.
@@ -49,12 +51,15 @@ public final class AzLodManager {
             return true;
         }
 
+        AzProfiler.begin(AzProfileStage.LOD_UPDATE, entity);
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         var camPos = camera.getPosition();
         var distSq = entity.distanceToSqr(camPos.x, camPos.y, camPos.z);
 
         applyBoneLod(bakedModel, distSq);
-        return shouldAnimate(entity, distSq);
+        var animate = shouldAnimate(entity, distSq);
+        AzProfiler.end(AzProfileStage.LOD_UPDATE);
+        return animate;
     }
 
     /**
