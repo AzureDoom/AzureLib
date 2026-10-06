@@ -17,6 +17,7 @@ import mod.azure.azurelib.common.animation.easing.AzEasingType;
  *
  * @param <T> the type of the animatable object used in the animation context
  */
+@SuppressWarnings("unused")
 public class AzBoneAnimationQueueCache<T> {
 
     private final Map<String, AzBoneAnimationQueue> boneAnimationQueues;
@@ -104,7 +105,14 @@ public class AzBoneAnimationQueueCache<T> {
             return null;
         }
 
-        return boneAnimationQueues.computeIfAbsent(boneName, $ -> new AzBoneAnimationQueue(bone));
+        var queue = boneAnimationQueues.get(boneName);
+
+        if (queue == null) {
+            queue = new AzBoneAnimationQueue(bone);
+            boneAnimationQueues.put(boneName, queue);
+        }
+
+        return queue;
     }
 
     /**

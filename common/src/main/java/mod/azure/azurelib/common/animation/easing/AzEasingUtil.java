@@ -3,7 +3,10 @@ package mod.azure.azurelib.common.animation.easing;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 
 import mod.azure.azurelib.common.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe;
+import mod.azure.azurelib.core.utils.Interpolations;
 
+@SuppressWarnings("unused")
 public class AzEasingUtil {
 
     /**
@@ -48,13 +51,11 @@ public class AzEasingUtil {
         return function;
     }
 
-    // ---> Easing Transition Type Functions <--- //
-
     /**
      * Returns an easing function running backwards in time
      */
     public static Double2DoubleFunction easeOut(Double2DoubleFunction function) {
-        return time -> 1 - function.apply(1 - time);
+        return time -> 1 - function.get(1 - time);
     }
 
     /**
@@ -64,9 +65,9 @@ public class AzEasingUtil {
     public static Double2DoubleFunction easeInOut(Double2DoubleFunction function) {
         return time -> {
             if (time < 0.5d)
-                return function.apply(time * 2d) / 2d;
+                return function.get(time * 2d) / 2d;
 
-            return 1 - function.apply((1 - time) * 2d) / 2d;
+            return 1 - function.get((1 - time) * 2d) / 2d;
         };
     }
 
@@ -93,8 +94,6 @@ public class AzEasingUtil {
         return n;
     }
 
-    // ---> Stepping Functions <--- //
-
     /**
      * A quadratic function, equivalent to the square (<i>n</i>^2) of elapsed time.<br>
      * {@code f(n) = n^2}<br>
@@ -112,8 +111,6 @@ public class AzEasingUtil {
     public static double cubic(double n) {
         return n * n * n;
     }
-
-    // ---> Mathematical Functions <--- //
 
     /**
      * A sinusoidal function, equivalent to a sine curve output.<br>
@@ -169,7 +166,7 @@ public class AzEasingUtil {
         Double2DoubleFunction three = x -> 121 * n2 * n2 * Math.pow(x - 9f / 11f, 2) + 1 - n2 * n2;
         Double2DoubleFunction four = x -> 484 * n2 * n2 * n2 * Math.pow(x - 10.5f / 11f, 2) + 1 - n2 * n2 * n2;
 
-        return t -> Math.min(Math.min(one.apply(t), two.apply(t)), Math.min(three.apply(t), four.apply(t)));
+        return t -> Math.min(Math.min(one.get(t), two.get(t)), Math.min(three.get(t), four.get(t)));
     }
 
     /**
@@ -182,8 +179,6 @@ public class AzEasingUtil {
 
         return t -> t * t * ((n2 + 1) * t - n2);
     }
-
-    // ---> Easing Curve Functions <--- //
 
     /**
      * An exponential function, equivalent to an exponential curve to the {@code n} root.<br>
@@ -260,9 +255,8 @@ public class AzEasingUtil {
      * <p>
      * The nuance is data-driven easings. Stateless easings (linear, sine, quad, cubic, ...) are pure functions of the
      * lerp fraction and are safe to force globally, so an override of that kind always wins. Data-driven easings
-     * (bezier, catmull-rom) instead read the keyframe's
-     * {@link mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe#easingArgs()} as type-specific data —
-     * bezier handle (value, time) pairs, catmull-rom neighbor control points. Forcing such a type as an override onto a
+     * (bezier, catmull-rom) instead read the keyframe's {@link AzKeyframe#easingArgs()} as type-specific data — bezier
+     * handle (value, time) pairs, catmull-rom neighbor control points. Forcing such a type as an override onto a
      * keyframe authored with a <i>different</i> type causes it to misread that other type's args as its own, producing
      * wildly incorrect transforms (e.g. bezier consuming catmull-rom's {@code [prev, next]} values as handles and
      * flinging the bone off-screen).
@@ -289,6 +283,21 @@ public class AzEasingUtil {
             easingType = authored;
         }
 
+        if (easingType == AzEasingTypes.LINEAR) {
+            return lerpLinear(animationPoint);
+        }
+
         return easingType.apply(animationPoint);
+    }
+
+    public static double lerpLinear(AzAnimationPoint animationPoint) {
+        if (animationPoint.currentTick() >= animationPoint.transitionLength())
+            return (float) animationPoint.animationEndValue();
+
+        return Interpolations.lerp(
+            animationPoint.animationStartValue(),
+            animationPoint.animationEndValue(),
+            animationPoint.currentTick() / animationPoint.transitionLength()
+        );
     }
 }

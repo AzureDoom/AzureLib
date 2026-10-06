@@ -7,9 +7,8 @@ import java.util.function.DoubleSupplier;
 import mod.azure.azurelib.common.animation.controller.AzAnimationController;
 import mod.azure.azurelib.common.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.common.animation.controller.AzBoneSnapshotCache;
+import mod.azure.azurelib.common.animation.easing.AzEasingType;
 import mod.azure.azurelib.common.model.AzBone;
-import mod.azure.azurelib.common.model.AzBoneSnapshot;
-import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
@@ -35,6 +34,10 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
 
     private final DoubleSupplier animTimeSupplier = () -> currentAdjustedTick / 20d;
 
+    private int[] cursors;
+
+    private AzEasingType easingOverride;
+
     public AzKeyframeTransitioner(
         AzAnimationController<T> animationController,
         AzBoneAnimationQueueCache<T> boneAnimationQueueCache,
@@ -50,12 +53,17 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var transitionLength = animationController.animationProperties().transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
-        var targetTick = animationController.isPlayingReversed() ? currentAnimation.animation().length() : 0D;
+        var animation = currentAnimation.animation();
 
-        currentAdjustedTick = targetTick;
+        currentAdjustedTick = animationController.isPlayingReversed() ? animation.length() : 0D;
         ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
-        for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
+        var boneAnimations = animation.boneAnimations();
+        this.cursors = prepareKeyframeCursors(animation);
+        this.easingOverride = animationController.animationProperties().easingType();
+
+        for (var boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {
+            var boneAnimation = boneAnimations[boneIndex];
             var bone = bones.get(boneAnimation.boneName());
 
             if (bone == null) {
@@ -81,63 +89,47 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
             var positionKeyframes = boneAnimation.positionKeyframes();
             var scaleKeyframes = boneAnimation.scaleKeyframes();
 
-            transitionRotation(adjustedTick, targetTick, rotationKeyframes, queue, transitionLength, snapshot, bone);
-            transitionPosition(adjustedTick, targetTick, positionKeyframes, queue, transitionLength, snapshot);
-            transitionScale(adjustedTick, targetTick, scaleKeyframes, queue, transitionLength, snapshot);
+            if (!rotationKeyframes.xKeyframes().isEmpty()) {
+                var cursor = cursorIndex(boneIndex, ROTATION, 0);
+                var x = target(rotationKeyframes.xChannel(), ROTATION, Axis.X, cursor);
+                var y = target(rotationKeyframes.yChannel(), ROTATION, Axis.Y, cursor + 1);
+                var z = target(rotationKeyframes.zChannel(), ROTATION, Axis.Z, cursor + 2);
+
+                queue.addNextRotation(
+                    null,
+                    adjustedTick,
+                    transitionLength,
+                    snapshot,
+                    bone.getInitialAzSnapshot(),
+                    x,
+                    y,
+                    z
+                );
+            }
+
+            // Position transitions even without keyframes (towards 0), as it always has.
+            var positionCursor = cursorIndex(boneIndex, POSITION, 0);
+            var posX = target(positionKeyframes.xChannel(), POSITION, Axis.X, positionCursor);
+            var posY = target(positionKeyframes.yChannel(), POSITION, Axis.Y, positionCursor + 1);
+            var posZ = target(positionKeyframes.zChannel(), POSITION, Axis.Z, positionCursor + 2);
+
+            queue.addNextPosition(null, adjustedTick, transitionLength, snapshot, posX, posY, posZ);
+
+            if (!scaleKeyframes.xKeyframes().isEmpty()) {
+                var cursor = cursorIndex(boneIndex, SCALE, 0);
+                var x = target(scaleKeyframes.xChannel(), SCALE, Axis.X, cursor);
+                var y = target(scaleKeyframes.yChannel(), SCALE, Axis.Y, cursor + 1);
+                var z = target(scaleKeyframes.zChannel(), SCALE, Axis.Z, cursor + 2);
+
+                queue.addNextScale(null, adjustedTick, transitionLength, snapshot, x, y, z);
+            }
         }
     }
 
-    private void transitionRotation(
-        double adjustedTick,
-        double targetTick,
-        AzKeyframeStack<AzKeyframe<IValue>> keyframes,
-        AzBoneAnimationQueue queue,
-        double transitionLength,
-        AzBoneSnapshot snapshot,
-        AzBone bone
-    ) {
-        if (keyframes.xKeyframes().isEmpty()) {
-            return;
-        }
-
-        var initialSnapshot = bone.getInitialAzSnapshot();
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), targetTick, true, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), targetTick, true, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), targetTick, true, Axis.Z);
-
-        queue.addNextRotation(null, adjustedTick, transitionLength, snapshot, initialSnapshot, x, y, z);
-    }
-
-    private void transitionPosition(
-        double adjustedTick,
-        double targetTick,
-        AzKeyframeStack<AzKeyframe<IValue>> keyframes,
-        AzBoneAnimationQueue queue,
-        double transitionLength,
-        AzBoneSnapshot snapshot
-    ) {
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), targetTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), targetTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), targetTick, false, Axis.Z);
-        queue.addNextPosition(null, adjustedTick, transitionLength, snapshot, x, y, z);
-    }
-
-    private void transitionScale(
-        double adjustedTick,
-        double targetTick,
-        AzKeyframeStack<AzKeyframe<IValue>> keyframes,
-        AzBoneAnimationQueue queue,
-        double transitionLength,
-        AzBoneSnapshot snapshot
-    ) {
-        if (keyframes.xKeyframes().isEmpty()) {
-            return;
-        }
-
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), targetTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), targetTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), targetTick, false, Axis.Z);
-
-        queue.addNextScale(null, adjustedTick, transitionLength, snapshot, x, y, z);
+    /**
+     * The value {@code channel} has at the transition's target tick.
+     */
+    private double target(AzKeyframeChannel channel, int transform, Axis axis, int cursorIndex) {
+        return sampleValue(channel, transform, axis, currentAdjustedTick, cursors, cursorIndex, easingOverride);
     }
 }

@@ -5,8 +5,6 @@
  */
 package mod.azure.azurelib.core.keyframe.event.data;
 
-import java.util.Objects;
-
 import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframe;
 
 /**
@@ -43,6 +41,6 @@ public abstract class KeyFrameData {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.startTick);
+        return Double.hashCode(this.startTick);
     }
 }

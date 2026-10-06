@@ -1,11 +1,7 @@
 package mod.azure.azurelib.common.model;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +12,7 @@ import mod.azure.azurelib.common.cache.object.GeoCube;
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  */
+@SuppressWarnings("unused")
 public class AzBone {
 
     private final AzBoneMetadata metadata;
@@ -466,11 +463,10 @@ public class AzBone {
     }
 
     public int hashCode() {
-        return Objects.hash(
-            getName(),
-            (getParent() != null ? getParent().getName() : 0),
-            getCubes().size(),
-            getChildBones().size()
-        );
+        var result = 31 + Objects.hashCode(getName());
+        result = 31 * result + (getParent() != null ? Objects.hashCode(getParent().getName()) : 0);
+        result = 31 * result + getCubes().size();
+        result = 31 * result + getChildBones().size();
+        return result;
     }
 }
