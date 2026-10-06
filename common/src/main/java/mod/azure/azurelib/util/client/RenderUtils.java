@@ -264,13 +264,24 @@ public final class RenderUtils {
      * This performs a pseudo-ABS function to help resolve some of those issues.
      */
     public static void fixInvertedFlatCube(GeoCube cube, Vector3f normal) {
-        if (normal.x() < 0 && (cube.size().y() == 0 || cube.size().z() == 0))
+        fixInvertedFlatCube(cube.normalFlips(), normal);
+    }
+
+    /**
+     * {@link #fixInvertedFlatCube(GeoCube, Vector3f)} with the cube's flip flags already worked out; see
+     * {@link GeoCube#normalFlips()}.
+     */
+    public static void fixInvertedFlatCube(int normalFlips, Vector3f normal) {
+        if (normalFlips == 0)
+            return;
+
+        if (normal.x() < 0 && (normalFlips & GeoCube.FLIP_X) != 0)
             normal.mul(-1, 1, 1);
 
-        if (normal.y() < 0 && (cube.size().x() == 0 || cube.size().z() == 0))
+        if (normal.y() < 0 && (normalFlips & GeoCube.FLIP_Y) != 0)
             normal.mul(1, -1, 1);
 
-        if (normal.z() < 0 && (cube.size().x() == 0 || cube.size().y() == 0))
+        if (normal.z() < 0 && (normalFlips & GeoCube.FLIP_Z) != 0)
             normal.mul(1, 1, -1);
     }
 

@@ -42,9 +42,9 @@ public class AzModelRenderer<K, T> {
      * Scratch objects reused for every bone, cube and vertex instead of allocating new ones. Rendering is single
      * threaded and none of these are held across calls, so one set per renderer is enough.
      */
-    private final Matrix4f savedPoseScratch = new Matrix4f();
+    private final Matrix4f poseStateCache = new Matrix4f();
 
-    private final Matrix3f savedNormalScratch = new Matrix3f();
+    private final Matrix3f normalStateCache = new Matrix3f();
 
     private final Vector3f flatNormalScratch = new Vector3f();
 
@@ -162,16 +162,12 @@ public class AzModelRenderer<K, T> {
             return;
         }
 
-        var poseStack = context.poseStack();
+        // Cubes apply their own (pre-baked) transform to scratch matrices in renderCube, so the pose stack is left
+        // untouched and needs no save/restore per cube.
+        var cubes = bone.getCubes();
 
-        var lastEntry = poseStack.last();
-        savedPoseScratch.load(lastEntry.pose());
-        savedNormalScratch.load(lastEntry.normal());
-
-        for (var cube : bone.getCubes()) {
-            renderCube(context, cube);
-            lastEntry.pose().load(savedPoseScratch);
-            lastEntry.normal().load(savedNormalScratch);
+        for (int i = 0, size = cubes.size(); i < size; i++) {
+            renderCube(context, cubes.get(i));
         }
     }
 
@@ -184,8 +180,11 @@ public class AzModelRenderer<K, T> {
         if (bone.isHidingChildren())
             return;
 
-        for (var childBone : bone.getChildBones()) {
-            renderRecursively(context, childBone, isReRender);
+        // Indexed rather than for-each: the list iterator was allocated for every bone on every frame.
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            renderRecursively(context, children.get(i), isReRender);
         }
     }
 
@@ -194,34 +193,61 @@ public class AzModelRenderer<K, T> {
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
     protected void renderCube(AzRendererPipelineContext<K, T> context, GeoCube cube) {
-        var poseStack = context.poseStack();
+        var poseEntry = context.poseStack().last();
+        var transform = cube.transform();
+        Matrix4f poseMatrix;
+        Matrix3f normalMatrix;
 
-        RenderUtils.translateToPivotPoint(poseStack, cube);
-        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+        if (transform.identity()) {
+            poseMatrix = poseEntry.pose();
+            normalMatrix = poseEntry.normal();
+        } else {
+            // The baked transforms are shared by every renderer, so multiply into scratch copies, never into them.
+            poseStateCache.load(poseEntry.pose());
+            poseStateCache.multiply(transform.pose());
+            normalStateCache.load(poseEntry.normal());
+            normalStateCache.mul(transform.normal());
+            poseMatrix = poseStateCache;
+            normalMatrix = normalStateCache;
+        }
 
-        var poseEntry = poseStack.last();
-        var poseMatrix = poseEntry.pose();
-        var normalMatrix = poseEntry.normal();
-
-        var size = cube.size();
-        var isFlat = size.x() == 0 || size.y() == 0 || size.z() == 0;
+        var normalFlips = cube.normalFlips();
+        // Quads drawn with a bone texture override use that texture's UVs, which a filter for the main texture can't
+        // judge, so those are always drawn.
+        var quadFilter = context.getTextureOverride() == null ? context.quadFilter() : null;
 
         for (var quad : cube.quads()) {
-            if (quad == null) {
+            if (quad == null || (quadFilter != null && !passes(quad, quadFilter))) {
                 continue;
             }
 
             var quadNormal = quad.normal();
 
-            if (isFlat) {
+            if (normalFlips != 0) {
+                // Quad normals are shared baked data, so flip a copy.
                 flatNormalScratch.set(quadNormal.x(), quadNormal.y(), quadNormal.z());
                 quadNormal = flatNormalScratch;
-                RenderUtils.fixInvertedFlatCube(cube, quadNormal);
+                RenderUtils.fixInvertedFlatCube(normalFlips, quadNormal);
             }
 
             createVerticesOfQuad(context, quad, poseMatrix, normalMatrix, quadNormal);
         }
+    }
+
+    private static boolean passes(GeoQuad quad, AzQuadFilter filter) {
+        var vertices = quad.vertices();
+        float minU = vertices[0].texU(), maxU = minU, minV = vertices[0].texV(), maxV = minV;
+
+        for (int i = 1; i < vertices.length; i++) {
+            var u = vertices[i].texU();
+            var v = vertices[i].texV();
+            minU = Math.min(minU, u);
+            maxU = Math.max(maxU, u);
+            minV = Math.min(minV, v);
+            maxV = Math.max(maxV, v);
+        }
+
+        return filter.test(minU, minV, maxU, maxV);
     }
 
     /**
