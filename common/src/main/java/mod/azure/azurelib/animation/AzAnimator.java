@@ -12,8 +12,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 
@@ -35,6 +35,20 @@ public abstract class AzAnimator<K, T> {
     private static final MolangVariableRef TIME_OF_DAY_REF = new MolangVariableRef(MolangQueries.TIME_OF_DAY);
 
     private static final MolangVariableRef MOON_PHASE_REF = new MolangVariableRef(MolangQueries.MOON_PHASE);
+
+    private static final MolangVariableRef MOON_BRIGHTNESS_REF = new MolangVariableRef(MolangQueries.MOON_BRIGHTNESS);
+
+    private static final MolangVariableRef DAY_REF = new MolangVariableRef(MolangQueries.DAY);
+
+    private static final MolangVariableRef TIME_STAMP_REF = new MolangVariableRef(MolangQueries.TIME_STAMP);
+
+    private static final MolangVariableRef FRAME_ALPHA_REF = new MolangVariableRef(MolangQueries.FRAME_ALPHA);
+
+    private static final MolangVariableRef CLIENT_MAX_RENDER_DISTANCE_REF = new MolangVariableRef(
+        MolangQueries.CLIENT_MAX_RENDER_DISTANCE
+    );
+
+    private static final double[] MOON_BRIGHTNESS = { 1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75 };
 
     private AzAnimationContext<T> currentContext;
 
@@ -62,10 +76,33 @@ public abstract class AzAnimator<K, T> {
         return lvl != null ? lvl.getDefaultClockTime() / 24000f : 0;
     };
 
-    private final DoubleSupplier moonPhaseSupplier = () -> {
+    private final DoubleSupplier moonPhaseSupplier = AzAnimator::moonPhase;
+
+    private final DoubleSupplier moonBrightnessSupplier = () -> MOON_BRIGHTNESS[moonPhase()];
+
+    private final DoubleSupplier daySupplier = () -> {
         var lvl = Minecraft.getInstance().level;
-        return lvl != null ? ((double) lvl.getDefaultClockTime() / MoonPhase.PHASE_LENGTH) % MoonPhase.COUNT : 0;
+        return lvl != null ? Math.floorDiv(lvl.getDefaultClockTime(), 24000L) : 0;
     };
+
+    private final DoubleSupplier timeStampSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getGameTime() : 0;
+    };
+
+    private final DoubleSupplier frameAlphaSupplier = () -> molangPartialTicks;
+
+    private final DoubleSupplier clientMaxRenderDistanceSupplier = () -> Minecraft.getInstance().options
+        .getEffectiveRenderDistance();
+
+    private static int moonPhase() {
+        var lvl = Minecraft.getInstance().level;
+
+        if (lvl == null)
+            return 0;
+
+        return (int) Math.floorMod(lvl.getDefaultClockTime() / MoonPhase.PHASE_LENGTH, (long) MoonPhase.COUNT);
+    }
 
     protected AzAnimator() {
         this(AzAnimatorConfig.defaultConfig());
@@ -88,7 +125,7 @@ public abstract class AzAnimator<K, T> {
     public AzAnimationContext<T> getOrCreateContext(K uuid) {
         var ctx = contextCache.computeIfAbsent(
             uuid,
-            _ -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+            ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
         );
         this.currentContext = ctx;
         return ctx;
@@ -147,7 +184,6 @@ public abstract class AzAnimator<K, T> {
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
         var level = Minecraft.getInstance().level;
-        var parser = MolangParser.INSTANCE;
 
         if (level == null) {
             return;
@@ -159,6 +195,13 @@ public abstract class AzAnimator<K, T> {
         ACTOR_COUNT_REF.setMemoized(actorCountSupplier);
         TIME_OF_DAY_REF.setMemoized(timeOfDaySupplier);
         MOON_PHASE_REF.setMemoized(moonPhaseSupplier);
+        MOON_BRIGHTNESS_REF.setMemoized(moonBrightnessSupplier);
+        DAY_REF.setMemoized(daySupplier);
+        TIME_STAMP_REF.setMemoized(timeStampSupplier);
+        FRAME_ALPHA_REF.setMemoized(frameAlphaSupplier);
+        CLIENT_MAX_RENDER_DISTANCE_REF.setMemoized(clientMaxRenderDistanceSupplier);
+
+        AzMolangQueryContext.INSTANCE.bind(null, partialTicks);
     }
 
     /**
