@@ -6,14 +6,22 @@ import mod.azure.azurelib.common.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.common.animation.easing.bedrock_easings.BezierEasing;
 import mod.azure.azurelib.core.utils.Interpolations;
 
-@SuppressWarnings("unused")
+/**
+ * AzureLib's built-in easing types.
+ * <p>
+ * Easings whose curve never depends on an argument (sine, quad, cubic, ...) are registered as stateless, so their curve
+ * is built once here instead of on first use. Parameterized easings (step, back, elastic, bounce) build one curve per
+ * argument value, which is baked into each keyframe when the animation loads.
+ * </p>
+ */
 public class AzEasingTypes {
 
+    /** Catmull-Rom's fallback curve when a keyframe has no neighbor data. Stateless, so built once. */
     private static final Double2DoubleFunction CATMULL_ROM_FALLBACK = AzEasingUtil.easeInOut(AzEasingUtil::catmullRom);
 
-    public static final AzEasingType NONE = AzEasingTypeRegistry.register(
+    public static final AzEasingType NONE = AzEasingTypeRegistry.registerStateless(
         "none",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::linear)
+        AzEasingUtil.easeIn(AzEasingUtil::linear)
     );
 
     public static final AzEasingType LINEAR = AzEasingTypeRegistry.register("linear", NONE);
@@ -23,109 +31,109 @@ public class AzEasingTypes {
         value -> AzEasingUtil.easeIn(AzEasingUtil.step(value))
     );
 
-    public static final AzEasingType EASE_IN_SINE = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_SINE = AzEasingTypeRegistry.registerStateless(
         "easeinsine",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::sine)
+        AzEasingUtil.easeIn(AzEasingUtil::sine)
     );
 
-    public static final AzEasingType EASE_OUT_SINE = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_SINE = AzEasingTypeRegistry.registerStateless(
         "easeoutsine",
-        value -> AzEasingUtil.easeOut(AzEasingUtil::sine)
+        AzEasingUtil.easeOut(AzEasingUtil::sine)
     );
 
-    public static final AzEasingType EASE_IN_OUT_SINE = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_SINE = AzEasingTypeRegistry.registerStateless(
         "easeinoutsine",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::sine)
+        AzEasingUtil.easeInOut(AzEasingUtil::sine)
     );
 
-    public static final AzEasingType EASE_IN_QUAD = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_QUAD = AzEasingTypeRegistry.registerStateless(
         "easeinquad",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::quadratic)
+        AzEasingUtil.easeIn(AzEasingUtil::quadratic)
     );
 
-    public static final AzEasingType EASE_OUT_QUAD = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_QUAD = AzEasingTypeRegistry.registerStateless(
         "easeoutquad",
-        value -> AzEasingUtil.easeOut(AzEasingUtil::quadratic)
+        AzEasingUtil.easeOut(AzEasingUtil::quadratic)
     );
 
-    public static final AzEasingType EASE_IN_OUT_QUAD = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_QUAD = AzEasingTypeRegistry.registerStateless(
         "easeinoutquad",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::quadratic)
+        AzEasingUtil.easeInOut(AzEasingUtil::quadratic)
     );
 
-    public static final AzEasingType EASE_IN_CUBIC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_CUBIC = AzEasingTypeRegistry.registerStateless(
         "easeincubic",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::cubic)
+        AzEasingUtil.easeIn(AzEasingUtil::cubic)
     );
 
-    public static final AzEasingType EASE_OUT_CUBIC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_CUBIC = AzEasingTypeRegistry.registerStateless(
         "easeoutcubic",
-        value -> AzEasingUtil.easeOut(AzEasingUtil::cubic)
+        AzEasingUtil.easeOut(AzEasingUtil::cubic)
     );
 
-    public static final AzEasingType EASE_IN_OUT_CUBIC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_CUBIC = AzEasingTypeRegistry.registerStateless(
         "easeinoutcubic",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::cubic)
+        AzEasingUtil.easeInOut(AzEasingUtil::cubic)
     );
 
-    public static final AzEasingType EASE_IN_QUART = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_QUART = AzEasingTypeRegistry.registerStateless(
         "easeinquart",
-        value -> AzEasingUtil.easeIn(AzEasingUtil.pow(4))
+        AzEasingUtil.easeIn(AzEasingUtil.pow(4))
     );
 
-    public static final AzEasingType EASE_OUT_QUART = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_QUART = AzEasingTypeRegistry.registerStateless(
         "easeoutquart",
-        value -> AzEasingUtil.easeOut(AzEasingUtil.pow(4))
+        AzEasingUtil.easeOut(AzEasingUtil.pow(4))
     );
 
-    public static final AzEasingType EASE_IN_OUT_QUART = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_QUART = AzEasingTypeRegistry.registerStateless(
         "easeinoutquart",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil.pow(4))
+        AzEasingUtil.easeInOut(AzEasingUtil.pow(4))
     );
 
-    public static final AzEasingType EASE_IN_QUINT = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_QUINT = AzEasingTypeRegistry.registerStateless(
         "easeinquint",
-        value -> AzEasingUtil.easeIn(AzEasingUtil.pow(5))
+        AzEasingUtil.easeIn(AzEasingUtil.pow(5))
     );
 
-    public static final AzEasingType EASE_OUT_QUINT = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_QUINT = AzEasingTypeRegistry.registerStateless(
         "easeoutquint",
-        value -> AzEasingUtil.easeOut(AzEasingUtil.pow(5))
+        AzEasingUtil.easeOut(AzEasingUtil.pow(5))
     );
 
-    public static final AzEasingType EASE_IN_OUT_QUINT = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_QUINT = AzEasingTypeRegistry.registerStateless(
         "easeinoutquint",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil.pow(5))
+        AzEasingUtil.easeInOut(AzEasingUtil.pow(5))
     );
 
-    public static final AzEasingType EASE_IN_EXPO = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_EXPO = AzEasingTypeRegistry.registerStateless(
         "easeinexpo",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::exp)
+        AzEasingUtil.easeIn(AzEasingUtil::exp)
     );
 
-    public static final AzEasingType EASE_OUT_EXPO = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_EXPO = AzEasingTypeRegistry.registerStateless(
         "easeoutexpo",
-        value -> AzEasingUtil.easeOut(AzEasingUtil::exp)
+        AzEasingUtil.easeOut(AzEasingUtil::exp)
     );
 
-    public static final AzEasingType EASE_IN_OUT_EXPO = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_EXPO = AzEasingTypeRegistry.registerStateless(
         "easeinoutexpo",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::exp)
+        AzEasingUtil.easeInOut(AzEasingUtil::exp)
     );
 
-    public static final AzEasingType EASE_IN_CIRC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_CIRC = AzEasingTypeRegistry.registerStateless(
         "easeincirc",
-        value -> AzEasingUtil.easeIn(AzEasingUtil::circle)
+        AzEasingUtil.easeIn(AzEasingUtil::circle)
     );
 
-    public static final AzEasingType EASE_OUT_CIRC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_OUT_CIRC = AzEasingTypeRegistry.registerStateless(
         "easeoutcirc",
-        value -> AzEasingUtil.easeOut(AzEasingUtil::circle)
+        AzEasingUtil.easeOut(AzEasingUtil::circle)
     );
 
-    public static final AzEasingType EASE_IN_OUT_CIRC = AzEasingTypeRegistry.register(
+    public static final AzEasingType EASE_IN_OUT_CIRC = AzEasingTypeRegistry.registerStateless(
         "easeinoutcirc",
-        value -> AzEasingUtil.easeInOut(AzEasingUtil::circle)
+        AzEasingUtil.easeInOut(AzEasingUtil::circle)
     );
 
     public static final AzEasingType EASE_IN_BACK = AzEasingTypeRegistry.register(

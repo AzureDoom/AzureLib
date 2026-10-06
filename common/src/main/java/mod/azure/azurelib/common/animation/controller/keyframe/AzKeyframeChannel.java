@@ -1,9 +1,14 @@
 package mod.azure.azurelib.common.animation.controller.keyframe;
 
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
+import mod.azure.azurelib.AzureLib;
+
 /**
- * A baked, array-backed view of a single axis of keyframes (e.g. the X rotation keyframes of one bone).
+ * A baked, immutable view of a single axis of keyframes (e.g. the X rotation keyframes of one bone).
  * <p>
  * Keyframes only store their own {@link AzKeyframe#length() length}, so finding the keyframe for a given tick used to
  * mean summing lengths from the start of the list every frame. A channel does that once: it copies the keyframes into
@@ -11,65 +16,72 @@ import java.util.List;
  * ({@link #locate(double, int)}) or a binary search ({@link #search(double)}), with no allocation in either case.
  * </p>
  * <p>
- * Channels are created by {@link AzKeyframeStack} and are bound to the list they were baked from. If that list changes
- * size, the channel re-bakes itself on the next lookup. Changing a keyframe list in any other way after it has started
- * being animated is not supported.
+ * Each keyframe's easing curve is also resolved here when it can be known ahead of time (see
+ * {@link mod.azure.azurelib.common.animation.easing.AzEasingType#resolveTransformer}), so playback doesn't have to look
+ * it up.
+ * </p>
+ * <p>
+ * A channel is a snapshot of the keyframes it was built from. Changing that list afterward does not change the channel.
  * </p>
  */
-@SuppressWarnings("unused")
 public final class AzKeyframeChannel {
 
-    private static final AzKeyframe<?>[] NO_FRAMES = new AzKeyframe<?>[0];
+    /** A channel with no keyframes. */
+    public static final AzKeyframeChannel EMPTY = new AzKeyframeChannel(List.of());
 
-    private static final double[] NO_TIMES = new double[0];
+    /**
+     * How many keyframes a cached lookup walks before giving up and binary searching instead. Normal playback moves at
+     * most one keyframe per frame, so this only matters for jumps (looping back to the start, seeking).
+     */
+    private static final int SCAN_LIMIT = 4;
 
-    private final List<? extends AzKeyframe<?>> source;
+    private final AzKeyframe<?>[] frames;
 
-    private AzKeyframe<?>[] frames;
+    /** {@code endTimes[i]} is the tick keyframe {@code i} ends at; it starts at {@code endTimes[i - 1]} (or 0). */
+    private final double[] endTimes;
 
-    private double[] endTimes;
+    /** {@code transformers[i]} is keyframe {@code i}'s baked easing curve, or {@code null} if resolved at playback. */
+    private final Double2DoubleFunction[] transformers;
 
-    public AzKeyframeChannel(List<? extends AzKeyframe<?>> source) {
-        this.source = source;
-        bake();
-    }
+    public AzKeyframeChannel(List<? extends AzKeyframe<?>> keyframes) {
+        var size = keyframes.size();
 
-    private void bake() {
-        var size = source.size();
+        this.frames = new AzKeyframe<?>[size];
+        this.endTimes = new double[size];
+        this.transformers = new Double2DoubleFunction[size];
 
-        if (size == 0) {
-            this.frames = NO_FRAMES;
-            this.endTimes = NO_TIMES;
-            return;
-        }
-
-        var bakedFrames = new AzKeyframe<?>[size];
-        var bakedEndTimes = new double[size];
         var total = 0D;
 
         for (var i = 0; i < size; i++) {
-            var frame = source.get(i);
+            var frame = keyframes.get(i);
             total += frame.length();
-            bakedFrames[i] = frame;
-            bakedEndTimes[i] = total;
+            this.frames[i] = frame;
+            this.endTimes[i] = total;
+            this.transformers[i] = resolveTransformer(frame);
         }
-
-        this.frames = bakedFrames;
-        this.endTimes = bakedEndTimes;
     }
 
-    private void ensureBaked() {
-        if (frames.length != source.size()) {
-            bake();
+    @Nullable
+    private static Double2DoubleFunction resolveTransformer(AzKeyframe<?> frame) {
+        var easingType = frame.easingType();
+
+        if (easingType == null)
+            return null;
+
+        try {
+            return easingType.resolveTransformer(frame);
+        } catch (RuntimeException e) {
+            // Leave it to playback, which reports the problem the same way it always has.
+            AzureLib.LOGGER.debug("Couldn't bake easing curve for {}, resolving it at playback", easingType.name(), e);
+            return null;
         }
     }
 
     public boolean isEmpty() {
-        return source.isEmpty();
+        return frames.length == 0;
     }
 
     public int size() {
-        ensureBaked();
         return frames.length;
     }
 
@@ -78,6 +90,15 @@ public final class AzKeyframeChannel {
      */
     public AzKeyframe<?> frame(int index) {
         return frames[index];
+    }
+
+    /**
+     * @return the keyframe at {@code index}'s easing curve, resolved when the channel was built, or {@code null} if it
+     *         has to be resolved at playback
+     */
+    @Nullable
+    public Double2DoubleFunction transformer(int index) {
+        return transformers[index];
     }
 
     /**
@@ -98,7 +119,6 @@ public final class AzKeyframeChannel {
      * @return the combined length of every keyframe in this channel, in ticks
      */
     public double totalLength() {
-        ensureBaked();
         return frames.length == 0 ? 0 : endTimes[frames.length - 1];
     }
 
@@ -117,8 +137,6 @@ public final class AzKeyframeChannel {
      * @return the index of the keyframe to sample, or {@code -1} if this channel is empty
      */
     public int locate(double tick, int hint) {
-        ensureBaked();
-
         var ends = endTimes;
         var last = ends.length - 1;
 
@@ -129,7 +147,8 @@ public final class AzKeyframeChannel {
         var index = hint < 0 ? 0 : Math.min(hint, last);
 
         if (index < last && ends[index] <= tick) {
-            for (var steps = 0; steps < 4; steps++) {
+            // The tick is past this keyframe; walk forward.
+            for (var steps = 0; steps < SCAN_LIMIT; steps++) {
                 index++;
 
                 if (index == last || ends[index] > tick) {
@@ -141,7 +160,8 @@ public final class AzKeyframeChannel {
         }
 
         if (index > 0 && ends[index - 1] > tick) {
-            for (var steps = 0; steps < 4; steps++) {
+            // The tick is before this keyframe; walk backward.
+            for (var steps = 0; steps < SCAN_LIMIT; steps++) {
                 index--;
 
                 if (index == 0 || ends[index - 1] <= tick) {
@@ -162,8 +182,6 @@ public final class AzKeyframeChannel {
      * @return the index of the keyframe to sample, or {@code -1} if this channel is empty
      */
     public int search(double tick) {
-        ensureBaked();
-
         var ends = endTimes;
         var lo = 0;
         var hi = ends.length - 1;
