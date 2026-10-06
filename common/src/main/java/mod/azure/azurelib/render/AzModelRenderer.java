@@ -33,6 +33,8 @@ public class AzModelRenderer<K, T> {
 
     private final Matrix4f poseStateCache = new Matrix4f();
 
+    private final Matrix3f normalStateCache = new Matrix3f();
+
     private final Vector3f normalScratch = new Vector3f();
 
     private final Vector4f quadPosition = new Vector4f();
@@ -112,14 +114,8 @@ public class AzModelRenderer<K, T> {
             return;
         }
 
-        var poseStack = context.poseStack();
-
         for (var cube : bone.getCubes()) {
-            poseStack.pushPose();
-
             renderCube(context, cube);
-
-            poseStack.popPose();
         }
     }
 
@@ -142,14 +138,17 @@ public class AzModelRenderer<K, T> {
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
     protected void renderCube(AzRendererPipelineContext<K, T> context, AzCube cube) {
-        var poseStack = context.poseStack();
+        var last = context.poseStack().last();
+        var transform = cube.transform();
+        var poseState = poseStateCache.set(last.pose());
+        Matrix3f normalisedPoseState;
 
-        RenderUtils.translateToPivotPoint(poseStack, cube);
-        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
-
-        var normalisedPoseState = poseStack.last().normal();
-        var poseState = poseStateCache.set(poseStack.last().pose());
+        if (transform.identity()) {
+            normalisedPoseState = last.normal();
+        } else {
+            poseState.mul(transform.pose());
+            normalisedPoseState = normalStateCache.set(last.normal()).mul(transform.normal());
+        }
 
         for (var quad : cube.quads()) {
             if (quad == null) {

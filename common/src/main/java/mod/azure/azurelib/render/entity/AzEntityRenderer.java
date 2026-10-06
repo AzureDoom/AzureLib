@@ -47,6 +47,10 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     private Vec3 currentRenderOffset = Vec3.ZERO;
 
+    private PoseStack extractPoseStack;
+
+    private boolean extractPoseStackInUse;
+
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
         this.config = config;
@@ -85,17 +89,44 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
         // The pipeline still runs eagerly here (during extract, against an identity pose); the vertices it
         // records are entity-local and get translated/replayed relative to the camera during submit.
-        rendererPipeline.render(
-            new PoseStack(),
-            azBakedModel,
-            entity,
-            geometry,
-            null,
-            null,
-            bodyYaw(entity, partialTick),
-            partialTick,
-            state.lightCoords
-        );
+        var poseStack = acquireExtractPoseStack();
+
+        try {
+            rendererPipeline.render(
+                poseStack,
+                azBakedModel,
+                entity,
+                geometry,
+                null,
+                null,
+                bodyYaw(entity, partialTick),
+                partialTick,
+                state.lightCoords
+            );
+        } finally {
+            if (poseStack == extractPoseStack) {
+                extractPoseStackInUse = false;
+            }
+        }
+    }
+
+    /**
+     * Returns the reusable pose stack, reset to identity. Falls back to a new one if it is already in use (an
+     * extraction of the same renderer nested inside another) or was left unbalanced by an earlier exception.
+     */
+    private PoseStack acquireExtractPoseStack() {
+        if (extractPoseStackInUse) {
+            return new PoseStack();
+        }
+
+        if (extractPoseStack == null || !extractPoseStack.isEmpty()) {
+            extractPoseStack = new PoseStack();
+        } else {
+            extractPoseStack.setIdentity();
+        }
+
+        extractPoseStackInUse = true;
+        return extractPoseStack;
     }
 
     @Override

@@ -76,19 +76,11 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         // It's what lets a cached snapshot be replayed correctly for a different entity/frame with a different
         // camera-relative offset: the delta between the two is added back on replay.
         float entityCamX = 0, entityCamY = 0, entityCamZ = 0;
-        int passCamXBits = 0, passCamYBits = 0, passCamZBits = 0;
         if (!isReRender) {
             var m = poseStack.last().pose();
             entityCamX = m.m30();
             entityCamY = m.m31();
             entityCamZ = m.m32();
-
-            float entityX = (float) Mth.lerp(partialTick, animatable.xo, animatable.getX());
-            float entityY = (float) Mth.lerp(partialTick, animatable.yo, animatable.getY());
-            float entityZ = (float) Mth.lerp(partialTick, animatable.zo, animatable.getZ());
-            passCamXBits = Float.floatToRawIntBits(entityX - entityCamX);
-            passCamYBits = Float.floatToRawIntBits(entityY - entityCamY);
-            passCamZBits = Float.floatToRawIntBits(entityZ - entityCamZ);
         }
 
         poseStack.pushPose();
@@ -132,7 +124,11 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 var model = context.bakedModel();
                 var rt = context.renderType();
 
-                if (rt != null && !anyBoneTracksMatrices(model.getTopLevelBones())) {
+                if (
+                    rt != null
+                        && AzEntityGeometryCache.isEnabledFor(animatable.getType())
+                        && !anyBoneTracksMatrices(model.getTopLevelBones())
+                ) {
                     long boneHash = hashBones(model.getTopLevelBones());
                     long poseHash = hashPose(poseStack.last().pose(), entityCamX, entityCamY, entityCamZ);
                     capturedBoneHash = boneHash;
@@ -143,16 +139,14 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                         animatable.getType(),
                         boneHash,
                         poseHash,
-                        rt,
-                        passCamXBits,
-                        passCamYBits,
-                        passCamZBits
+                        rt
                     );
 
                     var snapshot = AzEntityGeometryCache.get(cacheKey);
 
                     if (snapshot != null) {
                         if (!AzEntityGeometryCache.isUncacheable(snapshot)) {
+                            AzEntityGeometryCache.recordHit(animatable.getType());
                             snapshot.replayTo(
                                 context.multiBufferSource(),
                                 entityCamX,
@@ -195,10 +189,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 animatable.getType(),
                 capturedBoneHash,
                 capturedPoseHash,
-                rt,
-                passCamXBits,
-                passCamYBits,
-                passCamZBits
+                rt
             );
 
             if (detectedMultipleRenderTypes) {
@@ -458,9 +449,14 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleX());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleY());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleZ());
-        for (var child : bone.getChildBones()) {
-            h = hashBoneRecursive(h, child);
+        h = h * 31 + (bone.isHidden() ? 1 : 0) + (bone.isHidingChildren() ? 2 : 0);
+
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            h = hashBoneRecursive(h, children.get(i));
         }
+
         return h;
     }
 

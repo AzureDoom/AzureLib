@@ -1,7 +1,9 @@
 package mod.azure.azurelib.render.block;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,39 @@ public final class AzBlockEntityGeometryCache {
 
     private static boolean overflowLogged = false;
 
+    private static final Map<BlockEntityType<?>, AzBlockEntityGeometryCache.Gate> GATES =
+        new Reference2ObjectOpenHashMap<>();
+
+    private static long frame;
+
+    private static final class Gate {
+
+        boolean enabled = true;
+
+        int framesWithoutHit;
+
+        long nextProbeFrame;
+
+        boolean hitThisFrame;
+
+        void endFrame() {
+            if (hitThisFrame) {
+                hitThisFrame = false;
+                framesWithoutHit = 0;
+                enabled = true;
+                return;
+            }
+
+            if (enabled && ++framesWithoutHit >= 20) {
+                enabled = false;
+                nextProbeFrame = frame + 200;
+            } else if (!enabled && frame >= nextProbeFrame) {
+                enabled = true;
+                framesWithoutHit = 20 - 2;
+            }
+        }
+    }
+
     private AzBlockEntityGeometryCache() {}
 
     public static void maybeReset(long gameTick, float partialTick) {
@@ -39,6 +74,30 @@ public final class AzBlockEntityGeometryCache {
             CACHE.clear();
             lastClearTick = gameTick;
             lastClearPartialBits = ptBits;
+            frame++;
+
+            for (var gate : GATES.values()) {
+                gate.endFrame();
+            }
+        }
+    }
+
+    /**
+     * Whether entities of {@code type} should use the cache this frame. When this returns {@code false}, skip hashing,
+     * lookup and capture entirely.
+     */
+    public static boolean isEnabledFor(BlockEntityType<?> type) {
+        var gate = GATES.computeIfAbsent(type, k -> new AzBlockEntityGeometryCache.Gate());
+
+        return gate.enabled;
+    }
+
+    /** Records a cache hit for {@code type}, keeping its caching enabled. */
+    public static void recordHit(BlockEntityType<?> type) {
+        var gate = GATES.get(type);
+
+        if (gate != null) {
+            gate.hitThisFrame = true;
         }
     }
 
@@ -70,14 +129,16 @@ public final class AzBlockEntityGeometryCache {
         return UNCACHEABLE;
     }
 
+    /**
+     * Snapshots are entity-local (extraction runs against an identity pose), so the key holds only what shapes the
+     * geometry: the model, the animated bone state and the entity's own pose transform. It used to include the entity's
+     * position as well, which made every entity's key unique and the cache unable to hit.
+     */
     public record CacheKey(
         UUID modelUUID,
         BlockState blockState,
         long boneStateHash,
-        RenderType renderType,
-        int passCamXBits,
-        int passCamYBits,
-        int passCamZBits
+        RenderType renderType
     ) {}
 
     public record VertexSnapshot(
