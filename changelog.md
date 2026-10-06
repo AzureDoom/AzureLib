@@ -27,6 +27,7 @@ v4.0.5
 - Fixed `query.is_on_fire` always being 0. It was registered but never set.
 - Fixed `query.moon_phase` returning a fraction that grew through the day instead of a whole number, so checks like `query.moon_phase == 4` almost never matched.
 - Fixed bone texture overrides (`setBoneTextureOverrideProvider`) being ignored, so overridden bones still rendered with the model's main texture.
+- Fixed the auto glowing layer leaving full-bright lighting on the render context, so any layer rendered after it was also full-bright.
 
 ### Developer Notes
 - **Behavior change:** animations using `easeInQuint` now ease in more sharply, matching `easeOutQuint`, `easeInOutQuint` and the standard quint curve.
