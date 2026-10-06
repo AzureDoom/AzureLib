@@ -19,6 +19,7 @@ import java.util.Objects;
  * then. Once a stack's channels are baked, changing its lists has no effect on playback.
  * </p>
  */
+@SuppressWarnings("unused")
 public final class AzKeyframeStack<T extends AzKeyframe<?>> {
 
     private final List<T> xKeyframes;

@@ -24,6 +24,7 @@ import mod.azure.azurelib.AzureLib;
  * A channel is a snapshot of the keyframes it was built from. Changing that list afterward does not change the channel.
  * </p>
  */
+@SuppressWarnings("unused")
 public final class AzKeyframeChannel {
 
     /** A channel with no keyframes. */

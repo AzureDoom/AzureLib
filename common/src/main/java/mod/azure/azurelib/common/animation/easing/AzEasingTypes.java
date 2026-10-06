@@ -14,6 +14,7 @@ import mod.azure.azurelib.core.utils.Interpolations;
  * argument value, which is baked into each keyframe when the animation loads.
  * </p>
  */
+@SuppressWarnings("unused")
 public class AzEasingTypes {
 
     /** Catmull-Rom's fallback curve when a keyframe has no neighbor data. Stateless, so built once. */

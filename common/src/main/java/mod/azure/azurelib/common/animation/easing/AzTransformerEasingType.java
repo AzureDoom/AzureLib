@@ -28,8 +28,10 @@ final class AzTransformerEasingType implements AzEasingType {
 
     private final String name;
 
-    /** Builds the curve for an argument; {@code null} for stateless types. */
-    @Nullable
+    /**
+     * Builds the curve for an argument. Never null: stateless types get a factory that returns their one curve, so
+     * every code path can call it without a null check.
+     */
     private final Function<Double, Double2DoubleFunction> factory;
 
     /** The curve for stateless types, set up front; {@code null} for parameterized types. */
@@ -37,6 +39,7 @@ final class AzTransformerEasingType implements AzEasingType {
     private final Double2DoubleFunction statelessTransformer;
 
     /** A parameterized type's curve with no argument. Lazily created; a racing duplicate build is harmless. */
+    @Nullable
     private volatile Double2DoubleFunction defaultTransformer;
 
     /** A parameterized type's curves by argument. Copy-on-write, so the per-frame read is a lock-free lookup. */
@@ -49,9 +52,9 @@ final class AzTransformerEasingType implements AzEasingType {
         this.statelessTransformer = null;
     }
 
-    AzTransformerEasingType(String name, Double2DoubleFunction statelessTransformer) {
+    AzTransformerEasingType(String name, @Nullable Double2DoubleFunction statelessTransformer) {
         this.name = name;
-        this.factory = null;
+        this.factory = argument -> statelessTransformer;
         this.statelessTransformer = statelessTransformer;
     }
 
