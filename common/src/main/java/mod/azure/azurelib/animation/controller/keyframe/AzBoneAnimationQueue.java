@@ -5,6 +5,9 @@
  */
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 import mod.azure.azurelib.AzureLib;
@@ -46,10 +49,26 @@ public class AzBoneAnimationQueue {
 
     /**
      * Writes one channel's point for this frame. Slots are laid out as {@code transform * 3 + axis}, with transforms in
-     * the order rotation, position, scale and axes in the order X, Y, Z. The same layout the keyframe executors use.
+     * the order rotation, position, scale and axes in the order X, Y, Z — the same layout the keyframe executors use.
      */
     void write(int slot, AzKeyframe<?> keyframe, double tick, double length, double start, double end) {
         pool[slot].set(keyframe, tick, length, start, end);
+        present[slot] = true;
+    }
+
+    /**
+     * {@link #write(int, AzKeyframe, double, double, double, double)}, also carrying the keyframe's baked easing curve.
+     */
+    void write(
+        int slot,
+        AzKeyframe<?> keyframe,
+        double tick,
+        double length,
+        double start,
+        double end,
+        @Nullable Double2DoubleFunction bakedTransformer
+    ) {
+        pool[slot].set(keyframe, tick, length, start, end, bakedTransformer);
         present[slot] = true;
     }
 

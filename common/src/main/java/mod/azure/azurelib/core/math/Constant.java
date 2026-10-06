@@ -82,6 +82,14 @@ public class Constant implements IValue {
         this.value = value;
     }
 
+    /**
+     * Whether this constant's value can never change. Constants from {@link #of(double)} are shared and fixed; ones
+     * made with {@code new Constant(...)} can be changed with {@link #set(double)}.
+     */
+    public boolean isFixed() {
+        return false;
+    }
+
     @Override
     public String toString() {
         return String.valueOf(this.value);
@@ -96,6 +104,11 @@ public class Constant implements IValue {
         @Override
         public void set(double value) {
             throw new UnsupportedOperationException("Pooled constants are shared and can't be changed");
+        }
+
+        @Override
+        public boolean isFixed() {
+            return true;
         }
     }
 }
