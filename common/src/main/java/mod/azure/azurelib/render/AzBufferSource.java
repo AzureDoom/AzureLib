@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 
@@ -37,8 +38,10 @@ import java.util.function.Function;
 @SuppressWarnings("unused")
 public final class AzBufferSource {
 
+    /** Sentinel for {@link #mirror}'s {@code light} parameter: keep each vertex's recorded light. */
     public static final int KEEP_LIGHT = -1;
 
+    /** {@link #mirror}'s {@code tint} for no tint. */
     public static final int NO_TINT = 0xFFFFFFFF;
 
     /**
@@ -91,9 +94,56 @@ public final class AzBufferSource {
      * @param tint  ARGB multiplier for the recorded color, or {@link #NO_TINT}
      */
     public void mirror(RenderType source, int startVertex, int endVertex, RenderType target, int light, int tint) {
-        if (endVertex > startVertex) {
-            mirrors.add(new MirrorEntry(source, startVertex, endVertex, target, light, tint));
+        mirror(source, startVertex, endVertex, target, light, tint, null);
+    }
+
+    /**
+     * Picks which quads of a recording to keep, from the bounds of each quad's UVs (normalized texture coordinates).
+     */
+    @FunctionalInterface
+    public interface QuadFilter {
+
+        boolean test(float minU, float minV, float maxU, float maxV);
+    }
+
+    /**
+     * {@link #mirror(RenderType, int, int, RenderType, int, int)} that only re-submits the quads {@code filter} keeps,
+     * e.g. only the quads whose UVs touch glowing pixels of a glowmask. The range must hold whole quads (four vertices
+     * each, as the model pass writes them); otherwise the filter is ignored and the whole range is mirrored.
+     *
+     * @param filter which quads to keep, or {@code null} for all of them
+     */
+    public void mirror(
+        RenderType source,
+        int startVertex,
+        int endVertex,
+        RenderType target,
+        int light,
+        int tint,
+        @Nullable QuadFilter filter
+    ) {
+        if (endVertex <= startVertex) {
+            return;
         }
+
+        int[] runs = null;
+        var consumer = filter == null ? null : buffers.get(source);
+
+        if (
+            consumer != null && ((endVertex - startVertex) & 3) == 0 && endVertex <= consumer.vertexCount
+        ) {
+            runs = consumer.filterQuads(startVertex, endVertex, filter);
+
+            if (runs.length == 0) {
+                return;
+            }
+
+            if (runs.length == 2 && runs[0] == startVertex && runs[1] == endVertex) {
+                runs = null;
+            }
+        }
+
+        mirrors.add(new MirrorEntry(source, startVertex, endVertex, target, light, tint, runs));
     }
 
     @FunctionalInterface
@@ -111,13 +161,18 @@ public final class AzBufferSource {
         DeferredSubmit action
     ) {}
 
+    /**
+     * @param runs vertex ranges to replay as {@code [start0, end0, start1, end1, ...]}, or {@code null} for the whole
+     *             of {@code [startVertex, endVertex)}
+     */
     private record MirrorEntry(
         RenderType source,
         int startVertex,
         int endVertex,
         RenderType target,
         int light,
-        int tint
+        int tint,
+        int[] runs
     ) {}
 
     public void submitAll(SubmitNodeCollector collector, PoseStack poseStack) {
@@ -188,17 +243,23 @@ public final class AzBufferSource {
                     continue;
                 }
 
+                var runs = mirror.runs() != null ? mirror.runs() : new int[] { mirror.startVertex(), end };
+
                 collector.submitCustomGeometry(
                     poseStack,
                     mirror.target(),
-                    (pose, consumer) -> recording.replay(
-                        pose,
-                        consumer,
-                        mirror.startVertex(),
-                        end,
-                        mirror.light(),
-                        mirror.tint()
-                    )
+                    (pose, consumer) -> {
+                        for (int i = 0; i < runs.length; i += 2) {
+                            recording.replay(
+                                pose,
+                                consumer,
+                                runs[i],
+                                Math.min(runs[i + 1], end),
+                                mirror.light(),
+                                mirror.tint()
+                            );
+                        }
+                    }
                 );
             }
 
@@ -307,6 +368,55 @@ public final class AzBufferSource {
 
         private boolean isEmpty() {
             return vertexCount == 0;
+        }
+
+        /**
+         * Tests each quad in {@code [start, end)} against {@code filter} by the bounds of its four UVs, and returns the
+         * kept quads as merged vertex runs {@code [start0, end0, start1, end1, ...]}.
+         */
+        private int[] filterQuads(int start, int end, QuadFilter filter) {
+            var runs = new int[16];
+            var count = 0;
+            var runStart = -1;
+
+            for (int quad = start; quad < end; quad += 4) {
+                var f = quad * FLOAT_STRIDE + 3;
+                float minU = floats[f], maxU = minU, minV = floats[f + 1], maxV = minV;
+
+                for (int v = 1; v < 4; v++) {
+                    var u = floats[f + v * FLOAT_STRIDE];
+                    var w = floats[f + v * FLOAT_STRIDE + 1];
+                    minU = Math.min(minU, u);
+                    maxU = Math.max(maxU, u);
+                    minV = Math.min(minV, w);
+                    maxV = Math.max(maxV, w);
+                }
+
+                if (filter.test(minU, minV, maxU, maxV)) {
+                    if (runStart < 0) {
+                        runStart = quad;
+                    }
+                } else if (runStart >= 0) {
+                    if (count + 2 > runs.length) {
+                        runs = Arrays.copyOf(runs, runs.length * 2);
+                    }
+
+                    runs[count++] = runStart;
+                    runs[count++] = quad;
+                    runStart = -1;
+                }
+            }
+
+            if (runStart >= 0) {
+                if (count + 2 > runs.length) {
+                    runs = Arrays.copyOf(runs, runs.length * 2);
+                }
+
+                runs[count++] = runStart;
+                runs[count++] = end;
+            }
+
+            return count == runs.length ? runs : Arrays.copyOf(runs, count);
         }
 
         /**

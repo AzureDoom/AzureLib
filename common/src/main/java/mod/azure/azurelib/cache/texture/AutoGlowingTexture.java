@@ -108,6 +108,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                     );
                     glowImage.close();
                     closeIfOwned(baseImage, originalTexture);
+                    AzGlowCoverage.registerNothing(this.glowLayer);
 
                     return emptyContents();
                 }
@@ -140,11 +141,14 @@ public class AutoGlowingTexture extends AzAbstractTexture {
                 expectedGlowmask
             );
             closeIfOwned(baseImage, originalTexture);
+            AzGlowCoverage.registerNothing(this.glowLayer);
 
             return emptyContents();
         }
 
         if (originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated()) {
+            AzGlowCoverage.unregister(this.glowLayer);
+
             NativeImage firstFrame = animatableTexture.animationContents.animatedTexture.setGlowMaskTexture(
                 this,
                 baseImage,
@@ -157,6 +161,7 @@ public class AutoGlowingTexture extends AzAbstractTexture {
         }
 
         setPendingBaseUpload(originalTexture, baseImage);
+        AzGlowCoverage.register(this.glowLayer, mask);
 
         return new TextureContents(mask, textureBaseMeta);
     }

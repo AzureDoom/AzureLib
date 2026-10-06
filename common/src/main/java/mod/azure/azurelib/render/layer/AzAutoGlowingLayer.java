@@ -10,8 +10,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.ToIntFunction;
 
 import mod.azure.azurelib.cache.texture.AzAbstractTexture;
+import mod.azure.azurelib.cache.texture.AzGlowCoverage;
 import mod.azure.azurelib.core.object.Color;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.client.ClientUtils;
 
@@ -35,6 +37,8 @@ import mod.azure.azurelib.util.client.ClientUtils;
 public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
     private static final int NO_TINT = 0xFFFFFFFF;
+
+    private final boolean customRenderType = overridesDetermineRenderType(getClass());
 
     @Nullable
     private final ToIntFunction<AzRendererPipelineContext<K, T>> glowColor;
@@ -97,7 +101,8 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
                         context.modelPassEnd(),
                         renderType,
                         context.packedLight(),
-                        tint
+                        tint,
+                        glowFilter(context)
                     );
             } else {
                 context.setVertexConsumer(context.multiBufferSource().getBuffer(renderType));
@@ -125,6 +130,42 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
      */
     protected boolean canReuseModelPass(AzRendererPipelineContext<K, T> context) {
         return true;
+    }
+
+    /**
+     * Which quads of the model pass to re-submit for the glow, by their UVs. The default keeps only quads whose UV area
+     * holds non-transparent pixels in the glowmask, since the rest draw nothing.
+     * <p>
+     * This assumes the glow is drawn with the glowmask of the renderer's texture. If a subclass overrides
+     * {@link #determineRenderType} it may draw with something else, so the default returns {@code null} (keep every
+     * quad) for those; override this as well to restore culling with the right texture.
+     *
+     * @param context The current rendering context
+     * @return the filter, or {@code null} to keep every quad
+     */
+    protected @Nullable AzBufferSource.QuadFilter glowFilter(AzRendererPipelineContext<K, T> context) {
+        if (customRenderType) {
+            return null;
+        }
+
+        var texture = context.rendererPipeline()
+            .config()
+            .textureLocation(context.currentEntity(), context.animatable());
+        return texture == null ? null : AzGlowCoverage.get(AzAbstractTexture.getEmissiveResource(texture));
+    }
+
+    private static boolean overridesDetermineRenderType(Class<?> type) {
+        for (
+            var current = type; current != null && current != AzAutoGlowingLayer.class; current = current
+                .getSuperclass()
+        ) {
+            try {
+                current.getDeclaredMethod("determineRenderType", AzRendererPipelineContext.class);
+                return true;
+            } catch (NoSuchMethodException ignored) {}
+        }
+
+        return false;
     }
 
     /**

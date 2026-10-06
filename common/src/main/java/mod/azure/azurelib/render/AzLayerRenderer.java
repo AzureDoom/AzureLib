@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.model.AzBone;
@@ -49,8 +50,14 @@ public class AzLayerRenderer<K, T> {
         var totalBefore = source == null ? 0 : source.totalVertexCount();
         var modelBefore = source == null ? 0 : source.vertexCount(modelRenderType);
 
-        for (var renderLayer : layers) {
-            renderLayer.renderForBone(context, bone);
+        if (layers instanceof List<AzRenderLayer<K, T>> list) {
+            for (int i = 0, size = list.size(); i < size; i++) {
+                list.get(i).renderForBone(context, bone);
+            }
+        } else {
+            for (var renderLayer : layers) {
+                renderLayer.renderForBone(context, bone);
+            }
         }
 
         if (source != null) {

@@ -114,8 +114,10 @@ public class AzModelRenderer<K, T> {
             return;
         }
 
-        for (var cube : bone.getCubes()) {
-            renderCube(context, cube);
+        var cubes = bone.getCubes();
+
+        for (int i = 0, size = cubes.size(); i < size; i++) {
+            renderCube(context, cubes.get(i));
         }
     }
 
@@ -128,8 +130,10 @@ public class AzModelRenderer<K, T> {
         if (bone.isHidingChildren())
             return;
 
-        for (var childBone : bone.getChildBones()) {
-            renderRecursively(context, childBone, isReRender);
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            renderRecursively(context, children.get(i), isReRender);
         }
     }
 
@@ -150,6 +154,8 @@ public class AzModelRenderer<K, T> {
             normalisedPoseState = normalStateCache.set(last.normal()).mul(transform.normal());
         }
 
+        var normalFlips = cube.normalFlips();
+
         for (var quad : cube.quads()) {
             if (quad == null) {
                 continue;
@@ -159,7 +165,7 @@ public class AzModelRenderer<K, T> {
             normalisedPoseState.transform(normalScratch);
             var normal = normalScratch;
 
-            RenderUtils.fixInvertedFlatCube(cube, normal);
+            RenderUtils.fixInvertedFlatCube(normalFlips, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
         }
     }

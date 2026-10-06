@@ -23,11 +23,43 @@ public record AzCube(
     Vec3 size,
     double inflate,
     boolean mirror,
-    Transform transform
+    Transform transform,
+    int normalFlips
 ) {
 
+    /** {@link #normalFlips} bit: flip a negative X normal. */
+    public static final int FLIP_X = 1;
+
+    /** {@link #normalFlips} bit: flip a negative Y normal. */
+    public static final int FLIP_Y = 2;
+
+    /** {@link #normalFlips} bit: flip a negative Z normal. */
+    public static final int FLIP_Z = 4;
+
     public AzCube(AzQuad[] quads, Vec3 pivot, Vec3 rotation, Vec3 size, double inflate, boolean mirror) {
-        this(quads, pivot, rotation, size, inflate, mirror, Transform.of(pivot, rotation));
+        this(quads, pivot, rotation, size, inflate, mirror, Transform.of(pivot, rotation), normalFlipsFor(size));
+    }
+
+    /**
+     * Which normal components {@code RenderUtils#fixInvertedFlatCube} may flip for a cube of this size, worked out once
+     * instead of for every quad on every frame. Zero for any cube with volume, which is most of them.
+     */
+    public static int normalFlipsFor(Vec3 size) {
+        var flatX = size.x() == 0;
+        var flatY = size.y() == 0;
+        var flatZ = size.z() == 0;
+        var flips = 0;
+
+        if (flatY || flatZ)
+            flips |= FLIP_X;
+
+        if (flatX || flatZ)
+            flips |= FLIP_Y;
+
+        if (flatX || flatY)
+            flips |= FLIP_Z;
+
+        return flips;
     }
 
     /**

@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.ReloadableTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.Identifier;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -27,6 +28,9 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
     protected static final String APPENDIX = "_glowmask";
 
     private static final Set<Identifier> GENERATED = ConcurrentHashMap.newKeySet();
+
+    /** Base texture to glowmask path. Glow layers ask for this every frame, and building the path allocates. */
+    private static final Map<Identifier, Identifier> EMISSIVE_PATHS = new ConcurrentHashMap<>();
 
     public AzAbstractTexture(Identifier location) {
         super(location);
@@ -74,6 +78,12 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
     }
 
     public static Identifier getEmissiveResource(Identifier baseResource) {
+        var cached = EMISSIVE_PATHS.get(baseResource);
+
+        if (cached != null) {
+            return cached;
+        }
+
         Identifier path = appendToPath(baseResource, APPENDIX);
 
         generateTexture(
@@ -81,6 +91,7 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
             textureManager -> textureManager.registerAndLoad(path, new AutoGlowingTexture(baseResource, path))
         );
 
+        EMISSIVE_PATHS.put(baseResource, path);
         return path;
     }
 
