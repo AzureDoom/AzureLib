@@ -5,6 +5,7 @@
  */
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +29,13 @@ public final class AzAnimationPoint {
     double animationStartValue;
 
     double animationEndValue;
+
+    /**
+     * The keyframe's easing curve, resolved when the animation loaded, or {@code null} if it has to be resolved at
+     * playback. Only valid for the keyframe's own easing type.
+     */
+    @Nullable
+    Double2DoubleFunction bakedTransformer;
 
     AzAnimationPoint() {}
 
@@ -60,6 +68,23 @@ public final class AzAnimationPoint {
         this.transitionLength = transitionLength;
         this.animationStartValue = animationStartValue;
         this.animationEndValue = animationEndValue;
+        this.bakedTransformer = null;
+        return this;
+    }
+
+    /**
+     * Overwrites all fields in-place, including the keyframe's baked easing curve.
+     */
+    public AzAnimationPoint set(
+        @Nullable AzKeyframe<?> keyframe,
+        double currentTick,
+        double transitionLength,
+        double animationStartValue,
+        double animationEndValue,
+        @Nullable Double2DoubleFunction bakedTransformer
+    ) {
+        set(keyframe, currentTick, transitionLength, animationStartValue, animationEndValue);
+        this.bakedTransformer = bakedTransformer;
         return this;
     }
 
@@ -82,6 +107,16 @@ public final class AzAnimationPoint {
 
     public double animationEndValue() {
         return animationEndValue;
+    }
+
+    /**
+     * The keyframe's easing curve as resolved when the animation loaded (see
+     * {@link mod.azure.azurelib.animation.easing.AzEasingType#resolveTransformer}), or {@code null} if it wasn't
+     * resolved ahead of time. Only valid for {@link #keyframe()}'s own easing type.
+     */
+    @Nullable
+    public Double2DoubleFunction bakedTransformer() {
+        return bakedTransformer;
     }
 
     @Override

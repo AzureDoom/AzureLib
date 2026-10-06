@@ -1,6 +1,7 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -8,6 +9,15 @@ import java.util.Objects;
 /**
  * Stores a triplet of {@link AzKeyframe Keyframes} in an ordered stack, along with a baked {@link AzKeyframeChannel}
  * per axis that the animation runtime samples from.
+ * <p>
+ * Previously a record. It is now a class so it can hold the baked channels next to the keyframe lists; its
+ * constructors, accessors, {@code equals} and {@code hashCode} behave the same as before.
+ * </p>
+ * <p>
+ * Channels are immutable snapshots of the keyframe lists. A stack built from lists bakes them immediately; a stack made
+ * with the no-argument constructor bakes them the first time they're needed, so its lists can still be filled before
+ * then. Once a stack's channels are baked, changing its lists has no effect on playback.
+ * </p>
  */
 @SuppressWarnings("unused")
 public final class AzKeyframeStack<T extends AzKeyframe<?>> {
@@ -18,34 +28,42 @@ public final class AzKeyframeStack<T extends AzKeyframe<?>> {
 
     private final List<T> zKeyframes;
 
-    private final AzKeyframeChannel xChannel;
+    /*
+     * Baked on construction, or on first use for the no-argument constructor. A racing first use bakes twice and keeps
+     * either result; channels are immutable, so both are equivalent and safely published.
+     */
+    @Nullable
+    private AzKeyframeChannel xChannel;
 
-    private final AzKeyframeChannel yChannel;
+    @Nullable
+    private AzKeyframeChannel yChannel;
 
-    private final AzKeyframeChannel zChannel;
+    @Nullable
+    private AzKeyframeChannel zChannel;
 
+    /**
+     * Creates a stack with empty, mutable keyframe lists. Fill them before the stack is first animated.
+     */
     public AzKeyframeStack() {
-        this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
+        this.xKeyframes = new ObjectArrayList<>();
+        this.yKeyframes = new ObjectArrayList<>();
+        this.zKeyframes = new ObjectArrayList<>();
     }
 
+    /**
+     * Creates a stack from complete keyframe lists, baking them into channels right away.
+     */
     public AzKeyframeStack(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
-        this(
-            xKeyframes,
-            yKeyframes,
-            zKeyframes,
-            new AzKeyframeChannel(xKeyframes),
-            new AzKeyframeChannel(yKeyframes),
-            new AzKeyframeChannel(zKeyframes)
-        );
+        this(xKeyframes, yKeyframes, zKeyframes, bake(xKeyframes), bake(yKeyframes), bake(zKeyframes));
     }
 
     private AzKeyframeStack(
         List<T> xKeyframes,
         List<T> yKeyframes,
         List<T> zKeyframes,
-        AzKeyframeChannel xChannel,
-        AzKeyframeChannel yChannel,
-        AzKeyframeChannel zChannel
+        @Nullable AzKeyframeChannel xChannel,
+        @Nullable AzKeyframeChannel yChannel,
+        @Nullable AzKeyframeChannel zChannel
     ) {
         this.xKeyframes = xKeyframes;
         this.yKeyframes = yKeyframes;
@@ -56,6 +74,7 @@ public final class AzKeyframeStack<T extends AzKeyframe<?>> {
     }
 
     public static <F extends AzKeyframe<?>> AzKeyframeStack<F> from(AzKeyframeStack<F> otherStack) {
+        // Same lists, so already-baked channels can be shared as well.
         return new AzKeyframeStack<>(
             otherStack.xKeyframes,
             otherStack.yKeyframes,
@@ -64,6 +83,10 @@ public final class AzKeyframeStack<T extends AzKeyframe<?>> {
             otherStack.yChannel,
             otherStack.zChannel
         );
+    }
+
+    private static AzKeyframeChannel bake(List<? extends AzKeyframe<?>> keyframes) {
+        return keyframes.isEmpty() ? AzKeyframeChannel.EMPTY : new AzKeyframeChannel(keyframes);
     }
 
     public List<T> xKeyframes() {
@@ -82,25 +105,40 @@ public final class AzKeyframeStack<T extends AzKeyframe<?>> {
      * @return the baked channel for {@link #xKeyframes()}
      */
     public AzKeyframeChannel xChannel() {
-        return xChannel;
+        var channel = xChannel;
+
+        if (channel == null)
+            xChannel = channel = bake(xKeyframes);
+
+        return channel;
     }
 
     /**
      * @return the baked channel for {@link #yKeyframes()}
      */
     public AzKeyframeChannel yChannel() {
-        return yChannel;
+        var channel = yChannel;
+
+        if (channel == null)
+            yChannel = channel = bake(yKeyframes);
+
+        return channel;
     }
 
     /**
      * @return the baked channel for {@link #zKeyframes()}
      */
     public AzKeyframeChannel zChannel() {
-        return zChannel;
+        var channel = zChannel;
+
+        if (channel == null)
+            zChannel = channel = bake(zKeyframes);
+
+        return channel;
     }
 
     public double getLastKeyframeTime() {
-        return Math.max(xChannel.totalLength(), Math.max(yChannel.totalLength(), zChannel.totalLength()));
+        return Math.max(xChannel().totalLength(), Math.max(yChannel().totalLength(), zChannel().totalLength()));
     }
 
     @Override

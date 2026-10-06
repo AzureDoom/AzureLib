@@ -3,6 +3,7 @@ package mod.azure.azurelib.animation.controller.keyframe;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.List;
 
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
@@ -23,9 +24,9 @@ import mod.azure.azurelib.core.object.Axis;
  * shared cursor costs a binary search, never a wrong result.
  * </p>
  */
-@SuppressWarnings("unused")
 public class AzAbstractKeyframeExecutor {
 
+    /** Channels per bone: three transforms (rotation, position, scale) times three axes. */
     protected static final int CHANNELS_PER_BONE = 9;
 
     protected static final int ROTATION = 0;
@@ -36,10 +37,12 @@ public class AzAbstractKeyframeExecutor {
 
     private static final int[] NO_CURSORS = new int[0];
 
+    /** Stand-in for a missing axis, matching what the previous implementation produced for an empty keyframe list. */
     private static final AzKeyframe<IValue> EMPTY_KEYFRAME = new AzKeyframe<>(0, () -> 0, () -> 0);
 
     private final AzKeyframeLocation<AzKeyframe<IValue>> scratchLocation = new AzKeyframeLocation<>(EMPTY_KEYFRAME, 0);
 
+    /** Scratch point for {@link #sampleValue}; never handed out. */
     private final AzAnimationPoint scratchPoint = new AzAnimationPoint();
 
     private int[] keyframeCursors = NO_CURSORS;
@@ -129,7 +132,8 @@ public class AzAbstractKeyframeExecutor {
             tick - channel.startTime(index),
             frame.length(),
             readValue(frame.startValue(), isRotation, axis),
-            readValue(frame.endValue(), isRotation, axis)
+            readValue(frame.endValue(), isRotation, axis),
+            channel.transformer(index)
         );
     }
 
@@ -162,7 +166,8 @@ public class AzAbstractKeyframeExecutor {
             tick - channel.startTime(index),
             frame.length(),
             readValue(frame.startValue(), isRotation, axis),
-            readValue(frame.endValue(), isRotation, axis)
+            readValue(frame.endValue(), isRotation, axis),
+            channel.transformer(index)
         );
 
         return AzEasingUtil.lerpWithOverride(scratchPoint, easingOverride);
@@ -184,5 +189,78 @@ public class AzAbstractKeyframeExecutor {
         }
 
         return result;
+    }
+
+    /**
+     * Convert a list of keyframes to an {@link AzAnimationPoint} at the given tick.
+     *
+     * @deprecated No longer used by AzureLib, which samples {@link AzKeyframeChannel}s through {@link #writeChannel} /
+     *             {@link #sampleValue} instead. Kept for compatibility; overriding it no longer affects how animations
+     *             are sampled.
+     */
+    @Deprecated
+    protected AzAnimationPoint getAnimationPointAtTick(
+        List<AzKeyframe<IValue>> frames,
+        double tick,
+        boolean isRotation,
+        Axis axis
+    ) {
+        var location = getCurrentKeyframeLocation(frames, tick, scratchLocation);
+        var currentFrame = location.keyframe();
+
+        return new AzAnimationPoint(
+            currentFrame,
+            location.startTick(),
+            currentFrame.length(),
+            readValue(currentFrame.startValue(), isRotation, axis),
+            readValue(currentFrame.endValue(), isRotation, axis)
+        );
+    }
+
+    /**
+     * Returns the {@link AzKeyframe} relevant to the current tick time, written into {@code scratch}. Its start tick is
+     * the time elapsed since that keyframe started.
+     *
+     * @deprecated No longer used by AzureLib; see {@link AzKeyframeChannel#locate(double, int)}. Kept for
+     *             compatibility, and now a single allocation-free pass over the list.
+     */
+    @Deprecated
+    protected AzKeyframeLocation<AzKeyframe<IValue>> getCurrentKeyframeLocation(
+        List<AzKeyframe<IValue>> frames,
+        double ageInTicks,
+        AzKeyframeLocation<AzKeyframe<IValue>> scratch
+    ) {
+        var size = frames.size();
+
+        if (size == 0) {
+            return scratch.set(EMPTY_KEYFRAME, 0);
+        }
+
+        var total = 0D;
+
+        for (var i = 0; i < size; i++) {
+            var frame = frames.get(i);
+            var start = total;
+            total += frame.length();
+
+            if (total > ageInTicks || i == size - 1) {
+                return scratch.set(frame, ageInTicks - start);
+            }
+        }
+
+        return scratch;
+    }
+
+    /**
+     * Legacy overload retained for any subclass overrides. Delegates to the scratch-based version.
+     *
+     * @deprecated See {@link #getCurrentKeyframeLocation(List, double, AzKeyframeLocation)}.
+     */
+    @Deprecated
+    protected AzKeyframeLocation<AzKeyframe<IValue>> getCurrentKeyframeLocation(
+        List<AzKeyframe<IValue>> frames,
+        double ageInTicks
+    ) {
+        return getCurrentKeyframeLocation(frames, ageInTicks, scratchLocation);
     }
 }
