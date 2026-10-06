@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.model.AzBone;
@@ -27,7 +28,7 @@ public class AzLayerRenderer<K, T> {
      * Calls back to the various {@link AzRenderLayer RenderLayers} that have been registered to this renderer for their
      * {@link AzRenderLayer#preRender pre-render} actions.
      */
-    protected void preApplyRenderLayers(mod.azure.azurelib.render.AzRendererPipelineContext<K, T> context) {
+    protected void preApplyRenderLayers(AzRendererPipelineContext<K, T> context) {
         for (var renderLayer : renderLayerSupplier.get()) {
             renderLayer.preRender(context);
         }
@@ -38,18 +39,26 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(
-        mod.azure.azurelib.render.AzRendererPipelineContext<K, T> context,
+        AzRendererPipelineContext<K, T> context,
         AzBone bone
     ) {
-        for (var renderLayer : renderLayerSupplier.get()) {
-            renderLayer.renderForBone(context, bone);
+        var layers = renderLayerSupplier.get();
+
+        if (layers instanceof List<AzRenderLayer<K, T>> list) {
+            for (int i = 0, size = list.size(); i < size; i++) {
+                list.get(i).renderForBone(context, bone);
+            }
+        } else {
+            for (var renderLayer : layers) {
+                renderLayer.renderForBone(context, bone);
+            }
         }
     }
 
     /**
      * Render the various {@link AzRenderLayer RenderLayers} that have been registered to this renderer
      */
-    protected void applyRenderLayers(mod.azure.azurelib.render.AzRendererPipelineContext<K, T> context) {
+    protected void applyRenderLayers(AzRendererPipelineContext<K, T> context) {
         for (var renderLayer : renderLayerSupplier.get()) {
             renderLayer.render(context);
         }

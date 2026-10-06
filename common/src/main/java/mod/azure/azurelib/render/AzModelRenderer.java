@@ -40,9 +40,7 @@ public class AzModelRenderer<K, T> {
 
     private final Vector4f quadPosition = new Vector4f();
 
-    private final Matrix4f savedPoseScratch = new Matrix4f();
-
-    private final Matrix3f savedNormalScratch = new Matrix3f();
+    private final Matrix3f normalStateCache = new Matrix3f();
 
     private final AzRendererPipeline<K, T> rendererPipeline;
 
@@ -157,16 +155,10 @@ public class AzModelRenderer<K, T> {
             return;
         }
 
-        var poseStack = context.poseStack();
+        var cubes = bone.getCubes();
 
-        var lastEntry = poseStack.last();
-        savedPoseScratch.set(lastEntry.pose());
-        savedNormalScratch.set(lastEntry.normal());
-
-        for (var cube : bone.getCubes()) {
-            renderCube(context, cube);
-            lastEntry.pose().set(savedPoseScratch);
-            lastEntry.normal().set(savedNormalScratch);
+        for (int i = 0, size = cubes.size(); i < size; i++) {
+            renderCube(context, cubes.get(i));
         }
     }
 
@@ -179,8 +171,10 @@ public class AzModelRenderer<K, T> {
         if (bone.isHidingChildren())
             return;
 
-        for (var childBone : bone.getChildBones()) {
-            renderRecursively(context, childBone, isReRender);
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            renderRecursively(context, children.get(i), isReRender);
         }
     }
 
@@ -189,20 +183,23 @@ public class AzModelRenderer<K, T> {
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
     protected void renderCube(AzRendererPipelineContext<K, T> context, GeoCube cube) {
-        var poseStack = context.poseStack();
+        var last = context.poseStack().last();
+        var transform = cube.transform();
+        var poseState = poseStateCache.set(last.pose());
+        Matrix3f normalisedPoseState;
 
-        RenderUtils.translateToPivotPoint(poseStack, cube);
-        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+        if (transform.identity()) {
+            normalisedPoseState = last.normal();
+        } else {
+            poseState.mul(transform.pose());
+            normalisedPoseState = normalStateCache.set(last.normal()).mul(transform.normal());
+        }
 
-        var normalisedPoseState = poseStack.last().normal();
-        var poseState = poseStateCache.set(poseStack.last().pose());
-
-        var size = cube.size();
-        var isFlat = size.x() == 0 || size.y() == 0 || size.z() == 0;
+        var normalFlips = cube.normalFlips();
+        var quadFilter = context.getTextureOverride() == null ? context.quadFilter() : null;
 
         for (var quad : cube.quads()) {
-            if (quad == null) {
+            if (quad == null || (quadFilter != null && !passes(quad, quadFilter))) {
                 continue;
             }
 
@@ -210,11 +207,25 @@ public class AzModelRenderer<K, T> {
             normalisedPoseState.transform(normalScratch);
             var normal = normalScratch;
 
-            if (isFlat) {
-                RenderUtils.fixInvertedFlatCube(cube, normal);
-            }
+            RenderUtils.fixInvertedFlatCube(normalFlips, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
         }
+    }
+
+    private static boolean passes(GeoQuad quad, AzQuadFilter filter) {
+        var vertices = quad.vertices();
+        float minU = vertices[0].texU(), maxU = minU, minV = vertices[0].texV(), maxV = minV;
+
+        for (int i = 1; i < vertices.length; i++) {
+            var u = vertices[i].texU();
+            var v = vertices[i].texV();
+            minU = Math.min(minU, u);
+            maxU = Math.max(maxU, u);
+            minV = Math.min(minV, v);
+            maxV = Math.max(maxV, v);
+        }
+
+        return filter.test(minU, minV, maxU, maxV);
     }
 
     /**

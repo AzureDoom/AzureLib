@@ -51,6 +51,30 @@ public abstract class AzBakedModelFactory {
     public abstract GeoCube constructCube(Cube cube, ModelProperties properties, AzBone bone);
 
     /**
+     * Returns {@code null} for a quad with no area, so it is never rendered. Flat cubes (one dimension of zero) get
+     * these on the four faces along their thin edge; they draw nothing but still cost four vertices each in every pass.
+     */
+    protected static GeoQuad dropIfDegenerate(GeoQuad quad) {
+        if (quad == null) {
+            return null;
+        }
+
+        var vertices = quad.vertices();
+        var p0 = vertices[0].position();
+        var p1 = vertices[1].position();
+        var p2 = vertices[2].position();
+        var p3 = vertices[3].position();
+
+        float d1x = p2.x() - p0.x(), d1y = p2.y() - p0.y(), d1z = p2.z() - p0.z();
+        float d2x = p3.x() - p1.x(), d2y = p3.y() - p1.y(), d2z = p3.z() - p1.z();
+        float cx = d1y * d2z - d1z * d2y;
+        float cy = d1z * d2x - d1x * d2z;
+        float cz = d1x * d2y - d1y * d2x;
+
+        return cx * cx + cy * cy + cz * cz < 1.0e-20f ? null : quad;
+    }
+
+    /**
      * Builtin method to construct the quad list from the various vertices and related data, to make it easier.<br>
      * Vertices have already been mirrored here if {@code mirror} is true
      */
@@ -64,12 +88,24 @@ public abstract class AzBakedModelFactory {
     ) {
         GeoQuad[] quads = new GeoQuad[6];
 
-        quads[0] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.WEST);
-        quads[1] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.EAST);
-        quads[2] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.NORTH);
-        quads[3] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.SOUTH);
-        quads[4] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.UP);
-        quads[5] = buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.DOWN);
+        quads[0] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.WEST)
+        );
+        quads[1] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.EAST)
+        );
+        quads[2] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.NORTH)
+        );
+        quads[3] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.SOUTH)
+        );
+        quads[4] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.UP)
+        );
+        quads[5] = dropIfDegenerate(
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.DOWN)
+        );
 
         return quads;
     }
