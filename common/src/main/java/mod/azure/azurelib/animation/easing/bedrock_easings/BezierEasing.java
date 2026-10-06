@@ -1,14 +1,13 @@
 package mod.azure.azurelib.animation.easing.bedrock_easings;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import net.minecraft.util.Mth;
-
-import java.util.List;
-
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
 import mod.azure.azurelib.core.math.IValue;
+import net.minecraft.util.Mth;
+
+import java.util.List;
 
 /**
  * The BezierEasing class represents an abstract easing type that facilitates smooth transitions in animation using
@@ -37,9 +36,11 @@ public abstract class BezierEasing implements AzEasingType {
 
     private final Vector2d cpEnd = new Vector2d();
 
+    private static final Double2DoubleFunction LINEAR_FALLBACK = AzEasingUtil.easeIn(AzEasingUtil::linear);
+
     @Override
     public Double2DoubleFunction buildTransformer(Double value) {
-        return AzEasingUtil.easeIn(AzEasingUtil::linear);
+        return LINEAR_FALLBACK;
     }
 
     /**
@@ -125,7 +126,7 @@ public abstract class BezierEasing implements AzEasingType {
     private double handleNoEasingArgs(AzAnimationPoint animationPoint, Double easingValue, double lerpValue) {
         Double2DoubleFunction transformer = buildTransformer(easingValue);
         return Mth.lerp(
-            transformer.apply(lerpValue),
+            transformer.get(lerpValue),
             animationPoint.animationStartValue(),
             animationPoint.animationEndValue()
         );

@@ -1,14 +1,13 @@
 package mod.azure.azurelib.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
+import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.core.utils.Interpolations;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
-import mod.azure.azurelib.core.utils.Interpolations;
 
 public interface AzEasingType {
 
@@ -24,9 +23,10 @@ public interface AzEasingType {
 
     default double apply(AzAnimationPoint animationPoint) {
         Double easingVariable = null;
+        var keyframe = animationPoint.keyframe();
 
-        if (animationPoint.keyframe() != null && animationPoint.keyframe().easingArgs().size() > 0)
-            easingVariable = animationPoint.keyframe().easingArgs().get(0).get();
+        if (keyframe != null && !keyframe.easingArgs().isEmpty())
+            easingVariable = keyframe.easingArgs().get(0).get();
 
         return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
     }
@@ -38,7 +38,7 @@ public interface AzEasingType {
         return Interpolations.lerp(
             animationPoint.animationStartValue(),
             animationPoint.animationEndValue(),
-            buildTransformer(easingValue).apply(lerpValue)
+            buildTransformer(easingValue).get(lerpValue)
         );
     }
 

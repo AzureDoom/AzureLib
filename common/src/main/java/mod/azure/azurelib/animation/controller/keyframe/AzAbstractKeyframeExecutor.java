@@ -1,106 +1,187 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
-import java.util.List;
-
+import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.animation.easing.AzEasingUtil;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.object.Axis;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 /**
  * AzAbstractKeyframeExecutor is a base class designed to handle animations and transitions between keyframes in a
  * generic and reusable fashion. It provides the foundational logic for determining the current state of an animation
  * based on the tick time and computing the animation's required values.
+ * <p>
+ * Keyframes are sampled from each stack's baked {@link AzKeyframeChannel}s. Every executor keeps a keyframe cursor per
+ * bone channel ({@code bone x transform x axis}, flattened into one {@code int[]}) holding the keyframe index it
+ * sampled last time. Playback moves through keyframes a little at a time, so the next lookup usually starts on the
+ * right keyframe or one away from it, in either direction. Cursors are only a starting point for the lookup: a stale or
+ * shared cursor costs a binary search, never a wrong result.
+ * </p>
  */
+@SuppressWarnings("unused")
 public class AzAbstractKeyframeExecutor {
 
-    private AzKeyframeLocation<AzKeyframe<IValue>> scratchLocation =
-        new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0);
+    protected static final int CHANNELS_PER_BONE = 9;
+
+    protected static final int ROTATION = 0;
+
+    protected static final int POSITION = 1;
+
+    protected static final int SCALE = 2;
+
+    private static final int[] NO_CURSORS = new int[0];
+
+    private static final AzKeyframe<IValue> EMPTY_KEYFRAME = new AzKeyframe<>(0, () -> 0, () -> 0);
+
+    private final AzKeyframeLocation<AzKeyframe<IValue>> scratchLocation = new AzKeyframeLocation<>(EMPTY_KEYFRAME, 0);
+
+    private final AzAnimationPoint scratchPoint = new AzAnimationPoint();
+
+    private int[] keyframeCursors = NO_CURSORS;
+
+    @Nullable
+    private AzBakedAnimation cursorAnimation;
 
     protected AzAbstractKeyframeExecutor() {}
 
     /**
-     * Convert a {@link AzKeyframeLocation} to an {@link AzAnimationPoint}. Reuses a scratch {@link AzKeyframeLocation}
-     * to avoid allocation; also reuses a scratch {@link AzAnimationPoint} written into {@code out}.
+     * Returns the keyframe cursors for {@code animation}, laid out as {@code boneIndex * 9 + transform * 3 + axis}.
+     * They carry over from frame to frame while the same animation keeps playing and are reset when a different one
+     * starts.
      */
-    protected AzAnimationPoint getAnimationPointAtTick(
-        List<AzKeyframe<IValue>> frames,
+    protected final int[] prepareKeyframeCursors(AzBakedAnimation animation) {
+        if (animation != cursorAnimation) {
+            var size = animation.boneAnimations().length * CHANNELS_PER_BONE;
+
+            if (keyframeCursors.length < size) {
+                keyframeCursors = new int[size];
+            } else {
+                Arrays.fill(keyframeCursors, 0, size, 0);
+            }
+
+            cursorAnimation = animation;
+        }
+
+        return keyframeCursors;
+    }
+
+    /**
+     * Forces the cursors to be reset the next time {@link #prepareKeyframeCursors} is called. Never needed for
+     * correctness; only useful after a large jump in the timeline to skip the first lookup's binary search.
+     */
+    protected final void resetKeyframeCursors() {
+        cursorAnimation = null;
+    }
+
+    protected static int cursorIndex(int boneIndex, int transform, int axis) {
+        return boneIndex * CHANNELS_PER_BONE + transform * 3 + axis;
+    }
+
+    /**
+     * Finds the keyframe for {@code tick} starting from the cursor at {@code cursorIndex}, and moves the cursor there.
+     *
+     * @return the keyframe index, or {@code -1} if the channel is empty
+     */
+    protected final int locateKeyframe(AzKeyframeChannel channel, double tick, int[] cursors, int cursorIndex) {
+        var index = channel.locate(tick, cursors[cursorIndex]);
+
+        if (index >= 0) {
+            cursors[cursorIndex] = index;
+        }
+
+        return index;
+    }
+
+    /**
+     * Samples one channel at {@code tick} and writes the result straight into {@code queue}'s slot for it, without
+     * creating an {@link AzAnimationPoint}.
+     *
+     * @param transform {@link #ROTATION}, {@link #POSITION} or {@link #SCALE}
+     */
+    protected final void writeChannel(
+        AzBoneAnimationQueue queue,
+        int transform,
+        Axis axis,
+        AzKeyframeChannel channel,
         double tick,
-        boolean isRotation,
-        Axis axis
+        int[] cursors,
+        int cursorIndex
     ) {
-        if (frames.isEmpty()) {
-            scratchLocation = new AzKeyframeLocation<>(new AzKeyframe<>(0, () -> 0, () -> 0), 0);
-        } else {
-            scratchLocation = getCurrentKeyframeLocation(frames, tick, scratchLocation);
-        }
-        var currentFrame = scratchLocation.keyframe();
-        var startValue = currentFrame.startValue().get();
-        var endValue = currentFrame.endValue().get();
+        var slot = transform * 3 + axis.ordinal();
+        var index = locateKeyframe(channel, tick, cursors, cursorIndex);
 
-        if (isRotation) {
-            if (!(currentFrame.startValue() instanceof Constant)) {
-                startValue = Math.toRadians(startValue);
-                if (axis == Axis.X || axis == Axis.Y)
-                    startValue *= -1;
-            }
-            if (!(currentFrame.endValue() instanceof Constant)) {
-                endValue = Math.toRadians(endValue);
-                if (axis == Axis.X || axis == Axis.Y)
-                    endValue *= -1;
-            }
+        if (index < 0) {
+            queue.write(slot, EMPTY_KEYFRAME, 0, 0, 0, 0);
+            return;
         }
 
-        return new AzAnimationPoint(
-            currentFrame,
-            scratchLocation.startTick(),
-            currentFrame.length(),
-            startValue,
-            endValue
+        var frame = channel.frame(index);
+        var isRotation = transform == ROTATION;
+
+        queue.write(
+            slot,
+            frame,
+            tick - channel.startTime(index),
+            frame.length(),
+            readValue(frame.startValue(), isRotation, axis),
+            readValue(frame.endValue(), isRotation, axis)
         );
     }
 
     /**
-     * Returns the {@link AzKeyframe} relevant to the current tick time using binary search on precomputed cumulative
-     * end-times. Falls back to linear scan if cumulative times are unavailable. Writes result into {@code scratch} to
-     * avoid allocation.
+     * Returns the value one channel has at {@code tick}, eased exactly as it would be when played, so a transition ends
+     * on the same pose the animation then starts from.
+     *
+     * @param easingOverride the controller-wide easing override, or {@code null}
      */
-    protected AzKeyframeLocation<AzKeyframe<IValue>> getCurrentKeyframeLocation(
-        List<AzKeyframe<IValue>> frames,
-        double ageInTicks,
-        AzKeyframeLocation<AzKeyframe<IValue>> scratch
+    protected final double sampleValue(
+        AzKeyframeChannel channel,
+        int transform,
+        Axis axis,
+        double tick,
+        int[] cursors,
+        int cursorIndex,
+        @Nullable AzEasingType easingOverride
     ) {
-        var n = frames.size();
-        var cumulative = new double[n];
-        var total = 0D;
-        for (var i = 0; i < n; i++) {
-            total += frames.get(i).length();
-            cumulative[i] = total;
+        var index = locateKeyframe(channel, tick, cursors, cursorIndex);
+
+        if (index < 0) {
+            return 0;
         }
 
-        int lo = 0, hi = n - 1, result = n - 1;
-        while (lo <= hi) {
-            var mid = (lo + hi) >>> 1;
-            if (cumulative[mid] > ageInTicks) {
-                result = mid;
-                hi = mid - 1;
-            } else {
-                lo = mid + 1;
-            }
-        }
+        var frame = channel.frame(index);
+        var isRotation = transform == ROTATION;
 
-        var frame = frames.get(result);
-        var startTick = ageInTicks - (cumulative[result] - frame.length());
-        scratchLocation.set(frame, startTick);
-        return scratchLocation;
+        scratchPoint.set(
+            frame,
+            tick - channel.startTime(index),
+            frame.length(),
+            readValue(frame.startValue(), isRotation, axis),
+            readValue(frame.endValue(), isRotation, axis)
+        );
+
+        return AzEasingUtil.lerpWithOverride(scratchPoint, easingOverride);
     }
 
     /**
-     * Legacy overload retained for any subclass overrides. Delegates to the scratch-based version.
+     * Reads a keyframe value. Constant rotations are converted to radians (and flipped on X/Y) when the animation is
+     * baked; anything else is converted here.
      */
-    protected AzKeyframeLocation<AzKeyframe<IValue>> getCurrentKeyframeLocation(
-        List<AzKeyframe<IValue>> frames,
-        double ageInTicks
-    ) {
-        return getCurrentKeyframeLocation(frames, ageInTicks, scratchLocation);
+    protected static double readValue(IValue value, boolean isRotation, Axis axis) {
+        var result = value.get();
+
+        if (isRotation && !(value instanceof Constant)) {
+            result = Math.toRadians(result);
+
+            if (axis == Axis.X || axis == Axis.Y) {
+                result *= -1;
+            }
+        }
+
+        return result;
     }
 }

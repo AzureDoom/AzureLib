@@ -1,15 +1,14 @@
 package mod.azure.azurelib.animation.controller;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.Map;
-
 import mod.azure.azurelib.animation.AzBoneAnimationUpdateUtil;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.keyframe.AzBoneAnimationQueue;
 import mod.azure.azurelib.animation.easing.AzEasingType;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * The AzBoneAnimationQueueCache class is responsible for managing and updating animation queues for bones. It acts as a
@@ -17,6 +16,7 @@ import mod.azure.azurelib.animation.easing.AzEasingType;
  *
  * @param <T> the type of the animatable object used in the animation context
  */
+@SuppressWarnings("unused")
 public class AzBoneAnimationQueueCache<T> {
 
     private final Map<String, AzBoneAnimationQueue> boneAnimationQueues;
@@ -104,7 +104,14 @@ public class AzBoneAnimationQueueCache<T> {
             return null;
         }
 
-        return boneAnimationQueues.computeIfAbsent(boneName, $ -> new AzBoneAnimationQueue(bone));
+        var queue = boneAnimationQueues.get(boneName);
+
+        if (queue == null) {
+            queue = new AzBoneAnimationQueue(bone);
+            boneAnimationQueues.put(boneName, queue);
+        }
+
+        return queue;
     }
 
     /**

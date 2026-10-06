@@ -3,13 +3,7 @@
  * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
  * https://github.com/bernie-g/geckolib/blob/main/LICENSE
  */
-/*
- * Copyright (c) 2020. Author: Bernie G. (Gecko)
- */
-
 package mod.azure.azurelib.core.keyframe.event.data;
-
-import java.util.Objects;
 
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 
@@ -47,6 +41,6 @@ public abstract class KeyFrameData {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.startTick);
+        return Double.hashCode(this.startTick);
     }
 }

@@ -9,6 +9,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
 
+import java.util.Arrays;
+
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations.
  * <p>
@@ -17,6 +19,7 @@ import mod.azure.azurelib.model.AzBoneSnapshot;
  * that were the primary source of GC pressure in the animation pipeline.
  * </p>
  */
+@SuppressWarnings("unused")
 public class AzBoneAnimationQueue {
 
     private final AzBone bone;
@@ -41,13 +44,17 @@ public class AzBoneAnimationQueue {
         return bone;
     }
 
-    private void write(int slot, AzKeyframe<?> keyframe, double tick, double length, double start, double end) {
+    /**
+     * Writes one channel's point for this frame. Slots are laid out as {@code transform * 3 + axis}, with transforms in
+     * the order rotation, position, scale and axes in the order X, Y, Z. The same layout the keyframe executors use.
+     */
+    void write(int slot, AzKeyframe<?> keyframe, double tick, double length, double start, double end) {
         pool[slot].set(keyframe, tick, length, start, end);
         present[slot] = true;
     }
 
     public void clearFrame() {
-        java.util.Arrays.fill(present, false);
+        Arrays.fill(present, false);
     }
 
     public AzAnimationPoint pollRotX() {
@@ -176,9 +183,32 @@ public class AzBoneAnimationQueue {
         AzAnimationPoint ny,
         AzAnimationPoint nz
     ) {
-        write(POS_X, keyframe, tick, length, startSnapshot.getOffsetX(), nx.animationStartValue);
-        write(POS_Y, keyframe, tick, length, startSnapshot.getOffsetY(), ny.animationStartValue);
-        write(POS_Z, keyframe, tick, length, startSnapshot.getOffsetZ(), nz.animationStartValue);
+        addNextPosition(
+            keyframe,
+            tick,
+            length,
+            startSnapshot,
+            nx.animationStartValue,
+            ny.animationStartValue,
+            nz.animationStartValue
+        );
+    }
+
+    /**
+     * Queues a transition from {@code startSnapshot}'s position to the given target values.
+     */
+    public void addNextPosition(
+        AzKeyframe<?> keyframe,
+        double tick,
+        double length,
+        AzBoneSnapshot startSnapshot,
+        double targetX,
+        double targetY,
+        double targetZ
+    ) {
+        write(POS_X, keyframe, tick, length, startSnapshot.getOffsetX(), targetX);
+        write(POS_Y, keyframe, tick, length, startSnapshot.getOffsetY(), targetY);
+        write(POS_Z, keyframe, tick, length, startSnapshot.getOffsetZ(), targetZ);
     }
 
     public void addNextScale(
@@ -190,9 +220,32 @@ public class AzBoneAnimationQueue {
         AzAnimationPoint ny,
         AzAnimationPoint nz
     ) {
-        write(SCL_X, keyframe, tick, length, startSnapshot.getScaleX(), nx.animationStartValue);
-        write(SCL_Y, keyframe, tick, length, startSnapshot.getScaleY(), ny.animationStartValue);
-        write(SCL_Z, keyframe, tick, length, startSnapshot.getScaleZ(), nz.animationStartValue);
+        addNextScale(
+            keyframe,
+            tick,
+            length,
+            startSnapshot,
+            nx.animationStartValue,
+            ny.animationStartValue,
+            nz.animationStartValue
+        );
+    }
+
+    /**
+     * Queues a transition from {@code startSnapshot}'s scale to the given target values.
+     */
+    public void addNextScale(
+        AzKeyframe<?> keyframe,
+        double tick,
+        double length,
+        AzBoneSnapshot startSnapshot,
+        double targetX,
+        double targetY,
+        double targetZ
+    ) {
+        write(SCL_X, keyframe, tick, length, startSnapshot.getScaleX(), targetX);
+        write(SCL_Y, keyframe, tick, length, startSnapshot.getScaleY(), targetY);
+        write(SCL_Z, keyframe, tick, length, startSnapshot.getScaleZ(), targetZ);
     }
 
     public void addNextRotation(
@@ -205,33 +258,38 @@ public class AzBoneAnimationQueue {
         AzAnimationPoint ny,
         AzAnimationPoint nz
     ) {
+        addNextRotation(
+            keyframe,
+            tick,
+            length,
+            startSnapshot,
+            initialSnapshot,
+            nx.animationStartValue,
+            ny.animationStartValue,
+            nz.animationStartValue
+        );
+    }
+
+    /**
+     * Queues a transition from {@code startSnapshot}'s rotation (relative to {@code initialSnapshot}) to the given
+     * target values.
+     */
+    public void addNextRotation(
+        AzKeyframe<?> keyframe,
+        double tick,
+        double length,
+        AzBoneSnapshot startSnapshot,
+        AzBoneSnapshot initialSnapshot,
+        double targetX,
+        double targetY,
+        double targetZ
+    ) {
         if (startSnapshot == null) {
             AzureLib.LOGGER.warn("Warning: startSnapshot is null. Animation may not behave as expected.");
             return;
         }
-        write(
-            ROT_X,
-            keyframe,
-            tick,
-            length,
-            startSnapshot.getRotX() - initialSnapshot.getRotX(),
-            nx.animationStartValue
-        );
-        write(
-            ROT_Y,
-            keyframe,
-            tick,
-            length,
-            startSnapshot.getRotY() - initialSnapshot.getRotY(),
-            ny.animationStartValue
-        );
-        write(
-            ROT_Z,
-            keyframe,
-            tick,
-            length,
-            startSnapshot.getRotZ() - initialSnapshot.getRotZ(),
-            nz.animationStartValue
-        );
+        write(ROT_X, keyframe, tick, length, startSnapshot.getRotX() - initialSnapshot.getRotX(), targetX);
+        write(ROT_Y, keyframe, tick, length, startSnapshot.getRotY() - initialSnapshot.getRotY(), targetY);
+        write(ROT_Z, keyframe, tick, length, startSnapshot.getRotZ() - initialSnapshot.getRotZ(), targetZ);
     }
 }

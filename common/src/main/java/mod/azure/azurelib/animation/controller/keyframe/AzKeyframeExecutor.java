@@ -1,10 +1,5 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.NoSuchElementException;
-import java.util.function.DoubleSupplier;
-
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
@@ -12,6 +7,10 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
 
 /**
  * AzKeyframeExecutor is a specialized implementation of {@link AzAbstractKeyframeExecutor}, designed to handle
@@ -53,7 +52,12 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
         currentAdjustedTick = animationController.sampleTick();
         ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
-        for (var boneAnimation : currentAnimation.animation().boneAnimations()) {
+        var animation = currentAnimation.animation();
+        var boneAnimations = animation.boneAnimations();
+        var cursors = prepareKeyframeCursors(animation);
+
+        for (var boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {
+            var boneAnimation = boneAnimations[boneIndex];
             var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
 
             if (boneAnimationQueue == null) {
@@ -69,63 +73,33 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
-            var rotationKeyframes = boneAnimation.rotationKeyframes();
-            var positionKeyframes = boneAnimation.positionKeyframes();
-            var scaleKeyframes = boneAnimation.scaleKeyframes();
-
-            updateRotation(rotationKeyframes, boneAnimationQueue, currentAdjustedTick);
-            updatePosition(positionKeyframes, boneAnimationQueue, currentAdjustedTick);
-            updateScale(scaleKeyframes, boneAnimationQueue, currentAdjustedTick);
+            sampleStack(boneAnimation.rotationKeyframes(), ROTATION, boneIndex, boneAnimationQueue, cursors);
+            sampleStack(boneAnimation.positionKeyframes(), POSITION, boneIndex, boneAnimationQueue, cursors);
+            sampleStack(boneAnimation.scaleKeyframes(), SCALE, boneIndex, boneAnimationQueue, cursors);
         }
 
         keyframeCallbackHandler.handle(animatable, currentAdjustedTick, animationController.isPlayingReversed());
     }
 
-    private void updateRotation(
+    /**
+     * Samples all three axes of one transform at the current tick and writes them into the bone's queue.
+     */
+    private void sampleStack(
         AzKeyframeStack<AzKeyframe<IValue>> keyframes,
+        int transform,
+        int boneIndex,
         AzBoneAnimationQueue queue,
-        double adjustedTick
+        int[] cursors
     ) {
         if (keyframes.xKeyframes().isEmpty()) {
             return;
         }
 
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, true, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, true, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, true, Axis.Z);
+        var tick = currentAdjustedTick;
+        var cursor = cursorIndex(boneIndex, transform, 0);
 
-        queue.addRotations(x, y, z);
-    }
-
-    private void updatePosition(
-        AzKeyframeStack<AzKeyframe<IValue>> keyframes,
-        AzBoneAnimationQueue queue,
-        double adjustedTick
-    ) {
-        if (keyframes.xKeyframes().isEmpty()) {
-            return;
-        }
-
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
-
-        queue.addPositions(x, y, z);
-    }
-
-    private void updateScale(
-        AzKeyframeStack<AzKeyframe<IValue>> keyframes,
-        AzBoneAnimationQueue queue,
-        double adjustedTick
-    ) {
-        if (keyframes.xKeyframes().isEmpty()) {
-            return;
-        }
-
-        var x = getAnimationPointAtTick(keyframes.xKeyframes(), adjustedTick, false, Axis.X);
-        var y = getAnimationPointAtTick(keyframes.yKeyframes(), adjustedTick, false, Axis.Y);
-        var z = getAnimationPointAtTick(keyframes.zKeyframes(), adjustedTick, false, Axis.Z);
-
-        queue.addScales(x, y, z);
+        writeChannel(queue, transform, Axis.X, keyframes.xChannel(), tick, cursors, cursor);
+        writeChannel(queue, transform, Axis.Y, keyframes.yChannel(), tick, cursors, cursor + 1);
+        writeChannel(queue, transform, Axis.Z, keyframes.zChannel(), tick, cursors, cursor + 2);
     }
 }
