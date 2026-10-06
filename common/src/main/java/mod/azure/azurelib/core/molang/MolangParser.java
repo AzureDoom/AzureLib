@@ -293,6 +293,28 @@ public class MolangParser extends MathBuilder {
         remap("sin", "math.sin");
         remap("sqrt", "math.sqrt");
         remap("trunc", "math.trunc");
+        remap("copy_sign", "math.copy_sign");
+        remap("sign", "math.sign");
+        remap("inverse_lerp", "math.inverse_lerp");
+        remap("min_angle", "math.min_angle");
+
+        String[] easingCurves = {
+            "quad",
+            "cubic",
+            "quart",
+            "quint",
+            "sine",
+            "expo",
+            "circ",
+            "back",
+            "elastic",
+            "bounce" };
+
+        for (String curve : easingCurves) {
+            remap("ease_in_" + curve, "math.ease_in_" + curve);
+            remap("ease_out_" + curve, "math.ease_out_" + curve);
+            remap("ease_in_out_" + curve, "math.ease_in_out_" + curve);
+        }
 
         // A constant, not a function, so "math.pi * 2" folds at parse time. This used to be remap("pi", "math.pi"),
         // but no "pi" function exists, so it registered a null function and math.pi read an unset variable (0).
@@ -396,7 +418,8 @@ public class MolangParser extends MathBuilder {
      * {@code "q.my_query"} and {@code "query.my_query"} register the same function, and animations can call it with
      * either prefix.
      * <p>
-     * Functions that read game state should extend {@link ContextQueryFunction} or otherwise live outside the
+     * Functions that read game state should extend
+     * {@link mod.azure.azurelib.core.molang.functions.query.ContextQueryFunction} or otherwise live outside the
      * {@code mod.azure.azurelib.core.molang.functions} package, so they are not folded to a constant at load time.
      * Register during mod initialization, before resources load.
      * </p>

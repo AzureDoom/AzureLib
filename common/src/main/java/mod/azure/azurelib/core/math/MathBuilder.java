@@ -129,6 +129,7 @@ public class MathBuilder {
         this.functions.put("copy_sign", CopySign.class);
         this.functions.put("sign", Sign.class);
         this.functions.put("inverse_lerp", InverseLerp.class);
+        this.functions.put("min_angle", MinAngle.class);
 
         /* Quadratic easing functions */
         this.functions.put("ease_in_quad", EaseInQuad.class);
