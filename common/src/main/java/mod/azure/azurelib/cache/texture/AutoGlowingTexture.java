@@ -147,7 +147,8 @@ public class AutoGlowingTexture extends AzAbstractTexture {
         }
 
         if (originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture.isAnimated()) {
-            AzGlowCoverage.unregister(this.glowLayer);
+            var frameSize = animatableTexture.animationContents.frameSize;
+            AzGlowCoverage.registerFrames(this.glowLayer, mask, frameSize.width(), frameSize.height());
 
             NativeImage firstFrame = animatableTexture.animationContents.animatedTexture.setGlowMaskTexture(
                 this,

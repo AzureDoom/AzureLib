@@ -18,7 +18,8 @@
     "ItemStackRenderStateMixin_AzDisplayContext",
     "MixinHumanoidArmorLayer",
     "MixinEntityRendererArmorContext",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "GameRendererMixin_AzFrameArena"
   ],
   "overwrites": {
     "requireAnnotations": true

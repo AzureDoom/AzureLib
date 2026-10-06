@@ -362,8 +362,8 @@ public final class AzBufferSource {
         private int vLight;
 
         private RecordingConsumer(int initialVertices) {
-            this.floats = new float[initialVertices * FLOAT_STRIDE];
-            this.ints = new int[initialVertices * INT_STRIDE];
+            this.floats = AzFrameArena.floats(initialVertices * FLOAT_STRIDE);
+            this.ints = AzFrameArena.ints(initialVertices * INT_STRIDE);
         }
 
         private boolean isEmpty() {
@@ -426,8 +426,8 @@ public final class AzBufferSource {
          */
         private Recording snapshot() {
             var recording = new Recording(floats, ints, vertexCount);
-            floats = new float[0];
-            ints = new int[0];
+            floats = AzFrameArena.floats(0);
+            ints = AzFrameArena.ints(0);
             vertexCount = 0;
             return recording;
         }
@@ -506,10 +506,15 @@ public final class AzBufferSource {
         }
 
         private void ensureCapacity() {
-            if ((vertexCount + 1) * FLOAT_STRIDE > floats.length) {
-                var vertices = Math.max(INITIAL_VERTICES, (floats.length / FLOAT_STRIDE) * 2);
-                floats = Arrays.copyOf(floats, vertices * FLOAT_STRIDE);
-                ints = Arrays.copyOf(ints, vertices * INT_STRIDE);
+            if ((vertexCount + 1) * FLOAT_STRIDE > floats.length || (vertexCount + 1) * INT_STRIDE > ints.length) {
+                var capacity = Math.min(floats.length / FLOAT_STRIDE, ints.length / INT_STRIDE);
+                var vertices = Math.max(INITIAL_VERTICES, capacity * 2);
+                var newFloats = AzFrameArena.floats(vertices * FLOAT_STRIDE);
+                var newInts = AzFrameArena.ints(vertices * INT_STRIDE);
+                System.arraycopy(floats, 0, newFloats, 0, vertexCount * FLOAT_STRIDE);
+                System.arraycopy(ints, 0, newInts, 0, vertexCount * INT_STRIDE);
+                floats = newFloats;
+                ints = newInts;
             }
         }
     }

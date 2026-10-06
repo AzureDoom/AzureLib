@@ -188,7 +188,7 @@ public class AzModelRenderer<K, T> {
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var textureOverride = context.getTextureOverride();
-        var boneTextureSize = context.computeTextureSize(textureOverride);
+        var boneTextureSize = textureOverride == null ? null : context.computeTextureSize(textureOverride);
         boolean useOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
         float nx = normal.x(), ny = normal.y(), nz = normal.z();
 

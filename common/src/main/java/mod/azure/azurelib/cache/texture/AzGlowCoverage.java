@@ -18,17 +18,19 @@ import mod.azure.azurelib.render.AzBufferSource;
  * per side first; a cell counts as glowing if any pixel in it does, so the reduction can keep extra quads but never
  * drops one that glows.
  * <p>
- * Animated textures get no coverage (their frames would all have to be considered), and the glow layer then mirrors the
- * whole model as before.
+ * Animated glowmasks fold all their frames into one frame-sized coverage, so a pixel counts as glowing if it glows in
+ * any frame.
  */
 public final class AzGlowCoverage implements AzBufferSource.QuadFilter {
 
     private static final int MAX_CELLS = 512;
 
+    /** Keeps UVs that sit exactly on a pixel edge from pulling in the neighbouring row or column. */
     private static final float EDGE_EPSILON = 1.0e-3f;
 
     private static final Map<Identifier, AzGlowCoverage> BY_TEXTURE = new ConcurrentHashMap<>();
 
+    /** Coverage for a glow texture with nothing in it, such as the placeholder used when a glowmask is missing. */
     public static final AzGlowCoverage NOTHING = new AzGlowCoverage(1, 1, 0, 1, new int[4]);
 
     private final int width;
@@ -55,7 +57,21 @@ public final class AzGlowCoverage implements AzBufferSource.QuadFilter {
     }
 
     static void register(Identifier glowTexture, NativeImage mask) {
-        BY_TEXTURE.put(glowTexture, fromMask(mask));
+        BY_TEXTURE.put(glowTexture, fromMask(mask, mask.getWidth(), mask.getHeight()));
+    }
+
+    /**
+     * Registers coverage for an animated glowmask laid out as a grid of {@code frameWidth} x {@code frameHeight}
+     * frames. UVs address a single frame, so the frames are folded together: a pixel glows if it glows in any frame,
+     * which also covers frames blended by interpolation.
+     */
+    static void registerFrames(Identifier glowTexture, NativeImage mask, int frameWidth, int frameHeight) {
+        if (frameWidth <= 0 || frameHeight <= 0) {
+            BY_TEXTURE.remove(glowTexture);
+            return;
+        }
+
+        BY_TEXTURE.put(glowTexture, fromMask(mask, frameWidth, frameHeight));
     }
 
     static void registerNothing(Identifier glowTexture) {
@@ -67,8 +83,16 @@ public final class AzGlowCoverage implements AzBufferSource.QuadFilter {
     }
 
     static AzGlowCoverage fromMask(NativeImage mask) {
-        var width = mask.getWidth();
-        var height = mask.getHeight();
+        return fromMask(mask, mask.getWidth(), mask.getHeight());
+    }
+
+    /**
+     * @param width  the width UVs are measured against: the whole mask, or one frame of an animated one
+     * @param height the matching height
+     */
+    static AzGlowCoverage fromMask(NativeImage mask, int width, int height) {
+        var maskWidth = mask.getWidth();
+        var maskHeight = mask.getHeight();
         var shift = 0;
 
         while ((ceilShift(width, shift) > MAX_CELLS) || (ceilShift(height, shift) > MAX_CELLS)) {
@@ -80,10 +104,12 @@ public final class AzGlowCoverage implements AzBufferSource.QuadFilter {
         var glowing = new boolean[cols * rows];
         var any = false;
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < maskHeight; y++) {
+            var cellRow = ((y % height) >> shift) * cols;
+
+            for (int x = 0; x < maskWidth; x++) {
                 if ((mask.getPixel(x, y) >>> 24) != 0) {
-                    glowing[(y >> shift) * cols + (x >> shift)] = true;
+                    glowing[cellRow + ((x % width) >> shift)] = true;
                     any = true;
                 }
             }
@@ -135,10 +161,10 @@ public final class AzGlowCoverage implements AzBufferSource.QuadFilter {
         var y0 = (int) Math.floor(minV * height + EDGE_EPSILON);
         var y1 = (int) Math.ceil(maxV * height - EDGE_EPSILON);
 
-        x0 = Math.clamp(x0, 0, width - 1);
-        y0 = Math.clamp(y0, 0, height - 1);
-        x1 = Math.clamp(x1, x0 + 1, width);
-        y1 = Math.clamp(y1, y0 + 1, height);
+        x0 = Math.min(Math.max(x0, 0), width - 1);
+        y0 = Math.min(Math.max(y0, 0), height - 1);
+        x1 = Math.min(Math.max(x1, x0 + 1), width);
+        y1 = Math.min(Math.max(y1, y0 + 1), height);
 
         var col0 = x0 >> shift;
         var col1 = ((x1 - 1) >> shift) + 1;
