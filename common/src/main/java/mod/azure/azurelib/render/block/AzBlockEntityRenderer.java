@@ -33,6 +33,10 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
     @Nullable
     private AzBlockAnimator<T> reusedAzBlockAnimator;
 
+    private PoseStack extractPoseStack;
+
+    private boolean extractPoseStackInUse;
+
     protected AzBlockEntityRenderer(AzBlockEntityRendererConfig<T> config) {
         this.provider = new AzProvider<>(
             config::createAnimator,
@@ -75,17 +79,44 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> implements Bl
 
         // Runs against an identity pose during extraction; the vertices recorded are block-local and get
         // translated/replayed relative to the camera during submit.
-        rendererPipeline.render(
-            new PoseStack(),
-            model,
-            blockEntity,
-            geometry,
-            null,
-            null,
-            0,
-            partialTick,
-            state.lightCoords
-        );
+        var poseStack = acquireExtractPoseStack();
+
+        try {
+            rendererPipeline.render(
+                poseStack,
+                model,
+                blockEntity,
+                geometry,
+                null,
+                null,
+                0,
+                partialTick,
+                state.lightCoords
+            );
+        } finally {
+            if (poseStack == extractPoseStack) {
+                extractPoseStackInUse = false;
+            }
+        }
+    }
+
+    /**
+     * Returns the reusable pose stack, reset to identity. Falls back to a new one if it is already in use (an
+     * extraction of the same renderer nested inside another) or was left unbalanced by an earlier exception.
+     */
+    private PoseStack acquireExtractPoseStack() {
+        if (extractPoseStackInUse) {
+            return new PoseStack();
+        }
+
+        if (extractPoseStack == null || !extractPoseStack.isEmpty()) {
+            extractPoseStack = new PoseStack();
+        } else {
+            extractPoseStack.setIdentity();
+        }
+
+        extractPoseStackInUse = true;
+        return extractPoseStack;
     }
 
     @Override
