@@ -20,6 +20,7 @@ import mod.azure.azurelib.core.molang.MolangVariableRef;
  * methods for animation controller registration and for specifying the animation location for the corresponding
  * {@code ItemStack}.
  */
+@SuppressWarnings("unused")
 public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
 
     private static final MolangVariableRef ITEM_CURRENT_DURABILITY_REF = new MolangVariableRef(
@@ -30,20 +31,28 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
         MolangQueries.ITEM_IS_ENCHANTED
     );
 
-    /*
-     * The stack currently being animated. The suppliers below are created once and read this field instead of capturing
-     * the stack in new lambdas every frame; see AzEntityAnimator for the same pattern.
-     */
+    private static final MolangVariableRef MAX_DURABILITY_REF = new MolangVariableRef(MolangQueries.MAX_DURABILITY);
+
+    private static final MolangVariableRef REMAINING_DURABILITY_REF = new MolangVariableRef(
+        MolangQueries.REMAINING_DURABILITY
+    );
+
     private ItemStack currentStack;
 
     private final DoubleSupplier currentDurabilitySupplier = () -> {
         int maxDamage = currentStack.getMaxDamage();
 
-        // Non-damageable items have a max damage of 0; dividing would feed NaN into the bone transforms.
         return maxDamage <= 0 ? 0 : currentStack.getDamageValue() / (float) maxDamage;
     };
 
     private final DoubleSupplier isEnchantedSupplier = () -> RenderUtils.booleanToFloat(currentStack.isEnchanted());
+
+    private final DoubleSupplier maxDurabilitySupplier = () -> currentStack.getMaxDamage();
+
+    private final DoubleSupplier remainingDurabilitySupplier = () -> {
+        int maxDamage = currentStack.getMaxDamage();
+        return maxDamage <= 0 ? 0 : maxDamage - currentStack.getDamageValue();
+    };
 
     protected AzItemAnimator() {
         super();
@@ -61,5 +70,7 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
 
         ITEM_CURRENT_DURABILITY_REF.setMemoized(currentDurabilitySupplier);
         ITEM_IS_ENCHANTED_REF.setMemoized(isEnchantedSupplier);
+        MAX_DURABILITY_REF.setMemoized(maxDurabilitySupplier);
+        REMAINING_DURABILITY_REF.setMemoized(remainingDurabilitySupplier);
     }
 }
