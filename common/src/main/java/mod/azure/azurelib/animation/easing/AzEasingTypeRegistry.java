@@ -21,24 +21,17 @@ public class AzEasingTypeRegistry {
      * It is recommended you don't call this directly, and instead call it via {@code AzureLibUtil#addCustomEasingType}
      *
      * @param name        The name of the easing type
-     * @param transformer The {@code Double2DoubleFunction} to associate with the given name
+     * @param transformer Builds the easing curve for a given easing argument (or {@code null} for none). The curve it
+     *                    returns is cached per argument value and reused, so it must be a pure function of its input.
      * @return The {@code EasingType} you registered
      */
     public static AzEasingType register(String name, Function<Double, Double2DoubleFunction> transformer) {
         var normalizedName = normalizeName(name);
 
-        return EASING_TYPES.computeIfAbsent(name, ($) -> new AzEasingType() {
-
-            @Override
-            public String name() {
-                return normalizedName;
-            }
-
-            @Override
-            public Double2DoubleFunction buildTransformer(Double value) {
-                return transformer.apply(value);
-            }
-        });
+        return EASING_TYPES.computeIfAbsent(
+            normalizedName,
+            $ -> new AzTransformerEasingType(normalizedName, transformer)
+        );
     }
 
     public static AzEasingType register(String name, AzEasingType easingType) {

@@ -5,13 +5,14 @@
  */
 package mod.azure.azurelib.core.keyframe.event.data;
 
-import java.util.Objects;
-
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
+
+import java.util.Objects;
 
 /**
  * Particle {@link AzKeyframe} instruction holder
  */
+@SuppressWarnings("unused")
 public class ParticleKeyframeData extends KeyFrameData {
 
     private final String effect;
@@ -20,12 +21,20 @@ public class ParticleKeyframeData extends KeyFrameData {
 
     private final String script;
 
+    private final int hashCode;
+
     public ParticleKeyframeData(double startTick, String effect, String locator, String script) {
         super(startTick);
 
         this.script = script;
         this.locator = locator;
         this.effect = effect;
+
+        var result = 31 + Double.hashCode(startTick);
+        result = 31 * result + Objects.hashCode(effect);
+        result = 31 * result + Objects.hashCode(locator);
+        result = 31 * result + Objects.hashCode(script);
+        this.hashCode = result;
     }
 
     /**
@@ -51,6 +60,6 @@ public class ParticleKeyframeData extends KeyFrameData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStartTick(), effect, locator, script);
+        return hashCode;
     }
 }

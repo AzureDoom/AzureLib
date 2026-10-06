@@ -1,22 +1,17 @@
-/**
- * This class is a fork of the matching class found in the Geckolib repository. Original source:
- * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
- * https://github.com/bernie-g/geckolib/blob/main/LICENSE
- */
 package mod.azure.azurelib.model;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.cache.object.GeoCube;
 import org.joml.*;
 
 import java.util.List;
 import java.util.Objects;
 
-import mod.azure.azurelib.cache.object.GeoCube;
-
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  */
+@SuppressWarnings("unused")
 public class AzBone {
 
     private final AzBoneMetadata metadata;
@@ -467,11 +462,10 @@ public class AzBone {
     }
 
     public int hashCode() {
-        return Objects.hash(
-            getName(),
-            (getParent() != null ? getParent().getName() : 0),
-            getCubes().size(),
-            getChildBones().size()
-        );
+        var result = 31 + Objects.hashCode(getName());
+        result = 31 * result + (getParent() != null ? Objects.hashCode(getParent().getName()) : 0);
+        result = 31 * result + getCubes().size();
+        result = 31 * result + getChildBones().size();
+        return result;
     }
 }
