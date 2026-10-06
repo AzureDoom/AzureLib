@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -323,12 +326,15 @@ public class AzModelRenderer<K, T> {
         if (renderTypeOverride != null) {
             activeRenderType = renderTypeOverride;
         } else if (textureOverride != null) {
+            var baseTexture = config.textureLocation(context.currentEntity(), context.animatable());
+            var baseRenderType = config.getRenderType(context.currentEntity(), context.animatable());
+
             activeRenderType = context.getDefaultRenderType(
                 context.animatable(),
                 textureOverride,
                 bufferSource,
                 context.partialTick(),
-                config.getRenderType(context.currentEntity(), context.animatable()),
+                retargetRenderType(baseRenderType, baseTexture, textureOverride),
                 config.alpha(context.animatable())
             );
         } else {
@@ -340,6 +346,45 @@ public class AzModelRenderer<K, T> {
         }
 
         return bufferSource.getBuffer(activeRenderType);
+    }
+
+    /**
+     * Returns the equivalent of {@code renderType} for a different texture, used for bones with a texture override.
+     * <p>
+     * Render types can't be re-pointed at another texture directly, so this recognizes the standard entity render types
+     * AzureLib and most renderers use and rebuilds the matching one for {@code newTexture}. Anything else falls back to
+     * {@link RenderTypes#entityCutout}. For full control over an overridden bone's render type, use the bone render
+     * type override provider instead, which takes precedence over this.
+     * </p>
+     *
+     * @param renderType  the render type configured for the model, built for {@code baseTexture}
+     * @param baseTexture the model's main texture
+     * @param newTexture  the texture the bone should render with
+     */
+    protected RenderType retargetRenderType(
+        @Nullable RenderType renderType,
+        @Nullable Identifier baseTexture,
+        Identifier newTexture
+    ) {
+        if (newTexture.equals(baseTexture)) {
+            return renderType != null ? renderType : RenderTypes.entityCutout(newTexture);
+        }
+
+        if (renderType != null && baseTexture != null) {
+            if (renderType == RenderTypes.entityTranslucent(baseTexture)) {
+                return RenderTypes.entityTranslucent(newTexture);
+            }
+
+            if (renderType == RenderTypes.entityTranslucentEmissive(baseTexture)) {
+                return RenderTypes.entityTranslucentEmissive(newTexture);
+            }
+
+            if (renderType == RenderTypes.armorCutoutNoCull(baseTexture)) {
+                return RenderTypes.armorCutoutNoCull(newTexture);
+            }
+        }
+
+        return RenderTypes.entityCutout(newTexture);
     }
 
     public void cacheTexture(AzRendererPipelineContext<K, T> context) {
