@@ -37,9 +37,11 @@ public abstract class BezierEasing implements AzEasingType {
 
     private final Vector2d cpEnd = new Vector2d();
 
+    private static final Double2DoubleFunction LINEAR_FALLBACK = AzEasingUtil.easeIn(AzEasingUtil::linear);
+
     @Override
     public Double2DoubleFunction buildTransformer(Double value) {
-        return AzEasingUtil.easeIn(AzEasingUtil::linear);
+        return LINEAR_FALLBACK;
     }
 
     /**
@@ -125,7 +127,7 @@ public abstract class BezierEasing implements AzEasingType {
     private double handleNoEasingArgs(AzAnimationPoint animationPoint, Double easingValue, double lerpValue) {
         Double2DoubleFunction transformer = buildTransformer(easingValue);
         return Mth.lerp(
-            transformer.apply(lerpValue),
+            transformer.get(lerpValue),
             animationPoint.animationStartValue(),
             animationPoint.animationEndValue()
         );

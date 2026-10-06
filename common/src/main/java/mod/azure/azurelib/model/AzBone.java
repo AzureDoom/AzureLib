@@ -1,8 +1,3 @@
-/**
- * This class is a fork of the matching class found in the Geckolib repository. Original source:
- * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
- * https://github.com/bernie-g/geckolib/blob/main/LICENSE
- */
 package mod.azure.azurelib.model;
 
 import com.mojang.math.*;
@@ -17,6 +12,7 @@ import mod.azure.azurelib.cache.object.GeoCube;
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
  * This is the object that is directly modified by animations to handle movement
  */
+@SuppressWarnings("unused")
 public class AzBone {
 
     private final AzBoneMetadata metadata;
@@ -82,7 +78,7 @@ public class AzBone {
     }
 
     public float getRotX() {
-        return this.rotation.x();
+        return this.rotation.x;
     }
 
     public void setRotX(float value) {
@@ -92,7 +88,7 @@ public class AzBone {
     }
 
     public float getRotY() {
-        return this.rotation.y();
+        return this.rotation.y;
     }
 
     public void setRotY(float value) {
@@ -102,7 +98,7 @@ public class AzBone {
     }
 
     public float getRotZ() {
-        return this.rotation.z();
+        return this.rotation.z;
     }
 
     public void setRotZ(float value) {
@@ -111,14 +107,8 @@ public class AzBone {
         markRotationAsChanged();
     }
 
-    public void updateRotation(float xRot, float yRot, float zRot) {
-        setRotX(xRot);
-        setRotY(yRot);
-        setRotZ(zRot);
-    }
-
     public float getPosX() {
-        return this.position.x();
+        return this.position.x;
     }
 
     public void setPosX(float value) {
@@ -128,7 +118,7 @@ public class AzBone {
     }
 
     public float getPosY() {
-        return this.position.y();
+        return this.position.y;
     }
 
     public void setPosY(float value) {
@@ -138,7 +128,7 @@ public class AzBone {
     }
 
     public float getPosZ() {
-        return this.position.z();
+        return this.position.z;
     }
 
     public void setPosZ(float value) {
@@ -147,14 +137,8 @@ public class AzBone {
         markPositionAsChanged();
     }
 
-    public void updatePosition(float posX, float posY, float posZ) {
-        setPosX(posX);
-        setPosY(posY);
-        setPosZ(posZ);
-    }
-
     public float getScaleX() {
-        return this.scale.x();
+        return this.scale.x;
     }
 
     public void setScaleX(float value) {
@@ -164,7 +148,7 @@ public class AzBone {
     }
 
     public float getScaleY() {
-        return this.scale.y();
+        return this.scale.y;
     }
 
     public void setScaleY(float value) {
@@ -174,19 +158,13 @@ public class AzBone {
     }
 
     public float getScaleZ() {
-        return this.scale.z();
+        return this.scale.z;
     }
 
     public void setScaleZ(float value) {
         this.scale.z = value;
 
         markScaleAsChanged();
-    }
-
-    public void updateScale(float scaleX, float scaleY, float scaleZ) {
-        setScaleX(scaleX);
-        setScaleY(scaleY);
-        setScaleZ(scaleZ);
     }
 
     public boolean isHidden() {
@@ -214,7 +192,7 @@ public class AzBone {
     }
 
     public float getPivotX() {
-        return this.pivot.x();
+        return this.pivot.x;
     }
 
     public void setPivotX(float value) {
@@ -222,7 +200,7 @@ public class AzBone {
     }
 
     public float getPivotY() {
-        return this.pivot.y();
+        return this.pivot.y;
     }
 
     public void setPivotY(float value) {
@@ -230,17 +208,11 @@ public class AzBone {
     }
 
     public float getPivotZ() {
-        return this.pivot.z();
+        return this.pivot.z;
     }
 
     public void setPivotZ(float value) {
         this.pivot.z = value;
-    }
-
-    public void updatePivot(float pivotX, float pivotY, float pivotZ) {
-        setPivotX(pivotX);
-        setPivotY(pivotY);
-        setPivotZ(pivotZ);
     }
 
     public boolean isHidingChildren() {
@@ -346,7 +318,7 @@ public class AzBone {
     }
 
     public void setWorldSpaceMatrix(Matrix4f matrix) {
-        this.worldSpaceMatrix.multiply(matrix);
+        this.worldSpaceMatrix.load(matrix);
     }
 
     public Matrix3f getWorldSpaceNormal() {
@@ -364,6 +336,7 @@ public class AzBone {
         Matrix4f matrix = getLocalSpaceMatrix();
         Vector4f vec = new Vector4f(0, 0, 0, 1);
         vec.transform(matrix);
+
         return new Vector3d(vec.x(), vec.y(), vec.z());
     }
 
@@ -374,6 +347,7 @@ public class AzBone {
         Matrix4f matrix = getModelSpaceMatrix();
         Vector4f vec = new Vector4f(0, 0, 0, 1);
         vec.transform(matrix);
+
         return new Vector3d(-vec.x() * 16f, vec.y() * 16f, vec.z() * 16f);
     }
 
@@ -432,6 +406,30 @@ public class AzBone {
         setRotZ(getRotZ() + source.getRotZ() - source.getInitialAzSnapshot().getRotZ());
     }
 
+    public void updateRotation(float xRot, float yRot, float zRot) {
+        setRotX(xRot);
+        setRotY(yRot);
+        setRotZ(zRot);
+    }
+
+    public void updatePosition(float posX, float posY, float posZ) {
+        setPosX(posX);
+        setPosY(posY);
+        setPosZ(posZ);
+    }
+
+    public void updateScale(float scaleX, float scaleY, float scaleZ) {
+        setScaleX(scaleX);
+        setScaleY(scaleY);
+        setScaleZ(scaleZ);
+    }
+
+    public void updatePivot(float pivotX, float pivotY, float pivotZ) {
+        setPivotX(pivotX);
+        setPivotY(pivotY);
+        setPivotZ(pivotZ);
+    }
+
     public AzBone deepCopy() {
         AzBone copy = new AzBone(this.metadata);
 
@@ -476,11 +474,10 @@ public class AzBone {
     }
 
     public int hashCode() {
-        return Objects.hash(
-            getName(),
-            (getParent() != null ? getParent().getName() : 0),
-            getCubes().size(),
-            getChildBones().size()
-        );
+        var result = 31 + Objects.hashCode(getName());
+        result = 31 * result + (getParent() != null ? Objects.hashCode(getParent().getName()) : 0);
+        result = 31 * result + getCubes().size();
+        result = 31 * result + getChildBones().size();
+        return result;
     }
 }
