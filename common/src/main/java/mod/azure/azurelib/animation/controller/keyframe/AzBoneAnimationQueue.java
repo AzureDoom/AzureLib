@@ -5,11 +5,11 @@
  */
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import java.util.Arrays;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
-
-import java.util.Arrays;
 
 /**
  * A bone pseudo-stack for bone animation positions, scales, and rotations.

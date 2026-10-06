@@ -1,5 +1,9 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.animation.controller.AzBoneSnapshotCache;
@@ -8,10 +12,6 @@ import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.model.AzBone;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.function.DoubleSupplier;
 
 /**
  * AzKeyframeTransitioner is a specialized class for executing smooth animations and transitions between keyframes for

@@ -6,12 +6,13 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.animation.easing.AzEasingType;
-import mod.azure.azurelib.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.core.math.IValue;
 
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.core.math.IValue;
 
 /**
  * Animation keyframe data

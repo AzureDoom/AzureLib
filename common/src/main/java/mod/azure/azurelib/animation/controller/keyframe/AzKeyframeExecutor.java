@@ -1,5 +1,10 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzBoneAnimationQueueCache;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
@@ -7,10 +12,6 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.NoSuchElementException;
-import java.util.function.DoubleSupplier;
 
 /**
  * AzKeyframeExecutor is a specialized implementation of {@link AzAbstractKeyframeExecutor}, designed to handle

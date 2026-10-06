@@ -2,10 +2,11 @@ package mod.azure.azurelib.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectOpenHashMap;
-import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
-import mod.azure.azurelib.core.utils.Interpolations;
 
 import java.util.function.Function;
+
+import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 /**
  * The {@link AzEasingType} created by {@link AzEasingTypeRegistry#register(String, Function)}.

@@ -1,13 +1,14 @@
 package mod.azure.azurelib.animation.easing;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
-import mod.azure.azurelib.core.utils.Interpolations;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.core.utils.Interpolations;
 
 public interface AzEasingType {
 

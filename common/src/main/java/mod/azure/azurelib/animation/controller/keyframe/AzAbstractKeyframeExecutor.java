@@ -1,14 +1,15 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.object.Axis;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 /**
  * AzAbstractKeyframeExecutor is a base class designed to handle animations and transitions between keyframes in a
