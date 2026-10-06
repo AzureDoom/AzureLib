@@ -12,14 +12,18 @@ import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 /**
  * Custom instruction {@link AzKeyframe} instruction holder
  */
+@SuppressWarnings("unused")
 public class CustomInstructionKeyframeData extends KeyFrameData {
 
     private final String instructions;
+
+    private final int hashCode;
 
     public CustomInstructionKeyframeData(double startTick, String instructions) {
         super(startTick);
 
         this.instructions = instructions;
+        this.hashCode = 31 * (31 + Double.hashCode(startTick)) + Objects.hashCode(instructions);
     }
 
     /**
@@ -31,6 +35,6 @@ public class CustomInstructionKeyframeData extends KeyFrameData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStartTick(), instructions);
+        return hashCode;
     }
 }

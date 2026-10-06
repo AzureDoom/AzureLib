@@ -6,7 +6,10 @@ import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.easing.bedrock_easings.BezierEasing;
 import mod.azure.azurelib.core.utils.Interpolations;
 
+@SuppressWarnings("unused")
 public class AzEasingTypes {
+
+    private static final Double2DoubleFunction CATMULL_ROM_FALLBACK = AzEasingUtil.easeInOut(AzEasingUtil::catmullRom);
 
     public static final AzEasingType NONE = AzEasingTypeRegistry.register(
         "none",
@@ -82,7 +85,7 @@ public class AzEasingTypes {
 
     public static final AzEasingType EASE_IN_QUINT = AzEasingTypeRegistry.register(
         "easeinquint",
-        value -> AzEasingUtil.easeIn(AzEasingUtil.pow(4))
+        value -> AzEasingUtil.easeIn(AzEasingUtil.pow(5))
     );
 
     public static final AzEasingType EASE_OUT_QUINT = AzEasingTypeRegistry.register(
@@ -223,7 +226,7 @@ public class AzEasingTypes {
 
             @Override
             public Double2DoubleFunction buildTransformer(Double value) {
-                return AzEasingUtil.easeInOut(AzEasingUtil::catmullRom);
+                return CATMULL_ROM_FALLBACK;
             }
 
             @Override
@@ -238,7 +241,7 @@ public class AzEasingTypes {
                     return Interpolations.lerp(
                         animationPoint.animationStartValue(),
                         animationPoint.animationEndValue(),
-                        buildTransformer(easingValue).apply(lerpValue)
+                        CATMULL_ROM_FALLBACK.get(lerpValue)
                     );
                 }
 
@@ -248,7 +251,7 @@ public class AzEasingTypes {
                     return Interpolations.lerp(
                         animationPoint.animationStartValue(),
                         animationPoint.animationEndValue(),
-                        buildTransformer(easingValue).apply(lerpValue)
+                        CATMULL_ROM_FALLBACK.get(lerpValue)
                     );
                 }
 
