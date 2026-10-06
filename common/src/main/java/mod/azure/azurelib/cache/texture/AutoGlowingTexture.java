@@ -26,6 +26,8 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
@@ -89,6 +91,9 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
     private static final String APPENDIX = "_glowmask";
 
+    /** Base texture to glowmask path. */
+    private static final Map<ResourceLocation, ResourceLocation> EMISSIVE_PATHS = new ConcurrentHashMap<>();
+
     protected final ResourceLocation textureBase;
 
     protected final ResourceLocation glowLayer;
@@ -105,7 +110,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
      * @return The glowlayer resource path for the provided input path
      */
     public static ResourceLocation getEmissiveResource(ResourceLocation baseResource) {
-        ResourceLocation path = appendToPath(baseResource, APPENDIX);
+        ResourceLocation path = EMISSIVE_PATHS.computeIfAbsent(baseResource, base -> appendToPath(base, APPENDIX));
 
         generateTexture(
             path,
@@ -180,6 +185,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
                         glowImage.getHeight(),
                         this.glowLayer
                     );
+                    AzGlowCoverage.unregister(this.glowLayer);
                     return null;
                 }
 
@@ -214,11 +220,19 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
                 this.textureBase,
                 expectedGlowmask
             );
+            AzGlowCoverage.unregister(this.glowLayer);
             return null;
         }
 
         boolean animated = originalTexture instanceof AnimatableTexture animatableTexture && animatableTexture
             .isAnimated();
+
+        if (animated) {
+            var frameSize = ((AnimatableTexture) originalTexture).animationContents.frameSize;
+            AzGlowCoverage.registerFrames(this.glowLayer, mask, frameSize.getFirst(), frameSize.getSecond());
+        } else {
+            AzGlowCoverage.register(this.glowLayer, mask);
+        }
 
         if (animated)
             ((AnimatableTexture) originalTexture).animationContents.animatedTexture.setGlowMaskTexture(

@@ -62,6 +62,8 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     private boolean applyAnimationOnReRender;
 
+    private @Nullable AzQuadFilter quadFilter;
+
     protected static final Map<ResourceLocation, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
         new Object2ObjectOpenHashMap<>();
 
@@ -282,6 +284,18 @@ public abstract class AzRendererPipelineContext<K, T> {
      */
     public void setTextureOverride(ResourceLocation textureOverride) {
         this.textureOverride = textureOverride;
+    }
+
+    /**
+     * The filter quads must pass to be drawn in the current pass, or {@code null} to draw all of them. Set by layers
+     * around a re-render (see {@code AzAutoGlowingLayer}) and cleared afterwards.
+     */
+    public @Nullable AzQuadFilter quadFilter() {
+        return quadFilter;
+    }
+
+    public void setQuadFilter(@Nullable AzQuadFilter quadFilter) {
+        this.quadFilter = quadFilter;
     }
 
     /**
