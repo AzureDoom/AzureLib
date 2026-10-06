@@ -16,6 +16,8 @@ import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.profiling.AzProfileStage;
+import mod.azure.azurelib.profiling.AzProfiler;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -136,6 +138,7 @@ public abstract class AzAnimator<K, T> {
     public abstract @NotNull Identifier getAnimationLocation(T animatable);
 
     public void animate(T animatable, float partialTicks, boolean updateTimer) {
+        AzProfiler.begin(AzProfileStage.ANIMATE, animatable);
         this.currentContext.animatable = animatable;
 
         var boneCache = this.currentContext.boneCache();
@@ -145,19 +148,29 @@ public abstract class AzAnimator<K, T> {
             timer.tick();
         }
 
+        AzProfiler.begin(AzProfileStage.MOLANG_SETUP, animatable);
         preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
+        AzProfiler.end(AzProfileStage.MOLANG_SETUP);
 
         if (!boneCache.isEmpty()) {
             for (var controller : animationControllerContainer.getAll()) {
+                AzProfiler.begin(AzProfileStage.CONTROLLER_UPDATE, controller);
                 controller.update();
+                AzProfiler.end(AzProfileStage.CONTROLLER_UPDATE);
             }
 
             this.reloadAnimations = false;
 
+            AzProfiler.begin(AzProfileStage.BONE_UPDATE, animatable);
             boneCache.update(this.currentContext);
+            AzProfiler.end(AzProfileStage.BONE_UPDATE);
         }
 
+        AzProfiler.begin(AzProfileStage.CUSTOM_ANIMATIONS, animatable);
         setCustomAnimations(animatable, partialTicks);
+        AzProfiler.end(AzProfileStage.CUSTOM_ANIMATIONS);
+
+        AzProfiler.end(AzProfileStage.ANIMATE);
     }
 
     public void animate(T animatable, float partialTicks) {

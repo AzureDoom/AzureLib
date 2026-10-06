@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.profiling.AzProfileStage;
+import mod.azure.azurelib.profiling.AzProfiler;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 
 /**
@@ -93,6 +95,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         float partialTick,
         int packedLight
     ) {
+        AzProfiler.begin(AzProfileStage.RENDER, animatable);
         renderType = context.getDefaultRenderType(
             animatable,
             config.textureLocation(context.currentEntity, animatable),
@@ -114,19 +117,26 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
 
         poseStack.pushPose();
 
+        AzProfiler.begin(AzProfileStage.PRE_RENDER, animatable);
         preRender(context, false);
+        AzProfiler.end(AzProfileStage.PRE_RENDER);
 
         layerRenderer.preApplyRenderLayers(context);
         modelRenderer.cacheTexture(context);
+        AzProfiler.begin(AzProfileStage.MODEL_RENDER, animatable);
         modelRenderer.render(context, false);
+        AzProfiler.end(AzProfileStage.MODEL_RENDER);
         modelRenderer.clearCacheTexture();
+        AzProfiler.begin(AzProfileStage.RENDER_LAYERS, animatable);
         layerRenderer.applyRenderLayers(context);
+        AzProfiler.end(AzProfileStage.RENDER_LAYERS);
         postRender(context, false);
 
         poseStack.popPose();
 
         renderFinal(context);
         doPostRenderCleanup(context);
+        AzProfiler.end(AzProfileStage.RENDER);
     }
 
     /**
@@ -150,6 +160,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
      * @param applyAnimation A boolean indicating whether animation should be applied during re-rendering.
      */
     public void reRender(AzRendererPipelineContext<K, T> context, boolean applyAnimation) {
+        AzProfiler.begin(AzProfileStage.RE_RENDER, context.animatable());
         var poseStack = context.poseStack();
         var oldFlag = context.applyAnimationOnReRender();
 
@@ -162,6 +173,7 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         poseStack.popPose();
 
         context.setApplyAnimationOnReRender(oldFlag);
+        AzProfiler.end(AzProfileStage.RE_RENDER);
     }
 
     /**
