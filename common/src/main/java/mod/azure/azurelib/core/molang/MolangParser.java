@@ -306,6 +306,28 @@ public class MolangParser extends MathBuilder {
         remap("sin", "math.sin");
         remap("sqrt", "math.sqrt");
         remap("trunc", "math.trunc");
+        remap("copy_sign", "math.copy_sign");
+        remap("sign", "math.sign");
+        remap("inverse_lerp", "math.inverse_lerp");
+        remap("min_angle", "math.min_angle");
+
+        String[] easingCurves = {
+            "quad",
+            "cubic",
+            "quart",
+            "quint",
+            "sine",
+            "expo",
+            "circ",
+            "back",
+            "elastic",
+            "bounce" };
+
+        for (String curve : easingCurves) {
+            remap("ease_in_" + curve, "math.ease_in_" + curve);
+            remap("ease_out_" + curve, "math.ease_out_" + curve);
+            remap("ease_in_out_" + curve, "math.ease_in_out_" + curve);
+        }
 
         // A constant, not a function, so "math.pi * 2" folds at parse time. This used to be remap("pi", "math.pi"),
         // but no "pi" function exists, so it registered a null function and math.pi read an unset variable (0).
