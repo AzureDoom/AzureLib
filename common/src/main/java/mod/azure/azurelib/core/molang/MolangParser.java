@@ -20,11 +20,12 @@ import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.MathBuilder;
 import mod.azure.azurelib.core.math.Variable;
+import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.molang.expressions.MolangCompoundValue;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
-import mod.azure.azurelib.core.molang.functions.CosDegrees;
-import mod.azure.azurelib.core.molang.functions.SinDegrees;
+import mod.azure.azurelib.core.molang.functions.*;
+import mod.azure.azurelib.core.molang.functions.query.*;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
@@ -82,6 +83,7 @@ public class MolangParser extends MathBuilder {
 
         doCoreRemaps();
         registerAdditionalVariables();
+        registerQueryFunctions();
     }
 
     public static MolangValue parseJson(JsonElement element) {
@@ -298,30 +300,126 @@ public class MolangParser extends MathBuilder {
     }
 
     private void registerAdditionalVariables() {
-        register(new LazyVariable(MolangQueries.ANIM_TIME, 0));
-        register(new LazyVariable(MolangQueries.LIFE_TIME, 0));
         register(new LazyVariable(MolangQueries.ACTOR_COUNT, 0));
-        register(new LazyVariable(MolangQueries.HEALTH, 0));
-        register(new LazyVariable(MolangQueries.MAX_HEALTH, 0));
+        register(new LazyVariable(MolangQueries.ANIM_TIME, 0));
+        register(new LazyVariable(MolangQueries.BODY_X_ROTATION, 0));
+        register(new LazyVariable(MolangQueries.BODY_Y_ROTATION, 0));
+        register(new LazyVariable(MolangQueries.CARDINAL_FACING_2D, 0));
+        register(new LazyVariable(MolangQueries.CLIENT_MAX_RENDER_DISTANCE, 0));
+        register(new LazyVariable(MolangQueries.DAY, 0));
+        register(new LazyVariable(MolangQueries.DEATH_TICKS, 0));
         register(new LazyVariable(MolangQueries.DISTANCE_FROM_CAMERA, 0));
-        register(new LazyVariable(MolangQueries.YAW_SPEED, 0));
-        register(new LazyVariable(MolangQueries.IS_IN_WATER_OR_RAIN, 0));
-        register(new LazyVariable(MolangQueries.IS_IN_WATER, 0));
-        register(new LazyVariable(MolangQueries.IS_ON_GROUND, 0));
-        register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
-        register(new LazyVariable(MolangQueries.IS_ON_FIRE, 0));
+        register(new LazyVariable(MolangQueries.EQUIPMENT_COUNT, 0));
+        register(new LazyVariable(MolangQueries.FRAME_ALPHA, 0));
         register(new LazyVariable(MolangQueries.GROUND_SPEED, 0));
-        register(new LazyVariable(MolangQueries.HEAD_YAW, 0));
+        register(new LazyVariable(MolangQueries.HAS_COLLISION, 0));
+        register(new LazyVariable(MolangQueries.HAS_GRAVITY, 0));
+        register(new LazyVariable(MolangQueries.HAS_HEAD_GEAR, 0));
+        register(new LazyVariable(MolangQueries.HAS_RIDER, 0));
+        register(new LazyVariable(MolangQueries.HEAD_IS_IN_WATER, 0));
         register(new LazyVariable(MolangQueries.HEAD_PITCH, 0));
+        register(new LazyVariable(MolangQueries.HEAD_YAW, 0));
+        register(new LazyVariable(MolangQueries.HEALTH, 0));
         register(new LazyVariable(MolangQueries.HURT_TIME, 0));
         register(new LazyVariable(MolangQueries.IN_AIR, 0));
+        register(new LazyVariable(MolangQueries.IS_ALIVE, 0));
         register(new LazyVariable(MolangQueries.IS_BABY, 0));
         register(new LazyVariable(MolangQueries.IS_BLOCKING, 0));
+        register(new LazyVariable(MolangQueries.IS_FIRE_IMMUNE, 0));
+        register(new LazyVariable(MolangQueries.IS_FIRST_PERSON, 0));
+        register(new LazyVariable(MolangQueries.IS_GLIDING, 0));
+        register(new LazyVariable(MolangQueries.IS_INVISIBLE, 0));
+        register(new LazyVariable(MolangQueries.IS_IN_LAVA, 0));
+        register(new LazyVariable(MolangQueries.IS_IN_WATER, 0));
+        register(new LazyVariable(MolangQueries.IS_IN_WATER_OR_RAIN, 0));
+        register(new LazyVariable(MolangQueries.IS_LEASHED, 0));
+        register(new LazyVariable(MolangQueries.IS_LOCAL_PLAYER, 0));
+        register(new LazyVariable(MolangQueries.IS_MOVING, 0));
+        register(new LazyVariable(MolangQueries.IS_ON_FIRE, 0));
+        register(new LazyVariable(MolangQueries.IS_ON_GROUND, 0));
+        register(new LazyVariable(MolangQueries.IS_RIDING, 0));
+        register(new LazyVariable(MolangQueries.IS_SILENT, 0));
+        register(new LazyVariable(MolangQueries.IS_SITTING, 0));
+        register(new LazyVariable(MolangQueries.IS_SLEEPING, 0));
+        register(new LazyVariable(MolangQueries.IS_SNEAKING, 0));
+        register(new LazyVariable(MolangQueries.IS_SPECTATOR, 0));
+        register(new LazyVariable(MolangQueries.IS_SPRINTING, 0));
+        register(new LazyVariable(MolangQueries.IS_SWIMMING, 0));
+        register(new LazyVariable(MolangQueries.IS_TAMED, 0));
         register(new LazyVariable(MolangQueries.IS_USING_ITEM, 0));
         register(new LazyVariable(MolangQueries.ITEM_CURRENT_DURABILITY, 0));
+        register(new LazyVariable(MolangQueries.ITEM_IN_USE_DURATION, 0));
         register(new LazyVariable(MolangQueries.ITEM_IS_ENCHANTED, 0));
+        register(new LazyVariable(MolangQueries.ITEM_MAX_USE_DURATION, 0));
+        register(new LazyVariable(MolangQueries.ITEM_REMAINING_USE_DURATION, 0));
+        register(new LazyVariable(MolangQueries.LIFE_TIME, 0));
         register(new LazyVariable(MolangQueries.LIMB_SWING, 0));
         register(new LazyVariable(MolangQueries.LIMB_SWING_AMOUNT, 0));
+        register(new LazyVariable(MolangQueries.MAX_DURABILITY, 0));
+        register(new LazyVariable(MolangQueries.MAX_HEALTH, 0));
+        register(new LazyVariable(MolangQueries.MODEL_SCALE, 0));
+        register(new LazyVariable(MolangQueries.MOON_BRIGHTNESS, 0));
+        register(new LazyVariable(MolangQueries.MOON_PHASE, 0));
+        register(new LazyVariable(MolangQueries.PLAYER_LEVEL, 0));
+        register(new LazyVariable(MolangQueries.REMAINING_DURABILITY, 0));
+        register(new LazyVariable(MolangQueries.SWIM_AMOUNT, 0));
+        register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
+        register(new LazyVariable(MolangQueries.TIME_STAMP, 0));
+        register(new LazyVariable(MolangQueries.VERTICAL_SPEED, 0));
+        register(new LazyVariable(MolangQueries.YAW_SPEED, 0));
+
+        alias(MolangQueries.BLOCKING, MolangQueries.IS_BLOCKING);
+        alias(MolangQueries.HEAD_X_ROTATION, MolangQueries.HEAD_PITCH);
+        alias(MolangQueries.HEAD_Y_ROTATION, MolangQueries.HEAD_YAW);
+        alias(MolangQueries.IS_ONFIRE, MolangQueries.IS_ON_FIRE);
+    }
+
+    private void registerQueryFunctions() {
+        registerFunction(MolangQueries.ALL, All.class);
+        registerFunction(MolangQueries.ANY, Any.class);
+        registerFunction(MolangQueries.APPROX_EQ, ApproxEq.class);
+        registerFunction(MolangQueries.IN_RANGE, InRange.class);
+
+        registerFunction(MolangQueries.ABOVE_TOP_SOLID, AboveTopSolid.class);
+        registerFunction(MolangQueries.ARMOR_DAMAGE_SLOT, ArmorDamageSlot.class);
+        registerFunction(MolangQueries.CAMERA_DISTANCE_RANGE_LERP, CameraDistanceRangeLerp.class);
+        registerFunction(MolangQueries.HAS_ARMOR_SLOT, HasArmorSlot.class);
+        registerFunction(MolangQueries.HEIGHTMAP, Heightmap.class);
+        registerFunction(MolangQueries.IS_ITEM_EQUIPPED, IsItemEquipped.class);
+        registerFunction(MolangQueries.MOVEMENT_DIRECTION, MovementDirection.class);
+        registerFunction(MolangQueries.POSITION, Position.class);
+        registerFunction(MolangQueries.POSITION_DELTA, PositionDelta.class);
+    }
+
+    /**
+     * Registers a Molang function, such as a query that takes arguments. The name is normalized, so
+     * {@code "q.my_query"} and {@code "query.my_query"} register the same function, and animations can call it with
+     * either prefix.
+     * <p>
+     * Functions that read game state should extend {@link ContextQueryFunction} or otherwise live outside the
+     * {@code mod.azure.azurelib.core.molang.functions} package, so they are not folded to a constant at load time.
+     * Register during mod initialization, before resources load.
+     * </p>
+     */
+    public void registerFunction(String name, Class<? extends Function> function) {
+        this.functions.put(normalizeName(name), function);
+    }
+
+    /**
+     * Makes {@code alias} read and write the same variable as {@code target}. Call after {@code target} is registered;
+     * re-registering {@code target} later does not update the alias.
+     */
+    public void alias(String alias, String target) {
+        VARIABLES.put(normalizeName(alias), getVariable(target));
+        registrationGeneration++;
+    }
+
+    /**
+     * Normalizes the function name so query functions can be called with the short {@code q.} prefix.
+     */
+    @Override
+    protected IValue createFunction(String first, List<Object> args) throws Exception {
+        return super.createFunction(normalizeName(first), args);
     }
 
     /**

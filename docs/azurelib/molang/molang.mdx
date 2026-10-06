@@ -63,6 +63,51 @@ public class MyEntityAnimator extends AzEntityAnimator<MyEntity> {
 }
 ```
 
+## Adding Query Functions
+
+A query function takes arguments, like `query.my_charge_level(1)`. Use one when a single query needs a parameter, such as a slot, an axis or a threshold.
+
+### Step 1: Create the Function
+
+Extend `ContextQueryFunction`. It gives you the current `MolangQueryContext`, which for AzureLib animators is an `AzMolangQueryContext` holding the entity being animated:
+
+```java
+public class ChargeLevel extends ContextQueryFunction {
+
+    public ChargeLevel(IValue[] values, String name) throws Exception {
+        super(values, name);
+    }
+
+    @Override
+    public int getRequiredArguments() {
+        return 1;
+    }
+
+    @Override
+    protected double evaluate(MolangQueryContext context) {
+        if (context instanceof AzMolangQueryContext azContext && azContext.entity() instanceof MyEntity entity) {
+            return entity.getChargeLevel(intArg(0));
+        }
+
+        return 0;
+    }
+}
+```
+
+<Callout variant="warning">
+    Extend `ContextQueryFunction` (or keep your class out of the `mod.azure.azurelib.core.molang.functions` package). Functions in that package are treated as pure math and are folded to a constant when animations load, so a game-state query would freeze at its load-time value.
+</Callout>
+
+### Step 2: Register the Function
+
+Register it during mod initialization, before resources load, alongside your variables:
+
+```java
+MolangParser.INSTANCE.registerFunction("query.my_charge_level", ChargeLevel.class);
+```
+
+Animations can then call `query.my_charge_level(1)` or `q.my_charge_level(1)`. Unlike variable queries, functions are always written with parentheses.
+
 ## Registration Methods
 
 ### Memoized Values
