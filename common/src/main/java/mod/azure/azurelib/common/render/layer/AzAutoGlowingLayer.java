@@ -78,6 +78,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
         var prevRenderType = context.renderType();
         var prevVertexConsumer = context.vertexConsumer();
         var prevRenderColor = context.renderColor();
+        var prevPackedLight = context.packedLight();
 
         if (renderType != null) {
             var tint = getGlowColor(context);
@@ -87,7 +88,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
             }
 
             context.setRenderType(renderType);
-            context.setPackedLight(getPackedLight());
+            context.setPackedLight(getPackedLight(context));
             context.setVertexConsumer(context.multiBufferSource().getBuffer(renderType));
 
             renderPipeline.reRender(context);
@@ -96,6 +97,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
         context.setRenderType(prevRenderType);
         context.setVertexConsumer(prevVertexConsumer);
         context.setRenderColor(prevRenderColor);
+        context.setPackedLight(prevPackedLight);
     }
 
     @Override
@@ -124,9 +126,11 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
     /**
      * Calculates and returns the packed light value to be used in the rendering pipeline.
      *
+     * @param context The rendering context that contains information about the current rendering pipeline, the
+     *                animatable entity, and other rendering configurations.
      * @return The packed light value, typically used to determine the lighting conditions in rendering.
      */
-    protected int getPackedLight() {
+    protected int getPackedLight(AzRendererPipelineContext<K, T> context) {
         return LightTexture.FULL_SKY;
     }
 
