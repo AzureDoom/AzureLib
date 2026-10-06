@@ -3,10 +3,12 @@ package mod.azure.azurelib.animation.easing;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 import mod.azure.azurelib.core.utils.Interpolations;
 
 public interface AzEasingType {
@@ -42,10 +44,22 @@ public interface AzEasingType {
     }
 
     /**
-     * Whether this easing interprets the keyframe's {@code easingArgs} as type-specific data (bezier handles,
-     * catmull-rom neighbors). Such types are only valid on a keyframe authored with that exact type and must not be
-     * force-applied as a controller-wide override.
+     * Resolves, ahead of time, the curve this type would build for {@code keyframe}, so it can be baked when the
+     * animation loads instead of being looked up every frame.
+     * <p>
+     * Return {@code null} when the curve can't be known in advance (for example, when it depends on a Molang
+     * expression) or when this type doesn't work through a single curve. That is the default, and simply means the
+     * curve is resolved at playback time as before. A non-null result must be exactly what this type would use for that
+     * keyframe at playback.
+     * </p>
+     *
+     * @param keyframe a keyframe whose easing type is this type
      */
+    @Nullable
+    default Double2DoubleFunction resolveTransformer(AzKeyframe<?> keyframe) {
+        return null;
+    }
+
     default boolean usesKeyframeData() {
         return false;
     }
