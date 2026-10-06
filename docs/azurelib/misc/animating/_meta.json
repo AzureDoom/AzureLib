@@ -19,6 +19,10 @@
         "name": "Animating Bones In-Code",
         "icon": "Info"
     },
+    "procedural_animation.mdx": {
+        "name": "Procedural Animation",
+        "icon": "Activity"
+    },
     "animation_includes.mdx": {
         "name": "Using the inclusion feature in Animation JSON",
         "icon": "Info"
