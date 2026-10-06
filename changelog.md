@@ -1,11 +1,17 @@
-v4.0.6
+v4.0.7
 
 ### Additions
-- Ported first-person arm rendering from 1.21.1. Items with `leftArm` and/or `rightArm` bones now render the player's own arms, skin and sleeves included, in place of those bones while an animation is playing in first person. Anything parented to the arm bones still renders, so held parts and attachments follow the player's arms. Skipped when the First-person Model mod is installed, since it handles arms itself.
+- Restored the in-game config screen for AzureLib's config API on 26.3, including config group selection, nested object screens, array editing (add/remove elements), and confirmation dialogs for "Use default config" and "Rollback changes".
+- Added a color picker for `@Configurable.Gui.ColorValue` string fields, with RGB and ARGB slider dialogs.
+- Added ModMenu integration on Fabric and mod list config buttons on NeoForge for every mod that registers configs through AzureLib.
 
 ### Fixes
-- Fixed AzureLib items crashing when `disableAnimationInContexts` or `enableAnimationInContexts` was used, and fixed item renderers never knowing which display context they were rendering in (first person, GUI, ground, ...). Since 26.x, Minecraft no longer tells special item renderers the display context, so it is now captured from the item's render state.
+- Fixed the Fabric ModMenu entrypoint pointing to a missing `ModMenuIntegration` class.
+- Fixed editing array config elements in the GUI overwriting the stored default values.
+- Fixed color values written from the color picker dropping leading zeros (e.g. `#0000FF` was saved as `#FF`).
 
 ### Developer Notes
-- New `AzItemDisplayContextCapture` exposes the display context of the item currently being rendered, captured by a new `ItemStackRenderState` mixin. `AzItemRendererConfig#shouldAnimateInContext` now treats a `null` context as `ItemDisplayContext.NONE`.
-- First-person arms are rendered by `AzItemArmRenderUtil`. Since 1.21.2, the player model's sleeves are child parts of its arms, so each arm is drawn in two passes: the arm as solid skin, then only its sleeve as translucent skin, keeping the player's sleeve visibility settings.
+- Added `ConfigurationClient` with `getConfigScreen`, `getConfigScreenByGroup` and `getScreenForGroup` for opening config screens from your own code.
+- Added `DisplayAdapters.registerCustom(Class, DisplayAdapter)` to override how a config value type is displayed in the GUI.
+- `@ValueUpdateCallback` validation warnings and errors are now shown in the config screen.
+- Mod list config buttons are registered per config group, so the `@Config` group (defaults to the config id) must match your mod ID.
