@@ -5,14 +5,7 @@
  */
 package mod.azure.azurelib.core.math;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.common.util.AzureLibException;
 import mod.azure.azurelib.core.math.functions.Function;
 import mod.azure.azurelib.core.math.functions.classic.*;
 import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;
@@ -53,6 +46,13 @@ import mod.azure.azurelib.core.math.functions.rounding.Floor;
 import mod.azure.azurelib.core.math.functions.rounding.Round;
 import mod.azure.azurelib.core.math.functions.rounding.Trunc;
 import mod.azure.azurelib.core.math.functions.utility.*;
+import mod.azure.azurelib.common.util.AzureLibException;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Math builder This class is responsible for parsing math expressions provided by user in a string to an {@link IValue}
@@ -129,6 +129,7 @@ public class MathBuilder {
         this.functions.put("copy_sign", CopySign.class);
         this.functions.put("sign", Sign.class);
         this.functions.put("inverse_lerp", InverseLerp.class);
+        this.functions.put("min_angle", MinAngle.class);
 
         /* Quadratic easing functions */
         this.functions.put("ease_in_quad", EaseInQuad.class);
