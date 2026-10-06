@@ -26,6 +26,12 @@ public class AzBoneCache {
     /** Counts animation frames for this animatable; advanced at the end of {@link #update}. */
     private long currentFrame;
 
+    /**
+     * The frame controllers wrote most recently, i.e. the frame {@link #update} last finished. {@code -1} until the
+     * first update, which never matches a snapshot's write frame.
+     */
+    private long lastAnimatedFrame = -1;
+
     public AzBoneCache() {
         this.boneSnapshotsByName = new Object2ObjectOpenHashMap<>();
         setBakedModel(AzBakedModel.getDefault());
@@ -66,7 +72,46 @@ public class AzBoneCache {
         }
 
         resetBoneTransformationMarkers();
+        lastAnimatedFrame = currentFrame;
         currentFrame++;
+    }
+
+    /**
+     * Whether an animation controller moved this bone's rotation in the most recent animation update.
+     * <p>
+     * Intended for {@code AzAnimator#setCustomAnimations}, which runs right after that update. When this returns
+     * {@code true}, the bone's current rotation is this frame's animated value, so it is safe to add to it. When it
+     * returns {@code false}, the bone still holds whatever was set last frame (possibly by your own code), so set the
+     * rotation from {@link AzBone#getInitialAzSnapshot()} instead.
+     * </p>
+     *
+     * @param bone a bone from this cache's {@link #getBakedModel() baked model}
+     */
+    public boolean wasRotationAnimatedThisFrame(AzBone bone) {
+        var snapshot = boneSnapshotsByName.get(bone.getName());
+        return snapshot != null && snapshot.isRotationWrittenInFrame(lastAnimatedFrame);
+    }
+
+    /**
+     * Whether an animation controller moved this bone's position in the most recent animation update. See
+     * {@link #wasRotationAnimatedThisFrame(AzBone)}.
+     *
+     * @param bone a bone from this cache's {@link #getBakedModel() baked model}
+     */
+    public boolean wasPositionAnimatedThisFrame(AzBone bone) {
+        var snapshot = boneSnapshotsByName.get(bone.getName());
+        return snapshot != null && snapshot.isPositionWrittenInFrame(lastAnimatedFrame);
+    }
+
+    /**
+     * Whether an animation controller moved this bone's scale in the most recent animation update. See
+     * {@link #wasRotationAnimatedThisFrame(AzBone)}.
+     *
+     * @param bone a bone from this cache's {@link #getBakedModel() baked model}
+     */
+    public boolean wasScaleAnimatedThisFrame(AzBone bone) {
+        var snapshot = boneSnapshotsByName.get(bone.getName());
+        return snapshot != null && snapshot.isScaleWrittenInFrame(lastAnimatedFrame);
     }
 
     /**
