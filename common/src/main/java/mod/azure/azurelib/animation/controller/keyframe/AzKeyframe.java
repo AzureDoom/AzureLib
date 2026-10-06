@@ -58,9 +58,9 @@ public record AzKeyframe<T extends IValue>(
             return false;
 
         return Double.compare(this.length, other.length()) == 0
-                && Objects.equals(this.startValue, other.startValue())
-                && Objects.equals(this.endValue, other.endValue())
-                && Objects.equals(this.easingType, other.easingType())
-                && Objects.equals(this.easingArgs, other.easingArgs());
+            && Objects.equals(this.startValue, other.startValue())
+            && Objects.equals(this.endValue, other.endValue())
+            && Objects.equals(this.easingType, other.easingType())
+            && Objects.equals(this.easingArgs, other.easingArgs());
     }
 }
