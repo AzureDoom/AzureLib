@@ -1,11 +1,12 @@
 package mod.azure.azurelib.model;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.cache.object.GeoCube;
 import org.joml.*;
 
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.cache.object.GeoCube;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
