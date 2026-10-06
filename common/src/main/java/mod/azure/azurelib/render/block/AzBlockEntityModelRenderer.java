@@ -63,16 +63,11 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
 
         // See AzEntityModelRenderer#render for the rationale; this is the block-entity equivalent.
         float entityCamX = 0, entityCamY = 0, entityCamZ = 0;
-        int passCamXBits = 0, passCamYBits = 0, passCamZBits = 0;
         if (!isReRender) {
             var m = poseStack.last().pose();
             entityCamX = m.m30();
             entityCamY = m.m31();
             entityCamZ = m.m32();
-            var bpos = entity.getBlockPos();
-            passCamXBits = Float.floatToRawIntBits(bpos.getX() - entityCamX);
-            passCamYBits = Float.floatToRawIntBits(bpos.getY() - entityCamY);
-            passCamZBits = Float.floatToRawIntBits(bpos.getZ() - entityCamZ);
         }
 
         if (!isReRender) {
@@ -94,7 +89,11 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
                 var blockState = entity.getBlockState();
                 var rt = context.renderType();
 
-                if (rt != null && !anyBoneTracksMatrices(model.getTopLevelBones())) {
+                if (
+                    rt != null
+                        && AzBlockEntityGeometryCache.isEnabledFor(entity.getType())
+                        && !anyBoneTracksMatrices(model.getTopLevelBones())
+                ) {
                     long boneHash = hashBones(model.getTopLevelBones());
                     capturedBoneHash = boneHash;
 
@@ -102,16 +101,14 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
                         model.getModelUUID(),
                         blockState,
                         boneHash,
-                        rt,
-                        passCamXBits,
-                        passCamYBits,
-                        passCamZBits
+                        rt
                     );
 
                     var snapshot = AzBlockEntityGeometryCache.get(cacheKey);
 
                     if (snapshot != null) {
                         if (!AzBlockEntityGeometryCache.isUncacheable(snapshot)) {
+                            AzBlockEntityGeometryCache.recordHit(entity.getType());
                             snapshot.replayTo(
                                 context.multiBufferSource(),
                                 entityCamX,
@@ -153,10 +150,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
                 model.getModelUUID(),
                 blockState,
                 capturedBoneHash,
-                rt,
-                passCamXBits,
-                passCamYBits,
-                passCamZBits
+                rt
             );
 
             if (detectedMultipleRenderTypes) {
@@ -327,9 +321,13 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleX());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleY());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleZ());
-        for (var child : bone.getChildBones()) {
-            h = hashBoneRecursive(h, child);
+
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            h = hashBoneRecursive(h, children.get(i));
         }
+
         return h;
     }
 
