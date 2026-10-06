@@ -1,0 +1,280 @@
+---
+title: Procedural Animation
+hide_meta: true
+---
+
+# Procedural Animation
+
+## Overview
+
+Procedural animation moves bones from code, using live game data, instead of playing keyframes made in Blockbench. Use it for motion that depends on what is happening right now, for example:
+
+- A head that tracks where the entity is looking.
+- A tail or antenna that sways faster as the entity runs.
+- A body that leans into a turn, or braces while aiming.
+- Parts that hide, show or resize based on the entity's state.
+
+Procedural animation works alongside your normal animations. Your controllers play first, then your code adjusts the result.
+
+<Callout variant="info">
+    Not everything needs code. If a value is already available as a Molang query (such as `query.head_yaw` or `query.ground_speed`), you can use it directly in a Blockbench keyframe; see [How to use Molang](../../blockbench/animating_in_bb#how-to-use-molang). If you want to mix authored animations, such as breathing on top of a walk cycle, use an `ADDITIVE` controller; see the Layering Controllers section of the [Animation Controller Builder](./animation_controller_builder) page. Reach for procedural animation when the motion needs logic that keyframes and Molang can't express.
+</Callout>
+
+## Where Procedural Animation Runs
+
+Override `setCustomAnimations` in your animator. AzureLib calls it every frame, for each animatable, at the end of its animation update:
+
+1. Molang queries are updated for the animatable.
+2. Every animation controller applies its animation to the bones, layered in the order the controllers were added.
+3. Bones that no controller moved ease back toward their default pose.
+4. **`setCustomAnimations` runs.** Anything you set here is what gets rendered this frame.
+
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    @Override
+    public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
+        super.setCustomAnimations(entity, partialTicks);
+
+        // Your procedural animation goes here.
+    }
+
+    // ... registerControllers, getAnimationLocation, etc.
+}
+```
+
+`AzItemAnimator` and `AzBlockAnimator` have the same method, so everything on this page also works for items and block entities.
+
+<Callout variant="warning">
+    `setCustomAnimations` runs on the client, every frame, for every animated instance on screen. Keep it cheap: avoid creating objects, avoid searching the world, and read values the entity already has. Remember that the client only knows synced data. A field that only exists on the server (such as a mob's attack target) won't have a useful value here.
+</Callout>
+
+## Getting Bones
+
+Bones are looked up by the name you gave them in Blockbench:
+
+```java
+var head = context().boneCache().getBakedModel().getBoneOrNull("head");
+
+if (head != null) {
+    // Move the head.
+}
+```
+
+Look bones up inside `setCustomAnimations` each frame rather than storing them in a field. AzureLib swaps in new bone objects when the model changes, such as on a resource reload, and a stored bone would then point at the old model. A lookup by name is a fast map lookup, so there's no need to cache it.
+
+## Bone Values and Units
+
+Each bone has a rotation, position and scale, each with an X, Y and Z value. Every setter has a matching getter, such as `getRotX()` for `setRotX(...)`.
+
+| Value | Methods | Units |
+|-------|---------|-------|
+| Rotation | `setRotX`, `setRotY`, `setRotZ` | Radians. Convert from degrees with `Mth.DEG_TO_RAD` |
+| Position | `setPosX`, `setPosY`, `setPosZ` | Blockbench pixels (16 to a block), on the same axes as Blockbench |
+| Scale | `setScaleX`, `setScaleY`, `setScaleZ` | A multiplier, where `1` is normal size |
+
+Every bone also remembers its default pose from the model file through `bone.getInitialAzSnapshot()`. This matters for the next section.
+
+## Setting Values Safely
+
+There are two ways to change a bone, and picking the wrong one is the most common source of bugs.
+
+**Set it from the default pose** when your code fully controls the bone:
+
+```java
+var initial = bone.getInitialAzSnapshot();
+bone.setRotY(initial.getRotY() + angle);
+```
+
+**Add to the animated value** when you want to move a bone on top of what its animation is doing this frame:
+
+```java
+bone.setRotY(bone.getRotY() + angle);
+```
+
+<Callout variant="warning">
+    Only add to the current value (`bone.getRotY() + angle`) when an animation moved that bone *this frame*. If no animation moved it, the bone still holds the value your code set last frame, so the angle gets added again every frame and the bone spins away. This happens because AzureLib doesn't ease a bone back to its default pose while your code keeps setting it.
+</Callout>
+
+If a bone is sometimes animated and sometimes not (for example, a tail that your walk animation moves but your idle animation doesn't), ask the bone cache which case you're in. `wasRotationAnimatedThisFrame` returns `true` if an animation moved the bone's rotation this frame:
+
+```java
+var boneCache = context().boneCache();
+
+float base = boneCache.wasRotationAnimatedThisFrame(tail)
+    ? tail.getRotY()                          // Animated this frame: build on the animation.
+    : tail.getInitialAzSnapshot().getRotY();  // Not animated: start from the default pose.
+
+tail.setRotY(base + sway);
+```
+
+Position and scale have matching methods: `wasPositionAnimatedThisFrame` and `wasScaleAnimatedThisFrame`.
+
+<Callout variant="info">
+    These methods describe the animation update that just ran, so call them in `setCustomAnimations`. They report what your animation controllers did, not changes made by your own code.
+</Callout>
+
+## Example: Head Tracking
+
+This turns the head to face where the entity is looking. It sets the head from its default pose, so it works whether or not your animations also move the head.
+
+```java
+@Override
+public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
+    super.setCustomAnimations(entity, partialTicks);
+
+    var head = context().boneCache().getBakedModel().getBoneOrNull("head");
+
+    if (head == null) {
+        return;
+    }
+
+    // Where the entity is looking, relative to its body, in degrees.
+    float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+    float headYaw = Mth.wrapDegrees(entity.getViewYRot(partialTicks) - bodyYaw);
+    float headPitch = entity.getViewXRot(partialTicks);
+
+    var initial = head.getInitialAzSnapshot();
+    head.setRotX(initial.getRotX() + headPitch * Mth.DEG_TO_RAD);
+    head.setRotY(initial.getRotY() + headYaw * Mth.DEG_TO_RAD);
+}
+```
+
+<Callout variant="info">
+    Always interpolate with `partialTicks` (as `rotLerp`, `getViewYRot(partialTicks)` and `getViewXRot(partialTicks)` do here). Game values only change 20 times a second, so using them directly makes motion look choppy at higher frame rates.
+</Callout>
+
+If your rig's head turns the opposite way, negate the value for that axis. If the head should stop at a limit, clamp the angle first, for example `Mth.clamp(headYaw, -60, 60)`.
+
+## Example: Tail Sway
+
+This sways the tail side to side, faster and wider while the entity walks. It sits on top of whatever the tail's animation is doing, using `wasRotationAnimatedThisFrame` from [Setting Values Safely](#setting-values-safely).
+
+```java
+var tail = context().boneCache().getBakedModel().getBoneOrNull("tail");
+
+if (tail != null) {
+    float time = entity.tickCount + partialTicks;
+    float walkSpeed = entity.walkAnimation.speed(partialTicks);
+
+    float sway = Mth.sin(time * (0.1F + walkSpeed * 0.3F)) * (0.15F + walkSpeed * 0.35F);
+    float base = context().boneCache().wasRotationAnimatedThisFrame(tail)
+        ? tail.getRotY()
+        : tail.getInitialAzSnapshot().getRotY();
+
+    tail.setRotY(base + sway);
+}
+```
+
+## Example: Fading Motion In and Out
+
+Procedural motion that switches on and off instantly looks like a pop. Instead, keep a weight between `0` and `1` that eases toward its target, and multiply your motion by it. Entity animators are created per entity, so fields in your animator are a safe place to keep this state.
+
+This leans the upper body forward while the mob is aggressive:
+
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    /** How far into the lean we are, from 0 (none) to 1 (full). */
+    private float leanWeight;
+
+    /** The animation time when we last updated leanWeight, or -1 before the first frame. */
+    private double lastAnimTime = -1;
+
+    @Override
+    public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
+        super.setCustomAnimations(entity, partialTicks);
+
+        // Time since the last frame, in ticks. Uses the animation timer, so it pauses with the game.
+        double animTime = context().timer().getAnimTime();
+        float deltaTicks = lastAnimTime < 0 ? 0 : (float) Math.max(0, animTime - lastAnimTime);
+        lastAnimTime = animTime;
+
+        // Ease toward the target over 5 ticks.
+        float target = entity.isAggressive() ? 1 : 0;
+        leanWeight = Mth.approach(leanWeight, target, deltaTicks / 5F);
+
+        var upperBody = context().boneCache().getBakedModel().getBoneOrNull("upper_body");
+
+        if (upperBody != null) {
+            var initial = upperBody.getInitialAzSnapshot();
+            upperBody.setRotX(initial.getRotX() + 20 * Mth.DEG_TO_RAD * leanWeight);
+        }
+    }
+}
+```
+
+Using the animation timer instead of counting frames makes the fade take the same time at any frame rate.
+
+<Callout variant="warning">
+    Fade your motion out instead of just stopping it. AzureLib's own easing back to the default pose doesn't know about values your code set, so if you suddenly stop setting a bone, it can jump before it settles.
+</Callout>
+
+## Example: Hiding and Resizing Bones
+
+Bones can be hidden or scaled to show state, such as armor plates, a backpack or a swelling egg sac:
+
+```java
+var model = context().boneCache().getBakedModel();
+
+var backpack = model.getBoneOrNull("backpack");
+
+if (backpack != null) {
+    backpack.setHidden(!entity.hasBackpack());
+}
+
+var sac = model.getBoneOrNull("egg_sac");
+
+if (sac != null) {
+    float pulse = 1 + Mth.sin((entity.tickCount + partialTicks) * 0.2F) * 0.05F;
+    float growth = entity.getGrowthProgress(); // Your own 0 to 1 value.
+    float scale = (0.5F + growth * 0.5F) * pulse;
+
+    sac.setScaleX(scale);
+    sac.setScaleY(scale);
+    sac.setScaleZ(scale);
+}
+```
+
+<Callout variant="info">
+    Hidden bones stay hidden until you show them again, so set `setHidden` every frame (both `true` and `false`), as above, rather than only when the state changes. Hiding a bone also hides its children; use `setChildrenHidden` to hide only the children.
+</Callout>
+
+## Reading Bone Positions
+
+Sometimes procedural animation needs to know where a bone is, for example to aim at something or spawn particles from a hand. Each bone can report its position:
+
+- `bone.getLocalPosition()`: relative to its parent bone.
+- `bone.getModelPosition()`: relative to the model.
+- `bone.getWorldPosition()`: in the world.
+
+These positions are calculated when the model renders, so they describe the bone as it was drawn last frame. The first time you ask for one, the bone starts tracking its position from then on, so expect a single frame with no data.
+
+## Choosing an Approach
+
+| You want to... | Use |
+|----------------|-----|
+| Play motion made in Blockbench | A normal animation controller |
+| Drive a keyframe from a value AzureLib already exposes | A Molang query in the keyframe |
+| Drive a keyframe from your own value | A [custom Molang query](../../molang/molang) |
+| Mix authored animations (breathing over walking, upper body only) | Layered controllers with weights, `ADDITIVE` and bone masks |
+| React to live data with logic, limits or smoothing | Procedural animation in `setCustomAnimations` |
+
+## Troubleshooting
+
+1. **A bone spins or drifts further every frame.**
+   - You're adding to the current value on a bone no animation is moving. Set it from `getInitialAzSnapshot()` instead, or check `wasRotationAnimatedThisFrame` as shown in [Setting Values Safely](#setting-values-safely).
+
+2. **Nothing moves.**
+   - Check the bone name matches Blockbench exactly; `getBoneOrNull` returns `null` for a name that doesn't exist.
+   - Make sure you call `super.setCustomAnimations(...)` and that your animator is the one set on the renderer with `setAnimatorProvider`.
+   - Rotations are in radians. A value like `20` is over three full turns; use `20 * Mth.DEG_TO_RAD`.
+
+3. **Motion is choppy.**
+   - Interpolate game values with `partialTicks`.
+
+4. **A bone pops when the motion stops.**
+   - Fade the motion out with a weight, as in [Fading Motion In and Out](#example-fading-motion-in-and-out).
+
+5. **A bone turns the wrong way.**
+   - Negate the value for that axis. Rigs can be built facing different directions, so the right sign depends on your model.
