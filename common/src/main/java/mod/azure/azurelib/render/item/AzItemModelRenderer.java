@@ -94,8 +94,6 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
             bone.setScaleZ(initialSnapshot.getScaleZ());
         }
 
-        poseStack.pushPose();
-
         var animator = itemRendererPipeline.getRenderer().getAnimator();
         var isAnimationPlaying = false;
         // Check if the first-person mod is loaded as it has its own arm system for items
@@ -139,21 +137,21 @@ public class AzItemModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
 
-        super.renderRecursively(context, bone, isReRender);
-
-        if (shouldFreezeTransforms) {
-            bone.setPosX(origPosX);
-            bone.setPosY(origPosY);
-            bone.setPosZ(origPosZ);
-            bone.setRotX(origRotX);
-            bone.setRotY(origRotY);
-            bone.setRotZ(origRotZ);
-            bone.setScaleX(origScaleX);
-            bone.setScaleY(origScaleY);
-            bone.setScaleZ(origScaleZ);
+        try {
+            super.renderRecursively(context, bone, isReRender);
+        } finally {
+            if (shouldFreezeTransforms) {
+                bone.setPosX(origPosX);
+                bone.setPosY(origPosY);
+                bone.setPosZ(origPosZ);
+                bone.setRotX(origRotX);
+                bone.setRotY(origRotY);
+                bone.setRotZ(origRotZ);
+                bone.setScaleX(origScaleX);
+                bone.setScaleY(origScaleY);
+                bone.setScaleZ(origScaleZ);
+            }
         }
-
-        poseStack.popPose();
     }
 
     public Vec3 getRenderOffset(ItemStack itemStack, float f) {
