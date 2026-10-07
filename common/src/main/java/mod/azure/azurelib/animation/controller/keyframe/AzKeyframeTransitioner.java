@@ -61,6 +61,7 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
         var boneAnimations = animation.boneAnimations();
         this.cursors = prepareKeyframeCursors(animation);
         this.easingOverride = animationController.animationProperties().easingType();
+        var queues = boneAnimationQueueCache.resolveQueues(animation);
 
         for (var boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {
             var boneAnimation = boneAnimations[boneIndex];
@@ -78,11 +79,11 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
-            var queue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
+            var queue = queues[boneIndex];
             var snapshot = boneSnapshotCache.getOrNull(boneAnimation.boneName());
 
             if (snapshot == null || queue == null) {
-                return;
+                continue;
             }
 
             var rotationKeyframes = boneAnimation.rotationKeyframes();
