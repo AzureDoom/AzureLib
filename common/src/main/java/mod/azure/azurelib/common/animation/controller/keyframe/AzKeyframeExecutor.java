@@ -56,10 +56,11 @@ public class AzKeyframeExecutor<T> extends AzAbstractKeyframeExecutor {
         var animation = currentAnimation.animation();
         var boneAnimations = animation.boneAnimations();
         var cursors = prepareKeyframeCursors(animation);
+        var queues = boneAnimationQueueCache.resolveQueues(animation);
 
         for (var boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {
             var boneAnimation = boneAnimations[boneIndex];
-            var boneAnimationQueue = boneAnimationQueueCache.getOrNull(boneAnimation.boneName());
+            var boneAnimationQueue = queues[boneIndex];
 
             if (boneAnimationQueue == null) {
                 if (crashWhenCantFindBone) {

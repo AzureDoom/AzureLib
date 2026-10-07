@@ -22,9 +22,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -113,6 +115,22 @@ public class AnimatableTexture extends SimpleTexture {
         return this.isAnimated;
     }
 
+    /**
+     * Each texture class's public {@code setAnimationFrame(int)} method, or {@code null} if it has none. Looked up once
+     * per class instead of on every call to {@link #setAndUpdate(ResourceLocation, int)}.
+     */
+    private static final ClassValue<Method> SET_ANIMATION_FRAME = new ClassValue<>() {
+
+        @Override
+        protected Method computeValue(@NotNull Class<?> type) {
+            try {
+                return type.getMethod("setAnimationFrame", int.class);
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+        }
+    };
+
     public static void setAndUpdate(ResourceLocation texturePath) {
         setAndUpdate(texturePath, (int) RenderUtils.getCurrentTick());
     }
@@ -126,10 +144,17 @@ public class AnimatableTexture extends SimpleTexture {
     public static void setAndUpdate(ResourceLocation texturePath, int frameTick) {
         AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(texturePath);
 
-        try {
-            var method = texture.getClass().getMethod("setAnimationFrame", int.class);
-            method.invoke(texture, frameTick);
-        } catch (ReflectiveOperationException ignored) {}
+        if (texture instanceof AnimatableTexture animatableTexture) {
+            animatableTexture.setAnimationFrame(frameTick);
+        } else {
+            var method = SET_ANIMATION_FRAME.get(texture.getClass());
+
+            if (method != null) {
+                try {
+                    method.invoke(texture, frameTick);
+                } catch (ReflectiveOperationException ignored) {}
+            }
+        }
 
         RenderSystem.setShaderTexture(0, texture.getId());
     }

@@ -15,6 +15,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.Arrays;
+
 import mod.azure.azurelib.common.animation.AzAnimator;
 import mod.azure.azurelib.common.cache.object.GeoCube;
 import mod.azure.azurelib.common.cache.object.GeoQuad;
@@ -41,6 +43,12 @@ public class AzModelRenderer<K, T> {
     private final Vector4f quadPosition = new Vector4f();
 
     private final Matrix3f normalStateCache = new Matrix3f();
+
+    private Matrix4f[] savedBonePoses = new Matrix4f[0];
+
+    private Matrix3f[] savedBoneNormals = new Matrix3f[0];
+
+    private int boneDepth;
 
     private final AzRendererPipeline<K, T> rendererPipeline;
 
@@ -101,7 +109,23 @@ public class AzModelRenderer<K, T> {
         var bufferSource = context.multiBufferSource();
         var poseStack = context.poseStack();
 
-        poseStack.pushPose();
+        var slot = saveBonePose(poseStack);
+
+        try {
+            renderBone(context, bone, isReRender, buffer, bufferSource, poseStack);
+        } finally {
+            restoreBonePose(poseStack, slot);
+        }
+    }
+
+    private void renderBone(
+        AzRendererPipelineContext<K, T> context,
+        AzBone bone,
+        boolean isReRender,
+        VertexConsumer buffer,
+        MultiBufferSource bufferSource,
+        PoseStack poseStack
+    ) {
         RenderUtils.prepMatrixForBone(poseStack, bone);
 
         context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
@@ -125,7 +149,47 @@ public class AzModelRenderer<K, T> {
         }
 
         renderChildBones(context, bone, isReRender);
-        poseStack.popPose();
+    }
+
+    /**
+     * Saves the current pose so a bone can transform it in place, without the allocation of
+     * {@link PoseStack#pushPose()}. Pair every call with {@link #restoreBonePose} (in a {@code finally}), in reverse
+     * order. Code between the two may still push and pop the pose stack normally.
+     *
+     * @return the slot to pass to {@link #restoreBonePose}
+     */
+    protected final int saveBonePose(PoseStack poseStack) {
+        var slot = boneDepth++;
+
+        if (slot >= savedBonePoses.length) {
+            var size = Math.max(16, savedBonePoses.length * 2);
+            var poses = Arrays.copyOf(savedBonePoses, size);
+            var normals = Arrays.copyOf(savedBoneNormals, size);
+
+            for (var i = savedBonePoses.length; i < size; i++) {
+                poses[i] = new Matrix4f();
+                normals[i] = new Matrix3f();
+            }
+
+            savedBonePoses = poses;
+            savedBoneNormals = normals;
+        }
+
+        var last = poseStack.last();
+        savedBonePoses[slot].set(last.pose());
+        savedBoneNormals[slot].set(last.normal());
+
+        return slot;
+    }
+
+    /**
+     * Restores the pose saved by {@link #saveBonePose}.
+     */
+    protected final void restoreBonePose(PoseStack poseStack, int slot) {
+        var last = poseStack.last();
+        last.pose().set(savedBonePoses[slot]);
+        last.normal().set(savedBoneNormals[slot]);
+        boneDepth = slot;
     }
 
     /**

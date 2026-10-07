@@ -3,6 +3,10 @@ package mod.azure.azurelib.common.render.lod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
+
 import mod.azure.azurelib.common.model.AzBakedModel;
 import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.profiling.AzProfileStage;
@@ -27,6 +31,10 @@ import mod.azure.azurelib.profiling.AzProfiler;
 public final class AzLodManager {
 
     private final AzLodConfig config;
+
+    private static final Set<AzBakedModel> MODELS_WITH_LOD_HIDDEN_BONES = Collections.newSetFromMap(
+        new WeakHashMap<>()
+    );
 
     /**
      * Tracks the game tick at which we last ran a full animation update for this entity. Used to implement tick-rate
@@ -68,6 +76,10 @@ public final class AzLodManager {
      */
     private void applyBoneLod(AzBakedModel bakedModel, double distSq) {
         if (distSq <= config.boneLodDistanceSq()) {
+            if (!MODELS_WITH_LOD_HIDDEN_BONES.remove(bakedModel)) {
+                return;
+            }
+
             for (var bone : bakedModel.getBonesByName().values()) {
                 if (bone.getLodHidden()) {
                     bone.setHidden(false);
@@ -78,6 +90,8 @@ public final class AzLodManager {
         }
 
         var maxDepth = config.boneLodDepth();
+
+        MODELS_WITH_LOD_HIDDEN_BONES.add(bakedModel);
 
         for (var rootBone : bakedModel.getTopLevelBones()) {
             applyBoneLodRecursive(rootBone, 0, maxDepth);
