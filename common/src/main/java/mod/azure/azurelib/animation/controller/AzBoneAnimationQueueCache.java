@@ -10,6 +10,8 @@ import mod.azure.azurelib.animation.AzBoneAnimationUpdateUtil;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.keyframe.AzBoneAnimationQueue;
 import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.model.AzBakedModel;
 
 /**
  * The AzBoneAnimationQueueCache class is responsible for managing and updating animation queues for bones. It acts as a
@@ -20,9 +22,19 @@ import mod.azure.azurelib.animation.easing.AzEasingType;
 @SuppressWarnings("unused")
 public class AzBoneAnimationQueueCache<T> {
 
+    private static final AzBoneAnimationQueue[] NO_QUEUES = new AzBoneAnimationQueue[0];
+
     private final Map<String, AzBoneAnimationQueue> boneAnimationQueues;
 
     private final AzBoneCache boneCache;
+
+    @Nullable
+    private AzBakedAnimation resolvedAnimation;
+
+    @Nullable
+    private AzBakedModel resolvedModel;
+
+    private AzBoneAnimationQueue[] resolvedQueues = NO_QUEUES;
 
     public AzBoneAnimationQueueCache(AzBoneCache boneCache) {
         this.boneAnimationQueues = new Object2ObjectOpenHashMap<>();
@@ -125,7 +137,38 @@ public class AzBoneAnimationQueueCache<T> {
         }
     }
 
+    /**
+     * Returns the animation queue for each of {@code animation}'s bone animations, by the same index as
+     * {@link AzBakedAnimation#boneAnimations()}, with {@code null} for bones the current model doesn't have.
+     * <p>
+     * Resolving by name costs two hash lookups per bone, so the result is cached and reused for as long as the same
+     * animation plays on the same baked model. Only a different animation, a model change or {@link #clear()} resolves
+     * again. The returned array is shared; don't modify it.
+     * </p>
+     */
+    public AzBoneAnimationQueue[] resolveQueues(AzBakedAnimation animation) {
+        var model = boneCache.getBakedModel();
+
+        if (animation != resolvedAnimation || model != resolvedModel) {
+            var boneAnimations = animation.boneAnimations();
+            var queues = new AzBoneAnimationQueue[boneAnimations.length];
+
+            for (var i = 0; i < boneAnimations.length; i++) {
+                queues[i] = getOrNull(boneAnimations[i].boneName());
+            }
+
+            resolvedQueues = queues;
+            resolvedAnimation = animation;
+            resolvedModel = model;
+        }
+
+        return resolvedQueues;
+    }
+
     public void clear() {
         boneAnimationQueues.clear();
+        resolvedAnimation = null;
+        resolvedModel = null;
+        resolvedQueues = NO_QUEUES;
     }
 }

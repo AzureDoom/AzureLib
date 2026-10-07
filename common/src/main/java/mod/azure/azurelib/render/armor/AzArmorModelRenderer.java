@@ -17,6 +17,8 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
     protected final AzArmorRendererPipeline armorRendererPipeline;
 
+    private final Matrix4f scratchPoseState = new Matrix4f();
+
     public AzArmorModelRenderer(
         AzArmorRendererPipeline armorRendererPipeline,
         AzLayerRenderer<UUID, ItemStack> layerRenderer
@@ -65,15 +67,15 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
         poseStack.pushPose();
         if (bone.isTrackingMatrices()) {
-            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
+            scratchPoseState.load(poseStack.last().pose());
             Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
+                scratchPoseState,
                 armorRendererPipeline.entityRenderTranslations
             );
             Matrix4f worldState = localMatrix.copy();
 
             bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, armorRendererPipeline.modelRenderTranslations)
+                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, armorRendererPipeline.modelRenderTranslations)
             );
             bone.setLocalSpaceMatrix(localMatrix);
 

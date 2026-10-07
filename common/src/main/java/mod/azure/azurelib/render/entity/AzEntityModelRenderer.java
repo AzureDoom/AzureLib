@@ -103,59 +103,64 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         var entity = context.animatable();
         var poseStack = context.poseStack();
 
-        poseStack.pushPose();
-        RenderUtils.translateMatrixToBone(poseStack, bone);
-        RenderUtils.translateToPivotPoint(poseStack, bone);
-        RenderUtils.rotateMatrixAroundBone(poseStack, bone);
-        RenderUtils.scaleMatrixForBone(poseStack, bone);
+        var slot = saveBonePose(poseStack);
 
-        if (bone.isTrackingMatrices()) {
-            scratchPoseState.load(poseStack.last().pose());
-            var localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                scratchPoseState,
-                entityRendererPipeline.entityRenderTranslations
-            );
-            bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, entityRendererPipeline.modelRenderTranslations)
-            );
-            scratchLocalMatrix.load(localMatrix);
-            var offset = entityRendererPipeline.getRenderer().getRenderOffset(entity, 1);
-            RenderUtils.translateMatrixInPlace(
-                scratchLocalMatrix,
-                new Vector3f((float) offset.x, (float) offset.y, (float) offset.z)
-            );
-            bone.setLocalSpaceMatrix(localMatrix);
-            bone.setWorldSpaceMatrix(scratchLocalMatrix);
-        }
+        try {
+            RenderUtils.translateMatrixToBone(poseStack, bone);
+            RenderUtils.translateToPivotPoint(poseStack, bone);
+            RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+            RenderUtils.scaleMatrixForBone(poseStack, bone);
 
-        RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+            if (bone.isTrackingMatrices()) {
+                scratchPoseState.set(poseStack.last().pose());
+                var localMatrix = RenderUtils.invertAndMultiplyMatrices(
+                    scratchPoseState,
+                    entityRendererPipeline.entityRenderTranslations
+                );
+                bone.setModelSpaceMatrix(
+                    RenderUtils.invertAndMultiplyMatrices(
+                        scratchPoseState,
+                        entityRendererPipeline.modelRenderTranslations
+                    )
+                );
+                scratchLocalMatrix.set(localMatrix);
+                RenderUtils.translateMatrixInPlace(
+                    scratchLocalMatrix,
+                    entityRendererPipeline.getRenderer().getRenderOffset(entity, 1).toVector3f()
+                );
+                bone.setLocalSpaceMatrix(localMatrix);
+                bone.setWorldSpaceMatrix(scratchLocalMatrix);
+            }
 
-        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
+            RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
 
-        if (
-            !boneRenderOverride(
-                poseStack,
-                bone,
-                bufferSource,
-                buffer,
-                context.partialTick(),
-                context.packedLight(),
-                context.packedOverlay(),
-                context.red(),
-                context.green(),
-                context.blue(),
-                context.alpha()
+            context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
+
+            if (
+                !boneRenderOverride(
+                    poseStack,
+                    bone,
+                    bufferSource,
+                    buffer,
+                    context.partialTick(),
+                    context.packedLight(),
+                    context.packedOverlay(),
+                    context.red(),
+                    context.green(),
+                    context.blue(),
+                    context.alpha()
+                )
             )
-        )
-            super.renderCubesOfBone(context, bone);
+                super.renderCubesOfBone(context, bone);
 
-        if (!isReRender) {
-            layerRenderer.applyRenderLayersForBone(context, bone);
+            if (!isReRender) {
+                layerRenderer.applyRenderLayersForBone(context, bone);
+            }
+
+            renderChildBones(context, bone, isReRender);
+        } finally {
+            restoreBonePose(poseStack, slot);
         }
-
-        renderChildBones(context, bone, isReRender);
-
-        poseStack.popPose();
     }
 
     /**
