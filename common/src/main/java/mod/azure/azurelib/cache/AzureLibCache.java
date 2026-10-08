@@ -1,20 +1,13 @@
 package mod.azure.azurelib.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
@@ -53,45 +46,14 @@ public final class AzureLibCache {
         Executor backgroundExecutor,
         Executor gameExecutor
     ) {
-        return CompletableFuture
-            .allOf(
-                // Forward-support for new cache components
-                AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
-                AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
-            )
+        var animations = AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager);
+        var models = AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager);
+
+        return CompletableFuture.allOf(animations, models)
             .thenCompose(stage::wait)
-            .thenAcceptAsync(empty -> {}, gameExecutor);
-    }
-
-    private static <T> CompletableFuture<Void> loadResources(
-        Executor executor,
-        ResourceManager resourceManager,
-        String type,
-        Function<ResourceLocation, T> loader,
-        BiConsumer<ResourceLocation, T> map
-    ) {
-        return CompletableFuture.supplyAsync(
-            () -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")),
-            executor
-        )
-            .thenApplyAsync(resources -> {
-                Map<ResourceLocation, CompletableFuture<T>> tasks = new Object2ObjectOpenHashMap<>();
-
-                for (ResourceLocation resource : resources) {
-                    tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));
-                }
-
-                return tasks;
-            }, executor)
-            .thenAcceptAsync(tasks -> {
-                for (Entry<ResourceLocation, CompletableFuture<T>> entry : tasks.entrySet()) {
-                    if (
-                        !AzResourceCache.EXCLUDED_NAMESPACES.contains(
-                            entry.getKey().getNamespace().toLowerCase(Locale.ROOT)
-                        )
-                    )
-                        map.accept(entry.getKey(), entry.getValue().join());
-                }
-            }, executor);
+            .thenAcceptAsync(ignored -> {
+                AzBakedAnimationCache.getInstance().apply(animations.join());
+                AzBakedModelCache.getInstance().apply(models.join());
+            }, gameExecutor);
     }
 }

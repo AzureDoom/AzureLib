@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -34,22 +33,26 @@ public class AzBakedAnimationCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<ResourceLocation, AzBakedAnimations> bakedAnimations;
+    private volatile Map<ResourceLocation, AzBakedAnimations> bakedAnimations = Map.of();
 
-    private AzBakedAnimationCache() {
-        this.bakedAnimations = new Object2ObjectOpenHashMap<>();
-    }
+    private AzBakedAnimationCache() {}
 
-    public CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager) {
+    public CompletableFuture<Map<ResourceLocation, AzBakedAnimations>> loadAnimations(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager
+    ) {
         MolangParser.clearExpressionCache();
 
         return loadResources(
             backgroundExecutor,
             resourceManager,
             "animations",
-            resource -> FileLoader.loadAzAnimationsFile(resource, resourceManager),
-            bakedAnimations::put
+            resource -> FileLoader.loadAzAnimationsFile(resource, resourceManager)
         );
+    }
+
+    public void apply(Map<ResourceLocation, AzBakedAnimations> animations) {
+        this.bakedAnimations = animations;
     }
 
     public @Nullable AzBakedAnimations getNullable(ResourceLocation resourceLocation) {
