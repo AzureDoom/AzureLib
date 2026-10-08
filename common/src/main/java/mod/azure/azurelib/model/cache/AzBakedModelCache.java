@@ -1,6 +1,5 @@
 package mod.azure.azurelib.model.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -30,13 +29,14 @@ public class AzBakedModelCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<ResourceLocation, AzBakedModel> bakedModels;
+    private volatile Map<ResourceLocation, AzBakedModel> bakedModels = Map.of();
 
-    private AzBakedModelCache() {
-        this.bakedModels = new Object2ObjectOpenHashMap<>();
-    }
+    private AzBakedModelCache() {}
 
-    public CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager) {
+    public CompletableFuture<Map<ResourceLocation, AzBakedModel>> loadModels(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager
+    ) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
             Model model = FileLoader.loadModelFile(resource, resourceManager);
 
@@ -52,7 +52,11 @@ public class AzBakedModelCache extends AzResourceCache {
 
             return AzBakedModelFactoryRegistry.getForNamespace(resource.getNamespace())
                 .constructGeoModel(GeometryTree.fromModel(model));
-        }, bakedModels::put);
+        });
+    }
+
+    public void apply(Map<ResourceLocation, AzBakedModel> models) {
+        this.bakedModels = models;
     }
 
     public @Nullable AzBakedModel getNullable(ResourceLocation resourceLocation) {

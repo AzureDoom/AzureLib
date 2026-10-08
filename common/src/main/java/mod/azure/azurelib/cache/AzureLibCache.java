@@ -35,12 +35,14 @@ public final class AzureLibCache {
         Executor backgroundExecutor,
         Executor gameExecutor
     ) {
-        return CompletableFuture
-            .allOf(
-                AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager),
-                AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager)
-            )
+        var animations = AzBakedAnimationCache.getInstance().loadAnimations(backgroundExecutor, resourceManager);
+        var models = AzBakedModelCache.getInstance().loadModels(backgroundExecutor, resourceManager);
+
+        return CompletableFuture.allOf(animations, models)
             .thenCompose(stage::wait)
-            .thenAcceptAsync(empty -> {}, gameExecutor);
+            .thenAcceptAsync(ignored -> {
+                AzBakedAnimationCache.getInstance().apply(animations.join());
+                AzBakedModelCache.getInstance().apply(models.join());
+            }, gameExecutor);
     }
 }
