@@ -84,7 +84,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     }
 
     public AzLodConfig lodConfig() {
-        return lodConfig != null ? lodConfig : AzLodConfig.DEFAULT;
+        return lodConfig != null ? lodConfig : AzLodConfig.DISABLED;
     }
 
     public static <T extends Entity> Builder<T> builder(
@@ -107,7 +107,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
         protected Function<T, Float> shadowRadius;
 
-        protected AzLodConfig lodConfig = AzLodConfig.DEFAULT;
+        protected AzLodConfig lodConfig = AzLodConfig.DISABLED;
 
         public Builder(
             Function<T, Identifier> modelLocationProvider,

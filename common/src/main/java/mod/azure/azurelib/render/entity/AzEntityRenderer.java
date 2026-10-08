@@ -14,11 +14,16 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
+import mod.azure.azurelib.render.lod.AzLodConfig;
+import mod.azure.azurelib.render.lod.AzLodManager;
 
 /**
  * AzEntityRenderer is an abstract class responsible for rendering entities in the game. It extends the base
@@ -44,6 +49,10 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;
+
+    private final Map<T, AzLodManager> lodManagers = new WeakHashMap<>();
+
+    private boolean animateThisFrame = true;
 
     private Vec3 currentRenderOffset = Vec3.ZERO;
 
@@ -80,15 +89,16 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         var cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         var azBakedModel = provider.provideBakedModel(entity, entity);
 
-        // Point the renderer's current animator reference to the cached entity animator before rendering.
+        var previousAnimator = reusedAzEntityAnimator;
+        var previousAnimate = animateThisFrame;
+
         reusedAzEntityAnimator = cachedEntityAnimator;
+        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel, state.distanceToCameraSq);
         this.currentRenderOffset = getRenderOffset(state);
 
         var geometry = new AzBufferSource();
         state.geometry = geometry;
 
-        // The pipeline still runs eagerly here (during extract, against an identity pose); the vertices it
-        // records are entity-local and get translated/replayed relative to the camera during submit.
         var poseStack = acquireExtractPoseStack();
 
         try {
@@ -107,6 +117,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             if (poseStack == extractPoseStack) {
                 extractPoseStackInUse = false;
             }
+
+            reusedAzEntityAnimator = previousAnimator;
+            animateThisFrame = previousAnimate;
         }
     }
 
@@ -155,6 +168,28 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         return currentRenderOffset;
     }
 
+    protected boolean updateLod(
+        T entity,
+        @Nullable AzEntityAnimator<T> animator,
+        @Nullable AzBakedModel bakedModel,
+        double distSq
+    ) {
+        var lodConfig = config.lodConfig();
+
+        if (lodConfig == AzLodConfig.DISABLED || bakedModel == null || animator == null) {
+            return true;
+        }
+
+        var context = animator.context();
+
+        if (context == null || context.boneCache().isEmpty() || context.boneCache().getBakedModel() != bakedModel) {
+            return true;
+        }
+
+        return lodManagers.computeIfAbsent(entity, ignored -> new AzLodManager(lodConfig))
+            .update(entity, bakedModel, distSq);
+    }
+
     /**
      * Whether the entity's nametag should be rendered or not.<br>
      */
@@ -170,6 +205,14 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     public AzEntityAnimator<T> getAnimator() {
         return reusedAzEntityAnimator;
+    }
+
+    /**
+     * Whether the animator should run for the entity currently being rendered. {@code false} when animation LOD is
+     * holding the entity's last pose this frame.
+     */
+    public boolean shouldAnimateThisFrame() {
+        return animateThisFrame;
     }
 
     public AzEntityRendererConfig<T> config() {
