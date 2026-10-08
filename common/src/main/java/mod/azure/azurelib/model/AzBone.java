@@ -326,7 +326,7 @@ public class AzBone {
     }
 
     public void setWorldSpaceNormal(Matrix3f matrix) {
-        this.worldSpaceNormal = matrix;
+        this.worldSpaceNormal.load(matrix);
     }
 
     /**
