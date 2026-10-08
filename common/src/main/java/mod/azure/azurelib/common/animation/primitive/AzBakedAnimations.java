@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.common.util.AzureLibException;
 
@@ -28,21 +29,33 @@ public record AzBakedAnimations(
     @Nullable
     public AzBakedAnimation getAnimation(String name) {
         AzBakedAnimation result = animations.get(name);
-        if (result == null && includes != null) {
-            ResourceLocation otherFileID = includes.getOrDefault(name, null);
-            if (otherFileID != null) {
-                AzBakedAnimations otherBakedAnims = AzBakedAnimationCache.getInstance().getNullable(otherFileID);
-                if (otherBakedAnims.equals(this)) {
-                    throw new AzureLibException(
-                        "The animation file '" + otherFileID +
-                            "' refers back to itself through includes."
-                    );
-                } else {
-                    result = otherBakedAnims.getAnimationWithoutIncludes(name);
-                }
-            }
+
+        if (result != null || includes == null)
+            return result;
+
+        ResourceLocation otherFileID = includes.get(name);
+
+        if (otherFileID == null)
+            return null;
+
+        AzBakedAnimations otherBakedAnims = AzBakedAnimationCache.getInstance().getNullable(otherFileID);
+
+        if (otherBakedAnims == null) {
+            AzureLib.LOGGER.error(
+                "Animation '{}' is included from '{}', but that file is missing or failed to load",
+                name,
+                otherFileID
+            );
+            return null;
         }
-        return result;
+
+        if (otherBakedAnims == this) {
+            throw new AzureLibException(
+                "The animation file '" + otherFileID + "' refers back to itself through includes."
+            );
+        }
+
+        return otherBakedAnims.getAnimationWithoutIncludes(name);
     }
 
     private AzBakedAnimation getAnimationWithoutIncludes(String name) {

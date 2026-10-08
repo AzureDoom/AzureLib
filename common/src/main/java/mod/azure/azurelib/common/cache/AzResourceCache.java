@@ -6,15 +6,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.AzureLib;
 
 /**
  * AzResourceCache is an abstract base class designed for managing and loading mod resources asynchronously. This class
- * provides helper functions for loading and processing resource files of a specific type and storing them in a cache.
+ * provides helper functions for loading and processing resource files of a specific type into a fresh map, which the
+ * subclass publishes once the reload has passed its preparation barrier.
  */
 public abstract class AzResourceCache {
 
@@ -37,9 +40,11 @@ public abstract class AzResourceCache {
     );
 
     /**
-     * Asynchronously loads resources from the provided {@code ResourceManager} based on the specified {@code type}. The
-     * method filters resource files, processes them using the given {@code loader}, and maps the resulting objects
-     * using the provided {@code map} function. Resources from excluded namespaces are ignored during processing.
+     * Asynchronously loads resources from the provided {@code ResourceManager} based on the specified {@code type} into
+     * a new map. Nothing shared is modified, so the returned map can be swapped in atomically on the game thread.
+     * <p>
+     * Resources from excluded namespaces are skipped before any work is scheduled. A resource whose loader throws or
+     * returns {@code null} is logged and left out of the map, without affecting any other resource.
      *
      * @param <T>             The type of the resource being loaded and processed.
      * @param executor        The executor used to execute asynchronous tasks.
@@ -47,37 +52,49 @@ public abstract class AzResourceCache {
      * @param type            The type of resource to be fetched, typically a folder or category defined in the resource
      *                        pack (e.g., "animations").
      * @param loader          A function that processes a {@link ResourceLocation} into an object of type {@code T}.
-     * @param map             A consumer that maps the processed resources (keyed by {@link ResourceLocation}) to their
-     *                        corresponding values of type {@code T}.
-     * @return A {@code CompletableFuture<Void>} that completes when all resources of the specified type are loaded and
-     *         processed.
+     * @return A {@code CompletableFuture} that completes with every successfully loaded resource, keyed by
+     *         {@link ResourceLocation}.
      */
-    protected final <T> CompletableFuture<Void> loadResources(
+    protected final <T> CompletableFuture<Map<ResourceLocation, T>> loadResources(
         Executor executor,
         ResourceManager resourceManager,
         String type,
-        Function<ResourceLocation, T> loader,
-        BiConsumer<ResourceLocation, T> map
+        Function<ResourceLocation, T> loader
     ) {
         return CompletableFuture.supplyAsync(
             () -> resourceManager.listResources(type, fileName -> fileName.toString().endsWith(".json")),
             executor
         )
-            .thenApplyAsync(resources -> {
+            .thenCompose(resources -> {
                 var tasks = new Object2ObjectOpenHashMap<ResourceLocation, CompletableFuture<T>>();
 
                 for (var resource : resources.keySet()) {
-                    tasks.put(resource, CompletableFuture.supplyAsync(() -> loader.apply(resource), executor));
+                    if (EXCLUDED_NAMESPACES.contains(resource.getNamespace().toLowerCase(Locale.ROOT)))
+                        continue;
+
+                    tasks.put(
+                        resource,
+                        CompletableFuture.supplyAsync(() -> loader.apply(resource), executor)
+                            .exceptionally(throwable -> {
+                                AzureLib.LOGGER.error("Failed to load {}: skipping", resource, throwable);
+                                return null;
+                            })
+                    );
                 }
 
-                return tasks;
-            }, executor)
-            .thenAcceptAsync(tasks -> {
-                for (var entry : tasks.entrySet()) {
-                    if (!EXCLUDED_NAMESPACES.contains(entry.getKey().getNamespace().toLowerCase(Locale.ROOT))) {
-                        map.accept(entry.getKey(), entry.getValue().join());
-                    }
-                }
-            }, executor);
+                return CompletableFuture.allOf(tasks.values().toArray(CompletableFuture[]::new))
+                    .thenApply(ignored -> {
+                        var loaded = new Object2ObjectOpenHashMap<ResourceLocation, T>(tasks.size());
+
+                        for (var entry : tasks.entrySet()) {
+                            T value = entry.getValue().join();
+
+                            if (value != null)
+                                loaded.put(entry.getKey(), value);
+                        }
+
+                        return loaded;
+                    });
+            });
     }
 }
