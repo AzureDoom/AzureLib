@@ -119,7 +119,7 @@ public abstract class AbstractConfigScreen extends Screen implements ConfigEntry
     }
 
     private void buttonBackClicked() {
-        this.minecraft.gui.setScreen(this.last);
+        this.minecraft.setScreen(this.last);
         this.saveConfig(false);
     }
 
@@ -135,7 +135,7 @@ public abstract class AbstractConfigScreen extends Screen implements ConfigEntry
             ConfigIO.saveClientValues(this.holder);
             dialog.displayPreviousScreen();
         });
-        this.minecraft.gui.setScreen(dialog);
+        this.minecraft.setScreen(dialog);
     }
 
     private void buttonRevertChangesClicked() {
@@ -148,7 +148,7 @@ public abstract class AbstractConfigScreen extends Screen implements ConfigEntry
             ConfigIO.reloadClientValues(this.holder);
             dialog.displayPreviousScreen();
         });
-        this.minecraft.gui.setScreen(dialog);
+        this.minecraft.setScreen(dialog);
     }
 
     private static void revertToDefault(Collection<ConfigValue<?>> configValues) {

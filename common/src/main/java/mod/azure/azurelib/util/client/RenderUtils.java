@@ -55,13 +55,13 @@ public class RenderUtils {
         float rotZ = bone.getRotZ();
 
         if (rotZ != 0)
-            poseStack.rotate(Z_QUATERNION_CACHE.rotationXYZ(0f, 0f, rotZ));
+            poseStack.mulPose(Z_QUATERNION_CACHE.rotationXYZ(0f, 0f, rotZ));
 
         if (rotY != 0)
-            poseStack.rotate(Y_QUATERNION_CACHE.rotationXYZ(0f, rotY, 0f));
+            poseStack.mulPose(Y_QUATERNION_CACHE.rotationXYZ(0f, rotY, 0f));
 
         if (rotX != 0)
-            poseStack.rotate(X_QUATERNION_CACHE.rotationXYZ(rotX, 0f, 0f));
+            poseStack.mulPose(X_QUATERNION_CACHE.rotationXYZ(rotX, 0f, 0f));
     }
 
     public static void rotateMatrixAroundCube(PoseStack poseStack, AzCube cube) {
@@ -69,15 +69,15 @@ public class RenderUtils {
 
         if (rotation.z() != 0f) {
             Z_QUATERNION_CACHE.identity().rotateZ((float) rotation.z());
-            poseStack.rotate(Z_QUATERNION_CACHE);
+            poseStack.mulPose(Z_QUATERNION_CACHE);
         }
         if (rotation.y() != 0f) {
             Y_QUATERNION_CACHE.identity().rotateY((float) rotation.y());
-            poseStack.rotate(Y_QUATERNION_CACHE);
+            poseStack.mulPose(Y_QUATERNION_CACHE);
         }
         if (rotation.x() != 0f) {
             X_QUATERNION_CACHE.identity().rotateX((float) rotation.x());
-            poseStack.rotate(X_QUATERNION_CACHE);
+            poseStack.mulPose(X_QUATERNION_CACHE);
         }
     }
 
@@ -132,8 +132,8 @@ public class RenderUtils {
      * Translates the provided {@link PoseStack} to face towards the given {@link Entity}'s rotation.<br>
      */
     public static void faceRotation(PoseStack poseStack, Entity animatable, float partialTick) {
-        poseStack.rotate(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
-        poseStack.rotate(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
     }
 
     /**

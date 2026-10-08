@@ -60,7 +60,7 @@ public final class AzLodManager {
         }
 
         AzProfiler.begin(AzProfileStage.LOD_UPDATE, entity);
-        var camera = Minecraft.getInstance().gameRenderer.mainCamera();
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         var camPos = camera.position();
         var distSq = entity.distanceToSqr(camPos.x, camPos.y, camPos.z);
 

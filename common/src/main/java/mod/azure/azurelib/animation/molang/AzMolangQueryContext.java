@@ -141,7 +141,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (entity == null)
             return 0;
 
-        return Minecraft.getInstance().gameRenderer.mainCamera().position().distanceTo(entity.position());
+        return Minecraft.getInstance().gameRenderer.getMainCamera().position().distanceTo(entity.position());
     }
 
     private static double height(Heightmap.Types type, double x, double z) {

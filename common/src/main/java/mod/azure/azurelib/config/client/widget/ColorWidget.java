@@ -118,7 +118,7 @@ public final class ColorWidget extends AbstractWidget {
             this.colorText.set(this.colorPrefix + hex);
             dialog.displayPreviousScreen();
         });
-        Minecraft.getInstance().gui.setScreen(dialog);
+        Minecraft.getInstance().setScreen(dialog);
     }
 
     @Override

@@ -69,13 +69,13 @@ public class ConfigGroupScreen extends Screen {
             this.addRenderableWidget(
                 Button.builder(ConfigEntryWidget.EDIT, btn -> {
                     var screen = new ConfigScreen(holder, title, holder.getValueMap(), this);
-                    this.minecraft.gui.setScreen(screen);
+                    this.minecraft.setScreen(screen);
                 }).pos(getValueX(posX, componentWidth), y).size(getValueWidth(componentWidth), 20).build()
             );
         }
         var centerY = this.height - FOOTER_HEIGHT + (FOOTER_HEIGHT - 20) / 2;
         this.addRenderableWidget(
-            Button.builder(ConfigEntryWidget.BACK, btn -> this.minecraft.gui.setScreen(this.last))
+            Button.builder(ConfigEntryWidget.BACK, btn -> this.minecraft.setScreen(this.last))
                 .pos(5, centerY)
                 .size(120, 20)
                 .build()

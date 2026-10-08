@@ -1,39 +1,44 @@
 package mod.azure.azurelib.render.layer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.minecraft.world.item.equipment.trim.MaterialAssetGroup;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipelineContext;
 
-/**
- * Renders armor trims on AzureLib armor using vanilla's paletted textures (26.3+).
- * <p>
- * A trim texture is a grayscale image with a {@code palette} section in its {@code .png.mcmeta}. Vanilla's
- * {@link net.minecraft.client.resources.palette.PalettedTextureManager} recolors it with the trim material's palette at
- * runtime, so no atlas or permutation list is needed. The texture is sampled with the armor model's own UVs, so it must
- * have the same dimensions as the armor texture.
- * <p>
- * Texture ids are relative to {@code textures/} and have no {@code .png}, matching vanilla: {@code yourmod:trims/x}
- * means {@code assets/yourmod/textures/trims/x.png}.
- *
- * @author ZsoltMolnarrr
- */
 public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
 
-    public static final Function<ArmorTrim, Identifier> MATERIAL_PALETTE = trim -> trim.material().value().paletteId();
+    /**
+     * The trim material's palette suffix, including vanilla's {@code _darker} override when the trim material matches
+     * the armor's equipment asset (e.g. iron trim on iron armor).
+     */
+    public static final BiFunction<ArmorTrim, ItemStack, String> MATERIAL_PALETTE = (trim, stack) -> {
+        MaterialAssetGroup assets = trim.material().value().assets();
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+
+        if (equippable != null && equippable.assetId().isPresent()) {
+            return assets.assetId(equippable.assetId().get()).suffix();
+        }
+
+        return assets.base().suffix();
+    };
 
     public final Function<ArmorTrim, Identifier> textureForTrim;
 
-    public final Function<ArmorTrim, Identifier> paletteForTrim;
+    public final BiFunction<ArmorTrim, ItemStack, String> paletteForTrim;
 
     /**
      * One texture per trim pattern: {@code <baseTexture>_<pattern>}, e.g. {@code yourmod:trims/your_armor_coast}.
@@ -62,12 +67,12 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
     }
 
     /**
-     * Custom texture and palette choice per trim. Use the palette function for what vanilla does with
-     * {@code trim_overrides}, such as a darker palette when the trim material matches the armor material.
+     * Custom texture and palette suffix choice per trim. The suffix must match a permutation key in your
+     * {@code armor_trims.json} atlas source.
      */
     public AzArmorTrimLayer(
         Function<ArmorTrim, Identifier> textureForTrim,
-        Function<ArmorTrim, Identifier> paletteForTrim
+        BiFunction<ArmorTrim, ItemStack, String> paletteForTrim
     ) {
         this.textureForTrim = textureForTrim;
         this.paletteForTrim = paletteForTrim;
@@ -85,17 +90,22 @@ public class AzArmorTrimLayer implements AzRenderLayer<UUID, ItemStack> {
             return;
         }
 
-        var handle = Minecraft.getInstance()
-            .getPalettedTextureManager()
-            .getOrPrepare(textureForTrim.apply(trim), paletteForTrim.apply(trim));
-        var renderType = RenderTypes.armorTrim(handle.textureLocation(), trim.pattern().value().decal());
+        var spriteId = textureForTrim.apply(trim).withSuffix("_" + paletteForTrim.apply(trim, stack));
+        var atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.ARMOR_TRIMS);
+        var sprite = atlas.getSprite(spriteId);
+
+        if (sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
+            return;
+        }
+
+        var renderType = Sheets.armorTrimsSheet(trim.pattern().value().decal());
 
         var prevRenderType = context.renderType();
         var prevVertexConsumer = context.vertexConsumer();
 
         try {
             context.setRenderType(renderType);
-            context.setVertexConsumer(handle.wrap(context.multiBufferSource().getBuffer(renderType)));
+            context.setVertexConsumer(sprite.wrap(context.multiBufferSource().getBuffer(renderType)));
             context.rendererPipeline().reRender(context);
         } finally {
             context.setRenderType(prevRenderType);

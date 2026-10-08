@@ -248,7 +248,7 @@ public final class DisplayAdapters {
 
         if (colorValue != null) {
             container.addConfigWidget((x, y, w, h, configId) -> {
-                var currentScreen = Minecraft.getInstance().gui.screen();
+                var currentScreen = Minecraft.getInstance().screen;
                 return new ColorWidget(
                     left(x, w),
                     y,
@@ -287,16 +287,16 @@ public final class DisplayAdapters {
         var objectValue = (ObjectValue) value;
         createOpenButton(container, btn -> {
             var client = Minecraft.getInstance();
-            var current = client.gui.screen();
-            client.gui.setScreen(new ConfigScreen(holder, container.getComponentName(), objectValue.get(), current));
+            var current = client.screen;
+            client.setScreen(new ConfigScreen(holder, container.getComponentName(), objectValue.get(), current));
         });
     }
 
     private static void arrayAdapter(ConfigHolder<?> holder, ConfigValue<?> value, Field field, WidgetAdder container) {
         createOpenButton(container, btn -> {
             var client = Minecraft.getInstance();
-            var current = client.gui.screen();
-            client.gui.setScreen(new ArrayConfigScreen(holder, container.getComponentName(), value, current));
+            var current = client.screen;
+            client.setScreen(new ArrayConfigScreen(holder, container.getComponentName(), value, current));
         });
     }
 

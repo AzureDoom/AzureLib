@@ -1,10 +1,12 @@
 package mod.azure.azurelib.cache.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.device.GpuDevice;
-import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.TextureFormat;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -121,7 +123,13 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         this.frameWidth = this.isAnimated ? contents.frameSize.width() : image.getWidth();
         this.frameHeight = this.isAnimated ? contents.frameSize.height() : image.getHeight();
 
-        setSampler(textureContents);
+        boolean clamp = textureContents.clamp();
+        boolean blur = textureContents.blur();
+        var addressMode = clamp ? AddressMode.CLAMP_TO_EDGE : AddressMode.REPEAT;
+        var filterMode = blur ? FilterMode.LINEAR : FilterMode.NEAREST;
+
+        this.sampler = RenderSystem.getSamplerCache()
+            .getSampler(addressMode, addressMode, filterMode, filterMode, false);
         doLoad(image);
 
         if (boundGlowmask != null) {
@@ -145,7 +153,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
         this.texture = gpuDevice.createTexture(
             textureId::toString,
             5,
-            GpuFormat.RGBA8_UNORM,
+            TextureFormat.RGBA8,
             this.frameWidth,
             this.frameHeight,
             1,
@@ -218,7 +226,7 @@ public class AnimatableTexture extends SimpleTexture implements TickableTexture 
 
         RenderSystem.getDevice()
             .createCommandEncoder()
-            .writeToTexture(target, image.getPixelBytes(), 0, 0, 0, 0, width, height);
+            .writeToTexture(target, image, 0, 0, 0, 0, width, height, 0, 0);
     }
 
     @Override

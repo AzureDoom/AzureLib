@@ -472,11 +472,6 @@ public final class AzBufferSource {
         }
 
         @Override
-        public @NonNull VertexConsumer setUv3(float v, float v1) {
-            return this;
-        }
-
-        @Override
         public @NonNull VertexConsumer setNormal(float nx, float ny, float nz) {
             ensureCapacity();
 

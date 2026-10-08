@@ -8,26 +8,59 @@ hide_meta: true
 AzureLib supports Minecraft's armor trim system through the `AzArmorTrimLayer` render layer. It draws the trim on your custom armor model using the trim's pattern and the trim material's colors.
 
 <Callout variant="info">
-    This page is for Minecraft 26.3 and later. Since 26.3, trims use paletted textures instead of the `armor_trims` atlas. If you're updating from 1.21.x, see [Updating from 1.21.x](#updating-from-121x).
+    This page is for Minecraft 26.1.x. Here, trims are baked into vanilla's `armor_trims` texture atlas. Starting in 26.3, trims use paletted textures with `.png.mcmeta` palette metadata instead, so the setup is different there. If you're updating from 1.21.x, see [Updating from 1.21.x](#updating-from-121x).
 </Callout>
 
 ## How Trim Textures Work
 
-A trim texture is a **grayscale** image. Minecraft recolors it with each trim material's palette (gold, iron, diamond, ...) at runtime, so you only make the grayscale version. To mark a texture as recolorable, put a `.png.mcmeta` file next to it:
+A trim texture is a **grayscale** image. When resources load, Minecraft recolors it once for every trim material (gold, iron, diamond, ...) and stitches each colored copy into the `minecraft:armor_trims` atlas. You only make the grayscale version. To get it into the atlas, you register it in an atlas definition file (see [The Atlas File](#the-atlas-file)).
 
-```json
-{
-    "palette": {
-        "base_palette": "minecraft:trim_base"
-    }
-}
-```
-
-- `minecraft:trim_base` is vanilla's grayscale trim palette. Draw your trim with the same gray shades vanilla's trim textures use, so every shade maps to a material color.
-- Trim materials from other mods work automatically, as long as they define their palette.
+- Draw your trim with the same gray shades vanilla uses (`minecraft:trims/color_palettes/trim_palette`), so every shade maps to a material color.
+- Each colored copy is named `<texture>_<material>`, e.g. `yourmod:trims/your_armor_trim_gold`. `AzArmorTrimLayer` adds the `_<material>` part for you; in code you only give the texture.
 - **The trim texture must be the same size as your armor texture.** It's drawn with your armor model's own UVs, so it lines up with the armor texture pixel for pixel.
 
 Texture ids in code are relative to `textures/` and have no `.png`: `yourmod:trims/your_armor_trim` means `assets/yourmod/textures/trims/your_armor_trim.png`.
+
+## The Atlas File
+
+Every trim texture must be listed in `assets/minecraft/atlases/armor_trims.json` inside your mod's resources. The file goes in the **`minecraft`** namespace, because it adds to vanilla's `minecraft:armor_trims` atlas. Minecraft merges the sources from every resource pack and mod, so your file doesn't replace vanilla's trims.
+
+```json
+{
+    "sources": [
+        {
+            "type": "minecraft:paletted_permutations",
+            "textures": [
+                "yourmod:trims/your_armor_trim"
+            ],
+            "palette_key": "minecraft:trims/color_palettes/trim_palette",
+            "permutations": {
+                "quartz": "minecraft:trims/color_palettes/quartz",
+                "iron": "minecraft:trims/color_palettes/iron",
+                "iron_darker": "minecraft:trims/color_palettes/iron_darker",
+                "gold": "minecraft:trims/color_palettes/gold",
+                "gold_darker": "minecraft:trims/color_palettes/gold_darker",
+                "diamond": "minecraft:trims/color_palettes/diamond",
+                "diamond_darker": "minecraft:trims/color_palettes/diamond_darker",
+                "netherite": "minecraft:trims/color_palettes/netherite",
+                "netherite_darker": "minecraft:trims/color_palettes/netherite_darker",
+                "copper": "minecraft:trims/color_palettes/copper",
+                "copper_darker": "minecraft:trims/color_palettes/copper_darker",
+                "redstone": "minecraft:trims/color_palettes/redstone",
+                "emerald": "minecraft:trims/color_palettes/emerald",
+                "lapis": "minecraft:trims/color_palettes/lapis",
+                "amethyst": "minecraft:trims/color_palettes/amethyst",
+                "resin": "minecraft:trims/color_palettes/resin"
+            }
+        }
+    ]
+}
+```
+
+- `textures` lists every trim texture you use, as ids relative to `textures/`.
+- `permutations` lists every trim material that can color it. The key (`gold`, `iron_darker`, ...) becomes the `_<material>` suffix of the colored copy.
+- The safest way to get the material list right is to copy the `permutations` block from vanilla's own `assets/minecraft/atlases/armor_trims.json` in the Minecraft client jar.
+- **Trim materials from other mods only work if you add them here** too, with their palette id. A material that isn't listed is skipped and the trim doesn't render.
 
 ## Implementation Approaches
 
@@ -38,8 +71,10 @@ Uses one trim texture for every pattern, still colored by the trim material. Rec
 #### Required Assets
 ```
 src/main/resources/assets/yourmod/textures/trims/your_armor_trim.png
-src/main/resources/assets/yourmod/textures/trims/your_armor_trim.png.mcmeta
+src/main/resources/assets/minecraft/atlases/armor_trims.json
 ```
+
+List `yourmod:trims/your_armor_trim` under `textures` in the atlas file.
 
 #### Code Implementation
 ```java
@@ -75,15 +110,21 @@ Uses a separate texture for each trim pattern, like vanilla. This gives the best
     See the [Minecraft Wiki](https://minecraft.wiki/w/Smithing_Template) for all vanilla patterns.
 </Callout>
 
-Make one texture per pattern, named `<base>_<pattern>`, each with the same `.png.mcmeta` shown above:
+Make one texture per pattern, named `<base>_<pattern>`, and list every one of them under `textures` in the atlas file:
 ```
 src/main/resources/assets/yourmod/textures/trims/your_armor_sentry.png
-src/main/resources/assets/yourmod/textures/trims/your_armor_sentry.png.mcmeta
 src/main/resources/assets/yourmod/textures/trims/your_armor_vex.png
-src/main/resources/assets/yourmod/textures/trims/your_armor_vex.png.mcmeta
 src/main/resources/assets/yourmod/textures/trims/your_armor_wild.png
-src/main/resources/assets/yourmod/textures/trims/your_armor_wild.png.mcmeta
 ... and so on for coast, dune, eye, host, raiser, shaper, silence, snout, spire, tide, ward, wayfinder, bolt, flow
+src/main/resources/assets/minecraft/atlases/armor_trims.json
+```
+
+```json
+"textures": [
+    "yourmod:trims/your_armor_sentry",
+    "yourmod:trims/your_armor_vex",
+    "yourmod:trims/your_armor_wild"
+]
 ```
 
 #### Code Implementation
@@ -101,7 +142,7 @@ public ExampleArmorRenderer() {
 ## Advanced Usage
 
 ### Custom Texture Choice
-Pass a function to pick the texture for each trim yourself. It's still colored with the trim material's palette:
+Pass a function to pick the texture for each trim yourself. It's still colored with the trim material, and the texture must still be listed in the atlas file:
 ```java
 .addRenderLayer(new AzArmorTrimLayer(
     trim -> Identifier.fromNamespaceAndPath(
@@ -112,41 +153,43 @@ Pass a function to pick the texture for each trim yourself. It's still colored w
 ```
 
 ### Custom Palettes
-A second function picks the palette. This is how you reproduce vanilla's darker trims, where a trim on armor of the same material (e.g. a gold trim on gold armor) uses a darker palette so it stays visible:
+A second function picks the material suffix: which colored copy from the atlas is used. It receives the trim and the armor `ItemStack`, and returns a key from your atlas file's `permutations`.
+
+By default (`AzArmorTrimLayer.MATERIAL_PALETTE`) it uses the trim material's suffix, and picks vanilla's darker variant when the trim material matches the armor's equipment asset (for example an iron trim on iron armor). Custom armor has its own equipment asset, so it never matches. To get darker trims on your armor, pick the suffix yourself:
 ```java
 .addRenderLayer(new AzArmorTrimLayer(
     trim -> Identifier.fromNamespaceAndPath(YOUR_MOD_ID, "trims/your_armor_trim"),
-    trim -> trim.material().is(TrimMaterials.GOLD)
-        ? TrimMaterials.Palette.GOLD_DARKER.id()
-        : AzArmorTrimLayer.MATERIAL_PALETTE.apply(trim)
+    (trim, stack) -> trim.material().is(TrimMaterials.GOLD)
+        ? "gold_darker"
+        : AzArmorTrimLayer.MATERIAL_PALETTE.apply(trim, stack)
 ))
 ```
-- `TrimMaterials.Palette` has an id for every vanilla palette. Darker variants exist for iron, netherite, copper, gold and diamond (`IRON_DARKER`, `NETHERITE_DARKER`, `COPPER_DARKER`, `GOLD_DARKER`, `DIAMOND_DARKER`).
-- Palette ids are relative to `textures/palettes/`: `TrimMaterials.Palette.GOLD_DARKER.id()` is `minecraft:trim/gold_darker`, which is `assets/minecraft/textures/palettes/trim/gold_darker.png`. A mod's own palette works the same way under its namespace.
+- Vanilla has darker variants for iron, netherite, copper, gold and diamond (`iron_darker`, `netherite_darker`, `copper_darker`, `gold_darker`, `diamond_darker`).
+- Whatever suffix you return must be a key in your atlas file's `permutations`. A mod's own palette works the same way: add it as a permutation with its palette id, then return its key.
 
 ## Updating from 1.21.x
 
-- **Delete `assets/minecraft/atlases/armor_trims.json`.** Minecraft no longer uses it.
-- **Add a `.png.mcmeta`** with the `palette` section to each trim texture.
-- **Texture ids no longer point into the atlas.** Use a path relative to `textures/`, e.g. `yourmod:trims/your_armor_trim` instead of `yourmod:armor/trim/your_armor_trim`. The texture files can stay where they are if you point the id at them.
-- **Custom texture functions return only the texture.** They no longer append the material name (`_gold`, `_iron`, ...), because the material color now comes from the palette. Darker variants move to a palette function, see [Custom Palettes](#custom-palettes).
+- **Keep `assets/minecraft/atlases/armor_trims.json`.** 26.1.x still uses the atlas.
+- **Custom texture functions return only the texture.** They no longer append the material name (`_gold`, `_iron`, ...); `AzArmorTrimLayer` adds it. Darker variants move to a palette function, see [Custom Palettes](#custom-palettes).
+- **Texture ids are relative to `textures/`.** If your textures live at `textures/armor/trim/`, keep using ids like `yourmod:armor/trim/your_armor_trim`; they just have to match the `textures` list in the atlas file.
 - **`ResourceLocation` is now `Identifier`.**
 
 ## Important Notes
 
 - **Custom Textures Required**: Vanilla trim textures are made for the vanilla armor model's UV layout, so they won't line up with custom armor models.
 - **Same Size as the Armor Texture**: The trim texture uses your armor model's UVs.
-- **Palette Metadata Required**: Without the `.png.mcmeta` palette section, the texture can't be recolored and the trim won't show correctly.
+- **Atlas Entry Required**: A texture that isn't listed in `assets/minecraft/atlases/armor_trims.json` never gets colored copies, and the trim won't render.
 
 ## Troubleshooting
 
 ### Trims Not Appearing
-- Check that the texture id matches the file: relative to `textures/`, no `.png`.
-- Check that the `.png.mcmeta` sits next to the texture and contains the `palette` section.
+- Check that the atlas file is at `assets/minecraft/atlases/armor_trims.json` (the `minecraft` namespace, not your mod's).
+- Check that the texture id in code exactly matches an entry under `textures` in the atlas file: relative to `textures/`, no `.png`.
+- Check that the trim material is listed under `permutations`. Materials from other mods have to be added there too.
 - Ensure you're testing with items that have a trim applied.
 
 ### Wrong Colors
-- Check that your texture uses the gray shades of vanilla's `trim_base` palette. Shades not in the palette won't be recolored.
+- Check that your texture uses the gray shades of vanilla's `trim_palette`. Shades not in the palette won't be recolored.
 
 ### Trim Misaligned
 - Make sure the trim texture is the same size as the armor texture and drawn on the same UV layout.

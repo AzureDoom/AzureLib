@@ -81,7 +81,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
     private float currentPartialTicks;
 
     private final DoubleSupplier distanceFromCameraSupplier = () -> Minecraft.getInstance().gameRenderer
-        .mainCamera()
+        .getMainCamera()
         .position()
         .distanceTo(currentEntity.position());
 

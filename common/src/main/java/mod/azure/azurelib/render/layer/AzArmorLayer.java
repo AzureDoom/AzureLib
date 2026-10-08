@@ -310,10 +310,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         poseStack.translate(part.x / 16f, part.y / 16f, part.z / 16f);
 
         if (part.xRot != 0 || part.yRot != 0 || part.zRot != 0)
-            poseStack.rotate(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot));
+            poseStack.mulPose(new Quaternionf().rotationZYX(part.zRot, part.yRot, part.xRot));
 
         if (initial.xRot() != 0 || initial.yRot() != 0 || initial.zRot() != 0)
-            poseStack.rotate(new Quaternionf().rotationZYX(initial.zRot(), initial.yRot(), initial.xRot()).invert());
+            poseStack.mulPose(new Quaternionf().rotationZYX(initial.zRot(), initial.yRot(), initial.xRot()).invert());
 
         poseStack.translate(-initial.x() / 16f, -initial.y() / 16f, -initial.z() / 16f);
     }

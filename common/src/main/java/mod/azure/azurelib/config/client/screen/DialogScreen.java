@@ -157,7 +157,7 @@ public class DialogScreen extends Screen {
     }
 
     public void displayPreviousScreen() {
-        this.minecraft.gui.setScreen(this.background);
+        this.minecraft.setScreen(this.background);
     }
 
     protected boolean allowKeyboardInteractions() {
