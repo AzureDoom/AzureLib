@@ -112,7 +112,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             RenderUtils.scaleMatrixForBone(poseStack, bone);
 
             if (bone.isTrackingMatrices()) {
-                scratchPoseState.set(poseStack.last().pose());
+                scratchPoseState.load(poseStack.last().pose());
                 var localMatrix = RenderUtils.invertAndMultiplyMatrices(
                     scratchPoseState,
                     entityRendererPipeline.entityRenderTranslations
@@ -123,10 +123,10 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                         entityRendererPipeline.modelRenderTranslations
                     )
                 );
-                scratchLocalMatrix.set(localMatrix);
+                scratchLocalMatrix.load(localMatrix);
                 RenderUtils.translateMatrixInPlace(
                     scratchLocalMatrix,
-                    entityRendererPipeline.getRenderer().getRenderOffset(entity, 1).toVector3f()
+                    new Vector3f(entityRendererPipeline.getRenderer().getRenderOffset(entity, 1))
                 );
                 bone.setLocalSpaceMatrix(localMatrix);
                 bone.setWorldSpaceMatrix(scratchLocalMatrix);

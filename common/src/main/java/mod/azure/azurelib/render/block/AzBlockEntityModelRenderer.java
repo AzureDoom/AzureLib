@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
@@ -85,24 +84,24 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
             RenderUtils.scaleMatrixForBone(poseStack, bone);
 
             if (bone.isTrackingMatrices()) {
-                var poseState = scratchPoseState.set(poseStack.last().pose());
+                scratchPoseState.load(poseStack.last().pose());
                 var localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                    poseState,
+                    scratchPoseState,
                     blockEntityRendererPipeline.entityRenderTranslations
                 );
 
                 bone.setModelSpaceMatrix(
                     RenderUtils.invertAndMultiplyMatrices(
-                        poseState,
+                        scratchPoseState,
                         blockEntityRendererPipeline.modelRenderTranslations
                     )
                 );
                 bone.setLocalSpaceMatrix(
-                    RenderUtils.translateMatrix(localMatrix, Vec3.ZERO.toVector3f())
+                    RenderUtils.translateMatrix(localMatrix, new Vector3f())
                 );
                 bone.setWorldSpaceMatrix(
                     RenderUtils.translateMatrix(
-                        new Matrix4f(localMatrix),
+                        localMatrix.copy(),
                         new Vector3f(
                             entity.getBlockPos().getX(),
                             entity.getBlockPos().getY(),
