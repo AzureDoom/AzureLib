@@ -1,21 +1,17 @@
-v3.1.18
+v3.1.19
 
 ### Additions
-- Added the `math.min_angle(value)` Molang function, which wraps an angle in degrees into the range [-180, 180).
-- Added `AzProfiler` stage hooks (`mod.azure.azurelib.profiling`) for external profiling tools. No cost when no listener is installed.
+- Large groups of animated entities are now cheaper to render:
+    - Bones no longer allocate a new pose every frame. Each bone used to create a new `PoseStack` pose, matrix and normal matrix every frame for every entity on screen; the pose is now saved and restored in place. This roughly halves render-thread allocation and makes garbage collection pauses about half as frequent.
+    - Animations no longer look up every animated bone by name every frame. Each controller resolves its animation's bones once and reuses them until the animation or model changes.
+    - Bone LOD no longer walks every bone of every nearby entity each frame when no bones are hidden.
+    - Animated textures no longer use reflection, and no longer throw and catch an exception, on every render of every textured model.
 
 ### Fixes
-- Fixed `math.copy_sign`, `math.sign`, `math.inverse_lerp` and all 30 `math.ease_*` Molang functions failing to resolve. They were only registered under their bare names, so the `math.`-prefixed forms used by Blockbench and Bedrock animations parsed to 0.
-
-### Performance
-- The auto-glowing layer only draws quads whose UVs cover glowing pixels in the glowmask, including animated glowmasks, and skips the pass entirely when the glowmask has nothing visible.
-- Zero-area faces (the edges of flat cubes) are no longer baked or rendered.
-- Cube pivot rotations are baked once at load instead of being applied to the pose stack for every cube every frame.
-- Flat-cube normal fixes are precomputed per cube; bone, cube and layer loops no longer allocate iterators.
-- Glowmask texture paths are cached instead of rebuilt every frame.
+- Fixed animation transitions stopping for every remaining bone when one bone had no snapshot or animation queue, instead of skipping just that bone.
 
 ### Developer Notes
-- The fixed Molang functions are now registered only under their `math.` names, matching the existing classic functions. Expressions that called them without the prefix (e.g. `ease_in_quad(0, 1, t)`) must be updated to use `math.ease_in_quad(0, 1, t)`.
-- `GeoCube` has two new record components, `transform` and `normalFlips`. The six-argument constructor still works; code that deconstructs the record with a pattern needs updating.
-- `AzModelRenderer#renderCube` no longer modifies the pose stack. Overrides of `renderCube` that change the pose stack must push and pop it themselves.
-- New: `AzQuadFilter`, `AzRendererPipelineContext#quadFilter` / `#setQuadFilter`, `AzGlowCoverage`, and `AzAutoGlowingLayer#glowFilter` for subclasses that draw their glow differently.
+- Added `AzModelRenderer#saveBonePose` and `restoreBonePose`, which replace `PoseStack#pushPose` / `popPose` around each bone. The entity and block entity model renderers use them; the item and armor model renderers no longer push their own pose per bone. Custom model renderers that override `renderRecursively` should do the same, since `pushPose` allocates on every call in this version.
+- Added `AzBoneAnimationQueueCache#resolveQueues(AzBakedAnimation)`, which returns each bone animation's queue by index, cached per animation and model.
+- `AnimatableTexture#setAndUpdate` handles AzureLib's own textures with a plain type check. For other texture classes it still calls `setAnimationFrame(int)` when they have one, but looks the method up once per class instead of on every call.
+- Bone LOD now tracks which baked models currently have LOD-hidden bones, so un-hiding only runs when something was actually hidden.
