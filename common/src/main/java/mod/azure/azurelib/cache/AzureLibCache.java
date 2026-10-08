@@ -25,13 +25,14 @@ public final class AzureLibCache implements PreparableReloadListener {
         @NonNull Executor applicationExecutor
     ) {
         final ResourceManager resourceManager = sharedState.resourceManager();
+        var animations = AzBakedAnimationCache.getInstance().loadAnimations(prepExecutor, resourceManager);
+        var models = AzBakedModelCache.getInstance().loadModels(prepExecutor, resourceManager);
 
-        return CompletableFuture
-            .allOf(
-                AzBakedAnimationCache.getInstance().loadAnimations(prepExecutor, resourceManager),
-                AzBakedModelCache.getInstance().loadModels(prepExecutor, resourceManager)
-            )
+        return CompletableFuture.allOf(animations, models)
             .thenCompose(preparationBarrier::wait)
-            .thenAcceptAsync(empty -> {}, applicationExecutor);
+            .thenAcceptAsync(ignored -> {
+                AzBakedAnimationCache.getInstance().apply(animations.join());
+                AzBakedModelCache.getInstance().apply(models.join());
+            }, applicationExecutor);
     }
 }

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +22,7 @@ import mod.azure.azurelib.loading.FileLoader;
  * <ul>
  * <li>Supports asynchronous loading of animation resources from the in-memory {@code ResourceManager}.
  * <li>Caches animation data keyed by {@link Identifier}.
+ * <li>Replaces the whole cache atomically on reload, so readers never see a partially loaded map.</li>
  * <li>Provides access to the cached animations or null values for non-existent records.</li>
  * </ul>
  */
@@ -34,22 +34,26 @@ public class AzBakedAnimationCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<Identifier, AzBakedAnimations> bakedAnimations;
+    private volatile Map<Identifier, AzBakedAnimations> bakedAnimations = Map.of();
 
-    private AzBakedAnimationCache() {
-        this.bakedAnimations = new Object2ObjectOpenHashMap<>();
-    }
+    private AzBakedAnimationCache() {}
 
-    public CompletableFuture<Void> loadAnimations(Executor backgroundExecutor, ResourceManager resourceManager) {
+    public CompletableFuture<Map<Identifier, AzBakedAnimations>> loadAnimations(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager
+    ) {
         MolangParser.clearExpressionCache();
 
         return loadResources(
             backgroundExecutor,
             resourceManager,
             "animations",
-            resource -> FileLoader.loadAzAnimationsFile(resource, resourceManager),
-            bakedAnimations::put
+            resource -> FileLoader.loadAzAnimationsFile(resource, resourceManager)
         );
+    }
+
+    public void apply(Map<Identifier, AzBakedAnimations> animations) {
+        this.bakedAnimations = animations;
     }
 
     public @Nullable AzBakedAnimations getNullable(Identifier resourceLocation) {
