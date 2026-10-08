@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -13,8 +12,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
@@ -40,7 +41,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
     @Nullable
     private AzEntityAnimator<T> reusedAzEntityAnimator;
 
-    private final Map<UUID, AzLodManager> lodManagers = new Object2ObjectOpenHashMap<>();
+    private final Map<T, AzLodManager> lodManagers = new WeakHashMap<>();
+
+    private boolean animateThisFrame = true;
 
     protected AzEntityRenderer(AzEntityRendererConfig<T> config, EntityRendererProvider.Context context) {
         super(context);
@@ -86,27 +89,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzEntityAnimator = cachedEntityAnimator;
 
-        // Execute the render pipeline.
-        var lodConfig = config.lodConfig();
-        if (lodConfig != AzLodConfig.DISABLED && azBakedModel != null) {
-            var lodManager = lodManagers.computeIfAbsent(entity.getUUID(), id -> new AzLodManager(lodConfig));
-            boolean shouldAnimate = lodManager.update(entity, azBakedModel);
-            if (!shouldAnimate) {
-                rendererPipeline.render(
-                    poseStack,
-                    azBakedModel,
-                    entity,
-                    bufferSource,
-                    null,
-                    null,
-                    entityYaw,
-                    partialTick,
-                    packedLight
-                );
-                return;
-            }
-        }
+        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
 
+        // Execute the render pipeline.
         rendererPipeline.render(
             poseStack,
             azBakedModel,
@@ -118,6 +103,22 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             partialTick,
             packedLight
         );
+    }
+
+    protected boolean updateLod(T entity, @Nullable AzEntityAnimator<T> animator, @Nullable AzBakedModel bakedModel) {
+        var lodConfig = config.lodConfig();
+
+        if (lodConfig == AzLodConfig.DISABLED || bakedModel == null || animator == null) {
+            return true;
+        }
+
+        var context = animator.context();
+
+        if (context == null || context.boneCache().isEmpty() || context.boneCache().getBakedModel() != bakedModel) {
+            return true;
+        }
+
+        return lodManagers.computeIfAbsent(entity, ignored -> new AzLodManager(lodConfig)).update(entity, bakedModel);
     }
 
     /**
@@ -137,6 +138,14 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
     public AzEntityAnimator<T> getAnimator() {
         return reusedAzEntityAnimator;
+    }
+
+    /**
+     * Whether the animator should run for the entity currently being rendered. {@code false} when animation LOD is
+     * holding the entity's last pose this frame.
+     */
+    public boolean shouldAnimateThisFrame() {
+        return animateThisFrame;
     }
 
     public AzEntityRendererConfig<T> config() {
