@@ -10,7 +10,8 @@ package mod.azure.azurelib.render.lod;
  * their children, etc. Bones deeper than {@code boneLodDepth} are hidden when the entity is further than
  * {@code boneLodDistance} blocks from the camera.</li>
  * <li><b>Animation LOD</b> — reduces animation update frequency past a distance. Beyond {@code animLodDistance},
- * animations only update every {@code animLodTickInterval} ticks instead of every frame.</li>
+ * animations update once every {@code animLodTickInterval} ticks instead of every frame; frames in between reuse the
+ * last pose.</li>
  * </ul>
  */
 public final class AzLodConfig {
@@ -22,6 +23,15 @@ public final class AzLodConfig {
         1
     );
 
+    /**
+     * A built-in LOD preset: past 40 blocks, bones deeper than depth 3 are hidden; past 48 blocks, animations update
+     * once every 2 ticks.
+     * <p>
+     * Not applied automatically. Renderers use {@link #DISABLED} unless you opt in with
+     * {@code AzEntityRendererConfig.Builder#withLodConfig(AzLodConfig.DEFAULT)}, or with your own config from
+     * {@link #builder()}.
+     * </p>
+     */
     public static final AzLodConfig DEFAULT = builder()
         .boneLod(40, 3)
         .animLod(48, 2)
@@ -100,8 +110,9 @@ public final class AzLodConfig {
          * Beyond {@code distance} blocks, reduce animation updates to once every {@code tickInterval} ticks.
          * <p>
          * Example: {@code animLod(32, 3)} — past 32 blocks, animate at ~7 fps (20/3) instead of per-frame. The entity
-         * still moves and the pose interpolates, but the animation controller only advances every 3 ticks, saving most
-         * of the per-bone CPU work.
+         * still moves smoothly, but its pose only updates every 3 ticks and holds in between, saving most of the
+         * per-bone CPU work. Animation time keeps advancing, so each update lands on the correct point of the
+         * animation.
          * </p>
          *
          * @param distance     Distance in blocks at which animation LOD activates

@@ -107,9 +107,10 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
 
         if (!isReRender || context.applyAnimationOnReRender()) {
-            var animator = entityRendererPipeline.getRenderer().getAnimator();
+            var renderer = entityRendererPipeline.getRenderer();
+            var animator = renderer.getAnimator();
 
-            if (animator != null) {
+            if (animator != null && renderer.shouldAnimateThisFrame()) {
                 handleAnimation(animator, animatable, context.partialTick());
             }
         }
