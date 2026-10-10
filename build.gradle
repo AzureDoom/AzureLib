@@ -149,10 +149,8 @@ jar {
 
     manifest {
         attributes(
-                'ForceLoadAsMod': 'true',
-                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0',
-                'MixinConfigs': "${mod_id}.mixins.json",
+                'FMLCorePlugin': 'mod.azure.azurelib.coremod.AzureLibLoadingPlugin',
+                'FMLCorePluginContainsFMLMod': 'true',
                 'FMLAT': "${mod_id}_at.cfg",
                 'Specification-Title': mod_id,
                 'Specification-Vendor': mod_authors,
