@@ -1,3 +1,3 @@
-v1.0.0
+v1.0.1
 
-- Initial Forge 1.7.10 backport of AzureLib (from the 1.12.2 backport).
+- Fixed a crash at start up due to mixin weirdness that is 1.7.10.
