@@ -2,13 +2,10 @@ package mod.azure.azurelib.util.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -17,12 +14,15 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.util.IntIntPair;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Mth;
 import mod.azure.azurelib.util.math.Quaternion;
@@ -200,9 +200,11 @@ public final class RenderUtils {
 
         Minecraft mc = Minecraft.getMinecraft();
 
-        try (IResource resource = mc.getResourceManager().getResource(texture)) {
+        try {
+            // 1.7.10's IResource isn't Closeable; only its stream needs closing.
+            IResource resource = mc.getResourceManager().getResource(texture);
             try (InputStream stream = resource.getInputStream()) {
-                BufferedImage image = TextureUtil.readBufferedImage(stream);
+                BufferedImage image = ImageIO.read(stream);
                 return IntIntPair.of(image.getWidth(), image.getHeight());
             }
         } catch (Exception ignored) {
@@ -296,9 +298,9 @@ public final class RenderUtils {
     }
 
     /**
-     * Converts a {@link EnumFacing} to a rotational float for rotation purposes
+     * Converts a {@link Direction} to a rotational float for rotation purposes
      */
-    public static float getDirectionAngle(EnumFacing direction) {
+    public static float getDirectionAngle(Direction direction) {
         switch (direction) {
             case SOUTH:
                 return 90f;
@@ -314,7 +316,7 @@ public final class RenderUtils {
     private static final FloatBuffer GL_MATRIX_BUFFER = BufferUtils.createFloatBuffer(16);
 
     /**
-     * Multiplies the current OpenGL model-view matrix by the given pose, so vanilla 1.12.2 code that renders through
+     * Multiplies the current OpenGL model-view matrix by the given pose, so vanilla 1.7.10 code that renders through
      * the GL matrix stack (model parts, items, blocks) lines up with AzureLib's software {@link PoseStack}. Callers
      * must wrap this in {@code GlStateManager.pushMatrix()}/{@code popMatrix()} and flush any pending AzureLib vertices
      * first.
@@ -328,7 +330,7 @@ public final class RenderUtils {
 
     /**
      * The lightmap coordinates most recently set through {@link OpenGlHelper#setLightmapTextureCoords}, packed the same
-     * way as {@code Entity#getBrightnessForRender()}. This is how 1.12.2 passes light to item and armor rendering,
+     * way as {@code Entity#getBrightnessForRender()}. This is how 1.7.10 passes light to item and armor rendering,
      * which have no packed-light parameter.
      */
     public static int currentPackedLight() {

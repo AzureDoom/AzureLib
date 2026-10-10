@@ -398,7 +398,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                 continue;
 
             double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
-            double curTime = NumberUtils.isCreatable(key) ? Double.parseDouble(entry.getFirst()) : 0;
+            double curTime = NumberUtils.isNumber(key) ? Double.parseDouble(entry.getFirst()) : 0;
             double timeDelta = curTime - prevTime;
 
             JsonArray keyframeVector = element instanceof JsonArray
@@ -448,6 +448,6 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
     }
 
     private static double readTimestamp(String timestamp) {
-        return NumberUtils.isCreatable(timestamp) ? Double.parseDouble(timestamp) : 0;
+        return NumberUtils.isNumber(timestamp) ? Double.parseDouble(timestamp) : 0;
     }
 }

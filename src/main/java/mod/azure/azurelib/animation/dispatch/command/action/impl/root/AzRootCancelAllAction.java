@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Collection;
@@ -13,6 +12,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * The AzRootCancelAllAction class implements the AzAction interface and defines an action that cancels all ongoing
@@ -25,9 +25,9 @@ public class AzRootCancelAllAction implements AzAction {
 
     public static final AzRootCancelAllAction INSTANCE = new AzRootCancelAllAction();
 
-    public static final Function<PacketBuffer, AzRootCancelAllAction> DECODER = buf -> INSTANCE;
+    public static final Function<AzByteBuf, AzRootCancelAllAction> DECODER = buf -> INSTANCE;
 
-    public static final BiConsumer<PacketBuffer, AzRootCancelAllAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzRootCancelAllAction> ENCODER = (buf, action) -> {
         // No data to write since this is a singleton
     };
 
@@ -52,11 +52,11 @@ public class AzRootCancelAllAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzRootCancelAllAction decode(PacketBuffer buf) {
+    public static AzRootCancelAllAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Always returns the singleton instance
     }
 
-    public static void encode(PacketBuffer buf, AzRootCancelAllAction action) {
+    public static void encode(AzByteBuf buf, AzRootCancelAllAction action) {
         ENCODER.accept(buf, action); // Does nothing since no data is encoded
     }
 }

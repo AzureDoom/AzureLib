@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetFreezeTickAction implements AzAction {
 
@@ -56,13 +56,13 @@ public final class AzControllerSetFreezeTickAction implements AzAction {
             + this.freezeTickOffset + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetFreezeTickAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetFreezeTickAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         double freezeTickOffset = buf.readDouble(); // Read double from the buffer
         return new AzControllerSetFreezeTickAction(controllerName, freezeTickOffset); // Create new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetFreezeTickAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetFreezeTickAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         buf.writeDouble(action.freezeTickOffset()); // Write the animation speed to the buffer
     };
@@ -83,11 +83,11 @@ public final class AzControllerSetFreezeTickAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetFreezeTickAction decode(PacketBuffer buf) {
+    public static AzControllerSetFreezeTickAction decode(AzByteBuf buf) {
         return DECODER.apply(buf);
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetFreezeTickAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetFreezeTickAction action) {
         ENCODER.accept(buf, action);
     }
 }

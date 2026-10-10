@@ -25,7 +25,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
 
 <Callout variant="info">
-    1.12.2 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package.
+    1.7.10 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package, and vertices are drawn through 1.7.10's `Tessellator`.
 </Callout>
 
 ## AzArmorRendererConfig
@@ -175,7 +175,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
         YOUR_MOD_ID, "textures/entity/exampleentity_extra.png"
     );
 
-    public ExampleEntityRenderer(RenderManager renderManager) {
+    public ExampleEntityRenderer() {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
                 .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
@@ -214,8 +214,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
                 .withLodConfig(AzLodConfig.DEFAULT) // Opt in to LOD (it is disabled unless you set this)
-                .build(),
-            renderManager
+                .build()
         );
     }
 }
@@ -322,9 +321,9 @@ public class ExampleItemRenderer extends AzItemRenderer {
                     // Insert code you want to run here
                     return context;
                 }) // Post-render hook
-                .disableAnimationInContexts(ItemCameraTransforms.TransformType.GUI, ItemCameraTransforms.TransformType.FIXED, ItemCameraTransforms.TransformType.GROUND) // Disable animations in multiple contexts
-                .enableAnimationOnlyInContexts(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) // Enable animations in multiple contexts
-                .setShouldAnimateInContext(context -> context != ItemCameraTransforms.TransformType.GUI && context != ItemCameraTransforms.TransformType.FIXED) // Custom animation logic with predicate
+                .disableAnimationInContexts(AzItemDisplayContext.GUI, AzItemDisplayContext.FIXED, AzItemDisplayContext.GROUND) // Disable animations in multiple contexts
+                .enableAnimationOnlyInContexts(AzItemDisplayContext.FIRST_PERSON_LEFT_HAND, AzItemDisplayContext.FIRST_PERSON_RIGHT_HAND) // Enable animations in multiple contexts
+                .setShouldAnimateInContext(context -> context != AzItemDisplayContext.GUI && context != AzItemDisplayContext.FIXED) // Custom animation logic with predicate
                 .setAlpha(exampleItem -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
                 .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
                 .setScale(1.0F, 1.0F) // Scale for width and height
@@ -336,6 +335,10 @@ public class ExampleItemRenderer extends AzItemRenderer {
     }
 }
 ```
+
+<Callout variant="info">
+    On 1.7.10 an item is only ever rendered as `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` or `THIRD_PERSON_RIGHT_HAND`; the left-hand, `HEAD`, `FIXED` and `NONE` contexts never occur (item frames render as `GROUND`).
+</Callout>
 
 This setup provides GUI lighting support, offset handling, and numerous customization options for item rendering.
 

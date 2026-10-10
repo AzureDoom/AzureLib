@@ -41,7 +41,7 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
             ClientUtils.getClientPlayer()
         );
         boolean visibleBody = !animatable.isInvisible(); // strictly visible flag
-        boolean glowing = animatable.isGlowing();
+        boolean glowing = false; // 1.7.10 has no glowing effect
         boolean hurtOrDead = animatable instanceof EntityLivingBase && (((EntityLivingBase) animatable).hurtTime > 1
             || ((EntityLivingBase) animatable).getHealth() <= 0);
 

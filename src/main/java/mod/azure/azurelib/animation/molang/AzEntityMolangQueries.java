@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.DoubleSupplier;
@@ -16,7 +15,10 @@ import java.util.function.ToDoubleFunction;
 
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.util.AzEquipmentSlot;
+import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.azurelib.util.client.RenderUtils;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Mth;
 
 /**
@@ -33,24 +35,27 @@ public final class AzEntityMolangQueries {
         flag(MolangQueries.IS_INVISIBLE, Entity::isInvisible),
         flag(MolangQueries.IS_SNEAKING, Entity::isSneaking),
         flag(MolangQueries.IS_SPRINTING, Entity::isSprinting),
-        // 1.12.2 has no swimming state; the closest equivalent is sprinting while in water.
+        // 1.7.10 has no swimming state; the closest equivalent is sprinting while in water.
         flag(MolangQueries.IS_SWIMMING, entity -> entity.isInWater() && entity.isSprinting()),
         flag(MolangQueries.IS_RIDING, Entity::isRiding),
-        flag(MolangQueries.HAS_RIDER, Entity::isBeingRidden),
-        flag(MolangQueries.IS_IN_LAVA, Entity::isInLava),
-        flag(MolangQueries.IS_SILENT, Entity::isSilent),
+        flag(MolangQueries.HAS_RIDER, entity -> entity.riddenByEntity != null),
+        flag(MolangQueries.IS_IN_LAVA, Entity::handleLavaMovement),
+        // 1.7.10 entities can't be silenced.
+        flag(MolangQueries.IS_SILENT, entity -> false),
         flag(
             MolangQueries.IS_SPECTATOR,
-            entity -> entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator()
+            // 1.7.10 has no spectator mode.
+            entity -> false
         ),
         flag(MolangQueries.IS_FIRE_IMMUNE, Entity::isImmuneToFire),
-        flag(MolangQueries.HAS_GRAVITY, entity -> !entity.hasNoGravity()),
+        // 1.7.10 has no no-gravity flag.
+        flag(MolangQueries.HAS_GRAVITY, entity -> true),
         flag(MolangQueries.HAS_COLLISION, entity -> !entity.noClip),
-        flag(MolangQueries.HEAD_IS_IN_WATER, entity -> entity.isInsideOfMaterial(Material.WATER)),
-        flag(MolangQueries.IS_LOCAL_PLAYER, entity -> entity == Minecraft.getMinecraft().player),
+        flag(MolangQueries.HEAD_IS_IN_WATER, entity -> entity.isInsideOfMaterial(Material.water)),
+        flag(MolangQueries.IS_LOCAL_PLAYER, entity -> entity == Minecraft.getMinecraft().thePlayer),
         flag(MolangQueries.IS_FIRST_PERSON, entity -> {
             Minecraft minecraft = Minecraft.getMinecraft();
-            return entity == minecraft.getRenderViewEntity() && minecraft.gameSettings.thirdPersonView == 0;
+            return entity == minecraft.renderViewEntity && minecraft.gameSettings.thirdPersonView == 0;
         }),
         flag(
             MolangQueries.IS_MOVING,
@@ -69,7 +74,7 @@ public final class AzEntityMolangQueries {
             entity -> entity instanceof EntityTameable && ((EntityTameable) entity).isSitting()
         ),
         value(MolangQueries.VERTICAL_SPEED, entity -> entity.motionY * 20),
-        value(MolangQueries.CARDINAL_FACING_2D, entity -> entity.getHorizontalFacing().getIndex()),
+        value(MolangQueries.CARDINAL_FACING_2D, entity -> Direction.fromYaw(entity.rotationYaw).ordinal()),
         value(
             MolangQueries.BODY_X_ROTATION,
             entity -> Mth.lerp(CONTEXT.partialTicks(), entity.prevRotationPitch, entity.rotationPitch)
@@ -86,14 +91,15 @@ public final class AzEntityMolangQueries {
             entity -> entity instanceof EntityPlayer ? ((EntityPlayer) entity).experienceLevel : 0
         ),
         livingFlag(MolangQueries.IS_SLEEPING, EntityLivingBase::isPlayerSleeping),
-        livingFlag(MolangQueries.IS_GLIDING, EntityLivingBase::isElytraFlying),
+        // 1.7.10 has no elytra.
+        livingFlag(MolangQueries.IS_GLIDING, living -> false),
         livingFlag(
             MolangQueries.HAS_HEAD_GEAR,
-            living -> !living.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmpty()
+            living -> !AzureLibUtil.isEmpty(AzEquipmentSlot.HEAD.getStack(living))
         ),
         // 1.18's LivingEntity#getScale is 0.5 for babies and 1 otherwise.
         livingValue(MolangQueries.MODEL_SCALE, living -> living.isChild() ? 0.5 : 1.0),
-        // 1.12.2 has no swim animation amount.
+        // 1.7.10 has no swim animation amount.
         livingValue(MolangQueries.SWIM_AMOUNT, living -> 0),
         livingValue(MolangQueries.DEATH_TICKS, living -> {
             int deathTime = living.deathTime;
@@ -102,21 +108,29 @@ public final class AzEntityMolangQueries {
         livingValue(MolangQueries.EQUIPMENT_COUNT, living -> {
             int count = 0;
 
-            for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+            for (AzEquipmentSlot slot : AzEquipmentSlot.values()) {
                 if (
-                    slot.getSlotType() == EntityEquipmentSlot.Type.ARMOR && !living.getItemStackFromSlot(slot)
-                        .isEmpty()
+                    slot.getSlotType() == AzEquipmentSlot.Type.ARMOR && !AzureLibUtil.isEmpty(slot.getStack(living))
                 )
                     count++;
             }
 
             return count;
         }),
-        livingValue(MolangQueries.ITEM_IN_USE_DURATION, living -> living.getItemInUseMaxCount() / 20D),
-        livingValue(MolangQueries.ITEM_REMAINING_USE_DURATION, living -> living.getItemInUseCount() / 20D),
+        // Item use is tracked on EntityPlayer only in 1.7.10.
+        livingValue(
+            MolangQueries.ITEM_IN_USE_DURATION,
+            living -> living instanceof EntityPlayer ? ((EntityPlayer) living).getItemInUseDuration() / 20D : 0
+        ),
+        livingValue(
+            MolangQueries.ITEM_REMAINING_USE_DURATION,
+            living -> living instanceof EntityPlayer ? ((EntityPlayer) living).getItemInUseCount() / 20D : 0
+        ),
         livingValue(MolangQueries.ITEM_MAX_USE_DURATION, living -> {
-            ItemStack useItem = living.getActiveItemStack();
-            return useItem.isEmpty() ? 0 : useItem.getMaxItemUseDuration() / 20D;
+            if (!(living instanceof EntityPlayer))
+                return 0;
+            ItemStack useItem = ((EntityPlayer) living).getItemInUse();
+            return useItem == null ? 0 : useItem.getMaxItemUseDuration() / 20D;
         })
     };
 

@@ -1,22 +1,20 @@
 package mod.azure.azurelib.render.entity;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityLiving;
 import org.lwjgl.opengl.GL11;
 
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 
 /**
  * Leash rendering for AzureLib entities. AzureLib's entity renderer does not extend {@code RenderLiving}, so this
- * reproduces 1.12.2's {@code RenderLiving#renderLeash}. It must be called with the GL matrix translated to the entity's
- * render position (which is the case inside {@link AzEntityRenderer#doRender}).
+ * reproduces 1.7.10's {@code RenderLiving} leash rendering. It must be called with the GL matrix translated to the
+ * entity's render position (which is the case inside {@link AzEntityRenderer#doRender}).
  */
 public class AzEntityLeashRenderUtil {
 
@@ -74,32 +72,29 @@ public class AzEntityLeashRenderUtil {
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        Tessellator tessellator = Tessellator.instance;
 
-        buffer.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        tessellator.startDrawing(GL11.GL_TRIANGLE_STRIP);
         for (int segment = 0; segment <= 24; ++segment) {
             float[] color = segmentColor(segment);
             float progress = segment / 24.0F;
             double py = y + dy * (progress * progress + progress) * 0.5D + ((24.0F - segment) / 18.0F + 0.125F);
-            buffer.pos(x + dx * progress, py, z + dz * progress).color(color[0], color[1], color[2], 1.0F).endVertex();
-            buffer.pos(x + dx * progress + 0.025D, py + 0.025D, z + dz * progress)
-                .color(color[0], color[1], color[2], 1.0F)
-                .endVertex();
+            tessellator.setColorRGBA_F(color[0], color[1], color[2], 1.0F);
+            tessellator.addVertex(x + dx * progress, py, z + dz * progress);
+            tessellator.setColorRGBA_F(color[0], color[1], color[2], 1.0F);
+            tessellator.addVertex(x + dx * progress + 0.025D, py + 0.025D, z + dz * progress);
         }
         tessellator.draw();
 
-        buffer.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        tessellator.startDrawing(GL11.GL_TRIANGLE_STRIP);
         for (int segment = 0; segment <= 24; ++segment) {
             float[] color = segmentColor(segment);
             float progress = segment / 24.0F;
             double py = y + dy * (progress * progress + progress) * 0.5D + ((24.0F - segment) / 18.0F + 0.125F);
-            buffer.pos(x + dx * progress, py + 0.025D, z + dz * progress)
-                .color(color[0], color[1], color[2], 1.0F)
-                .endVertex();
-            buffer.pos(x + dx * progress + 0.025D, py, z + dz * progress + 0.025D)
-                .color(color[0], color[1], color[2], 1.0F)
-                .endVertex();
+            tessellator.setColorRGBA_F(color[0], color[1], color[2], 1.0F);
+            tessellator.addVertex(x + dx * progress, py + 0.025D, z + dz * progress);
+            tessellator.setColorRGBA_F(color[0], color[1], color[2], 1.0F);
+            tessellator.addVertex(x + dx * progress + 0.025D, py, z + dz * progress + 0.025D);
         }
         tessellator.draw();
 

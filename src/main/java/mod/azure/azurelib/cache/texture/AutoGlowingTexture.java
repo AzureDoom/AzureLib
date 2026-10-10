@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.data.TextureMetadataSection;
@@ -16,6 +15,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.platform.Services;
@@ -81,14 +81,15 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
         boolean blur = false;
         boolean clamp = false;
 
-        try (
-            IResource textureBaseResource = resourceManager.getResource(this.textureBase);
-            InputStream stream = textureBaseResource.getInputStream()
-        ) {
-            baseImage = TextureUtil.readBufferedImage(stream);
+        IResource textureBaseResource = resourceManager.getResource(this.textureBase);
+
+        try (InputStream stream = textureBaseResource.getInputStream()) {
+            baseImage = ImageIO.read(stream);
 
             if (textureBaseResource.hasMetadata()) {
-                TextureMetadataSection textureBaseMeta = textureBaseResource.getMetadata("texture");
+                TextureMetadataSection textureBaseMeta = (TextureMetadataSection) textureBaseResource.getMetadata(
+                    "texture"
+                );
 
                 if (textureBaseMeta != null) {
                     blur = textureBaseMeta.getTextureBlur();
@@ -103,8 +104,8 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
             GeoGlowingTextureMeta glowLayerMeta = null;
 
             if (resourceExists(resourceManager, this.glowLayer)) {
-                try (IResource glowLayerResource = resourceManager.getResource(this.glowLayer)) {
-                    glowImage = TextureUtil.readBufferedImage(glowLayerResource.getInputStream());
+                try (InputStream glowStream = resourceManager.getResource(this.glowLayer).getInputStream()) {
+                    glowImage = ImageIO.read(glowStream);
                 }
 
                 if (baseImage.getWidth() != glowImage.getWidth() || baseImage.getHeight() != glowImage.getHeight()) {
@@ -194,7 +195,8 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
     }
 
     private static boolean resourceExists(IResourceManager resourceManager, ResourceLocation location) {
-        try (IResource ignored = resourceManager.getResource(location)) {
+        try {
+            resourceManager.getResource(location).getInputStream().close();
             return true;
         } catch (IOException e) {
             return false;

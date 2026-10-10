@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -10,6 +9,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzRootSetFreezeTickAction implements AzAction {
 
@@ -45,12 +45,12 @@ public final class AzRootSetFreezeTickAction implements AzAction {
         return "AzRootSetFreezeTickAction[freezeTickOffset=" + this.freezeTickOffset + "]";
     }
 
-    public static final Function<PacketBuffer, AzRootSetFreezeTickAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzRootSetFreezeTickAction> DECODER = buf -> {
         double freezeTickOffset = buf.readDouble(); // Read double from the buffer
         return new AzRootSetFreezeTickAction(freezeTickOffset); // Create new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzRootSetFreezeTickAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzRootSetFreezeTickAction> ENCODER = (buf, action) -> {
         buf.writeDouble(action.freezeTickOffset()); // Write the animation speed to the buffer
     };
 
@@ -72,11 +72,11 @@ public final class AzRootSetFreezeTickAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzRootSetFreezeTickAction decode(PacketBuffer buf) {
+    public static AzRootSetFreezeTickAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate decoding to DECODER
     }
 
-    public static void encode(PacketBuffer buf, AzRootSetFreezeTickAction action) {
+    public static void encode(AzByteBuf buf, AzRootSetFreezeTickAction action) {
         ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

@@ -1,8 +1,6 @@
 package mod.azure.azurelib.render.vertex;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 
@@ -12,13 +10,15 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import mod.azure.azurelib.util.client.AzRenderTick;
+
 /**
- * The 1.12.2 implementation of {@link MultiBufferSource}.
+ * The 1.7.10 implementation of {@link MultiBufferSource}.
  * <p>
  * Vertices handed to the consumers returned by {@link #getBuffer(RenderType)} are recorded per render type, in the
  * order the render types were first used, and are uploaded through the {@link Tessellator} when {@link #endBatch()} is
  * called. This keeps 1.18's batching semantics: AzureLib's renderers may freely switch between render types mid-model
- * (bone texture overrides, glow layers, glint, leashes) without fighting over the single 1.12.2 {@link BufferBuilder}.
+ * (bone texture overrides, glow layers, glint, leashes) without fighting over the single 1.7.10 {@link Tessellator}.
  * <p>
  * Positions are relative to the OpenGL model-view matrix that is current when {@link #endBatch()} runs, so a batch must
  * be ended before that matrix changes. AzureLib's renderers end the batch at the end of every top-level render call and
@@ -44,7 +44,7 @@ public final class AzBufferSource implements MultiBufferSource {
 
     /**
      * The shared buffer source. All AzureLib rendering happens on the client thread, which is also the only thread that
-     * may touch the GL context on 1.12.2.
+     * may touch the GL context on 1.7.10.
      */
     public static AzBufferSource getInstance() {
         return INSTANCE;
@@ -142,7 +142,7 @@ public final class AzBufferSource implements MultiBufferSource {
         }
     }
 
-    /** Same two-pass texture-matrix animation as 1.12.2's {@code RenderItem#renderEffect}. */
+    /** Same two-pass texture-matrix animation as 1.7.10's {@code RenderItem#renderEffect}. */
     private static void drawItemGlint(Batch batch) {
         GlStateManager.matrixMode(GL11.GL_TEXTURE);
         for (int pass = 0; pass < 2; pass++) {
@@ -160,10 +160,10 @@ public final class AzBufferSource implements MultiBufferSource {
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
     }
 
-    /** Same two-pass texture-matrix animation as 1.12.2's {@code LayerArmorBase#renderEnchantedGlint}. */
+    /** Same two-pass texture-matrix animation as 1.7.10's {@code LayerArmorBase#renderEnchantedGlint}. */
     private static void drawArmorGlint(Batch batch) {
         Minecraft mc = Minecraft.getMinecraft();
-        float time = (mc.player == null ? 0 : mc.player.ticksExisted) + mc.getRenderPartialTicks();
+        float time = (mc.thePlayer == null ? 0 : mc.thePlayer.ticksExisted) + AzRenderTick.partialTicks();
         for (int pass = 0; pass < 2; pass++) {
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             GlStateManager.loadIdentity();
@@ -181,9 +181,8 @@ public final class AzBufferSource implements MultiBufferSource {
     private static void upload(Batch batch, int colorOverride) {
         RenderType renderType = batch.renderType;
         boolean fullBright = renderType.isEmissive();
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(renderType.glMode(), renderType.format());
+        Tessellator tessellator = Tessellator.instance;
+        tessellator.startDrawing(renderType.glMode());
         float[] f = batch.floats;
         int[] n = batch.ints;
         for (int v = 0; v < batch.vertexCount; v++) {
@@ -191,12 +190,11 @@ public final class AzBufferSource implements MultiBufferSource {
             int ni = v * INTS_PER_VERTEX;
             int argb = colorOverride != -1 ? colorOverride : applyOverlay(n[ni], n[ni + 1]);
             int light = fullBright ? LightTexture.FULL_BRIGHT : n[ni + 2];
-            builder.pos(f[fi], f[fi + 1], f[fi + 2]);
-            builder.color(argb >> 16 & 0xFF, argb >> 8 & 0xFF, argb & 0xFF, argb >>> 24);
-            builder.tex(f[fi + 3], f[fi + 4]);
-            builder.lightmap(light >> 16 & 0xFFFF, light & 0xFFFF);
-            builder.normal(f[fi + 5], f[fi + 6], f[fi + 7]);
-            builder.endVertex();
+            // 1.7.10's Tessellator keeps the colour, brightness and normal as state applied to the next vertex.
+            tessellator.setColorRGBA(argb >> 16 & 0xFF, argb >> 8 & 0xFF, argb & 0xFF, argb >>> 24);
+            tessellator.setBrightness(light);
+            tessellator.setNormal(f[fi + 5], f[fi + 6], f[fi + 7]);
+            tessellator.addVertexWithUV(f[fi], f[fi + 1], f[fi + 2], f[fi + 3], f[fi + 4]);
         }
         tessellator.draw();
     }

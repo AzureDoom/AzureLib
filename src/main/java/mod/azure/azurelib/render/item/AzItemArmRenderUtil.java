@@ -2,11 +2,10 @@ package mod.azure.azurelib.render.item;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelPlayer;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -17,13 +16,14 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Utility for rendering the local player's arms in place of an item model's {@code leftArm}/{@code rightArm} bones in
- * first person. On 1.12.2 the player's model parts render through the GL matrix stack, so pending AzureLib vertices are
+ * first person. On 1.7.10 the player's model parts render through the GL matrix stack, so pending AzureLib vertices are
  * flushed first and the bone's pose is pushed onto the GL matrix.
  */
 public class AzItemArmRenderUtil {
@@ -50,9 +50,9 @@ public class AzItemArmRenderUtil {
      * @return true if we should render arms for this context
      */
     public static boolean shouldRenderArmsForContext(AzItemRendererPipelineContext context) {
-        ItemCameraTransforms.TransformType transformType = context.getTransformType();
-        return transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND ||
-            transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND;
+        AzItemDisplayContext transformType = context.getTransformType();
+        return transformType == AzItemDisplayContext.FIRST_PERSON_RIGHT_HAND ||
+            transformType == AzItemDisplayContext.FIRST_PERSON_LEFT_HAND;
     }
 
     /**
@@ -79,18 +79,18 @@ public class AzItemArmRenderUtil {
 
         Minecraft client = Minecraft.getMinecraft();
 
-        if (!(client.player instanceof AbstractClientPlayer)) {
+        if (client.thePlayer == null) {
             return;
         }
 
-        AbstractClientPlayer player = client.player;
-        Render<AbstractClientPlayer> renderer = client.getRenderManager().getEntityRenderObject(player);
+        AbstractClientPlayer player = client.thePlayer;
+        Render renderer = RenderManager.instance.getEntityRenderObject(player);
 
         if (!(renderer instanceof RenderPlayer)) {
             return;
         }
 
-        ModelPlayer playerEntityModel = ((RenderPlayer) renderer).getMainModel();
+        ModelBiped playerEntityModel = ((RenderPlayer) renderer).modelBipedMain;
         ResourceLocation playerSkin = player.getLocationSkin();
         PoseStack poseStack = context.poseStack();
 
@@ -110,7 +110,7 @@ public class AzItemArmRenderUtil {
                 bone,
                 playerSkin,
                 playerEntityModel.bipedLeftArm,
-                playerEntityModel.bipedLeftArmwear
+                null
             );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
             poseStack.scale(0.67f, 1.33f, 0.67f);
@@ -121,7 +121,7 @@ public class AzItemArmRenderUtil {
                 bone,
                 playerSkin,
                 playerEntityModel.bipedRightArm,
-                playerEntityModel.bipedRightArmwear
+                null
             );
         }
 
@@ -148,15 +148,18 @@ public class AzItemArmRenderUtil {
 
         renderPart(arm, bone);
 
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.ONE,
-            GlStateManager.DestFactor.ZERO
-        );
-        renderPart(sleeve, bone);
-        GlStateManager.disableBlend();
+        // 1.7.10 skins have no sleeve layer; the parameter is kept for parity with later versions.
+        if (sleeve != null) {
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO
+            );
+            renderPart(sleeve, bone);
+            GlStateManager.disableBlend();
+        }
 
         GlStateManager.popMatrix();
     }

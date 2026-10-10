@@ -178,7 +178,7 @@ public void startSlam() { // server side, e.g. from EntityAIBase#startExecuting
 @Override
 public void onUpdate() {
     super.onUpdate();
-    if (!this.world.isRemote) {
+    if (!this.worldObj.isRemote) {
         attackPlayer.tick();
     }
 }
@@ -350,7 +350,7 @@ public class ExampleEntity extends EntityCreature {
             currentCommand = null; // pick a new start for the new state
         }
 
-        if (!this.world.isRemote) {
+        if (!this.worldObj.isRemote) {
             return; // Only dispatch on the client, so the server doesn't send a packet every tick
         }
 
@@ -446,7 +446,7 @@ public class ExampleEntity extends EntityMob {
         super.onUpdate(); // Update base entity behavior
         moveAnalysis.update(); // Analyze the entity's movement state
 
-        if (this.world.isRemote) { // Only execute animation logic on the client
+        if (this.worldObj.isRemote) { // Only execute animation logic on the client
             boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && this.onGround;
 
             if (isMovingOnGround) {

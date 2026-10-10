@@ -8,7 +8,7 @@
   "url": "https://github.com/AzureDoom/AzureLib",
   "updateUrl": "",
   "authorList": ["${mod_authors}"],
-  "credits": "AzureDoom",
+  "credits": "Built on concepts and code from GeckoLib (MIT). See LICENSE_Geckolib.",
   "logoFile": "logo.png",
   "screenshots": [],
   "dependencies": []

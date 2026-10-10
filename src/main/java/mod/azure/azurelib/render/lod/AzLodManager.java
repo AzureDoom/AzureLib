@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.lod;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 
@@ -62,7 +61,7 @@ public final class AzLodManager {
         }
 
         AzProfiler.begin(AzProfileStage.LOD_UPDATE, entity);
-        RenderManager renderManager = Minecraft.getMinecraft().getRenderManager();
+        RenderManager renderManager = RenderManager.instance;
         double distSq = entity.getDistanceSq(
             renderManager.viewerPosX,
             renderManager.viewerPosY,

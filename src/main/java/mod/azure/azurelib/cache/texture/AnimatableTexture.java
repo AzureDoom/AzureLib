@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.util.AzureLibUtil;
@@ -30,7 +31,7 @@ import mod.azure.azurelib.util.client.RenderUtils;
 /**
  * Wrapper for {@link SimpleTexture SimpleTexture} implementation allowing for animated textures for AzureLib models.
  * <p>
- * On modern versions AzureLib swaps plain textures for this class through a {@code TextureManager} mixin. On 1.12.2 the
+ * On modern versions AzureLib swaps plain textures for this class through a {@code TextureManager} mixin. On 1.7.10 the
  * swap happens lazily in {@link #ensureLoaded(ResourceLocation)}, which every AzureLib render pipeline calls (via
  * {@link #setAndUpdate(ResourceLocation)}) before drawing: textures with an {@code animation} section in their
  * {@code .mcmeta} are loaded as an {@link AnimatableTexture}, everything else is left to vanilla.
@@ -106,7 +107,8 @@ public class AnimatableTexture extends SimpleTexture {
             texture.getResourcePath() + ".mcmeta"
         );
 
-        try (IResource ignored = Minecraft.getMinecraft().getResourceManager().getResource(mcmeta)) {
+        try {
+            Minecraft.getMinecraft().getResourceManager().getResource(mcmeta).getInputStream().close();
             return true;
         } catch (Exception e) {
             return false;
@@ -122,15 +124,14 @@ public class AnimatableTexture extends SimpleTexture {
         boolean blur = false;
         boolean clamp = false;
 
-        try (
-            IResource resource = manager.getResource(this.textureLocation);
-            InputStream stream = resource.getInputStream()
-        ) {
-            image = TextureUtil.readBufferedImage(stream);
+        IResource resource = manager.getResource(this.textureLocation);
+
+        try (InputStream stream = resource.getInputStream()) {
+            image = ImageIO.read(stream);
 
             if (resource.hasMetadata()) {
-                animMeta = resource.getMetadata("animation");
-                TextureMetadataSection textureMeta = resource.getMetadata("texture");
+                animMeta = (AnimationMetadataSection) resource.getMetadata("animation");
+                TextureMetadataSection textureMeta = (TextureMetadataSection) resource.getMetadata("texture");
 
                 if (textureMeta != null) {
                     blur = textureMeta.getTextureBlur();
@@ -352,7 +353,8 @@ public class AnimatableTexture extends SimpleTexture {
 
             return frames.size() <= 1
                 ? null
-                : new Texture(image, frames.toArray(new Frame[0]), columns, animMeta.isInterpolate());
+                : new Texture(image, frames.toArray(new Frame[0]), columns, false); // 1.7.10 animation metadata has no
+                                                                                    // "interpolate" flag
         }
 
         public class Texture {

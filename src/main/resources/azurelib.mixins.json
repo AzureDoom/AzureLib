@@ -12,8 +12,7 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ForgeHooksClientMixin",
-    "ItemStackMixin_AzItemAnimatorCache",
-    "RenderItemMixin"
+    "ItemStackMixin_AzItemAnimatorCache"
   ],
   "minVersion": "0.8",
   "injectors": {

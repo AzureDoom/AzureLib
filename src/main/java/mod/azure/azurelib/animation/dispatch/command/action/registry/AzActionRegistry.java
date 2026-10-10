@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import javax.annotation.Nullable;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
@@ -30,9 +30,9 @@ public class AzActionRegistry {
     // Mappings for resource location to ID and encoders/decoders by ID
     private static final Map<ResourceLocation, Short> RESOURCE_LOCATION_TO_ID = new HashMap<>();
 
-    private static final Map<Short, Function<PacketBuffer, AzAction>> DECODERS_BY_ID = new HashMap<>();
+    private static final Map<Short, Function<AzByteBuf, AzAction>> DECODERS_BY_ID = new HashMap<>();
 
-    private static final Map<Short, BiConsumer<PacketBuffer, AzAction>> ENCODERS_BY_ID = new HashMap<>();
+    private static final Map<Short, BiConsumer<AzByteBuf, AzAction>> ENCODERS_BY_ID = new HashMap<>();
 
     private static short NEXT_FREE_ID = 0;
 
@@ -140,7 +140,7 @@ public class AzActionRegistry {
     /**
      * Returns a decoder function for the given {@link ResourceLocation}.
      */
-    public static @Nullable Function<PacketBuffer, ? extends AzAction> getDecoderOrNull(
+    public static @Nullable Function<AzByteBuf, ? extends AzAction> getDecoderOrNull(
         ResourceLocation resourceLocation
     ) {
         Short id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
@@ -150,14 +150,14 @@ public class AzActionRegistry {
     /**
      * Returns a decoder function for the given ID.
      */
-    public static @Nullable Function<PacketBuffer, AzAction> getDecoderOrNull(short id) {
+    public static @Nullable Function<AzByteBuf, AzAction> getDecoderOrNull(short id) {
         return DECODERS_BY_ID.get(id);
     }
 
     /**
      * Returns an encoder function for the given {@link ResourceLocation}.
      */
-    public static @Nullable BiConsumer<PacketBuffer, AzAction> getEncoderOrNull(ResourceLocation resourceLocation) {
+    public static @Nullable BiConsumer<AzByteBuf, AzAction> getEncoderOrNull(ResourceLocation resourceLocation) {
         Short id = RESOURCE_LOCATION_TO_ID.get(resourceLocation);
         return ENCODERS_BY_ID.get(id);
     }
@@ -165,7 +165,7 @@ public class AzActionRegistry {
     /**
      * Returns an encoder function for the given ID.
      */
-    public static @Nullable BiConsumer<PacketBuffer, AzAction> getEncoderOrNull(short id) {
+    public static @Nullable BiConsumer<AzByteBuf, AzAction> getEncoderOrNull(short id) {
         return ENCODERS_BY_ID.get(id);
     }
 
@@ -181,11 +181,11 @@ public class AzActionRegistry {
      */
     private static <A extends AzAction> void register(
         ResourceLocation resourceLocation,
-        Function<PacketBuffer, A> decoder,
-        BiConsumer<PacketBuffer, A> encoder
+        Function<AzByteBuf, A> decoder,
+        BiConsumer<AzByteBuf, A> encoder
     ) {
         Short id = RESOURCE_LOCATION_TO_ID.computeIfAbsent(resourceLocation, ($) -> NEXT_FREE_ID++);
-        DECODERS_BY_ID.put(id, (Function<PacketBuffer, AzAction>) decoder);
-        ENCODERS_BY_ID.put(id, (BiConsumer<PacketBuffer, AzAction>) encoder);
+        DECODERS_BY_ID.put(id, (Function<AzByteBuf, AzAction>) decoder);
+        ENCODERS_BY_ID.put(id, (BiConsumer<AzByteBuf, AzAction>) encoder);
     }
 }

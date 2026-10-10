@@ -1,12 +1,12 @@
 package mod.azure.azurelib.cache;
 
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.FallbackResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.util.zip.ZipFile;
 import mod.azure.azurelib.AzureLib;
 
 /**
- * Finds resource locations by folder - the 1.12.2 stand-in for 1.18's {@code ResourceManager#listResources}.
+ * Finds resource locations by folder - the 1.7.10 stand-in for 1.18's {@code ResourceManager#listResources}.
  * <p>
  * The loaded resource packs are taken from the resource manager's per-domain {@link FallbackResourceManager}s. Every
  * pack backed by a directory or a zip/jar file (mod jars, dev-environment mod folders, user resource packs and server
@@ -174,7 +174,7 @@ public final class AzResourceLister {
     private static void addIfValid(String namespace, String path, String suffix, Set<ResourceLocation> found) {
         if (!path.endsWith(suffix))
             return;
-        // ResourceLocations are lower-case on 1.12.2; mixed-case files could never be loaded anyway.
+        // ResourceLocations are lower-case on 1.7.10; mixed-case files could never be loaded anyway.
         if (!namespace.equals(namespace.toLowerCase(Locale.ROOT)) || !path.equals(path.toLowerCase(Locale.ROOT))) {
             AzureLib.LOGGER.warn("Skipping non lower-case resource {}:{}", namespace, path);
             return;

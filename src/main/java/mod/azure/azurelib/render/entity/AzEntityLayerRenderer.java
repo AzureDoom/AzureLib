@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -28,10 +27,7 @@ public class AzEntityLayerRenderer<T extends Entity> extends AzLayerRenderer<UUI
      */
     @Override
     public void applyRenderLayers(AzRendererPipelineContext<UUID, T> context) {
-        T animatable = context.animatable();
-
-        if (!(animatable instanceof EntityPlayer && ((EntityPlayer) animatable).isSpectator())) {
-            super.applyRenderLayers(context);
-        }
+        // Later versions skip layers for spectators; 1.7.10 has no spectator mode.
+        super.applyRenderLayers(context);
     }
 }

@@ -2,6 +2,7 @@ package mod.azure.azurelib.animation.impl;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
@@ -93,11 +94,15 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
 
     private final DoubleSupplier isBlockingSupplier = () -> currentLivingEntity == null
         ? 0
-        : RenderUtils.booleanToFloat(currentLivingEntity.isActiveItemStackBlocking());
+        : RenderUtils.booleanToFloat(
+            currentLivingEntity instanceof EntityPlayer && ((EntityPlayer) currentLivingEntity).isBlocking()
+        );
 
     private final DoubleSupplier isUsingItemSupplier = () -> currentLivingEntity == null
         ? 0
-        : RenderUtils.booleanToFloat(currentLivingEntity.isHandActive());
+        : RenderUtils.booleanToFloat(
+            currentLivingEntity instanceof EntityPlayer && ((EntityPlayer) currentLivingEntity).isUsingItem()
+        );
 
     private final DoubleSupplier healthSupplier = () -> currentLivingEntity == null
         ? 0

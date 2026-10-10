@@ -5,7 +5,7 @@ import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 /**
- * Platform service holder. Forge is the only loader on 1.12.2, so the services are instantiated directly rather than
+ * Platform service holder. Forge is the only loader on 1.7.10, so the services are instantiated directly rather than
  * through {@link java.util.ServiceLoader}.
  */
 public final class Services {

@@ -41,7 +41,7 @@ public abstract class AzResourceCache {
     /**
      * Loads every {@code .json} resource under {@code assets/<namespace>/<type>/} into a map.
      * <p>
-     * 1.12.2's {@link IResourceManager} cannot list resources, so the candidate locations are found by
+     * 1.7.10's {@link IResourceManager} cannot list resources, so the candidate locations are found by
      * {@link AzResourceLister}; each one is then read through the resource manager so normal resource pack priority
      * applies.
      *

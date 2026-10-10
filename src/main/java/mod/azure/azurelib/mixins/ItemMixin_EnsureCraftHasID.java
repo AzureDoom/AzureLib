@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.AzureLibUtil;
 
 @Mixin(Item.class)
@@ -24,14 +24,14 @@ public class ItemMixin_EnsureCraftHasID {
      */
     @Inject(method = "onCreated", at = @At("HEAD"))
     public void azureLib$onCraftByPatch(ItemStack stack, World world, EntityPlayer player, CallbackInfo ci) {
-        if (stack.isEmpty() || !AzIdentityRegistry.hasIdentity(stack.getItem()))
+        if (stack == null || !AzIdentityRegistry.hasIdentity(stack.getItem()))
             return;
 
         NBTTagCompound existingTag = stack.getTagCompound();
 
-        if (existingTag != null && existingTag.hasUniqueId(AzureLib.ITEM_UUID_TAG))
+        if (existingTag != null && AzItemIds.has(existingTag))
             return;
 
-        AzureLibUtil.getOrCreateTag(stack).setUniqueId(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
+        AzItemIds.set(AzureLibUtil.getOrCreateTag(stack), UUID.randomUUID());
     }
 }

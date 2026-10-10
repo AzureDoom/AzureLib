@@ -11,7 +11,7 @@ import mod.azure.azurelib.util.math.Quaternion;
 /**
  * A software matrix stack mirroring the 1.18 {@code com.mojang.blaze3d.vertex.PoseStack} API.
  * <p>
- * Minecraft 1.12.2 renders with OpenGL's fixed-function matrix stack. AzureLib keeps its own software stack (so bone
+ * Minecraft 1.7.10 renders with OpenGL's fixed-function matrix stack. AzureLib keeps its own software stack (so bone
  * matrices can be captured and re-used, exactly as on modern versions) and transforms vertices on the CPU. A fresh
  * {@link PoseStack} starts at identity, which represents whatever OpenGL model-view matrix is current when AzureLib's
  * renderers are invoked. Everything written through an {@link AzBufferSource} is therefore relative to that GL matrix,

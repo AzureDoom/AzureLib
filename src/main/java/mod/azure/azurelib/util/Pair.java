@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Immutable pair, standing in for DataFixerUpper's {@code com.mojang.datafixers.util.Pair} which does not exist on
- * 1.12.2.
+ * 1.7.10.
  */
 public final class Pair<F, S> {
 

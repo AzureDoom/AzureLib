@@ -36,12 +36,12 @@ To enable this, you’ll need to **import pre-defined arm bones** into your `.bb
 
 A live working example can be found in the AzureLib example repository:
 
-👉 [Gun With Arm Example](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/items/gunwitharm)
+👉 [Gun With Arm Example](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items/gunwitharm)
 
 ## Notes
 
 - Make sure your animation only affects the imported arm bones when necessary.
 - The arm bones will **only render during active animations** that reference them.
 - For non-first person views, the arms won’t be shown.
-- On 1.12.2 the arms are drawn with the local player's `ModelPlayer` arm and sleeve parts and their current skin.
+- On 1.7.10 the arms are drawn with the local player's arm from `RenderPlayer#modelBipedMain` and their current skin. 1.7.10 skins have no sleeve layer.
 - Always test your item in-game to verify bone alignment and arm positioning.

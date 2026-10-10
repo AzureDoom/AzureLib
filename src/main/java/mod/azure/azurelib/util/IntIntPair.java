@@ -1,7 +1,7 @@
 package mod.azure.azurelib.util;
 
 /**
- * Immutable pair of ints. Minecraft 1.12.2 ships fastutil 7, which predates fastutil's {@code IntIntPair}.
+ * Immutable pair of ints. Minecraft 1.7.10 does not ship fastutil.
  */
 public final class IntIntPair {
 

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -24,17 +23,17 @@ public class AzItemRendererPipelineContext extends AzRendererPipelineContext<UUI
 
     private boolean translucent = false;
 
-    private ItemCameraTransforms.TransformType transformType;
+    private AzItemDisplayContext transformType;
 
     public AzItemRendererPipelineContext(AzRendererPipeline<UUID, ItemStack> rendererPipeline) {
         super(rendererPipeline);
     }
 
-    public ItemCameraTransforms.TransformType getTransformType() {
+    public AzItemDisplayContext getTransformType() {
         return transformType;
     }
 
-    public void setTransformType(ItemCameraTransforms.TransformType transformType) {
+    public void setTransformType(AzItemDisplayContext transformType) {
         this.transformType = transformType;
     }
 

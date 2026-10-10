@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
@@ -24,7 +23,7 @@ import mod.azure.azurelib.util.GsonHelper;
  * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.render.layer.AzAutoGlowingLayer emissive
  * texture feature} for a given texture.
  * <p>
- * On 1.12.2 custom {@code .mcmeta} sections can't be registered with the vanilla metadata serializer, so the
+ * On 1.7.10 custom {@code .mcmeta} sections can't be registered with the vanilla metadata serializer, so the
  * {@code glowsections} section is read straight from the texture's {@code .mcmeta} file by
  * {@link #fromMcmeta(IResourceManager, ResourceLocation)}. Images are handled as ARGB {@link BufferedImage}s.
  */
@@ -48,7 +47,7 @@ public class GeoGlowingTextureMeta {
             texture.getResourcePath() + ".mcmeta"
         );
 
-        try (IResource resource = resourceManager.getResource(mcmeta); InputStream stream = resource.getInputStream()) {
+        try (InputStream stream = resourceManager.getResource(mcmeta).getInputStream()) {
             JsonElement root = new JsonParser().parse(IOUtils.toString(stream, StandardCharsets.UTF_8));
 
             if (!root.isJsonObject() || !root.getAsJsonObject().has(SECTION_NAME))

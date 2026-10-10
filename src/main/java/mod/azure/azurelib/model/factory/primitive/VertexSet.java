@@ -1,8 +1,7 @@
 package mod.azure.azurelib.model.factory.primitive;
 
-import net.minecraft.util.EnumFacing;
-
 import mod.azure.azurelib.cache.object.GeoVertex;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Vec3;
 
 /**
@@ -206,7 +205,7 @@ public final class VertexSet {
     /**
      * Return the vertex array relevant to the quad being built, taking into account mirroring and quad type
      */
-    public GeoVertex[] verticesForQuad(EnumFacing direction, boolean boxUv, boolean mirror) {
+    public GeoVertex[] verticesForQuad(Direction direction, boolean boxUv, boolean mirror) {
         switch ((direction)) {
             case WEST:
                 return mirror ? quadEast() : quadWest();

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -12,6 +11,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetEasingTypeAction implements AzAction {
 
@@ -57,13 +57,13 @@ public final class AzControllerSetEasingTypeAction implements AzAction {
             + this.easingType + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetEasingTypeAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetEasingTypeAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         AzEasingType easingType = AzEasingType.DECODER.apply(buf);
         return new AzControllerSetEasingTypeAction(controllerName, easingType);
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetEasingTypeAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetEasingTypeAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         AzEasingType.ENCODER.accept(buf, action.easingType());
     };
@@ -84,11 +84,11 @@ public final class AzControllerSetEasingTypeAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetEasingTypeAction decode(PacketBuffer buf) {
+    public static AzControllerSetEasingTypeAction decode(AzByteBuf buf) {
         return DECODER.apply(buf);
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetEasingTypeAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetEasingTypeAction action) {
         ENCODER.accept(buf, action);
     }
 }

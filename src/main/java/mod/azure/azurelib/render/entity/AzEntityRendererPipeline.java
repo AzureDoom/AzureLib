@@ -80,7 +80,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
             float setAlpha = context.animatable().isInvisible()
                 ? (context.animatable()
                     .isInvisibleToPlayer(
-                        Minecraft.getMinecraft().player
+                        Minecraft.getMinecraft().thePlayer
                     ) ? 0.0F : 0.38F)
                 : config.alpha(context.animatable());
             context.setAlpha(setAlpha);
@@ -123,7 +123,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
 
         EntityLiving mob = (EntityLiving) entity;
 
-        Entity leashHolder = mob.getLeashHolder();
+        Entity leashHolder = mob.getLeashedToEntity();
 
         if (leashHolder == null) {
             return;

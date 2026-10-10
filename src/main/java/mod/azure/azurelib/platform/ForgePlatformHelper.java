@@ -1,8 +1,8 @@
 package mod.azure.azurelib.platform;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
 import java.nio.file.Path;

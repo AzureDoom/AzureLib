@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzRootSetEasingTypeAction implements AzAction {
 
@@ -46,12 +46,12 @@ public final class AzRootSetEasingTypeAction implements AzAction {
         return "AzRootSetEasingTypeAction[easingType=" + this.easingType + "]";
     }
 
-    public static final Function<PacketBuffer, AzRootSetEasingTypeAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzRootSetEasingTypeAction> DECODER = buf -> {
         AzEasingType easingType = AzEasingType.DECODER.apply(buf);
         return new AzRootSetEasingTypeAction(easingType);
     };
 
-    public static final BiConsumer<PacketBuffer, AzRootSetEasingTypeAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzRootSetEasingTypeAction> ENCODER = (buf, action) -> {
         AzEasingType.ENCODER.accept(buf, action.easingType());
     };
 
@@ -73,11 +73,11 @@ public final class AzRootSetEasingTypeAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzRootSetEasingTypeAction decode(PacketBuffer buf) {
+    public static AzRootSetEasingTypeAction decode(AzByteBuf buf) {
         return DECODER.apply(buf);
     }
 
-    public static void encode(PacketBuffer buf, AzRootSetEasingTypeAction action) {
+    public static void encode(AzByteBuf buf, AzRootSetEasingTypeAction action) {
         ENCODER.accept(buf, action);
     }
 

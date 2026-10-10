@@ -71,12 +71,12 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
 
     private final DoubleSupplier actorCountSupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().world;
+        WorldClient lvl = Minecraft.getMinecraft().theWorld;
         return lvl != null ? lvl.loadedEntityList.size() : 0;
     };
 
     private final DoubleSupplier timeOfDaySupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().world;
+        WorldClient lvl = Minecraft.getMinecraft().theWorld;
         return lvl != null ? lvl.getWorldTime() / 24000f : 0;
     };
 
@@ -85,12 +85,12 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier moonBrightnessSupplier = () -> MOON_BRIGHTNESS[moonPhase()];
 
     private final DoubleSupplier daySupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().world;
+        WorldClient lvl = Minecraft.getMinecraft().theWorld;
         return lvl != null ? Math.floorDiv(lvl.getWorldTime(), 24000L) : 0;
     };
 
     private final DoubleSupplier timeStampSupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().world;
+        WorldClient lvl = Minecraft.getMinecraft().theWorld;
         return lvl != null ? lvl.getTotalWorldTime() : 0;
     };
 
@@ -100,7 +100,7 @@ public abstract class AzAnimator<K, T> {
         .getMinecraft().gameSettings.renderDistanceChunks;
 
     private static int moonPhase() {
-        WorldClient lvl = Minecraft.getMinecraft().world;
+        WorldClient lvl = Minecraft.getMinecraft().theWorld;
 
         if (lvl == null)
             return 0;
@@ -198,7 +198,7 @@ public abstract class AzAnimator<K, T> {
      * @param partialTicks The partial tick for smooth animations.
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
-        WorldClient level = Minecraft.getMinecraft().world;
+        WorldClient level = Minecraft.getMinecraft().theWorld;
 
         if (level == null) {
             return;

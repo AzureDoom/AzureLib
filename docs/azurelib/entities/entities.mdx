@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/entities)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/entities)
 </Callout>
 
 # How to animate Entities
@@ -129,24 +129,26 @@ public class ExampleEntity extends EntityMob {
 Now you simply call the dispatcher wherever you want to play the animations.
 
 <Callout variant="warning">
-    On 1.12.2 a mob's attack target only exists on the server, and there is no synced `isAggressive()` like on modern versions. If a client-side animation choice depends on server state (attacking, charging, ...), sync it with a `DataParameter`, as `isAggressive()` does below.
+    On 1.7.10 a mob's attack target only exists on the server, and there is no synced `isAggressive()` like on modern versions. If a client-side animation choice depends on server state (attacking, charging, ...), sync it through the `DataWatcher`, as `isAggressive()` does below.
+</Callout>
+
+<Callout variant="info">
+    1.7.10 mobs only run their task-based AI (`tasks.addTask(...)`) when `isAIEnabled()` returns `true`; otherwise they use the old built-in AI.
 </Callout>
 
 Example of playing a death animation, movement animations and an idle animation.
 ```java
-    private static final DataParameter<Boolean> AGGRESSIVE = EntityDataManager.createKey(
-        ExampleEntity.class,
-        DataSerializers.BOOLEAN
-    );
+    /** DataWatcher slot for the synced "has an attack target" flag. */
+    private static final int AGGRESSIVE = 20;
 
     @Override
     protected void entityInit() {
         super.entityInit();
-        this.dataManager.register(AGGRESSIVE, false);
+        this.dataWatcher.addObject(AGGRESSIVE, (byte) 0);
     }
 
     public boolean isAggressive() {
-        return this.dataManager.get(AGGRESSIVE);
+        return this.dataWatcher.getWatchableObjectByte(AGGRESSIVE) != 0;
     }
 
     @Override
@@ -154,8 +156,8 @@ Example of playing a death animation, movement animations and an idle animation.
         super.onUpdate();
         moveAnalysis.update();
 
-        if (!this.world.isRemote) {
-            this.dataManager.set(AGGRESSIVE, this.getAttackTarget() != null);
+        if (!this.worldObj.isRemote) {
+            this.dataWatcher.updateObject(AGGRESSIVE, (byte) (this.getAttackTarget() != null ? 1 : 0));
             return;
         }
 
@@ -185,7 +187,7 @@ It connects the entity with the following:
 2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
 3. **Animator**: Animations for the entity, provided by `ExampleEntityAnimator`.
 
-The renderer class must extend `AzEntityRenderer<ExampleEntity>` (a 1.12.2 `Render<T>`) and provide the required configuration. Its constructor takes the `RenderManager` that `RenderingRegistry` passes in.
+The renderer class must extend `AzEntityRenderer<ExampleEntity>` (a 1.7.10 `Render`) and provide the required configuration. 1.7.10 renderers are plain instances; Minecraft assigns the `RenderManager` when the renderer is registered.
 
 <Callout variant="info">
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azentityrendererconfig) for all AzEntityRendererConfig#builder options.
@@ -204,11 +206,10 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
         "textures/entity/example_entity.png"
     );
 
-    public ExampleEntityRenderer(RenderManager renderManager) {
+    public ExampleEntityRenderer() {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
-                .setAnimatorProvider(ExampleEntityAnimator::new).build(),
-            renderManager
+                .setAnimatorProvider(ExampleEntityAnimator::new).build()
         );
     }
 }
@@ -216,14 +217,14 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
 ## Registering your Renderer
 
-On 1.12.2 entity renderers must be registered on the client during `FMLPreInitializationEvent`, for example from your client proxy's `preInit` method:
+Register the renderer instance on the client, for example from your client proxy's `init` method:
 
 ```java
 // ClientProxy
 @Override
-public void preInit() {
-    RenderingRegistry.registerEntityRenderingHandler(ExampleEntity.class, ExampleEntityRenderer::new);
+public void init() {
+    RenderingRegistry.registerEntityRenderingHandler(ExampleEntity.class, new ExampleEntityRenderer());
 }
 ```
 
-You can also give a vanilla entity an AzureLib renderer the same way, for example `RenderingRegistry.registerEntityRenderingHandler(EntityCreeper.class, ExampleCreeperRenderer::new)`.
+You can also give a vanilla entity an AzureLib renderer the same way, for example `RenderingRegistry.registerEntityRenderingHandler(EntityCreeper.class, new ExampleCreeperRenderer())`.

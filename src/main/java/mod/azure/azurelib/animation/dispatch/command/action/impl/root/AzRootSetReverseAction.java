@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -10,6 +9,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzRootSetReverseAction implements AzAction {
 
@@ -45,12 +45,12 @@ public final class AzRootSetReverseAction implements AzAction {
         return "AzRootSetReverseAction[hasReverse=" + this.hasReverse + "]";
     }
 
-    public static final Function<PacketBuffer, AzRootSetReverseAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzRootSetReverseAction> DECODER = buf -> {
         boolean hasReverse = buf.readBoolean(); // Read boolean from the buffer
         return new AzRootSetReverseAction(hasReverse); // Create a new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzRootSetReverseAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzRootSetReverseAction> ENCODER = (buf, action) -> {
         buf.writeBoolean(action.hasReverse()); // Write the animation speed to the buffer
     };
 
@@ -72,11 +72,11 @@ public final class AzRootSetReverseAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzRootSetReverseAction decode(PacketBuffer buf) {
+    public static AzRootSetReverseAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate decoding to DECODER
     }
 
-    public static void encode(PacketBuffer buf, AzRootSetReverseAction action) {
+    public static void encode(AzByteBuf buf, AzRootSetReverseAction action) {
         ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

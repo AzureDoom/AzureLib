@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.entity;
 
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
@@ -18,18 +17,19 @@ import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.util.math.Vec3;
 
 /**
- * Base entity renderer for AzureLib-animated entities on 1.12.2.
+ * Base entity renderer for AzureLib-animated entities on 1.7.10.
  * <p>
- * Register it like any other 1.12.2 renderer, e.g.
- * {@code RenderingRegistry.registerEntityRenderingHandler(MyEntity.class, MyEntityRenderer::new)} during client
- * pre-init, where {@code MyEntityRenderer(RenderManager)} calls {@code super(config, renderManager)}.
+ * Register it like any other 1.7.10 renderer, e.g.
+ * {@code RenderingRegistry.registerEntityRenderingHandler(MyEntity.class, new MyEntityRenderer())} during client init.
+ * 1.7.10 renderers are created without a {@link RenderManager}; Minecraft assigns it when the renderer is registered.
  */
-public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
+public abstract class AzEntityRenderer<T extends Entity> extends Render {
 
     private final AzEntityRendererConfig<T> config;
 
@@ -44,8 +44,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
 
     private boolean animateThisFrame = true;
 
-    protected AzEntityRenderer(AzEntityRendererConfig<T> config, RenderManager renderManager) {
-        super(renderManager);
+    protected AzEntityRenderer(AzEntityRendererConfig<T> config) {
         this.config = config;
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUniqueID);
         this.rendererPipeline = createPipeline(config);
@@ -56,14 +55,14 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
     }
 
     @Override
-    @Nonnull
-    protected ResourceLocation getEntityTexture(@Nonnull T animatable) {
-        return config.textureLocation(animatable, animatable);
+    @SuppressWarnings("unchecked")
+    protected ResourceLocation getEntityTexture(Entity animatable) {
+        return config.textureLocation((T) animatable, (T) animatable);
     }
 
     /**
-     * Runs vanilla's {@link Render#doRender} (name tag), called from the pipeline once the model has been drawn. The GL
-     * matrix is already translated to the entity, so the position passed to vanilla is the origin.
+     * Renders the name tag, called from the pipeline once the model has been drawn. The GL matrix is already translated
+     * to the entity, so the label is drawn at the origin.
      */
     public void superRender(
         @Nonnull T entity,
@@ -73,12 +72,15 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
         @Nonnull MultiBufferSource bufferSource,
         int packedLight
     ) {
-        super.doRender(entity, 0, 0, 0, entityYaw, partialTick);
+        if (AzEntityNameRenderUtil.shouldShowName(this.renderManager, entity)) {
+            AzEntityNameRenderUtil.renderNameTag(this.renderManager, entity, 0, 0, 0);
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void doRender(@Nonnull T entity, double x, double y, double z, float entityYaw, float partialTick) {
+    public void doRender(Entity rawEntity, double x, double y, double z, float entityYaw, float partialTick) {
+        T entity = (T) rawEntity;
         AzEntityAnimator<T> cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
 
@@ -92,11 +94,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
 
-        if (this.renderOutlines) {
-            GlStateManager.enableColorMaterial();
-            GlStateManager.enableOutlineMode(this.getTeamColor(entity));
-        }
-
         try {
             rendererPipeline.render(
                 new PoseStack(),
@@ -107,15 +104,10 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
                 null,
                 entityYaw,
                 partialTick,
-                entity.getBrightnessForRender()
+                entity.getBrightnessForRender(partialTick)
             );
             bufferSource.endBatch();
         } finally {
-            if (this.renderOutlines) {
-                GlStateManager.disableOutlineMode();
-                GlStateManager.disableColorMaterial();
-            }
-
             GlStateManager.popMatrix();
         }
     }
@@ -143,11 +135,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
         }
 
         return manager.update(entity, bakedModel);
-    }
-
-    @Override
-    protected boolean canRenderName(@Nonnull T entity) {
-        return AzEntityNameRenderUtil.shouldShowName(renderManager, entity);
     }
 
     /**

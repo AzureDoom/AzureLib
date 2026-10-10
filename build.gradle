@@ -1,17 +1,22 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+    dependencies {
+        classpath 'com.anatawa12.forge:ForgeGradle:1.2-1.1.1'
+    }
+}
+
 plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.spongepowered.mixin' version '0.7.+'
-    id 'com.diffplug.spotless' version "6.13.0"
+    id 'com.diffplug.spotless' version '5.17.1'
 }
 
-def keyPropsFile = rootProject.file('key.properties')
-def releaseProp = new Properties()
-if (keyPropsFile.exists()) {
-    keyPropsFile.withInputStream { releaseProp.load(it) }
-}
+apply plugin: 'forge'
+
 
 version = mod_version
 group = mod_group_id
@@ -20,131 +25,167 @@ base {
     archivesName = "${mod_id}-forge-${mc_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
-
-java {
-    withSourcesJar()
-}
-
-println "Java: ${System.getProperty('java.version')}, JVM: ${System.getProperty('java.vm.version')} (${System.getProperty('java.vendor')}), Arch: ${System.getProperty('os.arch')}"
-
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "${mod_id}.mixins.json"
-}
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    mappings channel: mappings_channel, version: mappings_version
+    version = "${mc_version}-${forge_version}"
+    runDir = 'run'
+    mappings = "${mappings_channel}_${mappings_version}"
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    runs {
-        configureEach {
-            workingDirectory project.file("run/${it.name}")
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            arg '-torg.spongepowered.asm.launch.MixinTweaker'
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        client {}
-        server {}
-    }
-}
-
-def copyResourcesToClasses = tasks.register('copyResourcesToClasses', Copy) {
-    dependsOn tasks.named('compileJava')
-    from tasks.named('processResources')
-    into sourceSets.main.java.destinationDirectory
-}
-tasks.named('classes') { dependsOn copyResourcesToClasses }
-
-tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
-    dependsOn tasks.named('classes')
-    doFirst {
-        def libsDir = layout.buildDirectory.dir('libs').get().asFile.toPath()
-        classpath = sourceSets.main.output + classpath.filter { !it.toPath().startsWith(libsDir) }
+    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
+        accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     }
 }
 
 repositories {
+    mavenCentral()
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://jitpack.io' }
+
     maven {
         name = 'Cursemaven'
         url = 'https://www.cursemaven.com/'
-        content { includeGroup 'curse.maven' }
+        content {
+            includeGroup 'curse.maven'
+        }
     }
-    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
 }
-
-configurations {
-    embed
-    implementation.extendsFrom(embed)
-}
-
-def mixinVersion = '0.8.5'
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-    embed("org.spongepowered:mixin:${mixinVersion}") {
+    implementation(
+            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
+    ) {
         transitive = false
     }
-    annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+
+    annotationProcessor(
+            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
+    ) {
+        transitive = false
+    }
+}
+
+def mixinSrg = file("${buildDir}/tmp/compileJava/${mod_id}.mixins.srg")
+def mixinRefmap = file("${buildDir}/tmp/compileJava/${mod_id}.refmap.json")
+
+spotless {
+    java {
+        eclipse('4.13.0').configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder('', 'java', 'mod.azure.azurelib', '\\#')
+        indentWithSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
+
+compileJava {
+    dependsOn 'genSrgs'
+    dependsOn 'spotlessApply'
+
+    outputs.file mixinSrg
+    outputs.file mixinRefmap
+
+    doFirst {
+        mixinSrg.parentFile.mkdirs()
+        mixinSrg.text = ''
+
+        options.compilerArgs += [
+                "-AreobfSrgFile=${tasks.reobf.srg}",
+                "-AoutSrgFile=${mixinSrg}",
+                "-AoutRefMapFile=${mixinRefmap}",
+                '-AdefaultObfuscationEnv=searge'
+        ]
+    }
+}
+
+reobf {
+    addExtraSrgFile mixinSrg
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.register('sourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
 }
 
 processResources {
-    Map replaceProperties = [
-            mc_version        : mc_version,
-            forge_version     : forge_version,
-            mod_id            : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors       : mod_authors, mod_description: mod_description, pack_format_number: pack_format_number,
+    def replaceProperties = [
+            mc_version: mc_version,
+            forge_version: forge_version,
+            mod_id: mod_id,
+            mod_name: mod_name,
+            mod_license: mod_license,
+            mod_version: mod_version,
+            mod_authors: mod_authors,
+            mod_description: mod_description,
+            pack_format_number: pack_format_number,
+            version: project.version,
+            mcversion: mc_version
     ]
+
     inputs.properties replaceProperties
 
     filesMatching(['mcmod.info', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
+
+    filesMatching('META-INF/accesstransformer.cfg') {
+        name = "${mod_id}_at.cfg"
+    }
 }
 
 jar {
-    from {
-        configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude 'LICENSE.txt', 'META-INF/MANIFEST.MF', 'META-INF/maven/**', 'META-INF/*.RSA', 'META-INF/*.SF'
-    }
+    dependsOn compileJava
+
+    from mixinRefmap
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes([
-                'ForceLoadAsMod'          : 'true',
-                'TweakClass'              : 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder'              : '0',
-                'MixinConfigs'            : "${mod_id}.mixins.json",
-                'FMLAT'                   : 'accesstransformer.cfg',
-                'Specification-Title'     : mod_id,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.version,
-                'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(
+                'ForceLoadAsMod': 'true',
+                'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder': '0',
+                'MixinConfigs': "${mod_id}.mixins.json",
+                'FMLAT': "${mod_id}_at.cfg",
+                'Specification-Title': mod_id,
+                'Specification-Vendor': mod_authors,
+                'Specification-Version': '1',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Implementation-Vendor': mod_authors
+        )
     }
-
-    finalizedBy 'reobfJar'
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+tasks.matching {
+    it.name == 'runClient' || it.name == 'runServer'
+}.all {
+    args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
+
+    systemProperty 'mixin.env.remapRefMap', 'true'
+
+    doFirst {
+        systemProperty(
+                'mixin.env.refMapRemappingFile',
+                tasks.genSrgs.srgToMcp.absolutePath
+        )
+    }
+}
+
+tasks.register('devJar', Jar) {
+    dependsOn compileJava
+    archiveClassifier.set('dev')
+    from sourceSets.main.output
+    from mixinRefmap
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest.from(jar.manifest)
 }
 
 idea {
@@ -154,56 +195,39 @@ idea {
     }
 }
 
-spotless {
-    java {
-        eclipse().configFile("$rootDir/eclipse-formatter.xml")
-        endWithNewline()
-        importOrder("", "java", group.toString(), "\\#")
-        indentWithSpaces(4)
-        removeUnusedImports()
-        trimTrailingWhitespace()
-    }
-}
-
-tasks.named('compileJava', JavaCompile) {
-    dependsOn("spotlessApply")
-}
-
-jar {
-    from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
-    }
-}
-
-sourcesJar {
-    from(rootProject.file('LICENSE')) {
-        rename { "${it}_${mod_name}" }
-    }
-}
-
 publishing {
     repositories {
         maven {
             name = mod_id
-            url = maven_url
+            url = uri(maven_url)
+
             credentials(PasswordCredentials)
+
             authentication {
                 basic(BasicAuthentication)
             }
         }
     }
+
     publications {
         register('maven', MavenPublication) {
+            groupId = project.group.toString()
             artifactId = base.archivesName.get()
-            artifact jar
-            artifact sourcesJar
+            version = project.version.toString()
+
+            artifact tasks.jar
+            artifact tasks.devJar
+            artifact tasks.sourcesJar
+
             pom {
                 name = mod_name
                 description = mod_description
                 url = 'https://github.com/AzureDoom/AzureLib'
+
                 licenses {
                     license {
                         name = mod_license
+                        url = 'https://opensource.org/licenses/MIT'
                     }
                 }
             }
@@ -211,21 +235,10 @@ publishing {
     }
 }
 
-tasks.withType(PublishToMavenRepository).configureEach {
-    dependsOn tasks.named('reobfJar')
-}
-tasks.withType(PublishToMavenLocal).configureEach {
-    dependsOn tasks.named('reobfJar')
+tasks.withType(PublishToMavenRepository) {
+    dependsOn reobf
 }
 
-tasks.withType(GenerateModuleMetadata).configureEach {
-    enabled = false
-}
-
-tasks.matching { it.name == 'publishCurseforge' }.configureEach {
-    dependsOn tasks.named('build')
-}
-
-tasks.matching { it.name == 'publishModrinth' }.configureEach {
-    dependsOn tasks.named('build')
+tasks.withType(PublishToMavenLocal) {
+    dependsOn reobf
 }

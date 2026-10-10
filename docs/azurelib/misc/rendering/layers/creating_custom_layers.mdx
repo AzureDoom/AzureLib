@@ -48,9 +48,9 @@ This key allows the renderer to distinguish between individual animatable instan
 - **Structure Your Code**:
     - Consider splitting complex rendering logic into utility methods for easier maintenance and readability.
 
-## Rendering Vanilla Things From a Layer (1.12.2)
+## Rendering Vanilla Things From a Layer (1.7.10)
 
-AzureLib transforms vertices in software with its own `PoseStack` and batches them in `AzBufferSource` until the render call finishes. Vanilla 1.12.2 rendering (items, blocks, `ModelRenderer`s, `Tessellator` draws) instead uses the OpenGL matrix stack. If your layer hands off to vanilla code, flush AzureLib first and push the current pose onto the GL matrix:
+AzureLib transforms vertices in software with its own `PoseStack` and batches them in `AzBufferSource` until the render call finishes. Vanilla 1.7.10 rendering (items, blocks, `ModelRenderer`s, `Tessellator` draws) instead uses the OpenGL matrix stack. If your layer hands off to vanilla code, flush AzureLib first and push the current pose onto the GL matrix:
 
 ```java
 @Override
@@ -63,10 +63,10 @@ public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) 
         ((AzBufferSource) context.multiBufferSource()).endBatch();
     }
 
-    GlStateManager.pushMatrix();
+    GL11.glPushMatrix();
     RenderUtils.applyPoseToGl(context.poseStack().last());
-    // ... vanilla rendering here, e.g. Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.NONE)
-    GlStateManager.popMatrix();
+    // ... vanilla rendering here, e.g. RenderManager.instance.itemRenderer.renderItem(livingEntity, stack, 0)
+    GL11.glPopMatrix();
 }
 ```
 

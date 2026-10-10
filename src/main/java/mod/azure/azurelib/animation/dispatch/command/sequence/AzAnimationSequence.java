@@ -1,12 +1,11 @@
 package mod.azure.azurelib.animation.dispatch.command.sequence;
 
-import net.minecraft.network.PacketBuffer;
-
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import mod.azure.azurelib.animation.dispatch.command.stage.AzAnimationStage;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.util.codec.AzListStreamCodec;
 
 public final class AzAnimationSequence {
@@ -46,12 +45,12 @@ public final class AzAnimationSequence {
     private static final AzListStreamCodec<AzAnimationStage> STAGE_LIST_CODEC =
         new AzListStreamCodec<>(AzAnimationStage.DECODER, AzAnimationStage.ENCODER);
 
-    public static final Function<PacketBuffer, AzAnimationSequence> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzAnimationSequence> DECODER = buf -> {
         List<AzAnimationStage> stages = STAGE_LIST_CODEC.decode(buf);
         return new AzAnimationSequence(stages);
     };
 
-    public static final BiConsumer<PacketBuffer, AzAnimationSequence> ENCODER = (buf, sequence) -> {
+    public static final BiConsumer<AzByteBuf, AzAnimationSequence> ENCODER = (buf, sequence) -> {
         STAGE_LIST_CODEC.encode(buf, sequence.stages());
     };
 

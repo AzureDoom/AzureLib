@@ -18,7 +18,7 @@ import javax.imageio.ImageIO;
 import mod.azure.azurelib.platform.Services;
 
 /**
- * Abstract texture wrapper for AzureLib textures. On 1.12.2 all texture loading already happens on the client thread,
+ * Abstract texture wrapper for AzureLib textures. On 1.7.10 all texture loading already happens on the client thread,
  * so the upload task returned by {@link #loadTexture(IResourceManager, Minecraft)} is executed immediately.
  */
 public abstract class GeoAbstractTexture extends AbstractTexture {
@@ -30,11 +30,6 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
         ResourceLocation texturePath,
         Consumer<TextureManager> textureManagerConsumer
     ) {
-        if (!Minecraft.getMinecraft().isCallingFromMinecraftThread())
-            throw new IllegalThreadStateException(
-                "Texture loading called outside of the render thread! This should DEFINITELY not be happening."
-            );
-
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
         ITextureObject existing = textureManager.getTexture(texturePath);
 

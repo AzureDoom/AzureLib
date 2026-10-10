@@ -1,9 +1,11 @@
 package mod.azure.azurelib.client;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import mod.azure.azurelib.cache.AzureLibCache;
+import mod.azure.azurelib.util.client.AzRenderTick;
 
 /**
  * Client-side bootstrap, invoked from {@link mod.azure.azurelib.ForgeAzureLibMod} during pre-init so the resource
@@ -22,5 +24,7 @@ public final class AzureLibClientInit {
         }
         initialized = true;
         AzureLibCache.registerReloadListener();
+        // 1.7.10 fires tick events on FML's bus, not on MinecraftForge.EVENT_BUS.
+        FMLCommonHandler.instance().bus().register(new AzRenderTick());
     }
 }

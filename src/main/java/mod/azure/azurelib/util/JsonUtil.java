@@ -44,7 +44,7 @@ import mod.azure.azurelib.loading.json.raw.UVUnion;
  */
 public final class JsonUtil {
 
-    public static final Gson GEO_GSON = new GsonBuilder().setLenient()
+    public static final Gson GEO_GSON = new GsonBuilder().setPrettyPrinting()
         .registerTypeAdapter(Bone.class, Bone.deserializer())
         .registerTypeAdapter(Cube.class, Cube.deserializer())
         .registerTypeAdapter(FaceUV.class, FaceUV.deserializer())

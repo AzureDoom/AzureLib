@@ -1,11 +1,11 @@
 package mod.azure.azurelib.cache;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -20,12 +20,13 @@ import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
+import mod.azure.azurelib.render.item.AzItemDisplayTransforms;
 import mod.azure.azurelib.util.AzureLibException;
 
 /**
- * Hooks AzureLib's model and animation caches into 1.12.2's resource reloading.
+ * Hooks AzureLib's model and animation caches into 1.7.10's resource reloading.
  * <p>
- * 1.12.2 reload listeners are synchronous and run on the client thread, so files are parsed on a small worker pool and
+ * 1.7.10 reload listeners are synchronous and run on the client thread, so files are parsed on a small worker pool and
  * the listener blocks until they're done before swapping the caches in.
  */
 @SideOnly(Side.CLIENT)
@@ -72,5 +73,6 @@ public final class AzureLibCache {
         }
 
         AnimatableTexture.onResourceReload();
+        AzItemDisplayTransforms.clearCache();
     }
 }

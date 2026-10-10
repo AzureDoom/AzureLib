@@ -1,19 +1,15 @@
 package mod.azure.azurelib.platform;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,13 +19,15 @@ import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.util.math.BlockPos;
 
 /**
- * 1.12.2 networking. All of AzureLib's server-to-client packets travel through a single {@link SimpleNetworkWrapper}
+ * 1.7.10 networking. All of AzureLib's server-to-client packets travel through a single {@link SimpleNetworkWrapper}
  * message, {@link AzPacketMessage}, which carries a one-byte packet id followed by the packet's own encoding.
  */
 public class ForgeAzureLibNetwork implements AzureLibNetwork {
@@ -38,13 +36,13 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
         AzureLib.MOD_ID
     );
 
-    private static final List<Function<PacketBuffer, ? extends AbstractPacket>> DECODERS = new ArrayList<>();
+    private static final List<Function<AzByteBuf, ? extends AbstractPacket>> DECODERS = new ArrayList<>();
 
     private static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
 
     private boolean registered;
 
-    private static void registerPacket(ResourceLocation id, Function<PacketBuffer, ? extends AbstractPacket> decoder) {
+    private static void registerPacket(ResourceLocation id, Function<AzByteBuf, ? extends AbstractPacket> decoder) {
         IDS.put(id, DECODERS.size());
         DECODERS.add(decoder);
     }
@@ -70,25 +68,37 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
         PACKET_CHANNEL.registerMessage(AzPacketHandler.class, AzPacketMessage.class, 0, Side.CLIENT);
     }
 
+    /**
+     * 1.7.10's {@link SimpleNetworkWrapper} has no "send to tracking" target, so packets go to every player within this
+     * many blocks, which covers the default entity tracking ranges.
+     */
+    public static double trackingRange = 128.0D;
+
     @Override
     public void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack) {
         AzPacketMessage message = new AzPacketMessage(packet);
-        PACKET_CHANNEL.sendToAllTracking(message, entityToTrack);
-        if (entityToTrack instanceof EntityPlayerMP) {
-            PACKET_CHANNEL.sendTo(message, (EntityPlayerMP) entityToTrack);
-        }
+        PACKET_CHANNEL.sendToAllAround(
+            message,
+            new NetworkRegistry.TargetPoint(
+                entityToTrack.dimension,
+                entityToTrack.posX,
+                entityToTrack.posY,
+                entityToTrack.posZ,
+                trackingRange
+            )
+        );
     }
 
     @Override
     public void sendToEntitiesTrackingChunk(AbstractPacket packet, World level, BlockPos blockPos) {
-        PACKET_CHANNEL.sendToAllTracking(
+        PACKET_CHANNEL.sendToAllAround(
             new AzPacketMessage(packet),
             new NetworkRegistry.TargetPoint(
-                level.provider.getDimension(),
+                level.provider.dimensionId,
                 blockPos.getX() + 0.5D,
                 blockPos.getY() + 0.5D,
                 blockPos.getZ() + 0.5D,
-                0.0D
+                trackingRange
             )
         );
     }
@@ -108,7 +118,7 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
 
         @Override
         public void fromBytes(ByteBuf buf) {
-            PacketBuffer buffer = new PacketBuffer(buf);
+            AzByteBuf buffer = new AzByteBuf(buf);
             int id = buffer.readUnsignedByte();
             if (id < 0 || id >= DECODERS.size()) {
                 throw new IllegalStateException("Unknown AzureLib packet id " + id);
@@ -118,7 +128,7 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
 
         @Override
         public void toBytes(ByteBuf buf) {
-            PacketBuffer buffer = new PacketBuffer(buf);
+            AzByteBuf buffer = new AzByteBuf(buf);
             Integer id = IDS.get(this.packet.getPacketID());
             if (id == null) {
                 throw new IllegalStateException("Unregistered AzureLib packet " + this.packet.getPacketID());
@@ -132,9 +142,9 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
 
         @Override
         public IMessage onMessage(AzPacketMessage message, MessageContext ctx) {
-            final AbstractPacket packet = message.packet;
-            if (packet != null) {
-                FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(packet::handle);
+            // On 1.7.10 custom payloads are processed on the client thread, so the packet can be handled directly.
+            if (message.packet != null) {
+                message.packet.handle();
             }
             return null;
         }

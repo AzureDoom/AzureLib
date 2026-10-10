@@ -170,7 +170,7 @@ if (tail != null) {
 
 Procedural motion that switches on and off instantly looks like a pop. Instead, keep a weight between `0` and `1` that eases toward its target, and multiply your motion by it. Entity animators are created per entity, so fields in your animator are a safe place to keep this state.
 
-This leans the upper body forward while the mob is aggressive. `isAggressive()` here is your own synced flag; on 1.12.2 a mob's attack target only exists on the server (see the [entities page](../../entities/entities)).
+This leans the upper body forward while the mob is aggressive. `isAggressive()` here is your own synced flag; on 1.7.10 a mob's attack target only exists on the server (see the [entities page](../../entities/entities)).
 
 ```java
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {

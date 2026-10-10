@@ -1,7 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -10,6 +9,7 @@ import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.util.client.ClientUtils;
 
@@ -28,7 +28,7 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
     }
 
     @Override
-    public void encode(PacketBuffer buf) {
+    public void encode(AzByteBuf buf) {
         buf.writeInt(this.entityId);
         AzCommand.ENCODER.accept(buf, this.dispatchCommand);
     }
@@ -38,7 +38,7 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
         return AzureLibNetwork.AZ_ENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 
-    public static AzEntityDispatchCommandPacket receive(PacketBuffer buf) {
+    public static AzEntityDispatchCommandPacket receive(AzByteBuf buf) {
         int entityId = buf.readInt(); // Decode integer entity ID
         AzCommand dispatchCommand = AzCommand.DECODER.apply(buf); // Decode AzCommand
         return new AzEntityDispatchCommandPacket(entityId, dispatchCommand); // Create and return the packet instance

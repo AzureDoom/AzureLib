@@ -2,7 +2,7 @@ package mod.azure.azurelib.render.vertex;
 
 /**
  * Packed "overlay" coordinates, mirroring the 1.18 {@code net.minecraft.client.renderer.texture.OverlayTexture}
- * helpers. Minecraft 1.12.2 has no overlay texture; {@link AzBufferSource} instead applies the equivalent red (hurt)
+ * helpers. Minecraft 1.7.10 has no overlay texture; {@link AzBufferSource} instead applies the equivalent red (hurt)
  * and white (flash) tint to the vertex colour.
  */
 public final class OverlayTexture {

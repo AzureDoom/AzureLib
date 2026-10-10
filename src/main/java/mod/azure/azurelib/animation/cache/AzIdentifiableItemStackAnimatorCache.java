@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.util.AzItemIds;
 
 /**
  * The AzIdentifiableItemStackAnimatorCache class is a singleton utility for managing a cache of {@link ItemStack}
@@ -31,8 +31,8 @@ public class AzIdentifiableItemStackAnimatorCache {
 
     public void add(ItemStack itemStack, AzItemAnimator animator) {
         NBTTagCompound tag = itemStack.getTagCompound();
-        if (tag != null && tag.hasUniqueId(AzureLib.ITEM_UUID_TAG)) {
-            ANIMATORS_BY_UUID.computeIfAbsent(tag.getUniqueId(AzureLib.ITEM_UUID_TAG), ($) -> animator);
+        if (tag != null && AzItemIds.has(tag)) {
+            ANIMATORS_BY_UUID.computeIfAbsent(AzItemIds.get(tag), ($) -> animator);
         }
     }
 

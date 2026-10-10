@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/items)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items)
 </Callout>
 
 # How to animate Items
@@ -85,11 +85,11 @@ public class ExampleItem extends Item {
 Now to use the dispatcher, you would simply call it in any method where you want it trigger for, like if I want the firing to happing on use, I would do it like so:
 ```java
     @Override
-    public void onUsingTick(ItemStack stack, EntityLivingBase livingEntity, int count) {
-        super.onUsingTick(stack, livingEntity, count);
-        if (livingEntity instanceof EntityPlayer && !livingEntity.world.isRemote) {
+    public void onUsingTick(ItemStack stack, EntityPlayer player, int count) {
+        super.onUsingTick(stack, player, count);
+        if (!player.worldObj.isRemote) {
             // This is where you now trigger an animation to play
-            dispatcher.firing(livingEntity, stack);
+            dispatcher.firing(player, stack);
         }
     }
 ```
@@ -133,7 +133,7 @@ public class ExampleItemRenderer extends AzItemRenderer {
 
 ## Registering your Renderer
 
-Call `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method.
+Call `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method. On 1.7.10 this also registers a Forge `IItemRenderer` for the item, so AzureLib draws it everywhere: in the GUI, in first and third person, and on the ground.
 
 ```java
 // ClientProxy
@@ -143,7 +143,7 @@ public void init() {
 }
 ```
 
-Your item also needs a normal item model json that uses `"parent": "builtin/entity"`, registered like any other 1.12.2 item model. AzureLib renders every item that has a registered renderer, and applies the `display` transforms from this json.
+1.7.10 has no json item models, but AzureLib still reads the `display` transforms from the Blockbench-exported item model, `assets/<modid>/models/item/<registry name>.json`, and applies them like later versions do. Only the `display` block is used; the parent is ignored.
 
 ```json
 // assets/yourmodid/models/item/exampleitem.json
@@ -155,15 +155,9 @@ Your item also needs a normal item model json that uses `"parent": "builtin/enti
 }
 ```
 
-```java
-@SubscribeEvent
-public static void registerModels(ModelRegistryEvent event) {
-    ModelLoader.setCustomModelResourceLocation(
-        YourItemRegistry.YOUR_ITEM, 0,
-        new ModelResourceLocation(YourItemRegistry.YOUR_ITEM.getRegistryName(), "inventory")
-    );
-}
-```
+<Callout variant="info">
+    1.7.10 only distinguishes four contexts, which AzureLib maps to `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` and `THIRD_PERSON_RIGHT_HAND`. If an item sits wrong in one of them, override `AzItemRenderer#applyBaseTransform`.
+</Callout>
 
 ## Registering your Item for proper animation triggering
 

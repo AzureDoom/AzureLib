@@ -40,18 +40,18 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
     private ItemStack currentStack;
 
     private final DoubleSupplier currentDurabilitySupplier = () -> {
-        int maxDamage = currentStack.getMaxDamage();
+        int maxDamage = currentStack.getMaxDurability();
 
-        return maxDamage <= 0 ? 0 : currentStack.getItemDamage() / (float) maxDamage;
+        return maxDamage <= 0 ? 0 : currentStack.getCurrentDurability() / (float) maxDamage;
     };
 
     private final DoubleSupplier isEnchantedSupplier = () -> RenderUtils.booleanToFloat(currentStack.isItemEnchanted());
 
-    private final DoubleSupplier maxDurabilitySupplier = () -> currentStack.getMaxDamage();
+    private final DoubleSupplier maxDurabilitySupplier = () -> currentStack.getMaxDurability();
 
     private final DoubleSupplier remainingDurabilitySupplier = () -> {
-        int maxDamage = currentStack.getMaxDamage();
-        return maxDamage <= 0 ? 0 : maxDamage - currentStack.getItemDamage();
+        int maxDamage = currentStack.getMaxDurability();
+        return maxDamage <= 0 ? 0 : maxDamage - currentStack.getCurrentDurability();
     };
 
     protected AzItemAnimator() {

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetRepeatTimesAction implements AzAction {
 
@@ -56,13 +56,13 @@ public final class AzControllerSetRepeatTimesAction implements AzAction {
             + this.repeatXTimes + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetRepeatTimesAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetRepeatTimesAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         double repeatXTimes = buf.readDouble(); // Read double from the buffer
         return new AzControllerSetRepeatTimesAction(controllerName, repeatXTimes); // Create a new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetRepeatTimesAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetRepeatTimesAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         buf.writeDouble(action.repeatXTimes()); // Write the animation speed to the buffer
     };
@@ -87,11 +87,11 @@ public final class AzControllerSetRepeatTimesAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetRepeatTimesAction decode(PacketBuffer buf) {
+    public static AzControllerSetRepeatTimesAction decode(AzByteBuf buf) {
         return DECODER.apply(buf);
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetRepeatTimesAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetRepeatTimesAction action) {
         ENCODER.accept(buf, action);
     }
 }

@@ -11,7 +11,7 @@ The **Block and Item Layer** feature allows you to easily render **blocks** and 
 
 The `AzBlockAndItemLayer` handles the rendering logic for these elements by:
 - Applying transformations specific to the bones associated with items/blocks.
-- Rendering the correct visuals for **items** and **blocks** by using Minecraft’s rendering utilities (`RenderItem` and `BlockRendererDispatcher`). Those draw through the OpenGL matrix stack on 1.12.2, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over.
+- Rendering the correct visuals for **items** and **blocks** by using Minecraft’s rendering utilities (1.7.10's held-item `ItemRenderer` and `RenderBlocks`). Those draw through the OpenGL matrix stack, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. 1.7.10's held-item renderer needs a living holder, so items only render on `EntityLivingBase` animatables, and blocks are an `AzBlockState` (block plus metadata) because 1.7.10 has no block states. The held-item renderer always draws items in its third-person pose, so `getTransformTypeForStack` is kept only for parity with other versions.
 
 ## Setup Instructions
 
@@ -27,14 +27,13 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE_LOCATION =
         new ResourceLocation("yourmodid", "textures/entity/example_model.png");
 
-    public ExampleEntityRenderer(RenderManager renderManager) {
+    public ExampleEntityRenderer() {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
                         .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
                             // Override methods here
                         })
-                        .build(),
-                renderManager
+                        .build()
         );
     }
 }
@@ -53,9 +52,9 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {
        switch (bone.getName()) {
            case "rightHandBone":
-               return animatable.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+               return AzEquipmentSlot.MAINHAND.getStack(animatable);
            case "leftHandBone":
-               return animatable.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+               return AzEquipmentSlot.OFFHAND.getStack(animatable);
            default:
                return null;
        }
@@ -65,19 +64,19 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
 2. **`getTransformTypeForStack`**:
    - Determines the display context for rendering items.
    - For example:
-     - `ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND` for the right hand.
-     - `ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND` for the left hand.
+     - `AzItemDisplayContext.THIRD_PERSON_RIGHT_HAND` for the right hand.
+     - `AzItemDisplayContext.THIRD_PERSON_LEFT_HAND` for the left hand.
 
    ```java
    @Override
-   protected ItemCameraTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
+   protected AzItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
        switch (bone.getName()) {
            case "rightHandBone":
-               return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+               return AzItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
            case "leftHandBone":
-               return ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+               return AzItemDisplayContext.THIRD_PERSON_LEFT_HAND;
            default:
-               return ItemCameraTransforms.TransformType.NONE;
+               return AzItemDisplayContext.NONE;
        }
    }
    ```
@@ -99,12 +98,12 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    ```
 
 4. **`renderBlockForBone`**:
-   - Similar to `renderItemForBone`, but handles `IBlockState` rendering instead of items.
+   - Similar to `renderItemForBone`, but handles `AzBlockState` rendering instead of items.
    - By default the block is scaled to `0.5f` and centred on the bone. Add your own adjustments before calling `super`:
 
    ```java
    @Override
-   protected void renderBlockForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, IBlockState blockState, ExampleEntity animatable) {
+   protected void renderBlockForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, AzBlockState blockState, ExampleEntity animatable) {
        context.poseStack().translate(0.0f, 0.1f, 0.0f);
        super.renderBlockForBone(context, bone, blockState, animatable);
    }
@@ -129,7 +128,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE_LOCATION =
         new ResourceLocation("yourmodid", "textures/entity/example_model.png");
 
-    public ExampleEntityRenderer(RenderManager renderManager) {
+    public ExampleEntityRenderer() {
         super(
                 AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
                         .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
@@ -138,23 +137,23 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                             public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {
                                 switch (bone.getName()) {
                                     case "rightHandBone":
-                                        return animatable.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+                                        return AzEquipmentSlot.MAINHAND.getStack(animatable);
                                     case "leftHandBone":
-                                        return animatable.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+                                        return AzEquipmentSlot.OFFHAND.getStack(animatable);
                                     default:
                                         return null;
                                 }
                             }
 
                             @Override
-                            protected ItemCameraTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
+                            protected AzItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
                                 switch (bone.getName()) {
                                     case "rightHandBone":
-                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+                                        return AzItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
                                     case "leftHandBone":
-                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+                                        return AzItemDisplayContext.THIRD_PERSON_LEFT_HAND;
                                     default:
-                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+                                        return AzItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
                                 }
                             }
 
@@ -165,8 +164,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                                 super.renderItemForBone(context, bone, itemStack, animatable);
                             }
                         })
-                        .build(),
-                renderManager
+                        .build()
         );
     }
 }

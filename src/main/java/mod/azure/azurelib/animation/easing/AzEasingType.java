@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.easing;
 
-import net.minecraft.network.PacketBuffer;
-
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -10,6 +8,7 @@ import javax.annotation.Nullable;
 import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframe;
 import mod.azure.azurelib.core.utils.Interpolations;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.util.function.Double2DoubleFunction;
 
 public interface AzEasingType {
@@ -18,11 +17,11 @@ public interface AzEasingType {
 
     Double2DoubleFunction buildTransformer(Double value);
 
-    Function<PacketBuffer, AzEasingType> DECODER = buf -> Objects.requireNonNull(
+    Function<AzByteBuf, AzEasingType> DECODER = buf -> Objects.requireNonNull(
         AzEasingTypeRegistry.getOrNull(buf.readString(32767))
     );
 
-    BiConsumer<PacketBuffer, AzEasingType> ENCODER = (buf, val) -> buf.writeString(val.name());
+    BiConsumer<AzByteBuf, AzEasingType> ENCODER = (buf, val) -> buf.writeString(val.name());
 
     default double apply(AzAnimationPoint animationPoint) {
         Double easingVariable = null;

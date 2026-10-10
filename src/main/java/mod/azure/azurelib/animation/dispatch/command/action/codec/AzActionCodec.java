@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.codec;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -9,10 +8,11 @@ import javax.annotation.Nonnull;
 
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.registry.AzActionRegistry;
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * The AzActionCodec class provides functionality for encoding and decoding {@link AzAction} objects to and from a
- * {@link PacketBuffer}. It acts as a utility layer facilitating serialization and deserialization of actions within the
+ * {@link AzByteBuf}. It acts as a utility layer facilitating serialization and deserialization of actions within the
  * animation system.
  * <p>
  * The encoding process uses a unique identifier (ID) associated with each {@link AzAction}, retrieved via the
@@ -21,11 +21,11 @@ import mod.azure.azurelib.animation.dispatch.command.action.registry.AzActionReg
  */
 public class AzActionCodec {
 
-    public @Nonnull AzAction decode(@Nonnull PacketBuffer byteBuf) {
+    public @Nonnull AzAction decode(@Nonnull AzByteBuf byteBuf) {
         // Decode the ID for the corresponding AzAction
         short id = byteBuf.readShort();
         // Retrieve the action's codec using its ID from the registry
-        Function<PacketBuffer, AzAction> codec = AzActionRegistry.getDecoderOrNull(id);
+        Function<AzByteBuf, AzAction> codec = AzActionRegistry.getDecoderOrNull(id);
 
         if (codec == null) {
             throw new NullPointerException(
@@ -37,12 +37,12 @@ public class AzActionCodec {
         return codec.apply(byteBuf);
     }
 
-    public void encode(@Nonnull PacketBuffer byteBuf, @Nonnull AzAction action) {
+    public void encode(@Nonnull AzByteBuf byteBuf, @Nonnull AzAction action) {
         // Get the resource location for the AzAction
         ResourceLocation resourceLocation = action.getResourceLocation();
         // Retrieve the corresponding ID and codec for the resource location
         Short id = AzActionRegistry.getIdOrNull(resourceLocation);
-        BiConsumer<PacketBuffer, AzAction> encoder = AzActionRegistry.getEncoderOrNull(resourceLocation);
+        BiConsumer<AzByteBuf, AzAction> encoder = AzActionRegistry.getEncoderOrNull(resourceLocation);
 
         if (id == null) {
             throw new NullPointerException(

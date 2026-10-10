@@ -3,9 +3,7 @@ package mod.azure.azurelib.render.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.EnumChatFormatting;
 
 import java.util.UUID;
 
@@ -18,6 +16,7 @@ import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
 import mod.azure.azurelib.util.client.RenderUtils;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Mth;
 import mod.azure.azurelib.util.math.Vector3f;
@@ -61,15 +60,15 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         float lerpBodyRot = getLerpRot(animatable, partialTick);
 
         if (isSleeping(animatable)) {
-            EnumFacing bedDirection = getBedOrientation(animatable);
+            Direction bedDirection = getBedOrientation(animatable);
 
             if (bedDirection != null) {
                 float eyePosOffset = ((EntityLivingBase) animatable).getEyeHeight() - 0.1F;
 
                 poseStack.translate(
-                    -bedDirection.getDirectionVec().getX() * eyePosOffset,
+                    -bedDirection.getStepX() * eyePosOffset,
                     0,
-                    -bedDirection.getDirectionVec().getZ() * eyePosOffset
+                    -bedDirection.getStepZ() * eyePosOffset
                 );
             }
         }
@@ -184,7 +183,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
      *         considering multiple elements such as head movements and passenger state.
      */
     private static <T extends Entity> float getLerpRot(T animatable, float partialTick) {
-        boolean shouldSit = animatable.isRiding() && (animatable.getRidingEntity() != null);
+        boolean shouldSit = animatable.isRiding() && (animatable.ridingEntity != null);
 
         float lerpBodyRot = animatable instanceof EntityLivingBase
             ? Mth.rotLerp(
@@ -201,8 +200,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             )
             : animatable.getRotationYawHead();
 
-        if (shouldSit && animatable.getRidingEntity() instanceof EntityLivingBase) {
-            EntityLivingBase livingentity = (EntityLivingBase) animatable.getRidingEntity();
+        if (shouldSit && animatable.ridingEntity instanceof EntityLivingBase) {
+            EntityLivingBase livingentity = (EntityLivingBase) animatable.ridingEntity;
             lerpBodyRot = Mth.rotLerp(partialTick, livingentity.prevRenderYawOffset, livingentity.renderYawOffset);
             float netHeadYaw = lerpHeadRot - lerpBodyRot;
             float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
@@ -256,7 +255,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                     Vector3f.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * deathMaxRotation)
                 );
             } else if (isSleeping(animatable)) {
-                EnumFacing bedOrientation = getBedOrientation(animatable);
+                Direction bedOrientation = getBedOrientation(animatable);
 
                 poseStack.mulPose(
                     Vector3f.YP.rotationDegrees(
@@ -277,10 +276,14 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
     }
 
     /**
-     * 1.12.2 only exposes the bed direction as an angle ({@code EntityPlayer#getBedOrientationInDegrees}), using the
+     * 1.7.10 only exposes the bed direction as an angle ({@code EntityPlayer#getBedOrientationInDegrees}), using the
      * same mapping as {@link RenderUtils#getDirectionAngle}: SOUTH 90, WEST 0, NORTH 270, EAST 180.
      */
-    private static EnumFacing getBedOrientation(Entity entity) {
+    /**
+     * 1.7.10 only exposes the bed direction as an angle ({@code EntityPlayer#getBedOrientationInDegrees}), using the
+     * same mapping as {@link mod.azure.azurelib.util.client.RenderUtils#getDirectionAngle}.
+     */
+    private static Direction getBedOrientation(Entity entity) {
         if (!(entity instanceof EntityPlayer) || !isSleeping(entity)) {
             return null;
         }
@@ -289,24 +292,24 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
 
         switch (((degrees % 360) + 360) % 360) {
             case 90:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             case 270:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
             case 180:
-                return EnumFacing.EAST;
+                return Direction.EAST;
             default:
-                return EnumFacing.WEST;
+                return Direction.WEST;
         }
     }
 
     /**
-     * 1.12.2's "Dinnerbone"/"Grumm" check from {@code RenderLivingBase#applyRotations}.
+     * The "Dinnerbone"/"Grumm" check from 1.7.10's {@code RendererLivingEntity#rotateCorpse}.
      */
     private static boolean isEntityUpsideDown(EntityLivingBase entity) {
-        String name = TextFormatting.getTextWithoutFormattingCodes(entity.getName());
+        String name = EnumChatFormatting.getTextWithoutFormattingCodes(entity.getCommandSenderName());
 
         if (name != null && ("Dinnerbone".equals(name) || "Grumm".equals(name))) {
-            return !(entity instanceof EntityPlayer) || ((EntityPlayer) entity).isWearing(EnumPlayerModelParts.CAPE);
+            return !(entity instanceof EntityPlayer) || !((EntityPlayer) entity).getHideCape();
         }
 
         return false;

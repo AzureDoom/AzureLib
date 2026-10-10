@@ -1,10 +1,9 @@
 package mod.azure.azurelib.render.layer;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -14,19 +13,24 @@ import java.util.function.Function;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
+import mod.azure.azurelib.render.item.AzItemDisplayContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.util.AzBlockState;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
- * A {@link AzRenderLayer} responsible for rendering {@link IBlockState BlockStates} or {@link ItemStack ItemStacks}
- * onto a specified {@link AzRendererPipeline}. This layer handles the rendering of physical elements, such as blocks
- * and items, associated with animation bones.
+ * A {@link AzRenderLayer} responsible for rendering {@link AzBlockState blocks} or {@link ItemStack ItemStacks} onto a
+ * specified {@link AzRendererPipeline}. This layer handles the rendering of physical elements, such as blocks and
+ * items, associated with animation bones.
  */
 public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
 
+    private static final RenderBlocks RENDER_BLOCKS = new RenderBlocks();
+
     protected final Function<AzBone, ItemStack> itemStackProvider;
 
-    protected final Function<AzBone, IBlockState> blockStateProvider;
+    protected final Function<AzBone, AzBlockState> blockStateProvider;
 
     public AzBlockAndItemLayer() {
         this(bone -> null, bone -> null);
@@ -34,7 +38,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
 
     public AzBlockAndItemLayer(
         Function<AzBone, ItemStack> itemStackProvider,
-        Function<AzBone, IBlockState> blockStateProvider
+        Function<AzBone, AzBlockState> blockStateProvider
     ) {
         super();
 
@@ -49,8 +53,8 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
     public void render(AzRendererPipelineContext<K, T> context) {}
 
     /**
-     * Renders an {@link ItemStack} or {@link IBlockState} associated with the specified bone in the rendering context.
-     * If both the {@link ItemStack} and {@link IBlockState} are {@code null}, no rendering occurs.
+     * Renders an {@link ItemStack} or {@link AzBlockState} associated with the specified bone in the rendering context.
+     * If both the {@link ItemStack} and {@link AzBlockState} are {@code null}, no rendering occurs.
      * <p>
      * This method applies the bone's transformations to the current rendering matrix stack before rendering, ensuring
      * the item or block appears correctly positioned and oriented relative to the bone.
@@ -63,7 +67,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
     public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
         T animatable = context.animatable();
         ItemStack stack = itemStackForBone(bone, animatable);
-        IBlockState blockState = blockStateForBone(bone, animatable);
+        AzBlockState blockState = blockStateForBone(bone, animatable);
 
         if (stack == null && blockState == null)
             return;
@@ -94,27 +98,26 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
     }
 
     /**
-     * Retrieves the {@link IBlockState} associated with the given bone for rendering purposes. Returns {@code null} if
-     * there is no {@link IBlockState} to render for this bone.
+     * Retrieves the {@link AzBlockState} associated with the given bone for rendering purposes. Returns {@code null} if
+     * there is no {@link AzBlockState} to render for this bone.
      *
-     * @param bone the bone for which to retrieve the {@link IBlockState}
-     * @return the {@link IBlockState} relevant to the specified bone, or {@code null} if none exists
+     * @param bone the bone for which to retrieve the {@link AzBlockState}
+     * @return the {@link AzBlockState} relevant to the specified bone, or {@code null} if none exists
      */
-    public IBlockState blockStateForBone(AzBone bone, T animatable) {
+    public AzBlockState blockStateForBone(AzBone bone, T animatable) {
         return blockStateProvider.apply(bone);
     }
 
     /**
-     * Determines the specific {@link ItemCameraTransforms.TransformType} to use for rendering the given
-     * {@link ItemStack} on the specified bone. By default, this method returns
-     * {@link ItemCameraTransforms.TransformType#NONE}.
+     * Determines the specific {@link AzItemDisplayContext} to use for rendering the given {@link ItemStack} on the
+     * specified bone. By default, this method returns {@link AzItemDisplayContext#NONE}.
      *
      * @param bone  the bone where the {@link ItemStack} will be rendered
      * @param stack the {@link ItemStack} to render
-     * @return the {@link ItemCameraTransforms.TransformType} to use for rendering
+     * @return the {@link AzItemDisplayContext} to use for rendering
      */
-    protected ItemCameraTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, T animatable) {
-        return ItemCameraTransforms.TransformType.NONE;
+    protected AzItemDisplayContext getTransformTypeForStack(AzBone bone, ItemStack stack, T animatable) {
+        return AzItemDisplayContext.NONE;
     }
 
     /**
@@ -131,38 +134,28 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         ItemStack itemStack,
         T animatable
     ) {
-        beginVanillaRender(context);
-
-        if (context.animatable() instanceof EntityLivingBase) {
-            Minecraft.getMinecraft()
-                .getRenderItem()
-                .renderItem(
-                    itemStack,
-                    (EntityLivingBase) context.animatable(),
-                    getTransformTypeForStack(bone, itemStack, animatable),
-                    false
-                );
-        } else {
-            Minecraft.getMinecraft()
-                .getRenderItem()
-                .renderItem(itemStack, getTransformTypeForStack(bone, itemStack, animatable));
+        // 1.7.10's held-item renderer needs a living holder; other animatables can't hold vanilla-rendered items.
+        if (!(context.animatable() instanceof EntityLivingBase)) {
+            return;
         }
 
+        beginVanillaRender(context);
+        RenderManager.instance.itemRenderer.renderItem((EntityLivingBase) context.animatable(), itemStack, 0);
         GlStateManager.popMatrix();
     }
 
     /**
-     * Renders the given {@link IBlockState} for the specified bone in the rendering context. The block is rendered with
-     * adjusted position and scale to fit within the bone's space.
+     * Renders the given {@link AzBlockState} for the specified bone in the rendering context. The block is rendered
+     * with adjusted position and scale to fit within the bone's space.
      *
      * @param context    the rendering pipeline context
-     * @param bone       the bone where the {@link IBlockState} will be rendered
-     * @param blockState the {@link IBlockState} to render
+     * @param bone       the bone where the {@link AzBlockState} will be rendered
+     * @param blockState the {@link AzBlockState} to render
      */
     protected void renderBlockForBone(
         AzRendererPipelineContext<K, T> context,
         AzBone bone,
-        IBlockState blockState,
+        AzBlockState blockState,
         T animatable
     ) {
         context.poseStack().pushPose();
@@ -170,8 +163,8 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         context.poseStack().scale(0.5f, 0.5f, 0.5f);
 
         beginVanillaRender(context);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(blockState, 1.0F);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        RENDER_BLOCKS.renderBlockAsItem(blockState.getBlock(), blockState.getMeta(), 1.0F);
         GlStateManager.popMatrix();
 
         context.poseStack().popPose();

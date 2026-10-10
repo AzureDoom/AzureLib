@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * Sets a controller's blend weight, either immediately ({@code fadeTicks <= 0}) or as a fade over {@code fadeTicks}.
@@ -68,7 +68,7 @@ public final class AzControllerSetWeightAction implements AzAction {
             + ", fadeTicks=" + this.fadeTicks + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetWeightAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetWeightAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         double weight = buf.readDouble();
         double fadeTicks = buf.readDouble();
@@ -80,7 +80,7 @@ public final class AzControllerSetWeightAction implements AzAction {
         );
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetWeightAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetWeightAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         buf.writeDouble(action.weight());
         buf.writeDouble(action.fadeTicks());
@@ -102,11 +102,11 @@ public final class AzControllerSetWeightAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetWeightAction decode(PacketBuffer buf) {
+    public static AzControllerSetWeightAction decode(AzByteBuf buf) {
         return DECODER.apply(buf);
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetWeightAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetWeightAction action) {
         ENCODER.accept(buf, action);
     }
 }

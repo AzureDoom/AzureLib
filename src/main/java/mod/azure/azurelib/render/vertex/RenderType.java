@@ -1,9 +1,6 @@
 package mod.azure.azurelib.render.vertex;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -20,21 +17,10 @@ import javax.annotation.Nullable;
  * Every factory is memoized per texture, so - exactly as on modern versions - two calls with the same texture return
  * the same instance and render types can be compared with {@code ==}.
  * <p>
- * On 1.12.2 a render type translates into fixed-function GL state, applied by {@link #setupRenderState()} and undone by
+ * On 1.7.10 a render type translates into fixed-function GL state, applied by {@link #setupRenderState()} and undone by
  * {@link #clearRenderState()} around each draw issued by {@link AzBufferSource}.
  */
 public final class RenderType {
-
-    /**
-     * Position, colour, texture, lightmap and normal - the 1.12.2 equivalent of 1.18's {@code NEW_ENTITY} format (the
-     * overlay is folded into the colour by {@link AzBufferSource}).
-     */
-    public static final VertexFormat ENTITY_FORMAT = new VertexFormat().addElement(DefaultVertexFormats.POSITION_3F)
-        .addElement(DefaultVertexFormats.COLOR_4UB)
-        .addElement(DefaultVertexFormats.TEX_2F)
-        .addElement(DefaultVertexFormats.TEX_2S)
-        .addElement(DefaultVertexFormats.NORMAL_3B)
-        .addElement(DefaultVertexFormats.PADDING_1B);
 
     private static final ResourceLocation ENCHANTED_ITEM_GLINT = new ResourceLocation(
         "textures/misc/enchanted_item_glint.png"
@@ -66,9 +52,6 @@ public final class RenderType {
         "leash",
         null,
         GL11.GL_TRIANGLE_STRIP,
-        // 1.12.2's VertexFormat can't hold a lightmap UV (index 1) without a texture UV (index 0) before it, so the
-        // leash uses the entity format too; with no texture bound the UVs are simply ignored.
-        ENTITY_FORMAT,
         false,
         false,
         false,
@@ -81,7 +64,6 @@ public final class RenderType {
         "entity_glint",
         ENCHANTED_ITEM_GLINT,
         GL11.GL_QUADS,
-        ENTITY_FORMAT,
         false,
         true,
         false,
@@ -94,7 +76,6 @@ public final class RenderType {
         "armor_entity_glint",
         ENCHANTED_ITEM_GLINT,
         GL11.GL_QUADS,
-        ENTITY_FORMAT,
         false,
         true,
         false,
@@ -109,8 +90,6 @@ public final class RenderType {
     private final ResourceLocation texture;
 
     private final int glMode;
-
-    private final VertexFormat format;
 
     private final boolean cull;
 
@@ -130,7 +109,6 @@ public final class RenderType {
         String name,
         @Nullable ResourceLocation texture,
         int glMode,
-        VertexFormat format,
         boolean cull,
         boolean translucent,
         boolean emissive,
@@ -141,7 +119,6 @@ public final class RenderType {
         this.name = name;
         this.texture = texture;
         this.glMode = glMode;
-        this.format = format;
         this.cull = cull;
         this.translucent = translucent;
         this.emissive = emissive;
@@ -162,7 +139,6 @@ public final class RenderType {
             name,
             texture,
             GL11.GL_QUADS,
-            ENTITY_FORMAT,
             cull,
             translucent,
             emissive,
@@ -238,7 +214,7 @@ public final class RenderType {
     }
 
     /**
-     * 1.12.2 draws the spectral "glowing" outline through its own entity-outline pass, so this behaves like
+     * 1.7.10 draws the spectral "glowing" outline through its own entity-outline pass, so this behaves like
      * {@link #entityCutoutNoCull(ResourceLocation)}.
      */
     public static RenderType outline(ResourceLocation texture) {
@@ -284,10 +260,6 @@ public final class RenderType {
 
     public int glMode() {
         return this.glMode;
-    }
-
-    public VertexFormat format() {
-        return this.format;
     }
 
     public boolean isTranslucent() {

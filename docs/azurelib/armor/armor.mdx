@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/items/armors)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items/armors)
 </Callout>
 
 # How to animate Armor
@@ -89,8 +89,11 @@ public class ExampleArmor extends ItemArmor {
     // This is your class where you will setup the AzCommands/Animations you wish to play
     public final ExampleArmorDispatcher dispatcher;
 
-    public ExampleArmor(EntityEquipmentSlot equipmentSlot) {
-        super(ArmorMaterial.DIAMOND, 0, equipmentSlot);
+    /**
+     * @param armorType 0 helmet, 1 chestplate, 2 leggings, 3 boots
+     */
+    public ExampleArmor(int armorType) {
+        super(ArmorMaterial.DIAMOND, 0, armorType);
         // Create the instance of the class here to use later.
         this.dispatcher = new ExampleArmorDispatcher();
     }
@@ -158,7 +161,7 @@ public void init() {
 ```
 
 <Callout variant="info">
-    AzureLib supplies the armor model through Forge's `getArmorModel` hook, so don't override `Item#getArmorModel` in your armor item. The inventory icon still comes from a normal `item/generated` item model.
+    AzureLib supplies the armor model through Forge's `ForgeHooksClient#getArmorModel`, so don't override `Item#getArmorModel` in your armor item. Armor items must extend `ItemArmor`, because 1.7.10 only renders armor passes for `ItemArmor`. The inventory icon is a normal 1.7.10 item icon (`setTextureName("yourmodid:example_helmet")` → `textures/items/example_helmet.png`).
 </Callout>
 
 ## Registering your Armor for proper animation triggering

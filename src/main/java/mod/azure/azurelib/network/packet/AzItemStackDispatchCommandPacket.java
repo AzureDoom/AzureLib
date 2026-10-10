@@ -1,6 +1,5 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
@@ -10,6 +9,7 @@ import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
 public class AzItemStackDispatchCommandPacket extends AbstractPacket {
@@ -27,7 +27,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
     }
 
     @Override
-    public void encode(PacketBuffer buf) {
+    public void encode(AzByteBuf buf) {
         buf.writeUniqueId(this.itemStackId); // Encode the UUID
         AzCommand.ENCODER.accept(buf, this.dispatchCommand); // Encode AzCommand
     }
@@ -37,7 +37,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
         return AzureLibNetwork.AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID;
     }
 
-    public static AzItemStackDispatchCommandPacket receive(PacketBuffer buf) {
+    public static AzItemStackDispatchCommandPacket receive(AzByteBuf buf) {
         UUID itemStackId = buf.readUniqueId(); // Decode UUID
         AzCommand dispatchCommand = AzCommand.DECODER.apply(buf); // Decode AzCommand
         return new AzItemStackDispatchCommandPacket(itemStackId, dispatchCommand); // Create and return the packet

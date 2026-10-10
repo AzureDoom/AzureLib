@@ -5,9 +5,8 @@
  */
 package mod.azure.azurelib.cache.object;
 
-import net.minecraft.util.EnumFacing;
-
 import mod.azure.azurelib.loading.json.raw.FaceUV;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Vector3f;
 
 /**
@@ -19,9 +18,9 @@ public final class GeoQuad {
 
     private final Vector3f normal;
 
-    private final EnumFacing direction;
+    private final Direction direction;
 
-    public GeoQuad(GeoVertex[] vertices, Vector3f normal, EnumFacing direction) {
+    public GeoQuad(GeoVertex[] vertices, Vector3f normal, Direction direction) {
         this.vertices = vertices;
         this.normal = normal;
         this.direction = direction;
@@ -35,7 +34,7 @@ public final class GeoQuad {
         return this.normal;
     }
 
-    public EnumFacing direction() {
+    public Direction direction() {
         return this.direction;
     }
 
@@ -73,7 +72,7 @@ public final class GeoQuad {
         float texWidth,
         float texHeight,
         boolean mirror,
-        EnumFacing direction
+        Direction direction
     ) {
         return build(
             vertices,
@@ -99,16 +98,16 @@ public final class GeoQuad {
         float texWidth,
         float texHeight,
         boolean mirror,
-        EnumFacing direction
+        Direction direction
     ) {
         float uWidth = (u + uSize) / texWidth;
         float vHeight = (v + vSize) / texHeight;
         u /= texWidth;
         v /= texHeight;
         Vector3f normal = new Vector3f(
-            direction.getDirectionVec().getX(),
-            direction.getDirectionVec().getY(),
-            direction.getDirectionVec().getZ()
+            direction.getStepX(),
+            direction.getStepY(),
+            direction.getStepZ()
         );
 
         if (!mirror) {

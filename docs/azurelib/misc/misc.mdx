@@ -70,7 +70,7 @@ public ExampleItemRenderer() {
                         }
 
                         @Override
-                        public void applyBoneVisibilityBySlot(EntityEquipmentSlot currentSlot) {
+                        public void applyBoneVisibilityBySlot(AzEquipmentSlot currentSlot) {
                             setAllVisible(false);
 
                             // Hide the legging torso bone initially
@@ -128,15 +128,14 @@ public class GremlinRenderer extends AzEntityRenderer<GremlinEntity> {
         "YOUR_MOD_ID", "textures/entity/gremlin_cape.png"
     );
 
-    public GremlinRenderer(RenderManager renderManager) {
+    public GremlinRenderer() {
         super(
             AzEntityRendererConfig.<GremlinEntity>builder(MODEL, TEXTURE)
                 .setBoneTextureOverrideProvider(bone ->
                     "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : TEXTURE
                 )
                 .setShadowRadius(0.5F)
-                .build(),
-            renderManager
+                .build()
         );
     }
 }
@@ -165,13 +164,13 @@ AzEntityRendererConfig.builder(MODEL, TEXTURE)
     .build();
 ```
 
-`RenderType` here is AzureLib's own `mod.azure.azurelib.render.vertex.RenderType`; 1.12.2 has no vanilla render types, so AzureLib provides the same factory methods (`entityCutout`, `entityTranslucent`, `eyes`, ...).
+`RenderType` here is AzureLib's own `mod.azure.azurelib.render.vertex.RenderType`; 1.7.10 has no vanilla render types, so AzureLib provides the same factory methods (`entityCutout`, `entityTranslucent`, `eyes`, ...).
 
 If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default render type for the overridden texture. Use `setBoneRenderTypeOverrideProvider` only when the bone needs special rendering behavior, such as emissive-style rendering.
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
-Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, and point the armor item's model json at `"parent": "builtin/entity"`:
+Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`. On 1.7.10 that replaces the item's icon with the model in every context; its display transforms come from `assets/<modid>/models/item/<name>.json`.
 
 ```java
 // ClientProxy

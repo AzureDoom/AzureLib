@@ -1,26 +1,17 @@
 package mod.azure.azurelib.render.layer;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.tileentity.TileEntitySkullRenderer;
+import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemSkull;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tileentity.TileEntitySkull;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.ForgeHooksClient;
-import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -37,8 +28,11 @@ import mod.azure.azurelib.render.armor.AzArmorRenderer;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipeline;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.OverlayTexture;
+import mod.azure.azurelib.util.AzEquipmentSlot;
+import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -46,7 +40,7 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * Supports both AzureLib and vanilla armor models.<br>
  * Unlike a traditional armor renderer, this renderer renders per-bone, giving much more flexible armor rendering.
  * <p>
- * Vanilla armor pieces and skulls are rendered by vanilla 1.12.2 code through the GL matrix stack, so pending AzureLib
+ * Vanilla armor pieces and skulls are rendered by vanilla 1.7.10 code through the GL matrix stack, so pending AzureLib
  * vertices are flushed first and the bone's pose is pushed onto the GL matrix.
  */
 public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<UUID, T> {
@@ -82,12 +76,12 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     @Override
     public void preRender(AzRendererPipelineContext<UUID, T> context) {
         T animatable = context.animatable();
-        this.mainHandStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-        this.offhandStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
-        this.helmetStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-        this.chestplateStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-        this.leggingsStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
-        this.bootsStack = animatable.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+        this.mainHandStack = AzEquipmentSlot.MAINHAND.getStack(animatable);
+        this.offhandStack = AzEquipmentSlot.OFFHAND.getStack(animatable);
+        this.helmetStack = AzEquipmentSlot.HEAD.getStack(animatable);
+        this.chestplateStack = AzEquipmentSlot.CHEST.getStack(animatable);
+        this.leggingsStack = AzEquipmentSlot.LEGS.getStack(animatable);
+        this.bootsStack = AzEquipmentSlot.FEET.getStack(animatable);
     }
 
     @Override
@@ -100,7 +94,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     public void renderForBone(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
         ItemStack armorStack = getArmorItemForBone(context, bone);
 
-        if (armorStack == null || armorStack.isEmpty()) {
+        if (armorStack == null) {
             return;
         }
 
@@ -121,7 +115,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         AzBone bone,
         ItemStack armorStack
     ) {
-        EntityEquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
+        AzEquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
         AzArmorRenderer renderer = AzArmorRendererRegistryHolder.get(armorStack);
         ModelBiped model = getModelForItem(armorStack, slot);
         ModelRenderer modelPart = getModelPartForBone(context, bone, model);
@@ -148,22 +142,22 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
      * Return an EquipmentSlot for a given {@link ItemStack} and animatable instance.<br>
      * This is what determines the base model to use for rendering a particular stack
      */
-    protected @Nonnull EntityEquipmentSlot getEquipmentSlotForBone(
+    protected @Nonnull AzEquipmentSlot getEquipmentSlotForBone(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
         ItemStack stack
     ) {
         T animatable = context.animatable();
 
-        for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+        for (AzEquipmentSlot slot : AzEquipmentSlot.values()) {
             if (
-                slot.getSlotType() == EntityEquipmentSlot.Type.ARMOR && stack == animatable.getItemStackFromSlot(slot)
+                slot.getSlotType() == AzEquipmentSlot.Type.ARMOR && stack == slot.getStack(animatable)
             ) {
                 return slot;
             }
         }
 
-        return EntityEquipmentSlot.CHEST;
+        return AzEquipmentSlot.CHEST;
     }
 
     /**
@@ -193,7 +187,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
      */
     protected void renderAzArmorPiece(
         AzRendererPipelineContext<UUID, T> context,
-        EntityEquipmentSlot slot,
+        AzEquipmentSlot slot,
         ItemStack armorStack,
         AzArmorRenderer renderer,
         EntityLivingBase entity,
@@ -219,12 +213,12 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     /**
-     * Renders a vanilla (non-AzureLib) armor piece through 1.12.2's GL model rendering.
+     * Renders a vanilla (non-AzureLib) armor piece through 1.7.10's GL model rendering.
      */
     protected void renderVanillaArmorPiece(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
-        EntityEquipmentSlot slot,
+        AzEquipmentSlot slot,
         ItemStack armorStack,
         ModelRenderer modelPart
     ) {
@@ -241,7 +235,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         mc.getTextureManager()
             .bindTexture(getVanillaArmorResource(context.animatable(), armorStack, slot, null));
 
-        if (armorItem.getArmorMaterial() == ItemArmor.ArmorMaterial.LEATHER) {
+        if (armorItem.getArmorMaterial() == ItemArmor.ArmorMaterial.CLOTH) {
             int color = armorItem.getColor(armorStack);
             GlStateManager.color(
                 (color >> 16 & 255) / 255.0F * context.red(),
@@ -257,7 +251,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         GlStateManager.color(context.red(), context.green(), context.blue(), context.alpha());
         modelPart.render(0.0625F);
 
-        if (armorStack.hasEffect()) {
+        if (armorStack.hasEffect(0)) {
             renderVanillaGlint(context.animatable(), modelPart);
         }
 
@@ -266,11 +260,11 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     /**
-     * Same effect as 1.12.2's {@code LayerArmorBase#renderEnchantedGlint}, limited to a single model part.
+     * Same effect as 1.7.10's {@code LayerArmorBase#renderEnchantedGlint}, limited to a single model part.
      */
     protected void renderVanillaGlint(Entity entity, ModelRenderer modelPart) {
         Minecraft mc = Minecraft.getMinecraft();
-        float time = entity.ticksExisted + mc.getRenderPartialTicks();
+        float time = entity.ticksExisted + AzRenderTick.partialTicks();
 
         mc.getTextureManager().bindTexture(ENCHANTED_ITEM_GLINT);
         GlStateManager.enableBlend();
@@ -310,18 +304,18 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         return AzArmorRendererRegistryHolder.get(stack);
     }
 
-    protected ModelBiped getModelForItem(ItemStack stack, EntityEquipmentSlot slot) {
+    protected ModelBiped getModelForItem(ItemStack stack, AzEquipmentSlot slot) {
         AzArmorRenderer renderer = getRendererForItem(stack);
 
         if (renderer == null) {
-            return slot == EntityEquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
+            return slot == AzEquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL;
         }
 
         return renderer.rendererPipeline().armorModel();
     }
 
     /**
-     * Render a given {@link ItemSkull} as a worn armor piece in relation to a given {@link AzBone}, following 1.12.2's
+     * Render a given {@link ItemSkull} as a worn armor piece in relation to a given {@link AzBone}, following 1.7.10's
      * {@code LayerCustomHead}.
      */
     protected void renderSkullAsArmor(
@@ -329,22 +323,6 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         AzBone bone,
         ItemStack stack
     ) {
-        GameProfile skullProfile = null;
-        NBTTagCompound stackTag = stack.getTagCompound();
-
-        if (stackTag != null) {
-            if (stackTag.hasKey("SkullOwner", 10)) {
-                skullProfile = NBTUtil.readGameProfileFromNBT(stackTag.getCompoundTag("SkullOwner"));
-            } else if (stackTag.hasKey("SkullOwner", 8)) {
-                String skullOwner = stackTag.getString("SkullOwner");
-
-                if (!StringUtils.isBlank(skullOwner)) {
-                    skullProfile = TileEntitySkull.updateGameprofile(new GameProfile(null, skullOwner));
-                    stackTag.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), skullProfile));
-                }
-            }
-        }
-
         flush(context.multiBufferSource());
 
         context.poseStack().pushPose();
@@ -356,17 +334,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, packedLight & 0xFFFF, packedLight >> 16);
         GlStateManager.pushMatrix();
         RenderUtils.applyPoseToGl(context.poseStack().last());
-        TileEntitySkullRenderer.instance.renderSkull(
-            0.0F,
-            0.0F,
-            0.0F,
-            EnumFacing.UP,
-            0.0F,
-            stack.getMetadata(),
-            skullProfile,
-            -1,
-            0.0F
-        );
+        AzSkullRenderHelper.renderSkull(stack);
         GlStateManager.popMatrix();
         context.poseStack().popPose();
     }
@@ -381,7 +349,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         ModelRenderer sourcePart
     ) {
         GeoCube firstCube = bone.getCubes().get(0);
-        ModelBox armorCube = sourcePart.cubeList.get(0);
+        ModelBox armorCube = (ModelBox) sourcePart.cubeList.get(0);
         double armorBoneSizeX = firstCube.size().x();
         double armorBoneSizeY = firstCube.size().y();
         double armorBoneSizeZ = firstCube.size().z();
@@ -406,45 +374,18 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     /**
-     * Gets the texture for a vanilla armor piece, going through Forge's {@code getArmorTexture} hook so modded armor
-     * textures resolve correctly.
+     * Gets the texture for a vanilla (non-AzureLib) armor piece through 1.7.10's {@code RenderBiped#getArmorResource},
+     * which also runs Forge's {@code getArmorTexture} hook so modded armor textures resolve.
      *
      * @param type {@code null} for the base layer or {@code "overlay"} for the dyed overlay
      */
     public ResourceLocation getVanillaArmorResource(
         Entity entity,
         ItemStack stack,
-        EntityEquipmentSlot slot,
+        AzEquipmentSlot slot,
         @Nullable String type
     ) {
-        ItemArmor item = (ItemArmor) stack.getItem();
-        String texture = item.getArmorMaterial().getName();
-        String domain = "minecraft";
-        int idx = texture.indexOf(':');
-
-        if (idx != -1) {
-            domain = texture.substring(0, idx);
-            texture = texture.substring(idx + 1);
-        }
-
-        String path = String.format(
-            "%s:textures/models/armor/%s_layer_%d%s.png",
-            domain,
-            texture,
-            (slot == EntityEquipmentSlot.LEGS ? 2 : 1),
-            type == null ? "" : String.format("_%s", type)
-        );
-
-        path = ForgeHooksClient.getArmorTexture(entity, stack, path, slot, type);
-
-        ResourceLocation location = ARMOR_PATH_CACHE.get(path);
-
-        if (location == null) {
-            location = new ResourceLocation(path);
-            ARMOR_PATH_CACHE.put(path, location);
-        }
-
-        return location;
+        return RenderBiped.getArmorResource(entity, stack, slot.getArmorType(), type);
     }
 
     private static void flush(MultiBufferSource bufferSource) {

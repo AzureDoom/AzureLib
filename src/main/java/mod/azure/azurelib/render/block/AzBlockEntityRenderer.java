@@ -1,24 +1,24 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzBlockAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.math.BlockPos;
 
 /**
- * Base tile entity renderer for AzureLib-animated tile entities on 1.12.2. Register it with
+ * Base tile entity renderer for AzureLib-animated tile entities on 1.7.10. Register it with
  * {@code ClientRegistry.bindTileEntitySpecialRenderer(MyTileEntity.class, new MyRenderer())}.
  */
-public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
+public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEntitySpecialRenderer {
 
     private final AzProvider<Long, T> provider;
 
@@ -31,7 +31,7 @@ public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEn
         this.provider = new AzProvider<>(
             config::createAnimator,
             config::modelLocation,
-            blockEntity -> blockEntity.getPos().toLong()
+            blockEntity -> BlockPos.of(blockEntity).toLong()
         );
         this.rendererPipeline = createPipeline(config);
     }
@@ -42,15 +42,8 @@ public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEn
 
     @Override
     @SuppressWarnings("unchecked")
-    public void render(
-        @Nonnull T entity,
-        double x,
-        double y,
-        double z,
-        float partialTick,
-        int destroyStage,
-        float alpha
-    ) {
+    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float partialTick) {
+        T entity = (T) tileEntity;
         AzBlockAnimator<T> cachedEntityAnimator = (AzBlockAnimator<T>) provider.provideAnimator(
             rendererPipeline.context().currentEntity(),
             entity
@@ -58,8 +51,8 @@ public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEn
         AzBakedModel model = provider.provideBakedModel(rendererPipeline.context().currentEntity(), entity);
         reusedAzBlockAnimator = cachedEntityAnimator;
 
-        int packedLight = entity.hasWorld()
-            ? entity.getWorld().getCombinedLight(entity.getPos(), 0)
+        int packedLight = entity.hasWorldObj()
+            ? entity.getWorld().getLightBrightnessForSkyBlocks(entity.xCoord, entity.yCoord, entity.zCoord, 0)
             : LightTexture.FULL_BRIGHT;
 
         AzBufferSource bufferSource = AzBufferSource.getInstance();

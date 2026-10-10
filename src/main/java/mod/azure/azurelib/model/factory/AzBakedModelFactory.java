@@ -1,7 +1,5 @@
 package mod.azure.azurelib.model.factory;
 
-import net.minecraft.util.EnumFacing;
-
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.cache.object.GeoCube;
@@ -16,6 +14,7 @@ import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.factory.primitive.VertexSet;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Vec3;
 import mod.azure.azurelib.util.math.Vector3f;
 
@@ -92,22 +91,22 @@ public abstract class AzBakedModelFactory {
         GeoQuad[] quads = new GeoQuad[6];
 
         quads[0] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.WEST)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.WEST)
         );
         quads[1] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.EAST)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.EAST)
         );
         quads[2] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.NORTH)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.NORTH)
         );
         quads[3] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.SOUTH)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.SOUTH)
         );
         quads[4] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.UP)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.UP)
         );
         quads[5] = dropIfDegenerate(
-            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, EnumFacing.DOWN)
+            buildQuad(vertices, cube, uvUnion, textureWidth, textureHeight, mirror, Direction.DOWN)
         );
 
         return quads;
@@ -123,7 +122,7 @@ public abstract class AzBakedModelFactory {
         float textureWidth,
         float textureHeight,
         boolean mirror,
-        EnumFacing direction
+        Direction direction
     ) {
         if (!uvUnion.isBoxUV()) {
             FaceUV faceUV = uvUnion.faceUV().fromDirection(direction);

@@ -7,9 +7,9 @@
 ## Developers
 
 <Callout variant="info">
-    These docs are for the **Forge 1.12.2** version of AzureLib, which is backported from the 1.18.2 branch. It requires Java 8 and uses ForgeGradle with MCP mappings, so the code on these pages uses 1.12.2 class names (`EntityLivingBase`, `TileEntity`, `World`, `ItemCameraTransforms`...).
+    These docs are for the **Forge 1.7.10** version of AzureLib, backported from the 1.12.2 backport. It requires Java 8, ForgeGradle 1.2 with MCP mappings, and **UniMixins** at runtime, so the code on these pages uses 1.7.10 class names (`EntityLivingBase`, `TileEntity`, `World`, `worldObj`...).
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2).
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10).
 </Callout>
 
 To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
@@ -22,7 +22,7 @@ repositories {
 		name = "AzureDoom Mods"
 		url = "https://maven.azuredoom.com/mods"
 	}
-	maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+	maven { url = "https://jitpack.io" } // UniMixins
 }
 ```
 
@@ -30,39 +30,42 @@ repositories {
 
 The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib).
 
+ForgeGradle 1.2 can't deobfuscate a mod dependency for the dev environment, so AzureLib publishes a separate `dev` jar (MCP names) next to the normal, reobfuscated jar. Depend on the `dev` classifier:
+
 <CodeTabs>
 
-```markdown !!tabs Forge 1.12.2 (ForgeGradle)
+```markdown !!tabs Forge 1.7.10 (ForgeGradle 1.2)
 dependencies {
-	// The published jar is reobfuscated, so it has to go through fg.deobf
-	implementation fg.deobf("mod.azure.azurelib:azurelib-forge-1.12.2:MODVERSION")
-
-	// AzureLib ships Mixin inside its jar; you only need it to compile your own mixins and to run in dev
-	implementation("org.spongepowered:mixin:0.8.5") {
+	implementation("mod.azure.azurelib:azurelib-forge-1.7.10:MODVERSION:dev") {
 		transitive = false
 	}
-	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+	// UniMixins provides Mixin on 1.7.10; it is needed in dev and must be installed by players
+	implementation("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:UNIMIXINS_VERSION:dev") {
+		transitive = false
+	}
+	annotationProcessor("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:UNIMIXINS_VERSION:dev") {
+		transitive = false
+	}
 }
 ```
 
 </CodeTabs>
 
-AzureLib uses Mixin through the `MixinTweaker`. In a dev environment, mod jars on the classpath are not scanned for mixin configs, so your run configurations need to load the tweaker and AzureLib's mixin config, and remap the refmaps to MCP names:
+In a dev environment, mod jars on the classpath are not scanned for mixin configs, so your run tasks need the Mixin tweaker and AzureLib's mixin config, and the refmaps remapped to MCP names:
 
 <CodeTabs>
 
 ```markdown !!tabs build.gradle
-minecraft {
-	runs {
-		configureEach {
-			property 'mixin.env.remapRefMap', 'true'
-			property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.all {
+	args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
+	args '--mixin', 'azurelib.mixins.json'
+	// If your mod has its own mixins, add them too:
+	// args '--mixin', 'yourmodid.mixins.json'
 
-			arg '-torg.spongepowered.asm.launch.MixinTweaker'
-			args '--mixin', 'azurelib.mixins.json'
-			// If your mod has its own mixins, add them too:
-			// args '--mixin', 'yourmodid.mixins.json'
-		}
+	systemProperty 'mixin.env.remapRefMap', 'true'
+	doFirst {
+		systemProperty 'mixin.env.refMapRemappingFile', tasks.genSrgs.srgToMcp.absolutePath
 	}
 }
 ```
@@ -74,3 +77,7 @@ Finally, declare the dependency so Forge loads AzureLib before your mod:
 ```java
 @Mod(modid = "yourmodid", dependencies = "required-after:azurelib")
 ```
+
+<Callout variant="info">
+    1.7.10 MCP names vary between mapping versions. The snippets on these pages use common names; if one doesn't resolve in your workspace (for example `setBlockName` vs `setUnlocalizedName`), use the name your decompiled Minecraft classes show.
+</Callout>

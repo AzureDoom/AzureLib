@@ -2,11 +2,11 @@ package mod.azure.azurelib.platform.services;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.util.math.BlockPos;
 
 public interface AzureLibNetwork {
 

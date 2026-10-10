@@ -1,10 +1,9 @@
 package mod.azure.azurelib.animation.dispatch.command;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,11 +21,14 @@ import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.codec.AzListStreamCodec;
+import mod.azure.azurelib.util.math.BlockPos;
 
 /**
  * Represents a command structure used to dispatch a sequence of actions in the animation system. This class primarily
@@ -35,7 +37,7 @@ import mod.azure.azurelib.util.codec.AzListStreamCodec;
  * The class provides support for building complex dispatch commands by leveraging the hierarchical builder system,
  * enabling customization of animation-related functionality.
  */
-@SuppressWarnings({ "unused", "deprecation" })
+@SuppressWarnings({ "unused" })
 public final class AzCommand {
 
     private final List<AzAction> actions;
@@ -73,13 +75,13 @@ public final class AzCommand {
     public static final AzListStreamCodec<AzAction> ACTION_LIST_CODEC =
         new AzListStreamCodec<>(AzAction::decode, (buf, action) -> action.encode(buf));
 
-    public static final Function<PacketBuffer, AzCommand> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzCommand> DECODER = buf -> {
         // Decode the list of actions using the AzListStreamCodec
         List<AzAction> actions = ACTION_LIST_CODEC.decode(buf);
         return new AzCommand(actions);
     };
 
-    public static final BiConsumer<PacketBuffer, AzCommand> ENCODER = (buf, command) -> {
+    public static final BiConsumer<AzByteBuf, AzCommand> ENCODER = (buf, command) -> {
         // Encode the list of actions using the AzListStreamCodec
         ACTION_LIST_CODEC.encode(buf, command.actions());
     };
@@ -107,7 +109,7 @@ public final class AzCommand {
     }
 
     public static AzCommand compose(AzCommand first, AzCommand second, AzCommand... others) {
-        ArrayList<AzCommand> allCommands = new ArrayList<AzCommand>();
+        ArrayList<AzCommand> allCommands = new ArrayList<>();
 
         allCommands.add(first);
         allCommands.add(second);
@@ -264,7 +266,7 @@ public final class AzCommand {
      * @param entity the target {@link Entity} for which the animation commands are dispatched.
      */
     public void sendForEntity(Entity entity) {
-        if (entity.world.isRemote) {
+        if (entity.worldObj.isRemote) {
             dispatchFromClient(entity);
         } else {
             int entityId = entity.getEntityId();
@@ -284,7 +286,7 @@ public final class AzCommand {
         if (entity.getWorld() != null && entity.getWorld().isRemote) {
             dispatchFromClient(entity);
         } else {
-            BlockPos entityBlockPos = entity.getPos();
+            BlockPos entityBlockPos = BlockPos.of(entity);
             AzBlockEntityDispatchCommandPacket packet = new AzBlockEntityDispatchCommandPacket(entityBlockPos, this);
             Services.NETWORK.sendToEntitiesTrackingChunk(packet, entity.getWorld(), entityBlockPos);
         }
@@ -299,24 +301,24 @@ public final class AzCommand {
      * @param itemStack the {@link ItemStack} on which the animation commands are dispatched.
      */
     public void sendForItem(Entity entity, ItemStack itemStack) {
-        if (entity.world.isRemote) {
+        if (entity.worldObj.isRemote) {
             dispatchFromClient(itemStack);
         } else {
-            if (itemStack.getTagCompound() == null) {
+            if (itemStack == null || itemStack.getTagCompound() == null) {
                 return;
             }
-            if (!itemStack.getTagCompound().hasUniqueId(AzureLib.ITEM_UUID_TAG)) {
+            if (!AzItemIds.has(itemStack.getTagCompound())) {
                 AzureLib.LOGGER.warn(
                     AzureLib.MAIN_MARKER,
                     "Missing '{}' UUID tag on ItemStack (item={}). "
                         + "Cannot dispatch animation commands. Ensure this is an AzureLib-animated item and that its UUID is assigned.",
                     AzureLib.ITEM_UUID_TAG,
-                    itemStack.getItem().getRegistryName()
+                    Item.itemRegistry.getNameForObject(itemStack.getItem())
                 );
                 return;
             }
 
-            UUID uuid = itemStack.getTagCompound().getUniqueId(AzureLib.ITEM_UUID_TAG);
+            UUID uuid = AzItemIds.get(itemStack.getTagCompound());
 
             AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(uuid, this);
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);

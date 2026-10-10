@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerCancelAction implements AzAction {
 
@@ -46,12 +46,12 @@ public final class AzControllerCancelAction implements AzAction {
         return "AzControllerCancelAction[controllerName=" + this.controllerName + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerCancelAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerCancelAction> DECODER = buf -> {
         String controllerName = buf.readString(32767); // Read UTF-8 string for the controller's name
         return new AzControllerCancelAction(controllerName);
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerCancelAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerCancelAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName()); // Write UTF-8 string for the controller's name
     };
 
@@ -73,11 +73,11 @@ public final class AzControllerCancelAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerCancelAction decode(PacketBuffer buf) {
+    public static AzControllerCancelAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate to the DECODER functional interface
     }
 
-    public static void encode(PacketBuffer buf, AzControllerCancelAction action) {
+    public static void encode(AzByteBuf buf, AzControllerCancelAction action) {
         ENCODER.accept(buf, action); // Delegate to the ENCODER functional interface
     }
 }

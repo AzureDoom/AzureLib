@@ -2,17 +2,17 @@ package mod.azure.azurelib.render.armor;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.AzRendererConfig;
+import mod.azure.azurelib.util.AzEquipmentSlot;
+import mod.azure.azurelib.util.AzItemIds;
 
 public class AzArmorRenderer {
 
@@ -52,7 +52,7 @@ public class AzArmorRenderer {
     public void prepForRender(
         @Nullable Entity entity,
         ItemStack stack,
-        @Nullable EntityEquipmentSlot slot,
+        @Nullable AzEquipmentSlot slot,
         @Nullable ModelBiped baseModel
     ) {
         if (entity == null || slot == null || baseModel == null) {
@@ -87,8 +87,8 @@ public class AzArmorRenderer {
     private static UUID getStackId(ItemStack stack) {
         net.minecraft.nbt.NBTTagCompound tag = stack.getTagCompound();
 
-        if (tag != null && tag.hasUniqueId(AzureLib.ITEM_UUID_TAG)) {
-            return tag.getUniqueId(AzureLib.ITEM_UUID_TAG);
+        if (tag != null && AzItemIds.has(tag)) {
+            return AzItemIds.get(tag);
         }
 
         return UUID.randomUUID();

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetAnimationSpeedAction implements AzAction {
 
@@ -56,13 +56,13 @@ public final class AzControllerSetAnimationSpeedAction implements AzAction {
             + this.animationSpeed + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetAnimationSpeedAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetAnimationSpeedAction> DECODER = buf -> {
         String controllerName = buf.readString(32767); // Read controller name (UTF string)
         double animationSpeed = buf.readDouble(); // Read double from the buffer
         return new AzControllerSetAnimationSpeedAction(controllerName, animationSpeed); // Create a new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetAnimationSpeedAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetAnimationSpeedAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName()); // Write controller name (UTF string)
         buf.writeDouble(action.animationSpeed()); // Write the animation speed to the buffer
     };
@@ -83,11 +83,11 @@ public final class AzControllerSetAnimationSpeedAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetAnimationSpeedAction decode(PacketBuffer buf) {
+    public static AzControllerSetAnimationSpeedAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate to the DECODER functional interface
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetAnimationSpeedAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetAnimationSpeedAction action) {
         ENCODER.accept(buf, action); // Delegate to the ENCODER functional interface
     }
 }

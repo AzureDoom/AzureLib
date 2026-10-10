@@ -7,9 +7,9 @@ package mod.azure.azurelib.loading.json.raw;
 
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
-import net.minecraft.util.EnumFacing;
 
 import mod.azure.azurelib.util.GsonHelper;
+import mod.azure.azurelib.util.math.Direction;
 
 /**
  * Container class for UV face information, only used in deserialization at startup
@@ -108,7 +108,7 @@ public final class UVFaces {
         };
     }
 
-    public FaceUV fromDirection(EnumFacing direction) {
+    public FaceUV fromDirection(Direction direction) {
         switch ((direction)) {
             case NORTH:
                 return north;

@@ -209,7 +209,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
         Entity entity = (Entity) animatable;
 
         boolean isInvisible = entity.isInvisible();
-        boolean appearsGlowing = entity.isGlowing();
+        boolean appearsGlowing = false; // 1.7.10 has no glowing effect
         boolean isPlayerInvisible = entity.isInvisibleToPlayer(ClientUtils.getClientPlayer());
 
         if (isInvisible) {

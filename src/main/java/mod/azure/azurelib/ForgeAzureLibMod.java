@@ -1,17 +1,12 @@
 package mod.azure.azurelib;
 
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 /**
- * Forge entry point for AzureLib on Minecraft 1.12.2.
+ * Forge entry point for AzureLib on Minecraft 1.7.10.
  */
-@Mod(
-    modid = AzureLib.MOD_ID,
-    name = AzureLib.MOD_NAME,
-    useMetadata = true,
-    acceptedMinecraftVersions = "[1.12.2]"
-)
+@Mod(modid = AzureLib.MOD_ID, name = AzureLib.MOD_NAME, useMetadata = true, acceptedMinecraftVersions = "[1.7.10]")
 public final class ForgeAzureLibMod {
 
     @Mod.EventHandler

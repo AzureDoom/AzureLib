@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetTransitionSpeedAction implements AzAction {
 
@@ -56,13 +56,13 @@ public final class AzControllerSetTransitionSpeedAction implements AzAction {
             + this.transitionSpeed + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetTransitionSpeedAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetTransitionSpeedAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         float transitionSpeed = buf.readFloat(); // Read float from the buffer
         return new AzControllerSetTransitionSpeedAction(controllerName, transitionSpeed); // Create a new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetTransitionSpeedAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetTransitionSpeedAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         buf.writeFloat(action.transitionSpeed()); // Write the transition speed to the buffer
     };
@@ -83,11 +83,11 @@ public final class AzControllerSetTransitionSpeedAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetTransitionSpeedAction decode(PacketBuffer buf) {
+    public static AzControllerSetTransitionSpeedAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate decoding to DECODER
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetTransitionSpeedAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetTransitionSpeedAction action) {
         ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

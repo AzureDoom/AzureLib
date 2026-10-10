@@ -460,7 +460,7 @@ public class AzModelRenderer<K, T> {
         AzBone bone,
         RenderType renderType
     ) {
-        // AzBufferSource consumers never go stale on 1.12.2, so there is nothing to refresh.
+        // AzBufferSource consumers never go stale on 1.7.10, so there is nothing to refresh.
         return context.multiBufferSource().getBuffer(renderType);
     }
 

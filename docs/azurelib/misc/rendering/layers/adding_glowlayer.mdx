@@ -45,11 +45,11 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
     private static final ResourceLocation TEXTURE_LOCATION =
         new ResourceLocation("yourmodid", "textures/entity/example_model.png");
 
-    public ExampleEntityRenderer(RenderManager renderManager) {
+    public ExampleEntityRenderer() {
         super(
             AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
                 .addRenderLayer(new AzAutoGlowingLayer<>()) // Add the auto glow layer
-                .build(), renderManager
+                .build()
         );
     }
 }
@@ -108,9 +108,9 @@ Because the function runs every frame, you can also use it to pulse the glow, fo
 
 ### Advanced Configuration (Optional)
 
-The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on 1.12.2 its emissive render types always draw full-bright. To customize its behavior, extend the `AzAutoGlowingLayer` class and override its methods:
+The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on 1.7.10 its emissive render types always draw full-bright. To customize its behavior, extend the `AzAutoGlowingLayer` class and override its methods:
 
-- `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on 1.12.2).
+- `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on 1.7.10).
 - `getGlowColor(context)`: the ARGB tint for the glow. Override this instead of passing a function to the constructor if your tint logic is easier to keep in a subclass.
 - `determineRenderType(context)`: the render type used for the glow, including how invisible and glowing (outlined) entities are handled.
 

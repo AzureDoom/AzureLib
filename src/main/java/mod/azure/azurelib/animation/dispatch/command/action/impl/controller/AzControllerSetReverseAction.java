@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiConsumer;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzControllerSetReverseAction implements AzAction {
 
@@ -56,13 +56,13 @@ public final class AzControllerSetReverseAction implements AzAction {
             + "]";
     }
 
-    public static final Function<PacketBuffer, AzControllerSetReverseAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzControllerSetReverseAction> DECODER = buf -> {
         String controllerName = buf.readString(32767);
         boolean hasReverse = buf.readBoolean(); // Read boolean from the buffer
         return new AzControllerSetReverseAction(controllerName, hasReverse); // Create a new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzControllerSetReverseAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzControllerSetReverseAction> ENCODER = (buf, action) -> {
         buf.writeString(action.controllerName());
         buf.writeBoolean(action.hasReverse()); // Write the animation speed to the buffer
     };
@@ -85,11 +85,11 @@ public final class AzControllerSetReverseAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzControllerSetReverseAction decode(PacketBuffer buf) {
+    public static AzControllerSetReverseAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate decoding to DECODER
     }
 
-    public static void encode(PacketBuffer buf, AzControllerSetReverseAction action) {
+    public static void encode(AzByteBuf buf, AzControllerSetReverseAction action) {
         ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

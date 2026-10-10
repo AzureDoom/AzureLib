@@ -3,14 +3,15 @@ package mod.azure.azurelib.animation.molang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.core.molang.MolangQueryContext;
+import mod.azure.azurelib.util.AzEquipmentSlot;
+import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.azurelib.util.math.Mth;
 
 /**
@@ -24,11 +25,11 @@ public final class AzMolangQueryContext implements MolangQueryContext {
 
     public static final AzMolangQueryContext INSTANCE = new AzMolangQueryContext();
 
-    private static final EntityEquipmentSlot[] ARMOR_SLOTS = {
-        EntityEquipmentSlot.HEAD,
-        EntityEquipmentSlot.CHEST,
-        EntityEquipmentSlot.LEGS,
-        EntityEquipmentSlot.FEET
+    private static final AzEquipmentSlot[] ARMOR_SLOTS = {
+        AzEquipmentSlot.HEAD,
+        AzEquipmentSlot.CHEST,
+        AzEquipmentSlot.LEGS,
+        AzEquipmentSlot.FEET
     };
 
     @Nullable
@@ -112,7 +113,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (livingEntity == null || slot < 0 || slot >= ARMOR_SLOTS.length)
             return 0;
 
-        return livingEntity.getItemStackFromSlot(ARMOR_SLOTS[slot]).isEmpty() ? 0 : 1;
+        return AzureLibUtil.isEmpty(ARMOR_SLOTS[slot].getStack(livingEntity)) ? 0 : 1;
     }
 
     @Override
@@ -120,7 +121,8 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (livingEntity == null || slot < 0 || slot >= ARMOR_SLOTS.length)
             return 0;
 
-        return livingEntity.getItemStackFromSlot(ARMOR_SLOTS[slot]).getItemDamage();
+        ItemStack stack = ARMOR_SLOTS[slot].getStack(livingEntity);
+        return stack == null ? 0 : stack.getCurrentDurability();
     }
 
     @Override
@@ -128,23 +130,23 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (livingEntity == null)
             return 0;
 
-        EntityEquipmentSlot slot = hand == 1 ? EntityEquipmentSlot.OFFHAND : EntityEquipmentSlot.MAINHAND;
+        AzEquipmentSlot slot = hand == 1 ? AzEquipmentSlot.OFFHAND : AzEquipmentSlot.MAINHAND;
 
-        return livingEntity.getItemStackFromSlot(slot).isEmpty() ? 0 : 1;
+        return AzureLibUtil.isEmpty(slot.getStack(livingEntity)) ? 0 : 1;
     }
 
     @Override
     public double heightmap(double x, double z) {
-        World level = Minecraft.getMinecraft().world;
-        return level == null ? 0 : level.getHeight((int) Math.floor(x), (int) Math.floor(z));
+        World level = Minecraft.getMinecraft().theWorld;
+        return level == null ? 0 : level.getHeightValue((int) Math.floor(x), (int) Math.floor(z));
     }
 
     @Override
     public double aboveTopSolid(double x, double z) {
-        World level = Minecraft.getMinecraft().world;
+        World level = Minecraft.getMinecraft().theWorld;
         return level == null
             ? 0
-            : level.getTopSolidOrLiquidBlock(new BlockPos(Math.floor(x), 0, Math.floor(z))).getY();
+            : level.getTopSolidOrLiquidBlock((int) Math.floor(x), (int) Math.floor(z));
     }
 
     @Override
@@ -152,7 +154,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (entity == null)
             return 0;
 
-        Entity camera = Minecraft.getMinecraft().getRenderViewEntity();
+        Entity camera = Minecraft.getMinecraft().renderViewEntity;
         if (camera == null)
             return 0;
         float pt = partialTicks;

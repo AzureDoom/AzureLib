@@ -1,11 +1,8 @@
 package mod.azure.azurelib.util.math;
 
-import net.minecraft.util.math.Vec3d;
-
 /**
  * Immutable double 3-vector used for AzureLib's baked model data, mirroring the parts of the 1.18
- * {@code net.minecraft.world.phys.Vec3} API that AzureLib relies on. Use {@link #of(Vec3d)} / {@link #toVec3d()} to
- * convert to and from Minecraft 1.12.2's {@link Vec3d}.
+ * {@code net.minecraft.world.phys.Vec3} API that AzureLib relies on.
  */
 public final class Vec3 {
 
@@ -25,14 +22,6 @@ public final class Vec3 {
 
     public Vec3(Vector3f vector) {
         this(vector.x(), vector.y(), vector.z());
-    }
-
-    public static Vec3 of(Vec3d vec) {
-        return new Vec3(vec.x, vec.y, vec.z);
-    }
-
-    public Vec3d toVec3d() {
-        return new Vec3d(this.x, this.y, this.z);
     }
 
     public double x() {

@@ -4,7 +4,6 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
@@ -16,6 +15,7 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.client.ModelPartScaleCompat;
 import mod.azure.azurelib.util.math.Matrix4f;
 
@@ -67,7 +67,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         ModelBiped baseModel = armorContext.baseModel();
         AzArmorBoneContext boneContext = armorContext.boneContext();
         AzArmorRendererConfig config = config();
-        EntityEquipmentSlot currentSlot = armorContext.currentSlot();
+        AzEquipmentSlot currentSlot = armorContext.currentSlot();
         float scaleWidth = config.scaleWidth(context.animatable());
         float scaleHeight = config.scaleHeight(context.animatable());
 
@@ -99,7 +99,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     }
 
     /**
-     * Scales the specified bone based on the model part associated with the current {@link EntityEquipmentSlot}. This
+     * Scales the specified bone based on the model part associated with the current {@link AzEquipmentSlot}. This
      * method adjusts the scaling for various armor parts such as head, chest, legs, and feet during rendering. The
      * scaling is not performed if {@code isReRender} is set to true.
      *
@@ -115,7 +115,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         boolean isReRender
     ) {
         ModelBiped baseModel = context.baseModel();
-        EntityEquipmentSlot currentSlot = context.currentSlot();
+        AzEquipmentSlot currentSlot = context.currentSlot();
 
         if (isReRender) {
             return;
@@ -174,11 +174,11 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         }
 
         ModelBiped baseModel = context.baseModel();
-        EntityEquipmentSlot currentSlot = context.currentSlot();
+        AzEquipmentSlot currentSlot = context.currentSlot();
         PoseStack poseStack = context.poseStack();
 
-        // Same factors as 1.12.2's ModelBiped#render for children.
-        if (currentSlot == EntityEquipmentSlot.HEAD) {
+        // Same factors as 1.7.10's ModelBiped#render for children.
+        if (currentSlot == AzEquipmentSlot.HEAD) {
             poseStack.scale(0.75f, 0.75f, 0.75f);
             poseStack.translate(0, 16 / 16f, 0);
         } else {

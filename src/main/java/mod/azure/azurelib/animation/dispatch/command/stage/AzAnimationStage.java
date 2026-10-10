@@ -1,11 +1,10 @@
 package mod.azure.azurelib.animation.dispatch.command.stage;
 
-import net.minecraft.network.PacketBuffer;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import mod.azure.azurelib.animation.property.AzAnimationStageProperties;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzAnimationStage {
 
@@ -50,13 +49,13 @@ public final class AzAnimationStage {
         return "AzAnimationStage[name=" + this.name + ", properties=" + this.properties + "]";
     }
 
-    public static final Function<PacketBuffer, AzAnimationStage> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzAnimationStage> DECODER = buf -> {
         String name = buf.readString(32767);
         AzAnimationStageProperties properties = AzAnimationStageProperties.DECODER.apply(buf);
         return new AzAnimationStage(name, properties);
     };
 
-    public static final BiConsumer<PacketBuffer, AzAnimationStage> ENCODER = (buf, stage) -> {
+    public static final BiConsumer<AzByteBuf, AzAnimationStage> ENCODER = (buf, stage) -> {
         buf.writeString(stage.name());
         AzAnimationStageProperties.ENCODER.accept(buf, stage.properties());
     };

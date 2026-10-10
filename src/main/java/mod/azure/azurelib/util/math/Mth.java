@@ -2,7 +2,7 @@ package mod.azure.azurelib.util.math;
 
 /**
  * Subset of the 1.18 {@code net.minecraft.util.Mth} helpers used by AzureLib, re-implemented so AzureLib does not
- * depend on the differently-named 1.12.2 {@code MathHelper}.
+ * depend on the differently-named 1.7.10 {@code MathHelper}.
  */
 public final class Mth {
 

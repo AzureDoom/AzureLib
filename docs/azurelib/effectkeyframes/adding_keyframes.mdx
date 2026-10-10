@@ -42,13 +42,12 @@ Example:
                             event -> {
                                 if (event.getKeyframeData().getSound().equals("walk")) {
                                     event.getAnimatable()
-                                        .world
+                                        .worldObj
                                         .playSound(
                                             event.getAnimatable().posX,
                                             event.getAnimatable().posY,
                                             event.getAnimatable().posZ,
-                                            SoundEvents.BLOCK_METAL_STEP,
-                                            SoundCategory.HOSTILE,
+                                            "step.stone",
                                             1.0F, // volume
                                             1.0F, // pitch
                                             true // Should have distance delay
@@ -76,9 +75,9 @@ Example:
                                                 event -> {
                                                     if (event.getKeyframeData().getEffect().equals("walk")) {
                                                         event.getAnimatable()
-                                                                .world
+                                                                .worldObj
                                                                 .spawnParticle(
-                                                                        EnumParticleTypes.WATER_BUBBLE,
+                                                                        "bubble",
                                                                         event.getAnimatable().posX,
                                                                         event.getAnimatable().posY,
                                                                         event.getAnimatable().posZ,

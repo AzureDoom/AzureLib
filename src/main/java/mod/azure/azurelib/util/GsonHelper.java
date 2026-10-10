@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 
 /**
  * The subset of 1.18's {@code net.minecraft.util.GsonHelper} that AzureLib's JSON loading relies on. Re-implemented
- * against Gson 2.8.0 (the version bundled with Minecraft 1.12.2) so the parsing behaviour matches the modern branches
+ * against Gson 2.2.4 (the version bundled with Minecraft 1.7.10) so the parsing behaviour matches the modern branches
  * exactly.
  */
 public final class GsonHelper {

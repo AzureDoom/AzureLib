@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Collection;
@@ -14,6 +13,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public final class AzRootPlayAnimationSequenceAction implements AzAction {
 
@@ -49,12 +49,12 @@ public final class AzRootPlayAnimationSequenceAction implements AzAction {
         return "AzRootPlayAnimationSequenceAction[sequence=" + this.sequence + "]";
     }
 
-    public static final Function<PacketBuffer, AzRootPlayAnimationSequenceAction> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzRootPlayAnimationSequenceAction> DECODER = buf -> {
         AzAnimationSequence sequence = AzAnimationSequence.DECODER.apply(buf); // Decode AzAnimationSequence
         return new AzRootPlayAnimationSequenceAction(sequence); // Create new instance
     };
 
-    public static final BiConsumer<PacketBuffer, AzRootPlayAnimationSequenceAction> ENCODER = (buf, action) -> {
+    public static final BiConsumer<AzByteBuf, AzRootPlayAnimationSequenceAction> ENCODER = (buf, action) -> {
         AzAnimationSequence.ENCODER.accept(buf, action.sequence()); // Encode AzAnimationSequence
     };
 
@@ -73,11 +73,11 @@ public final class AzRootPlayAnimationSequenceAction implements AzAction {
         return RESOURCE_LOCATION;
     }
 
-    public static AzRootPlayAnimationSequenceAction decode(PacketBuffer buf) {
+    public static AzRootPlayAnimationSequenceAction decode(AzByteBuf buf) {
         return DECODER.apply(buf); // Delegate decoding to DECODER
     }
 
-    public static void encode(PacketBuffer buf, AzRootPlayAnimationSequenceAction action) {
+    public static void encode(AzByteBuf buf, AzRootPlayAnimationSequenceAction action) {
         ENCODER.accept(buf, action); // Delegate encoding to ENCODER
     }
 }

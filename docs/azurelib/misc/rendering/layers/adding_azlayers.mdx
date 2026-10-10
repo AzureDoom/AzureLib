@@ -18,14 +18,13 @@ You can add these layers to your renderer by customizing the `AzRendererConfig` 
 ```java
 public class MarauderRenderer extends AzEntityRenderer<MarauderEntity> {
 
-    public MarauderRenderer(RenderManager renderManager) {
+    public MarauderRenderer() {
         super(
             AzEntityRendererConfig.<MarauderEntity>builder(MODEL, TEXTURE)
                 .addRenderLayer(new AzArmorLayer<>()) // Adds the armor rendering layer
                 .addRenderLayer(new AzAutoGlowingLayer<>()) // Adds the glowing texture layer
                 .addRenderLayer(new AzBlockAndItemLayer<>()) // Adds the block and item rendering layer
-                .build(),
-            renderManager
+                .build()
         );
     }
 }

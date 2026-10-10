@@ -1,11 +1,11 @@
 package mod.azure.azurelib.animation.dispatch.command.action;
 
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.codec.AzActionCodec;
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * The AzAction interface serves as a base contract for defining actions that can be dispatched within the animation
@@ -16,18 +16,18 @@ import mod.azure.azurelib.animation.dispatch.command.action.codec.AzActionCodec;
 public interface AzAction {
 
     /**
-     * Decodes an AzAction from a {@link PacketBuffer}. Delegates to {@link AzActionCodec#decode(PacketBuffer)} for
-     * decoding logic.
+     * Decodes an AzAction from a {@link AzByteBuf}. Delegates to {@link AzActionCodec#decode(AzByteBuf)} for decoding
+     * logic.
      */
-    static AzAction decode(PacketBuffer byteBuf) {
+    static AzAction decode(AzByteBuf byteBuf) {
         return new AzActionCodec().decode(byteBuf);
     }
 
     /**
-     * Encodes this AzAction into a {@link PacketBuffer}. Delegates to
-     * {@link AzActionCodec#encode(PacketBuffer, AzAction)} for encoding logic.
+     * Encodes this AzAction into a {@link AzByteBuf}. Delegates to {@link AzActionCodec#encode(AzByteBuf, AzAction)}
+     * for encoding logic.
      */
-    default void encode(PacketBuffer byteBuf) {
+    default void encode(AzByteBuf byteBuf) {
         new AzActionCodec().encode(byteBuf, this);
     }
 

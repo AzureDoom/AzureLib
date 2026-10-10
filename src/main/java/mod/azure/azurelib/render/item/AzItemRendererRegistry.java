@@ -1,6 +1,8 @@
 package mod.azure.azurelib.render.item;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,9 +22,14 @@ public class AzItemRendererRegistry {
 
     private static final Map<Item, Supplier<AzItemRenderer>> ITEM_TO_RENDERER_SUPPLIER = new ConcurrentHashMap<>();
 
+    /**
+     * Registers an AzureLib renderer for the item. On 1.7.10 this also registers AzureLib's {@link IItemRenderer}
+     * adapter with Forge, so call it on the client during init.
+     */
     public static void register(Item item, Supplier<AzItemRenderer> itemRendererSupplier) {
         ITEM_TO_RENDERER_SUPPLIER.put(item, itemRendererSupplier);
         AzIdentityRegistry.register(item);
+        MinecraftForgeClient.registerItemRenderer(item, new AzItemRendererAdapter(item));
     }
 
     public static void register(Supplier<AzItemRenderer> itemRendererSupplier, Item item, Item... items) {

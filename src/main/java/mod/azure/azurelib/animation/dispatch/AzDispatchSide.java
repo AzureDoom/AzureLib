@@ -1,12 +1,12 @@
 package mod.azure.azurelib.animation.dispatch;
 
-import net.minecraft.network.PacketBuffer;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+
+import mod.azure.azurelib.network.AzByteBuf;
 
 /**
  * This enum represents the dispatch side for animation commands, which can either be client-side or server-side. It is
@@ -35,12 +35,12 @@ public enum AzDispatchSide {
         this.id = id;
     }
 
-    public static final Function<PacketBuffer, AzDispatchSide> DECODER = buf -> {
+    public static final Function<AzByteBuf, AzDispatchSide> DECODER = buf -> {
         int id = buf.readByte(); // Read byte and convert to int
         return ID_TO_ENUM_MAP.get(id); // Get enum from ID
     };
 
-    public static final BiConsumer<PacketBuffer, AzDispatchSide> ENCODER = (buf, val) -> {
+    public static final BiConsumer<AzByteBuf, AzDispatchSide> ENCODER = (buf, val) -> {
         buf.writeByte(val.id); // Write the integer ID to the buffer
     };
 

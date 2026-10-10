@@ -23,7 +23,7 @@ public final class ClientUtils {
      *         available
      */
     public static EntityPlayer getClientPlayer() {
-        return Minecraft.getMinecraft().player;
+        return Minecraft.getMinecraft().thePlayer;
     }
 
     /**
@@ -32,7 +32,7 @@ public final class ClientUtils {
      * @return the {@link World} instance associated with the local client, or null if unavailable
      */
     public static World getLevel() {
-        return Minecraft.getMinecraft().world;
+        return Minecraft.getMinecraft().theWorld;
     }
 
     /**
@@ -73,7 +73,7 @@ public final class ClientUtils {
      * @return the current animation tick as a double, or 0.0 if the animation tick is unavailable
      */
     public static double getCurrentAnimationTick(Object target, String controllerName) {
-        if (target instanceof Entity && !((Entity) target).world.isRemote) {
+        if (target instanceof Entity && !((Entity) target).worldObj.isRemote) {
             AzureLib.LOGGER.warn("Animation tick can only be retrieved on the client side for target: {}", target);
             return 0D;
         }

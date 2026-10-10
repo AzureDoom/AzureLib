@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.property;
 
-import net.minecraft.network.PacketBuffer;
-
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -13,13 +11,14 @@ import mod.azure.azurelib.animation.easing.AzEasingTypes;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.animation.property.codec.AzAnimationStagePropertiesCodec;
+import mod.azure.azurelib.network.AzByteBuf;
 
 public class AzAnimationStageProperties extends AzAnimationProperties {
 
-    public static final Function<PacketBuffer, AzAnimationStageProperties> DECODER =
+    public static final Function<AzByteBuf, AzAnimationStageProperties> DECODER =
         AzAnimationStagePropertiesCodec.DECODER;
 
-    public static final BiConsumer<PacketBuffer, AzAnimationStageProperties> ENCODER =
+    public static final BiConsumer<AzByteBuf, AzAnimationStageProperties> ENCODER =
         AzAnimationStagePropertiesCodec.ENCODER;;
 
     public static final AzAnimationStageProperties DEFAULT = new AzAnimationStageProperties(

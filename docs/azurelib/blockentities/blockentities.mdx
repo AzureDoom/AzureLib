@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/blocks/blockentity)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/blocks/blockentity)
 </Callout>
 
 # How to animate Block Entities
@@ -80,7 +80,7 @@ public class ExampleBEDispatcher {
 You will now define your ExampleBEDispatcher from above in your `TileEntity` class.
 
 ```java
-public class ExampleBE extends TileEntity implements ITickable {
+public class ExampleBE extends TileEntity {
     // This is your class where you will setup the AzCommands/Animations you wish to play
     public final ExampleBEDispatcher dispatcher;
 
@@ -94,21 +94,23 @@ public class ExampleBE extends TileEntity implements ITickable {
 Now you simply call the dispatcher wherever you want to play the animations.
 
 <Callout variant="info">
-    On 1.12.2 a tile entity ticks by implementing `ITickable`. Remember to register it with `GameRegistry.registerTileEntity(ExampleBE.class, new ResourceLocation(YOUR_MOD_ID, "example_be"))`.
+    On 1.7.10 a tile entity ticks through `updateEntity()`. Remember to register it with `GameRegistry.registerTileEntity(ExampleBE.class, YOUR_MOD_ID + ":example_be")`.
 </Callout>
 
 Example:
 ```java
     @Override
-    public void update() {
-        if (this.world != null && this.world.isRemote) {
+    public void updateEntity() {
+        if (this.worldObj != null && this.worldObj.isRemote) {
             // This is where you now trigger an animation to play
             this.dispatcher.spin();
         }
     }
 ```
 
-If the model replaces the block's look entirely, return `EnumBlockRenderType.ENTITYBLOCK_ANIMATED` from your block's `getRenderType` (and `false` from `isOpaqueCube`/`isFullCube`) so only the tile entity renderer draws it.
+If the model replaces the block's look entirely, return `-1` from your block's `getRenderType()` (and `false` from `isOpaqueCube()`/`renderAsNormalBlock()`) so only the tile entity renderer draws it. Extending `BlockContainer` gives you `createNewTileEntity(World, int)`.
+
+The renderer rotates the model by the block's facing. 1.7.10 has no block states, so by default the facing is read from the block metadata (2 north, 3 south, 4 west, 5 east); override `getFacing` in your renderer for other layouts.
 
 ## Creating your Renderer
 

@@ -2,7 +2,6 @@ package mod.azure.azurelib.render.armor;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -17,6 +16,7 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.AzEquipmentSlot;
 
 public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UUID, ItemStack> {
 
@@ -24,7 +24,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     private ModelBiped baseModel;
 
-    private EntityEquipmentSlot currentSlot;
+    private AzEquipmentSlot currentSlot;
 
     private ItemStack currentStack;
 
@@ -56,7 +56,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
     public void prepare(
         @Nullable Entity entity,
         ItemStack stack,
-        @Nullable EntityEquipmentSlot slot,
+        @Nullable AzEquipmentSlot slot,
         @Nullable ModelBiped baseModel
     ) {
         this.baseModel = baseModel;
@@ -86,7 +86,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
     public Color getRenderColor(ItemStack animatable, float partialTick, int packedLight) {
         if (
             this.currentStack.getItem() instanceof ItemArmor && ((ItemArmor) this.currentStack.getItem())
-                .getArmorMaterial() == ItemArmor.ArmorMaterial.LEATHER
+                .getArmorMaterial() == ItemArmor.ArmorMaterial.CLOTH
         ) {
             return Color.ofOpaque(((ItemArmor) this.currentStack.getItem()).getColor(animatable));
         }
@@ -106,7 +106,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         return currentEntity;
     }
 
-    public EntityEquipmentSlot currentSlot() {
+    public AzEquipmentSlot currentSlot() {
         return currentSlot;
     }
 

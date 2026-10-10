@@ -1,7 +1,7 @@
 package mod.azure.azurelib.util.math;
 
 /**
- * Mutable float 3-vector. A Java 8 / 1.12.2 re-implementation of the 1.18 {@code com.mojang.math.Vector3f} API that
+ * Mutable float 3-vector. A Java 8 / 1.7.10 re-implementation of the 1.18 {@code com.mojang.math.Vector3f} API that
  * AzureLib's renderer is written against.
  */
 public final class Vector3f {

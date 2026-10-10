@@ -3,7 +3,7 @@ package mod.azure.azurelib.render.vertex;
 /**
  * Packed lightmap coordinate helpers, mirroring the 1.18 {@code net.minecraft.client.renderer.LightTexture}. The
  * packing (block light in the low 16 bits, sky light in the high 16 bits, each shifted left by 4) is identical to the
- * value returned by 1.12.2's {@code Entity#getBrightnessForRender()} and {@code World#getCombinedLight}.
+ * value returned by 1.7.10's {@code Entity#getBrightnessForRender()} and {@code World#getCombinedLight}.
  */
 public final class LightTexture {
 

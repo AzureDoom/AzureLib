@@ -1,12 +1,7 @@
 package mod.azure.azurelib.util;
 
-import net.minecraft.entity.EntityAreaEffectCloud;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumParticleTypes;
 
 import javax.annotation.Nullable;
 
@@ -33,7 +28,7 @@ public final class AzureLibUtil {
     }
 
     /**
-     * Returns the stack's NBT compound, creating and attaching an empty one if absent. 1.12.2 has no
+     * Returns the stack's NBT compound, creating and attaching an empty one if absent. 1.7.10 has no
      * {@code ItemStack#getOrCreateTag()}.
      */
     public static NBTTagCompound getOrCreateTag(ItemStack stack) {
@@ -46,42 +41,10 @@ public final class AzureLibUtil {
     }
 
     /**
-     * Summons an Area of Effect Cloud with the set particle, y offset, radius, duration, and effect options.
-     *
-     * @param entity     The Entity summoning the AoE
-     * @param particle   The particle the AoE uses
-     * @param yOffset    How offset from the entity's Y position the AoE spawns
-     * @param duration   How long the AoE lasts in ticks
-     * @param radius     The radius of the AoE
-     * @param hasEffect  Whether the AoE applies an effect
-     * @param effect     The effect to apply, if {@code hasEffect} is set
-     * @param effectTime How long the effect lasts in ticks
+     * Minecraft 1.7.10 represents an empty slot as a {@code null} stack. This also treats stacks with no item or a
+     * non-positive size as empty, like later versions' {@code ItemStack#isEmpty()}.
      */
-    public static void summonAoE(
-        EntityLivingBase entity,
-        EnumParticleTypes particle,
-        int yOffset,
-        int duration,
-        float radius,
-        boolean hasEffect,
-        @Nullable Potion effect,
-        int effectTime
-    ) {
-        EntityAreaEffectCloud areaEffectCloudEntity = new EntityAreaEffectCloud(
-            entity.world,
-            entity.posX,
-            entity.posY + yOffset,
-            entity.posZ
-        );
-        areaEffectCloudEntity.setRadius(radius);
-        areaEffectCloudEntity.setDuration(duration);
-        areaEffectCloudEntity.setParticle(particle);
-        areaEffectCloudEntity.setRadiusPerTick(
-            -areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration()
-        );
-        if (hasEffect && effect != null && !entity.isPotionActive(effect)) {
-            areaEffectCloudEntity.addEffect(new PotionEffect(effect, effectTime, 0));
-        }
-        entity.world.spawnEntity(areaEffectCloudEntity);
+    public static boolean isEmpty(@Nullable ItemStack stack) {
+        return stack == null || stack.getItem() == null || stack.stackSize <= 0;
     }
 }

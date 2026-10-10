@@ -76,7 +76,7 @@ public void startSlam() {
 @Override
 public void onUpdate() {
     super.onUpdate();
-    if (!this.world.isRemote) {
+    if (!this.worldObj.isRemote) {
         attackPlayer.tick();
     }
 }

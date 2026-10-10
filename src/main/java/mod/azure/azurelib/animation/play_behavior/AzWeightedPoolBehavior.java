@@ -137,7 +137,12 @@ public final class AzWeightedPoolBehavior extends AzPlayBehavior {
         this.entries = ImmutableList.copyOf(built);
         this.entryStartSequences = built.stream()
             .map(e -> AzSequence.create().then(e.animationName(), this))
-            .collect(ImmutableList.toImmutableList());
+            .collect(
+                java.util.stream.Collectors.collectingAndThen(
+                    java.util.stream.Collectors.toList(),
+                    ImmutableList::copyOf
+                )
+            );
         this.startSequence = AzSequence.create().then(start, this);
     }
 

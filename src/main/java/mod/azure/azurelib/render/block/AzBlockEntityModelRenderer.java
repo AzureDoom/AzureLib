@@ -1,10 +1,6 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 
 import mod.azure.azurelib.animation.impl.AzBlockAnimator;
 import mod.azure.azurelib.model.AzBone;
@@ -15,6 +11,7 @@ import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
 import mod.azure.azurelib.util.client.RenderUtils;
+import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Vector3f;
 
@@ -103,9 +100,9 @@ public class AzBlockEntityModelRenderer<T extends TileEntity> extends AzModelRen
                     RenderUtils.translateMatrix(
                         localMatrix.copy(),
                         new Vector3f(
-                            entity.getPos().getX(),
-                            entity.getPos().getY(),
-                            entity.getPos().getZ()
+                            entity.xCoord,
+                            entity.yCoord,
+                            entity.zCoord
                         )
                     )
                 );
@@ -145,25 +142,24 @@ public class AzBlockEntityModelRenderer<T extends TileEntity> extends AzModelRen
     /**
      * Attempt to extract a direction from the block so that the model can be oriented correctly
      */
-    protected EnumFacing getFacing(T block) {
-        if (!block.hasWorld())
-            return EnumFacing.NORTH;
+    protected Direction getFacing(T block) {
+        if (!block.hasWorldObj())
+            return Direction.NORTH;
 
-        IBlockState blockState = block.getWorld().getBlockState(block.getPos());
+        // 1.7.10 has no block state properties. Most rotatable blocks store their facing in the metadata using the side
+        // indices 2-5 (north, south, west, east); override this method for other layouts.
+        int meta = block.getBlockMetadata();
 
-        if (blockState.getPropertyKeys().contains(BlockHorizontal.FACING))
-            return blockState.getValue(BlockHorizontal.FACING);
+        if (meta >= 2 && meta <= 5)
+            return Direction.byIndex(meta);
 
-        if (blockState.getPropertyKeys().contains(BlockDirectional.FACING))
-            return blockState.getValue(BlockDirectional.FACING);
-
-        return EnumFacing.NORTH;
+        return Direction.NORTH;
     }
 
     /**
-     * Rotate the {@link PoseStack} based on the determined {@link EnumFacing} the block is facing
+     * Rotate the {@link PoseStack} based on the determined {@link Direction} the block is facing
      */
-    protected void rotateBlock(EnumFacing facing, PoseStack poseStack) {
+    protected void rotateBlock(Direction facing, PoseStack poseStack) {
         switch (facing) {
             case SOUTH:
                 poseStack.mulPose(Vector3f.YP.rotationDegrees(180));

@@ -2,12 +2,12 @@ package mod.azure.azurelib.render.armor.bone;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 public class AzArmorBoneContext {
@@ -174,13 +174,13 @@ public class AzArmorBoneContext {
     }
 
     /**
-     * Resets the bone visibility for the model based on the current {@link ModelRenderer} and
-     * {@link EntityEquipmentSlot}, and then sets the bones relevant to the current part as visible for rendering.<br>
+     * Resets the bone visibility for the model based on the current {@link ModelRenderer} and {@link AzEquipmentSlot},
+     * and then sets the bones relevant to the current part as visible for rendering.<br>
      * <br>
      * If you are rendering a geo entity with armor, you should probably be calling this prior to rendering
      */
     public void applyBoneVisibilityByPart(
-        EntityEquipmentSlot currentSlot,
+        AzEquipmentSlot currentSlot,
         ModelRenderer currentPart,
         ModelBiped model
     ) {
@@ -198,9 +198,9 @@ public class AzArmorBoneContext {
         } else if (currentPart == model.bipedRightArm) {
             bone = this.rightArm;
         } else if (currentPart == model.bipedLeftLeg) {
-            bone = currentSlot == EntityEquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
+            bone = currentSlot == AzEquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
         } else if (currentPart == model.bipedRightLeg) {
-            bone = currentSlot == EntityEquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
+            bone = currentSlot == AzEquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
         }
 
         if (bone != null) {
@@ -208,7 +208,7 @@ public class AzArmorBoneContext {
         }
 
         if (
-            currentSlot == EntityEquipmentSlot.LEGS &&
+            currentSlot == AzEquipmentSlot.LEGS &&
                 (currentPart == model.bipedLeftLeg || currentPart == model.bipedRightLeg) &&
                 this.waist != null
         ) {
@@ -222,7 +222,7 @@ public class AzArmorBoneContext {
      * <br>
      * This is only called by default for non-geo entities (I.E. players or vanilla mobs)
      */
-    public void applyBoneVisibilityBySlot(EntityEquipmentSlot currentSlot) {
+    public void applyBoneVisibilityBySlot(AzEquipmentSlot currentSlot) {
         setAllVisible(false);
 
         switch (currentSlot) {

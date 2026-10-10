@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.item;
 
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -29,7 +28,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private final boolean useNewOffset;
 
-    private final Predicate<ItemCameraTransforms.TransformType> shouldAnimateInContext;
+    private final Predicate<AzItemDisplayContext> shouldAnimateInContext;
 
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
@@ -45,7 +44,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         Function<ItemStack, Float> scaleWidth,
         boolean useEntityGuiLighting,
         boolean useNewOffset,
-        Predicate<ItemCameraTransforms.TransformType> shouldAnimateInContext,
+        Predicate<AzItemDisplayContext> shouldAnimateInContext,
         BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
         BiFunction<ItemStack, AzBone, ResourceLocation> boneTextureOverrideProvider,
@@ -81,7 +80,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         return useNewOffset;
     }
 
-    public boolean shouldAnimateInContext(ItemCameraTransforms.TransformType context) {
+    public boolean shouldAnimateInContext(AzItemDisplayContext context) {
         return shouldAnimateInContext.test(context);
     }
 
@@ -105,7 +104,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         private boolean useNewOffset;
 
-        private Predicate<ItemCameraTransforms.TransformType> shouldAnimateInContext;
+        private Predicate<AzItemDisplayContext> shouldAnimateInContext;
 
         protected Builder(
             Function<ItemStack, ResourceLocation> modelLocationProvider,
@@ -242,67 +241,70 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         /**
          * Sets the Predicate to determine whether an item should be animated in a specific
-         * {@link ItemCameraTransforms.TransformType}.
+         * {@link mod.azure.azurelib.render.item.AzItemDisplayContext}.
          *
-         * @param shouldAnimateInContext A Predicate that takes an {@link ItemCameraTransforms.TransformType} and
-         *                               returns true if the animation should occur in that context; false otherwise.
+         * @param shouldAnimateInContext A Predicate that takes an
+         *                               {@link mod.azure.azurelib.render.item.AzItemDisplayContext} and returns true if
+         *                               the animation should occur in that context; false otherwise.
          * @return The current instance of the {@code Builder} for method chaining.
          */
-        public Builder setShouldAnimateInContext(Predicate<ItemCameraTransforms.TransformType> shouldAnimateInContext) {
+        public Builder setShouldAnimateInContext(
+            Predicate<AzItemDisplayContext> shouldAnimateInContext
+        ) {
             this.shouldAnimateInContext = shouldAnimateInContext;
             return this;
         }
 
         /**
-         * Disables animation for specific {@link ItemCameraTransforms.TransformType} instances. The provided contexts
-         * are added to a set, and animations will not occur in the specified contexts.
+         * Disables animation for specific {@link mod.azure.azurelib.render.item.AzItemDisplayContext} instances. The
+         * provided contexts are added to a set, and animations will not occur in the specified contexts.
          *
-         * @param contextToDisable  The primary {@link ItemCameraTransforms.TransformType} in which animations are to be
-         *                          disabled.
-         * @param contextsToDisable Additional {@link ItemCameraTransforms.TransformType} instances in which animations
-         *                          are to be disabled.
+         * @param contextToDisable  The primary {@link mod.azure.azurelib.render.item.AzItemDisplayContext} in which
+         *                          animations are to be disabled.
+         * @param contextsToDisable Additional {@link mod.azure.azurelib.render.item.AzItemDisplayContext} instances in
+         *                          which animations are to be disabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder disableAnimationInContexts(
-            ItemCameraTransforms.TransformType contextToDisable,
-            ItemCameraTransforms.TransformType... contextsToDisable
+            AzItemDisplayContext contextToDisable,
+            AzItemDisplayContext... contextsToDisable
         ) {
-            HashSet<ItemCameraTransforms.TransformType> disabledContexts =
-                new HashSet<ItemCameraTransforms.TransformType>();
+            HashSet<AzItemDisplayContext> disabledContexts =
+                new HashSet<AzItemDisplayContext>();
             disabledContexts.add(contextToDisable);
 
             if (contextsToDisable.length > 0) {
                 disabledContexts.addAll(Arrays.asList(contextsToDisable));
             }
 
-            Set<ItemCameraTransforms.TransformType> finalDisabledContexts = ImmutableSet.copyOf(disabledContexts);
+            Set<AzItemDisplayContext> finalDisabledContexts = ImmutableSet.copyOf(disabledContexts);
             this.shouldAnimateInContext = context -> !finalDisabledContexts.contains(context);
             return this;
         }
 
         /**
-         * Enables animation only for the specified {@link ItemCameraTransforms.TransformType} instances. Any contexts
-         * not provided in the parameters will have animations disabled.
+         * Enables animation only for the specified {@link mod.azure.azurelib.render.item.AzItemDisplayContext}
+         * instances. Any contexts not provided in the parameters will have animations disabled.
          *
-         * @param contextToEnable  The primary {@link ItemCameraTransforms.TransformType} where animations should be
-         *                         enabled.
-         * @param contextsToEnable Additional {@link ItemCameraTransforms.TransformType} instances where animations
-         *                         should be enabled.
+         * @param contextToEnable  The primary {@link mod.azure.azurelib.render.item.AzItemDisplayContext} where
+         *                         animations should be enabled.
+         * @param contextsToEnable Additional {@link mod.azure.azurelib.render.item.AzItemDisplayContext} instances
+         *                         where animations should be enabled.
          * @return The current instance of the {@code Builder} for method chaining.
          */
         public Builder enableAnimationOnlyInContexts(
-            ItemCameraTransforms.TransformType contextToEnable,
-            ItemCameraTransforms.TransformType... contextsToEnable
+            AzItemDisplayContext contextToEnable,
+            AzItemDisplayContext... contextsToEnable
         ) {
-            HashSet<ItemCameraTransforms.TransformType> enabledContexts =
-                new HashSet<ItemCameraTransforms.TransformType>();
+            HashSet<AzItemDisplayContext> enabledContexts =
+                new HashSet<AzItemDisplayContext>();
             enabledContexts.add(contextToEnable);
 
             if (contextsToEnable.length > 0) {
                 enabledContexts.addAll(Arrays.asList(contextsToEnable));
             }
 
-            Set<ItemCameraTransforms.TransformType> finalEnabledContexts = ImmutableSet.copyOf(enabledContexts);
+            Set<AzItemDisplayContext> finalEnabledContexts = ImmutableSet.copyOf(enabledContexts);
             this.shouldAnimateInContext = finalEnabledContexts::contains;
             return this;
         }
