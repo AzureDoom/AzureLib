@@ -1,0 +1,100 @@
+package mod.azure.azurelib.render.armor;
+
+import net.minecraft.item.ItemStack;
+
+import java.util.UUID;
+
+import mod.azure.azurelib.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.AzLayerRenderer;
+import mod.azure.azurelib.render.AzModelRenderer;
+import mod.azure.azurelib.render.AzPhasedRenderer;
+import mod.azure.azurelib.render.AzRendererPipelineContext;
+import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.client.RenderUtils;
+import mod.azure.azurelib.util.math.Matrix4f;
+import mod.azure.azurelib.util.math.Vector3f;
+
+public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
+
+    protected final AzArmorRendererPipeline armorRendererPipeline;
+
+    private final Matrix4f scratchPoseState = new Matrix4f();
+
+    public AzArmorModelRenderer(
+        AzArmorRendererPipeline armorRendererPipeline,
+        AzLayerRenderer<UUID, ItemStack> layerRenderer
+    ) {
+        super(armorRendererPipeline, layerRenderer);
+        this.armorRendererPipeline = armorRendererPipeline;
+    }
+
+    /**
+     * The actual render method that subtype renderers should override to handle their specific rendering tasks.<br>
+     * {@link AzPhasedRenderer#preRender} has already been called by this stage, and {@link AzPhasedRenderer#postRender}
+     * will be called directly after
+     */
+    @Override
+    public void render(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
+        PoseStack poseStack = context.poseStack();
+
+        poseStack.pushPose();
+
+        poseStack.translate(0, 24 / 16f, 0);
+        poseStack.scale(-1, -1, 1);
+
+        if (!isReRender || context.applyAnimationOnReRender()) {
+            ItemStack animatable = context.animatable();
+            AzItemAnimator animator = armorRendererPipeline.renderer().animator();
+
+            if (animator != null) {
+                handleAnimation(animator, animatable, context.partialTick());
+            }
+        }
+
+        armorRendererPipeline.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
+
+        super.render(context, isReRender);
+        poseStack.popPose();
+    }
+
+    /**
+     * Renders the provided {@link AzBone} and its associated child bones
+     */
+    @Override
+    public void renderRecursively(AzRendererPipelineContext<UUID, ItemStack> context, AzBone bone, boolean isReRender) {
+        PoseStack poseStack = context.poseStack();
+        // TODO: This is dangerous.
+        AzArmorRendererPipelineContext ctx = armorRendererPipeline.context();
+
+        poseStack.pushPose();
+        if (bone.isTrackingMatrices()) {
+            scratchPoseState.load(poseStack.last().pose());
+            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
+                scratchPoseState,
+                armorRendererPipeline.entityRenderTranslations
+            );
+            Matrix4f worldState = localMatrix.copy();
+
+            bone.setModelSpaceMatrix(
+                RenderUtils.invertAndMultiplyMatrices(scratchPoseState, armorRendererPipeline.modelRenderTranslations)
+            );
+            bone.setLocalSpaceMatrix(localMatrix);
+
+            worldState.translate(
+                new Vector3f(
+                    (float) ctx.currentEntity().posX,
+                    (float) ctx.currentEntity().posY,
+                    (float) ctx.currentEntity().posZ
+                )
+            );
+            bone.setWorldSpaceMatrix(worldState);
+        }
+
+        context.setVertexConsumer(getOrRefreshRenderBuffer(isReRender, context, bone));
+
+        super.renderRecursively(context, bone, isReRender);
+
+        poseStack.popPose();
+    }
+}

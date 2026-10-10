@@ -1,0 +1,37 @@
+package mod.azure.azurelib.render.armor;
+
+import net.minecraft.item.Item;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
+
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+
+public class AzArmorRendererRegistry {
+
+    private static final Map<Item, AzArmorRenderer> ITEM_TO_RENDERER = new ConcurrentHashMap<>();
+
+    private static final Map<Item, Supplier<AzArmorRenderer>> ITEM_TO_RENDERER_SUPPLIER = new ConcurrentHashMap<>();
+
+    public static void register(Item item, Supplier<AzArmorRenderer> armorRendererSupplier) {
+        ITEM_TO_RENDERER_SUPPLIER.put(item, armorRendererSupplier);
+        AzIdentityRegistry.register(item);
+    }
+
+    public static void register(Supplier<AzArmorRenderer> armorRendererSupplier, Item item, Item... items) {
+        register(item, armorRendererSupplier);
+
+        for (Item otherItem : items) {
+            register(otherItem, armorRendererSupplier);
+        }
+    }
+
+    public static @Nullable AzArmorRenderer getOrNull(Item item) {
+        return ITEM_TO_RENDERER.computeIfAbsent(item, ($) -> {
+            Supplier<AzArmorRenderer> rendererSupplier = ITEM_TO_RENDERER_SUPPLIER.get(item);
+            return rendererSupplier == null ? null : rendererSupplier.get();
+        });
+    }
+}

@@ -1,0 +1,126 @@
+/**
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
+ * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ */
+package mod.azure.azurelib.loading.json.raw;
+
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.util.GsonHelper;
+import mod.azure.azurelib.util.JsonUtil;
+import mod.azure.azurelib.util.math.Mth;
+
+/**
+ * Container class for face UV information, only used in deserialization at startup
+ */
+public final class FaceUV {
+
+    private final String materialInstance;
+
+    private final double[] uv;
+
+    private final double[] uvSize;
+
+    private final Rotation uvRotation;
+
+    public FaceUV(String materialInstance, double[] uv, double[] uvSize, Rotation uvRotation) {
+        this.materialInstance = materialInstance;
+        this.uv = uv;
+        this.uvSize = uvSize;
+        this.uvRotation = uvRotation;
+    }
+
+    public String materialInstance() {
+        return this.materialInstance;
+    }
+
+    public double[] uv() {
+        return this.uv;
+    }
+
+    public double[] uvSize() {
+        return this.uvSize;
+    }
+
+    public Rotation uvRotation() {
+        return this.uvRotation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof FaceUV))
+            return false;
+        FaceUV other = (FaceUV) o;
+        return java.util.Objects.equals(this.materialInstance, other.materialInstance)
+            && java.util.Objects.equals(this.uv, other.uv)
+            && java.util.Objects.equals(this.uvSize, other.uvSize)
+            && java.util.Objects.equals(this.uvRotation, other.uvRotation);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = 31 * result + java.util.Objects.hashCode(this.materialInstance);
+        result = 31 * result + java.util.Objects.hashCode(this.uv);
+        result = 31 * result + java.util.Objects.hashCode(this.uvSize);
+        result = 31 * result + java.util.Objects.hashCode(this.uvRotation);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "FaceUV[materialInstance=" + this.materialInstance + ", uv=" + this.uv + ", uvSize=" + this.uvSize
+            + ", uvRotation=" + this.uvRotation + "]";
+    }
+
+    public static JsonDeserializer<FaceUV> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            String materialInstance = GsonHelper.getAsString(obj, "material_instance", null);
+            double[] uv = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv", null));
+            double[] uvSize = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "uv_size", null));
+            Rotation uvRotation = Rotation.fromValue(GsonHelper.getAsInt(obj, "uv_rotation", 0));
+
+            return new FaceUV(materialInstance, uv, uvSize, uvRotation);
+        };
+    }
+
+    public enum Rotation {
+
+        NONE,
+        CLOCKWISE_90,
+        CLOCKWISE_180,
+        CLOCKWISE_270;
+
+        public static Rotation fromValue(int value) throws JsonParseException {
+            try {
+                return Rotation.values()[(value % 360) / 90];
+            } catch (Exception e) {
+                AzureLib.LOGGER.error("Invalid Face UV rotation: " + value);
+
+                return fromValue(Mth.floor(Math.abs(value) / 90f) * 90);
+            }
+        }
+
+        public float[] rotateUvs(float u, float v, float uWidth, float vHeight) {
+            switch ((this)) {
+                case NONE:
+                    return new float[] { u, v, uWidth, v, uWidth, vHeight, u, vHeight };
+                case CLOCKWISE_90:
+                    return new float[] { uWidth, v, uWidth, vHeight, u, vHeight, u, v };
+                case CLOCKWISE_180:
+                    return new float[] { uWidth, vHeight, u, vHeight, u, v, uWidth, v };
+                case CLOCKWISE_270:
+                    return new float[] { u, vHeight, u, v, uWidth, v, uWidth, vHeight };
+                default:
+                    throw new IllegalStateException();
+            }
+        }
+    }
+}

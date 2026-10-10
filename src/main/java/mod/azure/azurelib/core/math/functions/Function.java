@@ -1,0 +1,116 @@
+/**
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
+ * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ */
+package mod.azure.azurelib.core.math.functions;
+
+import mod.azure.azurelib.core.math.Constant;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.math.functions.utility.DieRoll;
+import mod.azure.azurelib.core.math.functions.utility.DieRollInteger;
+import mod.azure.azurelib.core.math.functions.utility.Random;
+import mod.azure.azurelib.core.math.functions.utility.RandomInteger;
+
+/**
+ * Abstract function class This class provides function capability (i.e. giving it arguments and upon {@link #get()}
+ * method you receive output).
+ */
+public abstract class Function implements IValue {
+
+    protected IValue[] args;
+
+    protected String name;
+
+    protected Function(IValue[] values, String name) throws Exception {
+        if (values.length < this.getRequiredArguments()) {
+            String message = String.format(
+                "Function '%s' requires at least %s arguments. %s are given!",
+                this.getName(),
+                this.getRequiredArguments(),
+                values.length
+            );
+
+            throw new Exception(message);
+        }
+
+        this.args = values;
+        this.name = name;
+    }
+
+    /**
+     * Get the value of nth argument
+     * <p>
+     * Folds this call to a constant when every argument is constant and the function is a built-in pure one. Custom
+     * functions from other mods are never folded: they may read game state even with no arguments.
+     */
+    @Override
+    public IValue simplify() {
+        boolean allConstant = true;
+
+        for (int i = 0; i < this.args.length; i++) {
+            this.args[i] = this.args[i].simplify();
+            allConstant &= this.args[i] instanceof Constant;
+        }
+
+        return allConstant && this.isBuiltInPure() ? Constant.of(this.get()) : this;
+    }
+
+    private boolean isBuiltInPure() {
+        Class<?> type = this.getClass();
+
+        if (
+            type == Random.class
+                || type == RandomInteger.class
+                || type == DieRoll.class
+                || type == DieRollInteger.class
+        ) {
+            return false;
+        }
+
+        String name = type.getName();
+        int lastDot = name.lastIndexOf('.');
+        // Class#getPackageName() is Java 9+
+        String pkg = lastDot == -1 ? "" : name.substring(0, lastDot);
+
+        return pkg.startsWith("mod.azure.azurelib.core.math.functions.")
+            || pkg.equals("mod.azure.azurelib.core.molang.functions");
+    }
+
+    public double getArg(int index) {
+        if (index < 0 || index >= this.args.length) {
+            return 0;
+        }
+
+        return this.args[index].get();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder argsBuilder = new StringBuilder();
+
+        for (int i = 0; i < this.args.length; i++) {
+            argsBuilder.append(this.args[i].toString());
+
+            if (i < this.args.length - 1) {
+                argsBuilder.append(", ");
+            }
+        }
+
+        return this.getName() + "(" + argsBuilder + ")";
+    }
+
+    /**
+     * Get name of this function
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Get minimum count of arguments this function needs
+     */
+    public int getRequiredArguments() {
+        return 0;
+    }
+}

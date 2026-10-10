@@ -1,0 +1,647 @@
+/**
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
+ * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ */
+package mod.azure.azurelib.core.math;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.core.math.functions.Function;
+import mod.azure.azurelib.core.math.functions.classic.*;
+import mod.azure.azurelib.core.math.functions.easing.back.EaseInBack;
+import mod.azure.azurelib.core.math.functions.easing.back.EaseInOutBack;
+import mod.azure.azurelib.core.math.functions.easing.back.EaseOutBack;
+import mod.azure.azurelib.core.math.functions.easing.bounce.EaseInBounce;
+import mod.azure.azurelib.core.math.functions.easing.bounce.EaseInOutBounce;
+import mod.azure.azurelib.core.math.functions.easing.bounce.EaseOutBounce;
+import mod.azure.azurelib.core.math.functions.easing.circ.EaseInCirc;
+import mod.azure.azurelib.core.math.functions.easing.circ.EaseInOutCirc;
+import mod.azure.azurelib.core.math.functions.easing.circ.EaseOutCirc;
+import mod.azure.azurelib.core.math.functions.easing.cubic.EaseInCubic;
+import mod.azure.azurelib.core.math.functions.easing.cubic.EaseInOutCubic;
+import mod.azure.azurelib.core.math.functions.easing.cubic.EaseOutCubic;
+import mod.azure.azurelib.core.math.functions.easing.elastic.EaseInElastic;
+import mod.azure.azurelib.core.math.functions.easing.elastic.EaseInOutElastic;
+import mod.azure.azurelib.core.math.functions.easing.elastic.EaseOutElastic;
+import mod.azure.azurelib.core.math.functions.easing.expo.EaseInExpo;
+import mod.azure.azurelib.core.math.functions.easing.expo.EaseInOutExpo;
+import mod.azure.azurelib.core.math.functions.easing.expo.EaseOutExpo;
+import mod.azure.azurelib.core.math.functions.easing.quad.EaseInOutQuad;
+import mod.azure.azurelib.core.math.functions.easing.quad.EaseInQuad;
+import mod.azure.azurelib.core.math.functions.easing.quad.EaseOutQuad;
+import mod.azure.azurelib.core.math.functions.easing.quart.EaseInOutQuart;
+import mod.azure.azurelib.core.math.functions.easing.quart.EaseInQuart;
+import mod.azure.azurelib.core.math.functions.easing.quart.EaseOutQuart;
+import mod.azure.azurelib.core.math.functions.easing.quint.EaseInOutQuint;
+import mod.azure.azurelib.core.math.functions.easing.quint.EaseInQuint;
+import mod.azure.azurelib.core.math.functions.easing.quint.EaseOutQuint;
+import mod.azure.azurelib.core.math.functions.easing.sine.EaseInOutSine;
+import mod.azure.azurelib.core.math.functions.easing.sine.EaseInSine;
+import mod.azure.azurelib.core.math.functions.easing.sine.EaseOutSine;
+import mod.azure.azurelib.core.math.functions.limit.Clamp;
+import mod.azure.azurelib.core.math.functions.limit.Max;
+import mod.azure.azurelib.core.math.functions.limit.Min;
+import mod.azure.azurelib.core.math.functions.rounding.Ceil;
+import mod.azure.azurelib.core.math.functions.rounding.Floor;
+import mod.azure.azurelib.core.math.functions.rounding.Round;
+import mod.azure.azurelib.core.math.functions.rounding.Trunc;
+import mod.azure.azurelib.core.math.functions.utility.*;
+import mod.azure.azurelib.util.AzureLibException;
+
+/**
+ * Math builder This class is responsible for parsing math expressions provided by user in a string to an {@link IValue}
+ * which can be used to compute some value dynamically using different math operators, variables and functions. It works
+ * by first breaking down given string into a list of tokens and then putting them together in a binary tree-like
+ * {@link IValue}.
+ * <p>
+ * {@link #parse(String)} returns a simplified tree: sub-expressions that only involve constants are computed once at
+ * parse time (see {@link IValue#simplify()}), and every number in the tree comes from the shared {@link Constant} pool.
+ * Names registered with {@link #registerConstant(String, double)} take part in that folding; names registered as
+ * {@link Variable}s never do, since their value can change at runtime.
+ */
+@SuppressWarnings({ "unchecked", "unused" })
+public class MathBuilder {
+
+    /**
+     * Named variables that can be used in math expression by this builder
+     */
+    public Map<String, Variable> variables = new HashMap<>();
+
+    /**
+     * Map of functions which can be used in the math expressions
+     */
+    public Map<String, Class<? extends Function>> functions = new HashMap<>();
+
+    /**
+     * Named values that can never change, so expressions using them are folded at parse time. Checked before
+     * {@link #variables}.
+     */
+    public Map<String, Double> constants = new HashMap<>();
+
+    public MathBuilder() {
+        /* Some default values */
+        this.registerConstant("PI", Math.PI);
+        this.registerConstant("E", Math.E);
+
+        /* Still registered as variables for code that looks them up through the variable map */
+        this.register(new Variable("PI", Math.PI));
+        this.register(new Variable("E", Math.E));
+
+        /* Rounding functions */
+        this.functions.put("floor", Floor.class);
+        this.functions.put("round", Round.class);
+        this.functions.put("ceil", Ceil.class);
+        this.functions.put("trunc", Trunc.class);
+
+        /* Selection and limit functions */
+        this.functions.put("clamp", Clamp.class);
+        this.functions.put("max", Max.class);
+        this.functions.put("min", Min.class);
+
+        /* Classical functions */
+        this.functions.put("abs", Abs.class);
+        this.functions.put("acos", ACos.class);
+        this.functions.put("asin", ASin.class);
+        this.functions.put("atan", ATan.class);
+        this.functions.put("atan2", ATan2.class);
+        this.functions.put("cos", Cos.class);
+        this.functions.put("sin", Sin.class);
+        this.functions.put("exp", Exp.class);
+        this.functions.put("ln", Ln.class);
+        this.functions.put("sqrt", Sqrt.class);
+        this.functions.put("mod", Mod.class);
+        this.functions.put("pow", Pow.class);
+
+        /* Utility functions */
+        this.functions.put("lerp", Lerp.class);
+        this.functions.put("lerprotate", LerpRotate.class);
+        this.functions.put("hermite_blend", HermiteBlend.class);
+        this.functions.put("die_roll", DieRoll.class);
+        this.functions.put("die_roll_integer", DieRollInteger.class);
+        this.functions.put("random", Random.class);
+        this.functions.put("random_integer", RandomInteger.class);
+        this.functions.put("copy_sign", CopySign.class);
+        this.functions.put("sign", Sign.class);
+        this.functions.put("inverse_lerp", InverseLerp.class);
+        this.functions.put("min_angle", MinAngle.class);
+
+        /* Quadratic easing functions */
+        this.functions.put("ease_in_quad", EaseInQuad.class);
+        this.functions.put("ease_out_quad", EaseOutQuad.class);
+        this.functions.put("ease_in_out_quad", EaseInOutQuad.class);
+
+        /* Cubic easing functions */
+        this.functions.put("ease_in_cubic", EaseInCubic.class);
+        this.functions.put("ease_out_cubic", EaseOutCubic.class);
+        this.functions.put("ease_in_out_cubic", EaseInOutCubic.class);
+
+        /* Quartic easing functions */
+        this.functions.put("ease_in_quart", EaseInQuart.class);
+        this.functions.put("ease_out_quart", EaseOutQuart.class);
+        this.functions.put("ease_in_out_quart", EaseInOutQuart.class);
+
+        /* Quintic easing functions */
+        this.functions.put("ease_in_quint", EaseInQuint.class);
+        this.functions.put("ease_out_quint", EaseOutQuint.class);
+        this.functions.put("ease_in_out_quint", EaseInOutQuint.class);
+
+        /* Sine easing functions */
+        this.functions.put("ease_in_sine", EaseInSine.class);
+        this.functions.put("ease_out_sine", EaseOutSine.class);
+        this.functions.put("ease_in_out_sine", EaseInOutSine.class);
+
+        /* Exponential easing functions */
+        this.functions.put("ease_in_expo", EaseInExpo.class);
+        this.functions.put("ease_out_expo", EaseOutExpo.class);
+        this.functions.put("ease_in_out_expo", EaseInOutExpo.class);
+
+        /* Circular easing functions */
+        this.functions.put("ease_in_circ", EaseInCirc.class);
+        this.functions.put("ease_out_circ", EaseOutCirc.class);
+        this.functions.put("ease_in_out_circ", EaseInOutCirc.class);
+
+        /* Back easing functions */
+        this.functions.put("ease_in_back", EaseInBack.class);
+        this.functions.put("ease_out_back", EaseOutBack.class);
+        this.functions.put("ease_in_out_back", EaseInOutBack.class);
+
+        /* Elastic easing functions */
+        this.functions.put("ease_in_elastic", EaseInElastic.class);
+        this.functions.put("ease_out_elastic", EaseOutElastic.class);
+        this.functions.put("ease_in_out_elastic", EaseInOutElastic.class);
+
+        /* Bounce easing functions */
+        this.functions.put("ease_in_bounce", EaseInBounce.class);
+        this.functions.put("ease_out_bounce", EaseOutBounce.class);
+        this.functions.put("ease_in_out_bounce", EaseInOutBounce.class);
+    }
+
+    /**
+     * Register a variable
+     */
+    public void register(Variable variable) {
+        this.variables.put(variable.getName(), variable);
+    }
+
+    /**
+     * Register a named value that never changes. Unlike a {@link Variable}, expressions using it are computed at parse
+     * time: {@code PI * 2} becomes a single constant.
+     */
+    public void registerConstant(String name, double value) {
+        this.constants.put(name, value);
+    }
+
+    /**
+     * Parse given math expression into a {@link IValue} which can be used to execute math. The result is already
+     * simplified, with constant sub-expressions computed.
+     */
+    public IValue parse(String expression) throws Exception {
+        return this.parseSymbols(this.breakdownChars(this.breakdown(expression))).simplify();
+    }
+
+    /**
+     * Break down an expression
+     */
+    public String[] breakdown(String expression) throws AzureLibException {
+        /* If given string has illegal characters, then it can't be parsed */
+        if (!expression.matches("^[\\w\\s_+-/*%^&|<>=!?:.,()]+$")) {
+            throw new AzureLibException("Given expression '" + expression + "' contains illegal characters!");
+        }
+
+        /* Remove all spaces, and leading and trailing parenthesis */
+        expression = expression.replaceAll("\\s+", "");
+
+        String[] chars = expression.split("(?!^)");
+
+        int left = 0;
+        int right = 0;
+
+        for (String s : chars) {
+            if (s.equals("(")) {
+                left++;
+            } else if (s.equals(")")) {
+                right++;
+            }
+        }
+
+        /* Amount of left and right brackets should be the same */
+        if (left != right) {
+            throw new AzureLibException(
+                "Given expression '" + expression
+                    + "' has more uneven amount of parenthesis, there are " + left + " open and " + right + " closed!"
+            );
+        }
+
+        return chars;
+    }
+
+    /**
+     * Breakdown characters into a list of math expression symbols.
+     */
+    public List<Object> breakdownChars(String[] chars) {
+        List<Object> symbols = new ArrayList<>();
+        StringBuilder buffer = new StringBuilder();
+        int len = chars.length;
+
+        for (int i = 0; i < len; i++) {
+            String s = chars[i];
+            boolean longOperator = i > 0 && this.isOperator(chars[i - 1] + s);
+
+            if (this.isOperator(s) || longOperator || s.equals(",")) {
+                /*
+                 * Taking care of a special case of using minus sign to invert the positive value
+                 */
+                if (s.equals("-")) {
+                    int size = symbols.size();
+
+                    boolean isFirst = size == 0 && (buffer.length() == 0);
+                    boolean isOperatorBehind = size > 0
+                        && (this.isOperator(symbols.get(size - 1)) || symbols.get(size - 1).equals(","))
+                        && (buffer.length() == 0);
+
+                    if (isFirst || isOperatorBehind) {
+                        buffer.append(s);
+
+                        continue;
+                    }
+                }
+
+                if (longOperator) {
+                    String previous = chars[i - 1];
+                    s = previous + s;
+
+                    if (buffer.length() != 0) {
+                        buffer = new StringBuilder(buffer.substring(0, buffer.length() - 1));
+                    } else if (!symbols.isEmpty() && previous.equals(symbols.get(symbols.size() - 1))) {
+                        symbols.remove(symbols.size() - 1);
+                    }
+                }
+
+                /* Push buffer and operator */
+                if (buffer.length() != 0) {
+                    symbols.add(buffer.toString());
+                    buffer = new StringBuilder();
+                }
+
+                symbols.add(s);
+            } else if (s.equals("(")) {
+                /* Push a list of symbols */
+                if (buffer.length() != 0) {
+                    symbols.add(buffer.toString());
+                    buffer = new StringBuilder();
+                }
+
+                int counter = 1;
+
+                for (int j = i + 1; j < len; j++) {
+                    String c = chars[j];
+
+                    if (c.equals("(")) {
+                        counter++;
+                    } else if (c.equals(")")) {
+                        counter--;
+                    }
+
+                    if (counter == 0) {
+                        symbols.add(this.breakdownChars(buffer.toString().split("(?!^)")));
+
+                        i = j;
+                        buffer = new StringBuilder();
+
+                        break;
+                    } else {
+                        buffer.append(c);
+                    }
+                }
+            } else {
+                /* Accumulate the buffer */
+                buffer.append(s);
+            }
+        }
+
+        if (buffer.length() != 0) {
+            symbols.add(buffer.toString());
+        }
+
+        return symbols;
+    }
+
+    /**
+     * Parse symbols This function is the most important part of this class. It's responsible for turning list of
+     * symbols into {@link IValue}. This is done by constructing a binary tree-like {@link IValue} based on
+     * {@link Operator} class. However, beside parsing operations, it's also can return one or two item sized symbol
+     * lists.
+     */
+    public IValue parseSymbols(List<Object> symbols) throws Exception {
+        IValue ternary = this.tryTernary(symbols);
+
+        if (ternary != null) {
+            return ternary;
+        }
+
+        int size = symbols.size();
+
+        /* Constant, variable or group (parenthesis) */
+        if (size == 1) {
+            return this.valueFromObject(symbols.get(0));
+        }
+
+        /* Function */
+        if (size == 2) {
+            Object first = symbols.get(0);
+            Object second = symbols.get(1);
+
+            if ((this.isVariable(first) || first.equals("-")) && second instanceof List) {
+                return this.createFunction((String) first, (List<Object>) second);
+            }
+        }
+
+        /*
+         * Any other math expression: split at the lowest-precedence binary operator, taking the rightmost one on ties
+         * so operators of equal precedence group left to right (a - b - c == (a - b) - c). An operator at the start or
+         * directly after another operator or comma is unary (e.g. the '-' in "2 * -(x)") and is not a split point.
+         */
+        int split = -1;
+        Operation splitOperation = null;
+
+        for (int i = 0; i < size; i++) {
+            Object symbol = symbols.get(i);
+
+            if (!(symbol instanceof String) || !Operation.OPERATORS.contains(((String) symbol)))
+                continue;
+
+            if (i == 0 || this.isOperator(symbols.get(i - 1)) || ",".equals(symbols.get(i - 1)))
+                continue;
+
+            Operation operation = this.operationForOperator(((String) symbol));
+
+            if (splitOperation == null || operation.value <= splitOperation.value) {
+                split = i;
+                splitOperation = operation;
+            }
+        }
+
+        if (splitOperation == null) {
+            throw new AzureLibException("Couldn't find an operator to parse in " + symbols);
+        }
+
+        return new Operator(
+            splitOperation,
+            this.parseSymbols(symbols.subList(0, split)),
+            this.parseSymbols(symbols.subList(split + 1, size))
+        );
+    }
+
+    protected int seekLastOperator(List<Object> symbols) {
+        return this.seekLastOperator(symbols, symbols.size() - 1);
+    }
+
+    /**
+     * Find the index of the first operator
+     */
+    protected int seekLastOperator(List<Object> symbols, int offset) {
+        for (int i = offset; i >= 0; i--) {
+            Object o = symbols.get(i);
+
+            if (this.isOperator(o)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    protected int seekFirstOperator(List<Object> symbols) {
+        return this.seekFirstOperator(symbols, 0);
+    }
+
+    /**
+     * Find the index of the first operator
+     */
+    protected int seekFirstOperator(List<Object> symbols, int offset) {
+        for (int i = offset, size = symbols.size(); i < size; i++) {
+            Object o = symbols.get(i);
+
+            if (this.isOperator(o)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Try parsing a ternary expression From what we know, with ternary expressions, we should have only one ? and :,
+     * and some elements from beginning till ?, in between ? and :, and also some remaining elements after :.
+     */
+    protected IValue tryTernary(List<Object> symbols) throws Exception {
+        int question = -1;
+        int questions = 0;
+        int colon = -1;
+        int colons = 0;
+        int size = symbols.size();
+
+        for (int i = 0; i < size; i++) {
+            Object object = symbols.get(i);
+
+            if (object instanceof String) {
+                if (object.equals("?")) {
+                    if (question == -1) {
+                        question = i;
+                    }
+
+                    questions++;
+                } else if (object.equals(":")) {
+                    if (colons + 1 == questions && colon == -1) {
+                        colon = i;
+                    }
+
+                    colons++;
+                }
+            }
+        }
+
+        if (questions == colons && question > 0 && question + 1 < colon && colon < size - 1) {
+            return new Ternary(
+                this.parseSymbols(symbols.subList(0, question)),
+                this.parseSymbols(symbols.subList(question + 1, colon)),
+                this.parseSymbols(symbols.subList(colon + 1, size))
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * Create a function value This method in comparison to {@link #valueFromObject(Object)} needs the name of the
+     * function and list of args (which can't be stored in one object). This method will constructs {@link IValue}s from
+     * list of args mixed with operators, groups, values and commas. And then plug it in to a class constructor with
+     * given name.
+     */
+    protected IValue createFunction(String first, List<Object> args) throws Exception {
+        /* Handle special cases with negation */
+        if (first.equals("!")) {
+            return new Negate(this.parseSymbols(args));
+        }
+
+        if (first.startsWith("!") && first.length() > 1) {
+            return new Negate(this.createFunction(first.substring(1), args));
+        }
+
+        /* Handle inversion of the value */
+        if (first.equals("-")) {
+            return new Negative(new Group(this.parseSymbols(args)));
+        }
+
+        if (first.startsWith("-") && first.length() > 1) {
+            return new Negative(this.createFunction(first.substring(1), args));
+        }
+
+        if (!this.functions.containsKey(first)) {
+            throw new AzureLibException("Function '" + first + "' couldn't be found!");
+        }
+
+        List<IValue> values = new ArrayList<>();
+        List<Object> buffer = new ArrayList<>();
+
+        for (Object o : args) {
+            if (o.equals(",")) {
+                values.add(this.parseSymbols(buffer));
+                buffer.clear();
+            } else {
+                buffer.add(o);
+            }
+        }
+
+        if (!buffer.isEmpty()) {
+            values.add(this.parseSymbols(buffer));
+        }
+
+        Class<? extends Function> function = this.functions.get(first);
+        Constructor<? extends Function> ctor = function.getConstructor(IValue[].class, String.class);
+        return ctor.newInstance(values.toArray(new IValue[0]), first);
+    }
+
+    /**
+     * Get value from an object. This method is responsible for creating different sort of values based on the input
+     * object. It can create constants, variables and groups.
+     */
+    public IValue valueFromObject(Object object) {
+        try {
+
+            if (object instanceof List) {
+                return new Group(this.parseSymbols((List<Object>) object));
+            }
+
+            if (object instanceof String) {
+                String symbol = (String) object;
+                /* Variable and constant negation */
+                if (symbol.startsWith("!")) {
+                    return new Negate(this.valueFromObject(symbol.substring(1)));
+                }
+
+                if (this.isDecimal(symbol)) {
+                    return Constant.of(Double.parseDouble(symbol));
+                }
+
+                /* Named constants, possibly negated: "-PI" */
+                boolean negated = symbol.startsWith("-") && symbol.length() > 1;
+                Double constant = this.resolveConstant(negated ? symbol.substring(1) : symbol);
+
+                if (constant != null) {
+                    return Constant.of(negated ? -constant : constant);
+                }
+
+                if (this.isVariable(symbol)) {
+                    /* Need to account for a negative value variable */
+                    if (symbol.startsWith("-")) {
+                        symbol = symbol.substring(1);
+                        Variable value = this.resolveVariable(symbol);
+
+                        if (value != null) {
+                            return new Negative(value);
+                        }
+                    } else {
+                        IValue value = this.resolveVariable(symbol);
+
+                        /* Avoid NPE */
+                        if (value != null) {
+                            return value;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            AzureLib.LOGGER.error("Failed to convert object to value: {}. Using default fallback.", object, e);
+        }
+
+        return Constant.of(0);
+    }
+
+    /**
+     * Resolve a named constant referenced by an expression while parsing, or {@code null} if {@code name} isn't one.
+     */
+    protected Double resolveConstant(String name) {
+        return this.constants.get(name);
+    }
+
+    /**
+     * Get variable
+     */
+    protected Variable getVariable(String name) {
+        return this.variables.get(name);
+    }
+
+    /**
+     * Resolve a variable referenced by an expression while parsing. Defaults to {@link #getVariable(String)}; parsers
+     * with expression-scoped variables override this so parse-time lookups can see them without slowing down runtime
+     * {@code getVariable} calls.
+     */
+    protected Variable resolveVariable(String name) {
+        return this.getVariable(name);
+    }
+
+    /**
+     * Get operation for given operator strings
+     */
+    protected Operation operationForOperator(String op) throws AzureLibException {
+        Operation operation = Operation.fromSign(op);
+
+        if (operation == null) {
+            throw new AzureLibException("There is no such operator '" + op + "'!");
+        }
+
+        return operation;
+    }
+
+    /**
+     * Whether given object is a variable
+     */
+    protected boolean isVariable(Object o) {
+        return o instanceof String && !this.isDecimal(((String) o)) && !this.isOperator(((String) o));
+    }
+
+    protected boolean isOperator(Object o) {
+        return o instanceof String && this.isOperator(((String) o));
+    }
+
+    /**
+     * Whether string is an operator
+     */
+    protected boolean isOperator(String s) {
+        return Operation.OPERATORS.contains(s) || s.equals("?") || s.equals(":");
+    }
+
+    /**
+     * Whether string is numeric (including whether it's a floating number)
+     */
+    protected boolean isDecimal(String s) {
+        return s.matches("^-?\\d+(\\.\\d+)?$");
+    }
+}

@@ -1,0 +1,76 @@
+/**
+ * This class is a fork of the matching class found in the Geckolib repository. Original source:
+ * https://github.com/bernie-g/geckolib Copyright © 2024 Bernie-G. Licensed under the MIT License.
+ * https://github.com/bernie-g/geckolib/blob/main/LICENSE
+ */
+package mod.azure.azurelib.loading.json.raw;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
+import mod.azure.azurelib.loading.json.FormatVersion;
+import mod.azure.azurelib.util.GsonHelper;
+import mod.azure.azurelib.util.JsonUtil;
+
+/**
+ * Container class for model information, only used in deserialization at startup
+ */
+public final class Model {
+
+    private final FormatVersion formatVersion;
+
+    private final MinecraftGeometry[] minecraftGeometry;
+
+    public Model(FormatVersion formatVersion, MinecraftGeometry[] minecraftGeometry) {
+        this.formatVersion = formatVersion;
+        this.minecraftGeometry = minecraftGeometry;
+    }
+
+    public FormatVersion formatVersion() {
+        return this.formatVersion;
+    }
+
+    public MinecraftGeometry[] minecraftGeometry() {
+        return this.minecraftGeometry;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Model))
+            return false;
+        Model other = (Model) o;
+        return java.util.Objects.equals(this.formatVersion, other.formatVersion)
+            && java.util.Objects.equals(this.minecraftGeometry, other.minecraftGeometry);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        result = 31 * result + java.util.Objects.hashCode(this.formatVersion);
+        result = 31 * result + java.util.Objects.hashCode(this.minecraftGeometry);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Model[formatVersion=" + this.formatVersion + ", minecraftGeometry=" + this.minecraftGeometry + "]";
+    }
+
+    public static JsonDeserializer<Model> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            FormatVersion formatVersion = context.deserialize(obj.get("format_version"), FormatVersion.class);
+            MinecraftGeometry[] minecraftGeometry = JsonUtil.jsonArrayToObjectArray(
+                GsonHelper.getAsJsonArray(obj, "minecraft:geometry", new JsonArray()),
+                context,
+                MinecraftGeometry.class
+            );
+
+            return new Model(formatVersion, minecraftGeometry);
+        };
+    }
+}

@@ -1,0 +1,231 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'com.diffplug.spotless' version "6.13.0"
+}
+
+def keyPropsFile = rootProject.file('key.properties')
+def releaseProp = new Properties()
+if (keyPropsFile.exists()) {
+    keyPropsFile.withInputStream { releaseProp.load(it) }
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-forge-${mc_version}"
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+java {
+    withSourcesJar()
+}
+
+println "Java: ${System.getProperty('java.version')}, JVM: ${System.getProperty('java.vm.version')} (${System.getProperty('java.vendor')}), Arch: ${System.getProperty('os.arch')}"
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+minecraft {
+    mappings channel: mappings_channel, version: mappings_version
+
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        configureEach {
+            workingDirectory project.file("run/${it.name}")
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            arg '-torg.spongepowered.asm.launch.MixinTweaker'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {}
+        server {}
+    }
+}
+
+def copyResourcesToClasses = tasks.register('copyResourcesToClasses', Copy) {
+    dependsOn tasks.named('compileJava')
+    from tasks.named('processResources')
+    into sourceSets.main.java.destinationDirectory
+}
+tasks.named('classes') { dependsOn copyResourcesToClasses }
+
+tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
+    dependsOn tasks.named('classes')
+    doFirst {
+        def libsDir = layout.buildDirectory.dir('libs').get().asFile.toPath()
+        classpath = sourceSets.main.output + classpath.filter { !it.toPath().startsWith(libsDir) }
+    }
+}
+
+repositories {
+    maven {
+        name = 'Cursemaven'
+        url = 'https://www.cursemaven.com/'
+        content { includeGroup 'curse.maven' }
+    }
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+}
+
+configurations {
+    embed
+    implementation.extendsFrom(embed)
+}
+
+def mixinVersion = '0.8.5'
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+
+    embed("org.spongepowered:mixin:${mixinVersion}") {
+        transitive = false
+    }
+    annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+}
+
+processResources {
+    Map replaceProperties = [
+            mc_version        : mc_version,
+            forge_version     : forge_version,
+            mod_id            : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors       : mod_authors, mod_description: mod_description, pack_format_number: pack_format_number,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['mcmod.info', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+jar {
+    from {
+        configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude 'LICENSE.txt', 'META-INF/MANIFEST.MF', 'META-INF/maven/**', 'META-INF/*.RSA', 'META-INF/*.SF'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes([
+                'ForceLoadAsMod'          : 'true',
+                'TweakClass'              : 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder'              : '0',
+                'MixinConfigs'            : "${mod_id}.mixins.json",
+                'FMLAT'                   : 'accesstransformer.cfg',
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.version,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    finalizedBy 'reobfJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+spotless {
+    java {
+        eclipse().configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder("", "java", group.toString(), "\\#")
+        indentWithSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn("spotlessApply")
+}
+
+jar {
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${mod_name}" }
+    }
+}
+
+sourcesJar {
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${mod_name}" }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = mod_id
+            url = maven_url
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+    publications {
+        register('maven', MavenPublication) {
+            artifactId = base.archivesName.get()
+            artifact jar
+            artifact sourcesJar
+            pom {
+                name = mod_name
+                description = mod_description
+                url = 'https://github.com/AzureDoom/AzureLib'
+                licenses {
+                    license {
+                        name = mod_license
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    dependsOn tasks.named('reobfJar')
+}
+tasks.withType(PublishToMavenLocal).configureEach {
+    dependsOn tasks.named('reobfJar')
+}
+
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
+}
+
+tasks.matching { it.name == 'publishCurseforge' }.configureEach {
+    dependsOn tasks.named('build')
+}
+
+tasks.matching { it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
+}
