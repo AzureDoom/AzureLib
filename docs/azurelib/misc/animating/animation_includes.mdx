@@ -1,0 +1,126 @@
+---
+title: Using the inclusion feature in Animation JSON
+hide_meta: true
+---
+
+<Callout variant="info">
+Credit to [DerToaster98](https://github.com/DerToaster98) for this feature.
+</Callout>
+
+# Overview
+
+The `includes` feature in animation JSON files provides a powerful way to reuse animations by referencing external animation files. This mechanism promotes modularity, reduces redundant data, and makes managing complex animations easier. This guide explains how to use the feature effectively in your animation JSON files.
+
+## How the `includes` Feature Works
+
+The `includes` property is used to reference animations defined in external JSON files. It enables you to import named animations from other files and use them as if they were part of the current animation set.
+
+### Key Features
+1. **Modularity**: Enables referencing animations in separate files to keep animation files clean and modular.
+2. **Reusability**: The same animation can be shared across multiple entities or contexts without duplication.
+3. **Automatic Resolution**: Automatically resolves and loads animations from the specified include files when accessed.
+
+## JSON Structure for `includes`
+
+Below is an example of how the property is defined within an animation JSON file: `includes`
+
+```json
+{
+  "animations": {
+    "example_animation_1": {
+      "animation_length": 5,
+      "bones": { /* bone animation data here */ }
+    }
+  },
+  "includes": [
+    {
+      "file_id": "mod_id:animations/other_animation.json",
+      "animations": ["animation_name_1", "animation_name_2"]
+    },
+    {
+      "file_id": "mod_id:animations/another_animation.json",
+      "animations": ["another_animation_name"]
+    }
+  ]
+}
+```
+
+### Explanation
+
+1. **`file_id`**: Specifies the location of the external JSON file containing animations. This should follow the format `mod_id:path/to/file.json`, where the path is relative to the `assets/mod_id/` folder. For example, `mod_id:animations/other_animation.json` resolves to `assets/mod_id/animations/other_animation.json`.
+2. **`animations`**: A list of animations from the specified file to include into the current context. These animations can then be referenced by their names.
+
+## Loading Included Animations
+The framework automatically manages includes by resolving referenced animations from the specified files. Here’s what happens internally: `AzBakedAnimations`
+1. When you request an animation using `getAnimation`, the system first looks for it in the animations directly declared in the current JSON file.
+2. If the animation is not found, it checks the `includes` for matching entries.
+3. For a matching entry, the specified file is loaded, and the animation is retrieved from it.
+
+## Using the Blockbench Plugin
+
+The [Azurelib Blockbench plugin](https://www.blockbench.net/plugins/azurelib_utils) supports managing animation includes directly through the **Animation** tab, without needing to edit the JSON manually.
+
+To add or edit includes via the plugin:
+1. Open your model in Blockbench with the Azurelib plugin installed.
+2. Navigate to the **Animate** section.
+3. Now click the **Animation** tab
+4. Click **Edit Animation Includes** to open the includes editor dialog.
+5. Use **Add Include** to add a new entry, then fill in:
+   - **File ID**: The resource location of the animation file to include, e.g. `mod_id:animations/other_animation.json` (path is relative to `assets/mod_id/`).
+   - **Animations**: A comma-separated list of animation names to pull from that file.
+6. Click **Confirm** to save your changes. The `includes` block in your animation JSON will be updated automatically.
+
+## Practical Example
+
+### Animation File 1 (`example.json`)
+
+```json
+{
+  "animations": {
+    "wave_animation": {
+      "animation_length": 2,
+      "bones": {
+        "arm": {
+          "rotation": { /* keyframe data */ }
+        }
+      }
+    }
+  }
+}
+```
+
+### Animation File 2 (`main_entity.json`)
+
+```json
+{
+  "animations": {
+    "walk_cycle": {
+      "animation_length": 3,
+      "bones": { /* bone animation data */ }
+    }
+  },
+  "includes": [
+    {
+      "file_id": "mod_id:animations/example.json",
+      "animations": ["wave_animation"]
+    }
+  ]
+}
+```
+
+## Common Errors and Debugging
+
+### 1. **Animation Name Conflicts**
+- If multiple `includes` reference animations with the same name, the animation from the first resolved file takes precedence.
+- **Solution**: Ensure unique animation names across files.
+
+### 2. **Cyclic Includes**
+- If an animation file references itself directly or indirectly (cyclic dependency), an exception is thrown:
+``` text
+     The animation file 'file_id' refers back to itself through includes.
+```
+- **Solution**: Carefully design includes to avoid circular references.
+
+### 3. **Missing Files or Animations**
+- If a `file_id` or animation name is invalid or missing, the referenced animation cannot be loaded.
+- **Solution**: Double-check paths and animation names. Remember that the path in `file_id` is relative to `assets/mod_id/`, so `mod_id:animations/example.json` maps to `assets/mod_id/animations/example.json`.

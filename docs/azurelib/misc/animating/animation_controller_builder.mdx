@@ -1,0 +1,135 @@
+---
+title: Animation Controller Builder
+hide_meta: true
+---
+
+The `Animation Controller Builder` is a utility class in AzureLib that simplifies the creation and configuration of `AzAnimationController` instances. It provides a **fluent API** for defining animation behaviors such as speed, easing types, transitions, and custom keyframe callbacks, ensuring that animations are as smooth and configurable as possible.
+
+## Overview
+
+The `AzAnimationControllerBuilder` is tightly integrated with the `AzAnimator` framework and is used to create `AzAnimationController` objects. These controllers drive animations for animatable objects (like entities, blocks, or items) by managing both the state of the animation and additional properties like speed, transitions, and actions triggered at specific keyframes.
+
+### Key Features
+- Fluent API for defining animation properties.
+- Supports custom easing types for smooth transitions.
+- Allows integration of keyframe-based callbacks.
+- Layers several controllers on the same bones with weights, additive blending and bone masks.
+- Simplifies animation controller creation with clear, chainable methods.
+
+### Class Definition
+
+The `AzAnimationControllerBuilder` is designed to work with any animatable type `T`. Where `T` is the type of object (e.g., entity or block) that the animation controller targets.
+
+## Builder Methods
+
+Here’s a breakdown of the builder’s methods:
+
+### 1. **`setAnimationSpeed(double animationSpeed)`**
+Specifies the speed at which the animation should play:
+- **Default:** `1.0` (normal speed).
+- **Usage Example:**
+  ```java
+  builder(...).setAnimationSpeed(2.0).build(); // Play the animation at double the normal speed.
+  ```
+
+### 2. **`setKeyframeCallbacks(AzKeyframeCallbacks<T> keyframeCallbacks)`**
+Please see [Adding Effect Keyframes](../effectkeyframes/adding_keyframes) for this.
+
+### 3. **`setEasingType(AzEasingType easingType)`**
+Defines the easing function for the animation, influencing how values interpolate over time.
+- **Options:** Supports predefined easing types (e.g., LINEAR, STEP, CATMULLROM).
+- **Usage Example:**
+  ```java
+  builder(...).setEasingType(AzEasingType.STEP).build();
+  ```
+
+### 4. **`setTransitionLength(int transitionLength)`**
+Configures the length of time (in ticks) that the controller should take to transition between animation states.
+- **Default:** `0` (instant transition).
+- **Usage Example:**
+  ```java
+  builder(...).setTransitionLength(10).build(); // Smooth transition over half a second (10 ticks).
+  ```
+
+### 5. **`setWeight(double weight)`**
+Sets how strongly this controller's animation is applied, from `0` (no effect) to `1` (full). See [Layering Controllers](#layering-controllers).
+- **Default:** `1.0`.
+- **Usage Example:**
+  ```java
+  builder(...).setWeight(0.5).build(); // Apply the animation at half strength.
+  ```
+
+### 6. **`setBlendMode(AzBlendMode blendMode)`**
+Sets how this controller combines with controllers added before it on the same bones. See [Layering Controllers](#layering-controllers).
+- **Options:** `AzBlendMode.OVERRIDE` or `AzBlendMode.ADDITIVE`.
+- **Default:** `AzBlendMode.OVERRIDE`.
+- **Usage Example:**
+  ```java
+  builder(...).setBlendMode(AzBlendMode.ADDITIVE).build();
+  ```
+
+### 7. **`setBoneMask(AzBoneMask boneMask)`**
+Limits which bones this controller animates. A named bone includes all of its child bones.
+- **Options:** `AzBoneMask.only(...)`, `AzBoneMask.except(...)`, or `AzBoneMask.ALL`.
+- **Default:** `AzBoneMask.ALL`.
+- **Usage Example:**
+  ```java
+  builder(...).setBoneMask(AzBoneMask.only("upper_body")).build(); // The upper body and everything under it.
+  builder(...).setBoneMask(AzBoneMask.except("left_leg", "right_leg")).build(); // Everything except the legs.
+  ```
+
+### 8. **`build()`**
+Builds and returns the `AzAnimationController` instance based on the configured properties.
+
+## Layering Controllers
+
+Several controllers can animate the same bones at once. Controllers are applied in the order they are added in `registerControllers`, so add your base layer first and the layers that go on top of it after.
+
+For each bone, a controller combines its animation with whatever the controllers before it wrote to that bone, or with the model's default pose if none did:
+
+- **`AzBlendMode.OVERRIDE`** blends toward this controller's animation by its weight. At weight `1` it fully replaces what is underneath; at `0.5` it lands halfway.
+- **`AzBlendMode.ADDITIVE`** adds this controller's movement on top of what is underneath, such as breathing or recoil over a walk cycle. The weight scales how much is added.
+
+A controller at weight `0` has no effect, and bones that no controller animates ease back to their default pose as usual.
+
+<Callout variant="info">
+    With the default settings (weight `1`, `OVERRIDE`, no bone mask), a controller added later fully replaces an earlier one on any bone they both animate, which is how controllers behaved before layering was added.
+</Callout>
+
+### Example
+
+A walk cycle on the whole body, an aiming pose that takes over the upper body, and breathing added on top:
+
+```java
+@Override
+public void registerControllers(AzAnimationControllerContainer<YourEntity> animationControllerContainer) {
+    animationControllerContainer.add(
+        AzAnimationController.builder(this, "base")
+            .build(),
+        AzAnimationController.builder(this, "aim")
+            .setBoneMask(AzBoneMask.only("upper_body"))
+            .setWeight(0)                        // Faded in when the entity starts aiming.
+            .build(),
+        AzAnimationController.builder(this, "breathe")
+            .setBlendMode(AzBlendMode.ADDITIVE)
+            .setWeight(0.6)
+            .build()
+    );
+}
+```
+
+### Changing Weights at Runtime
+
+Weights can be changed while the game is running, either instantly or as a fade over a number of ticks so a layer eases in or out instead of popping:
+
+```java
+AzAnimationController<ExampleEntity> aim = this.getAnimationControllerContainer().getOrNull("aim");
+
+aim.setWeight(1);          // Instantly.
+aim.fadeWeight(1, 5);      // Over 5 ticks.
+aim.fadeWeight(0, 10);     // Fade back out over 10 ticks.
+```
+
+These methods change the weight only on the side that calls them. To set a weight from the server, send it as a command with `setWeight` or `fadeWeight`; see the AzCommands 101 page.
+
+Fades run smoothly between game ticks, pause while the game is paused, and are not affected by animation speed. Starting a new fade, or calling `setWeight`, replaces the current one.

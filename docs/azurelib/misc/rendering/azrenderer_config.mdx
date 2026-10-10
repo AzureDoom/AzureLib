@@ -1,0 +1,342 @@
+---
+title: AzRendererConfigs 101
+hide_meta: true
+---
+
+# Everything You Need to Know About AzRendererConfigs
+
+The `AzRendererConfig` and its specialized subclasses (`AzArmorRendererConfig`, `AzBlockEntityRendererConfig`, `AzEntityRendererConfig`, and `AzItemRendererConfig`) are part of the AzureLib rendering pipeline.
+
+Below, you will find an overview of each class, their purposes, and fully configured real-world usage examples.
+
+## AzRendererConfig
+
+The base `AzRendererConfig` class serves as the foundation for all rendering configuration subclasses. Its features include:
+
+- **Model and texture locations**: Specify geo model and texture paths.
+- **Animation support**: Integrate animations using `AzAnimator`.
+- **Alpha configuration**: Customize object alpha value when RenderType supports it.
+- **Scaling options**: Customize object scaling during rendering.
+- **Render layers**: Add extra effects onto the rendering process.
+- **Render Stage Hooks**: Support hooks _before_, _during_, and _after_ rendering through customizable lambdas.
+- **Model Render configuration**: Easily register your own custom ModelRenderer.
+- **Pipeline Context configuration**: Easily modify or register your own Pipeline Context.
+- **Per Bone Texture and RenderTypes**: Easily change the texture or RenderType of a bone through customizable lambdas.
+- **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
+
+<Callout variant="info">
+    1.12.2 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package.
+</Callout>
+
+## AzArmorRendererConfig
+
+The `AzArmorRendererConfig` is explicitly designed for rendering **animated armor models**. It provides options such as:
+
+- **Bone providers**: A custom provider for managing custom bone structures
+
+### Example
+
+Here's an example of setting up an armor renderer with full configuration options:
+
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        YOUR_MOD_ID, "geo/armor/examplearmor.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        YOUR_MOD_ID, "textures/armor/examplearmor.png"
+    );
+    private static final ResourceLocation EXTRA_TEX = new ResourceLocation(
+        YOUR_MOD_ID, "textures/armor/examplearmor_extra.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(
+            AzArmorRendererConfig.builder(MODEL, TEXTURE)
+                .setAnimatorProvider(CustomArmorAnimator::new) // Custom animations
+                .setBoneProvider(new CustomArmorBoneProvider()) // Bone provider for skeleton animations
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleArmor -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomArmorModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomArmorModelRenderer
+                .setPipelineContext(ExampleArmorRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleArmorRendererPipelineContext
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .setAlpha(exampleArmor -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleArmor -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleArmor -> 1.0F, exampleArmor -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+## AzBlockEntityRendererConfig
+
+The `AzBlockEntityRendererConfig` specializes in rendering **block entities**.
+
+### Example
+
+Here's an example of setting up a block entity renderer with full configuration options:
+
+```java
+public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        YOUR_MOD_ID, "geo/block/examplebe.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        YOUR_MOD_ID, "textures/block/examplebe.png"
+    );
+    private static final ResourceLocation EXTRA_TEX = new ResourceLocation(
+        YOUR_MOD_ID, "textures/block/examplebe_extra.png"
+    );
+
+    public ExampleBERenderer() {
+        super(
+            AzBlockEntityRendererConfig.<ExampleBE>builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleBEAnimator::new) // Custom animator
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleBEEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomBEModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomBEModelRenderer
+                .setPipelineContext(ExampleBERendererPipelineContext::new) // Sets the Pipeline Context to the ExampleBERendererPipelineContext
+                .addRenderLayer(new CustomBlockRenderLayer()) // Add render layers
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .setAlpha(exampleBEEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleBEEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleBEEntity -> 1.0F, exampleBEEntity -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+## AzEntityRendererConfig
+
+The `AzEntityRendererConfig` supports rendering **entities** with death-specific behaviors such as rotation when the entity dies.
+
+It also includes opt-in **distance-based LOD** (Level of Detail) support — see [LOD Configuration](#lod-configuration) below.
+
+### Example
+
+Here's an example of setting up an entity renderer with full configuration options:
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        YOUR_MOD_ID, "geo/entity/exampleentity.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        YOUR_MOD_ID, "textures/entity/exampleentity.png"
+    );
+    private static final ResourceLocation EXTRA_TEX = new ResourceLocation(
+        YOUR_MOD_ID, "textures/entity/exampleentity_extra.png"
+    );
+
+    public ExampleEntityRenderer(RenderManager renderManager) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleEntityAnimator::new) // Custom animator
+                .setDeathMaxRotation(180F) // Custom death rotation
+                .setShadowRadius(1.0F) // Sets a shadow radius
+                .setShadowRadius(exampleEntity -> 1.0F) // Sets a shadow radius with context
+                .setRenderType(RenderType.entityTranslucent(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleEntity -> RenderType.entityTranslucent(TEXTURE)) // Sets RenderType with context
+                .addRenderLayer(new CustomEntityRenderLayer()) // Add render layers
+                .setModelRenderer(ExampleCustomEntityModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomEntityModelRenderer
+                .setPipelineContext(ExampleEntityRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleEntityRendererPipelineContext
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
+                .setPrerenderEntry(context2 -> {
+                    // Insert code you want to run here
+                    return context2;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context2 -> {
+                    // Insert code you want to run here
+                    return context2;
+                }) // Post-render hook
+                .setAlpha(exampleEntity -> 1.0F) // Alpha with context
+                .setAlpha(1.0F) // Alpha with just a value
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .withLodConfig(AzLodConfig.DEFAULT) // Opt in to LOD (it is disabled unless you set this)
+                .build(),
+            renderManager
+        );
+    }
+}
+```
+
+This implementation allows you to define rotations, animations, and layers for the entity.
+
+### LOD Configuration
+
+`AzEntityRendererConfig` includes a built-in distance-based LOD system that reduces rendering and animation cost for distant entities. **No model changes are required** — LOD is applied entirely at the renderer level.
+
+LOD is **disabled by default** (`AzLodConfig.DISABLED`). Opt in per renderer with `withLodConfig(...)`; `AzLodConfig.DEFAULT` provides sensible values that work well for most complex models.
+
+Two independent systems are controlled via `AzLodConfig`:
+
+**Bone LOD** hides bones beyond a maximum hierarchy depth past a distance threshold. Bones deeper than the limit — detail chains like tails, fingers, and decorative spines — are hidden at distance while the main limb structure remains visible.
+
+**Animation LOD** reduces the animation update rate past a distance threshold. Instead of advancing the animation controller every frame, updates are throttled to every N ticks. The entity still renders at its last computed pose on skipped frames, so it remains visually smooth while paying a fraction of the CPU cost.
+
+#### Presets
+
+| Preset | Bone LOD | Animation LOD |
+|---|---|---|
+| `AzLodConfig.DEFAULT` | 40 blocks, depth ≤ 3 | 48 blocks, every 2 ticks |
+| `AzLodConfig.DISABLED` (the default) | No culling | No throttling |
+
+#### Custom Configuration
+
+Use `AzLodConfig.builder()` to tune thresholds for your specific mob:
+
+```java
+.withLodConfig(
+    AzLodConfig.builder()
+        .boneLod(24, 2)  // past 24 blocks, hide bones deeper than depth 2
+        .animLod(32, 3)  // past 32 blocks, animate every 3 ticks
+        .build()
+)
+```
+
+`boneLod(distance, maxDepth)` — at `distance` blocks, only bones at hierarchy depth ≤ `maxDepth` remain visible. Depth 0 is the root bones, depth 1 their direct children, and so on. A value of `3` retains the main body structure for most models. Use lower values (e.g. `2`) for horde mobs where you're willing to lose more detail at range, or higher values for boss mobs where close-up fidelity matters more.
+
+`animLod(distance, tickInterval)` — at `distance` blocks, the animation controller advances once every `tickInterval` ticks instead of every frame. A value of `2` halves the animation CPU cost; `4` reduces it to a quarter. The entity's pose between updates is held from the previous update, so it remains visually smooth.
+
+`AzLodConfig.DISABLED` is what every renderer uses unless you set a config, so a boss entity that should always render at full detail needs no LOD configuration at all.
+
+## AzItemRendererConfig
+
+The `AzItemRendererConfig` is tailored for rendering **items**. It also provides options such as:
+    - **Context-aware animations** that can be enabled/disabled per display context
+    - **GUI Lighting switch**: Toggle between flat item lighting and entity-style lighting for GUI contexts
+    - **Offset fix**: Fixes items having incorrect positioning when exported from BlockBench 4.11+
+    - **Player Arms Integration**: Automatic rendering of player arms for first-person items when `leftArm` or `rightArm` bones are present
+
+### Player Arms Feature
+
+Items with bones named `leftArm` or `rightArm` will automatically render player arms in first-person view, creating immersive weapon and tool experiences. This feature is automatically disabled if a mod with the id `firstperson` is detected to prevent conflicts.
+
+You download the example arms to import [here](https://github.com/AzureDoom/AzureLib/blob/1.21.1/player_arms_import.bbmodel)
+
+### Example
+
+Here's an example of setting up an item renderer with full configuration options:
+
+```java
+public class ExampleItemRenderer extends AzItemRenderer {
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        YOUR_MOD_ID, "geo/item/exampleitem.geo.json"
+    );
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        YOUR_MOD_ID, "textures/item/exampleitem.png"
+    );
+    private static final ResourceLocation EXTRA_TEX = new ResourceLocation(
+        YOUR_MOD_ID, "textures/item/exampleitem_extra.png"
+    );
+
+    public ExampleItemRenderer() {
+        super(
+            AzItemRendererConfig.builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleItemAnimator::new) // Custom animator
+                .useEntityGuiLighting() // Enable GUI lighting
+                .useNewOffset(true) // Use new offset for BlockBench 4.11+
+                .setRenderType(RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType
+                .setRenderType(exampleItem -> RenderType.itemEntityTranslucentCull(TEXTURE)) // Sets RenderType with context
+                .setModelRenderer(ExampleCustomItemModelRenderer::new) // Sets the Model Renderer of your render to the ExampleCustomItemModelRenderer
+                .setPipelineContext(ExampleItemRendererPipelineContext::new) // Sets the Pipeline Context to the ExampleItemRendererPipelineContext
+                .addRenderLayer(new CustomItemRenderLayer()) // Add render layers
+                .setBoneTextureOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName()) ? EXTRA_TEX : TEXTURE
+                )
+                .setBoneRenderTypeOverrideProvider(bone ->
+                    "exampleBone".equals(bone.getName())
+                        ? RenderType.entityTranslucent(EXTRA_TEX)
+                        : null
+                )
+                .setPrerenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Pre-render hook
+                .setRenderEntry(context -> {
+                    // Insert code you want to run here
+                   return context;
+                }) // Render hook
+                .setPostRenderEntry(context -> {
+                    // Insert code you want to run here
+                    return context;
+                }) // Post-render hook
+                .disableAnimationInContexts(ItemCameraTransforms.TransformType.GUI, ItemCameraTransforms.TransformType.FIXED, ItemCameraTransforms.TransformType.GROUND) // Disable animations in multiple contexts
+                .enableAnimationOnlyInContexts(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) // Enable animations in multiple contexts
+                .setShouldAnimateInContext(context -> context != ItemCameraTransforms.TransformType.GUI && context != ItemCameraTransforms.TransformType.FIXED) // Custom animation logic with predicate
+                .setAlpha(exampleItem -> 1.0F) // Alpha with context, auto sets translucent with below 1.0F
+                .setAlpha(1.0F) // Alpha with just a value, auto sets translucent with below 1.0F
+                .setScale(1.0F, 1.0F) // Scale for width and height
+                .setScale(1.0F) // Scale for width and height being the same
+                .setScale(exampleItem -> 1.0F) // Scale for width and height being the same with context
+                .setScale(exampleItem -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .build()
+        );
+    }
+}
+```
+
+This setup provides GUI lighting support, offset handling, and numerous customization options for item rendering.
+
+---

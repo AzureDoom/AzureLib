@@ -1,0 +1,83 @@
+---
+title: How to Export Your Project
+hide_meta: true
+---
+
+So you have finished your model and want to save it, its textures and it's animations, simply follow the steps below for each asset.
+
+## Exporting the `geo.json` model.
+
+- Open `File` and then select `Export` and choose `Export Azurelib .geo Model`
+
+<Callout variant="danger">
+    This file **MUST** be saved in the geo folder
+</Callout>
+<Callout variant="info">
+    You can save these files into sub folders of the geo folder to help organize your assets.
+    <br></br>
+
+    Examples:
+        - Entities: `/assets/modid/geo/entities`
+        - Block Entities: `/assets/modid/geo/blockentities`
+        - Items: `/assets/modid/geo/items`
+        - Armor: `/assets/modid/geo/armors`
+
+</Callout>
+- Now save this file to your projects geo assets folder (Example: `/assets/modid/geo/`)
+
+
+## Exporting the Item Display Settings
+
+If your model is one that will be used an item or reused as an Item, you will want to export your Item Display Settings file then.
+
+<Callout variant="danger">
+    This file **MUST** be saved as the same as items resource name, so if it's called yourmodid:superitem in game, it must be saved as `superitem.json` in your `/assets/modid/models/item/` folder
+</Callout>
+
+- Open `File` and then select `Export` and choose `Export Azurelib Display Settings`
+
+## Exporting the `texture` file
+
+<Callout variant="info">
+    You can save these files into sub folders of the textures folder to help organize your assets.
+    <br></br>
+
+    Examples:
+        - Entities: `/assets/modid/textures/entities`
+        - Block Entities: `/assets/modid/textures/blockentities`
+        - Items: `/assets/modid/textures/items`
+        - Armor: `/assets/modid/textures/armors`
+
+</Callout>
+
+- Right-click the texture in the Textures panel and choose `Save As`
+
+<ModAsset
+  width="30%"
+  title="Modrinth Download"
+  location="azurelib:savetexture"
+/>
+
+## Exporting the Animation JSON
+
+- Open `Animate` to open the Animation screen
+
+- Now open the `Animation` menu in the top left corner.
+
+- Click `Export Animations...`
+
+<Callout variant="danger">
+    This file **MUST** be saved in the animations folder
+</Callout>
+<Callout variant="info">
+    You can save these files into sub folders of the animations folder to help organize your assets.
+    <br></br>
+
+    Examples:
+        - Entities: `/assets/modid/animations/entities`
+        - Block Entities: `/assets/modid/animations/blockentities`
+        - Items: `/assets/modid/animations/items`
+        - Armor: `/assets/modid/animations/armors`
+
+</Callout>
+- Click confirm to save your JSON file to your projects animations assets folder (Example: `/assets/animations/geo/`)

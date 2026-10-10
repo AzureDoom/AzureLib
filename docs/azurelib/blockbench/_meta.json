@@ -1,0 +1,22 @@
+{
+    "blockbench_plugin.mdx": {
+        "name": "Installing Blockbench Plugin",
+        "icon": "Film"
+    },
+    "creating_converting.mdx": {
+        "name": "Creating or Converting a Project",
+        "icon": "Film"
+    },
+    "rigging_in_bb.mdx": {
+        "name": "How to Rig your Model for Animations",
+        "icon": "Film"
+    },
+    "animating_in_bb.mdx": {
+        "name": "How to Animate your model",
+        "icon": "Film"
+    },
+    "exporting_assets.mdx": {
+        "name": "How to Export Your Project",
+        "icon": "Film"
+    }
+}

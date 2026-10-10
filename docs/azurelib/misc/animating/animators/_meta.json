@@ -1,0 +1,18 @@
+{
+    "base_animator.mdx": {
+        "name": "AzAnimator Basics",
+        "icon": "Shield"
+    },
+    "entity_animator.mdx": {
+        "name": "Entity AzAnimator Basics",
+        "icon": "Squirrel"
+    },
+    "block_animator.mdx": {
+        "name": "Block AzAnimator Basics",
+        "icon": "Cuboid"
+    },
+    "item_animator.mdx": {
+        "name": "Item AzAnimator Basics",
+        "icon": "Wrench"
+    }
+}

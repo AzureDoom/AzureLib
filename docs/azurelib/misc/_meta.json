@@ -1,0 +1,14 @@
+{
+    "animating": {
+        "name": "Animating Topics",
+        "icon": "Film"
+    },
+    "rendering": {
+        "name": "Rendering Topics",
+        "icon": "Info"
+    },
+    "misc.mdx": {
+        "name": "Miscellaneous Features",
+        "icon": "Info"
+    }
+}

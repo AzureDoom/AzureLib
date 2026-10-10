@@ -1,0 +1,26 @@
+{
+    "adding_azlayers.mdx": {
+        "name": "Adding Default AzLayers",
+        "icon": "Layers"
+    },
+    "adding_animated_textures.mdx": {
+        "name": "Adding Animated Textures",
+        "icon": "Layers"
+    },
+    "adding_glowlayer.mdx": {
+        "name": "Adding Auto Glow Texture",
+        "icon": "Layers"
+    },
+    "adding_blockitem_layer.mdx": {
+        "name": "Adding Block and Item Layer",
+        "icon": "Layers"
+    },
+    "adding_armor_layer.mdx": {
+        "name": "Adding Armor Layer",
+        "icon": "Layers"
+    },
+    "creating_custom_layers.mdx": {
+        "name": "Creating Custom AzLayers",
+        "icon": "Layers"
+    }
+}

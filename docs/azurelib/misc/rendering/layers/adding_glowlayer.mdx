@@ -1,0 +1,126 @@
+---
+title: Adding Auto Glow Texture
+hide_meta: true
+---
+
+# How to use the Auto Glow Texture feature
+
+## Overview
+
+The **Auto Glow Texture** feature allows you to easily apply glowing effects to textures specific to your model without requiring additional code for handling emissive layers. AzureLib achieves this by using a second texture file with the `_glowmask` suffix in its name, which defines the emissive parts of your model.
+
+For instance, if your base texture is:
+
+`example_model.png`
+
+The glow layer texture would be:
+
+`example_model_glowmask.png`
+
+The `AzAutoGlowingLayer` handles applying the glow automatically, saving time and effort for developers.
+
+## Setup Instructions
+
+### Step 1: Prepare Your Textures
+
+1. **Base Texture**: Prepare a normal texture for your model as you usually would (e.g., `example_model.png`).
+
+2. **Glow Layer Texture**: Create the glow texture by duplicating your base texture and blacking out any areas that shouldn’t glow. Keep the glowing parts visible (e.g., `example_model_glowmask.png`).
+
+   - Only the parts in the glow texture that are visible will glow in-game.
+   - Make sure the `_glowmask` texture matches the dimensions of the base texture.
+
+
+### Step 2: Add the Auto Glow Layer to Your Renderer
+
+The `AzAutoGlowingLayer` is designed to be added to your renderer’s pipeline to apply the glowing effect automatically.
+
+Here’s how you can integrate it into your custom renderer:
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+
+    public ExampleEntityRenderer(RenderManager renderManager) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                .addRenderLayer(new AzAutoGlowingLayer<>()) // Add the auto glow layer
+                .build(), renderManager
+        );
+    }
+}
+```
+
+### Step 3: Tint the Glow (Optional)
+
+You can tint the glow by passing a color to `AzAutoGlowingLayer`, without needing a custom layer.
+
+**Fixed tint:**
+
+```java
+.addRenderLayer(new AzAutoGlowingLayer<>(Color.RED))
+```
+
+You can use any `Color`, such as `Color.ofRGB(64, 255, 96)` for a custom shade.
+
+**Dynamic tint:**
+
+For a tint that changes with the entity's state, pass a function instead. It receives the render context every frame and returns an ARGB color as an `int`:
+
+```java
+.addRenderLayer(new AzAutoGlowingLayer<>(context ->
+    context.animatable().isBurning() ? 0xFFFF4040 : 0xFF40FF60
+))
+```
+
+Because the function runs every frame, you can also use it to pulse the glow, for example by driving the color from `context.animatable().ticksExisted` and `context.partialTick()`.
+
+**How tinting works:**
+
+- The tint is **multiplied** with the glow texture's colors. Tinting works best when the glowing parts of your `_glowmask` texture are white or grey. A colored glow mask will mix with the tint (for example, a red glow tinted green turns dark).
+- The tint is also multiplied with the renderer's own color, so it stacks with any tint your renderer already applies instead of replacing it.
+- `Color.WHITE` (`0xFFFFFFFF`) means no tint, and is the same as using `new AzAutoGlowingLayer<>()`.
+- The tint's alpha fades the glow. It multiplies the renderer's own alpha, so an already translucent entity's glow fades further.
+- The tint only affects the glow layer. The rest of the model renders as normal.
+
+### Troubleshooting
+
+1. **Glow Effect Not Visible:**
+   - Symptom: Entity model renders completely black on the exterior of the model.
+   - Verify that your `_glowmask` texture is in the correct file path.
+   - Ensure the glow texture is named correctly (must include `_glowmask`).
+
+2. **Texture Not Found:**
+   - Double-check that your main texture file is correctly registered in the renderer.
+   - Confirm the model uses a texture location that matches your `_glowmask` texture pairing logic.
+
+3. **Render Issues:**
+   - Make sure your glow texture dimensions match the base texture.
+   - Test with a simple texture first to isolate potential issues.
+
+4. **Tint Looks Wrong or Too Dark:**
+   - Make the glowing parts of your `_glowmask` texture white or grey, since the tint multiplies the texture's colors.
+   - Make sure your tint includes full alpha (`0xFF` at the start, e.g. `0xFFFF4040`). A tint like `0xFF4040` has an alpha of zero, which makes the glow invisible.
+
+### Advanced Configuration (Optional)
+
+The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on 1.12.2 its emissive render types always draw full-bright. To customize its behavior, extend the `AzAutoGlowingLayer` class and override its methods:
+
+- `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on 1.12.2).
+- `getGlowColor(context)`: the ARGB tint for the glow. Override this instead of passing a function to the constructor if your tint logic is easier to keep in a subclass.
+- `determineRenderType(context)`: the render type used for the glow, including how invisible and glowing (outlined) entities are handled.
+
+```java
+public class PulsingGlowLayer<K, T> extends AzAutoGlowingLayer<K, T> {
+
+    @Override
+    protected int getGlowColor(AzRendererPipelineContext<K, T> context) {
+        // Your tint logic here, returning an ARGB color
+        return 0xFF40FF60;
+    }
+}
+```

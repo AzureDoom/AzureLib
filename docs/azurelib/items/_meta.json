@@ -1,0 +1,14 @@
+{
+    "items.mdx": {
+        "name": "Animating Items",
+        "icon": "Wrench"
+    },
+    "static_items.mdx": {
+        "name": "Creating Static (No Animations) Items",
+        "icon": "Wrench"
+    },
+    "items_with_arms.mdx": {
+        "name": "Rendering Items with Arms in First Person",
+        "icon": "Wrench"
+    }
+}

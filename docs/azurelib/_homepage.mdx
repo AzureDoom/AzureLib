@@ -1,0 +1,76 @@
+<ModAsset
+  width="100%"
+  title="Modrinth Download"
+  location="azurelib:header"
+/>
+
+## Developers
+
+<Callout variant="info">
+    These docs are for the **Forge 1.12.2** version of AzureLib, which is backported from the 1.18.2 branch. It requires Java 8 and uses ForgeGradle with MCP mappings, so the code on these pages uses 1.12.2 class names (`EntityLivingBase`, `TileEntity`, `World`, `ItemCameraTransforms`...).
+
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2).
+</Callout>
+
+To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
+
+<CodeTabs>
+
+```markdown !!tabs build.gradle
+repositories {
+	maven {
+		name = "AzureDoom Mods"
+		url = "https://maven.azuredoom.com/mods"
+	}
+	maven { url = "https://repo.spongepowered.org/repository/maven-public/" }
+}
+```
+
+</CodeTabs>
+
+The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib).
+
+<CodeTabs>
+
+```markdown !!tabs Forge 1.12.2 (ForgeGradle)
+dependencies {
+	// The published jar is reobfuscated, so it has to go through fg.deobf
+	implementation fg.deobf("mod.azure.azurelib:azurelib-forge-1.12.2:MODVERSION")
+
+	// AzureLib ships Mixin inside its jar; you only need it to compile your own mixins and to run in dev
+	implementation("org.spongepowered:mixin:0.8.5") {
+		transitive = false
+	}
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+```
+
+</CodeTabs>
+
+AzureLib uses Mixin through the `MixinTweaker`. In a dev environment, mod jars on the classpath are not scanned for mixin configs, so your run configurations need to load the tweaker and AzureLib's mixin config, and remap the refmaps to MCP names:
+
+<CodeTabs>
+
+```markdown !!tabs build.gradle
+minecraft {
+	runs {
+		configureEach {
+			property 'mixin.env.remapRefMap', 'true'
+			property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+			arg '-torg.spongepowered.asm.launch.MixinTweaker'
+			args '--mixin', 'azurelib.mixins.json'
+			// If your mod has its own mixins, add them too:
+			// args '--mixin', 'yourmodid.mixins.json'
+		}
+	}
+}
+```
+
+</CodeTabs>
+
+Finally, declare the dependency so Forge loads AzureLib before your mod:
+
+```java
+@Mod(modid = "yourmodid", dependencies = "required-after:azurelib")
+```

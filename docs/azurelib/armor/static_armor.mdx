@@ -1,0 +1,60 @@
+---
+title: Creating Static (No Animations) Armor
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
+
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.12.2/src/main/java/mod/azure/azexamples/items/armors)
+</Callout>
+# How to create static Armor
+
+## Creating your Renderer
+
+This renderer is responsible for how your armor is displayed in the game.
+
+It connects the armor with the following:
+1. **Geometry file (`geo.json`)**: Defines the 3D model of the armor.
+2. **Texture file (`.png`)**: The visual appearance of the armor (applies over the geometry).
+
+<Callout variant="info">
+    See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azarmorrendererconfig) for all AzArmorRendererConfig#builder options.
+</Callout>
+
+```java
+public class ExampleArmorRenderer extends AzArmorRenderer {
+    private static final ResourceLocation GEO = new ResourceLocation(
+        YOUR_MOD_ID,
+        "geo/item/examplearmor.geo.json"
+    );
+
+    private static final ResourceLocation TEX = new ResourceLocation(
+        YOUR_MOD_ID,
+        "textures/item/examplearmor.png"
+    );
+
+    public ExampleArmorRenderer() {
+        super(AzArmorRendererConfig.builder(GEO, TEX).build());
+    }
+}
+```
+
+## Registering your Renderer
+
+Call `AzArmorRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method.
+
+```java
+// ClientProxy
+@Override
+public void init() {
+    AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
+            YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
+            YourItemRegistry.YOUR_ARMOR_LEGGINGS,
+            YourItemRegistry.YOUR_ARMOR_BOOTS);
+}
+```
+
+<Callout variant="info">
+    AzureLib supplies the armor model through Forge's `getArmorModel` hook, so don't override `Item#getArmorModel` in your armor item. The inventory icon still comes from a normal `item/generated` item model.
+</Callout>

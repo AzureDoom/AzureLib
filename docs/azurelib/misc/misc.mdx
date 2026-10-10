@@ -1,0 +1,182 @@
+---
+title: Miscellaneous Features
+hide_meta: true
+---
+
+# Community Suggested Features
+
+<Callout variant="info">
+Credit to AceTheEldritchKing for this tip.
+</Callout>
+
+## Adding a Conditional Bone
+
+In your armor renderer, call the `createPipeline` and return a new `AzArmorRendererPipeline`. In that new `AzArmorRendererPipeline` override the `boneContext` method you can now define your bone as below
+
+```java
+public ExampleItemRenderer() {
+    super(
+        AzArmorRendererConfig.builder(MODEL, TEXTURE)
+            .setAnimatorProvider(ExampleAnimator::new)
+            .setPipelineContext(rendererPipeline -> new AzArmorRendererPipelineContext(rendererPipeline) {
+
+                @Override
+                public AzArmorBoneContext boneContext() {
+                    return new AzArmorBoneContext() {
+
+                        private AzBone armorLeggingTorsoBone;
+
+                        public AzBone getArmorLeggingTorsoBone(AzBakedModel model) {
+                            return model.getBone("newArmorBone").orElse(null);
+                        }
+
+                        @Override
+                        public void grabRelevantBones(AzBakedModel model, AzArmorBoneProvider boneProvider) {
+                            super.grabRelevantBones(model, boneProvider);
+                            this.armorLeggingTorsoBone = this.getArmorLeggingTorsoBone(model);
+                        }
+                    };
+                }
+            })
+            .build()
+    );
+}
+```
+
+### Displaying Conditional Bones Only When Certain Armor Items are Equipped
+
+Like above after you add your bone, simply override `applyBoneVisibilityBySlot` like so and first hide it then unhide in the armor piece you want it to show in.boneContext
+```java
+public ExampleItemRenderer() {
+    super(
+        AzArmorRendererConfig.builder(MODEL, TEXTURE)
+            .setAnimatorProvider(ExampleAnimator::new)
+            .setPipelineContext(rendererPipeline -> new AzArmorRendererPipelineContext(rendererPipeline) {
+
+                @Override
+                public AzArmorBoneContext boneContext() {
+                    return new AzArmorBoneContext() {
+
+                        private AzBone armorLeggingTorsoBone;
+
+                        public AzBone getArmorLeggingTorsoBone(AzBakedModel model) {
+                            return model.getBone("newArmorBone").orElse(null);
+                        }
+
+                        @Override
+                        public void grabRelevantBones(AzBakedModel model, AzArmorBoneProvider boneProvider) {
+                            super.grabRelevantBones(model, boneProvider);
+                            this.armorLeggingTorsoBone = this.getArmorLeggingTorsoBone(model);
+                        }
+
+                        @Override
+                        public void applyBoneVisibilityBySlot(EntityEquipmentSlot currentSlot) {
+                            setAllVisible(false);
+
+                            // Hide the legging torso bone initially
+                            this.setBoneVisible(this.armorLeggingTorsoBone, false);
+
+                            switch (currentSlot) {
+                                case HEAD:
+                                    setBoneVisible(this.head, true);
+                                    break;
+                                case CHEST:
+                                    setBoneVisible(this.body, true);
+                                    setBoneVisible(this.rightArm, true);
+                                    setBoneVisible(this.leftArm, true);
+                                    break;
+                                case LEGS:
+                                    // Make the legging torso bone visible when the legging armor is equipped
+                                    this.setBoneVisible(this.armorLeggingTorsoBone, true);
+                                    setBoneVisible(this.rightLeg, true);
+                                    setBoneVisible(this.leftLeg, true);
+                                    break;
+                                case FEET:
+                                    setBoneVisible(this.rightBoot, true);
+                                    setBoneVisible(this.leftBoot, true);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    };
+                }
+            })
+            .build()
+    );
+}
+```
+
+## Overriding the Texture of a Specific Bone
+
+Use `setBoneTextureOverrideProvider` when you want one bone in a model to render with a different texture than the rest of the model. The provider receives the `AzBone` currently being rendered, so you can check the bone name and return the texture you want that bone to use.
+
+A common use case is giving a cape, accessory, or other extra model part its own texture without creating a separate render layer.
+
+```java
+public class GremlinRenderer extends AzEntityRenderer<GremlinEntity> {
+
+    private static final ResourceLocation MODEL = new ResourceLocation(
+        "YOUR_MOD_ID", "geo/entity/gremlin.geo.json"
+    );
+
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        "YOUR_MOD_ID", "textures/entity/gremlin.png"
+    );
+
+    private static final ResourceLocation CAPE_TEXTURE = new ResourceLocation(
+        "YOUR_MOD_ID", "textures/entity/gremlin_cape.png"
+    );
+
+    public GremlinRenderer(RenderManager renderManager) {
+        super(
+            AzEntityRendererConfig.<GremlinEntity>builder(MODEL, TEXTURE)
+                .setBoneTextureOverrideProvider(bone ->
+                    "bipedCape".equals(bone.getName()) ? CAPE_TEXTURE : TEXTURE
+                )
+                .setShadowRadius(0.5F)
+                .build(),
+            renderManager
+        );
+    }
+}
+```
+
+In this example, only the bone named `bipedCape` uses `gremlin_cape.png`. Every other bone falls back to the normal entity texture.
+
+<Callout variant="info">
+Make sure the bone name matches the name in your Blockbench model exactly. If the name does not match, the override will never be selected.
+</Callout>
+
+### Using a Custom RenderType for the Bone
+
+If the alternate bone texture needs a different render type, you can also use `setBoneRenderTypeOverrideProvider` alongside the texture override.
+
+```java
+AzEntityRendererConfig.builder(MODEL, TEXTURE)
+    .setBoneTextureOverrideProvider(bone ->
+        "glowLayer".equals(bone.getName()) ? GLOW_TEXTURE : TEXTURE
+    )
+    .setBoneRenderTypeOverrideProvider(bone ->
+        "glowLayer".equals(bone.getName())
+            ? RenderType.eyes(GLOW_TEXTURE)
+            : null
+    )
+    .build();
+```
+
+`RenderType` here is AzureLib's own `mod.azure.azurelib.render.vertex.RenderType`; 1.12.2 has no vanilla render types, so AzureLib provides the same factory methods (`entityCutout`, `entityTranslucent`, `eyes`, ...).
+
+If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default render type for the overridden texture. Use `setBoneRenderTypeOverrideProvider` only when the bone needs special rendering behavior, such as emissive-style rendering.
+
+## Render 3D Item in GUI instead of 2D texture for Armor
+
+Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, and point the armor item's model json at `"parent": "builtin/entity"`:
+
+```java
+// ClientProxy
+@Override
+public void init() {
+    AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
+}
+```

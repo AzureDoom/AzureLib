@@ -1,0 +1,184 @@
+---
+title: Adding Block and Item Layer
+hide_meta: true
+---
+
+# How to use the Block and Item Layer
+
+## Overview
+
+The **Block and Item Layer** feature allows you to easily render **blocks** and **item stacks** onto predefined bones of a model using AzureLib's rendering pipeline.
+
+The `AzBlockAndItemLayer` handles the rendering logic for these elements by:
+- Applying transformations specific to the bones associated with items/blocks.
+- Rendering the correct visuals for **items** and **blocks** by using Minecraft’s rendering utilities (`RenderItem` and `BlockRendererDispatcher`). Those draw through the OpenGL matrix stack on 1.12.2, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over.
+
+## Setup Instructions
+
+### Step 1: Add the Block and Item Layer to Your Renderer
+
+Adding the `AzBlockAndItemLayer` to your renderer is straightforward. Use the `addRenderLayer()` method to register the layer in your entity renderer's configuration. Below is an example configuration:
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+
+    public ExampleEntityRenderer(RenderManager renderManager) {
+        super(
+                AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
+                            // Override methods here
+                        })
+                        .build(),
+                renderManager
+        );
+    }
+}
+```
+
+### Step 3: Customize Bone-Item Relationships
+
+The `AzBlockAndItemLayer` provides several methods to define relationships between bones and the items or blocks they render:
+
+1. **`itemStackForBone`**:
+   - Associates an `ItemStack` with a specific bone.
+   - In the example, `rightHandBone` and `leftHandBone` are linked to the main and off-hand slots of the entity.
+
+   ```java
+   @Override
+   public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {
+       switch (bone.getName()) {
+           case "rightHandBone":
+               return animatable.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+           case "leftHandBone":
+               return animatable.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+           default:
+               return null;
+       }
+   }
+   ```
+
+2. **`getTransformTypeForStack`**:
+   - Determines the display context for rendering items.
+   - For example:
+     - `ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND` for the right hand.
+     - `ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND` for the left hand.
+
+   ```java
+   @Override
+   protected ItemCameraTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
+       switch (bone.getName()) {
+           case "rightHandBone":
+               return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+           case "leftHandBone":
+               return ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+           default:
+               return ItemCameraTransforms.TransformType.NONE;
+       }
+   }
+   ```
+
+3. **`renderItemForBone`**:
+   - Applies specific transformations for the item before rendering.
+   - In the example:
+     - A rotation of 270° is applied to align the item correctly.
+     - The position is adjusted with a small translation.
+
+   ```java
+   @Override
+   protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
+       // Vector3f is AzureLib's mod.azure.azurelib.util.math.Vector3f
+       context.poseStack().mulPose(Vector3f.XP.rotationDegrees(270));
+       context.poseStack().translate(0.0D, 0.1D, -0.1D);
+       super.renderItemForBone(context, bone, itemStack, animatable);
+   }
+   ```
+
+4. **`renderBlockForBone`**:
+   - Similar to `renderItemForBone`, but handles `IBlockState` rendering instead of items.
+   - By default the block is scaled to `0.5f` and centred on the bone. Add your own adjustments before calling `super`:
+
+   ```java
+   @Override
+   protected void renderBlockForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, IBlockState blockState, ExampleEntity animatable) {
+       context.poseStack().translate(0.0f, 0.1f, 0.0f);
+       super.renderBlockForBone(context, bone, blockState, animatable);
+   }
+   ```
+
+### Example Use Case
+
+**Scenario**: Say you have an entity model where the right hand holds a sword, and the left hand holds a shield.
+
+1. Define bones in your model called `rightHandBone` and `leftHandBone`.
+2. Associate the bones with your entity's inventory slots using `itemStackForBone`.
+3. Set the appropriate display context for each bone with `getTransformTypeForStack`.
+4. Apply specific pose adjustments for how the item should look when held using `renderItemForBone`.
+
+By following these steps, the entity model will dynamically render the correct items or blocks held in its hands, fully animated and interacting with your AzureLib model.
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/example_model.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_model.png");
+
+    public ExampleEntityRenderer(RenderManager renderManager) {
+        super(
+                AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                        .addRenderLayer(new AzBlockAndItemLayer<UUID, ExampleEntity>() {
+
+                            @Override
+                            public ItemStack itemStackForBone(AzBone bone, ExampleEntity animatable) {
+                                switch (bone.getName()) {
+                                    case "rightHandBone":
+                                        return animatable.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
+                                    case "leftHandBone":
+                                        return animatable.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
+                                    default:
+                                        return null;
+                                }
+                            }
+
+                            @Override
+                            protected ItemCameraTransforms.TransformType getTransformTypeForStack(AzBone bone, ItemStack stack, ExampleEntity animatable) {
+                                switch (bone.getName()) {
+                                    case "rightHandBone":
+                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+                                    case "leftHandBone":
+                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+                                    default:
+                                        return ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+                                }
+                            }
+
+                            @Override
+                            protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
+                                context.poseStack().mulPose(Vector3f.XP.rotationDegrees(270));
+                                context.poseStack().translate(0.0D, 0.1D, -0.1D);
+                                super.renderItemForBone(context, bone, itemStack, animatable);
+                            }
+                        })
+                        .build(),
+                renderManager
+        );
+    }
+}
+```
+
+### Troubleshooting
+
+1. **Items/Blocks Not Rendering**:
+   - Ensure the bone name in your `itemStackForBone/blockStateForBone` logic matches the name declared in the model file.
+
+2. **Incorrect Positioning**:
+   - Use the `renderItemForBone` or `renderBlockForBone` methods to fine-tune the rotation, translation, and scaling.
+
+3. **Performance Issues**:
+   - Verify that your item stack/block state providers aren’t performing excessive calculations. Cache results when possible.

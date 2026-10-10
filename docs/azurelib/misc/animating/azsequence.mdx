@@ -1,0 +1,89 @@
+---
+title: AzSequence
+hide_meta: true
+---
+
+# Chaining animations with `AzSequence`
+
+`AzSequence` describes an ordered chain of animations, like an attack's windup, strike and recovery, as a single reusable value. It is immutable, so it is safe to store in a `static final` field and share between entities.
+
+## Building a sequence
+
+Chain style, where every call returns a new sequence:
+
+```java
+AzSequence attack = AzSequence.create()
+    .then("attack_windup", AzPlayBehaviors.PLAY_ONCE)
+    .then("attack", AzPlayBehaviors.PLAY_ONCE)
+    .then("idle", AzPlayBehaviors.LOOP);
+```
+
+Builder style, which avoids intermediate copies:
+
+```java
+private static final AzSequence EXECUTION = AzSequence.builder()
+    .play("execute_start")
+    .play("execute")
+    .play("execute_end")
+    .then("idle", AzPlayBehaviors.LOOP)
+    .build();
+```
+
+| Method                 | Behavior                                                                                                          |
+|------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `play(name)`           | Plays once, then continues to the next stage (or stops if it is the last).                                        |
+| `loop(name)`           | Loops until something else is played.                                                                             |
+| `hold(name)`           | Plays once and freezes on the final frame.                                                                        |
+| `then(name, behavior)` | Any `AzPlayBehavior`. An overload takes a `UnaryOperator<AzAnimationStageProperties>` for extra stage properties. |
+| `event(name, tick)`    | A named event `tick` game ticks after the sequence starts.                                                        |
+
+`loop`, `hold` and `FREEZE_ON_FRAME` stages never finish, so adding a stage after one throws an `IllegalStateException` instead of silently creating a stage that can never play.
+
+## Playing a sequence
+
+A sequence converts to a normal `AzCommand`:
+
+```java
+EXECUTION.toCommand("base").sendForEntity(this);
+// or
+AzCommand.create("base", EXECUTION).sendForEntity(this);
+```
+
+## Timed events
+
+```java
+private static final AzSequence SLAM = AzSequence.builder()
+    .play("windup")
+    .event("damage", 12)
+    .play("strike")
+    .hold("recovery")
+    .build();
+```
+
+Event ticks are counted from the start of the sequence, not from the stage they follow; their position in the chain is only for readability. Events are not sent to the client. They are delivered by an `AzSequencePlayer`, which counts ticks on whichever side ticks it, so they can drive server-side logic such as damage:
+
+```java
+private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", (sequence, event) -> {
+    if (event.is("damage")) {
+        dealSlamDamage();
+    }
+});
+
+public void startSlam() {
+    attackPlayer.play(SLAM); // dispatches the animation and starts the event clock
+}
+
+@Override
+public void onUpdate() {
+    super.onUpdate();
+    if (!this.world.isRemote) {
+        attackPlayer.tick();
+    }
+}
+```
+
+`play` cancels the controller first, so replaying a sequence that is still running restarts it on the client too and keeps the events in step. If another animation interrupts the sequence (a hurt or death animation, for example), call `attackPlayer.cancel()` so pending events do not fire.
+
+<Callout variant="info">
+Event ticks are not scaled by the controller's animation speed, and on the client each stage is preceded by the controller's transition length. Account for both when lining an event up with a specific keyframe.
+</Callout>

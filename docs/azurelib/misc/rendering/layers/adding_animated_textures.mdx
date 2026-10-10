@@ -1,0 +1,27 @@
+---
+title: Adding Animated Textures
+hide_meta: true
+---
+
+# How to use the Animated Textures feature
+
+<Callout variant="info">
+Animated textures require each frame to be square in size. For example, if your original texture is 64x32 pixels, you must resize it to 64x64 pixels for each frame in the animation.
+</Callout>
+
+Animated textures are handled in library for you and just require a simple .mcmeta file created for your texture, using the same `animation` section vanilla uses for block and item textures [here](https://minecraft.wiki/w/Resource_pack#Texture_animation). AzureLib switches a texture to its animated loader the first time it renders it, if the texture's `.mcmeta` has an `animation` section.
+
+Example File setup:
+```
+Texture Files: yourtexture.png
+MCMeta File: yourtexture.png.mcmeta
+```
+
+Example .mcmeta file:
+```json
+{
+  "animation": {
+
+  }
+}
+```

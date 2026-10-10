@@ -1,0 +1,14 @@
+{
+    "armor.mdx": {
+        "name": "Animating Armor",
+        "icon": "Shield"
+    },
+    "static_armor.mdx": {
+        "name": "Creating Static (No Animations) Armor",
+        "icon": "Shield"
+    },
+    "bone_provider.mdx": {
+        "name": "Creating a Custom AzDefaultArmorBoneProvider",
+        "icon": "Shield"
+    }
+}

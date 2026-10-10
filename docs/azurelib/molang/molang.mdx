@@ -1,0 +1,162 @@
+---
+title: Adding Custom Molang Queries
+hide_meta: true
+---
+
+<Callout variant="info">
+    See [How to use Molang](../blockbench/animating_in_bb#how-to-use-molang) for how to use your custom Molang Queries.
+</Callout>
+
+# Overview
+
+Custom Molang queries allow you to expose additional data to your animations. These queries can be registered and updated through your animator implementations.
+
+## Defining Custom Queries
+
+### Step 1: Define Query Constants
+
+First, define your custom query constants in your mods main class:
+
+```java
+public static final String MY_CUSTOM_VALUE = MolangQueries.normalize("query.my_custom_value");
+```
+
+### Step 2: Register Variables
+
+Create a method to register your variables, typically called during initialization. Register against the shared `MolangParser.INSTANCE` — don't create a new `MolangParser`, since doing so just re-runs its constructor setup for no benefit:
+
+```java
+private void registerXModsVariables() {
+    MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 0));
+}
+```
+
+<Callout variant="warning">
+    Register your variables during mod initialization, before resources load. Animations bind to a variable when they are loaded, so a variable registered (or re-registered) afterwards isn't seen by animations that are already loaded until the next resource reload.
+</Callout>
+
+### Step 3: Implement Query Updates
+
+Override `applyMolangQueries` in your AzAnimator class to update your query values during animation. Create your suppliers once and have them read the entity currently being animated, rather than creating a new lambda every frame. Binding then allocates nothing:
+
+```java
+public class MyEntityAnimator extends AzEntityAnimator<MyEntity> {
+
+    // Resolved once, instead of looking the query up by name every frame.
+    private static final MolangVariableRef MY_CUSTOM_VALUE_REF = new MolangVariableRef(ModClass.MY_CUSTOM_VALUE);
+
+    // The entity currently being animated, set in applyMolangQueries below.
+    private MyEntity currentEntity;
+
+    // Created once, when the animator is created.
+    private final DoubleSupplier myCustomValue = () -> currentEntity.getChargeLevel();
+
+    @Override
+    protected void applyMolangQueries(MyEntity entity, double animTime, float partialTicks) {
+        super.applyMolangQueries(entity, animTime, partialTicks);
+
+        this.currentEntity = entity;
+        MY_CUSTOM_VALUE_REF.setMemoized(myCustomValue);
+    }
+
+    // ... registerControllers, getAnimationLocation, etc.
+}
+```
+
+## Adding Query Functions
+
+A query function takes arguments, like `query.my_charge_level(1)`. Use one when a single query needs a parameter, such as a slot, an axis or a threshold.
+
+### Step 1: Create the Function
+
+Extend `ContextQueryFunction`. It gives you the current `MolangQueryContext`, which for AzureLib animators is an `AzMolangQueryContext` holding the entity being animated:
+
+```java
+public class ChargeLevel extends ContextQueryFunction {
+
+    public ChargeLevel(IValue[] values, String name) throws Exception {
+        super(values, name);
+    }
+
+    @Override
+    public int getRequiredArguments() {
+        return 1;
+    }
+
+    @Override
+    protected double evaluate(MolangQueryContext context) {
+        if (context instanceof AzMolangQueryContext && ((AzMolangQueryContext) context).entity() instanceof MyEntity) {
+            MyEntity entity = (MyEntity) ((AzMolangQueryContext) context).entity();
+            return entity.getChargeLevel(intArg(0));
+        }
+
+        return 0;
+    }
+}
+```
+
+<Callout variant="warning">
+    Extend `ContextQueryFunction` (or keep your class out of the `mod.azure.azurelib.core.molang.functions` package). Functions in that package are treated as pure math and are folded to a constant when animations load, so a game-state query would freeze at its load-time value.
+</Callout>
+
+### Step 2: Register the Function
+
+Register it during mod initialization, before resources load, alongside your variables:
+
+```java
+MolangParser.INSTANCE.registerFunction("query.my_charge_level", ChargeLevel.class);
+```
+
+Animations can then call `query.my_charge_level(1)` or `q.my_charge_level(1)`. Unlike variable queries, functions are always written with parentheses.
+
+## Registration Methods
+
+### Memoized Values
+
+The supplier runs at most once each time the value is bound: the first time an animation reads the query for that entity that frame. Every other read that frame reuses the result. Because you bind it again every frame, the value still updates every frame. This is the right choice for almost every query, especially ones that are expensive to calculate or used by several keyframes:
+
+```java
+MY_CUSTOM_VALUE_REF.setMemoized(() -> calculateValue());
+
+private double calculateValue() {
+    // Runs once per entity per frame, no matter how many keyframes read the query
+    double baseValue = 10.0;
+    double modifier = 1.5;
+    return baseValue * modifier;
+}
+```
+
+### Dynamic Values
+
+The supplier runs every time an animation reads the query. Only use this when the value must be recalculated on each read rather than once per entity per frame:
+
+```java
+MY_CUSTOM_VALUE_REF.set(() -> getUpdatedValue());
+
+private double getUpdatedValue() {
+    // Runs on every read of the query
+    double currentTime = System.currentTimeMillis() / 1000.0;
+    return Math.sin(currentTime) * 10.0; // Creates a smooth oscillating value
+}
+```
+
+### Static Values
+
+For constant values:
+
+```java
+MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 42.0));
+```
+
+## Using Your Queries in Animations
+
+Queries can be written with either the full or the short prefix, so `query.my_custom_value` and `q.my_custom_value` are the same query. The same applies to `variable.`/`v.`, `temp.`/`t.` and `context.`/`c.`.
+
+## Best Practices
+
+1. Always use `MolangQueries.normalize()` when defining query constants
+2. Define query constants as `public static final` fields
+3. Register variables during initialization using `MolangParser.INSTANCE` — never instantiate a new `MolangParser`
+4. Use memoized values unless a query really needs recalculating on every read
+5. In animators, bind through a `MolangVariableRef` and create suppliers once, reading the current entity from a field, instead of creating new lambdas every frame
+6. Keep query names descriptive and consistent

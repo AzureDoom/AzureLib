@@ -1,0 +1,73 @@
+---
+title: How to Rig your Model for Animations
+hide_meta: true
+---
+
+<Callout variant="info">
+    Credit to [Blockbench wiki](https://www.blockbench.net/wiki/guides/blockbench-overview-tips) for the info and images.
+</Callout>
+<br></br>
+
+# Video Guide
+
+Here is a great video for how to rig your models from MoreByKev
+
+<VideoEmbed id="d79OSoeKJx0"/>
+
+<br></br>
+
+# Parenting in Bone Structures
+   Parenting is the process of connecting bones in a way that creates a hierarchy. In this structure:
+   - **Child bones** can move independently,
+   - **But** they will also follow the movement of their **parent bones**.
+
+   This is essential for **posing and animation**, as it ensures natural and intuitive movements. For example, if the torso moves, the arms should move with it.
+
+## How to Set Up Parenting:
+   1. Always start from the **center of the body** and work outward (e.g., from the torso to the arms and legs).
+   2. Create a logical structure where **closer (proximal) bones** are parents to the **farther (distal) bones**.
+
+## Why Parenting Matters:
+   In addition to parenting:
+   - **Correct pivot points** (the rotation points for each bone) are crucial for smooth animation.
+   - **Posing and animating** typically work the same way – outward from the body’s center.
+
+<Callout variant="info">
+    Tip for Clean Workflow:
+       - Use a consistent naming system for bones to make the process easier to manage and understand.
+</Callout>
+
+<ModAsset
+  width="30%"
+  title="Modrinth Download"
+  location="azurelib:bones"
+/>
+
+# Pivot Points
+
+## Understanding Pivot Points
+
+A pivot point is the **center of rotation** for a bone. When setting up a bone structure, placing the pivot point correctly is essential for smooth animation and future adjustments to the model.
+### Where to Place the Pivot Point:
+- **Avoid random placement** (as shown in the left-most example of the image) – this can cause issues during animation or model edits.
+- **Don’t place it in the center of the geometry** (middle example). While it may seem logical, it often doesn’t lead to realistic or intuitive movement.
+- The best place for a pivot point is **at the center of the joint** – the point where two bones connect (right-most example).
+
+### Why Pivot Points Matter:
+Correct pivot placement ensures:
+- Natural and smooth movement for animations.
+- Easier editing and adjustments later in the process.
+
+<ModAsset
+  width="70%"
+  title="Modrinth Download"
+  location="azurelib:pivots"
+/>
+
+The pivot point can be set in the viewport using the Pivot Tool (found in the Main Toolbar) or in the sidebar using sliders (found in the Element panel). The pivot point can also be centered to the selection using the button next to the Pivot Point sliders.
+
+<ModAsset
+  width="30%"
+  title="Modrinth Download"
+  location="azurelib:pivotsmenu"
+/>
