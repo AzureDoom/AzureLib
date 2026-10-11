@@ -14,6 +14,9 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.item.AzItemDisplayContext;
+import mod.azure.azurelib.render.item.AzItemDisplayTransforms;
+import mod.azure.azurelib.render.item.AzItemRenderer;
+import mod.azure.azurelib.render.item.AzItemRendererRegistry;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.util.AzBlockState;
@@ -134,14 +137,43 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         ItemStack itemStack,
         T animatable
     ) {
-        // 1.7.10's held-item renderer needs a living holder; other animatables can't hold vanilla-rendered items.
-        if (!(context.animatable() instanceof EntityLivingBase)) {
+        if (!(animatable instanceof EntityLivingBase)) {
             return;
         }
 
         beginVanillaRender(context);
-        RenderManager.instance.itemRenderer.renderItem((EntityLivingBase) context.animatable(), itemStack, 0);
-        GlStateManager.popMatrix();
+
+        try {
+            AzItemRenderer renderer =
+                AzItemRendererRegistry.getOrNull(itemStack.getItem());
+
+            if (renderer != null) {
+                AzItemDisplayContext displayContext =
+                    getTransformTypeForStack(bone, itemStack, animatable);
+
+                // The GL matrix is already positioned at the
+                // animated bone. Apply only the item's JSON
+                // display transform, not the vanilla hand setup.
+                AzItemDisplayTransforms.forItem(itemStack.getItem())
+                    .apply(displayContext);
+
+                // Match the model-centering transform used
+                // by AzItemRendererAdapter.
+                GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+
+                renderer.render(itemStack, displayContext);
+            } else {
+                // Preserve the existing vanilla rendering path
+                // for items without an AzureLib renderer.
+                RenderManager.instance.itemRenderer.renderItem(
+                    (EntityLivingBase) animatable,
+                    itemStack,
+                    0
+                );
+            }
+        } finally {
+            GlStateManager.popMatrix();
+        }
     }
 
     /**
