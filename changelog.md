@@ -1,3 +1,5 @@
-v1.0.1
+v1.0.2
 
-- Fixed a crash at start up due to mixin weirdness that is 1.7.10.
+- Fixed animated items rendering with incorrect rotations, positioning, and scaling when held by entities.
+- Fixed item display transforms not being applied correctly in the block and item render layer.
+- Improved compatibility with custom animated items rendered in entity hands.
