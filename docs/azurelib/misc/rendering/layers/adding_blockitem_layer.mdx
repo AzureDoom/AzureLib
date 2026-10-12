@@ -21,11 +21,11 @@ Adding the `AzBlockAndItemLayer` to your renderer is straightforward. Use the `a
 
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation MODEL_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
+    private static final Identifier MODEL_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
-    private static final ResourceLocation TEXTURE_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
+    private static final Identifier TEXTURE_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
@@ -85,7 +85,7 @@ The `AzBlockAndItemLayer` provides several methods to define relationships betwe
    ```java
    @Override
    protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-       context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+       context.poseStack().rotate(Axis.XP.rotationDegrees(270));
        context.poseStack().translate(0.0D, 0.1D, -0.1D);
        super.renderItemForBone(context, bone, itemStack, animatable);
    }
@@ -104,11 +104,11 @@ By following these steps, the entity model will dynamically render the correct i
 
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation MODEL_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
+    private static final Identifier MODEL_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "geo/example_model.geo.json");
 
-    private static final ResourceLocation TEXTURE_LOCATION =
-        ResourceLocation.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
+    private static final Identifier TEXTURE_LOCATION =
+        Identifier.fromNamespaceAndPath("yourmodid", "textures/entity/example_model.png");
 
     public ExampleEntityRenderer(EntityRendererProvider.Context context) {
         super(
@@ -135,7 +135,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
 
                             @Override
                             protected void renderItemForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack itemStack, ExampleEntity animatable) {
-                                context.poseStack().mulPose(Axis.XP.rotationDegrees(270));
+                                context.poseStack().rotate(Axis.XP.rotationDegrees(270));
                                 context.poseStack().translate(0.0D, 0.1D, -0.1D);
                                 super.renderItemForBone(context, bone, itemStack, animatable);
                             }

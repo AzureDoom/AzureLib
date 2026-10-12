@@ -37,13 +37,13 @@ Here's an example of setting up an armor renderer with full configuration option
 ```java
 public class ExampleArmorRenderer extends AzArmorRenderer {
 
-    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier MODEL = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "geo/armor/examplearmor.geo.json"
     );
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/armor/examplearmor.png"
     );
-    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier EXTRA_TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/armor/examplearmor_extra.png"
     );
 
@@ -98,13 +98,13 @@ Here's an example of setting up a block entity renderer with full configuration 
 
 ```java
 public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
-    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier MODEL = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "geo/block/examplebe.geo.json"
     );
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/block/examplebe.png"
     );
-    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier EXTRA_TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/block/examplebe_extra.png"
     );
 
@@ -161,13 +161,13 @@ Here's an example of setting up an entity renderer with full configuration optio
 
 ```java
 public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
-    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier MODEL = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "geo/entity/exampleentity.geo.json"
     );
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/entity/exampleentity.png"
     );
-    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier EXTRA_TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/entity/exampleentity_extra.png"
     );
 
@@ -281,13 +281,13 @@ Here's an example of setting up an item renderer with full configuration options
 
 ```java
 public class ExampleItemRenderer extends AzItemRenderer {
-    private static final ResourceLocation MODEL = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier MODEL = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "geo/item/exampleitem.geo.json"
     );
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/item/exampleitem.png"
     );
-    private static final ResourceLocation EXTRA_TEX = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier EXTRA_TEX = Identifier.fromNamespaceAndPath(
         YOUR_MOD_ID, "textures/item/exampleitem_extra.png"
     );
 

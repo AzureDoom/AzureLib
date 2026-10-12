@@ -11,9 +11,17 @@
         "name": "AzCommands 101",
         "icon": "Info"
     },
+    "azsequence.mdx": {
+        "name": "AzSequence",
+        "icon": "Info"
+    },
     "animating_in_code.mdx": {
         "name": "Animating Bones In-Code",
         "icon": "Info"
+    },
+    "procedural_animation.mdx": {
+        "name": "Procedural Animation",
+        "icon": "Activity"
     },
     "animation_includes.mdx": {
         "name": "Using the inclusion feature in Animation JSON",
