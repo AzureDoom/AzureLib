@@ -278,6 +278,15 @@ public record AzCommand(List<AzAction> actions) {
     public void sendForItem(Entity entity, ItemStack itemStack, @Nullable AzItemAnimatorView view) {
         var uuid = itemStack.get(AzureLib.AZ_ID.get());
 
+        if (uuid == null) {
+            AzureLib.LOGGER.warn(
+                    "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
+                    itemStack.getItem(),
+                    itemStack
+            );
+            return;
+        }
+
         if (entity.level().isClientSide()) {
             AzIdentifiableItemStackAnimatorCache.getInstance()
                 .forEach(
@@ -286,15 +295,6 @@ public record AzCommand(List<AzAction> actions) {
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
                 );
         } else {
-            if (uuid == null) {
-                AzureLib.LOGGER.warn(
-                    "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
-                    itemStack.getItem(),
-                    itemStack
-                );
-                return;
-            }
-
             var packet = new AzItemStackDispatchCommandPacket(uuid, this, Optional.ofNullable(view));
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
         }
