@@ -33,8 +33,9 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
 
     @Override
     public void encode(FriendlyByteBuf buf) {
-        buf.writeUUID(this.itemStackId); // Encode the UUID
-        AzCommand.ENCODER.accept(buf, this.dispatchCommand); // Encode AzCommand
+        buf.writeUUID(this.itemStackId);
+        AzCommand.ENCODER.accept(buf, this.dispatchCommand);
+        AzItemAnimatorView.encode(buf, this.view);
     }
 
     @Override
