@@ -17,6 +17,13 @@ public class Negative implements IValue {
     }
 
     @Override
+    public IValue simplify() {
+        this.value = this.value.simplify();
+
+        return this.value instanceof Constant ? Constant.of(this.get()) : this;
+    }
+
+    @Override
     public String toString() {
         return "-" + this.value.toString();
     }

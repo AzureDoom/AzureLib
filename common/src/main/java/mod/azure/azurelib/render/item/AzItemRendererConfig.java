@@ -83,7 +83,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
     }
 
     public boolean shouldAnimateInContext(ItemDisplayContext context) {
-        return shouldAnimateInContext.test(context);
+        return shouldAnimateInContext.test(context == null ? ItemDisplayContext.NONE : context);
     }
 
     public static Builder builder(

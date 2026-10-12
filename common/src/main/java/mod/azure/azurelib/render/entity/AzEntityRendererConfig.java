@@ -84,7 +84,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
     }
 
     public AzLodConfig lodConfig() {
-        return lodConfig != null ? lodConfig : AzLodConfig.DEFAULT;
+        return lodConfig != null ? lodConfig : AzLodConfig.DISABLED;
     }
 
     public static <T extends Entity> Builder<T> builder(
@@ -107,7 +107,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
         protected Function<T, Float> shadowRadius;
 
-        protected AzLodConfig lodConfig = AzLodConfig.DEFAULT;
+        protected AzLodConfig lodConfig = AzLodConfig.DISABLED;
 
         public Builder(
             Function<T, Identifier> modelLocationProvider,
@@ -176,21 +176,21 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         public Builder<T> setPrerenderEntry(
             Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry
         ) {
-            return (AzEntityRendererConfig.Builder<T>) super.setPrerenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder<T> setRenderEntry(
             Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> renderEntry
         ) {
-            return (AzEntityRendererConfig.Builder<T>) super.setRenderEntry(renderEntry);
+            return (Builder<T>) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder<T> setPostRenderEntry(
             Function<AzRendererPipelineContext<UUID, T>, AzRendererPipelineContext<UUID, T>> preRenderEntry
         ) {
-            return (AzEntityRendererConfig.Builder<T>) super.setPostRenderEntry(preRenderEntry);
+            return (Builder<T>) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -205,32 +205,32 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
 
         @Override
         public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
-            return (AzEntityRendererConfig.Builder<T>) super.setAlpha(alphaFunction);
+            return (Builder<T>) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder<T> setAlpha(float alpha) {
-            return (AzEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
+            return (Builder<T>) super.setAlpha(alpha);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleFunction) {
-            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleFunction);
+            return (Builder<T>) super.setScale(scaleFunction);
         }
 
         @Override
         public Builder<T> setScale(Function<T, Float> scaleHeightFunction, Function<T, Float> scaleWidthFunction) {
-            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder<T>) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder<T> setScale(float scale) {
-            return (AzEntityRendererConfig.Builder<T>) super.setScale(scale);
+            return (Builder<T>) super.setScale(scale);
         }
 
         @Override
         public Builder<T> setScale(float scaleWidth, float scaleHeight) {
-            return (AzEntityRendererConfig.Builder<T>) super.setScale(scaleWidth, scaleHeight);
+            return (Builder<T>) super.setScale(scaleWidth, scaleHeight);
         }
 
         /**

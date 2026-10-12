@@ -16,9 +16,9 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
- * A {@link AzRenderLayer} responsible for rendering {@link net.minecraft.world.level.block.state.BlockState
- * BlockStates} or {@link net.minecraft.world.item.ItemStack ItemStacks} onto a specified {@link AzRendererPipeline}.
- * This layer handles the rendering of physical elements, such as blocks and items, associated with animation bones.
+ * A {@link AzRenderLayer} responsible for rendering {@link BlockState BlockStates} or {@link ItemStack ItemStacks} onto
+ * a specified {@link AzRendererPipeline}. This layer handles the rendering of physical elements, such as blocks and
+ * items, associated with animation bones.
  * <p>
  * 26.2 removed the old immediate-mode {@code ItemRenderer#renderStatic}/{@code BlockRenderer#renderSingleBlock} entry
  * points in favour of resolver + render-state + submit: an {@code ItemModelResolver} populates an
@@ -27,9 +27,9 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * {@link mod.azure.azurelib.render.AzBufferSource#defer} until the surrounding pipeline's own {@code AzBufferSource} is
  * replayed.
  * <p>
- * {@link BlockState} bones are rendered by wrapping the block in an {@link net.minecraft.world.item.ItemStack} and
- * reusing the same item pipeline, rather than resolving a {@code BlockModelRenderState} directly. Unlike
- * {@code ItemModelResolver}, {@code BlockModelResolver} is only ever handed to renderers at construction time (via
+ * {@link BlockState} bones are rendered by wrapping the block in an {@link ItemStack} and reusing the same item
+ * pipeline, rather than resolving a {@code BlockModelRenderState} directly. Unlike {@code ItemModelResolver},
+ * {@code BlockModelResolver} is only ever handed to renderers at construction time (via
  * {@code EntityRendererProvider.Context}/{@code BlockEntityRendererProvider.Context}) — {@link Minecraft} keeps it as a
  * constructor-local value with no field or getter, so it can't be reached generically from here the way
  * {@link Minecraft#getItemModelResolver()} can. This means directional/multipart/other blockstate-dependent visuals

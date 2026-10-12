@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -29,6 +32,8 @@ import mod.azure.azurelib.util.client.RenderUtils;
 public class AzModelRenderer<K, T> {
 
     private final Matrix4f poseStateCache = new Matrix4f();
+
+    private final Matrix3f normalStateCache = new Matrix3f();
 
     private final Vector3f normalScratch = new Vector3f();
 
@@ -109,14 +114,10 @@ public class AzModelRenderer<K, T> {
             return;
         }
 
-        var poseStack = context.poseStack();
+        var cubes = bone.getCubes();
 
-        for (var cube : bone.getCubes()) {
-            poseStack.pushPose();
-
-            renderCube(context, cube);
-
-            poseStack.popPose();
+        for (int i = 0, size = cubes.size(); i < size; i++) {
+            renderCube(context, cubes.get(i));
         }
     }
 
@@ -129,8 +130,10 @@ public class AzModelRenderer<K, T> {
         if (bone.isHidingChildren())
             return;
 
-        for (var childBone : bone.getChildBones()) {
-            renderRecursively(context, childBone, isReRender);
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            renderRecursively(context, children.get(i), isReRender);
         }
     }
 
@@ -139,14 +142,19 @@ public class AzModelRenderer<K, T> {
      * This tends to be called recursively from something like {@link AzModelRenderer#renderCubesOfBone}
      */
     protected void renderCube(AzRendererPipelineContext<K, T> context, AzCube cube) {
-        var poseStack = context.poseStack();
+        var last = context.poseStack().last();
+        var transform = cube.transform();
+        var poseState = poseStateCache.set(last.pose());
+        Matrix3f normalisedPoseState;
 
-        RenderUtils.translateToPivotPoint(poseStack, cube);
-        RenderUtils.rotateMatrixAroundCube(poseStack, cube);
-        RenderUtils.translateAwayFromPivotPoint(poseStack, cube);
+        if (transform.identity()) {
+            normalisedPoseState = last.normal();
+        } else {
+            poseState.mul(transform.pose());
+            normalisedPoseState = normalStateCache.set(last.normal()).mul(transform.normal());
+        }
 
-        var normalisedPoseState = poseStack.last().normal();
-        var poseState = poseStateCache.set(poseStack.last().pose());
+        var normalFlips = cube.normalFlips();
 
         for (var quad : cube.quads()) {
             if (quad == null) {
@@ -157,7 +165,7 @@ public class AzModelRenderer<K, T> {
             normalisedPoseState.transform(normalScratch);
             var normal = normalScratch;
 
-            RenderUtils.fixInvertedFlatCube(cube, normal);
+            RenderUtils.fixInvertedFlatCube(normalFlips, normal);
             createVerticesOfQuad(context, quad, poseState, normal);
         }
     }
@@ -180,7 +188,7 @@ public class AzModelRenderer<K, T> {
         var packedOverlay = context.packedOverlay();
         var packedLight = context.packedLight();
         var textureOverride = context.getTextureOverride();
-        var boneTextureSize = context.computeTextureSize(textureOverride);
+        var boneTextureSize = textureOverride == null ? null : context.computeTextureSize(textureOverride);
         boolean useOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
         float nx = normal.x(), ny = normal.y(), nz = normal.z();
 
@@ -323,12 +331,15 @@ public class AzModelRenderer<K, T> {
         if (renderTypeOverride != null) {
             activeRenderType = renderTypeOverride;
         } else if (textureOverride != null) {
+            var baseTexture = config.textureLocation(context.currentEntity(), context.animatable());
+            var baseRenderType = config.getRenderType(context.currentEntity(), context.animatable());
+
             activeRenderType = context.getDefaultRenderType(
                 context.animatable(),
                 textureOverride,
                 bufferSource,
                 context.partialTick(),
-                config.getRenderType(context.currentEntity(), context.animatable()),
+                retargetRenderType(baseRenderType, baseTexture, textureOverride),
                 config.alpha(context.animatable())
             );
         } else {
@@ -340,6 +351,45 @@ public class AzModelRenderer<K, T> {
         }
 
         return bufferSource.getBuffer(activeRenderType);
+    }
+
+    /**
+     * Returns the equivalent of {@code renderType} for a different texture, used for bones with a texture override.
+     * <p>
+     * Render types can't be re-pointed at another texture directly, so this recognizes the standard entity render types
+     * AzureLib and most renderers use and rebuilds the matching one for {@code newTexture}. Anything else falls back to
+     * {@link RenderTypes#entityCutout}. For full control over an overridden bone's render type, use the bone render
+     * type override provider instead, which takes precedence over this.
+     * </p>
+     *
+     * @param renderType  the render type configured for the model, built for {@code baseTexture}
+     * @param baseTexture the model's main texture
+     * @param newTexture  the texture the bone should render with
+     */
+    protected RenderType retargetRenderType(
+        @Nullable RenderType renderType,
+        @Nullable Identifier baseTexture,
+        Identifier newTexture
+    ) {
+        if (newTexture.equals(baseTexture)) {
+            return renderType != null ? renderType : RenderTypes.entityCutout(newTexture);
+        }
+
+        if (renderType != null && baseTexture != null) {
+            if (renderType == RenderTypes.entityTranslucent(baseTexture)) {
+                return RenderTypes.entityTranslucent(newTexture);
+            }
+
+            if (renderType == RenderTypes.entityTranslucentEmissive(baseTexture)) {
+                return RenderTypes.entityTranslucentEmissive(newTexture);
+            }
+
+            if (renderType == RenderTypes.armorCutoutNoCull(baseTexture)) {
+                return RenderTypes.armorCutoutNoCull(newTexture);
+            }
+        }
+
+        return RenderTypes.entityCutout(newTexture);
     }
 
     public void cacheTexture(AzRendererPipelineContext<K, T> context) {

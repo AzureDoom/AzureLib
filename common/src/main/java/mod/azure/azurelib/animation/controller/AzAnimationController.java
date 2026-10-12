@@ -18,8 +18,13 @@ import mod.azure.azurelib.animation.controller.state.impl.AzAnimationTransitionS
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviorRegistry;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
 import mod.azure.azurelib.animation.property.AzAnimationProperties;
+import mod.azure.azurelib.animation.property.AzAnimationStageProperties;
 
 /**
  * The actual controller that handles the playing and usage of animations, including their various keyframes and
@@ -51,6 +56,30 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     protected AzQueuedAnimation currentAnimation;
 
     private AzAnimationProperties animationProperties;
+
+    /**
+     * How many times the current animation has finished and been replayed by
+     * {@link mod.azure.azurelib.common.animation.play_behavior.AzPlayBehaviors#REPEAT_X_TIMES}. Kept per controller
+     * because play behaviors are shared singletons.
+     */
+    private int repeatCount;
+
+    /**
+     * Runtime flip of the current animation's direction, layered on top of the stage/controller direction. Toggled by
+     * {@link AzPlayBehaviors#PING_PONG} at each leg and by {@link #setReversing(boolean)} when the direction changes
+     * mid-animation. Kept per controller because play behaviors are shared singletons, and cleared whenever a new
+     * animation starts.
+     */
+    private boolean directionFlipped;
+
+    /** How strongly this controller's animation is applied, from 0 (no effect) to 1 (full). See {@link #setWeight}. */
+    private double weight = 1;
+
+    private AzBlendMode blendMode = AzBlendMode.OVERRIDE;
+
+    private AzBoneMask boneMask = AzBoneMask.ALL;
+
+    private final AzWeightFade weightFade = new AzWeightFade();
 
     AzAnimationController(
         String name,
@@ -132,7 +161,10 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                 );
                 return List.of();
             } else {
-                animations.add(new AzQueuedAnimation(animation, stage.properties().playBehavior()));
+                var properties = stage.properties();
+                var reverseOverride = properties.hasReversing() ? properties.isReversing() : null;
+                var playBehavior = resolvePlayBehavior(properties, animation);
+                animations.add(new AzQueuedAnimation(animation, playBehavior, reverseOverride));
             }
         }
 
@@ -149,8 +181,10 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         boneAnimationQueueCache.prepareFrame();
         // Run state machine updates.
         stateMachine.update();
+        // Advance any weight fade before applying this frame's values.
+        updateWeightFade();
         // Update bone animation queue cache.
-        boneAnimationQueueCache.update(animationProperties.easingType());
+        boneAnimationQueueCache.update(animationProperties.easingType(), weight, blendMode);
     }
 
     /**
@@ -174,7 +208,11 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
         this.currentSequenceOrigin = originSide;
 
-        if (stateMachine.isStopped()) {
+        // A finished sequence has consumed its queue. Dispatching it again should replay it from the first stage,
+        // rather than being treated as "already playing" and only replaying the last stage.
+        var wasStopped = stateMachine.isStopped();
+
+        if (wasStopped) {
             stateMachine.transition();
         }
 
@@ -189,7 +227,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             return;
         }
 
-        if (!sequence.equals(currentSequence)) {
+        if (wasStopped || !sequence.equals(currentSequence)) {
             var animations = tryCreateAnimationQueue(animatable, sequence);
 
             if (!animations.isEmpty()) {
@@ -226,6 +264,74 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         return animationQueue;
     }
 
+    /**
+     * How strongly this controller's animation is applied to the bones it animates, from 0 to 1.
+     */
+    public double weight() {
+        return weight;
+    }
+
+    /**
+     * Sets how strongly this controller's animation is applied, clamped to 0..1. Controllers are layered in the order
+     * they were added: each one blends its pose over whatever earlier controllers wrote to the same bone this frame, or
+     * over the bind pose if none did. At 1 (the default) the pose fully replaces what is underneath, which is the same
+     * result as before blending existed; at 0 the controller has no effect.
+     */
+    public void setWeight(double weight) {
+        this.weightFade.cancel();
+        this.weight = clampWeight(weight);
+    }
+
+    /**
+     * Moves the weight to {@code targetWeight} over {@code lengthTicks} ticks, starting next frame, so layers can fade
+     * in and out instead of popping. Fades follow the animator's clock: they run smoothly between game ticks, pause
+     * with the game, and are not affected by animation speed. A length of 0 or less sets the weight immediately.
+     * Calling {@link #setWeight} or starting another fade replaces the current one, starting from the current weight.
+     */
+    public void fadeWeight(double targetWeight, double lengthTicks) {
+        if (!(lengthTicks > 0)) {
+            setWeight(targetWeight);
+            return;
+        }
+
+        this.weightFade.start(this.weight, clampWeight(targetWeight), lengthTicks);
+    }
+
+    /** Whether a {@link #fadeWeight} fade is still in progress. */
+    public boolean isFadingWeight() {
+        return weightFade.isActive();
+    }
+
+    private void updateWeightFade() {
+        if (weightFade.isActive()) {
+            weight = weightFade.update(animator.context().timer().getAnimTime());
+        }
+    }
+
+    private static double clampWeight(double weight) {
+        return Double.isNaN(weight) ? 0 : Math.max(0, Math.min(1, weight));
+    }
+
+    /** How this controller combines with earlier controllers on the same bone. */
+    public AzBlendMode blendMode() {
+        return blendMode;
+    }
+
+    /** Sets how this controller combines with earlier controllers on the same bone. See {@link AzBlendMode}. */
+    public void setBlendMode(AzBlendMode blendMode) {
+        this.blendMode = blendMode == null ? AzBlendMode.OVERRIDE : blendMode;
+    }
+
+    /** The bones this controller may animate. */
+    public AzBoneMask boneMask() {
+        return boneMask;
+    }
+
+    /** Limits which bones this controller animates. See {@link AzBoneMask}. */
+    public void setBoneMask(AzBoneMask boneMask) {
+        this.boneMask = boneMask == null ? AzBoneMask.ALL : boneMask;
+    }
+
     public AzBoneAnimationQueueCache<T> boneAnimationQueueCache() {
         return boneAnimationQueueCache;
     }
@@ -260,10 +366,183 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public void setCurrentAnimation(AzQueuedAnimation currentAnimation) {
         this.currentAnimation = currentAnimation;
+        // A new (or canceled) animation must not inherit the previous animation's repeat progress.
+        this.repeatCount = 0;
+        // ...nor the previous animation's ping-pong leg or in-place reversal.
+        this.directionFlipped = false;
 
         if (currentAnimation == null) {
             this.currentSequence = null;
             this.currentSequenceOrigin = null;
         }
+    }
+
+    /**
+     * @return how many times the current animation has been repeated so far
+     */
+    public int repeatCount() {
+        return repeatCount;
+    }
+
+    /**
+     * Increments the repeat count of the current animation.
+     *
+     * @return the new repeat count
+     */
+    public int incrementRepeatCount() {
+        return ++repeatCount;
+    }
+
+    /**
+     * Resets the repeat count of the current animation to zero.
+     */
+    public void resetRepeatCount() {
+        this.repeatCount = 0;
+    }
+
+    /**
+     * @return {@code true} if the current animation is being sampled from its end towards its start. The base direction
+     *         comes from the stage ({@link AzQueuedAnimation#reverseOverride()}) if it set one, otherwise from the
+     *         controller's {@link AzAnimationProperties#isReversing()}; a runtime flip (ping-pong, in-place reversal)
+     *         is then applied on top.
+     */
+    public boolean isPlayingReversed() {
+        var base = currentAnimation != null && currentAnimation.reverseOverride() != null
+            ? currentAnimation.reverseOverride()
+            : animationProperties.isReversing();
+
+        return base ^ directionFlipped;
+    }
+
+    /**
+     * Maps playback progress to the tick that keyframes are sampled at. Progress
+     * ({@link AzAnimationControllerTimer#getAdjustedTick()}) always counts up from 0 to the animation length no matter
+     * the direction, so finish detection, play behaviors, freeze and repeat logic are direction-agnostic. Only sampling
+     * (bones, Molang {@code query.anim_time}, keyframe callbacks) reads this mirrored value.
+     *
+     * @return a tick in {@code [0, length]} of the current animation, or the raw progress if nothing is playing
+     */
+    public double sampleTick() {
+        var progress = controllerTimer.getAdjustedTick();
+
+        if (currentAnimation == null) {
+            return progress;
+        }
+
+        var length = currentAnimation.animation().length();
+        var clamped = Math.clamp(progress, 0D, length);
+
+        return isPlayingReversed() ? length - clamped : clamped;
+    }
+
+    /**
+     * Flips the direction of the current animation for its next leg. The caller is expected to restart progress (as
+     * {@link AzPlayBehaviors#PING_PONG} does at a leg boundary), so the sampled pose stays continuous: the end of one
+     * leg is the start of the next.
+     */
+    public void flipDirection() {
+        this.directionFlipped = !directionFlipped;
+    }
+
+    /**
+     * Turns the current animation around from the pose it is in right now, without a jump: progress is remapped to
+     * {@code length - progress}, so the sampled tick is unchanged on this frame and starts moving the other way on the
+     * next. Keyframe callbacks are re-primed so events already "behind" the new direction don't fire immediately. Does
+     * nothing if no animation is playing.
+     */
+    public void reverseInPlace() {
+        if (currentAnimation == null) {
+            return;
+        }
+
+        var length = currentAnimation.animation().length();
+        var progress = Math.clamp(controllerTimer.getAdjustedTick(), 0D, length);
+
+        flipDirection();
+        controllerTimer.seek(length - progress);
+        keyframeManager.keyframeCallbackHandler().resync(sampleTick(), isPlayingReversed());
+    }
+
+    /**
+     * Sets the controller-level direction. If that changes the direction of an animation that is already playing, the
+     * animation turns around in place (see {@link #reverseInPlace()}) instead of snapping to the mirrored pose. Stages
+     * with their own direction ignore the controller-level one.
+     */
+    public void setReversing(boolean reversing) {
+        var wasReversed = isPlayingReversed();
+        this.animationProperties = animationProperties.withShouldReverse(reversing);
+
+        if (currentAnimation != null && isPlayingReversed() != wasReversed) {
+            // The property change already flipped the effective direction; undo that with a runtime flip so the
+            // remap below sees the old direction, then let reverseInPlace() flip it back with continuity.
+            flipDirection();
+            reverseInPlace();
+        }
+    }
+
+    /**
+     * Picks the behavior a stage plays with: the one the code chose, unless it chose nothing or
+     * {@link AzPlayBehaviors#AS_AUTHORED}, in which case the animation file's authored {@code loop} decides.
+     */
+    private AzPlayBehavior resolvePlayBehavior(AzAnimationStageProperties properties, AzBakedAnimation animation) {
+        if (properties.hasPlayBehavior() && properties.playBehavior() != AzPlayBehaviors.AS_AUTHORED) {
+            return properties.playBehavior();
+        }
+
+        var authored = animation.defaults().playBehavior();
+
+        if (authored == null) {
+            return AzPlayBehaviors.PLAY_ONCE;
+        }
+
+        var behavior = AzPlayBehaviorRegistry.getOrNull(authored);
+
+        if (behavior == null || behavior == AzPlayBehaviors.AS_AUTHORED) {
+            LOGGER.warn(
+                "Animation '{}' asks for unknown play behavior '{}', playing it once instead",
+                animation.name(),
+                authored
+            );
+            return AzPlayBehaviors.PLAY_ONCE;
+        }
+
+        return behavior;
+    }
+
+    /**
+     * The repeat count {@link AzPlayBehaviors#REPEAT_X_TIMES} uses: a value set on the controller (e.g. via an
+     * AzCommand) wins; otherwise the current animation's authored {@code repeat_times}.
+     */
+    public double effectiveRepeatXTimes() {
+        var commanded = animationProperties.repeatXTimes();
+
+        if (commanded > 1 || currentAnimation == null) {
+            return commanded;
+        }
+
+        var authored = currentAnimation.animation().defaults().repeatTimes();
+        return authored > 0 ? authored : commanded;
+    }
+
+    /**
+     * The freeze point, in ticks, used by the controller timer and {@link AzPlayBehaviors#FREEZE_ON_FRAME}: a value set
+     * on the controller wins; otherwise the current animation's authored {@code freeze_at}, but only while that
+     * animation is actually playing with freeze_on_frame (so a file's freeze point can't stall a stage the code chose
+     * to loop).
+     */
+    public double effectiveFreezeTickOffset() {
+        var commanded = animationProperties.freezeTickOffset();
+
+        if (commanded > 0 || currentAnimation == null) {
+            return commanded;
+        }
+
+        var defaults = currentAnimation.animation().defaults();
+
+        if (currentAnimation.playBehavior() == AzPlayBehaviors.FREEZE_ON_FRAME && defaults.hasFreezeTick()) {
+            return defaults.freezeTick();
+        }
+
+        return commanded;
     }
 }

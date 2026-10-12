@@ -141,21 +141,21 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         public Builder setPrerenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setPrerenderEntry(preRenderEntry);
+            return (Builder) super.setPrerenderEntry(preRenderEntry);
         }
 
         @Override
         public Builder setRenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> renderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setRenderEntry(renderEntry);
+            return (Builder) super.setRenderEntry(renderEntry);
         }
 
         @Override
         public Builder setPostRenderEntry(
             Function<AzRendererPipelineContext<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> preRenderEntry
         ) {
-            return (AzArmorRendererConfig.Builder) super.setPostRenderEntry(preRenderEntry);
+            return (Builder) super.setPostRenderEntry(preRenderEntry);
         }
 
         @Override
@@ -170,17 +170,17 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
-            return (AzArmorRendererConfig.Builder) super.setAlpha(alphaFunction);
+            return (Builder) super.setAlpha(alphaFunction);
         }
 
         @Override
         public Builder setAlpha(float alpha) {
-            return (AzArmorRendererConfig.Builder) super.setAlpha(alpha);
+            return (Builder) super.setAlpha(alpha);
         }
 
         @Override
         public Builder setScale(Function<ItemStack, Float> scaleFunction) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleFunction);
+            return (Builder) super.setScale(scaleFunction);
         }
 
         @Override
@@ -188,17 +188,17 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             Function<ItemStack, Float> scaleHeightFunction,
             Function<ItemStack, Float> scaleWidthFunction
         ) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
+            return (Builder) super.setScale(scaleHeightFunction, scaleWidthFunction);
         }
 
         @Override
         public Builder setScale(float scale) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scale);
+            return (Builder) super.setScale(scale);
         }
 
         @Override
         public Builder setScale(float scaleWidth, float scaleHeight) {
-            return (AzArmorRendererConfig.Builder) super.setScale(scaleWidth, scaleHeight);
+            return (Builder) super.setScale(scaleWidth, scaleHeight);
         }
 
         @Override

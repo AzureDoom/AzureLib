@@ -55,6 +55,20 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     private boolean applyAnimationOnReRender;
 
+    private boolean inModelPass;
+
+    private @Nullable RenderType modelPassRenderType;
+
+    private int modelPassStart;
+
+    private int modelPassEnd;
+
+    private int modelPassTotalStart;
+
+    private int modelPassLayerVertices;
+
+    private boolean modelPassMirrorable;
+
     protected static final Map<Identifier, IntIntPair> TEXTURE_DIMENSIONS_CACHE =
         new Object2ObjectOpenHashMap<>();
 
@@ -96,6 +110,11 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.poseStack = poseStack;
         this.vertexConsumer = vertexConsumer;
         this.renderColor = getRenderColor(animatable, partialTick, packedLight).argbInt();
+        this.inModelPass = false;
+        this.modelPassRenderType = null;
+        this.modelPassStart = 0;
+        this.modelPassEnd = 0;
+        this.modelPassMirrorable = false;
 
         if (renderType == null) {
             var cfg = rendererPipeline.config();
@@ -258,5 +277,87 @@ public abstract class AzRendererPipelineContext<K, T> {
      */
     public IntIntPair computeTextureSize(Identifier texture) {
         return TEXTURE_DIMENSIONS_CACHE.computeIfAbsent(texture, RenderUtils::getTextureDimensions);
+    }
+
+    /**
+     * Marks the start of the main model pass, recording where its vertices begin in the current render type's
+     * recording. Called by {@link AzRendererPipeline#render}; see {@link #isModelPassMirrorable()}.
+     */
+    public void beginModelPass() {
+        var source = multiBufferSource;
+        inModelPass = true;
+        modelPassRenderType = renderType;
+        modelPassStart = source == null ? 0 : source.vertexCount(renderType);
+        modelPassEnd = modelPassStart;
+        modelPassTotalStart = source == null ? 0 : source.totalVertexCount();
+        modelPassLayerVertices = 0;
+        modelPassMirrorable = source != null && renderType != null;
+    }
+
+    /**
+     * Marks the end of the main model pass. The pass stays mirrorable only if every vertex it produced, apart from
+     * those written by per-bone layers, went into the main render type: a bone texture or render type override sends
+     * vertices elsewhere, and a re-render would reproduce those differently.
+     */
+    public void endModelPass() {
+        if (!inModelPass) {
+            return;
+        }
+
+        inModelPass = false;
+
+        if (!modelPassMirrorable) {
+            return;
+        }
+
+        var source = multiBufferSource;
+        modelPassEnd = source.vertexCount(modelPassRenderType);
+        var modelVertices = source.totalVertexCount() - modelPassTotalStart - modelPassLayerVertices;
+
+        if (modelVertices != modelPassEnd - modelPassStart) {
+            modelPassMirrorable = false;
+        }
+    }
+
+    /**
+     * Accounts for vertices written by per-bone layers during the model pass. Writes into other render types (held
+     * items, for example) are excluded from the pass; writes into the main render type can't be told apart from the
+     * model, so they make the pass non-mirrorable.
+     */
+    public void recordBoneLayerWrites(int totalVertices, int modelRenderTypeVertices) {
+        if (!inModelPass) {
+            return;
+        }
+
+        if (modelRenderTypeVertices != 0) {
+            modelPassMirrorable = false;
+        }
+
+        modelPassLayerVertices += totalVertices;
+    }
+
+    public boolean isInModelPass() {
+        return inModelPass;
+    }
+
+    /**
+     * Whether the last model pass for this render can be re-submitted under another render type with
+     * {@link AzBufferSource#mirror} rather than re-rendered: it wrote at least one vertex, all into
+     * {@link #modelPassRenderType()}, and nothing else wrote into that render type during the pass.
+     */
+    public boolean isModelPassMirrorable() {
+        return modelPassMirrorable && !inModelPass && modelPassEnd > modelPassStart;
+    }
+
+    public @Nullable RenderType modelPassRenderType() {
+        return modelPassRenderType;
+    }
+
+    public int modelPassStart() {
+        return modelPassStart;
+    }
+
+    public int modelPassEnd() {
+        return modelPassEnd;
     }
 }

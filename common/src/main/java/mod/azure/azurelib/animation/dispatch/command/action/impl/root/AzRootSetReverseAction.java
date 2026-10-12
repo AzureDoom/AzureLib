@@ -29,9 +29,7 @@ public record AzRootSetReverseAction(
         animator.getAnimationControllerContainer()
             .getAll()
             .forEach(
-                controller -> controller.setAnimationProperties(
-                    controller.animationProperties().withShouldReverse(hasReverse)
-                )
+                controller -> controller.setReversing(hasReverse)
             );
     }
 

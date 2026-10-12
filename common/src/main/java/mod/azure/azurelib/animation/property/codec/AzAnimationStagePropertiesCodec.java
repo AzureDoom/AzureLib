@@ -31,7 +31,7 @@ public class AzAnimationStagePropertiesCodec implements StreamCodec<FriendlyByte
                     var playBehavior = AzPlayBehaviorRegistry.getOrDefault(buf.readUtf(), AzPlayBehaviors.PLAY_ONCE);
                     properties = properties.withPlayBehavior(playBehavior);
                 }
-                case 4 -> properties = properties.withStartTickOffset(buf.readFloat());
+                case 4 -> properties = properties.withStartTickOffset(buf.readDouble());
                 case 5 -> properties = properties.withFreezeTickOffset(buf.readDouble());
                 case 6 -> properties = properties.withRepeatXTimes(buf.readDouble());
                 case 7 -> properties = properties.withShouldReverse(buf.readBoolean());

@@ -33,6 +33,8 @@ public class AzKeyframeCallbackHandler<T> {
 
     private final AzKeyframeCallbacks<T> keyframeCallbacks;
 
+    private boolean reversed;
+
     public AzKeyframeCallbackHandler(
         AzAnimationController<T> animationController,
         AzKeyframeCallbacks<T> keyframeCallbacks
@@ -43,9 +45,18 @@ public class AzKeyframeCallbackHandler<T> {
     }
 
     public void handle(T animatable, double adjustedTick) {
-        handleSoundKeyframes(animatable, adjustedTick);
-        handleParticleKeyframes(animatable, adjustedTick);
-        handleCustomKeyframes(animatable, adjustedTick);
+        handle(animatable, adjustedTick, false);
+    }
+
+    public void handle(T animatable, double sampleTick, boolean reversed) {
+        this.reversed = reversed;
+        handleSoundKeyframes(animatable, sampleTick);
+        handleParticleKeyframes(animatable, sampleTick);
+        handleCustomKeyframes(animatable, sampleTick);
+    }
+
+    private boolean reached(KeyFrameData keyframeData, double sampleTick) {
+        return reversed ? sampleTick <= keyframeData.getStartTick() : sampleTick >= keyframeData.getStartTick();
     }
 
     private void handleCustomKeyframes(T animatable, double adjustedTick) {
@@ -53,7 +64,7 @@ public class AzKeyframeCallbackHandler<T> {
         var customInstructions = currentAnimation().animation().keyframes().customInstructions();
 
         for (var keyframeData : customInstructions) {
-            if (adjustedTick >= keyframeData.getStartTick() && executedKeyframes.add(keyframeData)) {
+            if (reached(keyframeData, adjustedTick) && executedKeyframes.add(keyframeData)) {
                 if (customKeyframeHandler == null) {
                     LOGGER.warn(
                         "Custom Instruction Keyframe found for {} -> {}, but no keyframe handler registered",
@@ -75,7 +86,7 @@ public class AzKeyframeCallbackHandler<T> {
         var particleInstructions = currentAnimation().animation().keyframes().particles();
 
         for (var keyframeData : particleInstructions) {
-            if (adjustedTick >= keyframeData.getStartTick() && executedKeyframes.add(keyframeData)) {
+            if (reached(keyframeData, adjustedTick) && executedKeyframes.add(keyframeData)) {
                 if (particleKeyframeHandler == null) {
                     LOGGER.warn(
                         "Particle Keyframe found for {} -> {}, but no keyframe handler registered",
@@ -97,7 +108,7 @@ public class AzKeyframeCallbackHandler<T> {
         var soundInstructions = currentAnimation().animation().keyframes().sounds();
 
         for (var keyframeData : soundInstructions) {
-            if (adjustedTick >= keyframeData.getStartTick() && executedKeyframes.add(keyframeData)) {
+            if (reached(keyframeData, adjustedTick) && executedKeyframes.add(keyframeData)) {
                 if (soundKeyframeHandler == null) {
                     LOGGER.warn(
                         "Sound Keyframe found for {} -> {}, but no keyframe handler registered",
@@ -119,6 +130,31 @@ public class AzKeyframeCallbackHandler<T> {
      */
     public void reset() {
         executedKeyframes.clear();
+    }
+
+    public void resync(double sampleTick, boolean reversed) {
+        this.reversed = reversed;
+        executedKeyframes.clear();
+
+        var current = currentAnimation();
+
+        if (current == null) {
+            return;
+        }
+
+        var keyframes = current.animation().keyframes();
+
+        markReached(keyframes.sounds(), sampleTick);
+        markReached(keyframes.particles(), sampleTick);
+        markReached(keyframes.customInstructions(), sampleTick);
+    }
+
+    private void markReached(KeyFrameData[] keyframes, double sampleTick) {
+        for (var keyframeData : keyframes) {
+            if (reached(keyframeData, sampleTick)) {
+                executedKeyframes.add(keyframeData);
+            }
+        }
     }
 
     private AzQueuedAnimation currentAnimation() {

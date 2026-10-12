@@ -6,14 +6,18 @@ import net.minecraft.world.level.MoonPhase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
+import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.profiling.AzProfileStage;
+import mod.azure.azurelib.profiling.AzProfiler;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -26,6 +30,28 @@ import mod.azure.azurelib.core.molang.MolangQueries;
  */
 public abstract class AzAnimator<K, T> {
 
+    private static final MolangVariableRef LIFE_TIME_REF = new MolangVariableRef(MolangQueries.LIFE_TIME);
+
+    private static final MolangVariableRef ACTOR_COUNT_REF = new MolangVariableRef(MolangQueries.ACTOR_COUNT);
+
+    private static final MolangVariableRef TIME_OF_DAY_REF = new MolangVariableRef(MolangQueries.TIME_OF_DAY);
+
+    private static final MolangVariableRef MOON_PHASE_REF = new MolangVariableRef(MolangQueries.MOON_PHASE);
+
+    private static final MolangVariableRef MOON_BRIGHTNESS_REF = new MolangVariableRef(MolangQueries.MOON_BRIGHTNESS);
+
+    private static final MolangVariableRef DAY_REF = new MolangVariableRef(MolangQueries.DAY);
+
+    private static final MolangVariableRef TIME_STAMP_REF = new MolangVariableRef(MolangQueries.TIME_STAMP);
+
+    private static final MolangVariableRef FRAME_ALPHA_REF = new MolangVariableRef(MolangQueries.FRAME_ALPHA);
+
+    private static final MolangVariableRef CLIENT_MAX_RENDER_DISTANCE_REF = new MolangVariableRef(
+        MolangQueries.CLIENT_MAX_RENDER_DISTANCE
+    );
+
+    private static final double[] MOON_BRIGHTNESS = { 1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75 };
+
     private AzAnimationContext<T> currentContext;
 
     private final WeakHashMap<K, AzAnimationContext<T>> contextCache = new WeakHashMap<>();
@@ -35,6 +61,50 @@ public abstract class AzAnimator<K, T> {
     protected final AzAnimatorConfig config;
 
     public boolean reloadAnimations;
+
+    private double molangAnimTime;
+
+    private float molangPartialTicks;
+
+    private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
+
+    private final DoubleSupplier actorCountSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getEntityCount() : 0;
+    };
+
+    private final DoubleSupplier timeOfDaySupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getDefaultClockTime() / 24000f : 0;
+    };
+
+    private final DoubleSupplier moonPhaseSupplier = AzAnimator::moonPhase;
+
+    private final DoubleSupplier moonBrightnessSupplier = () -> MOON_BRIGHTNESS[moonPhase()];
+
+    private final DoubleSupplier daySupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? Math.floorDiv(lvl.getDefaultClockTime(), 24000L) : 0;
+    };
+
+    private final DoubleSupplier timeStampSupplier = () -> {
+        var lvl = Minecraft.getInstance().level;
+        return lvl != null ? lvl.getGameTime() : 0;
+    };
+
+    private final DoubleSupplier frameAlphaSupplier = () -> molangPartialTicks;
+
+    private final DoubleSupplier clientMaxRenderDistanceSupplier = () -> Minecraft.getInstance().options
+        .getEffectiveRenderDistance();
+
+    private static int moonPhase() {
+        var lvl = Minecraft.getInstance().level;
+
+        if (lvl == null)
+            return 0;
+
+        return (int) Math.floorMod(lvl.getDefaultClockTime() / MoonPhase.PHASE_LENGTH, (long) MoonPhase.COUNT);
+    }
 
     protected AzAnimator() {
         this(AzAnimatorConfig.defaultConfig());
@@ -57,7 +127,7 @@ public abstract class AzAnimator<K, T> {
     public AzAnimationContext<T> getOrCreateContext(K uuid) {
         var ctx = contextCache.computeIfAbsent(
             uuid,
-            _ -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+            ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
         );
         this.currentContext = ctx;
         return ctx;
@@ -68,6 +138,7 @@ public abstract class AzAnimator<K, T> {
     public abstract @NotNull Identifier getAnimationLocation(T animatable);
 
     public void animate(T animatable, float partialTicks, boolean updateTimer) {
+        AzProfiler.begin(AzProfileStage.ANIMATE, animatable);
         this.currentContext.animatable = animatable;
 
         var boneCache = this.currentContext.boneCache();
@@ -77,19 +148,29 @@ public abstract class AzAnimator<K, T> {
             timer.tick();
         }
 
+        AzProfiler.begin(AzProfileStage.MOLANG_SETUP, animatable);
         preAnimationSetup(animatable, timer.getAnimTime(), partialTicks);
+        AzProfiler.end(AzProfileStage.MOLANG_SETUP);
 
         if (!boneCache.isEmpty()) {
             for (var controller : animationControllerContainer.getAll()) {
+                AzProfiler.begin(AzProfileStage.CONTROLLER_UPDATE, controller);
                 controller.update();
+                AzProfiler.end(AzProfileStage.CONTROLLER_UPDATE);
             }
 
             this.reloadAnimations = false;
 
+            AzProfiler.begin(AzProfileStage.BONE_UPDATE, animatable);
             boneCache.update(this.currentContext);
+            AzProfiler.end(AzProfileStage.BONE_UPDATE);
         }
 
+        AzProfiler.begin(AzProfileStage.CUSTOM_ANIMATIONS, animatable);
         setCustomAnimations(animatable, partialTicks);
+        AzProfiler.end(AzProfileStage.CUSTOM_ANIMATIONS);
+
+        AzProfiler.end(AzProfileStage.ANIMATE);
     }
 
     public void animate(T animatable, float partialTicks) {
@@ -116,19 +197,24 @@ public abstract class AzAnimator<K, T> {
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
         var level = Minecraft.getInstance().level;
-        var parser = MolangParser.INSTANCE;
 
         if (level == null) {
             return;
         }
 
-        parser.setMemoizedValue(MolangQueries.LIFE_TIME, () -> animTime / 20d);
-        parser.setMemoizedValue(MolangQueries.ACTOR_COUNT, level::getEntityCount);
-        parser.setMemoizedValue(MolangQueries.TIME_OF_DAY, () -> level.getDefaultClockTime() / 24000f);
-        parser.setMemoizedValue(
-            MolangQueries.MOON_PHASE,
-            () -> ((double) level.getDefaultClockTime() / MoonPhase.PHASE_LENGTH) % MoonPhase.COUNT
-        );
+        this.molangAnimTime = animTime;
+        this.molangPartialTicks = partialTicks;
+        LIFE_TIME_REF.setMemoized(lifetimeSupplier);
+        ACTOR_COUNT_REF.setMemoized(actorCountSupplier);
+        TIME_OF_DAY_REF.setMemoized(timeOfDaySupplier);
+        MOON_PHASE_REF.setMemoized(moonPhaseSupplier);
+        MOON_BRIGHTNESS_REF.setMemoized(moonBrightnessSupplier);
+        DAY_REF.setMemoized(daySupplier);
+        TIME_STAMP_REF.setMemoized(timeStampSupplier);
+        FRAME_ALPHA_REF.setMemoized(frameAlphaSupplier);
+        CLIENT_MAX_RENDER_DISTANCE_REF.setMemoized(clientMaxRenderDistanceSupplier);
+
+        AzMolangQueryContext.INSTANCE.bind(null, partialTicks);
     }
 
     /**

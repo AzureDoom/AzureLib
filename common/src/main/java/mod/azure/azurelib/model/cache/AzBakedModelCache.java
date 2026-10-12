@@ -1,6 +1,5 @@
 package mod.azure.azurelib.model.cache;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +18,8 @@ import mod.azure.azurelib.model.factory.registry.AzBakedModelFactoryRegistry;
 
 /**
  * AzBakedModelCache is a singleton class that extends {@link AzResourceCache} and is designed to manage and cache baked
- * models of type {@link AzBakedModel}. It provides functionality to asynchronously load and store models associated
- * with specific resource locations.
+ * models of type {@link AzBakedModel}. It provides functionality to asynchronously load models and replace the whole
+ * cache atomically on reload, so readers never see a partially loaded map.
  */
 public class AzBakedModelCache extends AzResourceCache {
 
@@ -30,13 +29,14 @@ public class AzBakedModelCache extends AzResourceCache {
         return INSTANCE;
     }
 
-    private final Map<Identifier, AzBakedModel> bakedModels;
+    private volatile Map<Identifier, AzBakedModel> bakedModels = Map.of();
 
-    private AzBakedModelCache() {
-        this.bakedModels = new Object2ObjectOpenHashMap<>();
-    }
+    private AzBakedModelCache() {}
 
-    public CompletableFuture<Void> loadModels(Executor backgroundExecutor, ResourceManager resourceManager) {
+    public CompletableFuture<Map<Identifier, AzBakedModel>> loadModels(
+        Executor backgroundExecutor,
+        ResourceManager resourceManager
+    ) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
             Model model = FileLoader.loadModelFile(resource, resourceManager);
 
@@ -52,7 +52,11 @@ public class AzBakedModelCache extends AzResourceCache {
 
             return AzBakedModelFactoryRegistry.getForNamespace(resource.getNamespace())
                 .constructGeoModel(GeometryTree.fromModel(model));
-        }, bakedModels::put);
+        });
+    }
+
+    public void apply(Map<Identifier, AzBakedModel> models) {
+        this.bakedModels = models;
     }
 
     public @Nullable AzBakedModel getNullable(Identifier resourceLocation) {

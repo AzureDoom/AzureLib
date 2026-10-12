@@ -94,7 +94,6 @@ public class AzProvider<K, T> {
                     // Recache the animator on model change
                     cachedAnimator = cacheAnimator(accessor, shared, animatable);
                 }
-                // TODO: Their might be cases where the animator changes without the model changing
             }
         }
 

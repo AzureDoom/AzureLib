@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.model.AzBone;
@@ -38,8 +39,32 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        for (var renderLayer : renderLayerSupplier.get()) {
-            renderLayer.renderForBone(context, bone);
+        var layers = renderLayerSupplier.get();
+
+        if (layers.isEmpty()) {
+            return;
+        }
+
+        var source = context.isInModelPass() ? context.multiBufferSource() : null;
+        var modelRenderType = context.modelPassRenderType();
+        var totalBefore = source == null ? 0 : source.totalVertexCount();
+        var modelBefore = source == null ? 0 : source.vertexCount(modelRenderType);
+
+        if (layers instanceof List<AzRenderLayer<K, T>> list) {
+            for (int i = 0, size = list.size(); i < size; i++) {
+                list.get(i).renderForBone(context, bone);
+            }
+        } else {
+            for (var renderLayer : layers) {
+                renderLayer.renderForBone(context, bone);
+            }
+        }
+
+        if (source != null) {
+            context.recordBoneLayerWrites(
+                source.totalVertexCount() - totalBefore,
+                source.vertexCount(modelRenderType) - modelBefore
+            );
         }
     }
 

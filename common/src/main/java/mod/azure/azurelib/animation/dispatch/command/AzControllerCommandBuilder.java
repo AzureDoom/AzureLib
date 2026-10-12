@@ -4,6 +4,7 @@ import java.util.function.UnaryOperator;
 
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 
 public class AzControllerCommandBuilder extends AzCommandBuilder {
@@ -48,6 +49,23 @@ public class AzControllerCommandBuilder extends AzCommandBuilder {
         return this;
     }
 
+    /**
+     * Sets a controller's blend weight (0 to 1) immediately. See {@code AzAnimationController#setWeight}.
+     */
+    public AzControllerCommandBuilder setWeight(String controllerName, float weight) {
+        actions.add(new AzControllerSetWeightAction(controllerName, weight, 0));
+        return this;
+    }
+
+    /**
+     * Fades a controller's blend weight (0 to 1) over {@code fadeTicks} ticks. See
+     * {@code AzAnimationController#fadeWeight}.
+     */
+    public AzControllerCommandBuilder fadeWeight(String controllerName, float weight, float fadeTicks) {
+        actions.add(new AzControllerSetWeightAction(controllerName, weight, fadeTicks));
+        return this;
+    }
+
     public AzControllerCommandBuilder cancel(String controllerName) {
         actions.add(new AzControllerCancelAction(controllerName));
         return this;
@@ -63,6 +81,15 @@ public class AzControllerCommandBuilder extends AzCommandBuilder {
     ) {
         var sequence = builderUnaryOperator.apply(new AzAnimationSequenceBuilder()).build();
         actions.add(new AzControllerPlayAnimationSequenceAction(controllerName, sequence));
+        return this;
+    }
+
+    /**
+     * Plays an {@link AzSequence} on the given controller. Sequence events are not dispatched; use an
+     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequencePlayer} for those.
+     */
+    public AzControllerCommandBuilder playSequence(String controllerName, AzSequence sequence) {
+        actions.add(new AzControllerPlayAnimationSequenceAction(controllerName, sequence.toAnimationSequence()));
         return this;
     }
 }

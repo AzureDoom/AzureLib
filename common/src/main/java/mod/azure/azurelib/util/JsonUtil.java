@@ -68,7 +68,7 @@ public record JsonUtil() {
      * respective {@link JsonElement JsonElements}
      *
      * @param array       The array containing the objects to be converted
-     * @param context     The {@link com.google.gson.Gson} context for deserialization
+     * @param context     The {@link Gson} context for deserialization
      * @param objectClass The object type that the array contains
      */
     @SuppressWarnings("unchecked")

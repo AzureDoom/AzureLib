@@ -81,7 +81,7 @@ public class BooleanArrayValue extends ConfigValue<boolean[]> implements ArrayVa
             String name,
             String[] comments,
             Object value,
-            TypeAdapter.TypeSerializer serializer,
+            TypeSerializer serializer,
             AdapterContext context
         ) throws IllegalAccessException {
             return new BooleanArrayValue(ValueData.of(name, (boolean[]) value, context, comments));

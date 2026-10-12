@@ -41,7 +41,12 @@ public record AzKeyframe<T extends IValue>(
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.length, this.startValue, this.endValue, this.easingType, this.easingArgs);
+        var result = 31 + Double.hashCode(this.length);
+        result = 31 * result + Objects.hashCode(this.startValue);
+        result = 31 * result + Objects.hashCode(this.endValue);
+        result = 31 * result + Objects.hashCode(this.easingType);
+        result = 31 * result + Objects.hashCode(this.easingArgs);
+        return result;
     }
 
     @Override
@@ -49,9 +54,13 @@ public record AzKeyframe<T extends IValue>(
         if (this == obj)
             return true;
 
-        if (obj == null || getClass() != obj.getClass())
+        if (!(obj instanceof AzKeyframe<?> other))
             return false;
 
-        return hashCode() == obj.hashCode();
+        return Double.compare(this.length, other.length()) == 0
+            && Objects.equals(this.startValue, other.startValue())
+            && Objects.equals(this.endValue, other.endValue())
+            && Objects.equals(this.easingType, other.easingType())
+            && Objects.equals(this.easingArgs, other.easingArgs());
     }
 }

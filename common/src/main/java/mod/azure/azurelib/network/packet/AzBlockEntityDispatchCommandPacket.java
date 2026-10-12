@@ -18,7 +18,7 @@ public record AzBlockEntityDispatchCommandPacket(
     AzCommand dispatchCommand
 ) implements AbstractPacket {
 
-    public static final CustomPacketPayload.Type<AzBlockEntityDispatchCommandPacket> TYPE = new Type<>(
+    public static final Type<AzBlockEntityDispatchCommandPacket> TYPE = new Type<>(
         AzureLibNetwork.AZ_BLOCKENTITY_DISPATCH_COMMAND_SYNC_PACKET_ID
     );
 

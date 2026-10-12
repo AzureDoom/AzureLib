@@ -26,6 +26,12 @@ public class AzAnimationControllerBuilder<T> {
 
     private AzKeyframeCallbacks<T> keyframeCallbacks;
 
+    private double weight = 1;
+
+    private AzBlendMode blendMode = AzBlendMode.OVERRIDE;
+
+    private AzBoneMask boneMask = AzBoneMask.ALL;
+
     public AzAnimationControllerBuilder(AzAnimator<?, T> animator, String name) {
         this.animator = animator;
         this.name = name;
@@ -107,12 +113,43 @@ public class AzAnimationControllerBuilder<T> {
      * @return A new {@code AzAnimationController<T>} instance, initialized with the specified animator, name, animation
      *         properties, and keyframe callbacks.
      */
+    /**
+     * Sets how strongly this controller's animation is applied, from 0 to 1 (default 1). See
+     * {@link AzAnimationController#setWeight}.
+     */
+    public AzAnimationControllerBuilder<T> setWeight(double weight) {
+        this.weight = weight;
+        return this;
+    }
+
+    /**
+     * Sets how this controller combines with controllers added before it on the same bone (default
+     * {@link AzBlendMode#OVERRIDE}).
+     */
+    public AzAnimationControllerBuilder<T> setBlendMode(AzBlendMode blendMode) {
+        this.blendMode = blendMode;
+        return this;
+    }
+
+    /** Limits which bones this controller animates, e.g. {@code AzBoneMask.only("upper_body")}. */
+    public AzAnimationControllerBuilder<T> setBoneMask(AzBoneMask boneMask) {
+        this.boneMask = boneMask;
+        return this;
+    }
+
     public AzAnimationController<T> build() {
-        return new AzAnimationController<>(
+        var controller = new AzAnimationController<>(
             name,
             animator,
             animationProperties,
             keyframeCallbacks
         );
+
+        controller.setWeight(weight);
+        controller.setBlendMode(blendMode);
+        controller.setBoneMask(boneMask);
+
+        return controller;
     }
+
 }

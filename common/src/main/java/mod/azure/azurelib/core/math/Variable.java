@@ -12,7 +12,7 @@ package mod.azure.azurelib.core.math;
  */
 public class Variable implements IValue {
 
-    private String name;
+    private final String name;
 
     private double value;
 

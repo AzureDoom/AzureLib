@@ -13,7 +13,17 @@ public record AzBakedAnimation(
     double length,
     AzLoopType loopType,
     AzBoneAnimation[] boneAnimations,
-    AzKeyframes keyframes
+    AzKeyframes keyframes,
+    AzAnimationDefaults defaults
 ) {
 
+    public AzBakedAnimation(
+        String name,
+        double length,
+        AzLoopType loopType,
+        AzBoneAnimation[] boneAnimations,
+        AzKeyframes keyframes
+    ) {
+        this(name, length, loopType, boneAnimations, keyframes, AzAnimationDefaults.NONE);
+    }
 }
