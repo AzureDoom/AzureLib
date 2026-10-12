@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
@@ -31,6 +32,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     private final Predicate<ItemDisplayContext> shouldAnimateInContext;
 
+    private final Function<ItemDisplayContext, AzItemAnimatorView> animatorViewProvider;
+
     private AzItemRendererConfig(
         Supplier<AzAnimator<UUID, ItemStack>> animatorProvider,
         Function<ItemStack, ResourceLocation> modelLocationProvider,
@@ -46,10 +49,11 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         boolean useEntityGuiLighting,
         boolean useNewOffset,
         Predicate<ItemDisplayContext> shouldAnimateInContext,
+        Function<ItemDisplayContext, AzItemAnimatorView> animatorViewProvider,
         BiFunction<AzRendererPipeline<UUID, ItemStack>, AzLayerRenderer<UUID, ItemStack>, AzModelRenderer<UUID, ItemStack>> modelRendererProvider,
         Function<AzRendererPipeline<UUID, ItemStack>, AzRendererPipelineContext<UUID, ItemStack>> pipelineContextFunction,
-        BiFunction<@Nullable ItemStack, AzBone, ResourceLocation> boneTextureOverrideProvider,
-        BiFunction<@Nullable ItemStack, AzBone, RenderType> boneRenderTypeOverrideProvider
+        BiFunction<@Nullable ItemStack, AzBone, @Nullable ResourceLocation> boneTextureOverrideProvider,
+        BiFunction<@Nullable ItemStack, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider
     ) {
         super(
             animatorProvider,
@@ -71,6 +75,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         this.useEntityGuiLighting = useEntityGuiLighting;
         this.useNewOffset = useNewOffset;
         this.shouldAnimateInContext = shouldAnimateInContext;
+        this.animatorViewProvider = animatorViewProvider;
     }
 
     public boolean useEntityGuiLighting() {
@@ -83,6 +88,14 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
     public boolean shouldAnimateInContext(ItemDisplayContext context) {
         return shouldAnimateInContext.test(context);
+    }
+
+    /**
+     * @return which of the stack's animators renders in the given display context.
+     */
+    public AzItemAnimatorView animatorView(ItemDisplayContext context) {
+        AzItemAnimatorView view = animatorViewProvider.apply(context);
+        return view != null ? view : AzItemAnimatorView.DEFAULT;
     }
 
     public static Builder builder(
@@ -107,6 +120,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 
         private Predicate<ItemDisplayContext> shouldAnimateInContext;
 
+        private Function<ItemDisplayContext, AzItemAnimatorView> animatorViewProvider;
+
         protected Builder(
             Function<ItemStack, ResourceLocation> modelLocationProvider,
             Function<ItemStack, ResourceLocation> textureLocationProvider
@@ -116,6 +131,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             this.useEntityGuiLighting = false;
             this.useNewOffset = false;
             this.shouldAnimateInContext = $ -> true;
+            this.animatorViewProvider = $ -> AzItemAnimatorView.DEFAULT;
             this.modelRendererProvider = (entityRendererPipeline, layer) -> new AzItemModelRenderer(
                 (AzItemRendererPipeline) entityRendererPipeline,
                 layer
@@ -306,6 +322,36 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             return this;
         }
 
+        /**
+         * Gives the first-person hand contexts their own animator, separate from the one used for third person and
+         * every other context. Each animator has its own controllers, bone state and timer, so the two views can play
+         * different animations at the same time (for example an aim-down-sights fire in first person and a hip fire in
+         * third person). <br>
+         * Target a view with {@code AzCommand#sendForItemFirstPerson}, {@code AzCommand#sendForItemThirdPerson} or
+         * {@code AzCommand#sendForItem(Entity, ItemStack, AzItemAnimatorView)}; the plain
+         * {@code AzCommand#sendForItem(Entity, ItemStack)} still plays on both.
+         *
+         * @return The current instance of the {@code Builder} for method chaining.
+         */
+        public Builder useSeparateFirstPersonAnimator() {
+            this.animatorViewProvider = AzItemAnimatorView::fromDisplayContext;
+            return this;
+        }
+
+        /**
+         * Sets which of the stack's animators renders in each {@link ItemDisplayContext}. The default sends every
+         * context to {@link AzItemAnimatorView#DEFAULT}; {@link #useSeparateFirstPersonAnimator()} is the common case.
+         *
+         * @param animatorViewProvider maps a display context to the animator view used to render it.
+         * @return The current instance of the {@code Builder} for method chaining.
+         */
+        public Builder setAnimatorViewProvider(
+            Function<ItemDisplayContext, AzItemAnimatorView> animatorViewProvider
+        ) {
+            this.animatorViewProvider = animatorViewProvider;
+            return this;
+        }
+
         @Override
         public AzItemRendererConfig build() {
             var baseConfig = super.build();
@@ -325,6 +371,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 useEntityGuiLighting,
                 useNewOffset,
                 shouldAnimateInContext,
+                animatorViewProvider,
                 baseConfig::modelRendererProvider,
                 baseConfig::pipelineContext,
                 baseConfig::boneTextureOverrideProvider,
