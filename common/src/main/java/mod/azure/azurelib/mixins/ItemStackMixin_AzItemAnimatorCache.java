@@ -11,6 +11,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.util.AzureLibUtil;
 
 @Mixin(ItemStack.class)
@@ -19,13 +20,14 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     @Override
     public void setAnimator(@Nullable AzAnimator<UUID, ItemStack> animator) {
         var itemStack = AzureLibUtil.<ItemStack>self(this);
-        AzIdentifiableItemStackAnimatorCache.getInstance().add(itemStack, (AzItemAnimator) animator);
+        AzIdentifiableItemStackAnimatorCache.getInstance()
+            .add(itemStack, AzItemAnimatorView.current(), (AzItemAnimator) animator);
     }
 
     @Override
     public @Nullable AzAnimator<UUID, ItemStack> getAnimatorOrNull() {
         var self = AzureLibUtil.<ItemStack>self(this);
         var uuid = self.getComponents().get(AzureLib.AZ_ID.get());
-        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid);
+        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.current());
     }
 }

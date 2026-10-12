@@ -6,18 +6,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
@@ -249,29 +249,67 @@ public record AzCommand(List<AzAction> actions) {
     /**
      * Sends animation commands for the specified item based on the configured dispatch origin. The method determines
      * whether the command can proceed, assigns a unique identifier to the item if required, and dispatches the
-     * animation commands either from the client or the server side.
+     * animation commands either from the client or the server side. <br>
+     * The command runs on every animator the stack has. If the item's renderer uses a separate first-person animator
+     * ({@code AzItemRendererConfig.Builder#useSeparateFirstPersonAnimator()}), both the first-person and third-person
+     * views play it; use {@link #sendForItem(Entity, ItemStack, AzItemAnimatorView)} to target only one of them.
      *
      * @param entity    the {@link Entity} associated with the {@link ItemStack}.
      * @param itemStack the {@link ItemStack} on which the animation commands are dispatched.
      */
     public void sendForItem(Entity entity, ItemStack itemStack) {
+        sendForItem(entity, itemStack, null);
+    }
+
+    /**
+     * Sends animation commands for the specified item, targeting only the animator for the given view. <br>
+     * {@link AzItemAnimatorView#FIRST_PERSON} only has an effect when the item's renderer was built with
+     * {@code useSeparateFirstPersonAnimator()}; {@link AzItemAnimatorView#DEFAULT} is the animator used for third
+     * person and every other non-first-person context.
+     *
+     * @param entity    the {@link Entity} associated with the {@link ItemStack}.
+     * @param itemStack the {@link ItemStack} on which the animation commands are dispatched.
+     * @param view      the animator to target, or null to target every animator the stack has.
+     */
+    public void sendForItem(Entity entity, ItemStack itemStack, @Nullable AzItemAnimatorView view) {
+        var uuid = itemStack.get(AzureLib.AZ_ID.get());
+        if (uuid == null) {
+            AzureLib.LOGGER.warn(
+                "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
+                itemStack.getItem(),
+                itemStack
+            );
+            return;
+        }
+
         if (entity.level().isClientSide()) {
-            dispatchFromClient(itemStack);
-        } else {
-            var uuid = itemStack.get(AzureLib.AZ_ID.get());
-
-            if (uuid == null) {
-                AzureLib.LOGGER.warn(
-                    "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
-                    itemStack.getItem(),
-                    itemStack
+            AzIdentifiableItemStackAnimatorCache.getInstance()
+                .forEach(
+                    uuid,
+                    view,
+                    animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
                 );
-                return;
-            }
-
-            var packet = new AzItemStackDispatchCommandPacket(uuid, this);
+        } else {
+            var packet = new AzItemStackDispatchCommandPacket(uuid, this, Optional.ofNullable(view));
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
         }
+    }
+
+    /**
+     * Shorthand for {@link #sendForItem(Entity, ItemStack, AzItemAnimatorView)} with
+     * {@link AzItemAnimatorView#FIRST_PERSON}.
+     */
+    public void sendForItemFirstPerson(Entity entity, ItemStack itemStack) {
+        sendForItem(entity, itemStack, AzItemAnimatorView.FIRST_PERSON);
+    }
+
+    /**
+     * Shorthand for {@link #sendForItem(Entity, ItemStack, AzItemAnimatorView)} with
+     * {@link AzItemAnimatorView#DEFAULT}, the animator used for third person (and every other non-first-person
+     * context).
+     */
+    public void sendForItemThirdPerson(Entity entity, ItemStack itemStack) {
+        sendForItem(entity, itemStack, AzItemAnimatorView.DEFAULT);
     }
 
     /**

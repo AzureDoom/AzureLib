@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
@@ -59,18 +60,53 @@ public abstract class AzItemRenderer {
         @NotNull AzBufferSource source,
         int packedLight
     ) {
-        var context = rendererPipeline.context();
-        var model = provider.provideBakedModel(context.currentEntity(), stack);
-        var itemContext = (AzItemRendererPipelineContext) context;
+        // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
+        // animator for this display context's view.
+        var previousView = AzItemAnimatorView.push(config.animatorView(transformType));
 
-        itemContext.setTransformType(transformType);
+        try {
+            var context = rendererPipeline.context();
+            var model = provider.provideBakedModel(context.currentEntity(), stack);
+            var itemContext = (AzItemRendererPipelineContext) context;
 
-        prepareAnimator(stack, model);
+            itemContext.setTransformType(transformType);
 
-        AzItemGuiRenderUtil.renderInGui(config, rendererPipeline, stack, model, stack, poseStack, source, packedLight);
+            prepareAnimator(stack, model);
+
+            AzItemGuiRenderUtil.renderInGui(
+                config,
+                rendererPipeline,
+                stack,
+                model,
+                stack,
+                poseStack,
+                source,
+                packedLight
+            );
+        } finally {
+            AzItemAnimatorView.restore(previousView);
+        }
     }
 
     public void renderByItem(
+        ItemStack stack,
+        ItemDisplayContext transformType,
+        @NotNull PoseStack poseStack,
+        @NotNull AzBufferSource source,
+        int packedLight
+    ) {
+        // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
+        // animator for this display context's view.
+        var previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+
+        try {
+            renderByItemInView(stack, transformType, poseStack, source, packedLight);
+        } finally {
+            AzItemAnimatorView.restore(previousView);
+        }
+    }
+
+    private void renderByItemInView(
         ItemStack stack,
         ItemDisplayContext transformType,
         @NotNull PoseStack poseStack,
@@ -106,11 +142,31 @@ public abstract class AzItemRenderer {
         int packedLight,
         int packedOverlay
     ) {
+        var transformType = AzItemDisplayContextCapture.current();
+        // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
+        // animator for this display context's view.
+        var previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+
+        try {
+            renderSpecialInView(stack, transformType, poseStack, source, packedLight, packedOverlay);
+        } finally {
+            AzItemAnimatorView.restore(previousView);
+        }
+    }
+
+    private void renderSpecialInView(
+        ItemStack stack,
+        ItemDisplayContext transformType,
+        PoseStack poseStack,
+        AzBufferSource source,
+        int packedLight,
+        int packedOverlay
+    ) {
         var context = rendererPipeline.context();
         var itemContext =
             (AzItemRendererPipelineContext) context;
 
-        itemContext.setTransformType(AzItemDisplayContextCapture.current());
+        itemContext.setTransformType(transformType);
 
         var model = provider.provideBakedModel(
             context.currentEntity(),

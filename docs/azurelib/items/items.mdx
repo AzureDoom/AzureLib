@@ -131,6 +131,37 @@ public class ExampleItemRenderer extends AzItemRenderer {
 }
 ```
 
+## Different animations in first person and third person
+
+By default an item stack has one animator, so whatever plays in first person also plays in third person. If you want the two views to play different animations at the same time (for example an aimed fire in first person while other players see a hip fire), opt in with `useSeparateFirstPersonAnimator()`. The first-person hand contexts then get their own animator with their own controllers, bone state and timer; third person, GUI, ground, item frames and every other context keep using the default animator.
+
+```java
+public ExampleItemRenderer() {
+    super(
+        AzItemRendererConfig.builder(GEO, TEX)
+            .setAnimatorProvider(ExampleItemAnimator::new)
+            .useSeparateFirstPersonAnimator()
+            .build()
+    );
+}
+```
+
+Both animators are built from the same `AzItemAnimator`, so they share controller names and the same animation file. Target one view when you dispatch:
+
+```java
+public class ExampleItemDispatcher {
+    private static final AzCommand AIM_FIRING = AzCommand.create("base_controller", "aimfiring", AzPlayBehaviors.PLAY_ONCE);
+    private static final AzCommand FIRING = AzCommand.create("base_controller", "firing", AzPlayBehaviors.PLAY_ONCE);
+
+    public void firing(Entity entity, ItemStack itemStack) {
+        AIM_FIRING.sendForItemFirstPerson(entity, itemStack);
+        FIRING.sendForItemThirdPerson(entity, itemStack);
+    }
+}
+```
+
+`sendForItem(entity, stack)` without a view still plays on both animators, and `sendForItem(entity, stack, AzItemAnimatorView)` lets you pick the view from a variable. For anything other than a plain first/third split, `setAnimatorViewProvider(context -> ...)` maps each `ItemDisplayContext` to a view yourself.
+
 ## Registering your Renderer
 
 Call `AzItemRendererRegistry#register()` in your `onInitializeClient` for Fabric, or inside `event.enqueueWork(...)` in your `FMLClientSetupEvent` handler for NeoForge.
