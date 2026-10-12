@@ -1,11 +1,11 @@
-v3.2.20
+v3.2.20b
 
 ### Additions
 - Added separate first-person animators for items. Item renderers built with `useSeparateFirstPersonAnimator()` give the first-person hands their own animator, so first person and third person can play different animations on the same item stack at the same time (for example, an aimed fire in first person while other players see a hip fire).
 - Added `AzCommand#sendForItemFirstPerson`, `AzCommand#sendForItemThirdPerson` and `AzCommand#sendForItem(Entity, ItemStack, AzItemAnimatorView)` to play a command on only one view.
 
 ### Fixes
-- N/A
+- Fixed broken packet in 3.2.20
 
 ### Changes
 - `AzCommand#sendForItem(Entity, ItemStack)` now plays on every animator the stack has. For renderers that don't use a separate first-person animator this is the same single animator as before.
