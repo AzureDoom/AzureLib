@@ -268,12 +268,45 @@ The `AzItemRendererConfig` is tailored for rendering **items**. It also provides
     - **GUI Lighting switch**: Toggle between flat item lighting and entity-style lighting for GUI contexts
     - **Offset fix**: Fixes items having incorrect positioning when exported from BlockBench 4.11+
     - **Player Arms Integration**: Automatic rendering of player arms for first-person items when `leftArm` or `rightArm` bones are present
+    - **Separate first-person animator**: Lets first person and third person play different animations on the same item stack at the same time
 
 ### Player Arms Feature
 
 Items with bones named `leftArm` or `rightArm` will automatically render player arms in first-person view, creating immersive weapon and tool experiences. This feature is automatically disabled if a mod with the id `firstperson` is detected to prevent conflicts.
 
 You download the example arms to import [here](https://github.com/AzureDoom/AzureLib/blob/1.21.1/player_arms_import.bbmodel)
+
+### Separate First-Person Animator
+
+By default, an item stack has a single animator that every display context shares, so an animation played on the stack shows in first person and third person alike. Calling `useSeparateFirstPersonAnimator()` gives the first-person hand contexts (`FIRST_PERSON_LEFT_HAND` and `FIRST_PERSON_RIGHT_HAND`) an animator of their own. Third person, GUI, ground, item frames and every other context keep using the default animator.
+
+Each animator has its own controllers, bone state and timer, so the two views never affect each other. Both are created from the same `AzItemAnimator`, which means they share controller names and the same animation file.
+
+```java
+AzItemRendererConfig.builder(MODEL, TEXTURE)
+    .setAnimatorProvider(ExampleItemAnimator::new)
+    .useSeparateFirstPersonAnimator()
+    .build();
+```
+
+Once enabled, you choose which view a command plays on when you send it (see [Sending to a Specific View](../animating/azcommands_101#sending-to-a-specific-view)):
+
+```java
+AIM_FIRING.sendForItemFirstPerson(player, stack); // only the first-person view
+FIRING.sendForItemThirdPerson(player, stack);     // third person and every other context
+```
+
+For a split other than first/third person, `setAnimatorViewProvider` maps each `ItemDisplayContext` to an `AzItemAnimatorView` yourself:
+
+```java
+.setAnimatorViewProvider(context -> context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+    ? AzItemAnimatorView.FIRST_PERSON
+    : AzItemAnimatorView.DEFAULT)
+```
+
+<Callout variant="info">
+    Renderers that don't opt in behave exactly as before. A command sent to the first-person view of an item whose renderer doesn't use a separate first-person animator does nothing.
+</Callout>
 
 ### Example
 

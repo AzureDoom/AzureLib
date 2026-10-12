@@ -388,6 +388,29 @@ combinedCommand.sendForItem(myEntity, myItemStack);
 ```
 This requires the item stack to have a registered UUID, which is covered in the Item and Armor guides.
 
+#### Sending to a Specific View
+If the item's renderer uses `useSeparateFirstPersonAnimator()` (see the [AzItemRendererConfig](../rendering/azrenderer_config#separate-first-person-animator) section), the stack has two animators: one for first person and one for third person and every other context. `sendForItem(entity, stack)` plays the command on both. To play it on only one, target a view:
+
+``` java
+private static final AzCommand AIM_FIRING = AzCommand.create("base_controller", "aimfiring", AzPlayBehaviors.PLAY_ONCE);
+private static final AzCommand FIRING = AzCommand.create("base_controller", "firing", AzPlayBehaviors.PLAY_ONCE);
+
+public void fire(Player player, ItemStack stack) {
+    AIM_FIRING.sendForItemFirstPerson(player, stack); // what the shooter sees
+    FIRING.sendForItemThirdPerson(player, stack);     // what everyone else sees
+}
+```
+| Method                                     | Plays on                                                                                  |
+|--------------------------------------------|-------------------------------------------------------------------------------------------|
+| `sendForItem(entity, stack)`               | Every animator the stack has.                                                             |
+| `sendForItemFirstPerson(entity, stack)`    | The first-person animator only.                                                           |
+| `sendForItemThirdPerson(entity, stack)`    | The default animator only (third person, GUI, ground, item frames and other contexts).    |
+| `sendForItem(entity, stack, view)`         | The given `AzItemAnimatorView`, or every animator when `view` is `null`.                  |
+
+- A view's animator is created the first time the item renders in that view, the same as the default animator. Commands sent before then are dropped.
+- Players spectating someone in first person render that player's first-person animator, so they see the first-person animation.
+- If a command for every view and a command for one view target the same controller, the one sent last wins on that view.
+
 ## Best Practices
 1. **Reuse Commands**:
     - Define reusable commands for common animations to simplify your rendering logic.
