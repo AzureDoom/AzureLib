@@ -280,9 +280,9 @@ public record AzCommand(List<AzAction> actions) {
 
         if (uuid == null) {
             AzureLib.LOGGER.warn(
-                    "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
-                    itemStack.getItem(),
-                    itemStack
+                "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
+                itemStack.getItem(),
+                itemStack
             );
             return;
         }
