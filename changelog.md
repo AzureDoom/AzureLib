@@ -1,21 +1,18 @@
-v3.2.19
+v3.2.20
 
 ### Additions
-- Animation LOD now works. Past `animLodDistance`, entities update their animations once every `animLodTickInterval` ticks and hold their pose in between, instead of animating every frame.
+- Added separate first-person animators for items. Item renderers built with `useSeparateFirstPersonAnimator()` give the first-person hands their own animator, so first person and third person can play different animations on the same item stack at the same time (for example, an aimed fire in first person while other players see a hip fire).
+- Added `AzCommand#sendForItemFirstPerson`, `AzCommand#sendForItemThirdPerson` and `AzCommand#sendForItem(Entity, ItemStack, AzItemAnimatorView)` to play a command on only one view.
 
 ### Fixes
-- Fixed animation LOD having no effect. The LOD decision was computed but ignored, so distant entities still animated every frame.
-- Fixed models and animations that could briefly go missing during a resource reload (F3+T or changing resource packs in-world). The caches were filled in place on a background thread while the game was still rendering from them; they are now loaded separately and swapped in once the reload finishes.
-- Fixed models and animations from removed resource packs staying loaded until restart.
-- Fixed one geo model that failed to bake stopping every remaining model from loading. The broken model is now logged and skipped.
-- Fixed a crash when an animation file `includes` a file that is missing or failed to load. The animation is now logged as missing instead.
-- Fixed bone LOD being able to hide bones on the shared model template before an entity had its own copy, which newly spawned entities could then inherit.
-- Fixed per-entity LOD state never being released after entities unloaded.
+- N/A
 
 ### Changes
-- Changed LOD to be DISABLED by default when a render doesn't call `withLodConfig`.
+- `AzCommand#sendForItem(Entity, ItemStack)` now plays on every animator the stack has. For renderers that don't use a separate first-person animator this is the same single animator as before.
 
 ### Developer Notes
-- `AzResourceCache#loadResources` now returns `CompletableFuture<Map<ResourceLocation, T>>` and no longer takes a `BiConsumer`. `AzBakedAnimationCache#loadAnimations` and `AzBakedModelCache#loadModels` return the loaded map; publish it with the new `apply(Map)`. Namespaces in `EXCLUDED_NAMESPACES` are now skipped before loading instead of after.
-- Added `AzEntityRenderer#shouldAnimateThisFrame()` and the overridable `updateLod(...)`. Custom entity model renderers that override `render` should check `shouldAnimateThisFrame()` before calling `handleAnimation`, or animation LOD won't apply to them.
-- LOD is opt-in: renderers that never call `withLodConfig` don't use bone or animation LOD. Pass `AzLodConfig.DEFAULT` for the built-in preset (one animation update every 2 ticks past 48 blocks; bones deeper than depth 3 hidden past 40 blocks) or build your own with `AzLodConfig.builder()`.
+- Added `AzItemAnimatorView` (`DEFAULT`, `FIRST_PERSON`). While an item renders, the view for its display context is the current view on the render thread, so `AzAnimatorAccessor` lookups on an `ItemStack` during rendering (render layers, `AzProvider`, custom pipeline code) return that view's animator. Outside of rendering they return the `DEFAULT` animator.
+- Added `AzItemRendererConfig.Builder#setAnimatorViewProvider(Function<ItemDisplayContext, AzItemAnimatorView>)` for custom context-to-view mappings. `AzItemRendererConfig#animatorView(ItemDisplayContext)` returns the view used for a context.
+- `AzIdentifiableItemStackAnimatorCache` now stores animators per view. The existing `add(ItemStack, AzItemAnimator)` and `getOrNull(UUID)` still use `DEFAULT`; new overloads take an `AzItemAnimatorView`, and `forEach(UUID, AzItemAnimatorView, Consumer)` runs on one view or, with `null`, every view.
+- `ClientUtils#getCurrentAnimationController` and `#getCurrentAnimationTick` read the `DEFAULT` animator when called outside of rendering. To read the first-person animator, use `AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.FIRST_PERSON)`.
+- `AzItemStackDispatchCommandPacket` has a new optional view field, which changes its network format. Clients and servers must run matching AzureLib versions.
