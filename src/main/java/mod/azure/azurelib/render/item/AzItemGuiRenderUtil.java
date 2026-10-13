@@ -31,10 +31,9 @@ public class AzItemGuiRenderUtil {
         MultiBufferSource source,
         int packedLight
     ) {
-        if (config.useEntityGuiLighting()) {
-            RenderHelper.enableStandardItemLighting();
-        } else {
-            RenderHelper.enableGUIStandardItemLighting();
+        boolean entityLighting = config.useEntityGuiLighting();
+        if (entityLighting) {
+            setLightsInEyeSpace(true);
         }
 
         AzItemRendererPipelineContext context = (AzItemRendererPipelineContext) rendererPipeline.context();
@@ -58,7 +57,25 @@ public class AzItemGuiRenderUtil {
         }
 
         GlStateManager.enableDepth();
-        RenderHelper.enableGUIStandardItemLighting();
+        if (entityLighting) {
+            // Put back the GUI lights the hotbar/container set up, in the same space they were set in.
+            setLightsInEyeSpace(false);
+        }
         poseStack.popPose();
+    }
+
+    /**
+     * Sets the item lights with an identity model-view so their direction doesn't depend on the item's GUI transform
+     * (which includes RenderItem's Y flip and the display rotation).
+     */
+    private static void setLightsInEyeSpace(boolean entityStyle) {
+        GlStateManager.pushMatrix();
+        GlStateManager.loadIdentity();
+        if (entityStyle) {
+            RenderHelper.enableStandardItemLighting();
+        } else {
+            RenderHelper.enableGUIStandardItemLighting();
+        }
+        GlStateManager.popMatrix();
     }
 }
