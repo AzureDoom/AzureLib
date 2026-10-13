@@ -296,6 +296,19 @@ public final class AzBufferSource implements MultiBufferSource {
             this.floats[fi + 2] = pz;
             this.floats[fi + 3] = tu;
             this.floats[fi + 4] = tv;
+            // 1.12.2 packs normals into signed bytes with no GPU-side normalize, so a non-unit normal
+            // (from non-uniform bone scale) wraps past 127 and flips, or dims the face. Normalize here.
+            float lenSq = normalX * normalX + normalY * normalY + normalZ * normalZ;
+            if (lenSq > 1.0E-12F && Float.isFinite(lenSq)) {
+                float inv = 1.0F / (float) Math.sqrt(lenSq);
+                normalX *= inv;
+                normalY *= inv;
+                normalZ *= inv;
+            } else {
+                normalX = 0.0F;
+                normalY = 1.0F;
+                normalZ = 0.0F;
+            }
             this.floats[fi + 5] = normalX;
             this.floats[fi + 6] = normalY;
             this.floats[fi + 7] = normalZ;
