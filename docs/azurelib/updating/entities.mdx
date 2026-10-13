@@ -1,0 +1,375 @@
+---
+title: "Updating Guide: GeckoLib 3 to AzureLib"
+hide_meta: true
+---
+
+# Updating Entities
+
+A guide for converting GeckoLib 3 entities to AzureLib on Forge 1.7.10.
+
+In GeckoLib 3, a single `AnimatedGeoModel` held your model, texture and animation locations, and the entity itself held the controllers through `IAnimatable`. AzureLib splits that work up:
+
+| GeckoLib 3                                                            | AzureLib                                                                                  |
+|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `IAnimatable`, `IAnimationTickable`, `AnimationFactory` on the entity | Removed. The entity holds a Dispatcher instead                                            |
+| `registerControllers` and predicates on the entity                    | An `AzEntityAnimator` class                                                               |
+| `AnimatedGeoModel` / `AnimatedTickingGeoModel`                        | Model and texture go in `AzEntityRendererConfig`, the animation file goes in the Animator |
+| `setLivingAnimations` on the model                                    | `setCustomAnimations` on the Animator                                                     |
+| `GeoEntityRenderer`                                                   | `AzEntityRenderer`                                                                        |
+| `GeoReplacedEntityRenderer` + dummy `IAnimatable`                     | A plain `AzEntityRenderer` for the vanilla entity                                         |
+
+## Entity Class
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+public class ExampleEntity extends EntityCreature implements IAnimatable, IAnimationTickable {
+    private final AnimationFactory factory = new AnimationFactory(this);
+
+    public ExampleEntity(World world) {
+        super(world);
+        this.setSize(5F, 5F);
+    }
+
+    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.bat.fly", true));
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "base_controller", 50, this::predicate));
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return this.factory;
+    }
+
+    @Override
+    public int tickTimer() {
+        return ticksExisted;
+    }
+}
+```
+
+```java !!tabs AzureLib
+public class ExampleEntity extends EntityCreature {
+    // This is your class where you will setup the AzCommands/Animations you wish to play
+    public final ExampleEntityDispatcher dispatcher;
+
+    public ExampleEntity(World world) {
+        super(world);
+        this.setSize(5F, 5F);
+        // Create the instance of the class here to use later.
+        this.dispatcher = new ExampleEntityDispatcher(this);
+    }
+
+    // Called every frame from the renderer (client side), see Rendering below.
+    // This replaces your old predicate: decide what should play and send it.
+    public void updateAnimations() {
+        dispatcher.fly();
+    }
+}
+```
+
+</CodeTabs>
+
+As you can see here, you no longer need to implement `IAnimatable` or `IAnimationTickable`, keep an `AnimationFactory`, or register your controllers in the entity. All that is needed now is a Dispatcher, which we will cover below.
+
+## Animations
+
+<Callout variant="info">
+    See here for a more [indepth example](../misc/animating/azcommands_101#converting-from-animationcontroller-to-azcommand)
+</Callout>
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+    // In ExampleEntity
+    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+        event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.bat.fly", true));
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "base_controller", 50, this::predicate));
+    }
+
+    // In ExampleEntityModel
+    @Override
+    public ResourceLocation getAnimationFileLocation(ExampleEntity entity) {
+        return new ResourceLocation(YOUR_MOD_ID, "animations/example_entity.animation.json");
+    }
+```
+
+```java !!tabs AzureLib
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+    private static final ResourceLocation ANIMATIONS = new ResourceLocation(
+        YOUR_MOD_ID,
+        "animations/entity/example_entity.animation.json"
+    );
+
+    public ExampleEntityAnimator() {
+        super(AzAnimatorConfig.defaultConfig());
+    }
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleEntity> animationControllerContainer) {
+        animationControllerContainer.add(
+            AzAnimationController.builder(this, "base_controller")
+                // Same as the transition length you passed to the GeckoLib AnimationController
+                .setTransitionLength(50)
+                .build()
+        );
+    }
+
+    @Override
+    public @Nonnull ResourceLocation getAnimationLocation(ExampleEntity animatable) {
+        return ANIMATIONS;
+    }
+}
+```
+
+</CodeTabs>
+
+<Callout variant="info">
+    It is recommended to create a dedicated class for your animation triggers, as AzureLib works by sending animation commands rather than running a predicate every frame. This is the Dispatcher created in the entity class above:
+</Callout>
+```java
+public class ExampleEntityDispatcher {
+    private static final AzCommand FLY_COMMAND = AzCommand.create(
+        "base_controller",
+        "animation.bat.fly",
+        AzPlayBehaviors.LOOP
+    );
+
+    private final ExampleEntity exampleEntity;
+
+    public ExampleEntityDispatcher(ExampleEntity animatable) {
+        this.exampleEntity = animatable;
+    }
+
+    public void fly() {
+        FLY_COMMAND.sendForEntity(exampleEntity);
+    }
+}
+```
+
+If your predicate picked between several animations (idle vs. walk, for example), make one `AzCommand` per animation and move the `if` into `updateAnimations()`, sending whichever command should play.
+
+### Custom bone movement
+
+GeckoLib's `setLivingAnimations` on the model becomes `setCustomAnimations` on the Animator. Bones are fetched from the baked model instead of the animation processor.
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+    // In ExampleEntityModel
+    @Override
+    public void setLivingAnimations(ExampleEntity entity, Integer uniqueID, AnimationEvent animationEvent) {
+        super.setLivingAnimations(entity, uniqueID, animationEvent);
+        IBone head = this.getAnimationProcessor().getBone("head");
+        EntityModelData extraData = (EntityModelData) animationEvent.getExtraDataOfType(EntityModelData.class).get(0);
+        head.setRotationX(extraData.headPitch * ((float) Math.PI / 180F));
+        head.setRotationY(extraData.netHeadYaw * ((float) Math.PI / 180F));
+    }
+```
+
+```java !!tabs AzureLib
+    // In ExampleEntityAnimator
+    @Override
+    public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
+        super.setCustomAnimations(entity, partialTicks);
+        AzBone head = this.context().boneCache().getBakedModel().getBoneOrNull("head");
+
+        if (head != null) {
+            // There is no EntityModelData anymore, so read the rotations from the entity directly.
+            // Flip the signs if your head turns the wrong way.
+            float pitch = Mth.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch);
+            float headYaw = Mth.lerp(partialTicks, entity.prevRotationYawHead, entity.rotationYawHead);
+            float bodyYaw = Mth.lerp(partialTicks, entity.prevRenderYawOffset, entity.renderYawOffset);
+            head.setRotX(head.getInitialAzSnapshot().getRotX() - pitch * ((float) Math.PI / 180F));
+            head.setRotY(head.getInitialAzSnapshot().getRotY() - (headYaw - bodyYaw) * ((float) Math.PI / 180F));
+        }
+    }
+```
+
+</CodeTabs>
+
+## Rendering
+
+<Callout variant="info">
+    See [here](../misc/rendering/azrenderer_config#azentityrendererconfig) for a more indepth example
+</Callout>
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+public class ExampleEntityModel extends AnimatedTickingGeoModel<ExampleEntity> {
+    @Override
+    public ResourceLocation getAnimationFileLocation(ExampleEntity entity) {
+        return new ResourceLocation(YOUR_MOD_ID, "animations/example_entity.animation.json");
+    }
+
+    @Override
+    public ResourceLocation getModelLocation(ExampleEntity entity) {
+        return new ResourceLocation(YOUR_MOD_ID, "geo/example_entity.geo.json");
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(ExampleEntity entity) {
+        return new ResourceLocation(YOUR_MOD_ID, "textures/entity/example_entity.png");
+    }
+}
+
+public class ExampleEntityRenderer extends GeoEntityRenderer<ExampleEntity> {
+    public ExampleEntityRenderer() {
+        super(new ExampleEntityModel());
+    }
+}
+```
+
+```java !!tabs AzureLib
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation GEO = new ResourceLocation(
+        YOUR_MOD_ID,
+        "geo/entity/example_entity.geo.json"
+    );
+
+    private static final ResourceLocation TEX = new ResourceLocation(
+        YOUR_MOD_ID,
+        "textures/entity/example_entity.png"
+    );
+
+    public ExampleEntityRenderer() {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(GEO, TEX)
+                .setAnimatorProvider(ExampleEntityAnimator::new)
+                // Runs every frame on the client; this is where your animations get picked
+                .setRenderEntry(context -> {
+                    context.animatable().updateAnimations();
+                    return context;
+                })
+                .setShadowRadius(0.5F)
+                .build()
+        );
+    }
+}
+```
+
+</CodeTabs>
+
+The model class is gone. This is where you now register the ResourceLocation model and texture of your entity, and where you register your ExampleEntityAnimator.
+
+## Replaced (vanilla) entities
+
+GeckoLib 3 needed a dummy `IAnimatable` class, a `GeoReplacedEntityRenderer`, and a call to `registerReplacedEntity`. In AzureLib you write a normal `AzEntityRenderer` typed to the vanilla entity, and send commands for it straight from the renderer.
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+public class ReplacedCreeperEntity implements IAnimatable {
+    AnimationFactory factory = new AnimationFactory(this);
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "base_controller", 20, this::predicate));
+    }
+
+    private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
+        if (!(event.getLimbSwingAmount() > -0.15F && event.getLimbSwingAmount() < 0.15F)) {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("creeper_walk", true));
+        } else {
+            event.getController().setAnimation(new AnimationBuilder().addAnimation("creeper_idle", true));
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
+    }
+}
+
+public class ReplacedCreeperRenderer extends GeoReplacedEntityRenderer<ReplacedCreeperEntity> {
+    public ReplacedCreeperRenderer() {
+        super(new ReplacedCreeperModel(), new ReplacedCreeperEntity());
+    }
+
+    @Override
+    protected void preRenderCallback(EntityLivingBase entity, float partialTickTime) {
+        // swell scaling with GlStateManager.scale(...)
+    }
+}
+```
+
+```java !!tabs AzureLib
+public class CreeperRenderer extends AzEntityRenderer<EntityCreeper> {
+    private static final ResourceLocation GEO = new ResourceLocation(YOUR_MOD_ID, "geo/entity/creeper.geo.json");
+    private static final ResourceLocation TEX = new ResourceLocation(YOUR_MOD_ID, "textures/entity/creeper.png");
+
+    private static final AzCommand WALK = AzCommand.create("base_controller", "creeper_walk", AzPlayBehaviors.LOOP);
+    private static final AzCommand IDLE = AzCommand.create("base_controller", "creeper_idle", AzPlayBehaviors.LOOP);
+
+    public CreeperRenderer() {
+        super(
+            AzEntityRendererConfig.<EntityCreeper>builder(GEO, TEX)
+                // CreeperAnimator extends AzEntityAnimator<EntityCreeper>, set up like ExampleEntityAnimator
+                .setAnimatorProvider(CreeperAnimator::new)
+                .setRenderEntry(context -> {
+                    EntityCreeper creeper = context.animatable();
+                    (Math.abs(creeper.limbSwingAmount) >= 0.15F ? WALK : IDLE).sendForEntity(creeper);
+                    return context;
+                })
+                // Replaces preRenderCallback
+                .setPrerenderEntry(context -> {
+                    float f = context.animatable().getCreeperFlashIntensity(context.partialTick());
+                    float f1 = 1.0F + Mth.sin(f * 100.0F) * f * 0.01F;
+                    f = Mth.clamp(f, 0.0F, 1.0F);
+                    f = f * f * f * f;
+                    float horizontal = (1.0F + f * 0.4F) * f1;
+                    float vertical = (1.0F + f * 0.1F) / f1;
+                    context.poseStack().scale(horizontal, vertical, horizontal);
+                    return context;
+                })
+                .setShadowRadius(0.5F)
+                .build()
+        );
+    }
+}
+```
+
+</CodeTabs>
+
+## Registering
+
+Entity registration with `EntityRegistry.registerModEntity` doesn't change. Renderers are still registered as instances during init on the client.
+
+<CodeTabs>
+
+```java !!tabs GeckoLib 3
+@SideOnly(Side.CLIENT)
+public static void registerRenderers(FMLInitializationEvent event) {
+    RenderingRegistry.registerEntityRenderingHandler(ExampleEntity.class, new ExampleEntityRenderer());
+
+    // Replaced entities
+    ReplacedCreeperRenderer creeperRenderer = new ReplacedCreeperRenderer();
+    RenderManager.instance.entityRenderMap.put(EntityCreeper.class, creeperRenderer);
+    GeoReplacedEntityRenderer.registerReplacedEntity(ReplacedCreeperEntity.class, creeperRenderer);
+}
+```
+
+```java !!tabs AzureLib
+// In your ClientProxy#init
+@Override
+public void init() {
+    RenderingRegistry.registerEntityRenderingHandler(ExampleEntity.class, new ExampleEntityRenderer());
+
+    // Replaced entities are registered the same way as your own
+    RenderingRegistry.registerEntityRenderingHandler(EntityCreeper.class, new CreeperRenderer());
+}
+```
+
+</CodeTabs>
