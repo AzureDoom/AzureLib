@@ -1,18 +1,17 @@
-v1.0.3
+v1.0.4
 
 ### Additions
-- Added separate first-person animators for items. Item renderers built with `useSeparateFirstPersonAnimator()` give the first-person hands their own animator, so first person and third person can play different animations on the same item stack at the same time (for example, an aimed fire in first person while other players see a hip fire).
-- Added `AzCommand#sendForItemFirstPerson`, `AzCommand#sendForItemThirdPerson` and `AzCommand#sendForItem(Entity, ItemStack, AzItemAnimatorView)` to play a command on only one view.
-
-### Fixes
 - N/A
 
+### Fixes
+- Fixed AzureLib armor rendering in the wrong place on players and mobs when an AzureLib entity was wearing the same armor item. The chestplate would float above the wearer's head.
+- Fixed arm, leg and boot pieces of AzureLib armor on AzureLib entities being placed at the wrong position (for example, gauntlets rendering at the entity's feet), depending on the order the entity's bones rendered in.
+
 ### Changes
-- `AzCommand#sendForItem(Entity, ItemStack)` now plays on every animator the stack has. For renderers that don't use a separate first-person animator this is the same single animator as before.
+- N/A
 
 ### Developer Notes
-- Added `AzItemAnimatorView` (`DEFAULT`, `FIRST_PERSON`). While an item renders, the view for its display context is the current view on the render thread, so `AzAnimatorAccessor` lookups on an `ItemStack` during rendering (render layers, `AzProvider`, custom pipeline code) return that view's animator. Outside of rendering they return the `DEFAULT` animator.
-- Added `AzItemRendererConfig.Builder#setAnimatorViewProvider(Function<AzItemDisplayContext, AzItemAnimatorView>)` for custom context-to-view mappings. `AzItemRendererConfig#animatorView(AzItemDisplayContext)` returns the view used for a context.
-- `AzIdentifiableItemStackAnimatorCache` now stores animators per view. The existing `add(ItemStack, AzItemAnimator)` and `getOrNull(UUID)` still use `DEFAULT`; new overloads take an `AzItemAnimatorView`, and `forEach(UUID, AzItemAnimatorView, Consumer)` runs on one view or, with `null`, every view.
-- `ClientUtils#getCurrentAnimationController` and `#getCurrentAnimationTick` read the `DEFAULT` animator when called outside of rendering. To read the first-person animator, use `AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.FIRST_PERSON)`.
-- `AzItemStackDispatchCommandPacket` has a new optional view field, which changes its network format. Clients and servers must run matching AzureLib versions.
+- Each armor item shares one `AzArmorModel` across every wearer. `AzArmorLayer` used to leave that shared model's biped parts posed with the entity's bone pivots and rotations, and vanilla's `ModelBiped#setRotationAngles` never resets `bipedBody`'s rotation point or the arms' Y rotation point. That stale state then leaked into the next wearer.
+- `AzArmorModel#render` now resets every biped part to the default `ModelBiped` pose before calling `setRotationAngles`, so the vanilla armor layer path always starts from a clean pose.
+- `AzArmorLayer` now saves the biped pose of every armor model it uses during an entity's render and restores it in `render(context)` once the model pass is finished. Subclasses that override `render` must call `super.render(context)`.
+- `AzArmorLayer` now caches each entity's posed biped parts per armor model and applies that cache before each piece renders. `applyBaseTransformations` positions every armor bone from every biped part, so each piece now sees this entity's full pose rather than default or leftover values. The cache is weakly keyed on the entity.
