@@ -37,6 +37,10 @@ public class PoseStack {
     public void scale(float x, float y, float z) {
         Pose pose = this.poseStack.getLast();
         pose.pose.multiply(Matrix4f.createScaleMatrix(x, y, z));
+        if (x == 0.0F || y == 0.0F || z == 0.0F) {
+            // Collapsed axis: geometry is flat/invisible anyway; don't poison the normal matrix with 1/0.
+            return;
+        }
         if (x == y && y == z) {
             if (x > 0.0F) {
                 return;
