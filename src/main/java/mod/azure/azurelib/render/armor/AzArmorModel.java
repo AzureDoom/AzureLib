@@ -3,6 +3,7 @@ package mod.azure.azurelib.render.armor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -55,6 +56,21 @@ public class AzArmorModel extends ModelBiped {
         this.pendingSlot = slot;
     }
 
+    private static void resetPart(ModelRenderer part, float x, float y, float z) {
+        part.setRotationPoint(x, y, z);
+        part.rotateAngleX = part.rotateAngleY = part.rotateAngleZ = 0;
+    }
+
+    private void resetPose() {
+        resetPart(bipedHead, 0, 0, 0);
+        resetPart(bipedHeadwear, 0, 0, 0);
+        resetPart(bipedBody, 0, 0, 0);
+        resetPart(bipedRightArm, -5, 2, 0);
+        resetPart(bipedLeftArm, 5, 2, 0);
+        resetPart(bipedRightLeg, -1.9F, 12, 0);
+        resetPart(bipedLeftLeg, 1.9F, 12, 0);
+    }
+
     @Override
     public void render(
         @Nonnull Entity entity,
@@ -75,6 +91,7 @@ public class AzArmorModel extends ModelBiped {
             return;
         }
 
+        resetPose();
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entity);
         pendingRenderer.prepForRender(entity, pendingStack, pendingSlot, this);
 
