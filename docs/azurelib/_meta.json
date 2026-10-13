@@ -3,6 +3,10 @@
         "name": "Blockbench Plugin",
         "icon": "Film"
     },
+    "updating": {
+        "name": "Updating Guides",
+        "icon": "Plus"
+    },
     "armor": {
         "name": "Armor",
         "icon": "Shield"
