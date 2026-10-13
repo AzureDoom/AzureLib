@@ -1,17 +1,19 @@
-v1.0.4
+v1.0.5
 
 ### Additions
 - N/A
 
 ### Fixes
-- Fixed AzureLib armor rendering in the wrong place on players and mobs when an AzureLib entity was wearing the same armor item. The chestplate would float above the wearer's head.
-- Fixed arm, leg and boot pieces of AzureLib armor on AzureLib entities being placed at the wrong position (for example, gauntlets rendering at the entity's feet), depending on the order the entity's bones rendered in.
+- Fixed AzureLib items rendered in the hotbar or inventory having inverted lighting, and changing the lighting of every item rendered after them in the same slot row (blocks, spawn eggs).
+- Fixed AzureLib entities rendering with dark or inverted shading when a bone is scaled non-uniformly by an animation (for example, a squash or stretch).
+- Fixed bones scaled to 0 by an animation turning their child bones black.
+- Fixed items rendered in the hotbar or inventory after an AzureLib item turning darker on 1.7.10, because the AzureLib item's render was switching off the GUI item lighting.
 
 ### Changes
 - N/A
 
 ### Developer Notes
-- Each armor item shares one `AzArmorModel` across every wearer. `AzArmorLayer` used to leave that shared model's biped parts posed with the entity's bone pivots and rotations, and vanilla's `ModelBiped#setRotationAngles` never resets `bipedBody`'s rotation point or the arms' Y rotation point. That stale state then leaked into the next wearer.
-- `AzArmorModel#render` now resets every biped part to the default `ModelBiped` pose before calling `setRotationAngles`, so the vanilla armor layer path always starts from a clean pose.
-- `AzArmorLayer` now saves the biped pose of every armor model it uses during an entity's render and restores it in `render(context)` once the model pass is finished. Subclasses that override `render` must call `super.render(context)`.
-- `AzArmorLayer` now caches each entity's posed biped parts per armor model and applies that cache before each piece renders. `applyBaseTransformations` positions every armor bone from every biped part, so each piece now sees this entity's full pose rather than default or leftover values. The cache is weakly keyed on the entity.
+- `AzItemGuiRenderUtil#renderInGui` no longer resets the item lights for the default GUI lighting, since the hotbar or container has already set them. Items using `useEntityGuiLighting()` now set and restore their lights under an identity model-view, so the light direction no longer depends on the item's GUI transform (RenderItem's Y flip and the display rotation).
+- `AzBufferSource` now normalizes every vertex normal before uploading. 1.12.2 packs normals into signed bytes and does not normalize them on the GPU, so non-unit normals from a non-uniform scale overflowed and flipped. Normals that are zero-length or not finite fall back to `(0, 1, 0)`.
+- `PoseStack#scale` no longer updates the normal matrix when any axis is 0, which previously filled the matrix with infinities for the bone and all of its children.
+- On 1.7.10, `AzItemRendererAdapter` now saves the GL lighting state with `glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT)` before an `INVENTORY` render and restores it afterward. Previously it ended with `RenderHelper.disableStandardItemLighting()`, which also turned off `GL_LIGHT0`, `GL_LIGHT1` and `GL_COLOR_MATERIAL`. Forge only re-enables `GL_LIGHTING` after an `IItemRenderer`, so every slot rendered afterward was left with ambient lighting only.
