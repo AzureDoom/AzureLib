@@ -14,9 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -55,6 +53,10 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
 
     protected static final ModelBiped OUTER_ARMOR_MODEL = new ModelBiped(1.0F);
 
+    private final Map<ModelBiped, float[][]> savedPoses = new IdentityHashMap<>();
+
+    private final Map<Entity, Map<ModelBiped, float[][]>> entityPoses = new WeakHashMap<>();
+
     @Nullable
     protected ItemStack mainHandStack;
 
@@ -85,7 +87,10 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     @Override
-    public void render(AzRendererPipelineContext<UUID, T> context) {}
+    public void render(AzRendererPipelineContext<UUID, T> context) {
+        // Runs after the model render (and every renderForBone) for this entity.
+        restorePoses();
+    }
 
     /**
      * Renders an individual armor piece base on the given bone and its parent pipeline context
@@ -127,11 +132,25 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         context.poseStack().pushPose();
         context.poseStack().scale(-1, -1, 1);
 
+        savePoseOnce(model);
+
+        // Give every biped part this entity's pose, not whatever another entity left behind.
+        float[][] entityPose = entityPoses
+            .computeIfAbsent(context.animatable(), e -> new IdentityHashMap<>())
+            .computeIfAbsent(model, AzArmorLayer::capture);
+        apply(model, entityPose);
+
+        int idx = partIndex(model, modelPart);
+
         if (renderer != null) {
             prepModelPartForRender(context, bone, modelPart);
+            if (idx >= 0)
+                entityPose[idx] = capturePart(modelPart);
             renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
         } else if (armorStack.getItem() instanceof ItemArmor) {
             prepModelPartForRender(context, bone, modelPart);
+            if (idx >= 0)
+                entityPose[idx] = capturePart(modelPart);
             renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
         }
 
@@ -391,6 +410,67 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     private static void flush(MultiBufferSource bufferSource) {
         if (bufferSource instanceof AzBufferSource) {
             ((AzBufferSource) bufferSource).endBatch();
+        }
+    }
+
+    private static ModelRenderer[] parts(ModelBiped m) {
+        return new ModelRenderer[] {
+            m.bipedHead,
+            m.bipedHeadwear,
+            m.bipedBody,
+            m.bipedRightArm,
+            m.bipedLeftArm,
+            m.bipedRightLeg,
+            m.bipedLeftLeg
+        };
+    }
+
+    private void savePoseOnce(ModelBiped model) {
+        savedPoses.computeIfAbsent(model, AzArmorLayer::capture);
+    }
+
+    private void restorePoses() {
+        savedPoses.forEach(AzArmorLayer::apply);
+        savedPoses.clear();
+    }
+
+    private static int partIndex(ModelBiped m, ModelRenderer part) {
+        ModelRenderer[] p = parts(m);
+        for (int i = 0; i < p.length; i++) {
+            if (p[i] == part)
+                return i;
+        }
+        return -1;
+    }
+
+    private static float[][] capture(ModelBiped m) {
+        ModelRenderer[] p = parts(m);
+        float[][] out = new float[p.length][];
+        for (int i = 0; i < p.length; i++) {
+            out[i] = capturePart(p[i]);
+        }
+        return out;
+    }
+
+    private static float[] capturePart(ModelRenderer r) {
+        return new float[] {
+            r.rotationPointX,
+            r.rotationPointY,
+            r.rotationPointZ,
+            r.rotateAngleX,
+            r.rotateAngleY,
+            r.rotateAngleZ
+        };
+    }
+
+    private static void apply(ModelBiped m, float[][] pose) {
+        ModelRenderer[] p = parts(m);
+        for (int i = 0; i < p.length; i++) {
+            float[] s = pose[i];
+            p[i].setRotationPoint(s[0], s[1], s[2]);
+            p[i].rotateAngleX = s[3];
+            p[i].rotateAngleY = s[4];
+            p[i].rotateAngleZ = s[5];
         }
     }
 
