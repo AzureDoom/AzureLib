@@ -59,25 +59,25 @@ public class AzItemRendererAdapter implements IItemRenderer {
         GlStateManager.pushMatrix();
 
         if (inventory) {
+            GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_LIGHTING_BIT);
             GlStateManager.enableDepth();
             GlStateManager.enableRescaleNormal();
             RenderHelper.enableGUIStandardItemLighting();
         }
 
-        AzItemDisplayTransforms transforms = AzItemDisplayTransforms.forItem(this.item);
-        renderer.applyBaseTransform(context, transforms, stack);
-        transforms.apply(context);
-        GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.enableRescaleNormal();
-        renderer.render(stack, context);
-
-        if (inventory) {
-            // Forge renders custom inventory items with lighting disabled; leave it the way we found it.
-            RenderHelper.disableStandardItemLighting();
-            GL11.glDisable(GL11.GL_LIGHTING);
+        try {
+            AzItemDisplayTransforms transforms = AzItemDisplayTransforms.forItem(this.item);
+            renderer.applyBaseTransform(context, transforms, stack);
+            transforms.apply(context);
+            GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.enableRescaleNormal();
+            renderer.render(stack, context);
+        } finally {
+            if (inventory) {
+                GL11.glPopAttrib();
+            }
+            GlStateManager.popMatrix();
         }
-
-        GlStateManager.popMatrix();
     }
 }
