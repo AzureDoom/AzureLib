@@ -183,7 +183,7 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
      * @return The packed light value, typically used to determine the lighting conditions in rendering.
      */
     protected int getPackedLight(AzRendererPipelineContext<K, T> context) {
-        return LightTexture.FULL_SKY;
+        return LightTexture.FULL_BRIGHT;
     }
 
     /**
