@@ -103,13 +103,12 @@ tasks.withType(GenerateModuleMetadata).configureEach {
     enabled = false
 }
 
-
 def keyPropsFile = new File(rootProject.projectDir, "key.properties")
 if (keyPropsFile.exists()) {
     publishMods {
         def releaseProp = new Properties()
         releaseProp.load(new FileInputStream(keyPropsFile))
-        file = jar.archiveFile
+        file = remapJar.archiveFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
         modLoaders.add("babric")

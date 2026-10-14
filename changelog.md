@@ -7,8 +7,7 @@ v1.0.0
 - N/A
 
 ### Changes
-- Ported from the 1.7.10 Forge branch to Beta 1.7.3 on Babric + StationAPI. See `PORTING.md`.
-- Groovy Gradle build using fabric-loom + babric-loom-extension and BINY mappings.
+- Ported from the 1.7.10 Forge branch to Beta 1.7.3 on Babric + StationAPI.
 
 ### Developer Notes
 - N/A
