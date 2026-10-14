@@ -4,15 +4,18 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.ReloadableTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 /**
@@ -31,6 +34,25 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
 
     /** Base texture to glowmask path. Glow layers ask for this every frame, and building the path allocates. */
     private static final Map<Identifier, Identifier> EMISSIVE_PATHS = new ConcurrentHashMap<>();
+
+    private static final BiFunction<Identifier, Boolean, RenderType> GLOWING_RENDER_TYPE =
+        Util.memoize((texture, isGlowing) -> {
+            var state = RenderSetup.builder(
+                RenderPipelines.ENTITY_TRANSLUCENT
+            )
+                .withTexture("Sampler0", texture)
+                .useLightmap()
+                .useOverlay()
+                .sortOnUpload()
+                .setOutline(
+                    isGlowing
+                        ? RenderSetup.OutlineProperty.AFFECTS_OUTLINE
+                        : RenderSetup.OutlineProperty.NONE
+                )
+                .createRenderSetup();
+
+            return RenderType.create("az_glowing_layer", state);
+        });
 
     public AzAbstractTexture(Identifier location) {
         super(location);
@@ -96,10 +118,16 @@ public abstract class AzAbstractTexture extends ReloadableTexture {
     }
 
     public static RenderType getRenderType(Identifier texture) {
-        return RenderTypes.breezeEyes(getEmissiveResource(texture));
+        return GLOWING_RENDER_TYPE.apply(
+            getEmissiveResource(texture),
+            false
+        );
     }
 
     public static RenderType getOutlineRenderType(Identifier texture) {
-        return RenderTypes.entityTranslucentEmissive(getEmissiveResource(texture));
+        return GLOWING_RENDER_TYPE.apply(
+            getEmissiveResource(texture),
+            true
+        );
     }
 }
