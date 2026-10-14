@@ -1,8 +1,6 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
 import mod.azure.azurelib.AzureLib;
@@ -19,11 +17,11 @@ public final class ClientUtils {
     /**
      * Retrieves the current client-side player instance.
      *
-     * @return the {@link EntityPlayer} instance corresponding to the local client player, or null if the player is not
+     * @return the {@link PlayerEntity} instance corresponding to the local client player, or null if the player is not
      *         available
      */
-    public static EntityPlayer getClientPlayer() {
-        return Minecraft.getMinecraft().thePlayer;
+    public static PlayerEntity getClientPlayer() {
+        return mod.azure.azurelib.platform.mc.McClient.player();
     }
 
     /**
@@ -32,7 +30,7 @@ public final class ClientUtils {
      * @return the {@link World} instance associated with the local client, or null if unavailable
      */
     public static World getLevel() {
-        return Minecraft.getMinecraft().theWorld;
+        return mod.azure.azurelib.platform.mc.McClient.world();
     }
 
     /**
@@ -73,7 +71,7 @@ public final class ClientUtils {
      * @return the current animation tick as a double, or 0.0 if the animation tick is unavailable
      */
     public static double getCurrentAnimationTick(Object target, String controllerName) {
-        if (target instanceof Entity && !((Entity) target).worldObj.isRemote) {
+        if (mod.azure.azurelib.platform.Services.PLATFORM.isServerEnvironment()) {
             AzureLib.LOGGER.warn("Animation tick can only be retrieved on the client side for target: {}", target);
             return 0D;
         }

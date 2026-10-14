@@ -1,8 +1,7 @@
 package mod.azure.azurelib.animation.impl;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
@@ -13,6 +12,7 @@ import mod.azure.azurelib.animation.molang.AzEntityMolangQueries;
 import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.util.client.RenderUtils;
 import mod.azure.azurelib.util.math.Mth;
 
@@ -75,56 +75,56 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
      */
     private T currentEntity;
 
-    /** {@link #currentEntity} as a EntityLivingBase, or null when it is not one. */
-    private EntityLivingBase currentLivingEntity;
+    /** {@link #currentEntity} as a LivingEntity, or null when it is not one. */
+    private LivingEntity currentLivingEntity;
 
     private float currentPartialTicks;
 
     private final DoubleSupplier distanceFromCameraSupplier = () -> AzMolangQueryContext.INSTANCE.distanceFromCamera();
 
-    private final DoubleSupplier inAirSupplier = () -> RenderUtils.booleanToFloat(!currentEntity.onGround);
+    private final DoubleSupplier inAirSupplier = () -> RenderUtils.booleanToFloat(!Mc.onGround(currentEntity));
 
-    private final DoubleSupplier isOnGroundSupplier = () -> RenderUtils.booleanToFloat(currentEntity.onGround);
+    private final DoubleSupplier isOnGroundSupplier = () -> RenderUtils.booleanToFloat(Mc.onGround(currentEntity));
 
-    private final DoubleSupplier isInWaterSupplier = () -> RenderUtils.booleanToFloat(currentEntity.isInWater());
+    private final DoubleSupplier isInWaterSupplier = () -> RenderUtils.booleanToFloat(
+        Mc.isTouchingWater(currentEntity)
+    );
 
     private final DoubleSupplier isInWaterOrRainSupplier = () -> RenderUtils.booleanToFloat(
-        currentEntity.isWet()
+        Mc.isWet(currentEntity)
     );
 
     private final DoubleSupplier isBlockingSupplier = () -> currentLivingEntity == null
         ? 0
-        : RenderUtils.booleanToFloat(
-            currentLivingEntity instanceof EntityPlayer && ((EntityPlayer) currentLivingEntity).isBlocking()
-        );
+        : 0; // Beta swords cannot block.
 
     private final DoubleSupplier isUsingItemSupplier = () -> currentLivingEntity == null
         ? 0
-        : RenderUtils.booleanToFloat(
-            currentLivingEntity instanceof EntityPlayer && ((EntityPlayer) currentLivingEntity).isUsingItem()
-        );
+        : 0; // Beta has no held-use state.
 
     private final DoubleSupplier healthSupplier = () -> currentLivingEntity == null
         ? 0
-        : currentLivingEntity.getHealth();
+        : Mc.health(currentLivingEntity);
 
     private final DoubleSupplier maxHealthSupplier = () -> currentLivingEntity == null
         ? 0
-        : currentLivingEntity.getMaxHealth();
+        : Mc.maxHealth(currentLivingEntity);
 
     private final DoubleSupplier groundSpeedSupplier = () -> {
         if (currentLivingEntity == null)
             return 0;
 
         return Mth.sqrt(
-            (float) ((currentLivingEntity.motionX * currentLivingEntity.motionX) + (currentLivingEntity.motionZ
-                * currentLivingEntity.motionZ))
+            (float) ((Mc.velocityX(currentLivingEntity) * Mc.velocityX(currentLivingEntity)) + (Mc.velocityZ(
+                currentLivingEntity
+            )
+                * Mc.velocityZ(currentLivingEntity)))
         );
     };
 
     private final DoubleSupplier yawSpeedSupplier = () -> currentLivingEntity == null
         ? 0
-        : currentLivingEntity.rotationYaw - currentLivingEntity.prevRotationYaw;
+        : Mc.yaw(currentLivingEntity) - Mc.prevYaw(currentLivingEntity);
 
     private final DoubleSupplier headYawSupplier = () -> {
         if (currentLivingEntity == null)
@@ -132,36 +132,40 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
 
         return Mth.lerp(
             currentPartialTicks,
-            currentLivingEntity.prevRotationYawHead,
-            currentLivingEntity.rotationYawHead
+            Mc.prevHeadYaw(currentLivingEntity),
+            Mc.headYaw(currentLivingEntity)
         )
             - Mth.lerp(
                 currentPartialTicks,
-                currentLivingEntity.prevRenderYawOffset,
-                currentLivingEntity.renderYawOffset
+                Mc.prevBodyYaw(currentLivingEntity),
+                Mc.bodyYaw(currentLivingEntity)
             );
     };
 
     private final DoubleSupplier headPitchSupplier = () -> currentLivingEntity == null
         ? 0
-        : Mth.lerp(currentPartialTicks, currentLivingEntity.prevRotationPitch, currentLivingEntity.rotationPitch);
+        : Mth.lerp(currentPartialTicks, Mc.prevPitch(currentLivingEntity), Mc.pitch(currentLivingEntity));
 
     private final DoubleSupplier hurtTimeSupplier = () -> currentLivingEntity == null
-        || currentLivingEntity.hurtTime == 0
+        || Mc.hurtTime(currentLivingEntity) == 0
             ? 0
-            : currentLivingEntity.hurtTime - currentPartialTicks;
+            : Mc.hurtTime(currentLivingEntity) - currentPartialTicks;
 
     private final DoubleSupplier isBabySupplier = () -> currentLivingEntity == null
         ? 0
-        : RenderUtils.booleanToFloat(currentLivingEntity.isChild());
+        : 0 /* Beta has no baby mobs */;
 
     private final DoubleSupplier limbSwingSupplier = () -> currentLivingEntity == null
         ? 0
-        : currentLivingEntity.limbSwing;
+        : Mc.limbSwing(currentLivingEntity);
 
     private final DoubleSupplier limbSwingAmountSupplier = () -> currentLivingEntity == null
         ? 0
-        : Mth.lerp(currentPartialTicks, currentLivingEntity.prevLimbSwingAmount, currentLivingEntity.limbSwingAmount);
+        : Mth.lerp(
+            currentPartialTicks,
+            Mc.prevLimbSwingAmount(currentLivingEntity),
+            Mc.limbSwingAmount(currentLivingEntity)
+        );
 
     protected AzEntityAnimator() {
         super();
@@ -185,7 +189,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
         super.applyMolangQueries(entity, animTime, partialTicks);
 
         this.currentEntity = entity;
-        this.currentLivingEntity = entity instanceof EntityLivingBase ? (EntityLivingBase) entity : null;
+        this.currentLivingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
         this.currentPartialTicks = partialTicks;
 
         DISTANCE_FROM_CAMERA_REF.setMemoized(distanceFromCameraSupplier);

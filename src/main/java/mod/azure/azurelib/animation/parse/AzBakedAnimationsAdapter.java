@@ -1,9 +1,6 @@
 package mod.azure.azurelib.animation.parse;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
-import net.minecraft.util.ResourceLocation;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,6 +28,7 @@ import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.util.GsonHelper;
 import mod.azure.azurelib.util.JsonUtil;
 import mod.azure.azurelib.util.Pair;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * {@link com.google.gson.Gson} {@link JsonDeserializer} for {@link AzBakedAnimations}.<br>
@@ -53,7 +51,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      */
     private static List<Pair<String, JsonElement>> getKeyframes(JsonElement element) {
         if (element == null)
-            return ImmutableList.of();
+            return java.util.List.of();
 
         if (element instanceof JsonPrimitive) {
             JsonArray array = new JsonArray();
@@ -398,7 +396,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
                 continue;
 
             double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
-            double curTime = NumberUtils.isNumber(key) ? Double.parseDouble(entry.getFirst()) : 0;
+            double curTime = isNumber(key) ? Double.parseDouble(entry.getFirst()) : 0;
             double timeDelta = curTime - prevTime;
 
             JsonArray keyframeVector = element instanceof JsonArray
@@ -448,6 +446,19 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
     }
 
     private static double readTimestamp(String timestamp) {
-        return NumberUtils.isNumber(timestamp) ? Double.parseDouble(timestamp) : 0;
+        return isNumber(timestamp) ? Double.parseDouble(timestamp) : 0;
+    }
+
+    /** Replacement for commons-lang3's {@code NumberUtils.isNumber}: true if the string parses as a double. */
+    private static boolean isNumber(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        try {
+            Double.parseDouble(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

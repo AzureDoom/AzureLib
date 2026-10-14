@@ -4,13 +4,12 @@
  */
 package mod.azure.azurelib.core.object;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 
 /**
  * Color holder object for storing a packed int argb value.
  */
+@SuppressWarnings("unused")
 public final class Color {
 
     private final int argbInt;
@@ -221,7 +220,7 @@ public final class Color {
     }
 
     public List<Integer> getList() {
-        return ImmutableList.of(getRed(), getGreen(), getBlue(), getAlpha());
+        return java.util.List.of(getRed(), getGreen(), getBlue(), getAlpha());
     }
 
     /**

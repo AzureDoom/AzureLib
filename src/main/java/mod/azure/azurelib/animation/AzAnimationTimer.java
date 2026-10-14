@@ -1,6 +1,6 @@
 package mod.azure.azurelib.animation;
 
-import net.minecraft.client.Minecraft;
+import mod.azure.azurelib.platform.mc.McClient;
 
 import mod.azure.azurelib.util.client.RenderUtils;
 
@@ -47,10 +47,10 @@ public class AzAnimationTimer {
      * Accumulates the computed time delta into the animation time tracker to control the progression of animations.
      */
     public void tick() {
-        Minecraft minecraft = Minecraft.getMinecraft();
+        boolean paused = McClient.isPaused();
         double currentRenderTick = RenderUtils.getCurrentTick();
 
-        if (minecraft.isGamePaused()) {
+        if (paused) {
             if (!wasPausedLastFrame) {
                 // If this is the first frame of the game pause time, we need to set a flag.
                 this.wasPausedLastFrame = true;
@@ -66,7 +66,7 @@ public class AzAnimationTimer {
         // pause state, which means that the difference here could be massive by the time the player unpauses.
         double deltaRenderTick = currentRenderTick - lastGameTickTime;
 
-        if (wasPausedLastFrame && !minecraft.isGamePaused()) {
+        if (wasPausedLastFrame && !paused) {
             // If this is the first frame of the game play time, we need to set a flag and adjust the deltaRenderTick.
             this.wasPausedLastFrame = false;
             // To account for the deltaRenderTick being massive on exiting the game pause state, we simply set

@@ -1,8 +1,5 @@
 package mod.azure.azurelib.animation.cache;
 
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -12,6 +9,8 @@ import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.cache.AzResourceCache;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.loading.FileLoader;
+import mod.azure.azurelib.resource.AzResourceManager;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * AzBakedAnimationCache is a singleton cache to manage and store preloaded animation data of type
@@ -39,7 +38,7 @@ public class AzBakedAnimationCache extends AzResourceCache {
 
     public CompletableFuture<Map<ResourceLocation, AzBakedAnimations>> loadAnimations(
         Executor backgroundExecutor,
-        IResourceManager resourceManager
+        AzResourceManager resourceManager
     ) {
         MolangParser.clearExpressionCache();
 
@@ -51,11 +50,16 @@ public class AzBakedAnimationCache extends AzResourceCache {
         );
     }
 
+    public int size() {
+        return bakedAnimations.size();
+    }
+
     public void apply(Map<ResourceLocation, AzBakedAnimations> animations) {
         this.bakedAnimations = animations;
     }
 
     public @Nullable AzBakedAnimations getNullable(ResourceLocation resourceLocation) {
+        mod.azure.azurelib.cache.AzureLibCache.ensureLoaded();
         return bakedAnimations.get(resourceLocation);
     }
 }

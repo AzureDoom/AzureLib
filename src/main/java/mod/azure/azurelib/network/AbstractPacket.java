@@ -1,6 +1,6 @@
 package mod.azure.azurelib.network;
 
-import net.minecraft.util.ResourceLocation;
+import mod.azure.azurelib.util.ResourceLocation;
 
 public abstract class AbstractPacket {
 

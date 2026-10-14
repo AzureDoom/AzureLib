@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.layer;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
@@ -17,7 +16,7 @@ import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
-import mod.azure.azurelib.util.client.ClientUtils;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * A {@link AzRenderLayer} dedicated to rendering the auto-generated glow layer functionality provided by AzureLib. This
@@ -208,9 +207,9 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
 
         Entity entity = (Entity) animatable;
 
-        boolean isInvisible = entity.isInvisible();
+        boolean isInvisible = false; // Beta has no invisibility
         boolean appearsGlowing = false; // 1.7.10 has no glowing effect
-        boolean isPlayerInvisible = entity.isInvisibleToPlayer(ClientUtils.getClientPlayer());
+        boolean isPlayerInvisible = false;
 
         if (isInvisible) {
             if (!isPlayerInvisible) {

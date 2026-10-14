@@ -4,10 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The {@code display} transforms from an item's model json ({@code assets/<modid>/models/item/<name>.json}), the file
@@ -24,6 +22,19 @@ import mod.azure.azurelib.render.vertex.GlStateManager;
  * AzureLib reads and applies the transforms itself. Missing files or contexts simply apply no transform.
  */
 public final class AzItemDisplayTransforms {
+
+    /** Beta items have no registry names, so their item model JSON locations are registered explicitly. */
+    private static final java.util.Map<Item, ResourceLocation> MODEL_LOCATIONS =
+        new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Sets the item model JSON (e.g. {@code mymod:models/item/ray_gun.json}) whose {@code display} block supplies this
+     * item's per-context transforms. Without one, AzureLib uses no display transforms.
+     */
+    public static void setModelLocation(Item item, ResourceLocation itemModelJson) {
+        MODEL_LOCATIONS.put(item, itemModelJson);
+        clearCache();
+    }
 
     private static final AzItemDisplayTransforms EMPTY = new AzItemDisplayTransforms(
         new EnumMap<AzItemDisplayContext, float[]>(AzItemDisplayContext.class)
@@ -55,25 +66,16 @@ public final class AzItemDisplayTransforms {
     }
 
     private static AzItemDisplayTransforms load(Item item) {
-        Object name = Item.itemRegistry.getNameForObject(item);
+        ResourceLocation modelLocation = MODEL_LOCATIONS.get(item);
 
-        if (name == null) {
+        if (modelLocation == null) {
             return EMPTY;
         }
 
-        ResourceLocation id = new ResourceLocation(name.toString());
-        ResourceLocation modelLocation = new ResourceLocation(
-            id.getResourceDomain(),
-            "models/item/" + id.getResourcePath() + ".json"
-        );
-
         try (
-            InputStream stream = Minecraft.getMinecraft()
-                .getResourceManager()
-                .getResource(modelLocation)
-                .getInputStream()
+            InputStream stream = mod.azure.azurelib.resource.AzResourceManager.getInstance().open(modelLocation)
         ) {
-            JsonElement root = new JsonParser().parse(IOUtils.toString(stream, StandardCharsets.UTF_8));
+            JsonElement root = new JsonParser().parse(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
 
             if (!root.isJsonObject() || !root.getAsJsonObject().has("display")) {
                 return EMPTY;

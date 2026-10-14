@@ -1,20 +1,17 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderBiped;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.OverlayTexture;
 import mod.azure.azurelib.render.vertex.PoseStack;
@@ -25,14 +22,17 @@ import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
- * The {@link ModelBiped} handed to vanilla's armor layer for AzureLib armor.
+ * A {@link BipedEntityModel} whose parts are only used as the pose source for an AzureLib armor model.
  * <p>
- * 1.7.10's armor render passes ({@code RenderPlayer}/{@code RenderBiped#shouldRenderPass}) obtain the model through
- * {@code ForgeHooksClient#getArmorModel} (where AzureLib's mixin supplies this model and records the stack and slot via
- * {@link #prepare}), copy the body pose onto it and call {@link #render}. That call poses the vanilla parts, hands the
- * result to AzureLib's armor pipeline, and draws the AzureLib model in their place.
+ * Beta's player renderer draws armor in "render passes" with a vanilla biped model. AzureLib's armor hook
+ * ({@code PlayerEntityRendererMixin_AzArmor}) cancels the vanilla pass for AzureLib armor and calls
+ * {@link #renderArmor(LivingEntity, ItemStack, AzEquipmentSlot, float)} at the same point instead, so the GL matrix is
+ * already in the player's model space, exactly where vanilla would draw its armor.
  */
-public class AzArmorModel extends ModelBiped {
+public class AzArmorModel extends BipedEntityModel {
+
+    /** Beta renders entity models at 1/16 block per model unit. */
+    private static final float MODEL_SCALE = 0.0625F;
 
     private final AzArmorRendererPipeline rendererPipeline;
 
@@ -48,34 +48,51 @@ public class AzArmorModel extends ModelBiped {
     public AzArmorModel(AzArmorRendererPipeline rendererPipeline) {
         super(1.0F);
         this.rendererPipeline = rendererPipeline;
-        this.isChild = false;
     }
 
-    /**
-     * Records which stack and slot the next vanilla {@link #render} call is for.
-     */
     public void prepare(AzArmorRenderer renderer, ItemStack stack, AzEquipmentSlot slot) {
         this.pendingRenderer = renderer;
         this.pendingStack = stack;
         this.pendingSlot = slot;
     }
 
-    private static void resetPart(ModelRenderer part, float x, float y, float z) {
-        part.setRotationPoint(x, y, z);
-        part.rotateAngleX = part.rotateAngleY = part.rotateAngleZ = 0;
+    private static void resetPart(ModelPart part, float x, float y, float z) {
+        McClient.setPivot(part, x, y, z);
+        part.pitch = part.yaw = part.roll = 0;
     }
 
     private void resetPose() {
-        resetPart(bipedHead, 0, 0, 0);
-        resetPart(bipedHeadwear, 0, 0, 0);
-        resetPart(bipedBody, 0, 0, 0);
-        resetPart(bipedRightArm, -5, 2, 0);
-        resetPart(bipedLeftArm, 5, 2, 0);
-        resetPart(bipedRightLeg, -1.9F, 12, 0);
-        resetPart(bipedLeftLeg, 1.9F, 12, 0);
+        resetPart(head, 0, 0, 0);
+        resetPart(hat, 0, 0, 0);
+        resetPart(body, 0, 0, 0);
+        resetPart(rightArm, -5, 2, 0);
+        resetPart(leftArm, 5, 2, 0);
+        resetPart(rightLeg, -1.9F, 12, 0);
+        resetPart(leftLeg, 1.9F, 12, 0);
     }
 
-    @Override
+    /**
+     * Poses this biped exactly like Beta's {@code LivingEntityRenderer} poses the player model, then renders the
+     * AzureLib armor piece for the given slot following that pose.
+     */
+    public void renderArmor(LivingEntity entity, ItemStack stack, AzEquipmentSlot slot, float partialTick) {
+        AzArmorRenderer renderer = this.rendererPipeline.renderer();
+        prepare(renderer, stack, slot);
+
+        float limbSwingAmount = Math.min(
+            1.0F,
+            Mc.prevLimbSwingAmount(entity) + (Mc.limbSwingAmount(entity) - Mc.prevLimbSwingAmount(entity))
+                * partialTick
+        );
+        float limbSwing = Mc.limbSwing(entity) - Mc.limbSwingAmount(entity) * (1.0F - partialTick);
+        float bodyYaw = Mc.prevBodyYaw(entity) + (Mc.bodyYaw(entity) - Mc.prevBodyYaw(entity)) * partialTick;
+        float headYaw = Mc.prevYaw(entity) + (Mc.yaw(entity) - Mc.prevYaw(entity)) * partialTick;
+        float pitch = Mc.prevPitch(entity) + (Mc.pitch(entity) - Mc.prevPitch(entity)) * partialTick;
+        float age = Mc.age(entity) + partialTick;
+
+        render(entity, limbSwing, limbSwingAmount, age, headYaw - bodyYaw, pitch, MODEL_SCALE);
+    }
+
     public void render(
         @Nonnull Entity entity,
         float limbSwing,
@@ -85,26 +102,20 @@ public class AzArmorModel extends ModelBiped {
         float headPitch,
         float scale
     ) {
-        // RendererLivingEntity renders the model a second time for its enchantment glint, with the depth function set
-        // to GL_EQUAL. AzureLib draws its own glint, so that pass is skipped.
-        if (GL11.glGetInteger(GL11.GL_DEPTH_FUNC) == GL11.GL_EQUAL) {
-            return;
-        }
-
         if (pendingRenderer == null || pendingStack == null || pendingSlot == null) {
             return;
         }
 
-        // 1.7.10's RenderPlayer/RenderBiped only set held-item and sneak poses on their own models, so copy them from
-        // the entity's main model before posing; otherwise the arms don't raise while holding an item.
-        ModelBiped mainModel = mainModelOf(entity);
-
-        if (mainModel != null) {
-            applyBaseModel(mainModel);
-        }
+        // Beta's biped poses the arms from these flags, which its renderer copies from the player's state.
+        McClient.setBipedPose(
+            this,
+            Mc.isSneaking(entity),
+            entity instanceof LivingEntity && Mc.heldItem((LivingEntity) entity) != null,
+            entity instanceof LivingEntity ? Mc.swingProgress((LivingEntity) entity, AzRenderTick.partialTicks()) : 0
+        );
 
         resetPose();
-        this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entity);
+        McClient.setAngles(this, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         pendingRenderer.prepForRender(entity, pendingStack, pendingSlot, this);
 
         AzBufferSource bufferSource = AzBufferSource.getInstance();
@@ -122,10 +133,6 @@ public class AzArmorModel extends ModelBiped {
         bufferSource.endBatch();
     }
 
-    /**
-     * Renders the armor into AzureLib's buffer source using the given pose. Used both from {@link #render} and from
-     * {@link mod.azure.azurelib.render.layer.AzArmorLayer}.
-     */
     public void renderToBuffer(
         @Nonnull PoseStack poseStack,
         @Nullable VertexConsumer buffer,
@@ -136,7 +143,6 @@ public class AzArmorModel extends ModelBiped {
         float blue,
         float alpha
     ) {
-        Minecraft mc = Minecraft.getMinecraft();
         AzArmorRendererPipelineContext context = rendererPipeline.context();
         Entity currentEntity = context.currentEntity();
 
@@ -144,7 +150,6 @@ public class AzArmorModel extends ModelBiped {
             return;
         }
 
-        ItemStack currentStack = context.currentStack();
         AzBufferSource bufferSource = AzBufferSource.getInstance();
         AzArmorRendererConfig config = rendererPipeline.config();
         ItemStack animatable = context.animatable();
@@ -158,37 +163,14 @@ public class AzArmorModel extends ModelBiped {
             config.alpha(animatable)
         );
 
-        buffer = AzBufferSource.getArmorFoilBuffer(bufferSource, renderType, currentStack.hasEffect(0));
+        // Beta has no enchantments, so armor never has a glint.
+        buffer = bufferSource.getBuffer(renderType);
         AzBakedModel model = rendererPipeline.renderer().provider().provideBakedModel(currentEntity, animatable);
         rendererPipeline.render(poseStack, model, animatable, bufferSource, null, buffer, 0, partialTick, packedLight);
     }
 
-    /**
-     * Applies the base model's properties to this instance for use in rendering
-     *
-     * @param baseModel The base model
-     */
-    public void applyBaseModel(ModelBiped baseModel) {
-        this.isChild = baseModel.isChild;
-        this.isSneak = baseModel.isSneak;
-        this.isRiding = baseModel.isRiding;
-        this.heldItemRight = baseModel.heldItemRight;
-        this.heldItemLeft = baseModel.heldItemLeft;
-        this.aimedBow = baseModel.aimedBow;
-    }
-
-    @Nullable
-    private static ModelBiped mainModelOf(Entity entity) {
-        Render renderer = RenderManager.instance.getEntityRenderObject(entity);
-
-        if (renderer instanceof RenderPlayer) {
-            return ((RenderPlayer) renderer).modelBipedMain;
-        }
-
-        if (renderer instanceof RenderBiped) {
-            return ((RenderBiped) renderer).modelBipedMain;
-        }
-
-        return null;
+    /** Copies the pose flags of another biped (for mods that render AzureLib armor on their own biped mobs). */
+    public void applyBaseModel(BipedEntityModel baseModel) {
+        McClient.copyBipedPose(baseModel, this);
     }
 }

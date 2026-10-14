@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.play_behavior;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -134,13 +132,13 @@ public final class AzWeightedPoolBehavior extends AzPlayBehavior {
             built.add(new Entry(p.name(), p.weight(), p.allowRepeat() && !avoidRepeat, sequence));
         }
 
-        this.entries = ImmutableList.copyOf(built);
+        this.entries = java.util.List.copyOf(built);
         this.entryStartSequences = built.stream()
             .map(e -> AzSequence.create().then(e.animationName(), this))
             .collect(
                 java.util.stream.Collectors.collectingAndThen(
                     java.util.stream.Collectors.toList(),
-                    ImmutableList::copyOf
+                    java.util.List::copyOf
                 )
             );
         this.startSequence = AzSequence.create().then(start, this);

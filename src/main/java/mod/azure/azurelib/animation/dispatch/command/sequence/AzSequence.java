@@ -1,8 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.sequence;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-
 import java.util.*;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
@@ -62,17 +59,18 @@ import mod.azure.azurelib.animation.property.AzAnimationStageProperties;
  */
 public final class AzSequence {
 
-    private static final AzSequence EMPTY = new AzSequence(ImmutableList.of(), ImmutableList.of());
+    private static final AzSequence EMPTY = new AzSequence(java.util.List.of(), java.util.List.of());
 
     /**
      * Built-in behaviors that never finish on their own; anything queued after them could never play.
      */
-    private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = ImmutableSet.of(
-        AzPlayBehaviors.LOOP,
-        AzPlayBehaviors.PING_PONG,
-        AzPlayBehaviors.HOLD_ON_LAST_FRAME,
-        AzPlayBehaviors.FREEZE_ON_FRAME
-    );
+    private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = mod.azure.azurelib.util.AzCollections
+        .immutableSetOf(
+            AzPlayBehaviors.LOOP,
+            AzPlayBehaviors.PING_PONG,
+            AzPlayBehaviors.HOLD_ON_LAST_FRAME,
+            AzPlayBehaviors.FREEZE_ON_FRAME
+        );
 
     private final List<AzAnimationStage> stages;
 
@@ -81,12 +79,12 @@ public final class AzSequence {
     private final AzAnimationSequence animationSequence;
 
     private AzSequence(List<AzAnimationStage> stages, List<AzSequenceEvent> events) {
-        this.stages = ImmutableList.copyOf(stages);
+        this.stages = java.util.List.copyOf(stages);
 
         ArrayList<AzSequenceEvent> sortedEvents = new ArrayList<>(events);
         // Stable sort: events on the same tick fire in declaration order.
         sortedEvents.sort(Comparator.comparingInt(AzSequenceEvent::tick));
-        this.events = ImmutableList.copyOf(sortedEvents);
+        this.events = java.util.List.copyOf(sortedEvents);
 
         this.animationSequence = new AzAnimationSequence(this.stages);
     }

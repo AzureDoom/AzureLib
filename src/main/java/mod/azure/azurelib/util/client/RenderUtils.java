@@ -1,12 +1,7 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.resources.IResource;
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -19,9 +14,15 @@ import javax.imageio.ImageIO;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.render.texture.ITextureObject;
+import mod.azure.azurelib.render.texture.TextureManager;
 import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.resource.AzResource;
 import mod.azure.azurelib.util.IntIntPair;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Mth;
@@ -139,10 +140,10 @@ public final class RenderUtils {
      */
     public static void faceRotation(PoseStack poseStack, Entity animatable, float partialTick) {
         poseStack.mulPose(
-            Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, animatable.prevRotationYaw, animatable.rotationYaw) - 90)
+            Vector3f.YP.rotationDegrees(Mth.lerp(partialTick, Mc.prevYaw(animatable), Mc.yaw(animatable)) - 90)
         );
         poseStack.mulPose(
-            Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.prevRotationPitch, animatable.rotationPitch))
+            Vector3f.ZP.rotationDegrees(Mth.lerp(partialTick, Mc.prevPitch(animatable), Mc.pitch(animatable)))
         );
     }
 
@@ -198,11 +199,8 @@ public final class RenderUtils {
         if (texture == null)
             return null;
 
-        Minecraft mc = Minecraft.getMinecraft();
-
         try {
-            // 1.7.10's IResource isn't Closeable; only its stream needs closing.
-            IResource resource = mc.getResourceManager().getResource(texture);
+            AzResource resource = mod.azure.azurelib.resource.AzResourceManager.getInstance().getResource(texture);
             try (InputStream stream = resource.getInputStream()) {
                 BufferedImage image = ImageIO.read(stream);
                 return IntIntPair.of(image.getWidth(), image.getHeight());
@@ -212,10 +210,10 @@ public final class RenderUtils {
         }
 
         try {
-            ITextureObject textureObject = mc.getTextureManager().getTexture(texture);
+            ITextureObject textureObject = TextureManager.getInstance().getTexture(texture);
             if (textureObject == null) {
-                mc.getTextureManager().bindTexture(texture);
-                textureObject = mc.getTextureManager().getTexture(texture);
+                TextureManager.getInstance().bindTexture(texture);
+                textureObject = TextureManager.getInstance().getTexture(texture);
             }
             if (textureObject == null)
                 return null;
@@ -263,11 +261,11 @@ public final class RenderUtils {
     }
 
     /**
-     * Rotates a {@link AzBone} to match a provided {@link ModelRenderer}'s rotations.<br>
+     * Rotates a {@link AzBone} to match a provided {@link ModelPart}'s rotations.<br>
      * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
      */
-    public static void matchModelPartRot(ModelRenderer from, AzBone to) {
-        to.updateRotation(-from.rotateAngleX, -from.rotateAngleY, from.rotateAngleZ);
+    public static void matchModelPartRot(ModelPart from, AzBone to) {
+        to.updateRotation(-from.pitch, -from.yaw, from.roll);
     }
 
     /**
@@ -315,12 +313,6 @@ public final class RenderUtils {
 
     private static final FloatBuffer GL_MATRIX_BUFFER = BufferUtils.createFloatBuffer(16);
 
-    /**
-     * Multiplies the current OpenGL model-view matrix by the given pose, so vanilla 1.7.10 code that renders through
-     * the GL matrix stack (model parts, items, blocks) lines up with AzureLib's software {@link PoseStack}. Callers
-     * must wrap this in {@code GlStateManager.pushMatrix()}/{@code popMatrix()} and flush any pending AzureLib vertices
-     * first.
-     */
     public static void applyPoseToGl(PoseStack.Pose pose) {
         GL_MATRIX_BUFFER.clear();
         pose.pose().store(GL_MATRIX_BUFFER);
@@ -328,13 +320,13 @@ public final class RenderUtils {
         GlStateManager.multMatrix(GL_MATRIX_BUFFER);
     }
 
-    /**
-     * The lightmap coordinates most recently set through {@link OpenGlHelper#setLightmapTextureCoords}, packed the same
-     * way as {@code Entity#getBrightnessForRender()}. This is how 1.7.10 passes light to item and armor rendering,
-     * which have no packed-light parameter.
-     */
+    private static final FloatBuffer GL_COLOR_BUFFER = BufferUtils.createFloatBuffer(16);
+
     public static int currentPackedLight() {
-        return ((int) OpenGlHelper.lastBrightnessY & 0xFFFF) << 16 | (int) OpenGlHelper.lastBrightnessX & 0xFFFF;
+        GL_COLOR_BUFFER.clear();
+        GL11.glGetFloat(GL11.GL_CURRENT_COLOR, GL_COLOR_BUFFER);
+        float brightness = Math.max(GL_COLOR_BUFFER.get(0), Math.max(GL_COLOR_BUFFER.get(1), GL_COLOR_BUFFER.get(2)));
+        return LightTexture.fromBrightness(brightness);
     }
 
     private RenderUtils() {

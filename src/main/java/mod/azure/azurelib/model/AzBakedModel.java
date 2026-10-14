@@ -1,7 +1,5 @@
 package mod.azure.azurelib.model;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.*;
 import javax.annotation.Nullable;
 
@@ -11,7 +9,7 @@ import javax.annotation.Nullable;
  */
 public class AzBakedModel {
 
-    private static AzBakedModel defaultModel = new AzBakedModel(ImmutableList.of());
+    private static AzBakedModel defaultModel = new AzBakedModel(java.util.List.of());
 
     private final Map<String, AzBone> bonesByName;
 
@@ -30,7 +28,7 @@ public class AzBakedModel {
     }
 
     private Map<String, AzBone> mapBonesByName(List<AzBone> bones) {
-        HashMap<String, AzBone> bonesByName = new HashMap<String, AzBone>();
+        HashMap<String, AzBone> bonesByName = new HashMap<>();
         ArrayDeque<AzBone> nodesToMap = new ArrayDeque<>(bones);
 
         while (!nodesToMap.isEmpty()) {
@@ -76,6 +74,6 @@ public class AzBakedModel {
     }
 
     public static void setDefault(AzBakedModel model) {
-        defaultModel = model != null ? model : new AzBakedModel(ImmutableList.of());
+        defaultModel = model != null ? model : new AzBakedModel(java.util.List.of());
     }
 }

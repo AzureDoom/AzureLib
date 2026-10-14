@@ -1,13 +1,16 @@
 package mod.azure.azurelib.util;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NbtCompound;
 
 import javax.annotation.Nullable;
+
+import mod.azure.azurelib.platform.mc.Mc;
 
 /**
  * Helper class for various methods and functions useful while using AzureLib.
  */
+@SuppressWarnings("unused")
 public final class AzureLibUtil {
 
     private AzureLibUtil() {
@@ -28,23 +31,19 @@ public final class AzureLibUtil {
     }
 
     /**
-     * Returns the stack's NBT compound, creating and attaching an empty one if absent. 1.7.10 has no
-     * {@code ItemStack#getOrCreateTag()}.
+     * Returns the stack's NBT compound.
+     * <p>
+     * On Beta this is StationAPI's per-stack NBT, which always exists.
      */
-    public static NBTTagCompound getOrCreateTag(ItemStack stack) {
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag == null) {
-            tag = new NBTTagCompound();
-            stack.setTagCompound(tag);
-        }
-        return tag;
+    public static NbtCompound getOrCreateTag(ItemStack stack) {
+        return Mc.stackNbt(stack);
     }
 
     /**
-     * Minecraft 1.7.10 represents an empty slot as a {@code null} stack. This also treats stacks with no item or a
+     * Minecraft Beta represents an empty slot as a {@code null} stack. This also treats stacks with no item or a
      * non-positive size as empty, like later versions' {@code ItemStack#isEmpty()}.
      */
     public static boolean isEmpty(@Nullable ItemStack stack) {
-        return stack == null || stack.getItem() == null || stack.stackSize <= 0;
+        return stack == null || stack.getItem() == null || Mc.count(stack) <= 0;
     }
 }

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.render;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -18,6 +16,7 @@ import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
 import mod.azure.azurelib.util.IntIntPair;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.RenderUtils;
 import mod.azure.azurelib.util.math.Matrix3f;
 import mod.azure.azurelib.util.math.Matrix4f;

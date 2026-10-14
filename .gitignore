@@ -29,3 +29,15 @@ selector.ts
 /logs/
 /SECRET.txt
 /mods/
+
+# gradle
+.gradle/
+build/
+out/
+run/
+
+# idea
+.idea/
+*.iml
+*.ipr
+*.iws

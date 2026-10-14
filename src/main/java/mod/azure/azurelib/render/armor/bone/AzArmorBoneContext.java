@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render.armor.bone;
 
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 
 import javax.annotation.Nullable;
 
@@ -79,127 +79,127 @@ public class AzArmorBoneContext {
     /**
      * Transform the currently rendering {@link AzBakedModel} to match the positions and rotations of the base model
      */
-    public void applyBaseTransformations(ModelBiped baseModel) {
+    public void applyBaseTransformations(BipedEntityModel baseModel) {
         if (this.head != null) {
-            ModelRenderer headPart = baseModel.bipedHead;
+            ModelPart headPart = baseModel.head;
 
             RenderUtils.matchModelPartRot(headPart, this.head);
-            this.head.updatePosition(headPart.rotationPointX, -headPart.rotationPointY, headPart.rotationPointZ);
+            this.head.updatePosition(headPart.pivotX, -headPart.pivotY, headPart.pivotZ);
         }
 
         if (this.body != null) {
-            ModelRenderer bodyPart = baseModel.bipedBody;
+            ModelPart bodyPart = baseModel.body;
 
             RenderUtils.matchModelPartRot(bodyPart, this.body);
-            this.body.updatePosition(bodyPart.rotationPointX, -bodyPart.rotationPointY, bodyPart.rotationPointZ);
+            this.body.updatePosition(bodyPart.pivotX, -bodyPart.pivotY, bodyPart.pivotZ);
         }
 
         if (this.rightArm != null) {
-            ModelRenderer rightArmPart = baseModel.bipedRightArm;
+            ModelPart rightArmPart = baseModel.rightArm;
 
             RenderUtils.matchModelPartRot(rightArmPart, this.rightArm);
             this.rightArm.updatePosition(
-                rightArmPart.rotationPointX + 5,
-                2 - rightArmPart.rotationPointY,
-                rightArmPart.rotationPointZ
+                rightArmPart.pivotX + 5,
+                2 - rightArmPart.pivotY,
+                rightArmPart.pivotZ
             );
         }
 
         if (this.leftArm != null) {
-            ModelRenderer leftArmPart = baseModel.bipedLeftArm;
+            ModelPart leftArmPart = baseModel.leftArm;
 
             RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
             this.leftArm.updatePosition(
-                leftArmPart.rotationPointX - 5f,
-                2f - leftArmPart.rotationPointY,
-                leftArmPart.rotationPointZ
+                leftArmPart.pivotX - 5f,
+                2f - leftArmPart.pivotY,
+                leftArmPart.pivotZ
             );
         }
 
         if (this.rightLeg != null) {
-            ModelRenderer rightLegPart = baseModel.bipedRightLeg;
+            ModelPart rightLegPart = baseModel.rightLeg;
 
             RenderUtils.matchModelPartRot(rightLegPart, this.rightLeg);
             this.rightLeg.updatePosition(
-                rightLegPart.rotationPointX + 2,
-                12 - rightLegPart.rotationPointY,
-                rightLegPart.rotationPointZ
+                rightLegPart.pivotX + 2,
+                12 - rightLegPart.pivotY,
+                rightLegPart.pivotZ
             );
 
             if (this.rightBoot != null) {
                 RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
                 this.rightBoot.updatePosition(
-                    rightLegPart.rotationPointX + 2,
-                    12 - rightLegPart.rotationPointY,
-                    rightLegPart.rotationPointZ
+                    rightLegPart.pivotX + 2,
+                    12 - rightLegPart.pivotY,
+                    rightLegPart.pivotZ
                 );
             }
             if (this.waist != null) {
-                RenderUtils.matchModelPartRot(baseModel.bipedBody, this.waist);
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
                 this.waist.updatePosition(
-                    baseModel.bipedBody.rotationPointX,
-                    -(baseModel.bipedBody.rotationPointY),
-                    baseModel.bipedBody.rotationPointZ
+                    baseModel.body.pivotX,
+                    -(baseModel.body.pivotY),
+                    baseModel.body.pivotZ
                 );
             }
         }
 
         if (this.leftLeg != null) {
-            ModelRenderer leftLegPart = baseModel.bipedLeftLeg;
+            ModelPart leftLegPart = baseModel.leftLeg;
 
             RenderUtils.matchModelPartRot(leftLegPart, this.leftLeg);
             this.leftLeg.updatePosition(
-                leftLegPart.rotationPointX - 2,
-                12 - leftLegPart.rotationPointY,
-                leftLegPart.rotationPointZ
+                leftLegPart.pivotX - 2,
+                12 - leftLegPart.pivotY,
+                leftLegPart.pivotZ
             );
 
             if (this.leftBoot != null) {
                 RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
                 this.leftBoot.updatePosition(
-                    leftLegPart.rotationPointX - 2,
-                    12 - leftLegPart.rotationPointY,
-                    leftLegPart.rotationPointZ
+                    leftLegPart.pivotX - 2,
+                    12 - leftLegPart.pivotY,
+                    leftLegPart.pivotZ
                 );
             }
             if (this.waist != null) {
-                RenderUtils.matchModelPartRot(baseModel.bipedBody, this.waist);
+                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
                 this.waist.updatePosition(
-                    baseModel.bipedBody.rotationPointX,
-                    -(baseModel.bipedBody.rotationPointY),
-                    baseModel.bipedBody.rotationPointZ
+                    baseModel.body.pivotX,
+                    -(baseModel.body.pivotY),
+                    baseModel.body.pivotZ
                 );
             }
         }
     }
 
     /**
-     * Resets the bone visibility for the model based on the current {@link ModelRenderer} and {@link AzEquipmentSlot},
-     * and then sets the bones relevant to the current part as visible for rendering.<br>
+     * Resets the bone visibility for the model based on the current {@link ModelPart} and {@link AzEquipmentSlot}, and
+     * then sets the bones relevant to the current part as visible for rendering.<br>
      * <br>
      * If you are rendering a geo entity with armor, you should probably be calling this prior to rendering
      */
     public void applyBoneVisibilityByPart(
         AzEquipmentSlot currentSlot,
-        ModelRenderer currentPart,
-        ModelBiped model
+        ModelPart currentPart,
+        BipedEntityModel model
     ) {
         setAllVisible(false);
 
-        currentPart.showModel = true;
+        currentPart.visible = true;
         AzBone bone = null;
 
-        if (currentPart == model.bipedHeadwear || currentPart == model.bipedHead) {
+        if (currentPart == model.hat || currentPart == model.head) {
             bone = this.head;
-        } else if (currentPart == model.bipedBody) {
+        } else if (currentPart == model.body) {
             bone = this.body;
-        } else if (currentPart == model.bipedLeftArm) {
+        } else if (currentPart == model.leftArm) {
             bone = this.leftArm;
-        } else if (currentPart == model.bipedRightArm) {
+        } else if (currentPart == model.rightArm) {
             bone = this.rightArm;
-        } else if (currentPart == model.bipedLeftLeg) {
+        } else if (currentPart == model.leftLeg) {
             bone = currentSlot == AzEquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
-        } else if (currentPart == model.bipedRightLeg) {
+        } else if (currentPart == model.rightLeg) {
             bone = currentSlot == AzEquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
         }
 
@@ -209,7 +209,7 @@ public class AzArmorBoneContext {
 
         if (
             currentSlot == AzEquipmentSlot.LEGS &&
-                (currentPart == model.bipedLeftLeg || currentPart == model.bipedRightLeg) &&
+                (currentPart == model.leftLeg || currentPart == model.rightLeg) &&
                 this.waist != null
         ) {
             this.waist.setHidden(false);

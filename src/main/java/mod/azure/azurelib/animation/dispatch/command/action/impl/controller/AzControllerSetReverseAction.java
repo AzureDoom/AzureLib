@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.controller;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -11,6 +9,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.util.ResourceLocation;
 
 public final class AzControllerSetReverseAction implements AzAction {
 

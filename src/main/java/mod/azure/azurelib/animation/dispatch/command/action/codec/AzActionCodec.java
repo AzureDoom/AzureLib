@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.codec;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
@@ -9,6 +7,7 @@ import javax.annotation.Nonnull;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.registry.AzActionRegistry;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The AzActionCodec class provides functionality for encoding and decoding {@link AzAction} objects to and from a

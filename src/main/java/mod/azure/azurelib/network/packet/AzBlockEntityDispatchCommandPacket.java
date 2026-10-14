@@ -1,7 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.world.World;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.ClientUtils;
 import mod.azure.azurelib.util.math.BlockPos;
 
@@ -48,15 +48,15 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
     @Override
     public void handle() {
         World level = ClientUtils.getLevel();
-        TileEntity blockEntity = level == null
+        BlockEntity blockEntity = level == null
             ? null
-            : level.getTileEntity(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            : mod.azure.azurelib.platform.mc.Mc.blockEntity(level, blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
         if (blockEntity == null) {
             return;
         }
 
-        AzAnimator<Object, TileEntity> animator = AzAnimatorAccessor.getOrNull(blockEntity);
+        AzAnimator<Object, BlockEntity> animator = AzAnimatorAccessor.getOrNull(blockEntity);
 
         if (animator != null && BlockPos.of(animator.context().animatable()).equals(blockPos)) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));

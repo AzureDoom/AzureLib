@@ -1,9 +1,8 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
@@ -64,7 +63,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     @Override
     public void preRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         AzArmorRendererPipelineContext armorContext = (AzArmorRendererPipelineContext) context;
-        ModelBiped baseModel = armorContext.baseModel();
+        BipedEntityModel baseModel = armorContext.baseModel();
         AzArmorBoneContext boneContext = armorContext.boneContext();
         AzArmorRendererConfig config = config();
         AzEquipmentSlot currentSlot = armorContext.currentSlot();
@@ -114,7 +113,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         AzArmorBoneContext boneContext,
         boolean isReRender
     ) {
-        ModelBiped baseModel = context.baseModel();
+        BipedEntityModel baseModel = context.baseModel();
         AzEquipmentSlot currentSlot = context.currentSlot();
 
         if (isReRender) {
@@ -124,24 +123,24 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         switch (currentSlot) {
             case HEAD:
                 if (boneContext.head != null)
-                    setBoneScale(boneContext.head, baseModel.bipedHead);
+                    setBoneScale(boneContext.head, baseModel.head);
                 break;
             case CHEST:
                 if (boneContext.leftArm != null)
-                    setBoneScale(boneContext.leftArm, baseModel.bipedLeftArm);
+                    setBoneScale(boneContext.leftArm, baseModel.leftArm);
                 if (boneContext.rightArm != null)
-                    setBoneScale(boneContext.rightArm, baseModel.bipedRightArm);
+                    setBoneScale(boneContext.rightArm, baseModel.rightArm);
                 if (boneContext.body != null)
-                    setBoneScale(boneContext.body, baseModel.bipedBody);
+                    setBoneScale(boneContext.body, baseModel.body);
                 if (boneContext.waist != null)
-                    setBoneScale(boneContext.waist, baseModel.bipedBody);
+                    setBoneScale(boneContext.waist, baseModel.body);
                 break;
             case FEET:
             case LEGS:
                 if (boneContext.leftLeg != null)
-                    setBoneScale(boneContext.leftLeg, baseModel.bipedLeftLeg);
+                    setBoneScale(boneContext.leftLeg, baseModel.leftLeg);
                 if (boneContext.rightLeg != null)
-                    setBoneScale(boneContext.rightLeg, baseModel.bipedRightLeg);
+                    setBoneScale(boneContext.rightLeg, baseModel.rightLeg);
                 break;
             default:
                 break;
@@ -152,10 +151,10 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
      * Sets the scale of the specified bone based on the scaling parameters defined in the given model part.
      *
      * @param bone      The {@link AzBone} instance representing the bone to be scaled.
-     * @param modelPart The {@link ModelRenderer} containing the scale values (xScale, yScale, zScale) that will be
-     *                  applied to the bone.
+     * @param modelPart The {@link ModelPart} containing the scale values (xScale, yScale, zScale) that will be applied
+     *                  to the bone.
      */
-    private void setBoneScale(AzBone bone, ModelRenderer modelPart) {
+    private void setBoneScale(AzBone bone, ModelPart modelPart) {
         bone.setScaleX(ModelPartScaleCompat.getXScale(modelPart));
         bone.setScaleY(ModelPartScaleCompat.getYScale(modelPart));
         bone.setScaleZ(ModelPartScaleCompat.getZScale(modelPart));
@@ -168,16 +167,16 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     public void scaleModelForBaby(AzArmorRendererPipelineContext context, boolean isReRender) {
         Entity currentEntity = context.currentEntity();
         if (
-            !(currentEntity instanceof EntityLivingBase && ((EntityLivingBase) currentEntity).isChild()) || isReRender
+            true /* Beta has no baby mobs */ || isReRender
         ) {
             return;
         }
 
-        ModelBiped baseModel = context.baseModel();
+        BipedEntityModel baseModel = context.baseModel();
         AzEquipmentSlot currentSlot = context.currentSlot();
         PoseStack poseStack = context.poseStack();
 
-        // Same factors as 1.7.10's ModelBiped#render for children.
+        // Same factors as 1.7.10's BipedEntityModel#render for children.
         if (currentSlot == AzEquipmentSlot.HEAD) {
             poseStack.scale(0.75f, 0.75f, 0.75f);
             poseStack.translate(0, 16 / 16f, 0);

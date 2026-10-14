@@ -1,9 +1,8 @@
 package mod.azure.azurelib.render.entity;
 
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.Map;
 import java.util.UUID;
@@ -13,13 +12,17 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.ResourceLocation;
+import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.math.Vec3;
 
 /**
@@ -29,7 +32,7 @@ import mod.azure.azurelib.util.math.Vec3;
  * {@code RenderingRegistry.registerEntityRenderingHandler(MyEntity.class, new MyEntityRenderer())} during client init.
  * 1.7.10 renderers are created without a {@link RenderManager}; Minecraft assigns it when the renderer is registered.
  */
-public abstract class AzEntityRenderer<T extends Entity> extends Render {
+public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer {
 
     private final AzEntityRendererConfig<T> config;
 
@@ -46,7 +49,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
 
     protected AzEntityRenderer(AzEntityRendererConfig<T> config) {
         this.config = config;
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUniqueID);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Mc::entityUuid);
         this.rendererPipeline = createPipeline(config);
     }
 
@@ -54,7 +57,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
         return new AzEntityRendererPipeline<>(config, this);
     }
 
-    @Override
+    /** The entity's texture. Beta's renderers bind textures by path themselves, so this is not a vanilla override. */
     @SuppressWarnings("unchecked")
     protected ResourceLocation getEntityTexture(Entity animatable) {
         return config.textureLocation((T) animatable, (T) animatable);
@@ -72,19 +75,23 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
         @Nonnull MultiBufferSource bufferSource,
         int packedLight
     ) {
-        if (AzEntityNameRenderUtil.shouldShowName(this.renderManager, entity)) {
-            AzEntityNameRenderUtil.renderNameTag(this.renderManager, entity, 0, 0, 0);
+        if (AzEntityNameRenderUtil.shouldShowName(entity)) {
+            AzEntityNameRenderUtil.renderNameTag(entity, 0, 0, 0);
         }
     }
 
+    /**
+     * Beta's entity render entry point. MAPPING: EntityRenderer#render(Entity, double, double, double, float, float).
+     */
     @Override
     @SuppressWarnings("unchecked")
-    public void doRender(Entity rawEntity, double x, double y, double z, float entityYaw, float partialTick) {
+    public void render(Entity rawEntity, double x, double y, double z, float entityYaw, float partialTick) {
+        AzRenderTick.set(partialTick);
         T entity = (T) rawEntity;
         AzEntityAnimator<T> cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
 
-        this.shadowSize = config.shadowRadius(entity);
+        this.shadowRadius = config.shadowRadius(entity);
         reusedAzEntityAnimator = cachedEntityAnimator;
         animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
 
@@ -104,7 +111,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
                 null,
                 entityYaw,
                 partialTick,
-                entity.getBrightnessForRender(partialTick)
+                LightTexture.fromBrightness(Mc.brightness(entity, partialTick))
             );
             bufferSource.endBatch();
         } finally {
@@ -156,7 +163,8 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
         return config;
     }
 
-    public RenderManager getRenderManager() {
-        return renderManager;
+    /** MAPPING: EntityRenderer#dispatcher. */
+    public EntityRenderDispatcher getRenderManager() {
+        return this.dispatcher;
     }
 }

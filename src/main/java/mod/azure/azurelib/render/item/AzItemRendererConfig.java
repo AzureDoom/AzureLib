@@ -1,9 +1,7 @@
 package mod.azure.azurelib.render.item;
 
-import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -17,6 +15,7 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Configuration class for rendering items using customized settings in an animation framework. Extends
@@ -85,6 +84,14 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         return useNewOffset;
     }
 
+    /** Contexts left to vanilla (or StationAPI) rendering; see {@link Builder#useVanillaRenderingIn}. */
+    private Set<AzItemDisplayContext> vanillaContexts = Collections.emptySet();
+
+    /** True if AzureLib draws the item in this context; false leaves it to vanilla, e.g. a flat GUI icon. */
+    public boolean rendersInContext(AzItemDisplayContext context) {
+        return !vanillaContexts.contains(context);
+    }
+
     public boolean shouldAnimateInContext(AzItemDisplayContext context) {
         return shouldAnimateInContext.test(context);
     }
@@ -120,6 +127,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         private Predicate<AzItemDisplayContext> shouldAnimateInContext;
 
         private Function<AzItemDisplayContext, AzItemAnimatorView> animatorViewProvider;
+
+        private final Set<AzItemDisplayContext> vanillaContexts = new HashSet<>();
 
         protected Builder(
             Function<ItemStack, ResourceLocation> modelLocationProvider,
@@ -293,7 +302,9 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 disabledContexts.addAll(Arrays.asList(contextsToDisable));
             }
 
-            Set<AzItemDisplayContext> finalDisabledContexts = ImmutableSet.copyOf(disabledContexts);
+            Set<AzItemDisplayContext> finalDisabledContexts = mod.azure.azurelib.util.AzCollections.immutableSet(
+                disabledContexts
+            );
             this.shouldAnimateInContext = context -> !finalDisabledContexts.contains(context);
             return this;
         }
@@ -320,7 +331,9 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 enabledContexts.addAll(Arrays.asList(contextsToEnable));
             }
 
-            Set<AzItemDisplayContext> finalEnabledContexts = ImmutableSet.copyOf(enabledContexts);
+            Set<AzItemDisplayContext> finalEnabledContexts = mod.azure.azurelib.util.AzCollections.immutableSet(
+                enabledContexts
+            );
             this.shouldAnimateInContext = finalEnabledContexts::contains;
             return this;
         }
@@ -360,11 +373,22 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
             return this;
         }
 
+        /**
+         * Leaves the given contexts to vanilla rendering, so the item uses its normal icon or sprite there. For example
+         * {@code useVanillaRenderingIn(AzItemDisplayContext.GUI)} keeps a flat inventory icon while the item is still
+         * drawn by AzureLib in hand and on the ground.
+         */
+        public Builder useVanillaRenderingIn(AzItemDisplayContext first, AzItemDisplayContext... rest) {
+            this.vanillaContexts.add(first);
+            this.vanillaContexts.addAll(Arrays.asList(rest));
+            return this;
+        }
+
         @Override
         public AzItemRendererConfig build() {
             AzRendererConfig<UUID, ItemStack> baseConfig = super.build();
 
-            return new AzItemRendererConfig(
+            AzItemRendererConfig config = new AzItemRendererConfig(
                 baseConfig::createAnimator,
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
@@ -385,6 +409,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 baseConfig::boneTextureOverrideProvider,
                 baseConfig::boneRenderTypeOverrideProvider
             );
+            config.vanillaContexts = mod.azure.azurelib.util.AzCollections.immutableSet(this.vanillaContexts);
+            return config;
         }
     }
 }

@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +14,7 @@ import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Configures the rendering behavior for custom entities in the game. This extends {@link AzRendererConfig}, adding
@@ -234,7 +234,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
          * Sets a provider for the max rotation value for dying entities.<br>
          * You might want to modify this for different aesthetics, such as a
          * {@link net.minecraft.world.entity.monster.Spider} flipping upside down on death.<br>
-         * Functionally equivalent to {@link net.minecraft.client.renderer.entity.LivingEntityRenderer#getFlipDegrees}
+         * Functionally equivalent to {@code LivingEntityRenderer#getFlipDegrees} (1.18)
          */
         public Builder<T> setDeathMaxRotation(Function<T, Float> deathMaxRotationProvider) {
             this.deathMaxRotationProvider = deathMaxRotationProvider;

@@ -5,9 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import org.apache.commons.io.IOUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -18,6 +15,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.util.GsonHelper;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Metadata class that stores the data for AzureLib's {@link mod.azure.azurelib.render.layer.AzAutoGlowingLayer emissive
@@ -25,7 +23,7 @@ import mod.azure.azurelib.util.GsonHelper;
  * <p>
  * On 1.7.10 custom {@code .mcmeta} sections can't be registered with the vanilla metadata serializer, so the
  * {@code glowsections} section is read straight from the texture's {@code .mcmeta} file by
- * {@link #fromMcmeta(IResourceManager, ResourceLocation)}. Images are handled as ARGB {@link BufferedImage}s.
+ * {@link #fromMcmeta(AzResourceManager, ResourceLocation)}. Images are handled as ARGB {@link BufferedImage}s.
  */
 public class GeoGlowingTextureMeta {
 
@@ -41,14 +39,14 @@ public class GeoGlowingTextureMeta {
      * Reads the {@code glowsections} section from {@code <texture>.mcmeta}, if the file and section exist.
      */
     @Nullable
-    public static GeoGlowingTextureMeta fromMcmeta(IResourceManager resourceManager, ResourceLocation texture) {
+    public static GeoGlowingTextureMeta fromMcmeta(AzResourceManager resourceManager, ResourceLocation texture) {
         ResourceLocation mcmeta = new ResourceLocation(
             texture.getResourceDomain(),
             texture.getResourcePath() + ".mcmeta"
         );
 
         try (InputStream stream = resourceManager.getResource(mcmeta).getInputStream()) {
-            JsonElement root = new JsonParser().parse(IOUtils.toString(stream, StandardCharsets.UTF_8));
+            JsonElement root = JsonParser.parseString(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
 
             if (!root.isJsonObject() || !root.getAsJsonObject().has(SECTION_NAME))
                 return null;
@@ -77,12 +75,11 @@ public class GeoGlowingTextureMeta {
         List<Pixel> pixels = new ArrayList<>();
 
         for (JsonElement element : sectionsArray) {
-            if (!(element instanceof JsonObject))
+            if (!(element instanceof JsonObject obj))
                 throw new JsonParseException(
                     "Invalid glowsections json format, expected a JsonObject, found: " + element.getClass()
                 );
 
-            JsonObject obj = (JsonObject) element;
             int x1 = GsonHelper.getAsInt(obj, "x1", GsonHelper.getAsInt(obj, "x", 0));
             int y1 = GsonHelper.getAsInt(obj, "y1", GsonHelper.getAsInt(obj, "y", 0));
             int x2 = GsonHelper.getAsInt(obj, "x2", GsonHelper.getAsInt(obj, "w", 0) + x1);

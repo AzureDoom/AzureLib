@@ -1,8 +1,9 @@
 package mod.azure.azurelib.render.vertex;
 
-import net.minecraft.client.renderer.OpenGlHelper;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
 
@@ -86,7 +87,12 @@ public final class GlStateManager {
         SourceFactor srcAlpha,
         DestFactor dstAlpha
     ) {
-        OpenGlHelper.glBlendFunc(srcColor.factor, dstColor.factor, srcAlpha.factor, dstAlpha.factor);
+        // Beta targets GL 1.1 era hardware; only use separate alpha blending where the driver has it.
+        if (blendFuncSeparate()) {
+            GL14.glBlendFuncSeparate(srcColor.factor, dstColor.factor, srcAlpha.factor, dstAlpha.factor);
+        } else {
+            GL11.glBlendFunc(srcColor.factor, dstColor.factor);
+        }
     }
 
     public static void enableAlpha() {
@@ -179,5 +185,18 @@ public final class GlStateManager {
         DestFactor(int factor) {
             this.factor = factor;
         }
+    }
+
+    private static Boolean blendFuncSeparate;
+
+    private static boolean blendFuncSeparate() {
+        if (blendFuncSeparate == null) {
+            try {
+                blendFuncSeparate = GLContext.getCapabilities().OpenGL14;
+            } catch (Throwable t) {
+                blendFuncSeparate = false;
+            }
+        }
+        return blendFuncSeparate;
     }
 }

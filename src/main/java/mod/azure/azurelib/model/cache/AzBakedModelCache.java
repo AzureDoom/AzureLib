@@ -1,8 +1,5 @@
 package mod.azure.azurelib.model.cache;
 
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -10,11 +7,14 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.AzResourceCache;
+import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.loading.FileLoader;
 import mod.azure.azurelib.loading.json.raw.Model;
 import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.factory.registry.AzBakedModelFactoryRegistry;
+import mod.azure.azurelib.resource.AzResourceManager;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * AzBakedModelCache is a singleton class that extends {@link AzResourceCache} and is designed to manage and cache baked
@@ -35,7 +35,7 @@ public class AzBakedModelCache extends AzResourceCache {
 
     public CompletableFuture<Map<ResourceLocation, AzBakedModel>> loadModels(
         Executor backgroundExecutor,
-        IResourceManager resourceManager
+        AzResourceManager resourceManager
     ) {
         return loadResources(backgroundExecutor, resourceManager, "geo", resource -> {
             Model model = FileLoader.loadModelFile(resource, resourceManager);
@@ -55,11 +55,16 @@ public class AzBakedModelCache extends AzResourceCache {
         });
     }
 
+    public int size() {
+        return bakedModels.size();
+    }
+
     public void apply(Map<ResourceLocation, AzBakedModel> models) {
         this.bakedModels = models;
     }
 
     public @Nullable AzBakedModel getNullable(ResourceLocation resourceLocation) {
+        AzureLibCache.ensureLoaded();
         return bakedModels.get(resourceLocation);
     }
 }

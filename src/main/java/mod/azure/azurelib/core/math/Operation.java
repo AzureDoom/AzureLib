@@ -5,8 +5,6 @@
  */
 package mod.azure.azurelib.core.math;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +42,7 @@ public enum Operation {
     /**
      * Every operator sign. Unmodifiable: adding a sign here would not make it parseable (see the class docs).
      */
-    public static final Set<String> OPERATORS = ImmutableSet.copyOf(BY_SIGN.keySet());
+    public static final Set<String> OPERATORS = mod.azure.azurelib.util.AzCollections.immutableSet(BY_SIGN.keySet());
 
     /**
      * String-ified name of this operation

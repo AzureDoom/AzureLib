@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mod.azure.azurelib.mixins.client",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "ArsenicOverlayRendererMixin_AzItems",
+    "HeldItemRendererMixin_AzItems",
+    "ItemRendererMixin_AzItems",
+    "PlayerEntityRendererMixin_AzArmor"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

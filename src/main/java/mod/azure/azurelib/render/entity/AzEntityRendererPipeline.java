@@ -1,9 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 
@@ -12,6 +9,7 @@ import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.math.Matrix4f;
 
 /**
@@ -76,14 +74,9 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
         float scaleHeight = config.scaleHeight(context.animatable());
 
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
-        if (config.alpha(context.animatable()) < 1 || context.animatable().isInvisible()) {
-            float setAlpha = context.animatable().isInvisible()
-                ? (context.animatable()
-                    .isInvisibleToPlayer(
-                        Minecraft.getMinecraft().thePlayer
-                    ) ? 0.0F : 0.38F)
-                : config.alpha(context.animatable());
-            context.setAlpha(setAlpha);
+        // Beta has no invisibility, so only the configured alpha applies.
+        if (config.alpha(context.animatable()) < 1) {
+            context.setAlpha(config.alpha(context.animatable()));
         }
         config.preRenderEntry(context);
     }
@@ -94,7 +87,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     }
 
     /**
-     * Renders the final frame of the entity, including handling special cases such as entities with leashes.
+     * Renders the final frame of the entity (name tag).
      *
      * @param context the rendering context that contains all required data for rendering, such as the entity, pose
      *                stack, light information, and buffer source
@@ -117,19 +110,7 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
             ((AzBufferSource) bufferSource).endBatch();
         }
 
-        if (!(entity instanceof EntityLiving)) {
-            return;
-        }
-
-        EntityLiving mob = (EntityLiving) entity;
-
-        Entity leashHolder = mob.getLeashedToEntity();
-
-        if (leashHolder == null) {
-            return;
-        }
-
-        AzEntityLeashRenderUtil.renderLeash(entityRenderer, mob, partialTick, poseStack, bufferSource, leashHolder);
+        // Beta has no leads, so there is no leash to draw.
     }
 
     @Override

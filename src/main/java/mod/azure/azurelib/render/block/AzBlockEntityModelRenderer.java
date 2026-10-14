@@ -1,9 +1,10 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.block.entity.BlockEntity;
 
 import mod.azure.azurelib.animation.impl.AzBlockAnimator;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -20,9 +21,9 @@ import mod.azure.azurelib.util.math.Vector3f;
  * extends the AzModelRenderer class and provides functionality specific to handling and rendering block entities based
  * on their corresponding properties and transformations.
  *
- * @param <T> The type of TileEntity that this renderer is responsible for
+ * @param <T> The type of BlockEntity that this renderer is responsible for
  */
-public class AzBlockEntityModelRenderer<T extends TileEntity> extends AzModelRenderer<Long, T> {
+public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRenderer<Long, T> {
 
     protected final AzBlockEntityRendererPipeline<T> blockEntityRendererPipeline;
 
@@ -100,9 +101,9 @@ public class AzBlockEntityModelRenderer<T extends TileEntity> extends AzModelRen
                     RenderUtils.translateMatrix(
                         localMatrix.copy(),
                         new Vector3f(
-                            entity.xCoord,
-                            entity.yCoord,
-                            entity.zCoord
+                            Mc.x(entity),
+                            Mc.y(entity),
+                            Mc.z(entity)
                         )
                     )
                 );
@@ -143,12 +144,12 @@ public class AzBlockEntityModelRenderer<T extends TileEntity> extends AzModelRen
      * Attempt to extract a direction from the block so that the model can be oriented correctly
      */
     protected Direction getFacing(T block) {
-        if (!block.hasWorldObj())
+        if (Mc.world(block) == null)
             return Direction.NORTH;
 
-        // 1.7.10 has no block state properties. Most rotatable blocks store their facing in the metadata using the side
+        // Beta has no block state properties. Most rotatable blocks store their facing in the metadata using the side
         // indices 2-5 (north, south, west, east); override this method for other layouts.
-        int meta = block.getBlockMetadata();
+        int meta = Mc.blockMeta(Mc.world(block), Mc.x(block), Mc.y(block), Mc.z(block));
 
         if (meta >= 2 && meta <= 5)
             return Direction.byIndex(meta);

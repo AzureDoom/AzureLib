@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.item;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -12,6 +11,7 @@ import mod.azure.azurelib.render.AzRendererConfig;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.math.Matrix4f;
 
 /**

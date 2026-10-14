@@ -2,7 +2,6 @@ package mod.azure.azurelib.render.armor;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +16,7 @@ import mod.azure.azurelib.render.armor.bone.AzArmorBoneProvider;
 import mod.azure.azurelib.render.armor.bone.AzDefaultArmorBoneProvider;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.ResourceLocation;
 
 public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
 

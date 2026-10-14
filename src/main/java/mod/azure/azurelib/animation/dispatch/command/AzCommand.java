@@ -1,9 +1,8 @@
 package mod.azure.azurelib.animation.dispatch.command;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -24,6 +23,7 @@ import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.codec.AzListStreamCodec;
 import mod.azure.azurelib.util.math.BlockPos;
@@ -264,10 +264,10 @@ public final class AzCommand {
      * @param entity the target {@link Entity} for which the animation commands are dispatched.
      */
     public void sendForEntity(Entity entity) {
-        if (entity.worldObj.isRemote) {
+        if (Mc.isClientSide(Mc.world(entity))) {
             dispatchFromClient(entity);
         } else {
-            int entityId = entity.getEntityId();
+            int entityId = Mc.entityId(entity);
             AzEntityDispatchCommandPacket packet = new AzEntityDispatchCommandPacket(entityId, this);
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
         }
@@ -278,15 +278,15 @@ public final class AzCommand {
      * determines whether the command should proceed, logs a warning if it cannot, and dispatches the animation commands
      * either from the client or the server side.
      *
-     * @param entity the target {@link TileEntity} for which the animation commands are dispatched.
+     * @param entity the target {@link BlockEntity} for which the animation commands are dispatched.
      */
-    public void sendForBlockEntity(TileEntity entity) {
-        if (entity.getWorld() != null && entity.getWorld().isRemote) {
+    public void sendForBlockEntity(BlockEntity entity) {
+        if (Mc.world(entity) != null && Mc.isClientSide(Mc.world(entity))) {
             dispatchFromClient(entity);
         } else {
             BlockPos entityBlockPos = BlockPos.of(entity);
             AzBlockEntityDispatchCommandPacket packet = new AzBlockEntityDispatchCommandPacket(entityBlockPos, this);
-            Services.NETWORK.sendToEntitiesTrackingChunk(packet, entity.getWorld(), entityBlockPos);
+            Services.NETWORK.sendToEntitiesTrackingChunk(packet, Mc.world(entity), entityBlockPos);
         }
     }
 
@@ -316,9 +316,15 @@ public final class AzCommand {
      * @param view      the animator to target, or null to target every animator the stack has.
      */
     public void sendForItem(Entity entity, ItemStack itemStack, AzItemAnimatorView view) {
-        UUID uuid = AzItemIds.get(itemStack.getTagCompound());
+        if (itemStack == null) {
+            return;
+        }
 
-        if (entity.worldObj.isRemote) {
+        if (Mc.isClientSide(Mc.world(entity))) {
+            UUID uuid = AzItemIds.getOrNull(itemStack);
+            if (uuid == null) {
+                return;
+            }
             AzIdentifiableItemStackAnimatorCache.getInstance()
                 .forEach(
                     uuid,
@@ -326,24 +332,26 @@ public final class AzCommand {
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
                 );
         } else {
-            if (itemStack.getTagCompound() == null) {
-                return;
-            }
-            if (!AzItemIds.has(itemStack.getTagCompound())) {
+            // On Beta the identity UUID lives in StationAPI's stack NBT. Assign it lazily here (server side, or the
+            // local world in single player); StationAPI syncs the NBT to clients with the next slot/equipment update.
+            if (!mod.azure.azurelib.animation.cache.AzIdentityRegistry.hasIdentity(Mc.item(itemStack))) {
                 AzureLib.LOGGER.warn(
                     AzureLib.MAIN_MARKER,
-                    "Missing '{}' UUID tag on ItemStack (item={}). "
-                        + "Cannot dispatch animation commands. Ensure this is an AzureLib-animated item and that its UUID is assigned.",
-                    AzureLib.ITEM_UUID_TAG,
-                    Item.itemRegistry.getNameForObject(itemStack.getItem())
+                    "Item {} is not registered with AzIdentityRegistry. Cannot dispatch animation commands.",
+                    Mc.itemId(Mc.item(itemStack))
                 );
                 return;
             }
+            UUID uuid = AzItemIds.getOrCreate(itemStack);
 
+            // The packet also names the holder and the item id, so a client that hasn't received the NBT sync yet
+            // can still find the stack (see AzItemStackDispatchCommandPacket#handle).
             AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(
                 uuid,
                 this,
-                Optional.ofNullable(view)
+                Optional.ofNullable(view),
+                Mc.entityId(entity),
+                Mc.itemId(Mc.item(itemStack))
             );
             Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
         }

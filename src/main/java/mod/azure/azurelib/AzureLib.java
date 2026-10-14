@@ -1,12 +1,12 @@
 package mod.azure.azurelib;
 
-import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Base class for AzureLib!<br>
@@ -32,8 +32,7 @@ public class AzureLib {
     private AzureLib() {}
 
     /**
-     * Sets up AzureLib's common systems (networking). Called by {@link ForgeAzureLibMod} during pre-init; safe to call
-     * more than once.
+     * Sets up AzureLib's common systems (networking). Called by the Fabric entrypoints; safe to call more than once.
      */
     public static void initialize() {
         if (!hasInitialized) {

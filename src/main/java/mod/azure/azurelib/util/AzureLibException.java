@@ -1,7 +1,5 @@
 package mod.azure.azurelib.util;
 
-import net.minecraft.util.ResourceLocation;
-
 /**
  * Generic {@link Exception} wrapper for AzureLib.<br>
  * Mostly just serves as a marker for internal error handling.

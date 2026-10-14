@@ -1,8 +1,7 @@
 package mod.azure.azurelib.render.block;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -14,6 +13,7 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The {@code AzBlockEntityRendererConfig} class is a specialized configuration for rendering block entities. It extends
@@ -22,7 +22,7 @@ import mod.azure.azurelib.render.vertex.RenderType;
  *
  * @param <T> The type of block entity this configuration is tailored for.
  */
-public class AzBlockEntityRendererConfig<T extends TileEntity> extends AzRendererConfig<Long, T> {
+public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRendererConfig<Long, T> {
 
     private AzBlockEntityRendererConfig(
         Supplier<AzAnimator<Long, T>> animatorProvider,
@@ -60,21 +60,21 @@ public class AzBlockEntityRendererConfig<T extends TileEntity> extends AzRendere
         );
     }
 
-    public static <T extends TileEntity> Builder<T> builder(
+    public static <T extends BlockEntity> Builder<T> builder(
         ResourceLocation modelLocation,
         ResourceLocation textureLocation
     ) {
         return new Builder<>($ -> modelLocation, $ -> textureLocation);
     }
 
-    public static <T extends TileEntity> Builder<T> builder(
+    public static <T extends BlockEntity> Builder<T> builder(
         Function<T, ResourceLocation> modelLocationProvider,
         Function<T, ResourceLocation> textureLocationProvider
     ) {
         return new Builder<>(modelLocationProvider, textureLocationProvider);
     }
 
-    public static class Builder<T extends TileEntity> extends AzRendererConfig.Builder<Long, T> {
+    public static class Builder<T extends BlockEntity> extends AzRendererConfig.Builder<Long, T> {
 
         protected Builder(
             Function<T, ResourceLocation> modelLocationProvider,

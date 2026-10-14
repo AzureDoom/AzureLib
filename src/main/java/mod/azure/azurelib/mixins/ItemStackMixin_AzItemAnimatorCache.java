@@ -1,7 +1,6 @@
 package mod.azure.azurelib.mixins;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.UUID;
@@ -15,6 +14,10 @@ import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.AzureLibUtil;
 
+/**
+ * Item stacks are recreated freely (copies, network updates), so their animators are not stored on the stack itself but
+ * in {@link AzIdentifiableItemStackAnimatorCache}, keyed by the stack's AzureLib UUID.
+ */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAccessor<UUID, ItemStack> {
 
@@ -27,14 +30,9 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
 
     @Override
     public @Nullable AzAnimator<UUID, ItemStack> getAnimatorOrNull() {
-        ItemStack self = AzureLibUtil.self(this);
-        NBTTagCompound tag = self.getTagCompound();
-
-        if (tag == null || !AzItemIds.has(tag)) {
-            return null;
-        }
-
-        UUID uuid = AzItemIds.get(tag);
-        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.current());
+        UUID uuid = AzItemIds.getOrNull(AzureLibUtil.self(this));
+        return uuid == null
+            ? null
+            : AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.current());
     }
 }

@@ -1,8 +1,7 @@
 package mod.azure.azurelib.animation.molang;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -10,6 +9,8 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.core.molang.MolangQueryContext;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.azurelib.util.math.Mth;
@@ -36,7 +37,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
     private Entity entity;
 
     @Nullable
-    private EntityLivingBase livingEntity;
+    private LivingEntity livingEntity;
 
     private float partialTicks;
 
@@ -50,7 +51,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
      */
     public void bind(@Nullable Entity entity, float partialTicks) {
         this.entity = entity;
-        this.livingEntity = entity instanceof EntityLivingBase ? (EntityLivingBase) entity : null;
+        this.livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
         this.partialTicks = partialTicks;
         MolangQueryContext.setCurrent(this);
     }
@@ -64,10 +65,10 @@ public final class AzMolangQueryContext implements MolangQueryContext {
     }
 
     /**
-     * @return the entity being animated if it is a {@link EntityLivingBase}, else {@code null}
+     * @return the entity being animated if it is a {@link LivingEntity}, else {@code null}
      */
     @Nullable
-    public EntityLivingBase livingEntity() {
+    public LivingEntity livingEntity() {
         return livingEntity;
     }
 
@@ -81,9 +82,9 @@ public final class AzMolangQueryContext implements MolangQueryContext {
             return 0;
 
         return axis(
-            Mth.lerp(partialTicks, entity.lastTickPosX, entity.posX),
-            Mth.lerp(partialTicks, entity.lastTickPosY, entity.posY),
-            Mth.lerp(partialTicks, entity.lastTickPosZ, entity.posZ),
+            Mth.lerp(partialTicks, Mc.lastTickX(entity), Mc.x(entity)),
+            Mth.lerp(partialTicks, Mc.lastTickY(entity), Mc.y(entity)),
+            Mth.lerp(partialTicks, Mc.lastTickZ(entity), Mc.z(entity)),
             axis
         );
     }
@@ -93,7 +94,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (entity == null)
             return 0;
 
-        return axis(entity.motionX, entity.motionY, entity.motionZ, axis);
+        return axis(Mc.velocityX(entity), Mc.velocityY(entity), Mc.velocityZ(entity), axis);
     }
 
     @Override
@@ -102,10 +103,14 @@ public final class AzMolangQueryContext implements MolangQueryContext {
             return 0;
 
         double length = Math.sqrt(
-            entity.motionX * entity.motionX + entity.motionY * entity.motionY + entity.motionZ * entity.motionZ
+            Mc.velocityX(entity) * Mc.velocityX(entity) + Mc.velocityY(entity) * Mc.velocityY(entity) + Mc.velocityZ(
+                entity
+            ) * Mc.velocityZ(entity)
         );
 
-        return length < 1.0E-7 ? 0 : axis(entity.motionX, entity.motionY, entity.motionZ, axis) / length;
+        return length < 1.0E-7
+            ? 0
+            : axis(Mc.velocityX(entity), Mc.velocityY(entity), Mc.velocityZ(entity), axis) / length;
     }
 
     @Override
@@ -122,7 +127,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
             return 0;
 
         ItemStack stack = ARMOR_SLOTS[slot].getStack(livingEntity);
-        return stack == null ? 0 : stack.getCurrentDurability();
+        return stack == null || !Mc.isDamageable(stack) ? 0 : Mc.maxDamage(stack) - Mc.damage(stack);
     }
 
     @Override
@@ -137,16 +142,14 @@ public final class AzMolangQueryContext implements MolangQueryContext {
 
     @Override
     public double heightmap(double x, double z) {
-        World level = Minecraft.getMinecraft().theWorld;
-        return level == null ? 0 : level.getHeightValue((int) Math.floor(x), (int) Math.floor(z));
+        World level = McClient.world();
+        return level == null ? 0 : Mc.topBlockY(level, (int) Math.floor(x), (int) Math.floor(z));
     }
 
     @Override
     public double aboveTopSolid(double x, double z) {
-        World level = Minecraft.getMinecraft().theWorld;
-        return level == null
-            ? 0
-            : level.getTopSolidOrLiquidBlock((int) Math.floor(x), (int) Math.floor(z));
+        World level = McClient.world();
+        return level == null ? 0 : Mc.topBlockY(level, (int) Math.floor(x), (int) Math.floor(z));
     }
 
     @Override
@@ -154,17 +157,17 @@ public final class AzMolangQueryContext implements MolangQueryContext {
         if (entity == null)
             return 0;
 
-        Entity camera = Minecraft.getMinecraft().renderViewEntity;
+        Entity camera = McClient.cameraEntity();
         if (camera == null)
             return 0;
         float pt = partialTicks;
-        double dx = Mth.lerp(pt, camera.lastTickPosX, camera.posX) - Mth.lerp(pt, entity.lastTickPosX, entity.posX);
-        double dy = Mth.lerp(pt, camera.lastTickPosY, camera.posY) + camera.getEyeHeight() - Mth.lerp(
+        double dx = Mth.lerp(pt, Mc.lastTickX(camera), Mc.x(camera)) - Mth.lerp(pt, Mc.lastTickX(entity), Mc.x(entity));
+        double dy = Mth.lerp(pt, Mc.lastTickY(camera), Mc.y(camera)) + Mc.eyeHeight(camera) - Mth.lerp(
             pt,
-            entity.lastTickPosY,
-            entity.posY
+            Mc.lastTickY(entity),
+            Mc.y(entity)
         );
-        double dz = Mth.lerp(pt, camera.lastTickPosZ, camera.posZ) - Mth.lerp(pt, entity.lastTickPosZ, entity.posZ);
+        double dz = Mth.lerp(pt, Mc.lastTickZ(camera), Mc.z(camera)) - Mth.lerp(pt, Mc.lastTickZ(entity), Mc.z(entity));
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -10,6 +8,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.util.ResourceLocation;
 
 public final class AzRootSetStartTickOffsetAction implements AzAction {
 

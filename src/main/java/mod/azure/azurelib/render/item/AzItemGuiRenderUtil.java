@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 
 import mod.azure.azurelib.model.AzBakedModel;
@@ -19,7 +18,7 @@ public class AzItemGuiRenderUtil {
 
     /**
      * Renders an item in the GUI. Items configured with {@code useEntityGuiLighting()} get world-style entity lighting;
-     * everything else keeps 1.7.10's standard GUI item lighting.
+     * everything else keeps Beta's standard GUI item lighting.
      */
     public static void renderInGui(
         AzItemRendererConfig config,
@@ -46,7 +45,7 @@ public class AzItemGuiRenderUtil {
             config.getRenderType(context.currentEntity(), stack),
             config.alpha(stack)
         );
-        boolean withGlint = currentItemStack != null && currentItemStack.hasEffect(0);
+        boolean withGlint = false; // Beta has no enchantments
         VertexConsumer buffer = AzBufferSource.getFoilBuffer(source, renderType, withGlint);
 
         poseStack.pushPose();
@@ -72,9 +71,9 @@ public class AzItemGuiRenderUtil {
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
         if (entityStyle) {
-            RenderHelper.enableStandardItemLighting();
+            mod.azure.azurelib.render.AzLighting.enableStandardItemLighting();
         } else {
-            RenderHelper.enableGUIStandardItemLighting();
+            mod.azure.azurelib.render.AzLighting.enableGUIStandardItemLighting();
         }
         GlStateManager.popMatrix();
     }

@@ -1,8 +1,5 @@
 package mod.azure.azurelib.animation.controller;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Collection;
 import java.util.Set;
 
@@ -16,7 +13,7 @@ import mod.azure.azurelib.model.AzBone;
 public final class AzBoneMask {
 
     /** Every bone; the default. */
-    public static final AzBoneMask ALL = new AzBoneMask(ImmutableSet.of(), false);
+    public static final AzBoneMask ALL = new AzBoneMask(mod.azure.azurelib.util.AzCollections.immutableSetOf(), false);
 
     private final Set<String> boneNames;
 
@@ -30,22 +27,22 @@ public final class AzBoneMask {
 
     /** Only the named bones and their children. */
     public static AzBoneMask only(String... boneNames) {
-        return only(ImmutableList.copyOf(boneNames));
+        return only(java.util.Arrays.asList(boneNames));
     }
 
     /** Only the named bones and their children. */
     public static AzBoneMask only(Collection<String> boneNames) {
-        return new AzBoneMask(ImmutableSet.copyOf(boneNames), true);
+        return new AzBoneMask(mod.azure.azurelib.util.AzCollections.immutableSet(boneNames), true);
     }
 
     /** Every bone except the named bones and their children. */
     public static AzBoneMask except(String... boneNames) {
-        return except(ImmutableList.copyOf(boneNames));
+        return except(java.util.Arrays.asList(boneNames));
     }
 
     /** Every bone except the named bones and their children. */
     public static AzBoneMask except(Collection<String> boneNames) {
-        return new AzBoneMask(ImmutableSet.copyOf(boneNames), false);
+        return new AzBoneMask(mod.azure.azurelib.util.AzCollections.immutableSet(boneNames), false);
     }
 
     public boolean includes(AzBone bone) {

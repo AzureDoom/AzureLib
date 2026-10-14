@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.item;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * A specialized subclass of {@link AzRendererPipelineContext} designed for rendering {@link ItemStack} objects.

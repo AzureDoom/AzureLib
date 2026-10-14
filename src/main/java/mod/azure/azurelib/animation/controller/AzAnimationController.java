@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.controller;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -150,7 +149,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     public List<AzQueuedAnimation> tryCreateAnimationQueue(T animatable, AzAnimationSequence sequence) {
         if (animatable == null) {
             LOGGER.warn("Unable to create animation queue: animatable is null");
-            return ImmutableList.of();
+            return java.util.List.of();
         }
         List<AzAnimationStage> stages = sequence.stages();
         ArrayList<AzQueuedAnimation> animations = new ArrayList<AzQueuedAnimation>();
@@ -164,7 +163,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                     stage.name(),
                     animatable.getClass().getSimpleName()
                 );
-                return ImmutableList.of();
+                return java.util.List.of();
             } else {
                 AzAnimationStageProperties properties = stage.properties();
                 Boolean reverseOverride = properties.hasReversing() ? properties.isReversing() : null;

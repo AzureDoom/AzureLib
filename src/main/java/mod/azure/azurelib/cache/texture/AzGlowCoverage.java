@@ -1,13 +1,12 @@
 package mod.azure.azurelib.cache.texture;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.render.AzQuadFilter;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Which parts of a glowmask texture actually glow, so the glow layer can skip quads whose UV area is fully transparent

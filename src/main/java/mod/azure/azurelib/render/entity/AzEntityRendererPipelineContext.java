@@ -1,19 +1,19 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.OverlayTexture;
 import mod.azure.azurelib.render.vertex.RenderType;
-import mod.azure.azurelib.util.client.ClientUtils;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * A context class specifically for rendering entities using a custom rendering pipeline. This class extends
@@ -37,13 +37,11 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         RenderType defaultRenderType,
         float alpha
     ) {
-        boolean translucent = animatable.isInvisible() && !animatable.isInvisibleToPlayer(
-            ClientUtils.getClientPlayer()
-        );
-        boolean visibleBody = !animatable.isInvisible(); // strictly visible flag
-        boolean glowing = false; // 1.7.10 has no glowing effect
-        boolean hurtOrDead = animatable instanceof EntityLivingBase && (((EntityLivingBase) animatable).hurtTime > 1
-            || ((EntityLivingBase) animatable).getHealth() <= 0);
+        boolean translucent = false; // Beta has no invisibility
+        boolean visibleBody = true;
+        boolean glowing = false; // Beta has no glowing effect
+        boolean hurtOrDead = animatable instanceof LivingEntity && (Mc.hurtTime((LivingEntity) animatable) > 1
+            || Mc.health((LivingEntity) animatable) <= 0);
 
         // Handle entity damage/death state
         if (visibleBody && !glowing && hurtOrDead) {
@@ -80,15 +78,15 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
      */
     @Override
     public int getPackedOverlay(T entity, float u, float partialTick) {
-        if (!(entity instanceof EntityLivingBase)) {
+        if (!(entity instanceof LivingEntity)) {
             return OverlayTexture.NO_OVERLAY;
         }
 
-        EntityLivingBase livingEntity = (EntityLivingBase) entity;
+        LivingEntity livingEntity = (LivingEntity) entity;
 
         return OverlayTexture.pack(
             OverlayTexture.u(u),
-            OverlayTexture.v(livingEntity.hurtTime > 0 || livingEntity.deathTime > 0)
+            OverlayTexture.v(Mc.hurtTime(livingEntity) > 0 || Mc.deathTime(livingEntity) > 0)
         );
     }
 }

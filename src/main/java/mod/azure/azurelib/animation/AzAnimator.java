@@ -1,8 +1,6 @@
 package mod.azure.azurelib.animation;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 import java.util.WeakHashMap;
 import java.util.function.DoubleSupplier;
@@ -18,8 +16,11 @@ import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.profiling.AzProfileStage;
 import mod.azure.azurelib.profiling.AzProfiler;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The {@code AzAnimator} class is an abstract base class for managing animations for various types of objects such as
@@ -71,13 +72,13 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
 
     private final DoubleSupplier actorCountSupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().theWorld;
-        return lvl != null ? lvl.loadedEntityList.size() : 0;
+        World lvl = McClient.world();
+        return lvl != null ? Mc.entities(lvl).size() : 0;
     };
 
     private final DoubleSupplier timeOfDaySupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().theWorld;
-        return lvl != null ? lvl.getWorldTime() / 24000f : 0;
+        World lvl = McClient.world();
+        return lvl != null ? Mc.time(lvl) / 24000f : 0;
     };
 
     private final DoubleSupplier moonPhaseSupplier = AzAnimator::moonPhase;
@@ -85,27 +86,26 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier moonBrightnessSupplier = () -> MOON_BRIGHTNESS[moonPhase()];
 
     private final DoubleSupplier daySupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().theWorld;
-        return lvl != null ? Math.floorDiv(lvl.getWorldTime(), 24000L) : 0;
+        World lvl = McClient.world();
+        return lvl != null ? Math.floorDiv(Mc.time(lvl), 24000L) : 0;
     };
 
     private final DoubleSupplier timeStampSupplier = () -> {
-        WorldClient lvl = Minecraft.getMinecraft().theWorld;
-        return lvl != null ? lvl.getTotalWorldTime() : 0;
+        World lvl = McClient.world();
+        return lvl != null ? Mc.time(lvl) : 0;
     };
 
     private final DoubleSupplier frameAlphaSupplier = () -> molangPartialTicks;
 
-    private final DoubleSupplier clientMaxRenderDistanceSupplier = () -> Minecraft
-        .getMinecraft().gameSettings.renderDistanceChunks;
+    private final DoubleSupplier clientMaxRenderDistanceSupplier = McClient::renderDistanceChunks;
 
     private static int moonPhase() {
-        WorldClient lvl = Minecraft.getMinecraft().theWorld;
+        World lvl = McClient.world();
 
         if (lvl == null)
             return 0;
 
-        return lvl.getMoonPhase();
+        return McClient.moonPhase();
     }
 
     protected AzAnimator() {
@@ -198,7 +198,7 @@ public abstract class AzAnimator<K, T> {
      * @param partialTicks The partial tick for smooth animations.
      */
     protected void applyMolangQueries(T animatable, double animTime, float partialTicks) {
-        WorldClient level = Minecraft.getMinecraft().theWorld;
+        World level = McClient.world();
 
         if (level == null) {
             return;

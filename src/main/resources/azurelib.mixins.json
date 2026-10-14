@@ -1,20 +1,18 @@
 {
   "required": true,
+  "minVersion": "0.8",
   "package": "mod.azure.azurelib.mixins",
-  "compatibilityLevel": "JAVA_8",
-  "refmap": "azurelib.refmap.json",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ContainerMixin_AzItemIDFix",
-    "ItemMixin_EnsureCraftHasID",
+    "BlockEntityMixin_AzBlockEntityAnimatorCache",
+    "EntityMixin_AzEntityAnimatorCache",
+    "ItemStackMixin_AzItemAnimatorCache",
     "ItemStackMixin_AzItemStackIdentityRegistry"
   ],
   "client": [
-    "BlockEntityMixin_AzBlockEntityAnimatorCache",
-    "EntityMixin_AzEntityAnimatorCache",
-    "ForgeHooksClientMixin",
-    "ItemStackMixin_AzItemAnimatorCache"
   ],
-  "minVersion": "0.8",
+  "server": [
+  ],
   "injectors": {
     "defaultRequire": 1
   }

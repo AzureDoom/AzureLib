@@ -1,14 +1,5 @@
 package mod.azure.azurelib.cache.texture;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.data.TextureMetadataSection;
-import net.minecraft.util.ResourceLocation;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +10,15 @@ import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.render.texture.DynamicTexture;
+import mod.azure.azurelib.render.texture.ITextureObject;
+import mod.azure.azurelib.render.texture.TextureManager;
+import mod.azure.azurelib.render.texture.TextureMetadataSection;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.resource.AzResource;
+import mod.azure.azurelib.resource.AzResourceManager;
 import mod.azure.azurelib.resource.GeoGlowingTextureMeta;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Texture object type responsible for AzureLib's emissive render textures
@@ -59,7 +57,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
     private static ITextureObject resolveBaseTexture(
         TextureManager textureManager,
-        IResourceManager resourceManager,
+        AzResourceManager resourceManager,
         ResourceLocation location
     ) {
         AnimatableTexture.ensureLoaded(location);
@@ -75,13 +73,17 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
 
     @Nullable
     @Override
-    protected Runnable loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException {
-        ITextureObject originalTexture = resolveBaseTexture(mc.getTextureManager(), resourceManager, this.textureBase);
+    protected Runnable prepareTexture(AzResourceManager resourceManager) throws IOException {
+        ITextureObject originalTexture = resolveBaseTexture(
+            TextureManager.getInstance(),
+            resourceManager,
+            this.textureBase
+        );
         BufferedImage baseImage;
         boolean blur = false;
         boolean clamp = false;
 
-        IResource textureBaseResource = resourceManager.getResource(this.textureBase);
+        AzResource textureBaseResource = resourceManager.getResource(this.textureBase);
 
         try (InputStream stream = textureBaseResource.getInputStream()) {
             baseImage = ImageIO.read(stream);
@@ -194,7 +196,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
         };
     }
 
-    private static boolean resourceExists(IResourceManager resourceManager, ResourceLocation location) {
+    private static boolean resourceExists(AzResourceManager resourceManager, ResourceLocation location) {
         try {
             resourceManager.getResource(location).getInputStream().close();
             return true;

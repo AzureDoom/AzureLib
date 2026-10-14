@@ -1,18 +1,14 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
@@ -23,10 +19,12 @@ import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Utility for rendering the local player's arms in place of an item model's {@code leftArm}/{@code rightArm} bones in
- * first person. On 1.7.10 the player's model parts render through the GL matrix stack, so pending AzureLib vertices are
+ * first person. On Beta the player's model parts render through the GL matrix stack, so pending AzureLib vertices are
  * flushed first and the bone's pose is pushed onto the GL matrix.
  */
 public class AzItemArmRenderUtil {
+
+    private static final BipedEntityModel ARM_MODEL = new BipedEntityModel(0.0F);
 
     private static final String LEFT_ARM_BONE = "leftArm";
 
@@ -77,21 +75,15 @@ public class AzItemArmRenderUtil {
         bone.setHidden(true);
         bone.setChildrenHidden(false);
 
-        Minecraft client = Minecraft.getMinecraft();
+        PlayerEntity player = McClient.player();
 
-        if (client.thePlayer == null) {
+        if (player == null) {
             return;
         }
 
-        AbstractClientPlayer player = client.thePlayer;
-        Render renderer = RenderManager.instance.getEntityRenderObject(player);
-
-        if (!(renderer instanceof RenderPlayer)) {
-            return;
-        }
-
-        ModelBiped playerEntityModel = ((RenderPlayer) renderer).modelBipedMain;
-        ResourceLocation playerSkin = player.getLocationSkin();
+        // A private biped with vanilla player proportions; Beta's renderer keeps its own model in a field AzureLib
+        // would need an accessor for, and the arm geometry is identical.
+        BipedEntityModel playerEntityModel = ARM_MODEL;
         PoseStack poseStack = context.poseStack();
 
         poseStack.pushPose();
@@ -108,8 +100,8 @@ public class AzItemArmRenderUtil {
                 context.multiBufferSource(),
                 poseStack,
                 bone,
-                playerSkin,
-                playerEntityModel.bipedLeftArm,
+                player,
+                playerEntityModel.leftArm,
                 null
             );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
@@ -119,8 +111,8 @@ public class AzItemArmRenderUtil {
                 context.multiBufferSource(),
                 poseStack,
                 bone,
-                playerSkin,
-                playerEntityModel.bipedRightArm,
+                player,
+                playerEntityModel.rightArm,
                 null
             );
         }
@@ -133,22 +125,22 @@ public class AzItemArmRenderUtil {
         MultiBufferSource bufferSource,
         PoseStack poseStack,
         AzBone bone,
-        ResourceLocation playerSkin,
-        ModelRenderer arm,
-        ModelRenderer sleeve
+        PlayerEntity player,
+        ModelPart arm,
+        ModelPart sleeve
     ) {
         if (bufferSource instanceof AzBufferSource) {
             ((AzBufferSource) bufferSource).endBatch();
         }
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(playerSkin);
+        McClient.bindPlayerSkin(player);
         GlStateManager.pushMatrix();
         RenderUtils.applyPoseToGl(poseStack.last());
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         renderPart(arm, bone);
 
-        // 1.7.10 skins have no sleeve layer; the parameter is kept for parity with later versions.
+        // Beta skins have no sleeve layer; the parameter is kept for parity with later versions.
         if (sleeve != null) {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(
@@ -164,19 +156,19 @@ public class AzItemArmRenderUtil {
         GlStateManager.popMatrix();
     }
 
-    private static void renderPart(ModelRenderer part, AzBone bone) {
-        float oldX = part.rotationPointX, oldY = part.rotationPointY, oldZ = part.rotationPointZ;
-        float oldRotX = part.rotateAngleX, oldRotY = part.rotateAngleY, oldRotZ = part.rotateAngleZ;
+    private static void renderPart(ModelPart part, AzBone bone) {
+        float oldX = part.pivotX, oldY = part.pivotY, oldZ = part.pivotZ;
+        float oldRotX = part.pitch, oldRotY = part.yaw, oldRotZ = part.roll;
 
-        part.setRotationPoint(bone.getPivotX(), bone.getPivotY(), bone.getPivotZ());
-        part.rotateAngleX = 0;
-        part.rotateAngleY = 0;
-        part.rotateAngleZ = 0;
+        McClient.setPivot(part, bone.getPivotX(), bone.getPivotY(), bone.getPivotZ());
+        part.pitch = 0;
+        part.yaw = 0;
+        part.roll = 0;
         part.render(0.0625F);
 
-        part.setRotationPoint(oldX, oldY, oldZ);
-        part.rotateAngleX = oldRotX;
-        part.rotateAngleY = oldRotY;
-        part.rotateAngleZ = oldRotZ;
+        McClient.setPivot(part, oldX, oldY, oldZ);
+        part.pitch = oldRotX;
+        part.yaw = oldRotY;
+        part.roll = oldRotZ;
     }
 }

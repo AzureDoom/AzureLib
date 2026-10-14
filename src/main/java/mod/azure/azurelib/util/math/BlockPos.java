@@ -1,6 +1,8 @@
 package mod.azure.azurelib.util.math;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.block.entity.BlockEntity;
+
+import mod.azure.azurelib.platform.mc.Mc;
 
 /**
  * Immutable block position. Minecraft 1.7.10 passes block coordinates as three ints, so AzureLib carries its own small
@@ -40,8 +42,8 @@ public final class BlockPos {
         this(Mth.floor(x), Mth.floor(y), Mth.floor(z));
     }
 
-    public static BlockPos of(TileEntity tileEntity) {
-        return new BlockPos(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+    public static BlockPos of(BlockEntity tileEntity) {
+        return new BlockPos(Mc.x(tileEntity), Mc.y(tileEntity), Mc.z(tileEntity));
     }
 
     public int getX() {
@@ -72,9 +74,8 @@ public final class BlockPos {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof BlockPos))
+        if (!(o instanceof BlockPos other))
             return false;
-        BlockPos other = (BlockPos) o;
         return this.x == other.x && this.y == other.y && this.z == other.z;
     }
 

@@ -1,18 +1,10 @@
 package mod.azure.azurelib.render.layer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelBox;
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.entity.RenderBiped;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemSkull;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import javax.annotation.Nonnull;
@@ -20,42 +12,37 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorModel;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipeline;
+import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.OverlayTexture;
 import mod.azure.azurelib.util.AzEquipmentSlot;
-import mod.azure.azurelib.util.client.AzRenderTick;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.RenderUtils;
 
-/**
- * Builtin class for handling dynamic armor rendering on AzureLib entities.<br>
- * Supports both AzureLib and vanilla armor models.<br>
- * Unlike a traditional armor renderer, this renderer renders per-bone, giving much more flexible armor rendering.
- * <p>
- * Vanilla armor pieces and skulls are rendered by vanilla 1.7.10 code through the GL matrix stack, so pending AzureLib
- * vertices are flushed first and the bone's pose is pushed onto the GL matrix.
- */
-public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<UUID, T> {
+public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID, T> {
 
     protected static final Map<String, ResourceLocation> ARMOR_PATH_CACHE = new HashMap<>();
 
-    private static final ResourceLocation ENCHANTED_ITEM_GLINT = new ResourceLocation(
-        "textures/misc/enchanted_item_glint.png"
-    );
+    protected static final BipedEntityModel INNER_ARMOR_MODEL = new BipedEntityModel(0.5F);
 
-    protected static final ModelBiped INNER_ARMOR_MODEL = new ModelBiped(0.5F);
+    protected static final BipedEntityModel OUTER_ARMOR_MODEL = new BipedEntityModel(1.0F);
 
-    protected static final ModelBiped OUTER_ARMOR_MODEL = new ModelBiped(1.0F);
+    private final Map<BipedEntityModel, float[][]> savedPoses = new IdentityHashMap<>();
 
-    private final Map<ModelBiped, float[][]> savedPoses = new IdentityHashMap<>();
+    private final Map<Entity, Map<BipedEntityModel, float[][]>> entityPoses = new WeakHashMap<>();
 
-    private final Map<Entity, Map<ModelBiped, float[][]>> entityPoses = new WeakHashMap<>();
+    @Nullable
+    private BipedEntityModel currentArmorModel;
 
     @Nullable
     protected ItemStack mainHandStack;
@@ -88,7 +75,6 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
 
     @Override
     public void render(AzRendererPipelineContext<UUID, T> context) {
-        // Runs after the model render (and every renderForBone) for this entity.
         restorePoses();
     }
 
@@ -105,11 +91,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
 
         context.poseStack().pushPose();
 
-        if (armorStack.getItem() instanceof ItemSkull) {
-            renderSkullAsArmor(context, bone, armorStack);
-        } else {
-            renderArmor(context, bone, armorStack);
-        }
+        renderArmor(context, bone, armorStack);
 
         context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
         context.poseStack().popPose();
@@ -122,12 +104,9 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     ) {
         AzEquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
         AzArmorRenderer renderer = AzArmorRendererRegistryHolder.get(armorStack);
-        ModelBiped model = getModelForItem(armorStack, slot);
-        ModelRenderer modelPart = getModelPartForBone(context, bone, model);
-
-        if (modelPart.cubeList.isEmpty()) {
-            return;
-        }
+        BipedEntityModel model = getModelForItem(armorStack, slot);
+        this.currentArmorModel = model;
+        ModelPart modelPart = getModelPartForBone(context, bone, model);
 
         context.poseStack().pushPose();
         context.poseStack().scale(-1, -1, 1);
@@ -147,7 +126,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
             if (idx >= 0)
                 entityPose[idx] = capturePart(modelPart);
             renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
-        } else if (armorStack.getItem() instanceof ItemArmor) {
+        } else if (Mc.armorType(Mc.item(armorStack)) >= 0) {
             prepModelPartForRender(context, bone, modelPart);
             if (idx >= 0)
                 entityPose[idx] = capturePart(modelPart);
@@ -180,16 +159,16 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     /**
-     * Return a ModelRenderer for a given {@link AzBone}.<br>
+     * Return a ModelPart for a given {@link AzBone}.<br>
      * This is then transformed into position for the final render
      */
     @Nonnull
-    protected ModelRenderer getModelPartForBone(
+    protected ModelPart getModelPartForBone(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
-        ModelBiped baseModel
+        BipedEntityModel baseModel
     ) {
-        return baseModel.bipedBody;
+        return baseModel.body;
     }
 
     /**
@@ -209,9 +188,9 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         AzEquipmentSlot slot,
         ItemStack armorStack,
         AzArmorRenderer renderer,
-        EntityLivingBase entity,
-        ModelBiped model,
-        ModelRenderer modelPart
+        LivingEntity entity,
+        BipedEntityModel model,
+        ModelPart modelPart
     ) {
         AzArmorRendererPipeline renderPipelines = renderer.rendererPipeline();
         AzArmorBoneContext boneContext = renderPipelines.context().boneContext();
@@ -239,83 +218,35 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         AzBone bone,
         AzEquipmentSlot slot,
         ItemStack armorStack,
-        ModelRenderer modelPart
+        ModelPart modelPart
     ) {
         flush(context.multiBufferSource());
 
-        Minecraft mc = Minecraft.getMinecraft();
-        ItemArmor armorItem = (ItemArmor) armorStack.getItem();
-        int packedLight = context.packedLight();
+        float light = Math.max(
+            LightTexture.block(context.packedLight()),
+            LightTexture.sky(context.packedLight())
+        ) / 15.0F;
 
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, packedLight & 0xFFFF, packedLight >> 16);
         GlStateManager.pushMatrix();
         RenderUtils.applyPoseToGl(context.poseStack().last());
 
-        mc.getTextureManager()
+        mod.azure.azurelib.render.texture.TextureManager.getInstance()
             .bindTexture(getVanillaArmorResource(context.animatable(), armorStack, slot, null));
 
-        if (armorItem.getArmorMaterial() == ItemArmor.ArmorMaterial.CLOTH) {
-            int color = armorItem.getColor(armorStack);
-            GlStateManager.color(
-                (color >> 16 & 255) / 255.0F * context.red(),
-                (color >> 8 & 255) / 255.0F * context.green(),
-                (color & 255) / 255.0F * context.blue(),
-                context.alpha()
-            );
-            modelPart.render(0.0625F);
-            mc.getTextureManager()
-                .bindTexture(getVanillaArmorResource(context.animatable(), armorStack, slot, "overlay"));
-        }
-
-        GlStateManager.color(context.red(), context.green(), context.blue(), context.alpha());
+        GlStateManager.color(
+            context.red() * light,
+            context.green() * light,
+            context.blue() * light,
+            context.alpha()
+        );
         modelPart.render(0.0625F);
-
-        if (armorStack.hasEffect(0)) {
-            renderVanillaGlint(context.animatable(), modelPart);
-        }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
     }
 
     /**
-     * Same effect as 1.7.10's {@code LayerArmorBase#renderEnchantedGlint}, limited to a single model part.
-     */
-    protected void renderVanillaGlint(Entity entity, ModelRenderer modelPart) {
-        Minecraft mc = Minecraft.getMinecraft();
-        float time = entity.ticksExisted + AzRenderTick.partialTicks();
-
-        mc.getTextureManager().bindTexture(ENCHANTED_ITEM_GLINT);
-        GlStateManager.enableBlend();
-        GlStateManager.depthFunc(GL11.GL_EQUAL);
-        GlStateManager.depthMask(false);
-        GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
-
-        for (int pass = 0; pass < 2; ++pass) {
-            GlStateManager.disableLighting();
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
-            GlStateManager.color(0.38F, 0.19F, 0.608F, 1.0F);
-            GlStateManager.matrixMode(GL11.GL_TEXTURE);
-            GlStateManager.loadIdentity();
-            GlStateManager.scale(0.33333334F, 0.33333334F, 0.33333334F);
-            GlStateManager.rotate(30.0F - pass * 60.0F, 0.0F, 0.0F, 1.0F);
-            GlStateManager.translate(0.0F, time * (0.001F + pass * 0.003F) * 20.0F, 0.0F);
-            GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-            modelPart.render(0.0625F);
-        }
-
-        GlStateManager.matrixMode(GL11.GL_TEXTURE);
-        GlStateManager.loadIdentity();
-        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-        GlStateManager.enableLighting();
-        GlStateManager.depthMask(true);
-        GlStateManager.depthFunc(GL11.GL_LEQUAL);
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        GlStateManager.disableBlend();
-    }
-
-    /**
-     * Returns a cached instance of a base ModelBiped that is used for rendering/modelling the provided
+     * Returns a cached instance of a base BipedEntityModel that is used for rendering/modeling the provided
      * {@link ItemStack}
      */
     @Nullable
@@ -323,7 +254,7 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         return AzArmorRendererRegistryHolder.get(stack);
     }
 
-    protected ModelBiped getModelForItem(ItemStack stack, AzEquipmentSlot slot) {
+    protected BipedEntityModel getModelForItem(ItemStack stack, AzEquipmentSlot slot) {
         AzArmorRenderer renderer = getRendererForItem(stack);
 
         if (renderer == null) {
@@ -334,69 +265,48 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
     }
 
     /**
-     * Render a given {@link ItemSkull} as a worn armor piece in relation to a given {@link AzBone}, following 1.7.10's
-     * {@code LayerCustomHead}.
-     */
-    protected void renderSkullAsArmor(
-        AzRendererPipelineContext<UUID, T> context,
-        AzBone bone,
-        ItemStack stack
-    ) {
-        flush(context.multiBufferSource());
-
-        context.poseStack().pushPose();
-        RenderUtils.translateAndRotateMatrixForBone(context.poseStack(), bone);
-        context.poseStack().scale(1.1875f, 1.1875f, 1.1875f);
-        context.poseStack().translate(-0.5f, 0, -0.5f);
-
-        int packedLight = context.packedLight();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, packedLight & 0xFFFF, packedLight >> 16);
-        GlStateManager.pushMatrix();
-        RenderUtils.applyPoseToGl(context.poseStack().last());
-        AzSkullRenderHelper.renderSkull(stack);
-        GlStateManager.popMatrix();
-        context.poseStack().popPose();
-    }
-
-    /**
-     * Prepares the given {@link ModelRenderer} for render by setting its translation, rotation, and scale to the
+     * Prepares the given {@link ModelPart} for render by setting its translation, rotation, and scale to the
      * {@link AzBone}
      */
     protected void prepModelPartForRender(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
-        ModelRenderer sourcePart
+        ModelPart sourcePart
     ) {
         GeoCube firstCube = bone.getCubes().get(0);
-        ModelBox armorCube = (ModelBox) sourcePart.cubeList.get(0);
+        float[] armorCube = armorCubeSize(this.currentArmorModel, sourcePart);
         double armorBoneSizeX = firstCube.size().x();
         double armorBoneSizeY = firstCube.size().y();
         double armorBoneSizeZ = firstCube.size().z();
-        double actualArmorSizeX = Math.abs(armorCube.posX2 - armorCube.posX1);
-        double actualArmorSizeY = Math.abs(armorCube.posY2 - armorCube.posY1);
-        double actualArmorSizeZ = Math.abs(armorCube.posZ2 - armorCube.posZ1);
+        double actualArmorSizeX = armorCube[0];
+        double actualArmorSizeY = armorCube[1];
+        double actualArmorSizeZ = armorCube[2];
         float scaleX = (float) (armorBoneSizeX / actualArmorSizeX);
         float scaleY = (float) (armorBoneSizeY / actualArmorSizeY);
         float scaleZ = (float) (armorBoneSizeZ / actualArmorSizeZ);
 
-        sourcePart.setRotationPoint(
+        McClient.setPivot(
+            sourcePart,
             -(bone.getPivotX() - ((bone.getPivotX() * scaleX) - bone.getPivotX()) / scaleX),
             -(bone.getPivotY() - ((bone.getPivotY() * scaleY) - bone.getPivotY()) / scaleY),
             (bone.getPivotZ() - ((bone.getPivotZ() * scaleZ) - bone.getPivotZ()) / scaleZ)
         );
 
-        sourcePart.rotateAngleX = -bone.getRotX();
-        sourcePart.rotateAngleY = -bone.getRotY();
-        sourcePart.rotateAngleZ = bone.getRotZ();
+        sourcePart.pitch = -bone.getRotX();
+        sourcePart.yaw = -bone.getRotY();
+        sourcePart.roll = bone.getRotZ();
 
         context.poseStack().scale(scaleX, scaleY, scaleZ);
     }
 
+    /** Beta's armor texture prefixes, indexed by {@link Mc#armorTextureIndex}. */
+    protected static final String[] ARMOR_PREFIXES = { "cloth", "chain", "iron", "diamond", "gold" };
+
     /**
-     * Gets the texture for a vanilla (non-AzureLib) armor piece through 1.7.10's {@code RenderBiped#getArmorResource},
-     * which also runs Forge's {@code getArmorTexture} hook so modded armor textures resolve.
+     * Gets the texture for a vanilla (non-AzureLib) armor piece, following Beta's {@code PlayerEntityRenderer}:
+     * {@code /armor/<material>_1.png} for everything but leggings, which use {@code _2}.
      *
-     * @param type {@code null} for the base layer or {@code "overlay"} for the dyed overlay
+     * @param type unused on Beta (there are no dyed overlays); kept for API parity
      */
     public ResourceLocation getVanillaArmorResource(
         Entity entity,
@@ -404,7 +314,13 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         AzEquipmentSlot slot,
         @Nullable String type
     ) {
-        return RenderBiped.getArmorResource(entity, stack, slot.getArmorType(), type);
+        int index = Mc.armorTextureIndex(Mc.item(stack));
+        String prefix = index >= 0 && index < ARMOR_PREFIXES.length ? ARMOR_PREFIXES[index] : "iron";
+        String path = ARMOR_PATH_CACHE.computeIfAbsent(
+            prefix + (slot == AzEquipmentSlot.LEGS ? "_2" : "_1"),
+            key -> new ResourceLocation(ResourceLocation.DEFAULT_NAMESPACE, "armor/" + key + ".png")
+        ).getResourcePath();
+        return new ResourceLocation(ResourceLocation.DEFAULT_NAMESPACE, path);
     }
 
     private static void flush(MultiBufferSource bufferSource) {
@@ -413,19 +329,19 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         }
     }
 
-    private static ModelRenderer[] parts(ModelBiped m) {
-        return new ModelRenderer[] {
-            m.bipedHead,
-            m.bipedHeadwear,
-            m.bipedBody,
-            m.bipedRightArm,
-            m.bipedLeftArm,
-            m.bipedRightLeg,
-            m.bipedLeftLeg
+    private static ModelPart[] parts(BipedEntityModel m) {
+        return new ModelPart[] {
+            m.head,
+            m.hat,
+            m.body,
+            m.rightArm,
+            m.leftArm,
+            m.rightLeg,
+            m.leftLeg
         };
     }
 
-    private void savePoseOnce(ModelBiped model) {
+    private void savePoseOnce(BipedEntityModel model) {
         savedPoses.computeIfAbsent(model, AzArmorLayer::capture);
     }
 
@@ -434,8 +350,8 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         savedPoses.clear();
     }
 
-    private static int partIndex(ModelBiped m, ModelRenderer part) {
-        ModelRenderer[] p = parts(m);
+    private static int partIndex(BipedEntityModel m, ModelPart part) {
+        ModelPart[] p = parts(m);
         for (int i = 0; i < p.length; i++) {
             if (p[i] == part)
                 return i;
@@ -443,8 +359,8 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         return -1;
     }
 
-    private static float[][] capture(ModelBiped m) {
-        ModelRenderer[] p = parts(m);
+    private static float[][] capture(BipedEntityModel m) {
+        ModelPart[] p = parts(m);
         float[][] out = new float[p.length][];
         for (int i = 0; i < p.length; i++) {
             out[i] = capturePart(p[i]);
@@ -452,34 +368,52 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         return out;
     }
 
-    private static float[] capturePart(ModelRenderer r) {
+    private static float[] capturePart(ModelPart r) {
         return new float[] {
-            r.rotationPointX,
-            r.rotationPointY,
-            r.rotationPointZ,
-            r.rotateAngleX,
-            r.rotateAngleY,
-            r.rotateAngleZ
+            r.pivotX,
+            r.pivotY,
+            r.pivotZ,
+            r.pitch,
+            r.yaw,
+            r.roll
         };
     }
 
-    private static void apply(ModelBiped m, float[][] pose) {
-        ModelRenderer[] p = parts(m);
+    private static void apply(BipedEntityModel m, float[][] pose) {
+        ModelPart[] p = parts(m);
         for (int i = 0; i < p.length; i++) {
             float[] s = pose[i];
-            p[i].setRotationPoint(s[0], s[1], s[2]);
-            p[i].rotateAngleX = s[3];
-            p[i].rotateAngleY = s[4];
-            p[i].rotateAngleZ = s[5];
+            McClient.setPivot(p[i], s[0], s[1], s[2]);
+            p[i].pitch = s[3];
+            p[i].yaw = s[4];
+            p[i].roll = s[5];
         }
     }
 
-    /** Indirection so armor renderers are only looked up by item. */
+    /**
+     * The size of a biped armor part's cube, as 1.7.10's {@code ModelBox#posX1..posZ2} report it: the box's declared
+     * size <em>before</em> dilation (head 8x8x8, body 8x12x4, limbs 4x12x4). Beta keeps a part's cubes in a private
+     * list, but biped parts always have these vanilla sizes. The dilation is deliberately left out, as in 1.7.10: the
+     * bone-fitting maths divides the bone size by this, and including the dilation shrinks every piece.
+     */
+    protected static float[] armorCubeSize(@Nullable BipedEntityModel owner, ModelPart part) {
+        int index = owner == null ? -1 : partIndex(owner, part);
+        switch (index) {
+            case 0:
+            case 1:
+                return new float[] { 8, 8, 8 };
+            case 2:
+                return new float[] { 8, 12, 4 };
+            default:
+                return new float[] { 4, 12, 4 };
+        }
+    }
+
     private static final class AzArmorRendererRegistryHolder {
 
         @Nullable
         static AzArmorRenderer get(ItemStack stack) {
-            return mod.azure.azurelib.render.armor.AzArmorRendererRegistry.getOrNull(stack.getItem());
+            return AzArmorRendererRegistry.getOrNull(stack.getItem());
         }
     }
 }

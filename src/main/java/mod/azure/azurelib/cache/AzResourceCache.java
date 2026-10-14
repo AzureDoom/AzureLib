@@ -1,8 +1,5 @@
 package mod.azure.azurelib.cache;
 
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +12,8 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.resource.AzResourceManager;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Base class for AzureLib's resource caches (models and animations).
@@ -41,7 +40,7 @@ public abstract class AzResourceCache {
     /**
      * Loads every {@code .json} resource under {@code assets/<namespace>/<type>/} into a map.
      * <p>
-     * 1.7.10's {@link IResourceManager} cannot list resources, so the candidate locations are found by
+     * 1.7.10's {@link AzResourceManager} cannot list resources, so the candidate locations are found by
      * {@link AzResourceLister}; each one is then read through the resource manager so normal resource pack priority
      * applies.
      *
@@ -52,7 +51,7 @@ public abstract class AzResourceCache {
      */
     protected final <T> CompletableFuture<Map<ResourceLocation, T>> loadResources(
         Executor executor,
-        IResourceManager resourceManager,
+        AzResourceManager resourceManager,
         String type,
         Function<ResourceLocation, T> loader
     ) {

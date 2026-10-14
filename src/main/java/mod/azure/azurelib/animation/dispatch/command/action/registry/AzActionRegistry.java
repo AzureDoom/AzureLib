@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -12,6 +10,7 @@ import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their

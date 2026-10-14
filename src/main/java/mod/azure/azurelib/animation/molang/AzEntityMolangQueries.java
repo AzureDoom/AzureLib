@@ -1,13 +1,7 @@
 package mod.azure.azurelib.animation.molang;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityTameable;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.LivingEntity;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
@@ -15,6 +9,8 @@ import java.util.function.ToDoubleFunction;
 
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.azurelib.util.client.RenderUtils;
@@ -30,79 +26,60 @@ public final class AzEntityMolangQueries {
     private static final AzMolangQueryContext CONTEXT = AzMolangQueryContext.INSTANCE;
 
     private static final Binding[] BINDINGS = {
-        flag(MolangQueries.IS_ON_FIRE, Entity::isBurning),
-        flag(MolangQueries.IS_ALIVE, Entity::isEntityAlive),
-        flag(MolangQueries.IS_INVISIBLE, Entity::isInvisible),
-        flag(MolangQueries.IS_SNEAKING, Entity::isSneaking),
-        flag(MolangQueries.IS_SPRINTING, Entity::isSprinting),
-        // 1.7.10 has no swimming state; the closest equivalent is sprinting while in water.
-        flag(MolangQueries.IS_SWIMMING, entity -> entity.isInWater() && entity.isSprinting()),
-        flag(MolangQueries.IS_RIDING, Entity::isRiding),
-        flag(MolangQueries.HAS_RIDER, entity -> entity.riddenByEntity != null),
-        flag(MolangQueries.IS_IN_LAVA, Entity::handleLavaMovement),
-        // 1.7.10 entities can't be silenced.
+        flag(MolangQueries.IS_ON_FIRE, Mc::isOnFire),
+        flag(MolangQueries.IS_ALIVE, Mc::isAlive),
+        // Beta has no invisibility, sprinting, swimming, silencing, spectators, no-gravity or elytra.
+        flag(MolangQueries.IS_INVISIBLE, entity -> false),
+        flag(MolangQueries.IS_SNEAKING, Mc::isSneaking),
+        flag(MolangQueries.IS_SPRINTING, entity -> false),
+        flag(MolangQueries.IS_SWIMMING, entity -> false),
+        flag(MolangQueries.IS_RIDING, Mc::isRiding),
+        flag(MolangQueries.HAS_RIDER, Mc::hasPassenger),
+        flag(MolangQueries.IS_IN_LAVA, Mc::isInLava),
         flag(MolangQueries.IS_SILENT, entity -> false),
-        flag(
-            MolangQueries.IS_SPECTATOR,
-            // 1.7.10 has no spectator mode.
-            entity -> false
-        ),
-        flag(MolangQueries.IS_FIRE_IMMUNE, Entity::isImmuneToFire),
-        // 1.7.10 has no no-gravity flag.
+        flag(MolangQueries.IS_SPECTATOR, entity -> false),
+        // Beta keeps fire immunity in a protected field that only a handful of vanilla mobs set.
+        flag(MolangQueries.IS_FIRE_IMMUNE, entity -> false),
         flag(MolangQueries.HAS_GRAVITY, entity -> true),
-        flag(MolangQueries.HAS_COLLISION, entity -> !entity.noClip),
-        flag(MolangQueries.HEAD_IS_IN_WATER, entity -> entity.isInsideOfMaterial(Material.water)),
-        flag(MolangQueries.IS_LOCAL_PLAYER, entity -> entity == Minecraft.getMinecraft().thePlayer),
-        flag(MolangQueries.IS_FIRST_PERSON, entity -> {
-            Minecraft minecraft = Minecraft.getMinecraft();
-            return entity == minecraft.renderViewEntity && minecraft.gameSettings.thirdPersonView == 0;
-        }),
+        flag(MolangQueries.HAS_COLLISION, entity -> !Mc.noClip(entity)),
+        // Beta's "submerged in water" is the eye-in-water check, i.e. 1.7.10's isInsideOfMaterial(water).
+        flag(MolangQueries.HEAD_IS_IN_WATER, Mc::isInWater),
+        flag(MolangQueries.IS_LOCAL_PLAYER, entity -> entity == McClient.player()),
+        flag(MolangQueries.IS_FIRST_PERSON, McClient::isFirstPersonCamera),
         flag(
             MolangQueries.IS_MOVING,
-            entity -> entity.motionX * entity.motionX + entity.motionZ * entity.motionZ > 1.0E-6
+            entity -> Mc.velocityX(entity) * Mc.velocityX(entity) + Mc.velocityZ(entity) * Mc.velocityZ(entity) > 1.0E-6
         ),
-        flag(
-            MolangQueries.IS_LEASHED,
-            entity -> entity instanceof EntityLiving && ((EntityLiving) entity).getLeashed()
-        ),
-        flag(
-            MolangQueries.IS_TAMED,
-            entity -> entity instanceof EntityTameable && ((EntityTameable) entity).isTamed()
-        ),
-        flag(
-            MolangQueries.IS_SITTING,
-            entity -> entity instanceof EntityTameable && ((EntityTameable) entity).isSitting()
-        ),
-        value(MolangQueries.VERTICAL_SPEED, entity -> entity.motionY * 20),
-        value(MolangQueries.CARDINAL_FACING_2D, entity -> Direction.fromYaw(entity.rotationYaw).ordinal()),
+        // Beta has no leads.
+        flag(MolangQueries.IS_LEASHED, entity -> false),
+        flag(MolangQueries.IS_TAMED, Mc::isTamed),
+        flag(MolangQueries.IS_SITTING, Mc::isSitting),
+        value(MolangQueries.VERTICAL_SPEED, entity -> Mc.velocityY(entity) * 20),
+        value(MolangQueries.CARDINAL_FACING_2D, entity -> Direction.fromYaw(Mc.yaw(entity)).ordinal()),
         value(
             MolangQueries.BODY_X_ROTATION,
-            entity -> Mth.lerp(CONTEXT.partialTicks(), entity.prevRotationPitch, entity.rotationPitch)
+            entity -> Mth.lerp(CONTEXT.partialTicks(), Mc.prevPitch(entity), Mc.pitch(entity))
         ),
         value(MolangQueries.BODY_Y_ROTATION, entity -> {
-            if (entity instanceof EntityLivingBase) {
-                EntityLivingBase living = (EntityLivingBase) entity;
-                return Mth.lerp(CONTEXT.partialTicks(), living.prevRenderYawOffset, living.renderYawOffset);
+            if (entity instanceof LivingEntity) {
+                LivingEntity living = (LivingEntity) entity;
+                return Mth.lerp(CONTEXT.partialTicks(), Mc.prevBodyYaw(living), Mc.bodyYaw(living));
             }
-            return Mth.lerp(CONTEXT.partialTicks(), entity.prevRotationYaw, entity.rotationYaw);
+            return Mth.lerp(CONTEXT.partialTicks(), Mc.prevYaw(entity), Mc.yaw(entity));
         }),
-        value(
-            MolangQueries.PLAYER_LEVEL,
-            entity -> entity instanceof EntityPlayer ? ((EntityPlayer) entity).experienceLevel : 0
-        ),
-        livingFlag(MolangQueries.IS_SLEEPING, EntityLivingBase::isPlayerSleeping),
-        // 1.7.10 has no elytra.
+        // Beta has no experience levels.
+        value(MolangQueries.PLAYER_LEVEL, entity -> 0),
+        livingFlag(MolangQueries.IS_SLEEPING, Mc::isSleeping),
         livingFlag(MolangQueries.IS_GLIDING, living -> false),
         livingFlag(
             MolangQueries.HAS_HEAD_GEAR,
             living -> !AzureLibUtil.isEmpty(AzEquipmentSlot.HEAD.getStack(living))
         ),
-        // 1.18's LivingEntity#getScale is 0.5 for babies and 1 otherwise.
-        livingValue(MolangQueries.MODEL_SCALE, living -> living.isChild() ? 0.5 : 1.0),
-        // 1.7.10 has no swim animation amount.
+        // Beta has no baby mobs.
+        livingValue(MolangQueries.MODEL_SCALE, living -> 1.0),
         livingValue(MolangQueries.SWIM_AMOUNT, living -> 0),
         livingValue(MolangQueries.DEATH_TICKS, living -> {
-            int deathTime = living.deathTime;
+            int deathTime = Mc.deathTime(living);
             return deathTime == 0 ? 0 : deathTime + CONTEXT.partialTicks();
         }),
         livingValue(MolangQueries.EQUIPMENT_COUNT, living -> {
@@ -117,21 +94,10 @@ public final class AzEntityMolangQueries {
 
             return count;
         }),
-        // Item use is tracked on EntityPlayer only in 1.7.10.
-        livingValue(
-            MolangQueries.ITEM_IN_USE_DURATION,
-            living -> living instanceof EntityPlayer ? ((EntityPlayer) living).getItemInUseDuration() / 20D : 0
-        ),
-        livingValue(
-            MolangQueries.ITEM_REMAINING_USE_DURATION,
-            living -> living instanceof EntityPlayer ? ((EntityPlayer) living).getItemInUseCount() / 20D : 0
-        ),
-        livingValue(MolangQueries.ITEM_MAX_USE_DURATION, living -> {
-            if (!(living instanceof EntityPlayer))
-                return 0;
-            ItemStack useItem = ((EntityPlayer) living).getItemInUse();
-            return useItem == null ? 0 : useItem.getMaxItemUseDuration() / 20D;
-        })
+        // Beta items have no "use" duration: bows fire and food is eaten instantly.
+        livingValue(MolangQueries.ITEM_IN_USE_DURATION, living -> 0),
+        livingValue(MolangQueries.ITEM_REMAINING_USE_DURATION, living -> 0),
+        livingValue(MolangQueries.ITEM_MAX_USE_DURATION, living -> 0)
     };
 
     private AzEntityMolangQueries() {
@@ -206,16 +172,16 @@ public final class AzEntityMolangQueries {
         });
     }
 
-    private static Binding livingFlag(String query, Predicate<EntityLivingBase> condition) {
+    private static Binding livingFlag(String query, Predicate<LivingEntity> condition) {
         return livingValue(query, living -> RenderUtils.booleanToFloat(condition.test(living)));
     }
 
     /**
      * A query for living entities only. Reads 0 for anything else.
      */
-    private static Binding livingValue(String query, ToDoubleFunction<EntityLivingBase> value) {
+    private static Binding livingValue(String query, ToDoubleFunction<LivingEntity> value) {
         return new Binding(new MolangVariableRef(query), () -> {
-            EntityLivingBase living = CONTEXT.livingEntity();
+            LivingEntity living = CONTEXT.livingEntity();
             return living == null ? 0 : value.applyAsDouble(living);
         });
     }

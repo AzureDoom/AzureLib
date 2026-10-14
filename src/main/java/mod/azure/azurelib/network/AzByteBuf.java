@@ -1,14 +1,12 @@
 package mod.azure.azurelib.network;
 
-import io.netty.buffer.ByteBuf;
-
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import mod.azure.azurelib.util.math.BlockPos;
 
 /**
- * Packet buffer used by AzureLib's packets and action codecs. Minecraft 1.7.10's {@code AzByteBuf} lacks most of the
+ * Packet buffer used by AzureLib's packets and action codecs. Beta 1.7.3 has no packet buffer type at all, so this
  * helpers AzureLib uses (UUIDs, block positions, var-int strings without checked exceptions), so this small wrapper
  * provides them with the same names as later versions.
  */

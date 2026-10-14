@@ -6,20 +6,18 @@
 package mod.azure.azurelib.loading;
 
 import com.google.gson.JsonObject;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.loading.json.raw.Model;
+import mod.azure.azurelib.resource.AzResourceManager;
 import mod.azure.azurelib.util.AzureLibException;
 import mod.azure.azurelib.util.GsonHelper;
 import mod.azure.azurelib.util.JsonUtil;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * Extracts raw information from given files, and other similar functions
@@ -36,7 +34,7 @@ public final class FileLoader {
      * @param location The resource path of the animation file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
-    public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, IResourceManager manager) {
+    public static AzBakedAnimations loadAzAnimationsFile(ResourceLocation location, AzResourceManager manager) {
         try {
             return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), AzBakedAnimations.class);
         } catch (Exception e) {
@@ -54,7 +52,7 @@ public final class FileLoader {
      * @param manager  The resource manager responsible for accessing the resource.
      * @return The deserialized {@link Model} object, or {@code null} if an error occurs.
      */
-    public static Model loadModelFile(ResourceLocation location, IResourceManager manager) {
+    public static Model loadModelFile(ResourceLocation location, AzResourceManager manager) {
         try {
             return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
         } catch (Exception e) {
@@ -72,7 +70,7 @@ public final class FileLoader {
      * @param manager  The resource manager responsible for accessing the resource.
      * @return The parsed JSON file as a {@link JsonObject}, or {@code null} if an error occurs.
      */
-    public static JsonObject loadFile(ResourceLocation location, IResourceManager manager) {
+    public static JsonObject loadFile(ResourceLocation location, AzResourceManager manager) {
         try {
             return GsonHelper.fromJson(JsonUtil.GEO_GSON, getFileContents(location, manager), JsonObject.class);
         } catch (Exception e) {
@@ -87,9 +85,9 @@ public final class FileLoader {
      * @param location The resource path of the file
      * @param manager  The Minecraft {@code ResourceManager} responsible for maintaining in-memory resource access
      */
-    public static String getFileContents(ResourceLocation location, IResourceManager manager) {
+    public static String getFileContents(ResourceLocation location, AzResourceManager manager) {
         try (InputStream inputStream = manager.getResource(location).getInputStream()) {
-            return IOUtils.toString(inputStream, Charset.defaultCharset());
+            return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         } catch (Exception e) {
             AzureLib.LOGGER.error("Couldn't load {}", location, e);
 

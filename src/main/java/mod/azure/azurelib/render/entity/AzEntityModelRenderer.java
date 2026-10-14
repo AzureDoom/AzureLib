@@ -1,14 +1,13 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -63,7 +62,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             Direction bedDirection = getBedOrientation(animatable);
 
             if (bedDirection != null) {
-                float eyePosOffset = ((EntityLivingBase) animatable).getEyeHeight() - 0.1F;
+                float eyePosOffset = ((LivingEntity) animatable).getEyeHeight() - 0.1F;
 
                 poseStack.translate(
                     -bedDirection.getStepX() * eyePosOffset,
@@ -73,10 +72,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             }
         }
 
-        float nativeScale = animatable instanceof EntityLivingBase && ((EntityLivingBase) animatable).isChild()
-            ? 0.5F
-            : 1;
-        float ageInTicks = animatable.ticksExisted + partialTick;
+        float nativeScale = 1; // Beta has no baby mobs
+        float ageInTicks = Mc.age(animatable) + partialTick;
 
         poseStack.scale(nativeScale, nativeScale, nativeScale);
         applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
@@ -176,33 +173,33 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
      * ensure realistic movement, especially when the entity is a passenger.
      *
      * @param animatable  The entity whose rotation is to be interpolated. Must extend {@link Entity}, and may include
-     *                    subtypes such as {@link EntityLivingBase} to apply specific logic for living entities.
+     *                    subtypes such as {@link LivingEntity} to apply specific logic for living entities.
      * @param partialTick A float value representing the partial time progression within the current game tick. Used to
      *                    blend between previous and current states for smoother animations.
      * @return The interpolated LERP rotation value, which represents the adjusted body rotation of the entity after
      *         considering multiple elements such as head movements and passenger state.
      */
     private static <T extends Entity> float getLerpRot(T animatable, float partialTick) {
-        boolean shouldSit = animatable.isRiding() && (animatable.ridingEntity != null);
+        boolean shouldSit = Mc.isRiding(animatable) && (Mc.vehicle(animatable) != null);
 
-        float lerpBodyRot = animatable instanceof EntityLivingBase
+        float lerpBodyRot = animatable instanceof LivingEntity
             ? Mth.rotLerp(
                 partialTick,
-                ((EntityLivingBase) animatable).prevRenderYawOffset,
-                ((EntityLivingBase) animatable).renderYawOffset
+                Mc.prevBodyYaw((LivingEntity) animatable),
+                Mc.bodyYaw((LivingEntity) animatable)
             )
-            : animatable.rotationYaw;
-        float lerpHeadRot = animatable instanceof EntityLivingBase
+            : Mc.yaw(animatable);
+        float lerpHeadRot = animatable instanceof LivingEntity
             ? Mth.rotLerp(
                 partialTick,
-                ((EntityLivingBase) animatable).prevRotationYawHead,
-                ((EntityLivingBase) animatable).rotationYawHead
+                Mc.prevHeadYaw((LivingEntity) animatable),
+                Mc.headYaw((LivingEntity) animatable)
             )
-            : animatable.getRotationYawHead();
+            : Mc.yaw(animatable);
 
-        if (shouldSit && animatable.ridingEntity instanceof EntityLivingBase) {
-            EntityLivingBase livingentity = (EntityLivingBase) animatable.ridingEntity;
-            lerpBodyRot = Mth.rotLerp(partialTick, livingentity.prevRenderYawOffset, livingentity.renderYawOffset);
+        if (shouldSit && Mc.vehicle(animatable) instanceof LivingEntity) {
+            LivingEntity livingentity = (LivingEntity) Mc.vehicle(animatable);
+            lerpBodyRot = Mth.rotLerp(partialTick, Mc.prevBodyYaw(livingentity), Mc.bodyYaw(livingentity));
             float netHeadYaw = lerpHeadRot - lerpBodyRot;
             float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
             lerpBodyRot = lerpHeadRot - clampedHeadYaw;
@@ -243,13 +240,13 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
         }
 
-        if (animatable instanceof EntityLivingBase) {
-            EntityLivingBase livingEntity = (EntityLivingBase) animatable;
+        if (animatable instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) animatable;
             AzEntityRendererConfig<T> config = entityRendererPipeline.getRenderer().config();
             float deathMaxRotation = config.getDeathMaxRotation(animatable);
 
-            if (livingEntity.deathTime > 0) {
-                float deathRotation = (livingEntity.deathTime + partialTick - 1f) / 20f * 1.6f;
+            if (Mc.deathTime(livingEntity) > 0) {
+                float deathRotation = (Mc.deathTime(livingEntity) + partialTick - 1f) / 20f * 1.6f;
 
                 poseStack.mulPose(
                     Vector3f.ZP.rotationDegrees(Math.min(Mth.sqrt(deathRotation), 1) * deathMaxRotation)
@@ -265,53 +262,26 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 poseStack.mulPose(Vector3f.ZP.rotationDegrees(deathMaxRotation));
                 poseStack.mulPose(Vector3f.YP.rotationDegrees(270f));
             } else if (isEntityUpsideDown(livingEntity)) {
-                poseStack.translate(0, (animatable.height + 0.1f) / nativeScale, 0);
+                poseStack.translate(0, (Mc.height(animatable) + 0.1f) / nativeScale, 0);
                 poseStack.mulPose(Vector3f.ZP.rotationDegrees(180f));
             }
         }
     }
 
     private static boolean isSleeping(Entity entity) {
-        return entity instanceof EntityLivingBase && ((EntityLivingBase) entity).isPlayerSleeping();
+        return entity instanceof LivingEntity && Mc.isSleeping((LivingEntity) entity);
     }
 
     /**
-     * 1.7.10 only exposes the bed direction as an angle ({@code EntityPlayer#getBedOrientationInDegrees}), using the
-     * same mapping as {@link RenderUtils#getDirectionAngle}: SOUTH 90, WEST 0, NORTH 270, EAST 180.
+     * The direction of the bed a sleeping player lies in. Beta does not expose it through a stable mapped accessor, so
+     * this returns {@code null} and the body keeps its yaw; override if you need exact bed alignment.
      */
-    /**
-     * 1.7.10 only exposes the bed direction as an angle ({@code EntityPlayer#getBedOrientationInDegrees}), using the
-     * same mapping as {@link mod.azure.azurelib.util.client.RenderUtils#getDirectionAngle}.
-     */
-    private static Direction getBedOrientation(Entity entity) {
-        if (!(entity instanceof EntityPlayer) || !isSleeping(entity)) {
-            return null;
-        }
-
-        int degrees = Math.round(((EntityPlayer) entity).getBedOrientationInDegrees());
-
-        switch (((degrees % 360) + 360) % 360) {
-            case 90:
-                return Direction.SOUTH;
-            case 270:
-                return Direction.NORTH;
-            case 180:
-                return Direction.EAST;
-            default:
-                return Direction.WEST;
-        }
+    protected Direction getBedOrientation(Entity entity) {
+        return null;
     }
 
-    /**
-     * The "Dinnerbone"/"Grumm" check from 1.7.10's {@code RendererLivingEntity#rotateCorpse}.
-     */
-    private static boolean isEntityUpsideDown(EntityLivingBase entity) {
-        String name = EnumChatFormatting.getTextWithoutFormattingCodes(entity.getCommandSenderName());
-
-        if (name != null && ("Dinnerbone".equals(name) || "Grumm".equals(name))) {
-            return !(entity instanceof EntityPlayer) || !((EntityPlayer) entity).getHideCape();
-        }
-
+    /** Beta predates the "Dinnerbone" easter egg, so nothing is ever rendered upside down. */
+    private static boolean isEntityUpsideDown(LivingEntity entity) {
         return false;
     }
 }

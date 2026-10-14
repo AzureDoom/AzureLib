@@ -1,7 +1,6 @@
 package mod.azure.azurelib.animation.cache;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -42,9 +41,9 @@ public class AzIdentifiableItemStackAnimatorCache {
      * Registers the {@link AzItemAnimatorView#DEFAULT default} animator for the given stack.
      */
     public void add(ItemStack itemStack, AzItemAnimatorView view, AzItemAnimator animator) {
-        NBTTagCompound tag = itemStack.getTagCompound();
-        if (tag != null && AzItemIds.has(tag) && animator != null) {
-            ANIMATORS_BY_VIEW.get(view).putIfAbsent(AzItemIds.get(tag), animator);
+        UUID uuid = AzItemIds.getOrNull(itemStack);
+        if (uuid != null && animator != null) {
+            ANIMATORS_BY_VIEW.get(view).putIfAbsent(uuid, animator);
         }
     }
 
@@ -80,6 +79,29 @@ public class AzIdentifiableItemStackAnimatorCache {
 
             if (animator != null) {
                 action.accept(animator);
+            }
+        }
+    }
+
+    /** True if any view has an animator registered under the given UUID. */
+    public boolean contains(UUID uuid) {
+        if (uuid == null) {
+            return false;
+        }
+        for (WeakHashMap<UUID, AzItemAnimator> animators : ANIMATORS_BY_VIEW.values()) {
+            if (animators.containsKey(uuid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Moves every animator registered under {@code from} to {@code to}, in every view. */
+    public void rekey(UUID from, UUID to) {
+        for (WeakHashMap<UUID, AzItemAnimator> animators : ANIMATORS_BY_VIEW.values()) {
+            AzItemAnimator animator = animators.remove(from);
+            if (animator != null) {
+                animators.putIfAbsent(to, animator);
             }
         }
     }

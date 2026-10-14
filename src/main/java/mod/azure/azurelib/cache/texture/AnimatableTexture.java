@@ -1,16 +1,5 @@
 package mod.azure.azurelib.cache.texture;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.data.AnimationMetadataSection;
-import net.minecraft.client.resources.data.TextureMetadataSection;
-import net.minecraft.util.ResourceLocation;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +14,16 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.render.texture.AnimationMetadataSection;
+import mod.azure.azurelib.render.texture.ITextureObject;
+import mod.azure.azurelib.render.texture.SimpleTexture;
+import mod.azure.azurelib.render.texture.TextureManager;
+import mod.azure.azurelib.render.texture.TextureMetadataSection;
+import mod.azure.azurelib.render.texture.TextureUtil;
+import mod.azure.azurelib.resource.AzResource;
+import mod.azure.azurelib.resource.AzResourceManager;
 import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -68,7 +66,7 @@ public class AnimatableTexture extends SimpleTexture {
         if (cached != null)
             return;
 
-        TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
+        TextureManager textureManager = TextureManager.getInstance();
         ITextureObject current = textureManager.getTexture(location);
 
         if (current instanceof AnimatableTexture) {
@@ -108,7 +106,7 @@ public class AnimatableTexture extends SimpleTexture {
         );
 
         try {
-            Minecraft.getMinecraft().getResourceManager().getResource(mcmeta).getInputStream().close();
+            mod.azure.azurelib.resource.AzResourceManager.getInstance().getResource(mcmeta).getInputStream().close();
             return true;
         } catch (Exception e) {
             return false;
@@ -116,7 +114,7 @@ public class AnimatableTexture extends SimpleTexture {
     }
 
     @Override
-    public void loadTexture(IResourceManager manager) throws IOException {
+    public void loadTexture(AzResourceManager manager) throws IOException {
         this.deleteGlTexture();
 
         BufferedImage image;
@@ -124,7 +122,7 @@ public class AnimatableTexture extends SimpleTexture {
         boolean blur = false;
         boolean clamp = false;
 
-        IResource resource = manager.getResource(this.textureLocation);
+        AzResource resource = manager.getResource(this.textureLocation);
 
         try (InputStream stream = resource.getInputStream()) {
             image = ImageIO.read(stream);
@@ -162,7 +160,7 @@ public class AnimatableTexture extends SimpleTexture {
         this.animationContents.animatedTexture.uploadFrame(this.animationContents.animatedTexture.currentFrame);
 
         ResourceLocation glowPath = GeoAbstractTexture.appendToPath(this.textureLocation, "_glowmask");
-        TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
+        TextureManager textureManager = TextureManager.getInstance();
 
         if (previous != null && textureManager.getTexture(glowPath) instanceof AutoGlowingTexture) {
             // The glowmask was built against the previous animation contents, rebuild it against these.
@@ -206,7 +204,7 @@ public class AnimatableTexture extends SimpleTexture {
             return;
 
         ensureLoaded(texturePath);
-        ITextureObject texture = Minecraft.getMinecraft().getTextureManager().getTexture(texturePath);
+        ITextureObject texture = TextureManager.getInstance().getTexture(texturePath);
 
         if (texture instanceof AnimatableTexture) {
             ((AnimatableTexture) texture).setAnimationFrame(frameTick);

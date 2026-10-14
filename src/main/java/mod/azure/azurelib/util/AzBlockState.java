@@ -3,7 +3,7 @@ package mod.azure.azurelib.util;
 import net.minecraft.block.Block;
 
 /**
- * A block and its metadata. Minecraft 1.7.10 has no block states, so this is what AzureLib's block-on-bone rendering
+ * A block and its metadata. Minecraft Beta has no block states, so this is what AzureLib's block-on-bone rendering
  * takes in place of the {@code IBlockState} used on later versions.
  */
 public final class AzBlockState {

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.mob.CreeperEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,7 @@ import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
 import mod.azure.azurelib.util.IntIntPair;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
@@ -133,7 +134,7 @@ public abstract class AzRendererPipelineContext<K, T> {
     /**
      * Gets the {@link RenderType} to render the given animatable with.<br>
      * Uses the {@link RenderType#entityCutoutNoCull} {@code RenderType} by default.<br>
-     * Override this to change the way a model will render (such as translucent models, etc)
+     * Override this to change the way a model will render (such as translucent models, etc.)
      */
     public abstract RenderType getDefaultRenderType(
         T animatable,
@@ -155,7 +156,7 @@ public abstract class AzRendererPipelineContext<K, T> {
     /**
      * Gets a packed overlay coordinate pair for rendering.<br>
      * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the
-     * {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
+     * {@link CreeperEntity} white tint when exploding.
      */
     protected int getPackedOverlay(T animatable, float u, float partialTick) {
         return OverlayTexture.NO_OVERLAY;
@@ -288,7 +289,7 @@ public abstract class AzRendererPipelineContext<K, T> {
 
     /**
      * The filter quads must pass to be drawn in the current pass, or {@code null} to draw all of them. Set by layers
-     * around a re-render (see {@code AzAutoGlowingLayer}) and cleared afterwards.
+     * around a re-render (see {@code AzAutoGlowingLayer}) and cleared afterward.
      */
     public @Nullable AzQuadFilter quadFilter() {
         return quadFilter;

@@ -1,10 +1,8 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -17,12 +15,13 @@ import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.util.AzEquipmentSlot;
+import mod.azure.azurelib.util.ResourceLocation;
 
 public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UUID, ItemStack> {
 
     private final AzArmorBoneContext boneContext;
 
-    private ModelBiped baseModel;
+    private BipedEntityModel baseModel;
 
     private AzEquipmentSlot currentSlot;
 
@@ -57,7 +56,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         @Nullable Entity entity,
         ItemStack stack,
         @Nullable AzEquipmentSlot slot,
-        @Nullable ModelBiped baseModel
+        @Nullable BipedEntityModel baseModel
     ) {
         this.baseModel = baseModel;
         this.currentEntity = entity;
@@ -84,17 +83,11 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
      */
     @Override
     public Color getRenderColor(ItemStack animatable, float partialTick, int packedLight) {
-        if (
-            this.currentStack.getItem() instanceof ItemArmor && ((ItemArmor) this.currentStack.getItem())
-                .getArmorMaterial() == ItemArmor.ArmorMaterial.CLOTH
-        ) {
-            return Color.ofOpaque(((ItemArmor) this.currentStack.getItem()).getColor(animatable));
-        }
-
+        // Beta leather armor can't be dyed, so there is never a tint.
         return Color.WHITE;
     }
 
-    public ModelBiped baseModel() {
+    public BipedEntityModel baseModel() {
         return baseModel;
     }
 

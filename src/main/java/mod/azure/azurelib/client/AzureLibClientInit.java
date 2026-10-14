@@ -1,30 +1,15 @@
 package mod.azure.azurelib.client;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import mod.azure.azurelib.cache.AzureLibCache;
-import mod.azure.azurelib.util.client.AzRenderTick;
+import net.fabricmc.api.ClientModInitializer;
 
 /**
- * Client-side bootstrap, invoked from {@link mod.azure.azurelib.ForgeAzureLibMod} during pre-init so the resource
- * reload listener is in place before the first resource reload loads models and animations.
+ * Fabric {@code client} entrypoint. Beta has no resource reload listeners, so models and animations are loaded lazily
+ * the first time anything asks for them (see {@link mod.azure.azurelib.cache.AzureLibCache#ensureLoaded()}).
  */
-@SideOnly(Side.CLIENT)
-public final class AzureLibClientInit {
+public final class AzureLibClientInit implements ClientModInitializer {
 
-    private static boolean initialized;
-
-    private AzureLibClientInit() {}
-
-    public static void init() {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
-        AzureLibCache.registerReloadListener();
-        // 1.7.10 fires tick events on FML's bus, not on MinecraftForge.EVENT_BUS.
-        FMLCommonHandler.instance().bus().register(new AzRenderTick());
+    @Override
+    public void onInitializeClient() {
+        mod.azure.azurelib.AzureLib.initialize();
     }
 }

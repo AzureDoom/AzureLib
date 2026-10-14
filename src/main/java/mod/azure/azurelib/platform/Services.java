@@ -5,16 +5,15 @@ import mod.azure.azurelib.platform.services.AzureLibNetwork;
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
 /**
- * Platform service holder. Forge is the only loader on 1.7.10, so the services are instantiated directly rather than
- * through {@link java.util.ServiceLoader}.
+ * Platform service holder. StationAPI is the only platform on Beta, so the services are instantiated directly.
  */
 public final class Services {
 
-    public static final AzureLibInitializer INITIALIZER = new ForgeAzureLibInitializer();
+    public static final AzureLibInitializer INITIALIZER = new StationAzureLibInitializer();
 
-    public static final AzureLibNetwork NETWORK = new ForgeAzureLibNetwork();
+    public static final AzureLibNetwork NETWORK = new StationAzureLibNetwork();
 
-    public static final IPlatformHelper PLATFORM = new ForgePlatformHelper();
+    public static final IPlatformHelper PLATFORM = new FabricPlatformHelper();
 
     private Services() {}
 }

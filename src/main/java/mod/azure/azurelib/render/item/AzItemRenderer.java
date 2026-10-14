@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.item;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -10,6 +9,7 @@ import javax.annotation.Nullable;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
@@ -49,13 +49,9 @@ public abstract class AzItemRenderer {
      * The stack's AzureLib identity, or a random id for stacks that don't carry one.
      */
     static UUID getStackId(ItemStack stack) {
-        NBTTagCompound tag = stack.getTagCompound();
-
-        if (tag != null && AzItemIds.has(tag)) {
-            return AzItemIds.get(tag);
-        }
-
-        return UUID.randomUUID();
+        // Stacks of identity-registered items get their UUID on creation; anything else is given one on first render
+        // so its animator stays cached instead of being rebuilt every frame.
+        return AzItemIds.getOrCreate(stack);
     }
 
     protected AzItemRendererPipeline createPipeline(AzItemRendererConfig config) {
@@ -83,9 +79,9 @@ public abstract class AzItemRenderer {
     }
 
     /**
-     * Maps the GL space Forge 1.7.10 hands an {@link net.minecraftforge.client.IItemRenderer} for the context to the
-     * space 1.12.2's {@code RenderItem} is in right before it applies a model's {@code display} transform, so the
-     * Blockbench display settings place the item the same way on both versions. Override to adjust a context.
+     * Maps the GL space Forge 1.7.10 hands an {@code IItemRenderer} for the context to the space 1.12.2's
+     * {@code RenderItem} is in right before it applies a model's {@code display} transform, so the Blockbench display
+     * settings place the item the same way on both versions. Override to adjust a context.
      */
     public void applyBaseTransform(AzItemDisplayContext context, AzItemDisplayTransforms transforms, ItemStack stack) {
         switch (context) {
@@ -111,7 +107,7 @@ public abstract class AzItemRenderer {
                 break;
             case THIRD_PERSON_LEFT_HAND:
             case THIRD_PERSON_RIGHT_HAND:
-                if (stack.getItem().isFull3D()) {
+                if (Mc.isHandheld(Mc.item(stack))) {
                     undoFull3DThirdPerson(stack);
                     break;
                 }
@@ -138,11 +134,11 @@ public abstract class AzItemRenderer {
     }
 
     /**
-     * Third person for items whose {@code Item#isFull3D()} is true (swords, tools, anything that overrides it). 1.7.10
-     * holds those differently from flat items, after arm.postRender: T(-1/16, 7/16, 1/16) [Rz(180) T(0, -0.125, 0) if
-     * shouldRotateAroundWhenRendering] T(0, 0.1875, 0) S(0.625, -0.625, 0.625) Rx(-100) Ry(45), then Forge's T(-0.5).
-     * Undo it and apply 1.12.2's LayerHeldItem transform. (The extra pose while a player is blocking with a sword isn't
-     * undone.)
+     * Third person for items whose {@code Item#isHandheld()} is true (swords, tools, anything that overrides it).
+     * 1.7.10 holds those differently from flat items, after arm.postRender: T(-1/16, 7/16, 1/16) [Rz(180) T(0, -0.125,
+     * 0) if shouldRotateAroundWhenRendering] T(0, 0.1875, 0) S(0.625, -0.625, 0.625) Rx(-100) Ry(45), then Forge's
+     * T(-0.5). Undo it and apply 1.12.2's LayerHeldItem transform. (The extra pose while a player is blocking with a
+     * sword isn't undone.)
      */
     protected void undoFull3DThirdPerson(ItemStack stack) {
         GlStateManager.translate(0.5F, 0.5F, 0.5F);
@@ -151,7 +147,7 @@ public abstract class AzItemRenderer {
         GlStateManager.scale(1.0F / 0.625F, -1.0F / 0.625F, 1.0F / 0.625F);
         GlStateManager.translate(0.0F, -0.1875F, 0.0F);
 
-        if (stack.getItem().shouldRotateAroundWhenRendering()) {
+        if (Mc.isHandheldRod(Mc.item(stack))) {
             GlStateManager.translate(0.0F, 0.125F, 0.0F);
             GlStateManager.rotate(-180.0F, 0.0F, 0.0F, 1.0F);
         }
@@ -232,7 +228,7 @@ public abstract class AzItemRenderer {
             config.getRenderType(itemContext.currentEntity(), stack),
             config.alpha(stack)
         );
-        boolean withGlint = stack != null && stack.hasEffect(0);
+        boolean withGlint = false; // Beta has no enchantments
         VertexConsumer buffer = AzBufferSource.getFoilBuffer(source, renderType, withGlint);
 
         itemContext.setTransformType(transformType);

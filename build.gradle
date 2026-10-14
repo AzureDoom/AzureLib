@@ -1,221 +1,137 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url = 'https://maven.minecraftforge.net/' }
-    }
-    dependencies {
-        classpath 'com.anatawa12.forge:ForgeGradle:1.2-1.1.1'
-    }
-}
-
 plugins {
-    id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'com.diffplug.spotless' version '5.17.1'
+    id 'fabric-loom' version '1.17.20'
+    id 'babric-loom-extension' version '1.17.4'
+    id 'com.diffplug.spotless' version "8.8.0"
+    id 'me.modmuss50.mod-publish-plugin' version "2.1.1"
 }
 
-apply plugin: 'forge'
-
-
-version = mod_version
-group = mod_group_id
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
+}
 
 base {
-    archivesName = "${mod_id}-forge-${mc_version}"
+    archivesName = "${mod_id}-stationapi-${minecraft_version}"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+version = mod_version
+group = maven_group
 
-minecraft {
-    version = "${mc_version}-${forge_version}"
-    runDir = 'run'
-    mappings = "${mappings_channel}_${mappings_version}"
-
-    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-        accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
-    }
+loom {
+    accessWidenerPath = file('src/main/resources/azurelib.accesswidener')
 }
 
 repositories {
-    mavenCentral()
+    maven { url = 'https://maven.glass-launcher.net/snapshots/' }
+    maven { url = 'https://maven.glass-launcher.net/releases/' }
+    maven { url = 'https://maven.glass-launcher.net/babric' }
     maven { url = 'https://maven.minecraftforge.net/' }
-    maven { url = 'https://jitpack.io' }
-
-    maven {
-        name = 'Cursemaven'
-        url = 'https://www.cursemaven.com/'
-        content {
-            includeGroup 'curse.maven'
+    maven { url = 'https://jitpack.io/' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
         }
     }
+    mavenCentral()
 }
 
 dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.glasslauncher:biny:${yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+
+    // StationAPI: item NBT (animated item identity) and networking.
+    modImplementation "net.modificationstation:StationAPI:${stationapi_version}"
+    modImplementation "maven.modrinth:MTea0HEh:reBNQY2O"
+
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
+    implementation 'org.slf4j:slf4j-api:1.8.0-beta4'
+    implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1'
+
+    // Model/animation JSON parsing. Bundled so AzureLib doesn't rely on another mod happening to ship Gson.
+    implementation "com.google.code.gson:gson:${gson_version}"
+    include "com.google.code.gson:gson:${gson_version}"
+
+    // @Nullable / @Nonnull. Compile-time only.
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-
-    implementation(
-            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
-    ) {
-        transitive = false
-    }
-
-    annotationProcessor(
-            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
-    ) {
-        transitive = false
-    }
+    implementation 'org.jetbrains:annotations:23.0.0'
 }
 
-def mixinSrg = file("${buildDir}/tmp/compileJava/${mod_id}.mixins.srg")
-def mixinRefmap = file("${buildDir}/tmp/compileJava/${mod_id}.refmap.json")
-
-spotless {
-    java {
-        eclipse('4.13.0').configFile("$rootDir/eclipse-formatter.xml")
-        endWithNewline()
-        importOrder('', 'java', 'mod.azure.azurelib', '\\#')
-        indentWithSpaces(4)
-        removeUnusedImports()
-        trimTrailingWhitespace()
-    }
-}
-
-compileJava {
-    dependsOn 'genSrgs'
-    dependsOn 'spotlessApply'
-
-    outputs.file mixinSrg
-    outputs.file mixinRefmap
-
-    doFirst {
-        mixinSrg.parentFile.mkdirs()
-        mixinSrg.text = ''
-
-        options.compilerArgs += [
-                "-AreobfSrgFile=${tasks.reobf.srg}",
-                "-AoutSrgFile=${mixinSrg}",
-                "-AoutRefMapFile=${mixinRefmap}",
-                '-AdefaultObfuscationEnv=searge'
-        ]
-    }
-}
-
-reobf {
-    addExtraSrgFile mixinSrg
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-tasks.register('sourcesJar', Jar) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
+configurations.configureEach {
+    exclude group: 'babric'
 }
 
 processResources {
     def replaceProperties = [
-            mc_version: mc_version,
-            forge_version: forge_version,
-            mod_id: mod_id,
-            mod_name: mod_name,
-            mod_license: mod_license,
-            mod_version: mod_version,
-            mod_authors: mod_authors,
-            mod_description: mod_description,
-            pack_format_number: pack_format_number,
-            version: project.version,
-            mcversion: mc_version
+        version        : project.version,
+        mod_id         : mod_id,
+        mod_name       : mod_name,
+        mod_authors    : mod_authors,
+        mod_license    : mod_license,
+        mod_description: mod_description
     ]
-
     inputs.properties replaceProperties
 
-    filesMatching(['mcmod.info', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
+    filesMatching('fabric.mod.json') {
+        expand replaceProperties
     }
+}
 
-    filesMatching('META-INF/accesstransformer.cfg') {
-        name = "${mod_id}_at.cfg"
-    }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
 
 jar {
-    dependsOn compileJava
-
-    from mixinRefmap
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes(
-                'FMLCorePlugin': 'mod.azure.azurelib.coremod.AzureLibLoadingPlugin',
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLAT': "${mod_id}_at.cfg",
-                'Specification-Title': mod_id,
-                'Specification-Vendor': mod_authors,
-                'Specification-Version': '1',
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Implementation-Vendor': mod_authors
-        )
+    from('LICENSE') {
+        rename { "${it}_${base.archivesName.get()}" }
+    }
+    from('LICENSE_Geckolib') {
+        rename { "${it}_${base.archivesName.get()}" }
     }
 }
 
-tasks.matching {
-    it.name == 'runClient' || it.name == 'runServer'
-}.all {
-    args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
-
-    systemProperty 'mixin.env.remapRefMap', 'true'
-
-    doFirst {
-        systemProperty(
-                'mixin.env.refMapRemappingFile',
-                tasks.genSrgs.srgToMcp.absolutePath
-        )
-    }
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
 }
 
-tasks.register('devJar', Jar) {
-    dependsOn compileJava
-    archiveClassifier.set('dev')
-    from sourceSets.main.output
-    from mixinRefmap
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest.from(jar.manifest)
-}
 
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
+def keyPropsFile = new File(rootProject.projectDir, "key.properties")
+if (keyPropsFile.exists()) {
+    publishMods {
+        def releaseProp = new Properties()
+        releaseProp.load(new FileInputStream(keyPropsFile))
+        file = jar.archiveFile
+        changelog = rootProject.file("changelog.md").text
+        type = STABLE
+        modLoaders.add("babric")
+        displayName = file.map { it.asFile.name }
+
+        modrinth {
+            projectId = project.modrinth_id
+            accessToken = releaseProp.getProperty('modrinthKey')
+            minecraftVersions.add(project.minecraft_version)
+            requires {
+                slug = "stationapi"
+            }
+            environment = CLIENT_AND_SERVER
+        }
     }
 }
 
 publishing {
-    repositories {
-        maven {
-            name = mod_id
-            url = uri(maven_url)
-
-            credentials(PasswordCredentials)
-
-            authentication {
-                basic(BasicAuthentication)
-            }
-        }
-    }
-
     publications {
-        register('maven', MavenPublication) {
-            groupId = project.group.toString()
+        register('mavenJava', MavenPublication) {
             artifactId = base.archivesName.get()
-            version = project.version.toString()
-
-            artifact tasks.jar
-            artifact tasks.devJar
-            artifact tasks.sourcesJar
+            from components.java
 
             pom {
                 name = mod_name
@@ -231,12 +147,40 @@ publishing {
             }
         }
     }
+
+    repositories {
+        mavenLocal()
+        if (project.hasProperty('azurelibUsername')) {
+            maven {
+                name = 'azurelib'
+                url = uri(maven_url)
+                credentials(PasswordCredentials)
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+    }
 }
 
-tasks.withType(PublishToMavenRepository) {
-    dependsOn reobf
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
 
-tasks.withType(PublishToMavenLocal) {
-    dependsOn reobf
+spotless {
+    java {
+        eclipse().configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder("", "java", group.toString(), "\\#")
+        leadingTabsToSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn("spotlessApply")
 }

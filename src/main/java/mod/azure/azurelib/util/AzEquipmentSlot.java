@@ -1,6 +1,6 @@
 package mod.azure.azurelib.util;
 
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
  * Equipment slots, standing in for the {@code EntityEquipmentSlot} enum that Minecraft 1.7.10 does not have.
  * <p>
  * 1.7.10 addresses equipment by index: {@code getEquipmentInSlot(0)} is the held item and 1..4 are boots, leggings,
- * chestplate and helmet. {@code ItemArmor#armorType} and the armor render pass use 0 helmet .. 3 boots. There is no off
- * hand on 1.7.10, so {@link #OFFHAND} always resolves to {@code null}.
+ * chestplate and helmet. {@code ItemArmor#armorType} and the armor render pass use 0 helmet .. 3 boots. There is no
+ * offhand on 1.7.10, so {@link #OFFHAND} always resolves to {@code null}.
  */
 public enum AzEquipmentSlot {
 
@@ -37,7 +37,7 @@ public enum AzEquipmentSlot {
         return this.type;
     }
 
-    /** Index for {@code EntityLivingBase#getEquipmentInSlot}, or -1 for {@link #OFFHAND}. */
+    /** 1.7.10 equipment index (0 held item, 1 boots .. 4 helmet), or -1 for {@link #OFFHAND} (Beta has none). */
     public int getEquipmentIndex() {
         return this.equipmentIndex;
     }
@@ -48,8 +48,14 @@ public enum AzEquipmentSlot {
     }
 
     @Nullable
-    public ItemStack getStack(EntityLivingBase entity) {
-        return this.equipmentIndex < 0 ? null : entity.getEquipmentInSlot(this.equipmentIndex);
+    public ItemStack getStack(LivingEntity entity) {
+        if (this.equipmentIndex < 0) {
+            return null;
+        }
+        // Beta's PlayerInventory#armor is indexed boots (0) .. helmet (3).
+        return this.equipmentIndex == 0
+            ? mod.azure.azurelib.platform.mc.Mc.heldItem(entity)
+            : mod.azure.azurelib.platform.mc.Mc.armor(entity, this.equipmentIndex - 1);
     }
 
     public static AzEquipmentSlot fromArmorType(int armorType) {

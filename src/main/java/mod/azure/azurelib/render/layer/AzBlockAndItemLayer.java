@@ -1,16 +1,13 @@
 package mod.azure.azurelib.render.layer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.Function;
 
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.AzRendererPipeline;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.item.AzItemDisplayContext;
@@ -19,6 +16,7 @@ import mod.azure.azurelib.render.item.AzItemRenderer;
 import mod.azure.azurelib.render.item.AzItemRendererRegistry;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
+import mod.azure.azurelib.render.vertex.LightTexture;
 import mod.azure.azurelib.util.AzBlockState;
 import mod.azure.azurelib.util.client.RenderUtils;
 
@@ -28,8 +26,6 @@ import mod.azure.azurelib.util.client.RenderUtils;
  * items, associated with animation bones.
  */
 public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
-
-    private static final RenderBlocks RENDER_BLOCKS = new RenderBlocks();
 
     protected final Function<AzBone, ItemStack> itemStackProvider;
 
@@ -125,7 +121,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
 
     /**
      * Renders the given {@link ItemStack} for the specified bone in the rendering context. The rendering adjusts based
-     * on whether the animatable object is a {@link EntityLivingBase}.
+     * on whether the animatable object is a {@link LivingEntity}.
      *
      * @param context   the rendering pipeline context
      * @param bone      the bone where the {@link ItemStack} will be rendered
@@ -137,7 +133,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         ItemStack itemStack,
         T animatable
     ) {
-        if (!(animatable instanceof EntityLivingBase)) {
+        if (!(animatable instanceof LivingEntity)) {
             return;
         }
 
@@ -151,24 +147,17 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
                 AzItemDisplayContext displayContext =
                     getTransformTypeForStack(bone, itemStack, animatable);
 
-                // The GL matrix is already positioned at the
-                // animated bone. Apply only the item's JSON
-                // display transform, not the vanilla hand setup.
                 AzItemDisplayTransforms.forItem(itemStack.getItem())
                     .apply(displayContext);
 
-                // Match the model-centering transform used
-                // by AzItemRendererAdapter.
                 GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 
                 renderer.render(itemStack, displayContext);
             } else {
-                // Preserve the existing vanilla rendering path
-                // for items without an AzureLib renderer.
-                RenderManager.instance.itemRenderer.renderItem(
-                    (EntityLivingBase) animatable,
-                    itemStack,
-                    0
+                applyVanillaHandTransforms(bone, itemStack, animatable);
+                McClient.renderVanillaItem(
+                    animatable instanceof LivingEntity ? (LivingEntity) animatable : null,
+                    itemStack
                 );
             }
         } finally {
@@ -177,13 +166,43 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
     }
 
     /**
-     * Renders the given {@link AzBlockState} for the specified bone in the rendering context. The block is rendered
-     * with adjusted position and scale to fit within the bone's space.
-     *
-     * @param context    the rendering pipeline context
-     * @param bone       the bone where the {@link AzBlockState} will be rendered
-     * @param blockState the {@link AzBlockState} to render
+     * Positions a vanilla (non-AzureLib) item at the bone the way Beta's biped renderer positions a held item at the
+     * hand: blocks as small tilted cubes, tools and swords diagonally at 0.625 scale, everything else as a 0.375 scale
+     * sprite. Override to adjust for models whose hand bones are oriented differently.
      */
+    protected void applyVanillaHandTransforms(AzBone bone, ItemStack stack, T animatable) {
+        if (McClient.isBlockItem3D(stack)) {
+            applyVanillaBlockInHandTransforms();
+        } else if (Mc.isHandheld(Mc.item(stack))) {
+            float scale = 0.625F;
+            GlStateManager.translate(0.0F, 0.1875F, 0.0F);
+            GlStateManager.scale(scale, -scale, scale);
+            GlStateManager.rotate(-100.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(45.0F, 0.0F, 1.0F, 0.0F);
+        } else {
+            float scale = 0.375F;
+            GlStateManager.translate(0.25F, 0.1875F, -0.1875F);
+            GlStateManager.scale(scale, scale, scale);
+            GlStateManager.rotate(60.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(20.0F, 0.0F, 0.0F, 1.0F);
+        }
+    }
+
+    /**
+     * Held blocks are drawn by StationAPI's Arsenic renderer, not Beta's: StationAPI gives block items JSON models, and
+     * for those Arsenic applies its own third-person hand placement and the model's {@code thirdperson_righthand}
+     * display transform (that's where the player's held-block size comes from). Beta's biped block placement must
+     * therefore not be applied on top, or the block ends up scaled twice (0.375 x 0.375) and too small.
+     * <p>
+     * What Arsenic does expect is Beta's model space at the hand, where +X and +Y point the opposite way to AzureLib's
+     * Bedrock-style bone space. A 180 degree turn about Z converts one into the other (a rotation rather than a mirror,
+     * so faces keep their winding and the block isn't drawn upside down or inside out).
+     */
+    protected void applyVanillaBlockInHandTransforms() {
+        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+    }
+
     protected void renderBlockForBone(
         AzRendererPipelineContext<K, T> context,
         AzBone bone,
@@ -195,8 +214,11 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         context.poseStack().scale(0.5f, 0.5f, 0.5f);
 
         beginVanillaRender(context);
-        Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
-        RENDER_BLOCKS.renderBlockAsItem(blockState.getBlock(), blockState.getMeta(), 1.0F);
+        // Beta's held-item renderer draws block items as 3D blocks (binding terrain.png itself).
+        McClient.renderVanillaItem(
+            animatable instanceof LivingEntity ? (LivingEntity) animatable : null,
+            new ItemStack(Mc.blockId(blockState.getBlock()), 1, blockState.getMeta())
+        );
         GlStateManager.popMatrix();
 
         context.poseStack().popPose();
@@ -212,8 +234,8 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
         }
 
         int packedLight = context.packedLight();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, packedLight & 0xFFFF, packedLight >> 16);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        float light = Math.max(LightTexture.block(packedLight), LightTexture.sky(packedLight)) / 15.0F;
+        GlStateManager.color(light, light, light, 1.0F);
         GlStateManager.pushMatrix();
         RenderUtils.applyPoseToGl(context.poseStack().last());
     }

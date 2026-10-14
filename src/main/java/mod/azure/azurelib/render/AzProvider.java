@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -15,6 +14,7 @@ import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The {@code AzProvider} class serves as a utility for providing animation-related resources, such as baked models and

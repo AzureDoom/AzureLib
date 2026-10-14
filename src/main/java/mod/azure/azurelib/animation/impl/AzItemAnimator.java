@@ -9,7 +9,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
-import mod.azure.azurelib.util.client.RenderUtils;
+import mod.azure.azurelib.platform.mc.Mc;
 
 /**
  * The {@code AzItemAnimator} class is an abstract extension of the {@code AzAnimator} class, specifically designed to
@@ -40,18 +40,18 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
     private ItemStack currentStack;
 
     private final DoubleSupplier currentDurabilitySupplier = () -> {
-        int maxDamage = currentStack.getMaxDurability();
+        int maxDamage = Mc.maxDamage(currentStack);
 
-        return maxDamage <= 0 ? 0 : currentStack.getCurrentDurability() / (float) maxDamage;
+        return maxDamage <= 0 ? 0 : Mc.damage(currentStack) / (float) maxDamage;
     };
 
-    private final DoubleSupplier isEnchantedSupplier = () -> RenderUtils.booleanToFloat(currentStack.isItemEnchanted());
+    private final DoubleSupplier isEnchantedSupplier = () -> 0 /* Beta has no enchantments */;
 
-    private final DoubleSupplier maxDurabilitySupplier = () -> currentStack.getMaxDurability();
+    private final DoubleSupplier maxDurabilitySupplier = () -> Mc.maxDamage(currentStack);
 
     private final DoubleSupplier remainingDurabilitySupplier = () -> {
-        int maxDamage = currentStack.getMaxDurability();
-        return maxDamage <= 0 ? 0 : maxDamage - currentStack.getCurrentDurability();
+        int maxDamage = Mc.maxDamage(currentStack);
+        return maxDamage <= 0 ? 0 : maxDamage - Mc.damage(currentStack);
     };
 
     protected AzItemAnimator() {

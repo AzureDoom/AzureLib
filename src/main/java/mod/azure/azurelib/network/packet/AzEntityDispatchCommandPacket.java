@@ -1,7 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -11,6 +10,7 @@ import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.ClientUtils;
 
 public class AzEntityDispatchCommandPacket extends AbstractPacket {
@@ -46,7 +46,7 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
     public void handle() {
         World level = ClientUtils.getLevel();
-        Entity entity = level == null ? null : level.getEntityByID(this.entityId);
+        Entity entity = level == null ? null : mod.azure.azurelib.platform.mc.Mc.entityById(level, this.entityId);
 
         if (entity == null) {
             return;

@@ -1,11 +1,11 @@
 package mod.azure.azurelib.render.block;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.block.entity.BlockEntity;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.math.Matrix4f;
 
 /**
@@ -13,9 +13,9 @@ import mod.azure.azurelib.util.math.Matrix4f;
  * block entities. It manages the rendering pipeline with customized configurations and rendering behavior for block
  * entities, while integrating with the parent pipeline logic.
  *
- * @param <T> The type of {@link TileEntity} that this renderer pipeline is designed to render.
+ * @param <T> The type of {@link BlockEntity} that this renderer pipeline is designed to render.
  */
-public class AzBlockEntityRendererPipeline<T extends TileEntity> extends AzRendererPipeline<Long, T> {
+public class AzBlockEntityRendererPipeline<T extends BlockEntity> extends AzRendererPipeline<Long, T> {
 
     private final AzBlockEntityRenderer<T> blockEntityRenderer;
 

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzLayerRenderer;
 import mod.azure.azurelib.render.AzModelRenderer;
 import mod.azure.azurelib.render.AzPhasedRenderer;
@@ -83,9 +84,9 @@ public class AzArmorModelRenderer extends AzModelRenderer<UUID, ItemStack> {
 
             worldState.translate(
                 new Vector3f(
-                    (float) ctx.currentEntity().posX,
-                    (float) ctx.currentEntity().posY,
-                    (float) ctx.currentEntity().posZ
+                    (float) Mc.x(ctx.currentEntity()),
+                    (float) Mc.y(ctx.currentEntity()),
+                    (float) Mc.z(ctx.currentEntity())
                 )
             );
             bone.setWorldSpaceMatrix(worldState);

@@ -1,7 +1,5 @@
 package mod.azure.azurelib.render.vertex;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Map;
@@ -10,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.util.ResourceLocation;
+
 /**
  * A description of how a batch of vertices is drawn, mirroring the factory methods of the 1.18
  * {@code net.minecraft.client.renderer.RenderType} that AzureLib uses.
@@ -17,13 +17,13 @@ import javax.annotation.Nullable;
  * Every factory is memoized per texture, so - exactly as on modern versions - two calls with the same texture return
  * the same instance and render types can be compared with {@code ==}.
  * <p>
- * On 1.7.10 a render type translates into fixed-function GL state, applied by {@link #setupRenderState()} and undone by
+ * On Beta a render type translates into fixed-function GL state, applied by {@link #setupRenderState()} and undone by
  * {@link #clearRenderState()} around each draw issued by {@link AzBufferSource}.
  */
 public final class RenderType {
 
     private static final ResourceLocation ENCHANTED_ITEM_GLINT = new ResourceLocation(
-        "textures/misc/enchanted_item_glint.png"
+        "misc/glint.png"
     );
 
     private static final Map<ResourceLocation, RenderType> ENTITY_SOLID = new ConcurrentHashMap<>();
@@ -281,7 +281,7 @@ public final class RenderType {
     public void setupRenderState() {
         if (this.texture != null) {
             GlStateManager.enableTexture2D();
-            Minecraft.getMinecraft().getTextureManager().bindTexture(this.texture);
+            mod.azure.azurelib.render.texture.TextureManager.getInstance().bindTexture(this.texture);
         } else {
             GlStateManager.disableTexture2D();
         }

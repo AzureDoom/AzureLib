@@ -1,13 +1,5 @@
 package mod.azure.azurelib.cache.texture;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +8,16 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.render.texture.AbstractTexture;
+import mod.azure.azurelib.render.texture.ITextureObject;
+import mod.azure.azurelib.render.texture.TextureManager;
+import mod.azure.azurelib.render.texture.TextureUtil;
+import mod.azure.azurelib.resource.AzResourceManager;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
- * Abstract texture wrapper for AzureLib textures. On 1.7.10 all texture loading already happens on the client thread,
- * so the upload task returned by {@link #loadTexture(IResourceManager, Minecraft)} is executed immediately.
+ * Abstract texture wrapper for AzureLib textures. On Beta all texture loading already happens on the client thread, so
+ * the upload task returned by {@link #prepareTexture(AzResourceManager)} is executed immediately.
  */
 public abstract class GeoAbstractTexture extends AbstractTexture {
 
@@ -30,7 +28,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
         ResourceLocation texturePath,
         Consumer<TextureManager> textureManagerConsumer
     ) {
-        TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
+        TextureManager textureManager = TextureManager.getInstance();
         ITextureObject existing = textureManager.getTexture(texturePath);
 
         if (!(existing instanceof GeoAbstractTexture))
@@ -38,8 +36,8 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
     }
 
     @Override
-    public final void loadTexture(IResourceManager resourceManager) throws IOException {
-        Runnable uploadTask = loadTexture(resourceManager, Minecraft.getMinecraft());
+    public final void loadTexture(AzResourceManager resourceManager) throws IOException {
+        Runnable uploadTask = prepareTexture(resourceManager);
 
         if (uploadTask != null)
             uploadTask.run();
@@ -75,7 +73,7 @@ public abstract class GeoAbstractTexture extends AbstractTexture {
      * upload, or {@code null} if there's nothing to upload.
      */
     @Nullable
-    protected abstract Runnable loadTexture(IResourceManager resourceManager, Minecraft mc) throws IOException;
+    protected abstract Runnable prepareTexture(AzResourceManager resourceManager) throws IOException;
 
     /**
      * No-frills helper method for uploading {@link BufferedImage images} into memory for use

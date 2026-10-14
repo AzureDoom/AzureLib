@@ -1,7 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraftforge.client.IItemRenderer;
-
 /**
  * Where an item is being displayed. Keeps the names of 1.12.2's {@code ItemCameraTransforms.TransformType} so the
  * AzureLib API reads the same across versions; {@link #from(IItemRenderer.ItemRenderType)} maps 1.7.10's coarser
@@ -34,7 +32,7 @@ public enum AzItemDisplayContext {
         return this == FIRST_PERSON_LEFT_HAND || this == FIRST_PERSON_RIGHT_HAND;
     }
 
-    public static AzItemDisplayContext from(IItemRenderer.ItemRenderType type) {
+    public static AzItemDisplayContext from(AzItemRendererAdapter.ItemRenderType type) {
         switch (type) {
             case ENTITY:
                 return GROUND;

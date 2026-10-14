@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.lod;
 
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 
 import java.util.Collections;
@@ -9,6 +8,8 @@ import java.util.WeakHashMap;
 
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.profiling.AzProfileStage;
 import mod.azure.azurelib.profiling.AzProfiler;
 
@@ -61,12 +62,7 @@ public final class AzLodManager {
         }
 
         AzProfiler.begin(AzProfileStage.LOD_UPDATE, entity);
-        RenderManager renderManager = RenderManager.instance;
-        double distSq = entity.getDistanceSq(
-            renderManager.viewerPosX,
-            renderManager.viewerPosY,
-            renderManager.viewerPosZ
-        );
+        double distSq = McClient.distanceToCameraSq(Mc.x(entity), Mc.y(entity), Mc.z(entity));
 
         applyBoneLod(bakedModel, distSq);
         boolean animate = shouldAnimate(entity, distSq);
@@ -130,7 +126,7 @@ public final class AzLodManager {
      * </p>
      */
     private boolean shouldAnimate(Entity entity, double distSq) {
-        int currentTick = entity.ticksExisted;
+        int currentTick = Mc.age(entity);
 
         if (distSq <= config.animLodDistanceSq()) {
             lastAnimTick = currentTick;

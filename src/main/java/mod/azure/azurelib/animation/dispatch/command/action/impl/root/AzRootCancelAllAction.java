@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.impl.root;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -13,6 +11,7 @@ import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The AzRootCancelAllAction class implements the AzAction interface and defines an action that cancels all ongoing

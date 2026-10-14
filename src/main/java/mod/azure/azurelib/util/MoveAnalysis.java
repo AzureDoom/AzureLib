@@ -2,6 +2,8 @@ package mod.azure.azurelib.util;
 
 import net.minecraft.entity.Entity;
 
+import mod.azure.azurelib.platform.mc.Mc;
+
 /**
  * Tracks the per-tick positional delta of an entity so animators can cheaply ask whether it is moving.
  */
@@ -25,24 +27,24 @@ public class MoveAnalysis {
 
     public MoveAnalysis(Entity entity) {
         this.entity = entity;
-        this.lastX = entity.posX;
-        this.lastY = entity.posY;
-        this.lastZ = entity.posZ;
+        this.lastX = Mc.x(entity);
+        this.lastY = Mc.y(entity);
+        this.lastZ = Mc.z(entity);
     }
 
     public void update() {
-        if (entity.ticksExisted == lastTick) {
+        if (Mc.age(entity) == lastTick) {
             return;
         }
 
-        this.deltaX = entity.posX - lastX;
-        this.deltaY = entity.posY - lastY;
-        this.deltaZ = entity.posZ - lastZ;
+        this.deltaX = Mc.x(entity) - lastX;
+        this.deltaY = Mc.y(entity) - lastY;
+        this.deltaZ = Mc.z(entity) - lastZ;
 
-        this.lastX = entity.posX;
-        this.lastY = entity.posY;
-        this.lastZ = entity.posZ;
-        this.lastTick = entity.ticksExisted;
+        this.lastX = Mc.x(entity);
+        this.lastY = Mc.y(entity);
+        this.lastZ = Mc.z(entity);
+        this.lastTick = Mc.age(entity);
     }
 
     public boolean isMovingHorizontally() {

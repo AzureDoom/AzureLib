@@ -1,19 +1,19 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.ModelPart;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 public final class ModelPartScaleStore {
 
-    private static final Map<ModelRenderer, Scale> SCALES = new WeakHashMap<>();
+    private static final Map<ModelPart, Scale> SCALES = new WeakHashMap<>();
 
-    public static void setScale(ModelRenderer part, float x, float y, float z) {
+    public static void setScale(ModelPart part, float x, float y, float z) {
         SCALES.put(part, new Scale(x, y, z));
     }
 
-    public static Scale getScale(ModelRenderer part) {
+    public static Scale getScale(ModelPart part) {
         return SCALES.getOrDefault(part, Scale.ONE);
     }
 
@@ -47,9 +47,8 @@ public final class ModelPartScaleStore {
         public boolean equals(Object o) {
             if (this == o)
                 return true;
-            if (!(o instanceof Scale))
+            if (!(o instanceof Scale other))
                 return false;
-            Scale other = (Scale) o;
             return Float.compare(this.x, other.x) == 0
                 && Float.compare(this.y, other.y) == 0
                 && Float.compare(this.z, other.z) == 0;

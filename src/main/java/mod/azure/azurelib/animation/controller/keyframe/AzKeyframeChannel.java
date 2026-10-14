@@ -1,7 +1,5 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -29,7 +27,7 @@ import mod.azure.azurelib.util.function.Double2DoubleFunction;
 public final class AzKeyframeChannel {
 
     /** A channel with no keyframes. */
-    public static final AzKeyframeChannel EMPTY = new AzKeyframeChannel(ImmutableList.of());
+    public static final AzKeyframeChannel EMPTY = new AzKeyframeChannel(java.util.List.of());
 
     /**
      * How many keyframes a cached lookup walks before giving up and binary searching instead. Normal playback moves at

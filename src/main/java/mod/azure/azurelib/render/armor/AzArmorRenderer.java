@@ -1,6 +1,6 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -40,7 +40,7 @@ public class AzArmorRenderer {
 
     /**
      * Prepare the renderer for the current render cycle.<br>
-     * Must be called prior to render as the default ModelBiped doesn't give render context.<br>
+     * Must be called prior to render as the default BipedEntityModel doesn't give render context.<br>
      * Params have been left nullable so that the renderer can be called for model/texture purposes safely. If you do
      * grab the renderer using null parameters, you should not use it for actual rendering.
      *
@@ -53,7 +53,7 @@ public class AzArmorRenderer {
         @Nullable Entity entity,
         ItemStack stack,
         @Nullable AzEquipmentSlot slot,
-        @Nullable ModelBiped baseModel
+        @Nullable BipedEntityModel baseModel
     ) {
         if (entity == null || slot == null || baseModel == null) {
             return;
@@ -85,12 +85,8 @@ public class AzArmorRenderer {
     }
 
     private static UUID getStackId(ItemStack stack) {
-        net.minecraft.nbt.NBTTagCompound tag = stack.getTagCompound();
-
-        if (tag != null && AzItemIds.has(tag)) {
-            return AzItemIds.get(tag);
-        }
-
-        return UUID.randomUUID();
+        // Stacks of identity-registered items get their UUID on creation; anything else is given one on first render
+        // so its animator stays cached instead of being rebuilt every frame.
+        return AzItemIds.getOrCreate(stack);
     }
 }
