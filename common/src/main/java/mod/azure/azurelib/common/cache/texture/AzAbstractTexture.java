@@ -73,6 +73,7 @@ public abstract class AzAbstractTexture extends SimpleTexture {
                     .setShaderState(SHADER_STATE)
                     .setTextureState(textureState)
                     .setTransparencyState(TRANSPARENCY_STATE)
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
                     .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .setWriteMaskState(WRITE_MASK)
                     .createCompositeState(isGlowing)
