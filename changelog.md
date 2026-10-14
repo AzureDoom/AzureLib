@@ -1,13 +1,14 @@
-v1.0.6
+v1.0.0
 
 ### Additions
 - N/A
 
 ### Fixes
-- Fixed auto-glowing layers using incomplete full-bright lighting by switching to `LightTexture.FULL_BRIGHT`.
-
-### Changes
 - N/A
 
+### Changes
+- Ported from the 1.7.10 Forge branch to Beta 1.7.3 on Babric + StationAPI. See `PORTING.md`.
+- Groovy Gradle build using fabric-loom + babric-loom-extension and BINY mappings.
+
 ### Developer Notes
-- `AzAutoGlowingLayer#getPackedLight` now returns `LightTexture.FULL_BRIGHT` instead of `LightTexture.FULL_SKY`.
+- N/A
