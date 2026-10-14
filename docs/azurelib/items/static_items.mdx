@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/items)
 </Callout>
 
 ## Creating your Renderer
@@ -46,17 +46,22 @@ public class ExampleItemRenderer extends AzItemRenderer {
 
 ## Registering your Renderer
 
-Call `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method. On 1.7.10 this also registers a Forge `IItemRenderer` for the item, so AzureLib draws it everywhere: in the GUI, in first and third person, and on the ground.
+Call `AzItemRendererRegistry#register()` on the client. A good place is StationAPI's `TextureRegisterEvent` in your `stationapi:event_bus_client` entrypoint, because your items exist by then. AzureLib then draws the item everywhere: in the GUI, in first and third person, and on the ground.
+
+Beta 1.7.3 items have no registry names, so AzureLib can't find the Blockbench-exported item model (with its `display` transforms) by name the way other versions do. Pass its location when you register:
 
 ```java
-// ClientProxy
-@Override
-public void init() {
-    AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+@EventListener
+private static void registerTextures(TextureRegisterEvent event) {
+    AzItemRendererRegistry.register(
+        YourItemRegistry.YOUR_ITEM,
+        new ResourceLocation(YOUR_MOD_ID, "models/item/exampleitem.json"),
+        ExampleItemRenderer::new
+    );
 }
 ```
 
-1.7.10 has no json item models, but AzureLib still reads the `display` transforms from the Blockbench-exported item model, `assets/<modid>/models/item/<registry name>.json`, and applies them like later versions do. Only the `display` block is used; the parent is ignored.
+Only the `display` block of that file is used; the parent is ignored. `AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM)` also works if you don't need display transforms.
 
 ```json
 // assets/yourmodid/models/item/exampleitem.json
@@ -69,5 +74,11 @@ public void init() {
 ```
 
 <Callout variant="info">
-    1.7.10 only distinguishes four contexts, which AzureLib maps to `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` and `THIRD_PERSON_RIGHT_HAND`. If an item sits wrong in one of them, override `AzItemRenderer#applyBaseTransform`.
+    Beta 1.7.3 only distinguishes four contexts, which AzureLib maps to `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` and `THIRD_PERSON_RIGHT_HAND`. If an item sits wrong in one of them, override `AzItemRenderer#applyBaseTransform`.
 </Callout>
+
+<Callout variant="info">
+    AzureLib draws through StationAPI's item renderer (Arsenic). Arsenic only hands an item back to vanilla-style rendering, where AzureLib takes over, when the item has **no** StationAPI JSON item model. So don't give AzureLib-rendered items a model under `assets/<modid>/stationapi/models/`. The same applies to block items: StationAPI's automatic block items always get the block's model, so place an AzureLib-rendered block with a plain item of your own (see [Block Entities](../blockentities/blockentities)).
+</Callout>
+
+To keep a flat sprite in one context while AzureLib draws the model everywhere else, use `useVanillaRenderingIn` on the config builder, for example `.useVanillaRenderingIn(AzItemDisplayContext.GUI)` together with an item icon set through StationAPI's `item.setTexture(...)`.

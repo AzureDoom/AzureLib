@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items/armors)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/items/armors)
 </Callout>
 
 # How to animate Armor
@@ -85,29 +85,51 @@ You will now define your ExampleArmorDispatcher from above in your ArmorItem cla
 
 Example:
 ```java
-public class ExampleArmor extends ItemArmor {
+public class ExampleArmor extends ArmorItem {
     // This is your class where you will setup the AzCommands/Animations you wish to play
     public final ExampleArmorDispatcher dispatcher;
 
     /**
      * @param armorType 0 helmet, 1 chestplate, 2 leggings, 3 boots
      */
-    public ExampleArmor(int armorType) {
-        super(ArmorMaterial.DIAMOND, 0, armorType);
+    public ExampleArmor(Identifier identifier, int armorType) {
+        // Beta 1.7.3 armor: (item ID, material level, texture index, slot); 3 is diamond.
+        super(ItemTemplate.getNextId(), 3, 3, armorType);
+        ItemTemplate.onConstructor(this, identifier);
         // Create the instance of the class here to use later.
         this.dispatcher = new ExampleArmorDispatcher();
     }
 }
 ```
 
-Now you can call your dispatcher to trigger different animations. Forge's `onArmorTick` is called every tick for each worn armor piece, which makes it the place for an idle animation that should play all the time:
+Now you can call your dispatcher to trigger different animations. Beta 1.7.3 has no armor tick hook, so for an idle animation that should play all the time, add a small method to your armor:
+
 ```java
-    @Override
-    public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack) {
-        if (!world.isRemote) {
+    public void armorTick(PlayerEntity player, ItemStack itemStack) {
+        if (!Mc.isClientSide(Mc.world(player))) {
             dispatcher.idle(player, itemStack);
         }
     }
+```
+
+and call it every tick for worn pieces from a mixin into `PlayerEntity#tick`:
+
+```java
+@Mixin(PlayerEntity.class)
+public abstract class PlayerEntityMixin_ArmorTick {
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void yourmod$armorTick(CallbackInfo ci) {
+        PlayerEntity player = (PlayerEntity) (Object) this;
+        // Beta 1.7.3's armor slots: 0 boots, 1 leggings, 2 chestplate, 3 helmet.
+        for (int i = 0; i < 4; i++) {
+            ItemStack stack = Mc.armor(player, i);
+            if (stack != null && Mc.item(stack) instanceof ExampleArmor) {
+                ((ExampleArmor) Mc.item(stack)).armorTick(player, stack);
+            }
+        }
+    }
+}
 ```
 
 ## Creating your Renderer
@@ -147,12 +169,11 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
 
 ## Registering your Renderer
 
-Call `AzArmorRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method.
+Call `AzArmorRendererRegistry#register()` on the client, for example from StationAPI's `TextureRegisterEvent` in your `stationapi:event_bus_client` entrypoint (your items exist by then).
 
 ```java
-// ClientProxy
-@Override
-public void init() {
+@EventListener
+private static void registerTextures(TextureRegisterEvent event) {
     AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
             YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
             YourItemRegistry.YOUR_ARMOR_LEGGINGS,
@@ -161,16 +182,19 @@ public void init() {
 ```
 
 <Callout variant="info">
-    AzureLib supplies the armor model through Forge's `ForgeHooksClient#getArmorModel`, so don't override `Item#getArmorModel` in your armor item. Armor items must extend `ItemArmor`, because 1.7.10 only renders armor passes for `ItemArmor`. The inventory icon is a normal 1.7.10 item icon (`setTextureName("yourmodid:example_helmet")` → `textures/items/example_helmet.png`).
+    Beta 1.7.3 has no armor model hook, so AzureLib draws registered armor from a mixin into the player renderer's armor passes, in place of the vanilla armor model. Armor items must extend Beta 1.7.3's `ArmorItem`, because Beta 1.7.3 only renders armor passes for armor items. You can also register vanilla armor (for example `Item.DIAMOND_HELMET`) to replace its look.
+
+    The inventory icon is a normal StationAPI item texture: `item.setTexture(NAMESPACE.id("item/example_helmet"))` in `TextureRegisterEvent` loads `assets/yourmodid/stationapi/textures/item/example_helmet.png`.
 </Callout>
 
 ## Registering your Armor for proper animation triggering
 
-To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` from your common `FMLInitializationEvent` handler, so it runs on both the client and the server.
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` on both the client and the server, after your items are created, for example at the end of your `ItemRegistryEvent` listener in the common `stationapi:event_bus` entrypoint.
 
 ```java
-@Mod.EventHandler
-public void init(FMLInitializationEvent event) {
+@EventListener
+private static void registerItems(ItemRegistryEvent event) {
+    YourItemRegistry.register();
     AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
             YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
             YourItemRegistry.YOUR_ARMOR_LEGGINGS,

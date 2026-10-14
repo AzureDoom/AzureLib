@@ -53,7 +53,7 @@ To mix whole animations together, layer controllers instead; see the Layering Co
 ## Example
 
 <Callout variant="info">
-    This example swings the arms and legs like a player's while walking. `Mth` is AzureLib's `mod.azure.azurelib.util.math.Mth`, which keeps the modern helper names (`lerp`, `cos`, `rotLerp`...) on 1.7.10. It sets each limb from its default pose, so it works whether or not your animations also move the limbs.
+    This example swings the arms and legs like a player's while walking. `Mth` is AzureLib's `mod.azure.azurelib.util.math.Mth`, which keeps the modern helper names (`lerp`, `cos`, `rotLerp`...) on Beta 1.7.3. It sets each limb from its default pose, so it works whether or not your animations also move the limbs.
 </Callout>
 
 ```java
@@ -62,8 +62,8 @@ To mix whole animations together, layer controllers instead; see the Layering Co
         super.setCustomAnimations(animatable, partialTicks);
         AzBakedModel model = this.context().boneCache().getBakedModel();
 
-        float walkPosition = (animatable.limbSwing - animatable.limbSwingAmount * (1.0F - partialTicks)) * 0.6662F;
-        float walkSpeed = Mth.lerp(partialTicks, animatable.prevLimbSwingAmount, animatable.limbSwingAmount);
+        float walkPosition = (Mc.limbSwing(animatable) - Mc.limbSwingAmount(animatable) * (1.0F - partialTicks)) * 0.6662F;
+        float walkSpeed = Mth.lerp(partialTicks, Mc.prevLimbSwingAmount(animatable), Mc.limbSwingAmount(animatable));
 
         float armSwing = Mth.cos(walkPosition) * walkSpeed;
         float legSwing = Mth.cos(walkPosition) * 1.4F * walkSpeed;

@@ -7,12 +7,11 @@ hide_meta: true
 
 ## Overview
 
-The **AzArmorLayer** is a built-in render layer designed for **per-bone dynamic armor rendering**. It supports rendering both vanilla-style armor and custom armor models registered via AzureLib's `AzArmorRendererRegistry`. This layer works seamlessly with animated models, allowing armor or skull blocks to be rendered on specific bones of an entity, providing incredible flexibility for custom animations and render configurations.
+The **AzArmorLayer** is a built-in render layer designed for **per-bone dynamic armor rendering**. It supports rendering both vanilla-style armor and custom armor models registered via AzureLib's `AzArmorRendererRegistry`. This layer works seamlessly with animated models, allowing armor to be rendered on specific bones of an entity, providing incredible flexibility for custom animations and render configurations.
 
 Key features include:
 - Support for **vanilla armor models** and **custom armor models**.
 - Dynamic rendering of **custom per-bone armor pieces**.
-- Per-bone rendering of skulls using 1.7.10's `TileEntitySkullRenderer`.
 
 This guide will walk you through setting up and customizing the `AzArmorLayer`.
 
@@ -58,7 +57,11 @@ This configuration adds the `AzArmorLayer` to your entity's renderer pipeline, a
 The `AzArmorLayer` provides methods to allow customization of how armor is rendered for specific bones. Below are a few key methods to override and customize.
 
 <Callout variant="info">
-    Vanilla armor pieces and skulls are drawn by 1.7.10's own model code through the OpenGL matrix stack. `AzArmorLayer` handles that for you: it flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. Vanilla armor textures come from `RenderBiped.getArmorResource`, so Forge's `getArmorTexture` hook still applies. 1.7.10 has no off hand, so `AzEquipmentSlot.OFFHAND` always resolves to `null`.
+    Vanilla armor pieces are drawn by Beta 1.7.3's own model code through the OpenGL matrix stack. `AzArmorLayer` handles that for you: it flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. Vanilla armor textures are Beta 1.7.3's `/armor/<material>_1.png` and `_2.png` (override `getVanillaArmorResource` for others). Beta 1.7.3 has no off hand, so `AzEquipmentSlot.OFFHAND` always resolves to `null`.
+</Callout>
+
+<Callout variant="warning">
+    Beta 1.7.3 mobs have no equipment slots: only players wear armor, and a mob's "held item" is whatever its class decides. For `AzEquipmentSlot#getStack` (and so this layer) to find armor on your own mob, implement `mod.azure.azurelib.util.AzEquipmentHolder` on the entity and return your stacks from `getAzEquipment(slot)` (0 held item, 1 boots, 2 leggings, 3 chestplate, 4 helmet). Keep the stacks in your entity and save them in its NBT; see `MarineEntity` in the examples.
 </Callout>
 
 #### 1. **Determine Armor Items for Bones**
@@ -91,7 +94,7 @@ If you need to adjust transformations (such as scaling or positioning) for any a
 
 ```java
 @Override
-protected void prepModelPartForRender(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ModelRenderer sourcePart) {
+protected void prepModelPartForRender(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ModelPart sourcePart) {
     context.poseStack().translate(0.0F, 0.2F, 0.0F);
     context.poseStack().scale(1.2F, 1.2F, 1.2F);
     super.prepModelPartForRender(context, bone, sourcePart);
@@ -99,19 +102,6 @@ protected void prepModelPartForRender(AzRendererPipelineContext<UUID, ExampleEnt
 ```
 
 This applies custom adjustments, such as translating the armor upwards slightly or scaling it larger before rendering.
-
-#### 3. **Customize Skull Blocks as Helmets**
-
-The `AzArmorLayer` also supports rendering skull items (`ItemSkull`, e.g. player heads) dynamically for specific bones. You can override the `renderSkullAsArmor` method to fine-tune how skulls are positioned and scaled:
-
-```java
-@Override
-protected void renderSkullAsArmor(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack stack) {
-    context.poseStack().scale(1.5F, 1.5F, 1.5F); // Make the skull larger
-    context.poseStack().translate(0.0D, 0.25D, 0.0D); // Adjust position
-    super.renderSkullAsArmor(context, bone, stack);
-}
-```
 
 ### Troubleshooting
 
@@ -129,9 +119,7 @@ protected void renderSkullAsArmor(AzRendererPipelineContext<UUID, ExampleEntity>
 
 ### Example Use Case
 
-**Scenario**: You have a custom animated model for an entity, where:
-- A helmet must be rendered on the `helmetBone`.
-- A player head (skull block) should be rendered dynamically if equipped as a helmet.
+**Scenario**: You have a custom animated model for an entity, where a helmet must be rendered on the `helmetBone` and a chestplate on the `chestPlateBone`.
 
 Here’s how you would set it up in the `AzArmorLayer`:
 
@@ -147,15 +135,6 @@ protected ItemStack getArmorItemForBone(AzRendererPipelineContext<UUID, ExampleE
             return null;
     }
 }
-
-@Override
-protected void renderSkullAsArmor(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone, ItemStack stack) {
-    context.poseStack().scale(1.2F, 1.2F, 1.2F);
-    context.poseStack().translate(0.0D, 0.4D, 0.0D);
-    super.renderSkullAsArmor(context, bone, stack);
-}
 ```
 
-With this setup:
-- For the `helmetBone`, either a helmet or a skull will render dynamically.
-- Additional custom scaling and translation is applied to ensure the skull looks correct on the animated model.
+With this setup, vanilla armor and AzureLib armor (anything registered in `AzArmorRendererRegistry`) both follow those bones as they animate.

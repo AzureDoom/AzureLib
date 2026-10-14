@@ -7,12 +7,16 @@
 ## Developers
 
 <Callout variant="info">
-    These docs are for the **Forge 1.7.10** version of AzureLib, backported from the 1.12.2 backport. It requires Java 8, ForgeGradle 1.2 with MCP mappings, and **UniMixins** at runtime, so the code on these pages uses 1.7.10 class names (`EntityLivingBase`, `TileEntity`, `World`, `worldObj`...).
+    These docs are for the **Beta 1.7.3** version of AzureLib, which runs on **Babric** (Fabric Loader for Beta) and requires **StationAPI**. It needs Java 17, Fabric Loom with the babric extension and the BINY mappings, so the code on these pages uses BINY class names (`LivingEntity`, `PlayerEntity`, `BlockEntity`, `World`...).
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10).
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3).
 </Callout>
 
-To add AzureLib to your project as a dependency you need to add the following to your `build.gradle` (NOT THE BUILD SCRIPT):
+<Callout variant="warning">
+    **StationAPI is required.** AzureLib uses it for item NBT (the identity that lets animations target a single item stack, synced to clients), for networking, and for its asset loading and rendering hooks. Install StationAPI alongside AzureLib on both the client and the server, and depend on it in your mod.
+</Callout>
+
+To add AzureLib to your project as a dependency you need to add the following to your `build.gradle`:
 
 <CodeTabs>
 
@@ -22,62 +26,85 @@ repositories {
 		name = "AzureDoom Mods"
 		url = "https://maven.azuredoom.com/mods"
 	}
-	maven { url = "https://jitpack.io" } // UniMixins
+	// StationAPI and its dependencies
+	maven { url = "https://maven.glass-launcher.net/snapshots/" }
+	maven { url = "https://maven.glass-launcher.net/releases/" }
+	maven { url = "https://maven.glass-launcher.net/babric" }
 }
 ```
 
 </CodeTabs>
 
-The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib).
-
-ForgeGradle 1.2 can't deobfuscate a mod dependency for the dev environment, so AzureLib publishes a separate `dev` jar (MCP names) next to the normal, reobfuscated jar. Depend on the `dev` classifier:
+The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib). `STATIONAPI_VERSION` is the StationAPI version you build against, for example `2.0.0-alpha.6.4`.
 
 <CodeTabs>
 
-```markdown !!tabs Forge 1.7.10 (ForgeGradle 1.2)
+```markdown !!tabs Beta 1.7.3 (Babric + StationAPI)
 dependencies {
-	implementation("mod.azure.azurelib:azurelib-forge-1.7.10:MODVERSION:dev") {
-		transitive = false
-	}
+	minecraft "com.mojang:minecraft:b1.7.3"
+	mappings "net.glasslauncher:biny:${yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
 
-	// UniMixins provides Mixin on 1.7.10; it is needed in dev and must be installed by players
-	implementation("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:UNIMIXINS_VERSION:dev") {
-		transitive = false
-	}
-	annotationProcessor("com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:UNIMIXINS_VERSION:dev") {
-		transitive = false
-	}
+	// Required by AzureLib
+	modImplementation "net.modificationstation:StationAPI:STATIONAPI_VERSION"
+
+	modImplementation "mod.azure.azurelib:azurelib-stationapi-b1.7.3:MODVERSION"
 }
 ```
 
 </CodeTabs>
 
-In a dev environment, mod jars on the classpath are not scanned for mixin configs, so your run tasks need the Mixin tweaker and AzureLib's mixin config, and the refmaps remapped to MCP names:
+Then declare both dependencies in your `fabric.mod.json`, so Fabric Loader refuses to start without them:
 
-<CodeTabs>
-
-```markdown !!tabs build.gradle
-tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.all {
-	args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
-	args '--mixin', 'azurelib.mixins.json'
-	// If your mod has its own mixins, add them too:
-	// args '--mixin', 'yourmodid.mixins.json'
-
-	systemProperty 'mixin.env.remapRefMap', 'true'
-	doFirst {
-		systemProperty 'mixin.env.refMapRemappingFile', tasks.genSrgs.srgToMcp.absolutePath
-	}
+```json
+"depends": {
+	"minecraft": "1.0.0-beta.7.3",
+	"stationapi": "*",
+	"azurelib": "*"
 }
 ```
 
-</CodeTabs>
+AzureLib registers its own mixins and initializes itself through Fabric entrypoints, so there's nothing else to set up.
 
-Finally, declare the dependency so Forge loads AzureLib before your mod:
+### Where to register things
+
+Beta has no registry events of its own; registration happens through StationAPI's event bus. Add entrypoints for it to your `fabric.mod.json`:
+
+```json
+"entrypoints": {
+	"stationapi:event_bus": [
+		"yourmod.registry.YourModEvents"
+	],
+	"stationapi:event_bus_client": [
+		"yourmod.client.YourModClientEvents"
+	]
+}
+```
+
+Each class is a plain class with static `@EventListener` methods (StationAPI also needs a lookup registered once per class):
 
 ```java
-@Mod(modid = "yourmodid", dependencies = "required-after:azurelib")
+public final class YourModEvents {
+    static {
+        EntrypointManager.registerLookup(MethodHandles.lookup());
+    }
+
+    public static final Namespace NAMESPACE = Namespace.of(YOUR_MOD_ID);
+
+    @EventListener
+    private static void registerItems(ItemRegistryEvent event) {
+        // create your items here, then register AzureLib item identities (see the Items pages)
+    }
+}
 ```
 
+The pages for entities, items, armor and block entities show which StationAPI event each AzureLib registration goes in.
+
+### Things that differ from other versions
+
 <Callout variant="info">
-    1.7.10 MCP names vary between mapping versions. The snippets on these pages use common names; if one doesn't resolve in your workspace (for example `setBlockName` vs `setUnlocalizedName`), use the name your decompiled Minecraft classes show.
+    - **`ResourceLocation`**: Beta has none, so AzureLib provides `mod.azure.azurelib.util.ResourceLocation`. `new ResourceLocation("yourmodid", "geo/entity/example.geo.json")` resolves to `assets/yourmodid/geo/entity/example.geo.json` in your jar, exactly like on other versions. The `minecraft` namespace points at Beta's own assets at the jar root (`minecraft:mob/zombie.png` is `/mob/zombie.png`).
+    - **Assets**: AzureLib reads `geo/`, `animations/` and textures straight from every loaded mod, so the asset layout is the same as on other versions. Models and animations load the first time they are used; call `AzureLibCache.reload()` to reload them while testing.
+    - **Vanilla fields**: Beta's mapped field and method names can change between BINY builds. AzureLib reads vanilla state through two small bridge classes, `mod.azure.azurelib.platform.mc.Mc` (common) and `McClient` (client), which you can use too, for example `Mc.isClientSide(world)`, `Mc.heldItem(entity)` or `Mc.armor(entity, slot)`.
+    - **Single player**: Beta has no integrated server; the client runs the world itself. AzureLib handles that for you, so server-side dispatches (`AzCommand#sendForEntity` and friends) behave the same in single player and multiplayer.
 </Callout>

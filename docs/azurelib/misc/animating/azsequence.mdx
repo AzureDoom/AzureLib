@@ -74,9 +74,9 @@ public void startSlam() {
 }
 
 @Override
-public void onUpdate() {
-    super.onUpdate();
-    if (!this.worldObj.isRemote) {
+public void tick() {
+    super.tick();
+    if (!Mc.isClientSide(this.world)) { // the server, or the single player world
         attackPlayer.tick();
     }
 }

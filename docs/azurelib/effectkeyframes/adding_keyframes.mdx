@@ -26,7 +26,7 @@ This will open the effects tray, allowing you set the time you want a Particle, 
 
 # How to register Effect Keyframes
 
-In your `registerControllers` method found in your class that extends the various AzAnimators provided (Entity, TileEntity, and Item are default options)
+In your `registerControllers` method found in your class that extends the various AzAnimators provided (Entity, BlockEntity, and Item are default options)
 
 ## Sound Keyframes
 
@@ -41,17 +41,13 @@ Example:
                         .setSoundKeyframeHandler(
                             event -> {
                                 if (event.getKeyframeData().getSound().equals("walk")) {
-                                    event.getAnimatable()
-                                        .worldObj
-                                        .playSound(
-                                            event.getAnimatable().posX,
-                                            event.getAnimatable().posY,
-                                            event.getAnimatable().posZ,
-                                            "step.stone",
-                                            1.0F, // volume
-                                            1.0F, // pitch
-                                            true // Should have distance delay
-                                        );
+                                    Entity entity = event.getAnimatable();
+                                    Mc.world(entity).playSound(
+                                        entity,
+                                        "step.stone", // a Beta 1.7.3 sound name, or "yourmodid:sound" via StationAPI
+                                        1.0F, // volume
+                                        1.0F // pitch
+                                    );
                                 }
                             }
                         )
@@ -61,6 +57,10 @@ Example:
         );
     }
 ```
+<Callout variant="info">
+    Keyframe callbacks run on the client while the model renders. Beta 1.7.3 sound and particle names are the old string IDs (`step.stone`, `random.bow`, `bubble`, `flame`, ...). Custom sounds load through StationAPI from `assets/<modid>/stationapi/sounds/` and are played as `"yourmodid:name"`.
+</Callout>
+
 ## Particle Keyframes
 
 Example:
@@ -74,17 +74,16 @@ Example:
                                         .setParticleKeyframeHandler(
                                                 event -> {
                                                     if (event.getKeyframeData().getEffect().equals("walk")) {
-                                                        event.getAnimatable()
-                                                                .worldObj
-                                                                .spawnParticle(
-                                                                        "bubble",
-                                                                        event.getAnimatable().posX,
-                                                                        event.getAnimatable().posY,
-                                                                        event.getAnimatable().posZ,
-                                                                        0, // x axis speed
-                                                                        0, // y axis speed
-                                                                        0 // z axis speed
-                                                                );
+                                                        Entity entity = event.getAnimatable();
+                                                        Mc.world(entity).addParticle(
+                                                                "bubble",
+                                                                Mc.x(entity),
+                                                                Mc.y(entity),
+                                                                Mc.z(entity),
+                                                                0, // x axis speed
+                                                                0, // y axis speed
+                                                                0 // z axis speed
+                                                        );
                                                     }
                                                 }
                                         )

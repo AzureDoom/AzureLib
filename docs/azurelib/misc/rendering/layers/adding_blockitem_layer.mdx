@@ -11,7 +11,10 @@ The **Block and Item Layer** feature allows you to easily render **blocks** and 
 
 The `AzBlockAndItemLayer` handles the rendering logic for these elements by:
 - Applying transformations specific to the bones associated with items/blocks.
-- Rendering the correct visuals for **items** and **blocks** by using Minecraft’s rendering utilities (1.7.10's held-item `ItemRenderer` and `RenderBlocks`). Those draw through the OpenGL matrix stack, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. 1.7.10's held-item renderer needs a living holder, so items only render on `EntityLivingBase` animatables, and blocks are an `AzBlockState` (block plus metadata) because 1.7.10 has no block states. The held-item renderer always draws items in its third-person pose, so `getTransformTypeForStack` is kept only for parity with other versions.
+- Rendering the correct visuals for **items** and **blocks**:
+    - Items with an AzureLib item renderer are drawn by AzureLib, using the display context from `getTransformTypeForStack` and the item's Blockbench `display` transforms.
+    - Other items go through Beta 1.7.3's held-item renderer (via StationAPI), positioned the way Beta 1.7.3's biped renderer holds them: tools and swords diagonally, flat items as small sprites, and block items through StationAPI's own block-item placement. Override `applyVanillaHandTransforms` (items) or `applyVanillaBlockInHandTransforms` (block items) if your hand bones are oriented differently.
+    - Vanilla rendering draws through the OpenGL matrix stack, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. Beta 1.7.3's held-item renderer needs a living holder, so items only render on `LivingEntity` animatables, and blocks are an `AzBlockState` (block plus metadata) because Beta 1.7.3 has no block states.
 
 ## Setup Instructions
 

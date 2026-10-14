@@ -13,7 +13,7 @@ Custom Molang queries allow you to expose additional data to your animations. Th
 
 
 <Callout variant="info">
-    Some queries have no 1.7.10 equivalent: `query.is_silent`, `query.is_spectator` and `query.is_gliding` are always false, `query.has_gravity` is always true, `query.is_swimming` means "in water and sprinting", `query.swim_amount` is always 0, and the item-use queries only work for players.
+    Some queries have no Beta equivalent and return a fixed value: `query.is_invisible`, `query.is_sprinting`, `query.is_swimming`, `query.is_silent`, `query.is_spectator`, `query.is_fire_immune`, `query.is_leashed` and `query.is_gliding` are always false, `query.has_gravity` is always true, `query.swim_amount`, `query.player_level` and the item-use queries (`query.item_in_use_duration` and friends) are always 0, and `query.model_scale` is always 1 (Beta has no baby mobs). `query.is_tamed` and `query.is_sitting` work for wolves.
 </Callout>
 
 ## Defining Custom Queries

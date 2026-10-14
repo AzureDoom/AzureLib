@@ -77,7 +77,7 @@ For a tint that changes with the entity's state, pass a function instead. It rec
 ))
 ```
 
-Because the function runs every frame, you can also use it to pulse the glow, for example by driving the color from `context.animatable().ticksExisted` and `context.partialTick()`.
+Because the function runs every frame, you can also use it to pulse the glow, for example by driving the color from `Mc.age(context.animatable())` and `context.partialTick()`.
 
 **How tinting works:**
 
@@ -108,9 +108,9 @@ Because the function runs every frame, you can also use it to pulse the glow, fo
 
 ### Advanced Configuration (Optional)
 
-The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on 1.7.10 its emissive render types always draw full-bright. To customize its behavior, extend the `AzAutoGlowingLayer` class and override its methods:
+The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on Beta 1.7.3 its emissive render types always draw full-bright. To customize its behavior, extend the `AzAutoGlowingLayer` class and override its methods:
 
-- `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on 1.7.10).
+- `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on Beta 1.7.3).
 - `getGlowColor(context)`: the ARGB tint for the glow. Override this instead of passing a function to the constructor if your tint logic is easier to keep in a subclass.
 - `determineRenderType(context)`: the render type used for the glow, including how invisible and glowing (outlined) entities are handled.
 

@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/blocks/blockentity)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/blocks/blockentity)
 </Callout>
 
 # How to animate Block Entities
@@ -63,9 +63,9 @@ public class ExampleBEDispatcher {
         AzPlayBehaviors.LOOP
     );
 
-    private final TileEntity blockEntity;
+    private final BlockEntity blockEntity;
 
-    public ExampleBEDispatcher(TileEntity blockEntity) {
+    public ExampleBEDispatcher(BlockEntity blockEntity) {
         this.blockEntity = blockEntity;
     }
 
@@ -77,10 +77,10 @@ public class ExampleBEDispatcher {
 
 ## Accessing your Dispatcher to trigger animations
 
-You will now define your ExampleBEDispatcher from above in your `TileEntity` class.
+You will now define your ExampleBEDispatcher from above in your `BlockEntity` class.
 
 ```java
-public class ExampleBE extends TileEntity {
+public class ExampleBE extends BlockEntity {
     // This is your class where you will setup the AzCommands/Animations you wish to play
     public final ExampleBEDispatcher dispatcher;
 
@@ -91,26 +91,93 @@ public class ExampleBE extends TileEntity {
 }
 ```
 
-Now you simply call the dispatcher wherever you want to play the animations.
+Now you simply call the dispatcher wherever you want to play the animations. A block entity ticks through `tick()`:
 
-<Callout variant="info">
-    On 1.7.10 a tile entity ticks through `updateEntity()`. Remember to register it with `GameRegistry.registerTileEntity(ExampleBE.class, YOUR_MOD_ID + ":example_be")`.
-</Callout>
-
-Example:
 ```java
+    private static final boolean CLIENT = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+
     @Override
-    public void updateEntity() {
-        if (this.worldObj != null && this.worldObj.isRemote) {
+    public void tick() {
+        if (CLIENT && this.world != null) {
             // This is where you now trigger an animation to play
             this.dispatcher.spin();
         }
     }
 ```
 
-If the model replaces the block's look entirely, return `-1` from your block's `getRenderType()` (and `false` from `isOpaqueCube()`/`renderAsNormalBlock()`) so only the tile entity renderer draws it. Extending `BlockContainer` gives you `createNewTileEntity(World, int)`.
+<Callout variant="info">
+    The check is the Fabric environment, not `world.isRemote`: Beta 1.7.3 single player has no integrated server, so the client's world is not a "remote" world there and an `isRemote` check would never pass. On a multiplayer client the dispatch plays locally; in single player AzureLib applies it straight away.
+</Callout>
 
-The renderer rotates the model by the block's facing. 1.7.10 has no block states, so by default the facing is read from the block metadata (2 north, 3 south, 4 west, 5 east); override `getFacing` in your renderer for other layouts.
+### The block
+
+Register the block entity with StationAPI's `BlockEntityRegisterEvent` in your `stationapi:event_bus` entrypoint:
+
+```java
+@EventListener
+private static void registerBlockEntities(BlockEntityRegisterEvent event) {
+    event.register(NAMESPACE.id("example_be").toString(), ExampleBE.class);
+}
+```
+
+If the model replaces the block's look entirely, return `-1` from your block's `getRenderType()` (and `false` from `isOpaque()`/`isFullCube()`) so only the block entity renderer draws it. Extending `BlockWithEntity` gives you `createBlockEntity()`:
+
+```java
+public class ExampleBlock extends BlockWithEntity {
+    public ExampleBlock(Identifier identifier) {
+        super(BlockTemplate.getNextId(), Material.METAL);
+        BlockTemplate.onConstructor(this, identifier);
+    }
+
+    @Override
+    protected BlockEntity createBlockEntity() {
+        return new ExampleBE();
+    }
+
+    @Override
+    public int getRenderType() {
+        return -1;
+    }
+
+    @Override
+    public boolean isOpaque() {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube() {
+        return false;
+    }
+}
+```
+
+The renderer rotates the model by the block's facing. Beta 1.7.3 has no block states, so by default the facing is read from the block metadata (2 north, 3 south, 4 west, 5 east); override `getFacing` in your renderer for other layouts.
+
+### The block's item
+
+To show your animated model in the inventory and in hand, give the block its own plain item that places it, and register an [AzureLib item renderer](../items/items#registering-your-renderer) for that item.
+
+<Callout variant="warning">
+    Don't use StationAPI's automatic block item for this. StationAPI gives block items the block's JSON model, and its renderer (Arsenic) draws those itself, before AzureLib's item hooks run. A plain item with no StationAPI model is handed back to vanilla-style rendering, where AzureLib takes over.
+</Callout>
+
+```java
+public class ExampleBlockItem extends Item {
+    public ExampleBlockItem(Identifier identifier) {
+        super(ItemTemplate.getNextId());
+        ItemTemplate.onConstructor(this, identifier);
+    }
+
+    @Override
+    public boolean useOnBlock(ItemStack stack, PlayerEntity player, World world, int x, int y, int z, int side) {
+        // Offset to the clicked face (0 down, 1 up, 2 north, 3 south, 4 west, 5 east), check the spot is free,
+        // place YourBlocks.EXAMPLE_BLOCK there and shrink the stack. See StargateItem in the examples.
+        ...
+    }
+}
+```
+
+Give the item a different identifier from the block (for example `example_block_item`), since StationAPI already registers an item under the block's name. Override the block's `getDroppedItemId` to return your item's ID so breaking the block gives it back.
 
 ## Creating your Renderer
 
@@ -121,7 +188,7 @@ It connects the block entity with the following:
 2. **Texture file (`.png`)**: The visual appearance of the entity (applies over the geometry).
 3. **Animator**: Animations for the entity, provided by `ExampleBEAnimator`.
 
-The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` (a `TileEntitySpecialRenderer`) and provide the required configuration.
+The renderer class must extend `AzBlockEntityRenderer<ExampleBE>` (a Beta 1.7.3 `BlockEntityRenderer`) and provide the required configuration.
 
 <Callout variant="info">
     See [AzRendererConfigs 101](../misc/rendering/azrenderer_config#azblockentityrendererconfig) for all AzBlockEntityRendererConfig#builder options.
@@ -151,12 +218,11 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
 
 ## Registering your Renderer
 
-Bind the renderer on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method:
+Register the renderer on the client with StationAPI's `BlockEntityRendererRegisterEvent`, from your `stationapi:event_bus_client` entrypoint:
 
 ```java
-// ClientProxy
-@Override
-public void init() {
-    ClientRegistry.bindTileEntitySpecialRenderer(ExampleBE.class, new ExampleBERenderer());
+@EventListener
+private static void registerBlockEntityRenderers(BlockEntityRendererRegisterEvent event) {
+    event.renderers.put(ExampleBE.class, new ExampleBERenderer());
 }
 ```

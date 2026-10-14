@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/1.7.10/src/main/java/mod/azure/azexamples/items)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/items)
 </Callout>
 
 # How to animate Items
@@ -74,25 +74,34 @@ public class ExampleItem extends Item {
     // This is your class where you will setup the AzCommands/Animations you wish to play
     public final ExampleItemDispatcher dispatcher;
 
-    public ExampleItem() {
-        this.setMaxStackSize(1);
+    public ExampleItem(Identifier identifier) {
+        // StationAPI hands out the numeric item ID
+        super(ItemTemplate.getNextId());
+        ItemTemplate.onConstructor(this, identifier);
+        this.setMaxCount(1);
         // Create the instance of the class here to use later.
         this.dispatcher = new ExampleItemDispatcher();
     }
 }
 ```
 
+Create it in StationAPI's `ItemRegistryEvent` with an identifier from your namespace, for example `new ExampleItem(NAMESPACE.id("example_item"))`.
+
 Now to use the dispatcher, you would simply call it in any method where you want it trigger for, like if I want the firing to happing on use, I would do it like so:
 ```java
     @Override
-    public void onUsingTick(ItemStack stack, EntityPlayer player, int count) {
-        super.onUsingTick(stack, player, count);
-        if (!player.worldObj.isRemote) {
+    public ItemStack use(ItemStack stack, World world, PlayerEntity player) {
+        if (!Mc.isClientSide(world)) {
             // This is where you now trigger an animation to play
             dispatcher.firing(player, stack);
         }
+        return stack;
     }
 ```
+
+<Callout variant="info">
+    Beta 1.7.3 has no "hold to use" items: `use` runs once per right click, and holding the button repeats it every few ticks. Add your own cooldown if an action shouldn't repeat that fast. `!Mc.isClientSide(world)` is true on the server and in single player, which is where dispatches should come from.
+</Callout>
 
 ## Creating your Renderer
 
@@ -165,17 +174,22 @@ public class ExampleItemDispatcher {
 
 ## Registering your Renderer
 
-Call `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`, for example from your client proxy's `init` method. On 1.7.10 this also registers a Forge `IItemRenderer` for the item, so AzureLib draws it everywhere: in the GUI, in first and third person, and on the ground.
+Call `AzItemRendererRegistry#register()` on the client. A good place is StationAPI's `TextureRegisterEvent` in your `stationapi:event_bus_client` entrypoint, because your items exist by then. AzureLib then draws the item everywhere: in the GUI, in first and third person, and on the ground.
+
+Beta 1.7.3 items have no registry names, so AzureLib can't find the Blockbench-exported item model (with its `display` transforms) by name the way other versions do. Pass its location when you register:
 
 ```java
-// ClientProxy
-@Override
-public void init() {
-    AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM);
+@EventListener
+private static void registerTextures(TextureRegisterEvent event) {
+    AzItemRendererRegistry.register(
+        YourItemRegistry.YOUR_ITEM,
+        new ResourceLocation(YOUR_MOD_ID, "models/item/exampleitem.json"),
+        ExampleItemRenderer::new
+    );
 }
 ```
 
-1.7.10 has no json item models, but AzureLib still reads the `display` transforms from the Blockbench-exported item model, `assets/<modid>/models/item/<registry name>.json`, and applies them like later versions do. Only the `display` block is used; the parent is ignored.
+Only the `display` block of that file is used; the parent is ignored. `AzItemRendererRegistry.register(ExampleItemRenderer::new, YourItemRegistry.YOUR_ITEM)` also works if you don't need display transforms.
 
 ```json
 // assets/yourmodid/models/item/exampleitem.json
@@ -188,16 +202,25 @@ public void init() {
 ```
 
 <Callout variant="info">
-    1.7.10 only distinguishes four contexts, which AzureLib maps to `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` and `THIRD_PERSON_RIGHT_HAND`. If an item sits wrong in one of them, override `AzItemRenderer#applyBaseTransform`.
+    Beta 1.7.3 only distinguishes four contexts, which AzureLib maps to `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` and `THIRD_PERSON_RIGHT_HAND`. If an item sits wrong in one of them, override `AzItemRenderer#applyBaseTransform`.
 </Callout>
+
+<Callout variant="info">
+    AzureLib draws through StationAPI's item renderer (Arsenic). Arsenic only hands an item back to vanilla-style rendering, where AzureLib takes over, when the item has **no** StationAPI JSON item model. So don't give AzureLib-rendered items a model under `assets/<modid>/stationapi/models/`. The same applies to block items: StationAPI's automatic block items always get the block's model, so place an AzureLib-rendered block with a plain item of your own (see [Block Entities](../blockentities/blockentities)).
+</Callout>
+
+To keep a flat sprite in one context while AzureLib draws the model everywhere else, use `useVanillaRenderingIn` on the config builder, for example `.useVanillaRenderingIn(AzItemDisplayContext.GUI)` together with an item icon set through StationAPI's `item.setTexture(...)`.
 
 ## Registering your Item for proper animation triggering
 
-To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` from your common `FMLInitializationEvent` handler, so it runs on both the client and the server.
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` on both the client and the server, after your items are created. The end of your `ItemRegistryEvent` listener (in the common `stationapi:event_bus` entrypoint) is the natural place:
 
 ```java
-@Mod.EventHandler
-public void init(FMLInitializationEvent event) {
+@EventListener
+private static void registerItems(ItemRegistryEvent event) {
+    YourItemRegistry.register();
     AzIdentityRegistry.register(YourItemRegistry.YOUR_ITEM, ...);
 }
 ```
+
+Stacks of registered items get a UUID in StationAPI's per-stack NBT when they are created. StationAPI saves it and syncs it to clients, which is how a dispatch from the server finds the same stack on every client. Vanilla items can be registered too, for example `Item.DIAMOND_SWORD`.

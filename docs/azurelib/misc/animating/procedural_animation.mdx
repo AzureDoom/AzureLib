@@ -130,9 +130,9 @@ public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
     }
 
     // Where the entity is looking, relative to its body, in degrees.
-    float bodyYaw = Mth.rotLerp(partialTicks, entity.prevRenderYawOffset, entity.renderYawOffset);
-    float headYaw = Mth.wrapDegrees(Mth.rotLerp(partialTicks, entity.prevRotationYawHead, entity.rotationYawHead) - bodyYaw);
-    float headPitch = Mth.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch);
+    float bodyYaw = Mth.rotLerp(partialTicks, Mc.prevBodyYaw(entity), Mc.bodyYaw(entity));
+    float headYaw = Mth.wrapDegrees(Mth.rotLerp(partialTicks, Mc.prevHeadYaw(entity), Mc.headYaw(entity)) - bodyYaw);
+    float headPitch = Mth.lerp(partialTicks, Mc.prevPitch(entity), Mc.pitch(entity));
 
     AzBoneSnapshot initial = head.getInitialAzSnapshot();
     head.setRotX(initial.getRotX() + headPitch * Mth.DEG_TO_RAD);
@@ -154,8 +154,8 @@ This sways the tail side to side, faster and wider while the entity walks. It si
 AzBone tail = context().boneCache().getBakedModel().getBoneOrNull("tail");
 
 if (tail != null) {
-    float time = entity.ticksExisted + partialTicks;
-    float walkSpeed = Mth.lerp(partialTicks, entity.prevLimbSwingAmount, entity.limbSwingAmount);
+    float time = Mc.age(entity) + partialTicks;
+    float walkSpeed = Mth.lerp(partialTicks, Mc.prevLimbSwingAmount(entity), Mc.limbSwingAmount(entity));
 
     float sway = Mth.sin(time * (0.1F + walkSpeed * 0.3F)) * (0.15F + walkSpeed * 0.35F);
     float base = context().boneCache().wasRotationAnimatedThisFrame(tail)
@@ -170,7 +170,7 @@ if (tail != null) {
 
 Procedural motion that switches on and off instantly looks like a pop. Instead, keep a weight between `0` and `1` that eases toward its target, and multiply your motion by it. Entity animators are created per entity, so fields in your animator are a safe place to keep this state.
 
-This leans the upper body forward while the mob is aggressive. `isAggressive()` here is your own synced flag; on 1.7.10 a mob's attack target only exists on the server (see the [entities page](../../entities/entities)).
+This leans the upper body forward while the mob is aggressive. `isAggressive()` here is your own synced flag; on Beta 1.7.3 a mob's target only exists where its AI runs (see the [entities page](../../entities/entities)).
 
 ```java
 public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
@@ -227,7 +227,7 @@ if (backpack != null) {
 AzBone sac = model.getBoneOrNull("egg_sac");
 
 if (sac != null) {
-    float pulse = 1 + Mth.sin((entity.ticksExisted + partialTicks) * 0.2F) * 0.05F;
+    float pulse = 1 + Mth.sin((Mc.age(entity) + partialTicks) * 0.2F) * 0.05F;
     float growth = entity.getGrowthProgress(); // Your own 0 to 1 value.
     float scale = (0.5F + growth * 0.5F) * pulse;
 

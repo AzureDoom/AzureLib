@@ -164,18 +164,21 @@ AzEntityRendererConfig.builder(MODEL, TEXTURE)
     .build();
 ```
 
-`RenderType` here is AzureLib's own `mod.azure.azurelib.render.vertex.RenderType`; 1.7.10 has no vanilla render types, so AzureLib provides the same factory methods (`entityCutout`, `entityTranslucent`, `eyes`, ...).
+`RenderType` here is AzureLib's own `mod.azure.azurelib.render.vertex.RenderType`; Beta 1.7.3 has no vanilla render types, so AzureLib provides the same factory methods (`entityCutout`, `entityTranslucent`, `eyes`, ...).
 
 If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default render type for the overridden texture. Use `setBoneRenderTypeOverrideProvider` only when the bone needs special rendering behavior, such as emissive-style rendering.
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
-Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client during `FMLInitializationEvent`. On 1.7.10 that replaces the item's icon with the model in every context; its display transforms come from `assets/<modid>/models/item/<name>.json`.
+Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client, for example from StationAPI's `TextureRegisterEvent`. That replaces the item's icon with the model in every context; since Beta 1.7.3 items have no registry names, pass the item model JSON that holds its display transforms.
 
 ```java
-// ClientProxy
-@Override
-public void init() {
-    AzItemRendererRegistry.register(CustomHelmetItemRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET);
+@EventListener
+private static void registerTextures(TextureRegisterEvent event) {
+    AzItemRendererRegistry.register(
+        YourItemRegistry.YOUR_ARMOR_HELMET,
+        new ResourceLocation(YOUR_MOD_ID, "models/item/your_helmet.json"),
+        CustomHelmetItemRenderer::new
+    );
 }
 ```

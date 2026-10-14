@@ -25,7 +25,7 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
 
 <Callout variant="info">
-    1.7.10 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package, and vertices are drawn through 1.7.10's `Tessellator`.
+    Beta 1.7.3 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package. AzureLib draws its vertices itself with OpenGL vertex arrays, and lighting follows Beta 1.7.3's model: the entity's brightness is folded into the vertex colour.
 </Callout>
 
 ## AzArmorRendererConfig
@@ -370,7 +370,7 @@ public class ExampleItemRenderer extends AzItemRenderer {
 ```
 
 <Callout variant="info">
-    On 1.7.10 an item is only ever rendered as `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` or `THIRD_PERSON_RIGHT_HAND`; the left-hand, `HEAD`, `FIXED` and `NONE` contexts never occur (item frames render as `GROUND`).
+    On Beta 1.7.3 an item is only ever rendered as `GUI`, `GROUND`, `FIRST_PERSON_RIGHT_HAND` or `THIRD_PERSON_RIGHT_HAND`; the left-hand, `HEAD`, `FIXED` and `NONE` contexts never occur (Beta 1.7.3 has no off hand or item frames). Use `useVanillaRenderingIn(...)` to leave a context to vanilla rendering, for example a flat GUI icon.
 </Callout>
 
 This setup provides GUI lighting support, offset handling, and numerous customization options for item rendering.

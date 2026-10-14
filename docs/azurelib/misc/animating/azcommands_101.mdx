@@ -171,14 +171,14 @@ private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "
     }
 });
 
-public void startSlam() { // server side, e.g. from EntityAIBase#startExecuting
+public void startSlam() { // server side, e.g. from your mob's attack code
     attackPlayer.play(SLAM);
 }
 
 @Override
-public void onUpdate() {
-    super.onUpdate();
-    if (!this.worldObj.isRemote) {
+public void tick() {
+    super.tick();
+    if (!Mc.isClientSide(this.world)) { // the server, or the single player world
         attackPlayer.tick();
     }
 }
@@ -309,8 +309,12 @@ AzWeightedPoolBehavior.builder("mymod:example_walk")
 - **Switching between pools restarts them.** If you switch between an idle pool and a walk pool based on movement, make sure the movement check is stable. A check that flickers for a single tick (for example, between path nodes) will keep restarting the pools and you'll only ever see the first animation. Requiring the new state to hold for a few ticks before switching fixes this.
 
 #### **Full Example**
+<Callout variant="warning">
+    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isRemote` check is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
+</Callout>
+
 ```java
-public class ExampleEntity extends EntityCreature {
+public class ExampleEntity extends LivingEntity {
 
     public static final AzWeightedPoolBehavior IDLE_POOL = AzWeightedPoolBehavior.builder("mymod:example_idle")
         .add("IDLE_ANIMATION", 3)
@@ -334,12 +338,12 @@ public class ExampleEntity extends EntityCreature {
     }
 
     @Override
-    public void onUpdate() {
-        super.onUpdate();
+    public void tick() {
+        super.tick();
 
         // Horizontal movement only, and the new state must hold for a few ticks before it counts.
-        double dx = this.posX - this.prevPosX;
-        double dz = this.posZ - this.prevPosZ;
+        double dx = Mc.x(this) - Mc.prevX(this);
+        double dz = Mc.z(this) - Mc.prevZ(this);
         boolean movingNow = dx * dx + dz * dz > 1.0E-4;
 
         if (movingNow == walking) {
@@ -349,11 +353,10 @@ public class ExampleEntity extends EntityCreature {
             pendingStateTicks = 0;
             currentCommand = null; // pick a new start for the new state
         }
+    }
 
-        if (!this.worldObj.isRemote) {
-            return; // Only dispatch on the client, so the server doesn't send a packet every tick
-        }
-
+    /** Called every frame from the renderer (client only), so the server never sends a packet per tick. */
+    public void updateAnimations() {
         if (currentCommand == null) {
             AzWeightedPoolBehavior pool = walking ? WALK_POOL : IDLE_POOL;
             currentCommand = pool.randomSequence().toCommand("base");
@@ -375,7 +378,7 @@ walkCommand.sendForEntity(myEntity);
 - The command will determine the proper dispatch based on the client or server side.
 
 ### Send to a Block Entity
-To send a command to a `TileEntity`:
+To send a command to a `BlockEntity`:
 ``` java
 idleCommand.sendForBlockEntity(myBlockEntity);
 ```
@@ -395,7 +398,7 @@ If the item's renderer uses `useSeparateFirstPersonAnimator()` (see the [AzItemR
 private static final AzCommand AIM_FIRING = AzCommand.create("base_controller", "aimfiring", AzPlayBehaviors.PLAY_ONCE);
 private static final AzCommand FIRING = AzCommand.create("base_controller", "firing", AzPlayBehaviors.PLAY_ONCE);
 
-public void fire(Player player, ItemStack stack) {
+public void fire(PlayerEntity player, ItemStack stack) {
     AIM_FIRING.sendForItemFirstPerson(player, stack); // what the shooter sees
     FIRING.sendForItemThirdPerson(player, stack);     // what everyone else sees
 }
@@ -453,8 +456,12 @@ With `AzCommand`, you can dynamically dispatch animation commands based on the e
 
 To enhance the new `AzCommand` approach and replace the `isMoving` logic from the old `AnimationController` example, you can use the `MoveAnalysis` utility class. This class provides advanced functionalities, such as detecting horizontal movement and checking whether the entity is on the ground. Here's how you can implement this:
 
+<Callout variant="warning">
+    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isRemote` check is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
+</Callout>
+
 ```java
-public class ExampleEntity extends EntityMob {
+public class ExampleEntity extends LivingEntity {
     private final AzCommand idleCommand = AzCommand.create("base", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
     private final AzCommand walkCommand = AzCommand.create("base", "WALK_ANIMATION", AzPlayBehaviors.LOOP);
     private final MoveAnalysis moveAnalysis;
@@ -465,18 +472,19 @@ public class ExampleEntity extends EntityMob {
     }
 
     @Override
-    public void onUpdate() {
-        super.onUpdate(); // Update base entity behavior
+    public void tick() {
+        super.tick(); // Update base entity behavior
         moveAnalysis.update(); // Analyze the entity's movement state
+    }
 
-        if (this.worldObj.isRemote) { // Only execute animation logic on the client
-            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && this.onGround;
+    /** Called every frame from the renderer, so it only runs on the client. */
+    public void updateAnimations() {
+        boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && Mc.onGround(this);
 
-            if (isMovingOnGround) {
-                walkCommand.sendForEntity(this); // Send the walk animation if moving
-            } else {
-                idleCommand.sendForEntity(this); // Otherwise, send the idle animation
-            }
+        if (isMovingOnGround) {
+            walkCommand.sendForEntity(this); // Send the walk animation if moving
+        } else {
+            idleCommand.sendForEntity(this); // Otherwise, send the idle animation
         }
     }
 }
