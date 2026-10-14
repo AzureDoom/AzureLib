@@ -33,6 +33,7 @@ accessible field com/mojang/blaze3d/vertex/BufferBuilder building Z
 
 accessible class net/minecraft/client/renderer/RenderStateShard$OverlayStateShard
 accessible class net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator
+accessible field net/minecraft/client/renderer/RenderStateShard LIGHTMAP Lnet/minecraft/client/renderer/RenderStateShard$LightmapStateShard;
 accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Double
 accessible method net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator <init> (Lcom/mojang/blaze3d/vertex/VertexConsumer;IIII)V
 accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double first Lcom/mojang/blaze3d/vertex/VertexConsumer;
