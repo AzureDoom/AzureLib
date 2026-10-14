@@ -83,6 +83,7 @@ public class AutoGlowingTexture extends GeoAbstractTexture {
                     .setShaderState(SHADER_STATE)
                     .setTextureState(textureState)
                     .setTransparencyState(TRANSPARENCY_STATE)
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
                     .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .setWriteMaskState(WRITE_MASK)
                     .createCompositeState(isGlowing)
