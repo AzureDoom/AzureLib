@@ -1,20 +1,14 @@
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'fabric-loom' version '1.17.20'
-    id 'babric-loom-extension' version '1.17.4'
+    id 'net.fabricmc.fabric-loom-remap' version '1.18.4'
+    id 'ploceus' version '1.18.1'
     id 'com.diffplug.spotless' version "8.8.0"
     id 'me.modmuss50.mod-publish-plugin' version "2.1.1"
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-    withSourcesJar()
-}
-
 base {
-    archivesName = "${mod_id}-stationapi-${minecraft_version}"
+    archivesName = "${mod_id}-ornithe-${minecraft_version}"
 }
 
 version = mod_version
@@ -24,12 +18,11 @@ loom {
     accessWidenerPath = file('src/main/resources/azurelib.accesswidener')
 }
 
+ploceus {
+    setIntermediaryGeneration(2)
+}
+
 repositories {
-    maven { url = 'https://maven.glass-launcher.net/snapshots/' }
-    maven { url = 'https://maven.glass-launcher.net/releases/' }
-    maven { url = 'https://maven.glass-launcher.net/babric' }
-    maven { url = 'https://maven.minecraftforge.net/' }
-    maven { url = 'https://jitpack.io/' }
     exclusiveContent {
         forRepository {
             maven {
@@ -46,28 +39,25 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings "net.glasslauncher:biny:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
 
-    // StationAPI: item NBT (animated item identity) and networking.
-    modImplementation "net.modificationstation:StationAPI:${stationapi_version}"
-    modImplementation "maven.modrinth:MTea0HEh:reBNQY2O"
+    clientExceptions ploceus.raven(project.client_raven_build, 'client')
+    serverExceptions ploceus.raven(project.server_raven_build, 'server')
+    clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
+    serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
+    clientNests ploceus.nests(project.client_nests_build, 'client')
+    serverNests ploceus.nests(project.server_nests_build, 'server')
+    mappings ploceus.featherMappings(project.feather_build)
 
-    implementation 'org.apache.logging.log4j:log4j-core:2.17.2'
-    implementation 'org.slf4j:slf4j-api:1.8.0-beta4'
-    implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1'
+    ploceus.dependOsl(project.osl_version)
 
-    // Model/animation JSON parsing. Bundled so AzureLib doesn't rely on another mod happening to ship Gson.
+    // Model/animation JSON parsing. Beta doesn't ship Gson, so it is bundled.
     implementation "com.google.code.gson:gson:${gson_version}"
     include "com.google.code.gson:gson:${gson_version}"
 
     // @Nullable / @Nonnull. Compile-time only.
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation 'org.jetbrains:annotations:23.0.0'
-}
-
-configurations.configureEach {
-    exclude group: 'babric'
+    compileOnly 'org.jetbrains:annotations:23.0.0'
 }
 
 processResources {
@@ -87,7 +77,14 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+    it.options.encoding = 'UTF-8'
+    it.options.release = 8
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
 }
 
 jar {
@@ -111,7 +108,7 @@ if (keyPropsFile.exists()) {
         file = remapJar.archiveFile
         changelog = rootProject.file("changelog.md").text
         type = STABLE
-        modLoaders.add("babric")
+        modLoaders.add("ornithe")
         displayName = file.map { it.asFile.name }
 
         modrinth {
@@ -119,7 +116,7 @@ if (keyPropsFile.exists()) {
             accessToken = releaseProp.getProperty('modrinthKey')
             minecraftVersions.add(project.minecraft_version)
             requires {
-                slug = "stationapi"
+                slug = "osl"
             }
             environment = CLIENT_AND_SERVER
         }

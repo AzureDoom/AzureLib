@@ -46,7 +46,9 @@ public class GeoGlowingTextureMeta {
         );
 
         try (InputStream stream = resourceManager.getResource(mcmeta).getInputStream()) {
-            JsonElement root = JsonParser.parseString(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+            JsonElement root = JsonParser.parseString(
+                new String(mod.azure.azurelib.util.AzIo.readAllBytes(stream), StandardCharsets.UTF_8)
+            );
 
             if (!root.isJsonObject() || !root.getAsJsonObject().has(SECTION_NAME))
                 return null;
@@ -75,10 +77,11 @@ public class GeoGlowingTextureMeta {
         List<Pixel> pixels = new ArrayList<>();
 
         for (JsonElement element : sectionsArray) {
-            if (!(element instanceof JsonObject obj))
+            if (!(element instanceof JsonObject))
                 throw new JsonParseException(
                     "Invalid glowsections json format, expected a JsonObject, found: " + element.getClass()
                 );
+            JsonObject obj = (JsonObject) element;
 
             int x1 = GsonHelper.getAsInt(obj, "x1", GsonHelper.getAsInt(obj, "x", 0));
             int y1 = GsonHelper.getAsInt(obj, "y1", GsonHelper.getAsInt(obj, "y", 0));

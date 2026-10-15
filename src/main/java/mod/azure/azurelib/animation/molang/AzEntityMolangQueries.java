@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation.molang;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
@@ -61,8 +61,8 @@ public final class AzEntityMolangQueries {
             entity -> Mth.lerp(CONTEXT.partialTicks(), Mc.prevPitch(entity), Mc.pitch(entity))
         ),
         value(MolangQueries.BODY_Y_ROTATION, entity -> {
-            if (entity instanceof LivingEntity) {
-                LivingEntity living = (LivingEntity) entity;
+            if (entity instanceof MobEntity) {
+                MobEntity living = (MobEntity) entity;
                 return Mth.lerp(CONTEXT.partialTicks(), Mc.prevBodyYaw(living), Mc.bodyYaw(living));
             }
             return Mth.lerp(CONTEXT.partialTicks(), Mc.prevYaw(entity), Mc.yaw(entity));
@@ -158,8 +158,8 @@ public final class AzEntityMolangQueries {
         }
     }
 
-    private static Binding flag(String query, Predicate<Entity> condition) {
-        return value(query, entity -> RenderUtils.booleanToFloat(condition.test(entity)));
+    private static Binding flag(String query, Predicate<MobEntity> condition) {
+        return value(query, entity -> RenderUtils.booleanToFloat(condition.test((MobEntity) entity)));
     }
 
     /**
@@ -172,16 +172,16 @@ public final class AzEntityMolangQueries {
         });
     }
 
-    private static Binding livingFlag(String query, Predicate<LivingEntity> condition) {
+    private static Binding livingFlag(String query, Predicate<MobEntity> condition) {
         return livingValue(query, living -> RenderUtils.booleanToFloat(condition.test(living)));
     }
 
     /**
      * A query for living entities only. Reads 0 for anything else.
      */
-    private static Binding livingValue(String query, ToDoubleFunction<LivingEntity> value) {
+    private static Binding livingValue(String query, ToDoubleFunction<MobEntity> value) {
         return new Binding(new MolangVariableRef(query), () -> {
-            LivingEntity living = CONTEXT.livingEntity();
+            MobEntity living = CONTEXT.livingEntity();
             return living == null ? 0 : value.applyAsDouble(living);
         });
     }

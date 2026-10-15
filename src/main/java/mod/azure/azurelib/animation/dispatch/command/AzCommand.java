@@ -332,8 +332,8 @@ public final class AzCommand {
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
                 );
         } else {
-            // On Beta the identity UUID lives in StationAPI's stack NBT. Assign it lazily here (server side, or the
-            // local world in single player); StationAPI syncs the NBT to clients with the next slot/equipment update.
+            // On Beta the identity UUID lives in AzureLib's own per-stack data. Assign it lazily here (server side, or
+            // the local world in single player). Vanilla doesn't sync it; clients adopt it from the packet below.
             if (!mod.azure.azurelib.animation.cache.AzIdentityRegistry.hasIdentity(Mc.item(itemStack))) {
                 AzureLib.LOGGER.warn(
                     AzureLib.MAIN_MARKER,
@@ -344,7 +344,7 @@ public final class AzCommand {
             }
             UUID uuid = AzItemIds.getOrCreate(itemStack);
 
-            // The packet also names the holder and the item id, so a client that hasn't received the NBT sync yet
+            // The packet also names the holder and the item id, so a client that doesn't know the stack's id yet
             // can still find the stack (see AzItemStackDispatchCommandPacket#handle).
             AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(
                 uuid,

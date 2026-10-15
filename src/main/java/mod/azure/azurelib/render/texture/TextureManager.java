@@ -2,6 +2,7 @@ package mod.azure.azurelib.render.texture;
 
 import org.lwjgl.opengl.GL11;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -31,7 +32,6 @@ public final class TextureManager {
         return INSTANCE;
     }
 
-    /** Binds the texture at the given location, loading it as a plain {@link SimpleTexture} if necessary. */
     public void bindTexture(ResourceLocation location) {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, getOrLoad(location).getGlTextureId());
     }
@@ -52,10 +52,6 @@ public final class TextureManager {
         return this.textures.get(location);
     }
 
-    /**
-     * Loads and registers the given texture. On failure the missing-texture checkerboard is registered instead and
-     * {@code false} is returned.
-     */
     public boolean loadTexture(ResourceLocation location, ITextureObject texture) {
         try {
             texture.loadTexture(AzResourceManager.getInstance());
@@ -75,7 +71,6 @@ public final class TextureManager {
         }
     }
 
-    /** Deletes every texture; they are reloaded on next use. */
     public void clear() {
         for (ITextureObject texture : this.textures.values()) {
             if (texture instanceof AbstractTexture && texture != this.missing) {
@@ -94,10 +89,10 @@ public final class TextureManager {
             int id = super.getGlTextureId();
             if (!this.uploaded) {
                 this.uploaded = true;
-                java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(
+                BufferedImage image = new BufferedImage(
                     16,
                     16,
-                    java.awt.image.BufferedImage.TYPE_INT_ARGB
+                    BufferedImage.TYPE_INT_ARGB
                 );
                 for (int x = 0; x < 16; x++) {
                     for (int y = 0; y < 16; y++) {

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation.impl;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
@@ -75,12 +75,12 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
      */
     private T currentEntity;
 
-    /** {@link #currentEntity} as a LivingEntity, or null when it is not one. */
-    private LivingEntity currentLivingEntity;
+    /** {@link #currentEntity} as a MobEntity, or null when it is not one. */
+    private MobEntity currentLivingEntity;
 
     private float currentPartialTicks;
 
-    private final DoubleSupplier distanceFromCameraSupplier = () -> AzMolangQueryContext.INSTANCE.distanceFromCamera();
+    private final DoubleSupplier distanceFromCameraSupplier = AzMolangQueryContext.INSTANCE::distanceFromCamera;
 
     private final DoubleSupplier inAirSupplier = () -> RenderUtils.booleanToFloat(!Mc.onGround(currentEntity));
 
@@ -94,13 +94,9 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
         Mc.isWet(currentEntity)
     );
 
-    private final DoubleSupplier isBlockingSupplier = () -> currentLivingEntity == null
-        ? 0
-        : 0; // Beta swords cannot block.
+    private final DoubleSupplier isBlockingSupplier = () -> 0; // Beta swords cannot block.
 
-    private final DoubleSupplier isUsingItemSupplier = () -> currentLivingEntity == null
-        ? 0
-        : 0; // Beta has no held-use state.
+    private final DoubleSupplier isUsingItemSupplier = () -> 0; // Beta has no held-use state.
 
     private final DoubleSupplier healthSupplier = () -> currentLivingEntity == null
         ? 0
@@ -151,9 +147,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
             ? 0
             : Mc.hurtTime(currentLivingEntity) - currentPartialTicks;
 
-    private final DoubleSupplier isBabySupplier = () -> currentLivingEntity == null
-        ? 0
-        : 0 /* Beta has no baby mobs */;
+    private final DoubleSupplier isBabySupplier = () -> 0 /* Beta has no baby mobs */;
 
     private final DoubleSupplier limbSwingSupplier = () -> currentLivingEntity == null
         ? 0
@@ -189,7 +183,7 @@ public abstract class AzEntityAnimator<T extends Entity> extends AzAnimator<UUID
         super.applyMolangQueries(entity, animTime, partialTicks);
 
         this.currentEntity = entity;
-        this.currentLivingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
+        this.currentLivingEntity = entity instanceof MobEntity ? (MobEntity) entity : null;
         this.currentPartialTicks = partialTicks;
 
         DISTANCE_FROM_CAMERA_REF.setMemoized(distanceFromCameraSupplier);

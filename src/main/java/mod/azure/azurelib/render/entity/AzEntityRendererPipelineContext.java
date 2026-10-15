@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
@@ -40,8 +40,8 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
         boolean translucent = false; // Beta has no invisibility
         boolean visibleBody = true;
         boolean glowing = false; // Beta has no glowing effect
-        boolean hurtOrDead = animatable instanceof LivingEntity && (Mc.hurtTime((LivingEntity) animatable) > 1
-            || Mc.health((LivingEntity) animatable) <= 0);
+        boolean hurtOrDead = animatable instanceof MobEntity && (Mc.hurtTime((MobEntity) animatable) > 1
+            || Mc.health((MobEntity) animatable) <= 0);
 
         // Handle entity damage/death state
         if (visibleBody && !glowing && hurtOrDead) {
@@ -74,15 +74,15 @@ public class AzEntityRendererPipelineContext<T extends Entity> extends AzRendere
     /**
      * Gets a packed overlay coordinate pair for rendering.<br>
      * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the
-     * {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
+     * {@link net.minecraft.entity.mob.monster.CreeperEntity} white tint when exploding.
      */
     @Override
     public int getPackedOverlay(T entity, float u, float partialTick) {
-        if (!(entity instanceof LivingEntity)) {
+        if (!(entity instanceof MobEntity)) {
             return OverlayTexture.NO_OVERLAY;
         }
 
-        LivingEntity livingEntity = (LivingEntity) entity;
+        MobEntity livingEntity = (MobEntity) entity;
 
         return OverlayTexture.pack(
             OverlayTexture.u(u),

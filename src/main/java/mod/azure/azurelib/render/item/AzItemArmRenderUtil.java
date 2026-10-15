@@ -1,8 +1,8 @@
 package mod.azure.azurelib.render.item;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
@@ -24,7 +24,7 @@ import mod.azure.azurelib.util.client.RenderUtils;
  */
 public class AzItemArmRenderUtil {
 
-    private static final BipedEntityModel ARM_MODEL = new BipedEntityModel(0.0F);
+    private static final HumanoidModel ARM_MODEL = new HumanoidModel(0.0F);
 
     private static final String LEFT_ARM_BONE = "leftArm";
 
@@ -83,7 +83,7 @@ public class AzItemArmRenderUtil {
 
         // A private biped with vanilla player proportions; Beta's renderer keeps its own model in a field AzureLib
         // would need an accessor for, and the arm geometry is identical.
-        BipedEntityModel playerEntityModel = ARM_MODEL;
+        HumanoidModel playerEntityModel = ARM_MODEL;
         PoseStack poseStack = context.poseStack();
 
         poseStack.pushPose();
@@ -101,7 +101,7 @@ public class AzItemArmRenderUtil {
                 poseStack,
                 bone,
                 player,
-                playerEntityModel.leftArm,
+                McClient.bipedLeftArm(playerEntityModel),
                 null
             );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
@@ -112,7 +112,7 @@ public class AzItemArmRenderUtil {
                 poseStack,
                 bone,
                 player,
-                playerEntityModel.rightArm,
+                McClient.bipedRightArm(playerEntityModel),
                 null
             );
         }
@@ -157,18 +157,18 @@ public class AzItemArmRenderUtil {
     }
 
     private static void renderPart(ModelPart part, AzBone bone) {
-        float oldX = part.pivotX, oldY = part.pivotY, oldZ = part.pivotZ;
-        float oldRotX = part.pitch, oldRotY = part.yaw, oldRotZ = part.roll;
+        float oldX = McClient.pivotX(part), oldY = McClient.pivotY(part), oldZ = McClient.pivotZ(part);
+        float oldRotX = McClient.rotX(part), oldRotY = McClient.rotY(part), oldRotZ = McClient.rotZ(part);
 
         McClient.setPivot(part, bone.getPivotX(), bone.getPivotY(), bone.getPivotZ());
-        part.pitch = 0;
-        part.yaw = 0;
-        part.roll = 0;
-        part.render(0.0625F);
+        McClient.setRotX(part, 0);
+        McClient.setRotY(part, 0);
+        McClient.setRotZ(part, 0);
+        McClient.renderPart(part, 0.0625F);
 
         McClient.setPivot(part, oldX, oldY, oldZ);
-        part.pitch = oldRotX;
-        part.yaw = oldRotY;
-        part.roll = oldRotZ;
+        McClient.setRotX(part, oldRotX);
+        McClient.setRotY(part, oldRotY);
+        McClient.setRotZ(part, oldRotZ);
     }
 }

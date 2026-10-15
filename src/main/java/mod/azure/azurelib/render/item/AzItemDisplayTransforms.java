@@ -75,7 +75,9 @@ public final class AzItemDisplayTransforms {
         try (
             InputStream stream = mod.azure.azurelib.resource.AzResourceManager.getInstance().open(modelLocation)
         ) {
-            JsonElement root = new JsonParser().parse(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+            JsonElement root = new JsonParser().parse(
+                new String(mod.azure.azurelib.util.AzIo.readAllBytes(stream), StandardCharsets.UTF_8)
+            );
 
             if (!root.isJsonObject() || !root.getAsJsonObject().has("display")) {
                 return EMPTY;

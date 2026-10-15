@@ -1,7 +1,7 @@
 package mod.azure.azurelib.network.packet;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -24,11 +24,11 @@ import mod.azure.azurelib.util.client.ClientUtils;
 /**
  * Plays an {@link AzCommand} on the animators of one item stack.
  * <p>
- * Stacks are identified by the UUID AzureLib keeps in StationAPI's stack NBT. Because the server assigns that UUID
- * lazily the first time a command is sent for a stack, the client may not have received the NBT yet when this packet
- * arrives. The packet therefore also carries the holder's entity id and the item id: if no animator is known under the
- * UUID, the client finds the matching stack in the holder's hand or armor, adopts the server's UUID for it (moving any
- * animator it already had), and then dispatches.
+ * Stacks are identified by the UUID AzureLib keeps in its own per-stack data. Beta's item sync only carries id, count
+ * and damage, so the client usually doesn't know the server's UUID for a stack when this packet arrives. The packet
+ * therefore also carries the holder's entity id and the item id: if no animator is known under the UUID, the client
+ * finds the matching stack in the holder's hand or armor, adopts the server's UUID for it (moving any animator it
+ * already had), and then dispatches.
  */
 public class AzItemStackDispatchCommandPacket extends AbstractPacket {
 
@@ -97,10 +97,10 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
     private void adoptServerId() {
         World level = ClientUtils.getLevel();
         Entity holder = level == null ? null : Mc.entityById(level, this.holderEntityId);
-        if (!(holder instanceof LivingEntity))
+        if (!(holder instanceof MobEntity))
             return;
 
-        ItemStack stack = findStack((LivingEntity) holder);
+        ItemStack stack = findStack((MobEntity) holder);
         if (stack == null)
             return;
 
@@ -112,7 +112,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
     }
 
     @Nullable
-    private ItemStack findStack(LivingEntity holder) {
+    private ItemStack findStack(MobEntity holder) {
         ItemStack held = Mc.heldItem(holder);
         if (held != null && Mc.itemId(Mc.item(held)) == this.itemId)
             return held;

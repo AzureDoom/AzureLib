@@ -1,8 +1,8 @@
 package mod.azure.azurelib.mixins.client;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.render.TextRenderer;
+import net.minecraft.client.render.entity.ItemRenderer;
+import net.minecraft.client.render.texture.TextureManager;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,8 +22,7 @@ public abstract class ItemRendererMixin_AzItems {
     @Inject(
         method = "render(Lnet/minecraft/entity/ItemEntity;DDDFF)V",
         at = @At("HEAD"),
-        cancellable = true,
-        require = 0
+        cancellable = true
     )
     private void azurelib$renderDroppedAzItem(
         ItemEntity entity,
@@ -60,10 +59,9 @@ public abstract class ItemRendererMixin_AzItems {
     }
 
     @Inject(
-        method = "renderGuiItem(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/client/texture/TextureManager;Lnet/minecraft/item/ItemStack;II)V",
+        method = "renderGuiItemWithEnchantmentGlint(Lnet/minecraft/client/render/TextRenderer;Lnet/minecraft/client/render/texture/TextureManager;Lnet/minecraft/item/ItemStack;II)V",
         at = @At("HEAD"),
-        cancellable = true,
-        require = 0
+        cancellable = true
     )
     private void azurelib$renderGuiAzItem(
         TextRenderer textRenderer,

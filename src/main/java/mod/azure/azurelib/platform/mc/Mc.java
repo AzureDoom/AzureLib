@@ -3,9 +3,9 @@ package mod.azure.azurelib.platform.mc;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.animal.WolfEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,7 +18,14 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.util.AzEquipmentHolder;
+import mod.azure.azurelib.util.AzItemStackDataHolder;
 
+/**
+ * The single place where AzureLib touches Minecraft's entity, world, item and NBT members.
+ * <p>
+ * Each member access is annotated with its MCP (b1.7.3) name. When the Feather mappings for a member differ from the
+ * name used here, look the MCP name up in the decompiled sources ({@code genSources}) and fix it here only.
+ */
 @SuppressWarnings("unused")
 public final class Mc {
 
@@ -33,7 +40,7 @@ public final class Mc {
     }
 
     public static int entityId(Entity entity) {
-        return entity.id;
+        return entity.networkId;
     }
 
     public static World world(Entity entity) {
@@ -65,15 +72,15 @@ public final class Mc {
     }
 
     public static double lastTickX(Entity e) {
-        return e.lastTickX;
+        return e.lastX;
     }
 
     public static double lastTickY(Entity e) {
-        return e.lastTickY;
+        return e.lastY;
     }
 
     public static double lastTickZ(Entity e) {
-        return e.lastTickZ;
+        return e.lastZ;
     }
 
     public static double velocityX(Entity e) {
@@ -93,7 +100,7 @@ public final class Mc {
     }
 
     public static float prevYaw(Entity e) {
-        return e.prevYaw;
+        return e.lastYaw;
     }
 
     public static float pitch(Entity e) {
@@ -101,11 +108,11 @@ public final class Mc {
     }
 
     public static float prevPitch(Entity e) {
-        return e.prevPitch;
+        return e.lastPitch;
     }
 
     public static int age(Entity e) {
-        return e.age;
+        return e.ticks;
     }
 
     public static float width(Entity e) {
@@ -125,11 +132,11 @@ public final class Mc {
     }
 
     public static boolean isRemoved(Entity e) {
-        return e.dead;
+        return e.removed;
     }
 
     public static boolean isAlive(Entity e) {
-        return !e.dead && (!(e instanceof LivingEntity) || health((LivingEntity) e) > 0);
+        return !e.removed && (!(e instanceof MobEntity) || health((MobEntity) e) > 0);
     }
 
     public static boolean isSneaking(Entity e) {
@@ -141,35 +148,35 @@ public final class Mc {
     }
 
     public static boolean isInWater(Entity e) {
-        return e.isSubmergedInWater();
+        return e.isInWater();
     }
 
     public static boolean isTouchingWater(Entity e) {
-        return e.isSubmergedInWater();
+        return e.isInWater();
     }
 
     public static boolean isInLava(Entity e) {
-        return e.isTouchingLava();
+        return e.isInLava();
     }
 
     public static boolean noClip(Entity e) {
         return e.noClip;
     }
 
-    public static boolean isSleeping(LivingEntity e) {
+    public static boolean isSleeping(MobEntity e) {
         return e.isSleeping();
     }
 
     public static boolean isTamed(Entity e) {
-        return e instanceof WolfEntity && ((WolfEntity) e).isTamed();
+        return e instanceof WolfEntity && ((WolfEntity) e).isTame();
     }
 
     public static boolean isSitting(Entity e) {
-        return e instanceof WolfEntity && ((WolfEntity) e).isInSittingPose();
+        return e instanceof WolfEntity && ((WolfEntity) e).isSitting();
     }
 
     public static boolean isWet(Entity e) {
-        return e.isWet();
+        return e.isInWaterOrRain();
     }
 
     public static boolean isRiding(Entity e) {
@@ -183,11 +190,11 @@ public final class Mc {
 
     @Nullable
     public static Entity passenger(Entity e) {
-        return e.passenger;
+        return e.rider;
     }
 
     public static boolean hasPassenger(Entity e) {
-        return e.passenger != null;
+        return e.rider != null;
     }
 
     public static float fallDistance(Entity e) {
@@ -195,78 +202,78 @@ public final class Mc {
     }
 
     public static float brightness(Entity e, float partialTick) {
-        return e.getBrightnessAtEyes(partialTick);
+        return e.getBrightness(partialTick);
     }
 
     public static boolean isLiving(Entity e) {
-        return e instanceof LivingEntity;
+        return e instanceof MobEntity;
     }
 
-    public static int health(LivingEntity e) {
+    public static int health(MobEntity e) {
         return e.health;
     }
 
-    public static int maxHealth(LivingEntity e) {
+    public static int maxHealth(MobEntity e) {
         return DEFAULT_MAX_HEALTH;
     }
 
-    public static int hurtTime(LivingEntity e) {
-        return e.hurtTime;
+    public static int hurtTime(MobEntity e) {
+        return e.damagedTimer;
     }
 
-    public static int deathTime(LivingEntity e) {
-        return e.deathTime;
+    public static int deathTime(MobEntity e) {
+        return e.deathTicks;
     }
 
-    public static float bodyYaw(LivingEntity e) {
+    public static float bodyYaw(MobEntity e) {
         return e.bodyYaw;
     }
 
-    public static float prevBodyYaw(LivingEntity e) {
+    public static float prevBodyYaw(MobEntity e) {
         return e.lastBodyYaw;
     }
 
-    public static float headYaw(LivingEntity e) {
+    public static float headYaw(MobEntity e) {
         return e.yaw;
     }
 
-    public static float prevHeadYaw(LivingEntity e) {
-        return e.prevYaw;
+    public static float prevHeadYaw(MobEntity e) {
+        return e.lastYaw;
     }
 
-    public static float limbSwing(LivingEntity e) {
+    public static float limbSwing(MobEntity e) {
         return e.walkAnimationProgress;
     }
 
-    public static float limbSwingAmount(LivingEntity e) {
+    public static float limbSwingAmount(MobEntity e) {
         return e.walkAnimationSpeed;
     }
 
-    public static float prevLimbSwingAmount(LivingEntity e) {
+    public static float prevLimbSwingAmount(MobEntity e) {
         return e.lastWalkAnimationSpeed;
     }
 
-    public static float swingProgress(LivingEntity e, float partialTick) {
-        return e.getHandSwingProgress(partialTick);
+    public static float swingProgress(MobEntity e, float partialTick) {
+        return e.getAttackAnimationProgress(partialTick);
     }
 
     public static boolean isSwinging(PlayerEntity e) {
-        return e.handSwinging;
+        return e.swingArm;
     }
 
     @Nullable
-    public static ItemStack heldItem(LivingEntity e) {
+    public static ItemStack heldItem(MobEntity e) {
         if (e instanceof AzEquipmentHolder) {
             return ((AzEquipmentHolder) e).getAzEquipment(0);
         }
         if (e instanceof PlayerEntity) {
             return ((PlayerEntity) e).inventory.getSelectedItem();
         }
-        return e.getHeldItem();
+        return e.getDisplayItemInHand();
     }
 
     @Nullable
-    public static ItemStack armor(LivingEntity e, int armorIndex) {
+    public static ItemStack armor(MobEntity e, int armorIndex) {
         if (e instanceof AzEquipmentHolder) {
             return ((AzEquipmentHolder) e).getAzEquipment(armorIndex + 1);
         }
@@ -282,27 +289,25 @@ public final class Mc {
     }
 
     public static boolean isClientSide(World world) {
-        return world.isRemote;
+        return world.isMultiplayer;
     }
 
     public static long time(World world) {
         return world.getTime();
     }
 
-    @SuppressWarnings("unchecked")
     public static List<Entity> entities(World world) {
-        return world.entities == null ? Collections.emptyList() : (List<Entity>) world.entities;
+        return world.entities == null ? Collections.emptyList() : world.entities;
     }
 
-    @SuppressWarnings("unchecked")
     public static List<PlayerEntity> players(World world) {
-        return world.players == null ? Collections.emptyList() : (List<PlayerEntity>) world.players;
+        return world.players == null ? Collections.emptyList() : world.players;
     }
 
     @Nullable
     public static Entity entityById(World world, int id) {
         for (Entity entity : entities(world)) {
-            if (entity.id == id)
+            if (entityId(entity) == id)
                 return entity;
         }
         return null;
@@ -318,16 +323,16 @@ public final class Mc {
     }
 
     public static int blockMeta(World world, int x, int y, int z) {
-        return world.getBlockMeta(x, y, z);
+        return world.getBlockMetadata(x, y, z);
     }
 
     public static int blockId(World world, int x, int y, int z) {
-        return world.getBlockId(x, y, z);
+        return world.getBlock(x, y, z);
     }
 
     public static int topBlockY(World world, int x, int z) {
         for (int y = 127; y > 0; y--) {
-            if (world.getBlockId(x, y, z) != 0)
+            if (blockId(world, x, y, z) != 0)
                 return y + 1;
         }
         return 0;
@@ -355,7 +360,7 @@ public final class Mc {
     }
 
     public static int count(ItemStack stack) {
-        return stack.count;
+        return stack.size;
     }
 
     public static int damage(ItemStack stack) {
@@ -379,11 +384,17 @@ public final class Mc {
     }
 
     public static int armorType(@Nullable Item item) {
-        return item instanceof ArmorItem ? ((ArmorItem) item).equipmentSlot : -1;
+        return item instanceof ArmorItem ? ((ArmorItem) item).slot : -1;
     }
 
+    /** AzureLib's own per-stack data (Beta stacks have no NBT); created on first use. */
     public static NbtCompound stackNbt(ItemStack stack) {
-        return stack.getStationNbt();
+        return ((AzItemStackDataHolder) (Object) stack).azurelib$getOrCreateData();
+    }
+
+    @Nullable
+    public static NbtCompound stackNbtOrNull(ItemStack stack) {
+        return ((AzItemStackDataHolder) (Object) stack).azurelib$getDataOrNull();
     }
 
     public static boolean nbtHas(NbtCompound nbt, String key) {
@@ -398,8 +409,16 @@ public final class Mc {
         nbt.putLong(key, value);
     }
 
+    public static NbtCompound nbtGetCompound(NbtCompound nbt, String key) {
+        return nbt.getCompound(key);
+    }
+
+    public static void nbtPutCompound(NbtCompound nbt, String key, NbtCompound value) {
+        nbt.put(key, value);
+    }
+
     public static int armorTextureIndex(@Nullable Item item) {
-        return item instanceof ArmorItem ? ((ArmorItem) item).textureIndex : -1;
+        return item instanceof ArmorItem ? ((ArmorItem) item).material : -1;
     }
 
     public static int blockId(net.minecraft.block.Block block) {
@@ -407,18 +426,18 @@ public final class Mc {
     }
 
     public static boolean isHandheld(@Nullable Item item) {
-        return item != null && item.isHandheld();
+        return item != null && item.isWielded();
     }
 
     public static boolean isHandheldRod(@Nullable Item item) {
-        return item != null && item.isHandheldRod();
+        return item != null && item.isFlippedWhenWielded();
     }
 
     public static ItemStack itemEntityStack(ItemEntity entity) {
-        return entity.stack;
+        return entity.item;
     }
 
     public static float itemEntityHoverStart(ItemEntity entity) {
-        return entity.initialRotationAngle;
+        return entity.bobOffset;
     }
 }

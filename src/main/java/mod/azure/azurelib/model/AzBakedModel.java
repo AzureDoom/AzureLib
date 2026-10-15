@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
  */
 public class AzBakedModel {
 
-    private static AzBakedModel defaultModel = new AzBakedModel(java.util.List.of());
+    private static AzBakedModel defaultModel = new AzBakedModel(java.util.Collections.emptyList());
 
     private final Map<String, AzBone> bonesByName;
 
@@ -74,6 +74,6 @@ public class AzBakedModel {
     }
 
     public static void setDefault(AzBakedModel model) {
-        defaultModel = model != null ? model : new AzBakedModel(java.util.List.of());
+        defaultModel = model != null ? model : new AzBakedModel(java.util.Collections.emptyList());
     }
 }

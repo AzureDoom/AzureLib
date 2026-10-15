@@ -41,3 +41,6 @@ run/
 *.iml
 *.ipr
 *.iws
+
+# Ornithe / Quilt Loom
+remappedSrc/

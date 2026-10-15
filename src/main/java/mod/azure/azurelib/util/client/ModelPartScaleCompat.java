@@ -1,6 +1,6 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.model.ModelPart;
 
 public final class ModelPartScaleCompat {
 

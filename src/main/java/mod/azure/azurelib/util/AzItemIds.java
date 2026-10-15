@@ -12,8 +12,10 @@ import mod.azure.azurelib.platform.mc.Mc;
 /**
  * Reads and writes the AzureLib identity UUID stored on item stacks.
  * <p>
- * On Beta the UUID lives in StationAPI's per-stack NBT ({@code StationItemStack#getStationNbt()}), which StationAPI
- * persists and syncs to clients.
+ * Beta stacks have no NBT, so the UUID lives in the AzureLib data compound that
+ * {@link mod.azure.azurelib.mixins.ItemStackMixin_AzItemStackData} adds to every stack. It is saved with the stack and
+ * carried over by {@code copy()}, but vanilla doesn't sync it: multiplayer clients adopt the server's id from
+ * AzureLib's item dispatch packet.
  */
 public final class AzItemIds {
 
@@ -39,12 +41,13 @@ public final class AzItemIds {
     }
 
     public static boolean has(@Nullable ItemStack stack) {
-        return stack != null && has(Mc.stackNbt(stack));
+        return stack != null && has(Mc.stackNbtOrNull(stack));
     }
 
     @Nullable
     public static UUID getOrNull(@Nullable ItemStack stack) {
-        return has(stack) ? get(Mc.stackNbt(stack)) : null;
+        NbtCompound tag = stack == null ? null : Mc.stackNbtOrNull(stack);
+        return has(tag) ? get(tag) : null;
     }
 
     /** Returns the stack's UUID, assigning a fresh random one first if it has none. */
@@ -58,5 +61,17 @@ public final class AzItemIds {
 
     public static void set(ItemStack stack, UUID id) {
         set(Mc.stackNbt(stack), id);
+    }
+
+    /**
+     * Copies an AzureLib data compound for {@code ItemStack#copy()}. Beta's NBT has no generic deep copy, and the
+     * compound currently holds only the identity UUID, so that is what gets copied.
+     */
+    public static NbtCompound copyData(NbtCompound from) {
+        NbtCompound copy = new NbtCompound();
+        if (has(from)) {
+            set(copy, get(from));
+        }
+        return copy;
     }
 }

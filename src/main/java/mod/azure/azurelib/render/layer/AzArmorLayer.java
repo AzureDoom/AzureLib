@@ -1,9 +1,9 @@
 package mod.azure.azurelib.render.layer;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.*;
@@ -29,20 +29,20 @@ import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.RenderUtils;
 
-public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID, T> {
+public class AzArmorLayer<T extends MobEntity> implements AzRenderLayer<UUID, T> {
 
     protected static final Map<String, ResourceLocation> ARMOR_PATH_CACHE = new HashMap<>();
 
-    protected static final BipedEntityModel INNER_ARMOR_MODEL = new BipedEntityModel(0.5F);
+    protected static final HumanoidModel INNER_ARMOR_MODEL = new HumanoidModel(0.5F);
 
-    protected static final BipedEntityModel OUTER_ARMOR_MODEL = new BipedEntityModel(1.0F);
+    protected static final HumanoidModel OUTER_ARMOR_MODEL = new HumanoidModel(1.0F);
 
-    private final Map<BipedEntityModel, float[][]> savedPoses = new IdentityHashMap<>();
+    private final Map<HumanoidModel, float[][]> savedPoses = new IdentityHashMap<>();
 
-    private final Map<Entity, Map<BipedEntityModel, float[][]>> entityPoses = new WeakHashMap<>();
+    private final Map<Entity, Map<HumanoidModel, float[][]>> entityPoses = new WeakHashMap<>();
 
     @Nullable
-    private BipedEntityModel currentArmorModel;
+    private HumanoidModel currentArmorModel;
 
     @Nullable
     protected ItemStack mainHandStack;
@@ -104,7 +104,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     ) {
         AzEquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
         AzArmorRenderer renderer = AzArmorRendererRegistryHolder.get(armorStack);
-        BipedEntityModel model = getModelForItem(armorStack, slot);
+        HumanoidModel model = getModelForItem(armorStack, slot);
         this.currentArmorModel = model;
         ModelPart modelPart = getModelPartForBone(context, bone, model);
 
@@ -166,9 +166,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     protected ModelPart getModelPartForBone(
         AzRendererPipelineContext<UUID, T> context,
         AzBone bone,
-        BipedEntityModel baseModel
+        HumanoidModel baseModel
     ) {
-        return baseModel.body;
+        return McClient.bipedBody(baseModel);
     }
 
     /**
@@ -188,8 +188,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         AzEquipmentSlot slot,
         ItemStack armorStack,
         AzArmorRenderer renderer,
-        LivingEntity entity,
-        BipedEntityModel model,
+        MobEntity entity,
+        HumanoidModel model,
         ModelPart modelPart
     ) {
         AzArmorRendererPipeline renderPipelines = renderer.rendererPipeline();
@@ -239,14 +239,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             context.blue() * light,
             context.alpha()
         );
-        modelPart.render(0.0625F);
+        McClient.renderPart(modelPart, 0.0625F);
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
     }
 
     /**
-     * Returns a cached instance of a base BipedEntityModel that is used for rendering/modeling the provided
+     * Returns a cached instance of a base HumanoidModel that is used for rendering/modeling the provided
      * {@link ItemStack}
      */
     @Nullable
@@ -254,7 +254,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         return AzArmorRendererRegistryHolder.get(stack);
     }
 
-    protected BipedEntityModel getModelForItem(ItemStack stack, AzEquipmentSlot slot) {
+    protected HumanoidModel getModelForItem(ItemStack stack, AzEquipmentSlot slot) {
         AzArmorRenderer renderer = getRendererForItem(stack);
 
         if (renderer == null) {
@@ -292,9 +292,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             (bone.getPivotZ() - ((bone.getPivotZ() * scaleZ) - bone.getPivotZ()) / scaleZ)
         );
 
-        sourcePart.pitch = -bone.getRotX();
-        sourcePart.yaw = -bone.getRotY();
-        sourcePart.roll = bone.getRotZ();
+        McClient.setRotX(sourcePart, -bone.getRotX());
+        McClient.setRotY(sourcePart, -bone.getRotY());
+        McClient.setRotZ(sourcePart, bone.getRotZ());
 
         context.poseStack().scale(scaleX, scaleY, scaleZ);
     }
@@ -303,7 +303,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     protected static final String[] ARMOR_PREFIXES = { "cloth", "chain", "iron", "diamond", "gold" };
 
     /**
-     * Gets the texture for a vanilla (non-AzureLib) armor piece, following Beta's {@code PlayerEntityRenderer}:
+     * Gets the texture for a vanilla (non-AzureLib) armor piece, following Beta's {@code PlayerRenderer}:
      * {@code /armor/<material>_1.png} for everything but leggings, which use {@code _2}.
      *
      * @param type unused on Beta (there are no dyed overlays); kept for API parity
@@ -329,19 +329,19 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         }
     }
 
-    private static ModelPart[] parts(BipedEntityModel m) {
+    private static ModelPart[] parts(HumanoidModel m) {
         return new ModelPart[] {
-            m.head,
-            m.hat,
-            m.body,
-            m.rightArm,
-            m.leftArm,
-            m.rightLeg,
-            m.leftLeg
+            McClient.bipedHead(m),
+            McClient.bipedHat(m),
+            McClient.bipedBody(m),
+            McClient.bipedRightArm(m),
+            McClient.bipedLeftArm(m),
+            McClient.bipedRightLeg(m),
+            McClient.bipedLeftLeg(m)
         };
     }
 
-    private void savePoseOnce(BipedEntityModel model) {
+    private void savePoseOnce(HumanoidModel model) {
         savedPoses.computeIfAbsent(model, AzArmorLayer::capture);
     }
 
@@ -350,7 +350,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         savedPoses.clear();
     }
 
-    private static int partIndex(BipedEntityModel m, ModelPart part) {
+    private static int partIndex(HumanoidModel m, ModelPart part) {
         ModelPart[] p = parts(m);
         for (int i = 0; i < p.length; i++) {
             if (p[i] == part)
@@ -359,7 +359,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         return -1;
     }
 
-    private static float[][] capture(BipedEntityModel m) {
+    private static float[][] capture(HumanoidModel m) {
         ModelPart[] p = parts(m);
         float[][] out = new float[p.length][];
         for (int i = 0; i < p.length; i++) {
@@ -370,23 +370,23 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
 
     private static float[] capturePart(ModelPart r) {
         return new float[] {
-            r.pivotX,
-            r.pivotY,
-            r.pivotZ,
-            r.pitch,
-            r.yaw,
-            r.roll
+            McClient.pivotX(r),
+            McClient.pivotY(r),
+            McClient.pivotZ(r),
+            McClient.rotX(r),
+            McClient.rotY(r),
+            McClient.rotZ(r)
         };
     }
 
-    private static void apply(BipedEntityModel m, float[][] pose) {
+    private static void apply(HumanoidModel m, float[][] pose) {
         ModelPart[] p = parts(m);
         for (int i = 0; i < p.length; i++) {
             float[] s = pose[i];
             McClient.setPivot(p[i], s[0], s[1], s[2]);
-            p[i].pitch = s[3];
-            p[i].yaw = s[4];
-            p[i].roll = s[5];
+            McClient.setRotX(p[i], s[3]);
+            McClient.setRotY(p[i], s[4]);
+            McClient.setRotZ(p[i], s[5]);
         }
     }
 
@@ -396,7 +396,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
      * list, but biped parts always have these vanilla sizes. The dilation is deliberately left out, as in 1.7.10: the
      * bone-fitting maths divides the bone size by this, and including the dilation shrinks every piece.
      */
-    protected static float[] armorCubeSize(@Nullable BipedEntityModel owner, ModelPart part) {
+    protected static float[] armorCubeSize(@Nullable HumanoidModel owner, ModelPart part) {
         int index = owner == null ? -1 : partIndex(owner, part);
         switch (index) {
             case 0:
@@ -413,7 +413,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
 
         @Nullable
         static AzArmorRenderer get(ItemStack stack) {
-            return AzArmorRendererRegistry.getOrNull(stack.getItem());
+            return AzArmorRendererRegistry.getOrNull(Mc.item(stack));
         }
     }
 }

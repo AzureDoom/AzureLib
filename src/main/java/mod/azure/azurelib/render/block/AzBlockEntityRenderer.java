@@ -16,8 +16,11 @@ import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.util.math.BlockPos;
 
 /**
- * Base tile entity renderer for AzureLib-animated tile entities on 1.7.10. Register it with
- * {@code ClientRegistry.bindTileEntitySpecialRenderer(MyTileEntity.class, new MyRenderer())}.
+ * Base block entity renderer for AzureLib-animated block entities on Beta 1.7.3. Register it from your
+ * {@code client-init} entrypoint with
+ * {@code AzBlockEntityRendererRegistry.register(MyBlockEntity.class, MyBlockEntityRenderer::new)}.
+ *
+ * @see mod.azure.azurelib.render.registry.AzBlockEntityRendererRegistry
  */
 public abstract class AzBlockEntityRenderer<T extends BlockEntity> extends BlockEntityRenderer {
 
@@ -43,7 +46,7 @@ public abstract class AzBlockEntityRenderer<T extends BlockEntity> extends Block
 
     /**
      * Beta's block entity render entry point. MAPPING: BlockEntityRenderer#render(BlockEntity, double, double, double,
-     * float).
+     * float). MCP: TileEntitySpecialRenderer.renderTileEntityAt.
      */
     @Override
     @SuppressWarnings("unchecked")

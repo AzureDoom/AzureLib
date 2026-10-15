@@ -14,12 +14,12 @@ import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.AzureLibUtil;
 
 /**
- * Gives every newly created stack of an {@link AzIdentityRegistry identity-registered} item a UUID in StationAPI's
- * stack NBT.
+ * Gives every newly created stack of an {@link AzIdentityRegistry identity-registered} item a UUID in AzureLib's
+ * per-stack data (see {@link ItemStackMixin_AzItemStackData}).
  * <p>
- * Stacks are created on both sides. On a multiplayer client the random id assigned here is immediately replaced by the
- * servers when StationAPI applies the synced NBT, so client and server agree. Stacks loaded from disk keep the id that
- * StationAPI saved with them.
+ * Stacks are created on both sides. On a multiplayer client the random id assigned here is replaced by the server's the
+ * first time an item dispatch packet names the stack, so client and server agree. Stacks loaded from disk go through
+ * the NBT constructor instead and keep the id they were saved with.
  * <p>
  * Beta's {@code ItemStack(Block, ...)} and {@code ItemStack(Item, ...)} overloads all funnel into one of the two
  * constructors targeted here; {@code require = 0} because which one is the "real" constructor depends on how the mapped

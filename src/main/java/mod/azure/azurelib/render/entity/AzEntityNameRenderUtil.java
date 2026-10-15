@@ -1,8 +1,8 @@
 package mod.azure.azurelib.render.entity;
 
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.TextRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import org.lwjgl.opengl.GL11;
 
 import mod.azure.azurelib.platform.mc.Mc;
@@ -24,7 +24,10 @@ public final class AzEntityNameRenderUtil {
         return entity instanceof PlayerEntity && entity != McClient.cameraEntity() && Mc.passenger(entity) == null;
     }
 
-    /** The text Beta would draw for this entity: the player name, or {@code null}. MAPPING: PlayerEntity#name. */
+    /**
+     * The text Beta would draw for this entity: the player name, or {@code null}. MAPPING: PlayerEntity#name. MCP:
+     * EntityPlayer.username.
+     */
     public static String nameOf(Entity entity) {
         return entity instanceof PlayerEntity ? ((PlayerEntity) entity).name : null;
     }
@@ -69,7 +72,7 @@ public final class AzEntityNameRenderUtil {
             GlStateManager.DestFactor.ZERO
         );
 
-        int halfWidth = font.getWidth(text) / 2;
+        int halfWidth = McClient.textWidth(font, text) / 2;
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.25F);
         GL11.glBegin(GL11.GL_QUADS);
@@ -82,10 +85,10 @@ public final class AzEntityNameRenderUtil {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         if (!Mc.isSneaking(entity)) {
-            font.draw(text, -halfWidth, 0, 553648127);
+            McClient.drawText(font, text, -halfWidth, 0, 553648127);
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glDepthMask(true);
-            font.draw(text, -halfWidth, 0, -1);
+            McClient.drawText(font, text, -halfWidth, 0, -1);
         } else {
             GL11.glDepthMask(true);
         }

@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation.molang;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -37,7 +37,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
     private Entity entity;
 
     @Nullable
-    private LivingEntity livingEntity;
+    private MobEntity livingEntity;
 
     private float partialTicks;
 
@@ -51,7 +51,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
      */
     public void bind(@Nullable Entity entity, float partialTicks) {
         this.entity = entity;
-        this.livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
+        this.livingEntity = entity instanceof MobEntity ? (MobEntity) entity : null;
         this.partialTicks = partialTicks;
         MolangQueryContext.setCurrent(this);
     }
@@ -65,10 +65,10 @@ public final class AzMolangQueryContext implements MolangQueryContext {
     }
 
     /**
-     * @return the entity being animated if it is a {@link LivingEntity}, else {@code null}
+     * @return the entity being animated if it is a {@link MobEntity}, else {@code null}
      */
     @Nullable
-    public LivingEntity livingEntity() {
+    public MobEntity livingEntity() {
         return livingEntity;
     }
 

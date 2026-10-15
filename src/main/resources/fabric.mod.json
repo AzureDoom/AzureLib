@@ -16,14 +16,11 @@
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "mod.azure.azurelib.FabricAzureLibMod"
+    "init": [
+      "mod.azure.azurelib.OrnitheAzureLibMod"
     ],
-    "client": [
+    "client-init": [
       "mod.azure.azurelib.client.AzureLibClientInit"
-    ],
-    "stationapi:event_bus": [
-      "mod.azure.azurelib.platform.AzureLibStationEvents"
     ]
   },
   "mixins": [
@@ -37,6 +34,7 @@
   "depends": {
     "minecraft": "1.0.0-beta.7.3",
     "fabricloader": ">=0.19.5",
-    "stationapi": "*"
+    "osl-entrypoints": "*",
+    "osl-networking": "*"
   }
 }

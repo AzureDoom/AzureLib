@@ -44,7 +44,7 @@ Example:
                                     Entity entity = event.getAnimatable();
                                     Mc.world(entity).playSound(
                                         entity,
-                                        "step.stone", // a Beta 1.7.3 sound name, or "yourmodid:sound" via StationAPI
+                                        "step.stone", // a Beta 1.7.3 sound name, or "yourmodid.sound" for your own
                                         1.0F, // volume
                                         1.0F // pitch
                                     );
@@ -58,7 +58,7 @@ Example:
     }
 ```
 <Callout variant="info">
-    Keyframe callbacks run on the client while the model renders. Beta 1.7.3 sound and particle names are the old string IDs (`step.stone`, `random.bow`, `bubble`, `flame`, ...). Custom sounds load through StationAPI from `assets/<modid>/stationapi/sounds/` and are played as `"yourmodid:name"`.
+    Keyframe callbacks run on the client while the model renders. Beta 1.7.3 sound and particle names are the old string IDs (`step.stone`, `random.bow`, `bubble`, `flame`, ...). Your own sounds go in `assets/<modid>/sounds/`, which AzureLib registers at startup, and are played as `"yourmodid.name"` (see [Item Icons, Names and Sounds](../misc/icons_and_lang)).
 </Callout>
 
 ## Particle Keyframes

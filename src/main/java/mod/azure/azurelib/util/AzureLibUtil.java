@@ -31,9 +31,10 @@ public final class AzureLibUtil {
     }
 
     /**
-     * Returns the stack's NBT compound.
+     * Returns the stack's AzureLib data compound, creating it if needed.
      * <p>
-     * On Beta this is StationAPI's per-stack NBT, which always exists.
+     * Beta stacks have no NBT of their own; this is the compound added by
+     * {@link mod.azure.azurelib.mixins.ItemStackMixin_AzItemStackData}.
      */
     public static NbtCompound getOrCreateTag(ItemStack stack) {
         return Mc.stackNbt(stack);
@@ -44,6 +45,6 @@ public final class AzureLibUtil {
      * non-positive size as empty, like later versions' {@code ItemStack#isEmpty()}.
      */
     public static boolean isEmpty(@Nullable ItemStack stack) {
-        return stack == null || stack.getItem() == null || Mc.count(stack) <= 0;
+        return stack == null || Mc.item(stack) == null || Mc.count(stack) <= 0;
     }
 }

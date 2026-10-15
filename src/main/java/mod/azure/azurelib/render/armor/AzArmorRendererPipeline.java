@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -11,6 +11,7 @@ import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.PoseStack;
@@ -63,7 +64,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
     @Override
     public void preRender(AzRendererPipelineContext<UUID, ItemStack> context, boolean isReRender) {
         AzArmorRendererPipelineContext armorContext = (AzArmorRendererPipelineContext) context;
-        BipedEntityModel baseModel = armorContext.baseModel();
+        HumanoidModel baseModel = armorContext.baseModel();
         AzArmorBoneContext boneContext = armorContext.boneContext();
         AzArmorRendererConfig config = config();
         AzEquipmentSlot currentSlot = armorContext.currentSlot();
@@ -113,7 +114,7 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         AzArmorBoneContext boneContext,
         boolean isReRender
     ) {
-        BipedEntityModel baseModel = context.baseModel();
+        HumanoidModel baseModel = context.baseModel();
         AzEquipmentSlot currentSlot = context.currentSlot();
 
         if (isReRender) {
@@ -123,24 +124,24 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         switch (currentSlot) {
             case HEAD:
                 if (boneContext.head != null)
-                    setBoneScale(boneContext.head, baseModel.head);
+                    setBoneScale(boneContext.head, McClient.bipedHead(baseModel));
                 break;
             case CHEST:
                 if (boneContext.leftArm != null)
-                    setBoneScale(boneContext.leftArm, baseModel.leftArm);
+                    setBoneScale(boneContext.leftArm, McClient.bipedLeftArm(baseModel));
                 if (boneContext.rightArm != null)
-                    setBoneScale(boneContext.rightArm, baseModel.rightArm);
+                    setBoneScale(boneContext.rightArm, McClient.bipedRightArm(baseModel));
                 if (boneContext.body != null)
-                    setBoneScale(boneContext.body, baseModel.body);
+                    setBoneScale(boneContext.body, McClient.bipedBody(baseModel));
                 if (boneContext.waist != null)
-                    setBoneScale(boneContext.waist, baseModel.body);
+                    setBoneScale(boneContext.waist, McClient.bipedBody(baseModel));
                 break;
             case FEET:
             case LEGS:
                 if (boneContext.leftLeg != null)
-                    setBoneScale(boneContext.leftLeg, baseModel.leftLeg);
+                    setBoneScale(boneContext.leftLeg, McClient.bipedLeftLeg(baseModel));
                 if (boneContext.rightLeg != null)
-                    setBoneScale(boneContext.rightLeg, baseModel.rightLeg);
+                    setBoneScale(boneContext.rightLeg, McClient.bipedRightLeg(baseModel));
                 break;
             default:
                 break;
@@ -172,11 +173,11 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
             return;
         }
 
-        BipedEntityModel baseModel = context.baseModel();
+        HumanoidModel baseModel = context.baseModel();
         AzEquipmentSlot currentSlot = context.currentSlot();
         PoseStack poseStack = context.poseStack();
 
-        // Same factors as 1.7.10's BipedEntityModel#render for children.
+        // Same factors as 1.7.10's HumanoidModel#render for children.
         if (currentSlot == AzEquipmentSlot.HEAD) {
             poseStack.scale(0.75f, 0.75f, 0.75f);
             poseStack.translate(0, 16 / 16f, 0);

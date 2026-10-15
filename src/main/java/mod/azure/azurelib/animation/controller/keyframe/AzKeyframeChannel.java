@@ -27,7 +27,7 @@ import mod.azure.azurelib.util.function.Double2DoubleFunction;
 public final class AzKeyframeChannel {
 
     /** A channel with no keyframes. */
-    public static final AzKeyframeChannel EMPTY = new AzKeyframeChannel(java.util.List.of());
+    public static final AzKeyframeChannel EMPTY = new AzKeyframeChannel(java.util.Collections.emptyList());
 
     /**
      * How many keyframes a cached lookup walks before giving up and binary searching instead. Normal playback moves at

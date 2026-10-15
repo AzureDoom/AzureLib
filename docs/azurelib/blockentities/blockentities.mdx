@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/blocks/blockentity)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3-ornithe/src/main/java/mod/azure/azexamples/blocks/blockentity)
 </Callout>
 
 # How to animate Block Entities
@@ -106,27 +106,31 @@ Now you simply call the dispatcher wherever you want to play the animations. A b
 ```
 
 <Callout variant="info">
-    The check is the Fabric environment, not `world.isRemote`: Beta 1.7.3 single player has no integrated server, so the client's world is not a "remote" world there and an `isRemote` check would never pass. On a multiplayer client the dispatch plays locally; in single player AzureLib applies it straight away.
+    The check is the Fabric environment, not `world.isMultiplayer` (`isRemote` in other mappings): Beta 1.7.3 single player has no integrated server, so the client's world is not a "remote" world there and that check would never pass. On a multiplayer client the dispatch plays locally; in single player AzureLib applies it straight away.
 </Callout>
 
 ### The block
 
-Register the block entity with StationAPI's `BlockEntityRegisterEvent` in your `stationapi:event_bus` entrypoint:
+Register the block entity class with `AzBlockEntityRegistry` from your OSL `init` entrypoint, which runs on both the client and the server:
 
 ```java
-@EventListener
-private static void registerBlockEntities(BlockEntityRegisterEvent event) {
-    event.register(NAMESPACE.id("example_be").toString(), ExampleBE.class);
+public final class YourMod implements ModInitializer {
+
+    @Override
+    public void init() {
+        AzBlockEntityRegistry.register(ExampleBE.class, "yourmodid_example_be");
+    }
 }
 ```
 
-If the model replaces the block's look entirely, return `-1` from your block's `getRenderType()` (and `false` from `isOpaque()`/`isFullCube()`) so only the block entity renderer draws it. Extending `BlockWithEntity` gives you `createBlockEntity()`:
+The id is saved with the block entity, so don't change it once worlds exist. Like entity names, it's a plain legacy Beta name rather than a namespaced id, so use `_` instead of `:`. Without this registration Beta throws when it saves the chunk.
+
+If the model replaces the block's look entirely, return `-1` from your block's `getRenderType()` (and `false` from `isSolidRender()`/`isCube()`) so only the block entity renderer draws it. Extending `BlockWithBlockEntity` gives you `createBlockEntity()`:
 
 ```java
-public class ExampleBlock extends BlockWithEntity {
-    public ExampleBlock(Identifier identifier) {
-        super(BlockTemplate.getNextId(), Material.METAL);
-        BlockTemplate.onConstructor(this, identifier);
+public class ExampleBlock extends BlockWithBlockEntity {
+    public ExampleBlock(int id) {
+        super(id, Material.IRON);
     }
 
     @Override
@@ -140,14 +144,24 @@ public class ExampleBlock extends BlockWithEntity {
     }
 
     @Override
-    public boolean isOpaque() {
+    public boolean isSolidRender() {
         return false;
     }
 
     @Override
-    public boolean isFullCube() {
+    public boolean isCube() {
         return false;
     }
+}
+```
+
+Create the block in your OSL `BlockEvents.REGISTER_BLOCKS` listener. Beta block ids can't be assigned automatically (the save and packet formats only hold 0-255), so pick a free id (vanilla uses up to 96) and register the block under it:
+
+```java
+public static void register() {
+    EXAMPLE_BLOCK = new ExampleBlock(200);
+    BlockRegistry.register(200, NamespacedIdentifiers.from(YOUR_MOD_ID, "example_block"), EXAMPLE_BLOCK);
+    EXAMPLE_BLOCK.setKey("yourmodid.example_block"); // name: tile.yourmodid.example_block.name
 }
 ```
 
@@ -157,19 +171,18 @@ The renderer rotates the model by the block's facing. Beta 1.7.3 has no block st
 
 To show your animated model in the inventory and in hand, give the block its own plain item that places it, and register an [AzureLib item renderer](../items/items#registering-your-renderer) for that item.
 
-<Callout variant="warning">
-    Don't use StationAPI's automatic block item for this. StationAPI gives block items the block's JSON model, and its renderer (Arsenic) draws those itself, before AzureLib's item hooks run. A plain item with no StationAPI model is handed back to vanilla-style rendering, where AzureLib takes over.
+<Callout variant="info">
+    Beta only creates block items for the vanilla blocks that exist when its block class first loads, so a mod block has no item of its own anyway. A plain item that places the block also takes the same AzureLib rendering path as any other AzureLib item.
 </Callout>
 
 ```java
 public class ExampleBlockItem extends Item {
-    public ExampleBlockItem(Identifier identifier) {
-        super(ItemTemplate.getNextId());
-        ItemTemplate.onConstructor(this, identifier);
+    public ExampleBlockItem(int id) {
+        super(id);
     }
 
     @Override
-    public boolean useOnBlock(ItemStack stack, PlayerEntity player, World world, int x, int y, int z, int side) {
+    public boolean useOn(ItemStack stack, PlayerEntity player, World world, int x, int y, int z, int side) {
         // Offset to the clicked face (0 down, 1 up, 2 north, 3 south, 4 west, 5 east), check the spot is free,
         // place YourBlocks.EXAMPLE_BLOCK there and shrink the stack. See StargateItem in the examples.
         ...
@@ -177,7 +190,7 @@ public class ExampleBlockItem extends Item {
 }
 ```
 
-Give the item a different identifier from the block (for example `example_block_item`), since StationAPI already registers an item under the block's name. Override the block's `getDroppedItemId` to return your item's ID so breaking the block gives it back.
+Create the item with `Item.AUTO_ASSIGN_ID` in your `ItemEvents.REGISTER_ITEMS` listener like any other item. Override the block's `getDropItem` to return `Mc.itemId(YourItems.EXAMPLE_BLOCK_ITEM)` so breaking the block gives it back.
 
 ## Creating your Renderer
 
@@ -218,11 +231,16 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
 
 ## Registering your Renderer
 
-Register the renderer on the client with StationAPI's `BlockEntityRendererRegisterEvent`, from your `stationapi:event_bus_client` entrypoint:
+Register the renderer on the client with `AzBlockEntityRendererRegistry`, from your OSL `client-init` entrypoint:
 
 ```java
-@EventListener
-private static void registerBlockEntityRenderers(BlockEntityRendererRegisterEvent event) {
-    event.renderers.put(ExampleBE.class, new ExampleBERenderer());
+public final class YourModClient implements ClientModInitializer {
+
+    @Override
+    public void initClient() {
+        AzBlockEntityRendererRegistry.register(ExampleBE.class, ExampleBERenderer::new);
+    }
 }
 ```
+
+The renderer is created when Beta's block entity render dispatcher is set up (or right away, if it already exists), and it gets the dispatcher assigned the same way vanilla renderers do.

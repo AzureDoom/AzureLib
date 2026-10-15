@@ -6,7 +6,7 @@ hide_meta: true
 <Callout variant="info">
     This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets)
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3/src/main/java/mod/azure/azexamples/items/armors)
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3-ornithe/src/main/java/mod/azure/azexamples/items/armors)
 </Callout>
 
 # How to animate Armor
@@ -92,10 +92,10 @@ public class ExampleArmor extends ArmorItem {
     /**
      * @param armorType 0 helmet, 1 chestplate, 2 leggings, 3 boots
      */
-    public ExampleArmor(Identifier identifier, int armorType) {
-        // Beta 1.7.3 armor: (item ID, material level, texture index, slot); 3 is diamond.
-        super(ItemTemplate.getNextId(), 3, 3, armorType);
-        ItemTemplate.onConstructor(this, identifier);
+    public ExampleArmor(int id, int armorType) {
+        // Beta 1.7.3 armor: (item ID, protection level, armor texture, slot); 3 is diamond.
+        // The armor texture (0 cloth, 1 chain, 2 iron, 3 diamond, 4 gold) only matters to vanilla's armor renderer.
+        super(id, 3, 3, armorType);
         // Create the instance of the class here to use later.
         this.dispatcher = new ExampleArmorDispatcher();
     }
@@ -169,11 +169,10 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
 
 ## Registering your Renderer
 
-Call `AzArmorRendererRegistry#register()` on the client, for example from StationAPI's `TextureRegisterEvent` in your `stationapi:event_bus_client` entrypoint (your items exist by then).
+Call `AzArmorRendererRegistry#register()` on the client, once your items exist: from an OSL `ItemEvents.REGISTER_ITEMS` listener you add in your `client-init` entrypoint (see [Where to register things](../_homepage#where-to-register-things)).
 
 ```java
-@EventListener
-private static void registerTextures(TextureRegisterEvent event) {
+private static void registerItemRenderers() {
     AzArmorRendererRegistry.register(ExampleArmorRenderer::new, YourItemRegistry.YOUR_ARMOR_HELMET,
             YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
             YourItemRegistry.YOUR_ARMOR_LEGGINGS,
@@ -184,17 +183,16 @@ private static void registerTextures(TextureRegisterEvent event) {
 <Callout variant="info">
     Beta 1.7.3 has no armor model hook, so AzureLib draws registered armor from a mixin into the player renderer's armor passes, in place of the vanilla armor model. Armor items must extend Beta 1.7.3's `ArmorItem`, because Beta 1.7.3 only renders armor passes for armor items. You can also register vanilla armor (for example `Item.DIAMOND_HELMET`) to replace its look.
 
-    The inventory icon is a normal StationAPI item texture: `item.setTexture(NAMESPACE.id("item/example_helmet"))` in `TextureRegisterEvent` loads `assets/yourmodid/stationapi/textures/item/example_helmet.png`.
+    For the inventory icon, register a 16x16 PNG with `AzItemIcons.register(item, new ResourceLocation("yourmodid", "textures/item/example_helmet.png"))` in the same client listener; see [Item Icons, Names and Sounds](../misc/icons_and_lang#item-icons). This also works for vanilla armor you replace.
 </Callout>
 
 ## Registering your Armor for proper animation triggering
 
-To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` on both the client and the server, after your items are created, for example at the end of your `ItemRegistryEvent` listener in the common `stationapi:event_bus` entrypoint.
+To ensure trigger animations work properly, you will need to also call `AzIdentityRegistry#register()` on both the client and the server, after your items are created, for example at the end of your OSL `ItemEvents.REGISTER_ITEMS` listener (subscribed from your common `init` entrypoint).
 
 ```java
-@EventListener
-private static void registerItems(ItemRegistryEvent event) {
-    YourItemRegistry.register();
+public static void register() {
+    // ... create your armor with Item.AUTO_ASSIGN_ID and register it with OSL's ItemRegistry ...
     AzIdentityRegistry.register(YourItemRegistry.YOUR_ARMOR_HELMET,
             YourItemRegistry.YOUR_ARMOR_CHESTPLATE,
             YourItemRegistry.YOUR_ARMOR_LEGGINGS,

@@ -220,7 +220,9 @@ public final class Color {
     }
 
     public List<Integer> getList() {
-        return java.util.List.of(getRed(), getGreen(), getBlue(), getAlpha());
+        return java.util.Collections.unmodifiableList(
+            java.util.Arrays.asList(getRed(), getGreen(), getBlue(), getAlpha())
+        );
     }
 
     /**

@@ -1,6 +1,6 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -21,7 +21,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     private final AzArmorBoneContext boneContext;
 
-    private BipedEntityModel baseModel;
+    private HumanoidModel baseModel;
 
     private AzEquipmentSlot currentSlot;
 
@@ -56,7 +56,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         @Nullable Entity entity,
         ItemStack stack,
         @Nullable AzEquipmentSlot slot,
-        @Nullable BipedEntityModel baseModel
+        @Nullable HumanoidModel baseModel
     ) {
         this.baseModel = baseModel;
         this.currentEntity = entity;
@@ -87,7 +87,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         return Color.WHITE;
     }
 
-    public BipedEntityModel baseModel() {
+    public HumanoidModel baseModel() {
         return baseModel;
     }
 

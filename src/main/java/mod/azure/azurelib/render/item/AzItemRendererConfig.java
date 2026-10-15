@@ -84,7 +84,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         return useNewOffset;
     }
 
-    /** Contexts left to vanilla (or StationAPI) rendering; see {@link Builder#useVanillaRenderingIn}. */
+    /** Contexts left to vanilla rendering; see {@link Builder#useVanillaRenderingIn}. */
     private Set<AzItemDisplayContext> vanillaContexts = Collections.emptySet();
 
     /** True if AzureLib draws the item in this context; false leaves it to vanilla, e.g. a flat GUI icon. */

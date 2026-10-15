@@ -1,7 +1,7 @@
 package mod.azure.azurelib.mixins.client;
 
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.render.entity.PlayerRenderer;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,14 +14,13 @@ import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.client.AzRenderTick;
 
-@Mixin(PlayerEntityRenderer.class)
+@Mixin(PlayerRenderer.class)
 public abstract class PlayerEntityRendererMixin_AzArmor {
 
     @Inject(
-        method = "bindTexture(Lnet/minecraft/entity/player/PlayerEntity;IF)Z",
+        method = "bindTexture(Lnet/minecraft/entity/mob/player/PlayerEntity;IF)Z",
         at = @At("HEAD"),
-        cancellable = true,
-        require = 0
+        cancellable = true
     )
     private void azurelib$renderAzArmor(
         PlayerEntity playerEntity,

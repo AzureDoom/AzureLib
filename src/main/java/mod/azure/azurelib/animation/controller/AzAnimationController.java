@@ -149,7 +149,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     public List<AzQueuedAnimation> tryCreateAnimationQueue(T animatable, AzAnimationSequence sequence) {
         if (animatable == null) {
             LOGGER.warn("Unable to create animation queue: animatable is null");
-            return java.util.List.of();
+            return java.util.Collections.emptyList();
         }
         List<AzAnimationStage> stages = sequence.stages();
         ArrayList<AzQueuedAnimation> animations = new ArrayList<AzQueuedAnimation>();
@@ -163,7 +163,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                     stage.name(),
                     animatable.getClass().getSimpleName()
                 );
-                return java.util.List.of();
+                return java.util.Collections.emptyList();
             } else {
                 AzAnimationStageProperties properties = stage.properties();
                 Boolean reverseOverride = properties.hasReversing() ? properties.isReversing() : null;

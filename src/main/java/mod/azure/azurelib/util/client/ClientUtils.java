@@ -1,6 +1,6 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import net.minecraft.world.World;
 
 import mod.azure.azurelib.AzureLib;

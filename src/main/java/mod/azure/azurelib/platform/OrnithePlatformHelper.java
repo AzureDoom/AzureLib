@@ -7,11 +7,11 @@ import java.nio.file.Path;
 
 import mod.azure.azurelib.platform.services.IPlatformHelper;
 
-public class FabricPlatformHelper implements IPlatformHelper {
+public class OrnithePlatformHelper implements IPlatformHelper {
 
     @Override
     public String getPlatformName() {
-        return "StationAPI";
+        return "Ornithe";
     }
 
     @Override

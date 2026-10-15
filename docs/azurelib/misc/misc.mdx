@@ -170,11 +170,10 @@ If you only set `setBoneTextureOverrideProvider`, AzureLib will pick a default r
 
 ## Render 3D Item in GUI instead of 2D texture for Armor
 
-Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client, for example from StationAPI's `TextureRegisterEvent`. That replaces the item's icon with the model in every context; since Beta 1.7.3 items have no registry names, pass the item model JSON that holds its display transforms.
+Also register an item renderer for your armor item by calling `AzItemRendererRegistry#register()` on the client, from the same `ItemEvents.REGISTER_ITEMS` listener you use for your other item renderers (see [Where to register things](../_homepage#where-to-register-things)). That replaces the item's icon with the model in every context; pass the item model JSON that holds its display transforms, since AzureLib can't look it up by registry name on Beta 1.7.3.
 
 ```java
-@EventListener
-private static void registerTextures(TextureRegisterEvent event) {
+private static void registerItemRenderers() {
     AzItemRendererRegistry.register(
         YourItemRegistry.YOUR_ARMOR_HELMET,
         new ResourceLocation(YOUR_MOD_ID, "models/item/your_helmet.json"),

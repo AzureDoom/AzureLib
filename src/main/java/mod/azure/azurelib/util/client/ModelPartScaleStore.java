@@ -1,6 +1,6 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.model.ModelPart;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -47,8 +47,9 @@ public final class ModelPartScaleStore {
         public boolean equals(Object o) {
             if (this == o)
                 return true;
-            if (!(o instanceof Scale other))
+            if (!(o instanceof Scale))
                 return false;
+            Scale other = (Scale) o;
             return Float.compare(this.x, other.x) == 0
                 && Float.compare(this.y, other.y) == 0
                 && Float.compare(this.z, other.z) == 0;

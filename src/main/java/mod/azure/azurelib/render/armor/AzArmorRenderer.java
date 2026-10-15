@@ -1,6 +1,6 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -40,7 +40,7 @@ public class AzArmorRenderer {
 
     /**
      * Prepare the renderer for the current render cycle.<br>
-     * Must be called prior to render as the default BipedEntityModel doesn't give render context.<br>
+     * Must be called prior to render as the default HumanoidModel doesn't give render context.<br>
      * Params have been left nullable so that the renderer can be called for model/texture purposes safely. If you do
      * grab the renderer using null parameters, you should not use it for actual rendering.
      *
@@ -53,7 +53,7 @@ public class AzArmorRenderer {
         @Nullable Entity entity,
         ItemStack stack,
         @Nullable AzEquipmentSlot slot,
-        @Nullable BipedEntityModel baseModel
+        @Nullable HumanoidModel baseModel
     ) {
         if (entity == null || slot == null || baseModel == null) {
             return;

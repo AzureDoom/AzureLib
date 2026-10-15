@@ -1,0 +1,52 @@
+---
+title: Item Icons, Names and Sounds
+---
+
+# Item Icons, Names and Sounds
+
+Beta 1.7.3 has no way for mods to add item textures, translations or sounds by itself. AzureLib fills these gaps on Ornithe.
+
+## Item names
+
+Put a lang file at `assets/<yourmodid>/lang/en_US.lang` in your mod. AzureLib loads every mod's lang file into Beta's translation table after vanilla's own, so you don't need any code for this:
+
+```properties
+item.yourmodid.example_item.name=Example Item
+tile.yourmodid.example_block.name=Example Block
+```
+
+The keys come from the translation key you give the item or block with `setKey(...)` (`item.` / `tile.` + key + `.name`), so `item.setKey("yourmodid.example_item")` reads `item.yourmodid.example_item.name`. Beta only has English, so only `en_US.lang` (or `en_us.lang`) is read. Mods can also override vanilla strings this way.
+
+## Item icons
+
+Beta draws every item icon (in the inventory, in the hand and when dropped) from a 16x16 slot of `/gui/items.png`. `AzItemIcons` puts your PNG into an unused slot and points the item at it, so all three places show it. Register on the client once your items exist, from the same `ItemEvents.REGISTER_ITEMS` listener you use for item renderers (see [Where to register things](../_homepage#where-to-register-things)):
+
+```java
+AzItemIcons.register(EXAMPLE_HELMET, new ResourceLocation("yourmodid", "textures/item/example_helmet.png"));
+
+// Replacing a vanilla item's icon works the same way.
+AzItemIcons.register(Item.DIAMOND_HELMET, new ResourceLocation("yourmodid", "textures/item/new_diamond_helmet.png"));
+```
+
+<Callout variant="info">
+    - Icons are 16x16; larger PNGs are scaled down (nearest neighbour). Beta's dynamic textures are always 16x16, so high resolution texture packs show these icons at 16x16.
+    - Free slots are picked when the game's texture manager is created, after every mod's items are registered, so they never clash with another item. Registering earlier just queues the icon.
+    - `/gui/items.png` has a limited number of free slots, shared by every mod. Items using the same PNG share one slot. If none are left, AzureLib logs an error and the item keeps its old icon.
+    - `AzItemIcons` sets the item's sprite index. If your item picks its sprite itself (for example per damage value), call `AzItemIcons.reserve(texture)` from `client-init` and return `AzItemIcons.getSlot(texture)` from your override.
+</Callout>
+
+## Sounds
+
+Put sound files in your mod under `assets/<yourmodid>/sounds/`. Once the game's sound engine is set up, AzureLib registers every mod's sounds, so you can play them by name from code or from a sound keyframe:
+
+```java
+world.playSound(entity, "yourmodid.gun.fire", 1.0F, 1.0F); // assets/yourmodid/sounds/gun/fire.ogg
+```
+
+<Callout variant="info">
+    - The name is your namespace plus the path below `sounds/`, with `/` as `.` and no extension. Use dots, not `yourmodid:sound`.
+    - Like vanilla, trailing digits are dropped and files with the same name are picked at random: `hit1.ogg`, `hit2.ogg` and `hit3.ogg` all play as `yourmodid.hit`.
+    - `assets/<yourmodid>/music/` adds background music and `assets/<yourmodid>/records/` adds record (streaming) sounds the same way.
+    - Formats: `.ogg`, `.wav` and `.mus`. Folder and file names can't contain `.` before the extension.
+    - Beta has no packet for custom sounds, so a sound only plays on clients that play it themselves. Sound keyframes run on every client, so they're the easiest way to make sounds heard in multiplayer.
+</Callout>

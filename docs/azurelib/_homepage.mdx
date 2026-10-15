@@ -7,13 +7,13 @@
 ## Developers
 
 <Callout variant="info">
-    These docs are for the **Beta 1.7.3** version of AzureLib, which runs on **Babric** (Fabric Loader for Beta) and requires **StationAPI**. It needs Java 17, Fabric Loom with the babric extension and the BINY mappings, so the code on these pages uses BINY class names (`LivingEntity`, `PlayerEntity`, `BlockEntity`, `World`...).
+    These docs are for the **Beta 1.7.3** version of AzureLib, which runs on **Ornithe** (gen2) with the **Ornithe Standard Libraries (OSL)**. It targets Java 8 and uses the Feather mappings through Ploceus, so the code on these pages uses Feather class names.
 
-    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3).
+    You can find working examples [here](https://github.com/AzureDoom/Azurelib-Rewrite-Examples/tree/b1.7.3-ornithe).
 </Callout>
 
 <Callout variant="warning">
-    **StationAPI is required.** AzureLib uses it for item NBT (the identity that lets animations target a single item stack, synced to clients), for networking, and for its asset loading and rendering hooks. Install StationAPI alongside AzureLib on both the client and the server, and depend on it in your mod.
+    **OSL is required.** AzureLib uses OSL's entrypoints and its Networking API. Install OSL alongside AzureLib on both the client and the server, and depend on it in your mod.
 </Callout>
 
 To add AzureLib to your project as a dependency you need to add the following to your `build.gradle`:
@@ -26,85 +26,124 @@ repositories {
 		name = "AzureDoom Mods"
 		url = "https://maven.azuredoom.com/mods"
 	}
-	// StationAPI and its dependencies
-	maven { url = "https://maven.glass-launcher.net/snapshots/" }
-	maven { url = "https://maven.glass-launcher.net/releases/" }
-	maven { url = "https://maven.glass-launcher.net/babric" }
 }
 ```
 
 </CodeTabs>
 
-The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/) and [Modrinth](https://modrinth.com/mod/azurelib). `STATIONAPI_VERSION` is the StationAPI version you build against, for example `2.0.0-alpha.6.4`.
+The Gradle property `MODVERSION` should be the AzureLib version, for example `1.0.0`. Versions can be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/azurelib) and [Modrinth](https://modrinth.com/mod/azurelib).
 
 <CodeTabs>
 
-```markdown !!tabs Beta 1.7.3 (Babric + StationAPI)
+```markdown !!tabs Beta 1.7.3 (Ornithe + OSL)
 dependencies {
 	minecraft "com.mojang:minecraft:b1.7.3"
-	mappings "net.glasslauncher:biny:${yarn_mappings}:v2"
+	mappings ploceus.featherMappings(project.feather_build)
 	modImplementation "net.fabricmc:fabric-loader:${loader_version}"
 
-	// Required by AzureLib
-	modImplementation "net.modificationstation:StationAPI:STATIONAPI_VERSION"
+	// Required by AzureLib, and gives you OSL's block, item and entrypoint APIs
+	ploceus.dependOsl(project.osl_version)
 
-	modImplementation "mod.azure.azurelib:azurelib-stationapi-b1.7.3:MODVERSION"
+	modImplementation "mod.azure.azurelib:azurelib-ornithe-b1.7.3:MODVERSION"
 }
 ```
 
 </CodeTabs>
 
-Then declare both dependencies in your `fabric.mod.json`, so Fabric Loader refuses to start without them:
+Then declare the dependencies in your `fabric.mod.json`, so the loader refuses to start without them. `osl-blocks` and `osl-items` are only needed if your mod adds blocks or items:
 
 ```json
 "depends": {
 	"minecraft": "1.0.0-beta.7.3",
-	"stationapi": "*",
+	"osl-entrypoints": "*",
+	"osl-blocks": "*",
+	"osl-items": "*",
 	"azurelib": "*"
 }
 ```
 
-AzureLib registers its own mixins and initializes itself through Fabric entrypoints, so there's nothing else to set up.
+AzureLib registers its own mixins and initializes itself through OSL entrypoints, so there's nothing else to set up.
+
+<Callout variant="info">
+    Keep your mod's `icon` in `fabric.mod.json` at 512x512 or smaller (128x128 or 256x256 is plenty). Beta uploads textures through a fixed 1 MB buffer, so a larger icon crashes Mod Menu's mod list.
+</Callout>
 
 ### Where to register things
 
-Beta has no registry events of its own; registration happens through StationAPI's event bus. Add entrypoints for it to your `fabric.mod.json`:
+Use OSL's entrypoints in your `fabric.mod.json`: `init` runs on both sides, `client-init` runs on the client only.
 
 ```json
 "entrypoints": {
-	"stationapi:event_bus": [
-		"yourmod.registry.YourModEvents"
+	"init": [
+		"yourmod.YourMod"
 	],
-	"stationapi:event_bus_client": [
-		"yourmod.client.YourModClientEvents"
+	"client-init": [
+		"yourmod.client.YourModClient"
 	]
 }
 ```
 
-Each class is a plain class with static `@EventListener` methods (StationAPI also needs a lookup registered once per class):
+<Callout variant="warning">
+    **Don't create blocks or items directly in `init`.** OSL keeps block and item ids in a synced registry that it only sets up after the `init` entrypoints have run. The first touch of `Block` or `Item` before then crashes with `registry minecraft:block is not synced`. Create them in OSL's register events instead, which `init` only subscribes to.
+</Callout>
 
 ```java
-public final class YourModEvents {
-    static {
-        EntrypointManager.registerLookup(MethodHandles.lookup());
-    }
+public final class YourMod implements ModInitializer {
 
-    public static final Namespace NAMESPACE = Namespace.of(YOUR_MOD_ID);
+    @Override
+    public void init() {
+        BlockEvents.REGISTER_BLOCKS.register(YourBlocks::register);
+        ItemEvents.REGISTER_ITEMS.register(YourItems::register);
 
-    @EventListener
-    private static void registerItems(ItemRegistryEvent event) {
-        // create your items here, then register AzureLib item identities (see the Items pages)
+        // Entity and block entity classes don't touch Block or Item, so these can stay here.
+        AzEntityRegistry.register(YourEntity.class, "yourmodid_your_entity", 120);
+        AzBlockEntityRegistry.register(YourBlockEntity.class, "yourmodid_your_block_entity");
     }
 }
 ```
 
-The pages for entities, items, armor and block entities show which StationAPI event each AzureLib registration goes in.
+```java
+public final class YourItems {
+
+    public static Item YOUR_ITEM;
+
+    public static void register() {
+        YOUR_ITEM = new YourItem(Item.AUTO_ASSIGN_ID);
+        ItemRegistry.register(NamespacedIdentifiers.from("yourmodid", "your_item"), YOUR_ITEM);
+        YOUR_ITEM.setKey("yourmodid.your_item"); // name: item.yourmodid.your_item.name in your lang file
+
+        // AzureLib item identities need the items to exist (see the Items pages).
+        AzIdentityRegistry.register(YOUR_ITEM);
+    }
+}
+```
+
+- **Items**: OSL assigns and syncs item ids for you (`Item.AUTO_ASSIGN_ID`).
+- **Blocks**: block ids can't be auto-assigned on Beta, because the save and packet formats only hold 0-255. Give each block a fixed free id (vanilla uses up to 96) in its constructor and register it with `BlockRegistry.register(id, NamespacedIdentifiers.from("yourmodid", "your_block"), block)`.
+- **Entities and block entities**: their names are legacy Beta names, which OSL converts to namespaced ids itself, so use `_` (or `.`), never `:`. See [Entities](entities/entities#registering-your-entity).
+- **Client registrations**: OSL's item event fires after `client-init`, so register AzureLib item renderers, armor renderers and item icons from an `ItemEvents.REGISTER_ITEMS` listener you add in `client-init`. Because your `init` entrypoint subscribed first, your items exist when it runs (the examples instead use a small `whenRegistered(Runnable)` helper on their item class, which works in either order):
+
+```java
+public final class YourModClient implements ClientModInitializer {
+
+    @Override
+    public void initClient() {
+        AzEntityRendererRegistry.register(YourEntity.class, YourEntityRenderer::new);
+        ItemEvents.REGISTER_ITEMS.register(YourModClient::registerItemRenderers);
+    }
+
+    private static void registerItemRenderers() {
+        AzItemRendererRegistry.register(YourItems.YOUR_ITEM, YourItemRenderer::new);
+    }
+}
+```
 
 ### Things that differ from other versions
 
 <Callout variant="info">
     - **`ResourceLocation`**: Beta has none, so AzureLib provides `mod.azure.azurelib.util.ResourceLocation`. `new ResourceLocation("yourmodid", "geo/entity/example.geo.json")` resolves to `assets/yourmodid/geo/entity/example.geo.json` in your jar, exactly like on other versions. The `minecraft` namespace points at Beta's own assets at the jar root (`minecraft:mob/zombie.png` is `/mob/zombie.png`).
     - **Assets**: AzureLib reads `geo/`, `animations/` and textures straight from every loaded mod, so the asset layout is the same as on other versions. Models and animations load the first time they are used; call `AzureLibCache.reload()` to reload them while testing.
-    - **Vanilla fields**: Beta's mapped field and method names can change between BINY builds. AzureLib reads vanilla state through two small bridge classes, `mod.azure.azurelib.platform.mc.Mc` (common) and `McClient` (client), which you can use too, for example `Mc.isClientSide(world)`, `Mc.heldItem(entity)` or `Mc.armor(entity, slot)`.
+    - **Vanilla fields**: Beta's mapped field and method names can change between Feather builds. AzureLib reads vanilla state through two small bridge classes, `mod.azure.azurelib.platform.mc.Mc` (common) and `McClient` (client), which you can use too, for example `Mc.isClientSide(world)`, `Mc.heldItem(entity)` or `Mc.armor(entity, slot)`.
+    - **Item names, icons and sounds**: Beta has no way for mods to add these, so AzureLib loads every mod's lang file and sounds itself, and `AzItemIcons` gives items custom icons. See [Item Icons, Names and Sounds](misc/icons_and_lang).
     - **Single player**: Beta has no integrated server; the client runs the world itself. AzureLib handles that for you, so server-side dispatches (`AzCommand#sendForEntity` and friends) behave the same in single player and multiplayer.
 </Callout>

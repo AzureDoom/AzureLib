@@ -26,11 +26,13 @@ import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.math.Vec3;
 
 /**
- * Base entity renderer for AzureLib-animated entities on 1.7.10.
+ * Base entity renderer for AzureLib-animated entities on Beta 1.7.3.
  * <p>
- * Register it like any other 1.7.10 renderer, e.g.
- * {@code RenderingRegistry.registerEntityRenderingHandler(MyEntity.class, new MyEntityRenderer())} during client init.
- * 1.7.10 renderers are created without a {@link RenderManager}; Minecraft assigns it when the renderer is registered.
+ * Register it from your {@code client-init} entrypoint with
+ * {@code AzEntityRendererRegistry.register(MyEntity.class, MyEntityRenderer::new)}. Renderers are created without a
+ * dispatcher; the registry assigns it when it installs the renderer.
+ *
+ * @see mod.azure.azurelib.render.registry.AzEntityRendererRegistry
  */
 public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer {
 
@@ -82,6 +84,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
 
     /**
      * Beta's entity render entry point. MAPPING: EntityRenderer#render(Entity, double, double, double, float, float).
+     * MCP: Render.doRender.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -91,7 +94,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
         AzEntityAnimator<T> cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
 
-        this.shadowRadius = config.shadowRadius(entity);
+        this.shadowSize = config.shadowRadius(entity);
         reusedAzEntityAnimator = cachedEntityAnimator;
         animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
 
@@ -144,9 +147,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
         return manager.update(entity, bakedModel);
     }
 
-    /**
-     * Offset applied to bone world-space matrices, mirroring 1.18's {@code EntityRenderer#getRenderOffset}.
-     */
     public Vec3 getRenderOffset(T entity, float partialTick) {
         return Vec3.ZERO;
     }
@@ -163,7 +163,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
         return config;
     }
 
-    /** MAPPING: EntityRenderer#dispatcher. */
     public EntityRenderDispatcher getRenderManager() {
         return this.dispatcher;
     }

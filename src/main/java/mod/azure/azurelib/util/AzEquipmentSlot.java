@@ -1,16 +1,14 @@
 package mod.azure.azurelib.util;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.platform.mc.Mc;
+
 /**
- * Equipment slots, standing in for the {@code EntityEquipmentSlot} enum that Minecraft 1.7.10 does not have.
- * <p>
- * 1.7.10 addresses equipment by index: {@code getEquipmentInSlot(0)} is the held item and 1..4 are boots, leggings,
- * chestplate and helmet. {@code ItemArmor#armorType} and the armor render pass use 0 helmet .. 3 boots. There is no
- * offhand on 1.7.10, so {@link #OFFHAND} always resolves to {@code null}.
+ * Equipment slots, standing in for the {@code EntityEquipmentSlot} enum that Minecraft b1.7.10 does not have.
  */
 public enum AzEquipmentSlot {
 
@@ -48,14 +46,14 @@ public enum AzEquipmentSlot {
     }
 
     @Nullable
-    public ItemStack getStack(LivingEntity entity) {
+    public ItemStack getStack(MobEntity entity) {
         if (this.equipmentIndex < 0) {
             return null;
         }
         // Beta's PlayerInventory#armor is indexed boots (0) .. helmet (3).
         return this.equipmentIndex == 0
-            ? mod.azure.azurelib.platform.mc.Mc.heldItem(entity)
-            : mod.azure.azurelib.platform.mc.Mc.armor(entity, this.equipmentIndex - 1);
+            ? Mc.heldItem(entity)
+            : Mc.armor(entity, this.equipmentIndex - 1);
     }
 
     public static AzEquipmentSlot fromArmorType(int armorType) {

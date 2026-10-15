@@ -1,12 +1,13 @@
 package mod.azure.azurelib.render.armor.bone;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.util.AzEquipmentSlot;
 import mod.azure.azurelib.util.client.RenderUtils;
 
@@ -79,95 +80,95 @@ public class AzArmorBoneContext {
     /**
      * Transform the currently rendering {@link AzBakedModel} to match the positions and rotations of the base model
      */
-    public void applyBaseTransformations(BipedEntityModel baseModel) {
+    public void applyBaseTransformations(HumanoidModel baseModel) {
         if (this.head != null) {
-            ModelPart headPart = baseModel.head;
+            ModelPart headPart = McClient.bipedHead(baseModel);
 
             RenderUtils.matchModelPartRot(headPart, this.head);
-            this.head.updatePosition(headPart.pivotX, -headPart.pivotY, headPart.pivotZ);
+            this.head.updatePosition(McClient.pivotX(headPart), -McClient.pivotY(headPart), McClient.pivotZ(headPart));
         }
 
         if (this.body != null) {
-            ModelPart bodyPart = baseModel.body;
+            ModelPart bodyPart = McClient.bipedBody(baseModel);
 
             RenderUtils.matchModelPartRot(bodyPart, this.body);
-            this.body.updatePosition(bodyPart.pivotX, -bodyPart.pivotY, bodyPart.pivotZ);
+            this.body.updatePosition(McClient.pivotX(bodyPart), -McClient.pivotY(bodyPart), McClient.pivotZ(bodyPart));
         }
 
         if (this.rightArm != null) {
-            ModelPart rightArmPart = baseModel.rightArm;
+            ModelPart rightArmPart = McClient.bipedRightArm(baseModel);
 
             RenderUtils.matchModelPartRot(rightArmPart, this.rightArm);
             this.rightArm.updatePosition(
-                rightArmPart.pivotX + 5,
-                2 - rightArmPart.pivotY,
-                rightArmPart.pivotZ
+                McClient.pivotX(rightArmPart) + 5,
+                2 - McClient.pivotY(rightArmPart),
+                McClient.pivotZ(rightArmPart)
             );
         }
 
         if (this.leftArm != null) {
-            ModelPart leftArmPart = baseModel.leftArm;
+            ModelPart leftArmPart = McClient.bipedLeftArm(baseModel);
 
             RenderUtils.matchModelPartRot(leftArmPart, this.leftArm);
             this.leftArm.updatePosition(
-                leftArmPart.pivotX - 5f,
-                2f - leftArmPart.pivotY,
-                leftArmPart.pivotZ
+                McClient.pivotX(leftArmPart) - 5f,
+                2f - McClient.pivotY(leftArmPart),
+                McClient.pivotZ(leftArmPart)
             );
         }
 
         if (this.rightLeg != null) {
-            ModelPart rightLegPart = baseModel.rightLeg;
+            ModelPart rightLegPart = McClient.bipedRightLeg(baseModel);
 
             RenderUtils.matchModelPartRot(rightLegPart, this.rightLeg);
             this.rightLeg.updatePosition(
-                rightLegPart.pivotX + 2,
-                12 - rightLegPart.pivotY,
-                rightLegPart.pivotZ
+                McClient.pivotX(rightLegPart) + 2,
+                12 - McClient.pivotY(rightLegPart),
+                McClient.pivotZ(rightLegPart)
             );
 
             if (this.rightBoot != null) {
                 RenderUtils.matchModelPartRot(rightLegPart, this.rightBoot);
                 this.rightBoot.updatePosition(
-                    rightLegPart.pivotX + 2,
-                    12 - rightLegPart.pivotY,
-                    rightLegPart.pivotZ
+                    McClient.pivotX(rightLegPart) + 2,
+                    12 - McClient.pivotY(rightLegPart),
+                    McClient.pivotZ(rightLegPart)
                 );
             }
             if (this.waist != null) {
-                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                RenderUtils.matchModelPartRot(McClient.bipedBody(baseModel), this.waist);
                 this.waist.updatePosition(
-                    baseModel.body.pivotX,
-                    -(baseModel.body.pivotY),
-                    baseModel.body.pivotZ
+                    McClient.pivotX(McClient.bipedBody(baseModel)),
+                    -(McClient.pivotY(McClient.bipedBody(baseModel))),
+                    McClient.pivotZ(McClient.bipedBody(baseModel))
                 );
             }
         }
 
         if (this.leftLeg != null) {
-            ModelPart leftLegPart = baseModel.leftLeg;
+            ModelPart leftLegPart = McClient.bipedLeftLeg(baseModel);
 
             RenderUtils.matchModelPartRot(leftLegPart, this.leftLeg);
             this.leftLeg.updatePosition(
-                leftLegPart.pivotX - 2,
-                12 - leftLegPart.pivotY,
-                leftLegPart.pivotZ
+                McClient.pivotX(leftLegPart) - 2,
+                12 - McClient.pivotY(leftLegPart),
+                McClient.pivotZ(leftLegPart)
             );
 
             if (this.leftBoot != null) {
                 RenderUtils.matchModelPartRot(leftLegPart, this.leftBoot);
                 this.leftBoot.updatePosition(
-                    leftLegPart.pivotX - 2,
-                    12 - leftLegPart.pivotY,
-                    leftLegPart.pivotZ
+                    McClient.pivotX(leftLegPart) - 2,
+                    12 - McClient.pivotY(leftLegPart),
+                    McClient.pivotZ(leftLegPart)
                 );
             }
             if (this.waist != null) {
-                RenderUtils.matchModelPartRot(baseModel.body, this.waist);
+                RenderUtils.matchModelPartRot(McClient.bipedBody(baseModel), this.waist);
                 this.waist.updatePosition(
-                    baseModel.body.pivotX,
-                    -(baseModel.body.pivotY),
-                    baseModel.body.pivotZ
+                    McClient.pivotX(McClient.bipedBody(baseModel)),
+                    -(McClient.pivotY(McClient.bipedBody(baseModel))),
+                    McClient.pivotZ(McClient.bipedBody(baseModel))
                 );
             }
         }
@@ -182,24 +183,24 @@ public class AzArmorBoneContext {
     public void applyBoneVisibilityByPart(
         AzEquipmentSlot currentSlot,
         ModelPart currentPart,
-        BipedEntityModel model
+        HumanoidModel model
     ) {
         setAllVisible(false);
 
-        currentPart.visible = true;
+        McClient.setVisible(currentPart, true);
         AzBone bone = null;
 
-        if (currentPart == model.hat || currentPart == model.head) {
+        if (currentPart == McClient.bipedHat(model) || currentPart == McClient.bipedHead(model)) {
             bone = this.head;
-        } else if (currentPart == model.body) {
+        } else if (currentPart == McClient.bipedBody(model)) {
             bone = this.body;
-        } else if (currentPart == model.leftArm) {
+        } else if (currentPart == McClient.bipedLeftArm(model)) {
             bone = this.leftArm;
-        } else if (currentPart == model.rightArm) {
+        } else if (currentPart == McClient.bipedRightArm(model)) {
             bone = this.rightArm;
-        } else if (currentPart == model.leftLeg) {
+        } else if (currentPart == McClient.bipedLeftLeg(model)) {
             bone = currentSlot == AzEquipmentSlot.FEET ? this.leftBoot : this.leftLeg;
-        } else if (currentPart == model.rightLeg) {
+        } else if (currentPart == McClient.bipedRightLeg(model)) {
             bone = currentSlot == AzEquipmentSlot.FEET ? this.rightBoot : this.rightLeg;
         }
 
@@ -209,7 +210,7 @@ public class AzArmorBoneContext {
 
         if (
             currentSlot == AzEquipmentSlot.LEGS &&
-                (currentPart == model.leftLeg || currentPart == model.rightLeg) &&
+                (currentPart == McClient.bipedLeftLeg(model) || currentPart == McClient.bipedRightLeg(model)) &&
                 this.waist != null
         ) {
             this.waist.setHidden(false);

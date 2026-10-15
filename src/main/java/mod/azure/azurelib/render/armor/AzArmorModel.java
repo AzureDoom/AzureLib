@@ -1,9 +1,9 @@
 package mod.azure.azurelib.render.armor;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -22,14 +22,14 @@ import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
- * A {@link BipedEntityModel} whose parts are only used as the pose source for an AzureLib armor model.
+ * A {@link HumanoidModel} whose parts are only used as the pose source for an AzureLib armor model.
  * <p>
  * Beta's player renderer draws armor in "render passes" with a vanilla biped model. AzureLib's armor hook
  * ({@code PlayerEntityRendererMixin_AzArmor}) cancels the vanilla pass for AzureLib armor and calls
- * {@link #renderArmor(LivingEntity, ItemStack, AzEquipmentSlot, float)} at the same point instead, so the GL matrix is
+ * {@link #renderArmor(MobEntity, ItemStack, AzEquipmentSlot, float)} at the same point instead, so the GL matrix is
  * already in the player's model space, exactly where vanilla would draw its armor.
  */
-public class AzArmorModel extends BipedEntityModel {
+public class AzArmorModel extends HumanoidModel {
 
     /** Beta renders entity models at 1/16 block per model unit. */
     private static final float MODEL_SCALE = 0.0625F;
@@ -58,24 +58,24 @@ public class AzArmorModel extends BipedEntityModel {
 
     private static void resetPart(ModelPart part, float x, float y, float z) {
         McClient.setPivot(part, x, y, z);
-        part.pitch = part.yaw = part.roll = 0;
+        McClient.setRotation(part, 0, 0, 0);
     }
 
     private void resetPose() {
-        resetPart(head, 0, 0, 0);
-        resetPart(hat, 0, 0, 0);
-        resetPart(body, 0, 0, 0);
-        resetPart(rightArm, -5, 2, 0);
-        resetPart(leftArm, 5, 2, 0);
-        resetPart(rightLeg, -1.9F, 12, 0);
-        resetPart(leftLeg, 1.9F, 12, 0);
+        resetPart(McClient.bipedHead(this), 0, 0, 0);
+        resetPart(McClient.bipedHat(this), 0, 0, 0);
+        resetPart(McClient.bipedBody(this), 0, 0, 0);
+        resetPart(McClient.bipedRightArm(this), -5, 2, 0);
+        resetPart(McClient.bipedLeftArm(this), 5, 2, 0);
+        resetPart(McClient.bipedRightLeg(this), -1.9F, 12, 0);
+        resetPart(McClient.bipedLeftLeg(this), 1.9F, 12, 0);
     }
 
     /**
      * Poses this biped exactly like Beta's {@code LivingEntityRenderer} poses the player model, then renders the
      * AzureLib armor piece for the given slot following that pose.
      */
-    public void renderArmor(LivingEntity entity, ItemStack stack, AzEquipmentSlot slot, float partialTick) {
+    public void renderArmor(MobEntity entity, ItemStack stack, AzEquipmentSlot slot, float partialTick) {
         AzArmorRenderer renderer = this.rendererPipeline.renderer();
         prepare(renderer, stack, slot);
 
@@ -110,8 +110,8 @@ public class AzArmorModel extends BipedEntityModel {
         McClient.setBipedPose(
             this,
             Mc.isSneaking(entity),
-            entity instanceof LivingEntity && Mc.heldItem((LivingEntity) entity) != null,
-            entity instanceof LivingEntity ? Mc.swingProgress((LivingEntity) entity, AzRenderTick.partialTicks()) : 0
+            entity instanceof MobEntity && Mc.heldItem((MobEntity) entity) != null,
+            entity instanceof MobEntity ? Mc.swingProgress((MobEntity) entity, AzRenderTick.partialTicks()) : 0
         );
 
         resetPose();
@@ -170,7 +170,7 @@ public class AzArmorModel extends BipedEntityModel {
     }
 
     /** Copies the pose flags of another biped (for mods that render AzureLib armor on their own biped mobs). */
-    public void applyBaseModel(BipedEntityModel baseModel) {
+    public void applyBaseModel(HumanoidModel baseModel) {
         McClient.copyBipedPose(baseModel, this);
     }
 }

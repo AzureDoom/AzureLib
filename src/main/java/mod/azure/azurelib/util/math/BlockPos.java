@@ -74,8 +74,9 @@ public final class BlockPos {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof BlockPos other))
+        if (!(o instanceof BlockPos))
             return false;
+        BlockPos other = (BlockPos) o;
         return this.x == other.x && this.y == other.y && this.z == other.z;
     }
 

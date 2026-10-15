@@ -310,11 +310,11 @@ AzWeightedPoolBehavior.builder("mymod:example_walk")
 
 #### **Full Example**
 <Callout variant="warning">
-    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isRemote` check is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
+    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isMultiplayer` check (`isRemote` in other mappings) is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
 </Callout>
 
 ```java
-public class ExampleEntity extends LivingEntity {
+public class ExampleEntity extends MobEntity {
 
     public static final AzWeightedPoolBehavior IDLE_POOL = AzWeightedPoolBehavior.builder("mymod:example_idle")
         .add("IDLE_ANIMATION", 3)
@@ -457,11 +457,11 @@ With `AzCommand`, you can dynamically dispatch animation commands based on the e
 To enhance the new `AzCommand` approach and replace the `isMoving` logic from the old `AnimationController` example, you can use the `MoveAnalysis` utility class. This class provides advanced functionalities, such as detecting horizontal movement and checking whether the entity is on the ground. Here's how you can implement this:
 
 <Callout variant="warning">
-    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isRemote` check is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
+    Beta 1.7.3 single player has no integrated server: the client runs the world itself, so a `world.isMultiplayer` check (`isRemote` in other mappings) is never true there. Pick looping state animations from the renderer instead (it only exists on the client), by calling a method like `updateAnimations()` below from your renderer's `setPrerenderEntry`, as shown on the [Entities](../../entities/entities#creating-your-renderer) page.
 </Callout>
 
 ```java
-public class ExampleEntity extends LivingEntity {
+public class ExampleEntity extends MobEntity {
     private final AzCommand idleCommand = AzCommand.create("base", "IDLE_ANIMATION", AzPlayBehaviors.LOOP);
     private final AzCommand walkCommand = AzCommand.create("base", "WALK_ANIMATION", AzPlayBehaviors.LOOP);
     private final MoveAnalysis moveAnalysis;

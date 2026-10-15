@@ -1,9 +1,12 @@
 package mod.azure.azurelib.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -13,6 +16,15 @@ public final class AzCollections {
 
     private AzCollections() {
         throw new UnsupportedOperationException();
+    }
+
+    /** Unmodifiable, null-rejecting copy of a list (Java 8 stand-in for {@code List.copyOf}). */
+    public static <T> List<T> immutableList(Collection<? extends T> values) {
+        List<T> copy = new ArrayList<>(values.size());
+        for (T value : values) {
+            copy.add(Objects.requireNonNull(value));
+        }
+        return Collections.unmodifiableList(copy);
     }
 
     /** Insertion-ordered, de-duplicated, unmodifiable copy (like Guava's {@code ImmutableSet.copyOf}). */

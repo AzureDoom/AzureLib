@@ -1,15 +1,18 @@
 package mod.azure.azurelib.animation.play_behavior;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
+import mod.azure.azurelib.util.AzCollections;
 
 /**
  * A play behavior that, whenever its animation finishes, picks the next animation from a weighted pool and plays it
@@ -132,13 +135,13 @@ public final class AzWeightedPoolBehavior extends AzPlayBehavior {
             built.add(new Entry(p.name(), p.weight(), p.allowRepeat() && !avoidRepeat, sequence));
         }
 
-        this.entries = java.util.List.copyOf(built);
+        this.entries = AzCollections.immutableList(built);
         this.entryStartSequences = built.stream()
             .map(e -> AzSequence.create().then(e.animationName(), this))
             .collect(
-                java.util.stream.Collectors.collectingAndThen(
-                    java.util.stream.Collectors.toList(),
-                    java.util.List::copyOf
+                Collectors.collectingAndThen(
+                    Collectors.toList(),
+                    Collections::unmodifiableList
                 )
             );
         this.startSequence = AzSequence.create().then(start, this);

@@ -85,8 +85,9 @@ public final class ResourceLocation implements Comparable<ResourceLocation> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof ResourceLocation other))
+        if (!(o instanceof ResourceLocation))
             return false;
+        ResourceLocation other = (ResourceLocation) o;
         return this.namespace.equals(other.namespace) && this.path.equals(other.path);
     }
 

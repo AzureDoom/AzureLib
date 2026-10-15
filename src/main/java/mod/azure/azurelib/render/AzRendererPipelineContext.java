@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.entity.mob.monster.CreeperEntity;
 
 import java.util.HashMap;
 import java.util.Map;

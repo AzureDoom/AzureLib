@@ -1,6 +1,6 @@
 package mod.azure.azurelib.util.client;
 
-import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.model.ModelPart;
 import net.minecraft.entity.Entity;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -15,6 +15,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.platform.mc.Mc;
+import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.texture.ITextureObject;
 import mod.azure.azurelib.render.texture.TextureManager;
 import mod.azure.azurelib.render.vertex.GlStateManager;
@@ -265,7 +266,7 @@ public final class RenderUtils {
      * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
      */
     public static void matchModelPartRot(ModelPart from, AzBone to) {
-        to.updateRotation(-from.pitch, -from.yaw, from.roll);
+        to.updateRotation(-McClient.rotX(from), -McClient.rotY(from), McClient.rotZ(from));
     }
 
     /**

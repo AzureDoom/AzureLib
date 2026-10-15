@@ -1,7 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 
 import java.util.UUID;
 
@@ -62,7 +62,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             Direction bedDirection = getBedOrientation(animatable);
 
             if (bedDirection != null) {
-                float eyePosOffset = ((LivingEntity) animatable).getEyeHeight() - 0.1F;
+                float eyePosOffset = Mc.eyeHeight(animatable) - 0.1F;
 
                 poseStack.translate(
                     -bedDirection.getStepX() * eyePosOffset,
@@ -173,7 +173,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
      * ensure realistic movement, especially when the entity is a passenger.
      *
      * @param animatable  The entity whose rotation is to be interpolated. Must extend {@link Entity}, and may include
-     *                    subtypes such as {@link LivingEntity} to apply specific logic for living entities.
+     *                    subtypes such as {@link MobEntity} to apply specific logic for living entities.
      * @param partialTick A float value representing the partial time progression within the current game tick. Used to
      *                    blend between previous and current states for smoother animations.
      * @return The interpolated LERP rotation value, which represents the adjusted body rotation of the entity after
@@ -182,23 +182,23 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
     private static <T extends Entity> float getLerpRot(T animatable, float partialTick) {
         boolean shouldSit = Mc.isRiding(animatable) && (Mc.vehicle(animatable) != null);
 
-        float lerpBodyRot = animatable instanceof LivingEntity
+        float lerpBodyRot = animatable instanceof MobEntity
             ? Mth.rotLerp(
                 partialTick,
-                Mc.prevBodyYaw((LivingEntity) animatable),
-                Mc.bodyYaw((LivingEntity) animatable)
+                Mc.prevBodyYaw((MobEntity) animatable),
+                Mc.bodyYaw((MobEntity) animatable)
             )
             : Mc.yaw(animatable);
-        float lerpHeadRot = animatable instanceof LivingEntity
+        float lerpHeadRot = animatable instanceof MobEntity
             ? Mth.rotLerp(
                 partialTick,
-                Mc.prevHeadYaw((LivingEntity) animatable),
-                Mc.headYaw((LivingEntity) animatable)
+                Mc.prevHeadYaw((MobEntity) animatable),
+                Mc.headYaw((MobEntity) animatable)
             )
             : Mc.yaw(animatable);
 
-        if (shouldSit && Mc.vehicle(animatable) instanceof LivingEntity) {
-            LivingEntity livingentity = (LivingEntity) Mc.vehicle(animatable);
+        if (shouldSit && Mc.vehicle(animatable) instanceof MobEntity) {
+            MobEntity livingentity = (MobEntity) Mc.vehicle(animatable);
             lerpBodyRot = Mth.rotLerp(partialTick, Mc.prevBodyYaw(livingentity), Mc.bodyYaw(livingentity));
             float netHeadYaw = lerpHeadRot - lerpBodyRot;
             float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
@@ -240,8 +240,8 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             poseStack.mulPose(Vector3f.YP.rotationDegrees(180f - rotationYaw));
         }
 
-        if (animatable instanceof LivingEntity) {
-            LivingEntity livingEntity = (LivingEntity) animatable;
+        if (animatable instanceof MobEntity) {
+            MobEntity livingEntity = (MobEntity) animatable;
             AzEntityRendererConfig<T> config = entityRendererPipeline.getRenderer().config();
             float deathMaxRotation = config.getDeathMaxRotation(animatable);
 
@@ -269,7 +269,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
     }
 
     private static boolean isSleeping(Entity entity) {
-        return entity instanceof LivingEntity && Mc.isSleeping((LivingEntity) entity);
+        return entity instanceof MobEntity && Mc.isSleeping((MobEntity) entity);
     }
 
     /**
@@ -281,7 +281,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
     }
 
     /** Beta predates the "Dinnerbone" easter egg, so nothing is ever rendered upside down. */
-    private static boolean isEntityUpsideDown(LivingEntity entity) {
+    private static boolean isEntityUpsideDown(MobEntity entity) {
         return false;
     }
 }

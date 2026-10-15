@@ -87,7 +87,10 @@ public final class FileLoader {
      */
     public static String getFileContents(ResourceLocation location, AzResourceManager manager) {
         try (InputStream inputStream = manager.getResource(location).getInputStream()) {
-            return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            return new String(
+                mod.azure.azurelib.util.AzIo.readAllBytes(inputStream),
+                java.nio.charset.StandardCharsets.UTF_8
+            );
         } catch (Exception e) {
             AzureLib.LOGGER.error("Couldn't load {}", location, e);
 

@@ -2,17 +2,18 @@
   "required": true,
   "minVersion": "0.8",
   "package": "mod.azure.azurelib.mixins",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
-    "ItemStackMixin_AzItemStackIdentityRegistry"
+    "ItemStackMixin_AzItemStackData",
+    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "accessor.BlockEntityAccessor",
+    "accessor.EntityRegistryAccessor"
   ],
-  "client": [
-  ],
-  "server": [
-  ],
+  "client": [],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   }

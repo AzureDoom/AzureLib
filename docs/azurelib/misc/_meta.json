@@ -10,5 +10,9 @@
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"
+    },
+    "icons_and_lang.mdx": {
+        "name": "Item Icons, Names and Sounds",
+        "icon": "Info"
     }
 }

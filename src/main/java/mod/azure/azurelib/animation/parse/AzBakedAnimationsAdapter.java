@@ -51,7 +51,7 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
      */
     private static List<Pair<String, JsonElement>> getKeyframes(JsonElement element) {
         if (element == null)
-            return java.util.List.of();
+            return java.util.Collections.emptyList();
 
         if (element instanceof JsonPrimitive) {
             JsonArray array = new JsonArray();
