@@ -181,10 +181,17 @@ public final class AzBufferSource implements MultiBufferSource {
 
     private static final int GL_STRIDE = GL_FLOATS_PER_VERTEX * 4;
 
-    private static FloatBuffer glBuffer = allocate(4096);
+    private static ByteBuffer glBytes;
 
-    private static FloatBuffer allocate(int vertices) {
-        return ByteBuffer.allocateDirect(vertices * GL_STRIDE).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    private static FloatBuffer glBuffer;
+
+    static {
+        allocate(4096);
+    }
+
+    private static void allocate(int vertices) {
+        glBytes = ByteBuffer.allocateDirect(vertices * GL_STRIDE).order(ByteOrder.nativeOrder());
+        glBuffer = glBytes.asFloatBuffer();
     }
 
     /**
@@ -202,7 +209,7 @@ public final class AzBufferSource implements MultiBufferSource {
         boolean fullBright = renderType.isEmissive() || colorOverride != -1;
         int count = batch.vertexCount;
         if (glBuffer.capacity() < count * GL_FLOATS_PER_VERTEX) {
-            glBuffer = allocate(Math.max(count, glBuffer.capacity() / GL_FLOATS_PER_VERTEX * 2));
+            allocate(Math.max(count, glBuffer.capacity() / GL_FLOATS_PER_VERTEX * 2));
         }
         FloatBuffer out = glBuffer;
         out.clear();
@@ -246,14 +253,17 @@ public final class AzBufferSource implements MultiBufferSource {
     }
 
     private static void bindPointers(FloatBuffer out) {
-        out.position(0);
-        GL11.glVertexPointer(3, GL_STRIDE, out);
-        out.position(3);
-        GL11.glTexCoordPointer(2, GL_STRIDE, out);
-        out.position(5);
-        GL11.glNormalPointer(GL_STRIDE, out);
-        out.position(8);
-        GL11.glColorPointer(4, GL_STRIDE, out);
+        ByteBuffer bytes = glBytes;
+        bytes.limit(out.limit() * 4);
+        bytes.position(0);
+        GL11.glVertexPointer(3, GL11.GL_FLOAT, GL_STRIDE, bytes);
+        bytes.position(3 * 4);
+        GL11.glTexCoordPointer(2, GL11.GL_FLOAT, GL_STRIDE, bytes);
+        bytes.position(5 * 4);
+        GL11.glNormalPointer(GL11.GL_FLOAT, GL_STRIDE, bytes);
+        bytes.position(8 * 4);
+        GL11.glColorPointer(4, GL11.GL_FLOAT, GL_STRIDE, bytes);
+        bytes.position(0);
     }
 
     private static void drawWhiteOverlay(Batch batch, FloatBuffer out, RenderType renderType) {
