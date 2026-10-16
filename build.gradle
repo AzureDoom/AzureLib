@@ -133,7 +133,7 @@ if (keyPropsFile.exists()) {
                 final String mcVersion = project.property("minecraft_version")
 
                 final String header =
-                        "# A new version of AzureLib has been released for Minecraft ${mcVersion}!\n\n"
+                        "# A new version of AzureLib has been released for Minecraft ${mcVersion} for StationAPI!\n\n"
 
                 final String suffix =
                         "\n\n**Full changelog available on Modrinth below.**"
