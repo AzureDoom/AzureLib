@@ -53,6 +53,7 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
         if (hasFinishedTransitioning) {
             // If we've exceeded the amount of time we should be transitioning, then switch to play state.
             stateMachine.play();
+            stateMachine.update();
             return;
         }
 

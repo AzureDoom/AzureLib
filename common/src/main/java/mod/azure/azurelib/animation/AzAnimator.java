@@ -47,7 +47,7 @@ public abstract class AzAnimator<K, T> {
     private static final MolangVariableRef FRAME_ALPHA_REF = new MolangVariableRef(MolangQueries.FRAME_ALPHA);
 
     private static final MolangVariableRef CLIENT_MAX_RENDER_DISTANCE_REF = new MolangVariableRef(
-        MolangQueries.CLIENT_MAX_RENDER_DISTANCE
+            MolangQueries.CLIENT_MAX_RENDER_DISTANCE
     );
 
     private static final double[] MOON_BRIGHTNESS = { 1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75 };
@@ -65,6 +65,8 @@ public abstract class AzAnimator<K, T> {
     private double molangAnimTime;
 
     private float molangPartialTicks;
+
+    private boolean hasAnimated;
 
     private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
 
@@ -95,7 +97,7 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier frameAlphaSupplier = () -> molangPartialTicks;
 
     private final DoubleSupplier clientMaxRenderDistanceSupplier = () -> Minecraft.getInstance().options
-        .getEffectiveRenderDistance();
+            .getEffectiveRenderDistance();
 
     private static int moonPhase() {
         var lvl = Minecraft.getInstance().level;
@@ -126,10 +128,16 @@ public abstract class AzAnimator<K, T> {
 
     public AzAnimationContext<T> getOrCreateContext(K uuid) {
         var ctx = contextCache.computeIfAbsent(
-            uuid,
-            ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+                uuid,
+                ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
         );
         this.currentContext = ctx;
+        return ctx;
+    }
+
+    public AzAnimationContext<T> getOrCreateContext(K uuid, T animatable) {
+        var ctx = getOrCreateContext(uuid);
+        ctx.animatable = animatable;
         return ctx;
     }
 
@@ -146,6 +154,11 @@ public abstract class AzAnimator<K, T> {
 
         if (updateTimer) {
             timer.tick();
+        }
+
+        if (!hasAnimated) {
+            hasAnimated = true;
+            onFirstAnimate(animatable);
         }
 
         AzProfiler.begin(AzProfileStage.MOLANG_SETUP, animatable);
@@ -248,4 +261,18 @@ public abstract class AzAnimator<K, T> {
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
         return animationControllerContainer;
     }
+
+    /**
+     * Called once, on this animator's first {@link #animate} call, right before its controllers update for the first
+     * time. Commands dispatched here (e.g. {@code MY_COMMAND.sendForEntity(animatable)}) apply on that same frame, so
+     * the animatable never renders a frame without an animation.
+     * <p>
+     * This is the place to start an entity's spawn or initial animation. Prefer it over keying off
+     * {@code tickCount == 0}: a freshly spawned entity is not guaranteed to render before its first client tick. It
+     * runs again if the animator is replaced, e.g. when the model changes.
+     * </p>
+     *
+     * @param animatable the animatable being animated for the first time
+     */
+    protected void onFirstAnimate(T animatable) {}
 }
