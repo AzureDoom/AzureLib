@@ -68,6 +68,8 @@ public abstract class AzAnimator<K, T> {
 
     private float molangPartialTicks;
 
+    private boolean hasAnimated;
+
     private final DoubleSupplier lifetimeSupplier = () -> molangAnimTime / 20d;
 
     private final DoubleSupplier actorCountSupplier = () -> {
@@ -135,6 +137,12 @@ public abstract class AzAnimator<K, T> {
         return ctx;
     }
 
+    public AzAnimationContext<T> getOrCreateContext(K uuid, T animatable) {
+        AzAnimationContext<T> ctx = getOrCreateContext(uuid);
+        ctx.animatable = animatable;
+        return ctx;
+    }
+
     public abstract void registerControllers(AzAnimationControllerContainer<T> animationControllerContainer);
 
     public abstract @Nonnull ResourceLocation getAnimationLocation(T animatable);
@@ -148,6 +156,11 @@ public abstract class AzAnimator<K, T> {
 
         if (updateTimer) {
             timer.tick();
+        }
+
+        if (!hasAnimated) {
+            hasAnimated = true;
+            onFirstAnimate(animatable);
         }
 
         AzProfiler.begin(AzProfileStage.MOLANG_SETUP, animatable);
@@ -250,4 +263,18 @@ public abstract class AzAnimator<K, T> {
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
         return animationControllerContainer;
     }
+
+    /**
+     * Called once, on this animator's first {@link #animate} call, right before its controllers update for the first
+     * time. Commands dispatched here (e.g. {@code MY_COMMAND.sendForEntity(animatable)}) apply on that same frame, so
+     * the animatable never renders a frame without an animation.
+     * <p>
+     * This is the place to start an entity's spawn or initial animation. Prefer it over keying off
+     * {@code tickCount == 0}: a freshly spawned entity is not guaranteed to render before its first client tick. It
+     * runs again if the animator is replaced, e.g. when the model changes.
+     * </p>
+     *
+     * @param animatable the animatable being animated for the first time
+     */
+    protected void onFirstAnimate(T animatable) {}
 }

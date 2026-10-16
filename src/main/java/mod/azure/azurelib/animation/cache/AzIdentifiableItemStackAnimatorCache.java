@@ -1,9 +1,12 @@
 package mod.azure.azurelib.animation.cache;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -18,11 +21,17 @@ import mod.azure.azurelib.util.AzItemIds;
  * Animators are stored per {@link AzItemAnimatorView}, so a single stack can have a separate first-person animator
  * alongside its default one.
  */
+@SuppressWarnings("UnstableApiUsage")
 public class AzIdentifiableItemStackAnimatorCache {
 
     private static final AzIdentifiableItemStackAnimatorCache INSTANCE = new AzIdentifiableItemStackAnimatorCache();
 
     private static final Map<AzItemAnimatorView, WeakHashMap<UUID, AzItemAnimator>> ANIMATORS_BY_VIEW;
+
+    private static final Cache<UUID, Map<AzItemAnimatorView, List<Consumer<AzItemAnimator>>>> PENDING =
+        CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .build();
 
     static {
         ANIMATORS_BY_VIEW = new EnumMap<>(AzItemAnimatorView.class);
@@ -43,8 +52,19 @@ public class AzIdentifiableItemStackAnimatorCache {
      */
     public void add(ItemStack itemStack, AzItemAnimatorView view, AzItemAnimator animator) {
         NBTTagCompound tag = itemStack.getTagCompound();
-        if (tag != null && AzItemIds.has(tag) && animator != null) {
-            ANIMATORS_BY_VIEW.get(view).putIfAbsent(AzItemIds.get(tag), animator);
+
+        if (tag != null && !AzItemIds.has(tag)) {
+            return;
+        }
+
+        if (tag == null) {
+            return;
+        }
+
+        UUID uuid = AzItemIds.get(tag);
+
+        if (ANIMATORS_BY_VIEW.get(view).putIfAbsent(uuid, animator) == null) {
+            flushPending(uuid, view, animator);
         }
     }
 
@@ -81,6 +101,45 @@ public class AzIdentifiableItemStackAnimatorCache {
             if (animator != null) {
                 action.accept(animator);
             }
+        }
+    }
+
+    public void dispatchOrQueue(UUID uuid, @Nullable AzItemAnimatorView view, Consumer<AzItemAnimator> action) {
+        if (uuid == null) {
+            return;
+        }
+
+        AzItemAnimatorView[] targets = view != null ? new AzItemAnimatorView[] { view } : AzItemAnimatorView.values();
+
+        for (AzItemAnimatorView target : targets) {
+            AzItemAnimator animator = getOrNull(uuid, target);
+
+            if (animator != null) {
+                action.accept(animator);
+            } else {
+                PENDING.asMap()
+                    .computeIfAbsent(uuid, k -> new EnumMap<>(AzItemAnimatorView.class))
+                    .computeIfAbsent(target, k -> new ArrayList<>())
+                    .add(action);
+            }
+        }
+    }
+
+    private static void flushPending(UUID uuid, AzItemAnimatorView view, AzItemAnimator animator) {
+        Map<AzItemAnimatorView, List<Consumer<AzItemAnimator>>> byView = PENDING.getIfPresent(uuid);
+
+        if (byView == null) {
+            return;
+        }
+
+        List<Consumer<AzItemAnimator>> queued = byView.remove(view);
+
+        if (byView.isEmpty()) {
+            PENDING.invalidate(uuid);
+        }
+
+        if (queued != null) {
+            queued.forEach(action -> action.accept(animator));
         }
     }
 }
