@@ -1,24 +1,22 @@
-v1.0.1
+v1.0.2
 
 ### Additions
-- Added `AzAnimator#onFirstAnimate(T)`, a hook that runs once on an animator's first `animate()` call, right before its controllers update. Commands dispatched here apply on that same frame, making it the reliable place to start spawn/initial animations.
-- Added `AzAnimator#getOrCreateContext(K, T)`, which binds the animatable to the context when it is created.
-- Added `AzPendingDispatches`, which queues animation commands sent to an entity or block entity before its animator exists and replays them once the animator is created.
-- Added `AzIdentifiableItemStackAnimatorCache#dispatchOrQueue`, which does the same for item stacks per `AzItemAnimatorView`.
+- N/A
 
 ### Fixes
-- Fixed animatables rendering in their bind pose (T-pose) for a frame when a transition finished, most noticeably on controllers with a transition length of 0. The transition state now hands off to the play state and applies keyframes in the same update.
-- Fixed `AzAnimationTimer` adding the full absolute render time to `animTime` on its first tick, which made controllers treat transitions as instantly finished.
-- Fixed animation commands being silently dropped when they arrived before the animatable had been rendered (entity, block entity, and item stack dispatch packets, and client-side dispatch).
-- Fixed "Unable to create animation queue: animatable is null" when a command was dispatched before an animator's first `animate()` call, which left the controller with nothing to play.
-- Fixed a `NoSuchMethodError` crash when rendering any AzureLib model with legacy-lwjgl3 installed. `AzBufferSource` used LWJGL 2-only `glNormalPointer`/`glColorPointer` overloads that legacy-lwjgl3 doesn't provide; all vertex pointers now use the `(size, type, stride, ByteBuffer)` overloads, which exist in both LWJGL 2 and LWJGL 3.
+- Fixed textures without an animation-frame method repeatedly retrying a failed reflective lookup every frame. The failed lookup is now cached, so these textures no longer throw an exception on every render.
 
 ### Changes
-- `AzProvider` now binds the animatable to the animation context on creation and flushes pending dispatches after registering controllers, both when creating an animator and when rebuilding it on a model change.
-- Item stack dispatches (server packet and `AzCommand#sendForItem` on the client) now go through `dispatchOrQueue` instead of skipping stacks with no animator yet.
+- Improved animation performance on models with many bones. The bone cache now walks bones in a fixed array and skips any bone that has fully eased back to its bind pose, so its cost scales with the animated bones instead of the whole model.
+- Bones scaled to zero on every axis, along with everything under them, are no longer rendered, instead of being drawn as collapsed geometry.
+- Reduced rendering overhead in the buffer source. Vertices are now written once, already in their final draw layout, with lighting, hurt tint and glint colour applied up front, so drawing a batch is a single bulk copy instead of a second pass over every vertex. Normals are normalized once per quad instead of once per vertex, and glint batches are filled once for both passes.
+- Bone rotation and scaling no longer allocate matrices. Each bone's rotation is now applied as one combined rotation instead of up to three separate ones, which removes nearly all of the garbage rendering used to create per frame.
 
 ### Developer Notes
-- Use `onFirstAnimate` to start an entity's initial animation instead of keying off `tickCount == 0`. A freshly spawned entity is not guaranteed to render before its first client tick, especially on the first spawn after loading a world.
-- Commands sent before an animatable's first render are now replayed when its animator is created rather than discarded, so server-sent spawn animations will now play where they previously did not.
-- Queued item stack commands expire after 10 seconds. A command with no view is queued separately for each view that has no animator yet.
-- AzureLib does not depend on legacy-lwjgl3; it works with or without it. When adding GL calls, prefer overloads that exist in both LWJGL 2 and LWJGL 3 (such as the `(size, type, stride, ByteBuffer)` pointer forms) over LWJGL 2-only convenience overloads.
+- `AzCachedBoneUpdateUtil` has new overloads that take an `AzBoneSnapshot` directly and return whether the channel is at rest. The existing `Map` overloads still work and delegate to them.
+- Added `AzBoneCache#invalidateBoneArrays()`. Call it if you replace or remove entries in `getBoneSnapshotsByName()` directly; changing a snapshot's values doesn't need it.
+- While a bone is scaled to zero on all three axes, its descendants don't update their tracked matrices and per-bone render layers aren't called for that subtree.
+- Added `PoseStack#rotateZYX(rz, ry, rx)`, which applies the same rotation as calling `mulPose` for Z, then Y, then X, in a single step. `RenderUtils.rotateMatrixAroundBone` and `rotateMatrixAroundCube` now use it.
+- `PoseStack#scale(1, 1, 1)` is now a no-op.
+- Added in-place `Matrix4f#multiplyWithScale` and `Matrix4f#multiplyRotation`, and `Matrix3f#mulScale` and `Matrix3f#mulRotation`. `Matrix4f#multiply(Quaternion)` and `Matrix3f#mul(Quaternion)` now work in place instead of allocating a temporary matrix.
+- `AzBufferSource`'s public API is unchanged; custom `VertexConsumer` usage needs no updates.
