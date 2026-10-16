@@ -5,6 +5,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
     id 'com.diffplug.spotless' version "6.13.0"
+    id "com.hypherionmc.modutils.modpublisher" version "2.2.4"
 }
 
 def keyPropsFile = rootProject.file('key.properties')
@@ -220,10 +221,11 @@ publishing {
 }
 
 tasks.withType(PublishToMavenRepository).configureEach {
-    dependsOn tasks.named('reobfJar')
+    dependsOn 'reobfJar'
 }
+
 tasks.withType(PublishToMavenLocal).configureEach {
-    dependsOn tasks.named('reobfJar')
+    dependsOn 'reobfJar'
 }
 
 tasks.withType(GenerateModuleMetadata).configureEach {
@@ -236,4 +238,61 @@ tasks.matching { it.name == 'publishCurseforge' }.configureEach {
 
 tasks.matching { it.name == 'publishModrinth' }.configureEach {
     dependsOn tasks.named('build')
+}
+
+def keysFile = rootProject.file('key.properties')
+def keys = new Properties()
+
+if (keysFile.exists()) {
+    keysFile.withInputStream { keys.load(it) }
+}
+
+def curseKey = keys.getProperty('curseKey')?.trim()
+def modrinthKey = keys.getProperty('modrinthKey')?.trim()
+
+def requestedTasks = gradle.startParameter.taskNames.collect {
+    it.tokenize(':').last().toLowerCase()
+}
+
+def publishingCurseforge = requestedTasks.any {
+    it == 'publishcurseforge' || it == 'publishmod'
+}
+
+def publishingModrinth = requestedTasks.any {
+    it == 'publishmodrinth' || it == 'publishmod'
+}
+
+if (publishingCurseforge && !curseKey) {
+    throw new GradleException(
+            "CurseForge publishing requires curseKey in key.properties"
+    )
+}
+
+if (publishingModrinth && !modrinthKey) {
+    throw new GradleException(
+            "Modrinth publishing requires modrinthKey in key.properties"
+    )
+}
+
+publisher {
+    apiKeys {
+        curseforge curseKey ?: ""
+        modrinth modrinthKey ?: ""
+    }
+
+    setGameType("minecraft")
+
+    setCurseID("1665914")
+    setModrinthID("7zlUOZvb")
+
+    setVersionType("release")
+    setChangelog("changelog.md")
+    setProjectVersion("${project.version}")
+
+    setGameVersions("1.12.2")
+    setLoaders("forge")
+    setCurseEnvironment("both")
+
+    setArtifact(jar)
+    setJavaVersions([JavaVersion.VERSION_1_8])
 }
