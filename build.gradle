@@ -282,11 +282,11 @@ publisher {
 
     setGameType("minecraft")
 
-    setCurseID("1665914")
+    setCurseID("817423")
     setModrinthID("7zlUOZvb")
 
     setVersionType("release")
-    setChangelog("changelog.md")
+    setChangelog(file("changelog.md").getText("UTF-8"))
     setProjectVersion("${project.version}")
 
     setGameVersions("1.12.2")
