@@ -1,6 +1,7 @@
 package mod.azure.azurelib.animation.cache;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -23,6 +24,29 @@ public class AzBoneCache {
 
     private final Map<String, AzBoneSnapshot> boneSnapshotsByName;
 
+    private static final AzBone[] NO_BONES = new AzBone[0];
+
+    private static final AzBoneSnapshot[] NO_SNAPSHOTS = new AzBoneSnapshot[0];
+
+    private static final boolean[] NO_FLAGS = new boolean[0];
+
+    /*
+     * Every bone of bakedModel, with its saved snapshot (or null) at the same index, so update() can walk them without
+     * hashing bone names. Built for arrayModel; rebuilt whenever the baked model or the snapshot map is replaced.
+     */
+    private AzBone[] boneArray = NO_BONES;
+
+    private AzBoneSnapshot[] snapshotArray = NO_SNAPSHOTS;
+
+    /*
+     * atRest[i]: bone i has finished easing back to its bind pose on every channel and nothing has changed it since, so
+     * update() can skip it until something marks it changed again.
+     */
+    private boolean[] atRest = NO_FLAGS;
+
+    @Nullable
+    private AzBakedModel arrayModel;
+
     /** Counts animation frames for this animatable; advanced at the end of {@link #update}. */
     private long currentFrame;
 
@@ -37,41 +61,71 @@ public class AzBoneCache {
         setBakedModel(AzBakedModel.getDefault());
     }
 
-    public boolean setActiveModel(AzBakedModel model) {
+    public void setActiveModel(AzBakedModel model) {
         if (model == null) {
             this.templateModel = null;
             this.bakedModel = AzBakedModel.getDefault();
             boneSnapshotsByName.clear();
-            return true;
+            invalidateBoneArrays();
+            return;
         }
 
         if (this.templateModel == model) {
-            return false;
+            return;
         }
 
         this.templateModel = model;
         this.bakedModel = model.deepCopy();
         boneSnapshotsByName.clear();
         snapshot();
-
-        return true;
     }
 
     public void update(AzAnimationContext<?> context) {
         var config = context.config();
         var timer = context.timer();
         var animTime = timer.getAnimTime();
-        var boneSnapshots = getBoneSnapshotsByName();
         var resetTickLength = config.boneResetTime();
 
-        // Updates the cached bone snapshots (only if they have changed).
-        for (var bone : bakedModel.getBonesByName().values()) {
-            AzCachedBoneUpdateUtil.updateCachedBoneRotation(bone, boneSnapshots, animTime, resetTickLength);
-            AzCachedBoneUpdateUtil.updateCachedBonePosition(bone, boneSnapshots, animTime, resetTickLength);
-            AzCachedBoneUpdateUtil.updateCachedBoneScale(bone, boneSnapshots, animTime, resetTickLength);
+        ensureBoneArrays();
+
+        var bones = boneArray;
+        var snapshots = snapshotArray;
+        var rest = atRest;
+
+        // Ease bones nothing animated this frame back towards their bind pose, then clear their change markers.
+        for (int i = 0; i < bones.length; i++) {
+            var bone = bones[i];
+            var changed = bone.hasRotationChanged() || bone.hasPositionChanged() || bone.hasScaleChanged();
+
+            // A settled bone that nothing touched since would only be set to the pose it already has.
+            if (rest[i] && !changed) {
+                continue;
+            }
+
+            var snapshot = snapshots[i];
+            var rotationSettled = AzCachedBoneUpdateUtil.updateCachedBoneRotation(
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
+            );
+            var positionSettled = AzCachedBoneUpdateUtil.updateCachedBonePosition(
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
+            );
+            var scaleSettled = AzCachedBoneUpdateUtil.updateCachedBoneScale(
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
+            );
+
+            rest[i] = rotationSettled && positionSettled && scaleSettled;
+            bone.resetStateChanges();
         }
 
-        resetBoneTransformationMarkers();
         lastAnimatedFrame = currentFrame;
         currentFrame++;
     }
@@ -123,10 +177,34 @@ public class AzBoneCache {
     }
 
     /**
-     * Reset the transformation markers applied to each {@link AzBone} ready for the next render frame
+     * Forces the bone arrays to be rebuilt on the next {@link #update}. Call this after replacing or removing entries
+     * in {@link #getBoneSnapshotsByName()} directly; changing a snapshot's values does not need it.
      */
-    private void resetBoneTransformationMarkers() {
-        bakedModel.getBonesByName().values().forEach(AzBone::resetStateChanges);
+    public void invalidateBoneArrays() {
+        arrayModel = null;
+    }
+
+    /**
+     * (Re)builds {@link #boneArray}, {@link #snapshotArray} and {@link #atRest} for the current baked model if they
+     * were built for a different one. Snapshots are taken from the name map as it stands, so a model set through
+     * {@link #setBakedModel} pairs its bones with the existing snapshots by name, exactly as the name lookups did.
+     */
+    private void ensureBoneArrays() {
+        if (arrayModel == bakedModel) {
+            return;
+        }
+
+        var bones = bakedModel.getBonesByName().values().toArray(NO_BONES);
+        var snapshots = new AzBoneSnapshot[bones.length];
+
+        for (int i = 0; i < bones.length; i++) {
+            snapshots[i] = boneSnapshotsByName.get(bones[i].getName());
+        }
+
+        boneArray = bones;
+        snapshotArray = snapshots;
+        atRest = new boolean[bones.length];
+        arrayModel = bakedModel;
     }
 
     /**
@@ -136,13 +214,24 @@ public class AzBoneCache {
     private void snapshot() {
         boneSnapshotsByName.clear();
 
-        for (var bone : bakedModel.getBonesByName().values()) {
-            boneSnapshotsByName.put(bone.getName(), AzBoneSnapshot.copy(bone.getInitialAzSnapshot()));
+        var bones = bakedModel.getBonesByName().values().toArray(NO_BONES);
+        var snapshots = new AzBoneSnapshot[bones.length];
+
+        for (int i = 0; i < bones.length; i++) {
+            var snapshot = AzBoneSnapshot.copy(bones[i].getInitialAzSnapshot());
+            snapshots[i] = snapshot;
+            boneSnapshotsByName.put(bones[i].getName(), snapshot);
         }
+
+        boneArray = bones;
+        snapshotArray = snapshots;
+        atRest = new boolean[bones.length];
+        arrayModel = bakedModel;
     }
 
     public void setBakedModel(AzBakedModel model) {
         this.bakedModel = (model != null) ? model : AzBakedModel.getDefault();
+        // The snapshot map is kept; ensureBoneArrays() pairs the new model's bones with it on the next update.
     }
 
     public AzBakedModel getBakedModel() {
