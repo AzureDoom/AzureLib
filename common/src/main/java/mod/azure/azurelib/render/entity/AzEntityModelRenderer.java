@@ -98,6 +98,17 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
      */
     @Override
     public void renderRecursively(AzRendererPipelineContext<UUID, T> context, AzBone bone, boolean isReRender) {
+        if (bone.isHidden()) {
+            if (!bone.isHidingChildren()) {
+                renderChildBones(context, bone, isReRender);
+            }
+            return;
+        }
+
+        if (bone.getScaleX() == 0f && bone.getScaleY() == 0f && bone.getScaleZ() == 0f) {
+            return;
+        }
+
         var buffer = context.vertexConsumer();
         var bufferSource = context.multiBufferSource();
         var entity = context.animatable();
