@@ -3,7 +3,9 @@ package mod.azure.azurelib.render.item;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
 
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
@@ -56,12 +58,33 @@ public class AzItemGuiRenderUtil {
             ((AzBufferSource) source).endBatch();
         }
 
-        GlStateManager.enableDepth();
+        restoreGuiItemState();
         if (entityLighting) {
             // Put back the GUI lights the hotbar/container set up, in the same space they were set in.
             setLightsInEyeSpace(false);
         }
         poseStack.popPose();
+    }
+
+    /**
+     * Puts GL state back to what {@code RenderItem#renderItemModelIntoGUI} set up before handing off to us.
+     * {@link RenderType#clearRenderState()} leaves blend disabled, but vanilla leaves it <em>enabled</em> after a GUI
+     * item, and later GUI code relies on that: {@code InventoryEffectRenderer#drawActivePotionEffects} draws with alpha
+     * test off and never enables blend itself, so with blend off every transparent texel of the effect background is
+     * drawn as an opaque black box. It only shows up with the cursor-held stack because that is the last item drawn
+     * before the potion effects, with nothing in between to re-enable blend.
+     */
+    private static void restoreGuiItemState() {
+        GlStateManager.enableDepth();
+        GlStateManager.enableAlpha();
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1F);
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        // The color array leaves the current GL colour undefined; force a real glColor rather than a cached no-op.
+        GlStateManager.resetColor();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        // Vanilla binds the block atlas again after us, but don't leave our model texture bound in the meantime.
+        Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
     /**
