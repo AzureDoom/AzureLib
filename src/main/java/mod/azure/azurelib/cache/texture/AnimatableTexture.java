@@ -4,13 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.imageio.ImageIO;
 
 import mod.azure.azurelib.AzureLib;
@@ -39,7 +33,7 @@ public class AnimatableTexture extends SimpleTexture {
     /** Per-location result of the "is this an animated texture?" check. Cleared on resource reload. */
     private static final Map<ResourceLocation, Boolean> ANIMATION_CACHE = new HashMap<>();
 
-    private static final Map<Class<?>, Method> SET_ANIMATION_FRAME = new HashMap<>();
+    private static final Map<Class<?>, Optional<Method>> SET_ANIMATION_FRAME = new HashMap<>();
 
     protected AnimationContents animationContents = null;
 
@@ -209,19 +203,18 @@ public class AnimatableTexture extends SimpleTexture {
         if (texture instanceof AnimatableTexture) {
             ((AnimatableTexture) texture).setAnimationFrame(frameTick);
         } else if (texture != null) {
-            Method method = SET_ANIMATION_FRAME.computeIfAbsent(texture.getClass(), type -> {
+            Optional<Method> method = SET_ANIMATION_FRAME.computeIfAbsent(texture.getClass(), type -> {
                 try {
-                    return type.getMethod("setAnimationFrame", int.class);
+                    return Optional.of(type.getMethod("setAnimationFrame", int.class));
                 } catch (NoSuchMethodException e) {
-                    return null;
+                    return Optional.empty();
                 }
             });
-
-            if (method != null) {
+            method.ifPresent(m -> {
                 try {
-                    method.invoke(texture, frameTick);
+                    m.invoke(texture, frameTick);
                 } catch (ReflectiveOperationException ignored) {}
-            }
+            });
         }
     }
 
