@@ -70,9 +70,17 @@ tasks.named('classes') { dependsOn copyResourcesToClasses }
 
 tasks.matching { it.name == 'runClient' || it.name == 'runServer' }.configureEach {
     dependsOn tasks.named('classes')
+
     doFirst {
-        def libsDir = layout.buildDirectory.dir('libs').get().asFile.toPath()
-        classpath = sourceSets.main.output + classpath.filter { !it.toPath().startsWith(libsDir) }
+        def builtJar = tasks.named('jar').get().archiveFile.get().asFile
+
+        classpath = classpath.filter { file ->
+            file.canonicalFile != builtJar.canonicalFile &&
+                    !file.canonicalPath.startsWith(
+                            layout.buildDirectory.dir('libs').get().asFile.canonicalPath +
+                                    File.separator
+                    )
+        }
     }
 }
 
