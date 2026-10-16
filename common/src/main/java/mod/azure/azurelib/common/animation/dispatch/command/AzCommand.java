@@ -1,6 +1,5 @@
 package mod.azure.azurelib.common.animation.dispatch.command;
 
-import mod.azure.azurelib.common.animation.dispatch.AzPendingDispatches;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +19,7 @@ import mod.azure.azurelib.common.animation.AzAnimator;
 import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.common.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.common.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.common.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.common.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.common.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.common.animation.impl.AzItemAnimatorView;
