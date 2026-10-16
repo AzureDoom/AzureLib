@@ -3,13 +3,12 @@ package mod.azure.azurelib.render.item;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.model.AzBakedModel;
@@ -40,21 +39,8 @@ public abstract class AzItemRenderer {
 
     protected AzItemRenderer(AzItemRendererConfig config) {
         this.rendererPipeline = createPipeline(config);
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemRenderer::getStackId);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemIdentity::resolve);
         this.config = config;
-    }
-
-    /**
-     * The stack's AzureLib identity, or a random id for stacks that don't carry one.
-     */
-    static UUID getStackId(ItemStack stack) {
-        NBTTagCompound tag = stack.getTagCompound();
-
-        if (tag != null && tag.hasUniqueId(AzureLib.ITEM_UUID_TAG)) {
-            return tag.getUniqueId(AzureLib.ITEM_UUID_TAG);
-        }
-
-        return UUID.randomUUID();
     }
 
     protected AzItemRendererPipeline createPipeline(AzItemRendererConfig config) {

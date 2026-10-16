@@ -3,14 +3,12 @@ package mod.azure.azurelib.animation.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 
@@ -20,12 +18,22 @@ import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
  * item animators that apply to specific {@link ItemStack}s using their respective UUIDs. <br>
  * Animators are stored per {@link AzItemAnimatorView}, so a single stack can have a separate first-person animator
  * alongside its default one.
+ * <p>
+ * Ids come from {@link AzItemIdentity#resolve(ItemStack)}, so they are either the stack's persistent id or a transient
+ * id for a stack that has never been dispatched to.
+ * <p>
+ * Entries are strongly keyed and expire once an animator has gone unused for {@link #ANIMATOR_IDLE_SECONDS}. They can't
+ * be weakly keyed: an animator's context holds its stack, so anything keeping the id alive for the stack's lifetime
+ * would keep the animator alive forever, and nothing keeping it alive gets the animator collected at the next GC while
+ * the stack is still being rendered.
  */
 public class AzIdentifiableItemStackAnimatorCache {
 
     private static final AzIdentifiableItemStackAnimatorCache INSTANCE = new AzIdentifiableItemStackAnimatorCache();
 
-    private static final Map<AzItemAnimatorView, WeakHashMap<UUID, AzItemAnimator>> ANIMATORS_BY_VIEW;
+    public static final long ANIMATOR_IDLE_SECONDS = 120;
+
+    private static final Map<AzItemAnimatorView, Cache<UUID, AzItemAnimator>> ANIMATORS_BY_VIEW;
 
     private static final Cache<UUID, Map<AzItemAnimatorView, List<Consumer<AzItemAnimator>>>> PENDING =
         CacheBuilder.newBuilder()
@@ -36,7 +44,10 @@ public class AzIdentifiableItemStackAnimatorCache {
         ANIMATORS_BY_VIEW = new EnumMap<>(AzItemAnimatorView.class);
 
         for (AzItemAnimatorView view : AzItemAnimatorView.values()) {
-            ANIMATORS_BY_VIEW.put(view, new WeakHashMap<>());
+            Cache<UUID, AzItemAnimator> animators = CacheBuilder.newBuilder()
+                .expireAfterAccess(ANIMATOR_IDLE_SECONDS, TimeUnit.SECONDS)
+                .build();
+            ANIMATORS_BY_VIEW.put(view, animators);
         }
     }
 
@@ -47,22 +58,26 @@ public class AzIdentifiableItemStackAnimatorCache {
     private AzIdentifiableItemStackAnimatorCache() {}
 
     /**
-     * Registers the {@link AzItemAnimatorView#DEFAULT default} animator for the given stack.
+     * Registers the animator for {@code view} of the given stack, keyed by {@link AzItemIdentity#resolve(ItemStack)}.
+     * Never writes to the stack.
      */
     public void add(ItemStack itemStack, AzItemAnimatorView view, AzItemAnimator animator) {
-        NBTTagCompound tag = itemStack.getTagCompound();
-
-        if (tag != null && !tag.hasUniqueId(AzureLib.ITEM_UUID_TAG)) {
+        if (itemStack == null || itemStack.isEmpty() || animator == null) {
             return;
         }
 
-        if (tag == null) {
+        add(AzItemIdentity.resolve(itemStack), view, animator);
+    }
+
+    /**
+     * Registers the animator for {@code view} under {@code uuid}, replaying any commands that were queued for it.
+     */
+    public void add(UUID uuid, AzItemAnimatorView view, AzItemAnimator animator) {
+        if (uuid == null || animator == null) {
             return;
         }
 
-        UUID uuid = tag.getUniqueId(AzureLib.ITEM_UUID_TAG);
-
-        if (ANIMATORS_BY_VIEW.get(view).putIfAbsent(uuid, animator) == null) {
+        if (ANIMATORS_BY_VIEW.get(view).asMap().putIfAbsent(uuid, animator) == null) {
             flushPending(uuid, view, animator);
         }
     }
@@ -72,7 +87,7 @@ public class AzIdentifiableItemStackAnimatorCache {
     }
 
     public @Nullable AzItemAnimator getOrNull(UUID uuid, AzItemAnimatorView view) {
-        return uuid == null ? null : ANIMATORS_BY_VIEW.get(view).get(uuid);
+        return uuid == null ? null : ANIMATORS_BY_VIEW.get(view).getIfPresent(uuid);
     }
 
     /**
@@ -94,8 +109,8 @@ public class AzIdentifiableItemStackAnimatorCache {
             return;
         }
 
-        for (WeakHashMap<UUID, AzItemAnimator> animators : ANIMATORS_BY_VIEW.values()) {
-            AzItemAnimator animator = animators.get(uuid);
+        for (Cache<UUID, AzItemAnimator> animators : ANIMATORS_BY_VIEW.values()) {
+            AzItemAnimator animator = animators.getIfPresent(uuid);
 
             if (animator != null) {
                 action.accept(animator);
