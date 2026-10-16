@@ -30,10 +30,10 @@ public class AzCachedBoneUpdateUtil {
      *         {@code false} if the bone was changed this frame or is still easing back.
      */
     public static boolean updateCachedBonePosition(
-            AzBone bone,
-            @Nullable AzBoneSnapshot saveSnapshot,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        @Nullable AzBoneSnapshot saveSnapshot,
+        double animTime,
+        double resetTickLength
     ) {
         if (bone.hasPositionChanged()) {
             return false;
@@ -50,18 +50,18 @@ public class AzCachedBoneUpdateUtil {
         }
 
         var percentageReset = Math.min(
-                (animTime - saveSnapshot.getLastResetPositionTick()) / resetTickLength,
-                1
+            (animTime - saveSnapshot.getLastResetPositionTick()) / resetTickLength,
+            1
         );
 
         bone.setPosX(
-                (float) Interpolations.lerp(saveSnapshot.getOffsetX(), initialSnapshot.getOffsetX(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getOffsetX(), initialSnapshot.getOffsetX(), percentageReset)
         );
         bone.setPosY(
-                (float) Interpolations.lerp(saveSnapshot.getOffsetY(), initialSnapshot.getOffsetY(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getOffsetY(), initialSnapshot.getOffsetY(), percentageReset)
         );
         bone.setPosZ(
-                (float) Interpolations.lerp(saveSnapshot.getOffsetZ(), initialSnapshot.getOffsetZ(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getOffsetZ(), initialSnapshot.getOffsetZ(), percentageReset)
         );
 
         if (percentageReset >= 1) {
@@ -77,10 +77,10 @@ public class AzCachedBoneUpdateUtil {
      * {@link #updateCachedBonePosition(AzBone, AzBoneSnapshot, double, double)} for the return value.
      */
     public static boolean updateCachedBoneRotation(
-            AzBone bone,
-            @Nullable AzBoneSnapshot saveSnapshot,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        @Nullable AzBoneSnapshot saveSnapshot,
+        double animTime,
+        double resetTickLength
     ) {
         if (bone.hasRotationChanged()) {
             return false;
@@ -97,18 +97,18 @@ public class AzCachedBoneUpdateUtil {
         }
 
         double percentageReset = Math.min(
-                (animTime - saveSnapshot.getLastResetRotationTick()) / resetTickLength,
-                1
+            (animTime - saveSnapshot.getLastResetRotationTick()) / resetTickLength,
+            1
         );
 
         bone.setRotX(
-                (float) Interpolations.lerp(saveSnapshot.getRotX(), initialSnapshot.getRotX(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getRotX(), initialSnapshot.getRotX(), percentageReset)
         );
         bone.setRotY(
-                (float) Interpolations.lerp(saveSnapshot.getRotY(), initialSnapshot.getRotY(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getRotY(), initialSnapshot.getRotY(), percentageReset)
         );
         bone.setRotZ(
-                (float) Interpolations.lerp(saveSnapshot.getRotZ(), initialSnapshot.getRotZ(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getRotZ(), initialSnapshot.getRotZ(), percentageReset)
         );
 
         if (percentageReset >= 1) {
@@ -124,10 +124,10 @@ public class AzCachedBoneUpdateUtil {
      * {@link #updateCachedBonePosition(AzBone, AzBoneSnapshot, double, double)} for the return value.
      */
     public static boolean updateCachedBoneScale(
-            AzBone bone,
-            @Nullable AzBoneSnapshot saveSnapshot,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        @Nullable AzBoneSnapshot saveSnapshot,
+        double animTime,
+        double resetTickLength
     ) {
         if (bone.hasScaleChanged()) {
             return false;
@@ -144,18 +144,18 @@ public class AzCachedBoneUpdateUtil {
         }
 
         double percentageReset = Math.min(
-                (animTime - saveSnapshot.getLastResetScaleTick()) / resetTickLength,
-                1
+            (animTime - saveSnapshot.getLastResetScaleTick()) / resetTickLength,
+            1
         );
 
         bone.setScaleX(
-                (float) Interpolations.lerp(saveSnapshot.getScaleX(), initialSnapshot.getScaleX(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getScaleX(), initialSnapshot.getScaleX(), percentageReset)
         );
         bone.setScaleY(
-                (float) Interpolations.lerp(saveSnapshot.getScaleY(), initialSnapshot.getScaleY(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getScaleY(), initialSnapshot.getScaleY(), percentageReset)
         );
         bone.setScaleZ(
-                (float) Interpolations.lerp(saveSnapshot.getScaleZ(), initialSnapshot.getScaleZ(), percentageReset)
+            (float) Interpolations.lerp(saveSnapshot.getScaleZ(), initialSnapshot.getScaleZ(), percentageReset)
         );
 
         if (percentageReset >= 1) {
@@ -171,10 +171,10 @@ public class AzCachedBoneUpdateUtil {
      * {@link #updateCachedBonePosition(AzBone, AzBoneSnapshot, double, double)}.
      */
     public static void updateCachedBonePosition(
-            AzBone bone,
-            Map<String, AzBoneSnapshot> boneSnapshots,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        Map<String, AzBoneSnapshot> boneSnapshots,
+        double animTime,
+        double resetTickLength
     ) {
         if (!bone.hasPositionChanged()) {
             updateCachedBonePosition(bone, boneSnapshots.get(bone.getName()), animTime, resetTickLength);
@@ -186,10 +186,10 @@ public class AzCachedBoneUpdateUtil {
      * {@link #updateCachedBoneRotation(AzBone, AzBoneSnapshot, double, double)}.
      */
     public static void updateCachedBoneRotation(
-            AzBone bone,
-            Map<String, AzBoneSnapshot> boneSnapshots,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        Map<String, AzBoneSnapshot> boneSnapshots,
+        double animTime,
+        double resetTickLength
     ) {
         if (!bone.hasRotationChanged()) {
             updateCachedBoneRotation(bone, boneSnapshots.get(bone.getName()), animTime, resetTickLength);
@@ -201,10 +201,10 @@ public class AzCachedBoneUpdateUtil {
      * {@link #updateCachedBoneScale(AzBone, AzBoneSnapshot, double, double)}.
      */
     public static void updateCachedBoneScale(
-            AzBone bone,
-            Map<String, AzBoneSnapshot> boneSnapshots,
-            double animTime,
-            double resetTickLength
+        AzBone bone,
+        Map<String, AzBoneSnapshot> boneSnapshots,
+        double animTime,
+        double resetTickLength
     ) {
         if (!bone.hasScaleChanged()) {
             updateCachedBoneScale(bone, boneSnapshots.get(bone.getName()), animTime, resetTickLength);

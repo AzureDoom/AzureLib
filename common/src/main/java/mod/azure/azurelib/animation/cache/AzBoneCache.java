@@ -104,22 +104,22 @@ public class AzBoneCache {
 
             var snapshot = snapshots[i];
             var rotationSettled = AzCachedBoneUpdateUtil.updateCachedBoneRotation(
-                    bone,
-                    snapshot,
-                    animTime,
-                    resetTickLength
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
             );
             var positionSettled = AzCachedBoneUpdateUtil.updateCachedBonePosition(
-                    bone,
-                    snapshot,
-                    animTime,
-                    resetTickLength
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
             );
             var scaleSettled = AzCachedBoneUpdateUtil.updateCachedBoneScale(
-                    bone,
-                    snapshot,
-                    animTime,
-                    resetTickLength
+                bone,
+                snapshot,
+                animTime,
+                resetTickLength
             );
 
             rest[i] = rotationSettled && positionSettled && scaleSettled;
