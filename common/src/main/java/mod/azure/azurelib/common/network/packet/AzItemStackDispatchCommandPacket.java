@@ -49,7 +49,7 @@ public record AzItemStackDispatchCommandPacket(
 
     public void handle() {
         AzIdentifiableItemStackAnimatorCache.getInstance()
-            .forEach(
+            .dispatchOrQueue(
                 itemStackId,
                 view.orElse(null),
                 animator -> dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator))
