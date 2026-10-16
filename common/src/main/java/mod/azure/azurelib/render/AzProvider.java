@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render;
 
-import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
 
