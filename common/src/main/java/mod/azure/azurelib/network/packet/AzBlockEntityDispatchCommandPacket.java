@@ -1,5 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -42,6 +43,11 @@ public record AzBlockEntityDispatchCommandPacket(
 
         if (animator != null && animator.context().animatable().getBlockPos().equals(blockPos)) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+        } else {
+            AzPendingDispatches.enqueue(
+                    blockEntity,
+                    an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
+            );
         }
     }
 

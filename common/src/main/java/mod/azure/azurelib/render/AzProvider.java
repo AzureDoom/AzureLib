@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render;
 
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,18 @@ public class AzProvider<K, T> {
         var shared = AzBakedModelCache.getInstance().getNullable(modelLocation);
 
         if (cachedAnimator == null) {
-            cachedAnimator = cacheAnimator(accessor, shared, animatable);
+            cachedAnimator = animatorSupplier.get();
+            if (cachedAnimator != null) {
+                var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable), animatable);
+
+                if (shared != null) {
+                    ctx.boneCache().setActiveModel(shared);
+                }
+
+                cachedAnimator.registerControllers(cachedAnimator.getAnimationControllerContainer());
+                accessor.setAnimator(cachedAnimator);
+                AzPendingDispatches.flush(animatable, cachedAnimator);
+            }
         } else {
             var ctx = cachedAnimator.context();
             if (ctx != null && shared != null) {
@@ -108,7 +120,7 @@ public class AzProvider<K, T> {
     private AzAnimator<K, T> cacheAnimator(AzAnimatorAccessor<K, T> accessor, AzBakedModel shared, T animatable) {
         var cachedAnimator = animatorSupplier.get();
         if (cachedAnimator != null) {
-            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
+            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable), animatable);
 
             if (shared != null) {
                 ctx.boneCache().setActiveModel(shared);
@@ -116,6 +128,7 @@ public class AzProvider<K, T> {
 
             cachedAnimator.registerControllers(cachedAnimator.getAnimationControllerContainer());
             accessor.setAnimator(cachedAnimator);
+            AzPendingDispatches.flush(animatable, cachedAnimator);
         }
         return cachedAnimator;
     }

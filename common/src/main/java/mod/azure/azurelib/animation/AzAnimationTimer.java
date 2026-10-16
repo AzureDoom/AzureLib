@@ -22,6 +22,8 @@ public class AzAnimationTimer {
 
     private boolean wasPausedLastFrame;
 
+    private boolean initialized;
+
     /**
      * Constructs a new instance of AzAnimationTimer with the given configuration.
      *
@@ -49,6 +51,11 @@ public class AzAnimationTimer {
     public void tick() {
         var minecraft = Minecraft.getInstance();
         var currentRenderTick = RenderUtils.getCurrentTick();
+
+        if (!initialized) {
+            this.lastGameTickTime = currentRenderTick;
+            this.initialized = true;
+        }
 
         if (minecraft.isPaused()) {
             if (!wasPausedLastFrame) {
