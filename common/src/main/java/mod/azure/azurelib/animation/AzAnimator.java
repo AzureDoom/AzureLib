@@ -47,7 +47,7 @@ public abstract class AzAnimator<K, T> {
     private static final MolangVariableRef FRAME_ALPHA_REF = new MolangVariableRef(MolangQueries.FRAME_ALPHA);
 
     private static final MolangVariableRef CLIENT_MAX_RENDER_DISTANCE_REF = new MolangVariableRef(
-            MolangQueries.CLIENT_MAX_RENDER_DISTANCE
+        MolangQueries.CLIENT_MAX_RENDER_DISTANCE
     );
 
     private static final double[] MOON_BRIGHTNESS = { 1, 0.75, 0.5, 0.25, 0, 0.25, 0.5, 0.75 };
@@ -97,7 +97,7 @@ public abstract class AzAnimator<K, T> {
     private final DoubleSupplier frameAlphaSupplier = () -> molangPartialTicks;
 
     private final DoubleSupplier clientMaxRenderDistanceSupplier = () -> Minecraft.getInstance().options
-            .getEffectiveRenderDistance();
+        .getEffectiveRenderDistance();
 
     private static int moonPhase() {
         var lvl = Minecraft.getInstance().level;
@@ -128,8 +128,8 @@ public abstract class AzAnimator<K, T> {
 
     public AzAnimationContext<T> getOrCreateContext(K uuid) {
         var ctx = contextCache.computeIfAbsent(
-                uuid,
-                ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
+            uuid,
+            ignored -> new AzAnimationContext<>(createBoneCache(), config, createAzAnimationTimer(config))
         );
         this.currentContext = ctx;
         return ctx;

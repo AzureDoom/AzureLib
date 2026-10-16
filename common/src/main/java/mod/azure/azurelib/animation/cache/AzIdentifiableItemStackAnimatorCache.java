@@ -27,9 +27,9 @@ public class AzIdentifiableItemStackAnimatorCache {
     private static final Map<AzItemAnimatorView, WeakHashMap<UUID, AzItemAnimator>> ANIMATORS_BY_VIEW;
 
     private static final Cache<UUID, Map<AzItemAnimatorView, List<Consumer<AzItemAnimator>>>> PENDING =
-            CacheBuilder.newBuilder()
-                    .expireAfterWrite(10, TimeUnit.SECONDS)
-                    .build();
+        CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .build();
 
     static {
         ANIMATORS_BY_VIEW = new EnumMap<>(AzItemAnimatorView.class);
@@ -113,9 +113,9 @@ public class AzIdentifiableItemStackAnimatorCache {
                 action.accept(animator);
             } else {
                 PENDING.asMap()
-                        .computeIfAbsent(uuid, k -> new EnumMap<>(AzItemAnimatorView.class))
-                        .computeIfAbsent(target, k -> new ArrayList<>())
-                        .add(action);
+                    .computeIfAbsent(uuid, k -> new EnumMap<>(AzItemAnimatorView.class))
+                    .computeIfAbsent(target, k -> new ArrayList<>())
+                    .add(action);
             }
         }
     }

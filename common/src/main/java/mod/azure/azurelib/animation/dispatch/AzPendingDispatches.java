@@ -1,13 +1,13 @@
 package mod.azure.azurelib.animation.dispatch;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.animation.AzAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.animation.AzAnimator;
 
 public final class AzPendingDispatches {
 

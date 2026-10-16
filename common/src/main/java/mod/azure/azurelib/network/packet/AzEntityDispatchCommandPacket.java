@@ -1,6 +1,5 @@
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
@@ -44,8 +44,8 @@ public record AzEntityDispatchCommandPacket(
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
         } else {
             AzPendingDispatches.enqueue(
-                    entity,
-                    an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
+                entity,
+                an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
             );
         }
     }
