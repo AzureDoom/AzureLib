@@ -1,5 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -52,6 +53,11 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+        } else {
+            AzPendingDispatches.enqueue(
+                    entity,
+                    an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
+            );
         }
     }
 }
