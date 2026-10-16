@@ -15,7 +15,6 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.platform.mc.Mc;
-import mod.azure.azurelib.platform.mc.McClient;
 import mod.azure.azurelib.render.texture.ITextureObject;
 import mod.azure.azurelib.render.texture.TextureManager;
 import mod.azure.azurelib.render.vertex.GlStateManager;
@@ -27,7 +26,6 @@ import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Mth;
-import mod.azure.azurelib.util.math.Quaternion;
 import mod.azure.azurelib.util.math.Vec3;
 import mod.azure.azurelib.util.math.Vector3f;
 
@@ -38,50 +36,17 @@ public final class RenderUtils {
 
     private static final Matrix4f INVERT_SCRATCH = new Matrix4f();
 
-    private static final Quaternion QX = new Quaternion(0, 0, 0, 1);
-
-    private static final Quaternion QY = new Quaternion(0, 0, 0, 1);
-
-    private static final Quaternion QZ = new Quaternion(0, 0, 0, 1);
-
     public static void translateMatrixToBone(PoseStack poseStack, AzBone bone) {
         poseStack.translate(-bone.getPosX() / 16f, bone.getPosY() / 16f, bone.getPosZ() / 16f);
     }
 
     public static void rotateMatrixAroundBone(PoseStack poseStack, AzBone bone) {
-        float rz = bone.getRotZ();
-        float ry = bone.getRotY();
-        float rx = bone.getRotX();
-
-        if (rz != 0f) {
-            setQuatFromRotZ(QZ, rz);
-            poseStack.mulPose(QZ);
-        }
-        if (ry != 0f) {
-            setQuatFromRotY(QY, ry);
-            poseStack.mulPose(QY);
-        }
-        if (rx != 0f) {
-            setQuatFromRotX(QX, rx);
-            poseStack.mulPose(QX);
-        }
+        poseStack.rotateZYX(bone.getRotZ(), bone.getRotY(), bone.getRotX());
     }
 
     public static void rotateMatrixAroundCube(PoseStack poseStack, GeoCube cube) {
         Vec3 rotation = cube.rotation();
-
-        if (rotation.z() != 0f) {
-            setQuatFromRotZ(QZ, (float) rotation.z());
-            poseStack.mulPose(QZ);
-        }
-        if (rotation.y() != 0f) {
-            setQuatFromRotY(QY, (float) rotation.y());
-            poseStack.mulPose(QY);
-        }
-        if (rotation.x() != 0f) {
-            setQuatFromRotX(QX, (float) rotation.x());
-            poseStack.mulPose(QX);
-        }
+        poseStack.rotateZYX((float) rotation.z(), (float) rotation.y(), (float) rotation.x());
     }
 
     public static void scaleMatrixForBone(PoseStack poseStack, AzBone bone) {
@@ -167,27 +132,6 @@ public final class RenderUtils {
         return matrix;
     }
 
-    private static void setQuatFromRotX(Quaternion q, float angleRad) {
-        float h = angleRad * 0.5f;
-        float s = Mth.sin(h);
-        float c = Mth.cos(h);
-        q.set(s, 0f, 0f, c);
-    }
-
-    private static void setQuatFromRotY(Quaternion q, float angleRad) {
-        float h = angleRad * 0.5f;
-        float s = Mth.sin(h);
-        float c = Mth.cos(h);
-        q.set(0f, s, 0f, c);
-    }
-
-    private static void setQuatFromRotZ(Quaternion q, float angleRad) {
-        float h = angleRad * 0.5f;
-        float s = Mth.sin(h);
-        float c = Mth.cos(h);
-        q.set(0f, 0f, s, c);
-    }
-
     /**
      * Gets the actual dimensions of a texture resource from a given path.<br>
      * Not performance-efficient, and should not be relied upon
@@ -266,7 +210,7 @@ public final class RenderUtils {
      * Usually used for items or armor rendering to match the rotations of other non-geo model parts.
      */
     public static void matchModelPartRot(ModelPart from, AzBone to) {
-        to.updateRotation(-McClient.rotX(from), -McClient.rotY(from), McClient.rotZ(from));
+        to.updateRotation(-from.rotationX, -from.rotationY, from.rotationZ);
     }
 
     /**

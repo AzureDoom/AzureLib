@@ -20,6 +20,10 @@ import java.util.Map;
  * 1.18's batching semantics: AzureLib's renderers may freely switch between render types mid-model (bone texture
  * overrides, glow layers, glint, leashes) without fighting over Beta's single {@code Tessellator}.
  * <p>
+ * Each vertex is written once, already in the final interleaved GL layout (position, UV, normalised normal, and a
+ * colour with lighting, hurt tint and glint colour folded in). Drawing a batch is then a single bulk copy into the
+ * direct buffer followed by {@code glDrawArrays}; nothing is recomputed per vertex at draw time.
+ * <p>
  * Positions are relative to the OpenGL model-view matrix that is current when {@link #endBatch()} runs, so a batch must
  * be ended before that matrix changes. AzureLib's renderers end the batch at the end of every top-level render call and
  * before handing control to vanilla rendering code (held items, vanilla armor, the player's arm).
@@ -28,11 +32,18 @@ public final class AzBufferSource implements MultiBufferSource {
 
     private static final AzBufferSource INSTANCE = new AzBufferSource();
 
-    /** x, y, z, u, v, nx, ny, nz */
-    private static final int FLOATS_PER_VERTEX = 8;
+    /** x, y, z, u, v, nx, ny, nz, r, g, b, a */
+    private static final int GL_FLOATS_PER_VERTEX = 12;
 
-    /** colour (ARGB), packed overlay, packed light */
-    private static final int INTS_PER_VERTEX = 3;
+    private static final int GL_STRIDE = GL_FLOATS_PER_VERTEX * 4;
+
+    /** Offset of the colour (r) within a vertex, in floats. */
+    private static final int COLOR_OFFSET = 8;
+
+    /** Glint colours. Both passes of a glint mode use the same colour, so it is written at record time. */
+    private static final int ITEM_GLINT_COLOR = 0xFF8040CC;
+
+    private static final int ARMOR_GLINT_COLOR = 0xFF61309B;
 
     private final Map<RenderType, Batch> batches = new IdentityHashMap<>();
 
@@ -93,26 +104,26 @@ public final class AzBufferSource implements MultiBufferSource {
         }
         this.flushing = true;
         try {
-            List<Batch> glintBatches = null;
-            for (int i = 0; i < this.pending.size(); i++) {
+            boolean anyGlint = false;
+            for (int i = 0, size = this.pending.size(); i < size; i++) {
                 Batch batch = this.pending.get(i);
                 if (batch.renderType.isGlint()) {
-                    if (glintBatches == null) {
-                        glintBatches = new ArrayList<>(2);
-                    }
-                    glintBatches.add(batch);
+                    anyGlint = true;
                     continue;
                 }
                 draw(batch);
             }
-            if (glintBatches != null) {
-                for (Batch batch : glintBatches) {
-                    draw(batch);
+            if (anyGlint) {
+                for (int i = 0, size = this.pending.size(); i < size; i++) {
+                    Batch batch = this.pending.get(i);
+                    if (batch.renderType.isGlint()) {
+                        draw(batch);
+                    }
                 }
             }
         } finally {
-            for (Batch batch : this.pending) {
-                batch.reset();
+            for (int i = 0, size = this.pending.size(); i < size; i++) {
+                this.pending.get(i).reset();
             }
             this.pending.clear();
             this.flushing = false;
@@ -126,16 +137,34 @@ public final class AzBufferSource implements MultiBufferSource {
         RenderType renderType = batch.renderType;
         renderType.setupRenderState();
         try {
-            switch (renderType.glintMode()) {
-                case ITEM:
-                    drawItemGlint(batch);
-                    break;
-                case ARMOR:
-                    drawArmorGlint(batch);
-                    break;
-                default:
-                    upload(batch, -1);
-                    break;
+            fill(batch);
+            GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+            GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+            GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
+            GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+            try {
+                bindPointers();
+                switch (renderType.glintMode()) {
+                    case ITEM:
+                        drawItemGlint(batch);
+                        break;
+                    case ARMOR:
+                        drawArmorGlint(batch);
+                        break;
+                    default:
+                        GL11.glDrawArrays(renderType.glMode(), 0, batch.vertexCount);
+                        if (batch.hasFlash) {
+                            drawWhiteOverlay(batch);
+                        }
+                        break;
+                }
+            } finally {
+                GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+                GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+                GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
+                GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+                // Leave the current colour white so vanilla code drawing after us isn't tinted.
+                GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             }
         } finally {
             renderType.clearRenderState();
@@ -153,7 +182,7 @@ public final class AzBufferSource implements MultiBufferSource {
             GlStateManager.translate(pass == 0 ? offset : -offset, 0.0F, 0.0F);
             GlStateManager.rotate(pass == 0 ? -50.0F : 10.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-            upload(batch, 0xFF8040CC);
+            GL11.glDrawArrays(batch.renderType.glMode(), 0, batch.vertexCount);
             GlStateManager.matrixMode(GL11.GL_TEXTURE);
             GlStateManager.popMatrix();
         }
@@ -169,17 +198,12 @@ public final class AzBufferSource implements MultiBufferSource {
             GlStateManager.rotate(30.0F - pass * 60.0F, 0.0F, 0.0F, 1.0F);
             GlStateManager.translate(0.0F, time * (0.001F + pass * 0.003F) * 20.0F, 0.0F);
             GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-            upload(batch, 0xFF61309B);
+            GL11.glDrawArrays(batch.renderType.glMode(), 0, batch.vertexCount);
         }
         GlStateManager.matrixMode(GL11.GL_TEXTURE);
         GlStateManager.loadIdentity();
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
     }
-
-    /** x, y, z, u, v, nx, ny, nz, r, g, b, a */
-    private static final int GL_FLOATS_PER_VERTEX = 12;
-
-    private static final int GL_STRIDE = GL_FLOATS_PER_VERTEX * 4;
 
     private static ByteBuffer glBytes;
 
@@ -194,90 +218,44 @@ public final class AzBufferSource implements MultiBufferSource {
         glBuffer = glBytes.asFloatBuffer();
     }
 
-    /**
-     * Beta has no lightmap texture: lighting is a per-vertex brightness multiplied into the colour, exactly like
-     * vanilla's {@code glColor(brightness)} before drawing a model. AzureLib keeps 1.18-style packed light values
-     * (block and sky level, 0..15) and folds the brighter of the two into the vertex colour here.
-     */
-    private static float brightness(int packedLight) {
-        int level = Math.max(LightTexture.block(packedLight), LightTexture.sky(packedLight));
-        return Math.max(0, Math.min(15, level)) / 15.0F;
-    }
-
-    private static void upload(Batch batch, int colorOverride) {
-        RenderType renderType = batch.renderType;
-        boolean fullBright = renderType.isEmissive() || colorOverride != -1;
-        int count = batch.vertexCount;
-        if (glBuffer.capacity() < count * GL_FLOATS_PER_VERTEX) {
-            allocate(Math.max(count, glBuffer.capacity() / GL_FLOATS_PER_VERTEX * 2));
+    /** Copies the batch's pre-built vertex data into the direct buffer with one bulk put. */
+    private static void fill(Batch batch) {
+        int floats = batch.vertexCount * GL_FLOATS_PER_VERTEX;
+        if (glBuffer.capacity() < floats) {
+            allocate(Math.max(batch.vertexCount, glBuffer.capacity() / GL_FLOATS_PER_VERTEX * 2));
         }
         FloatBuffer out = glBuffer;
         out.clear();
-        float[] f = batch.floats;
-        int[] n = batch.ints;
-        boolean anyWhite = false;
-        for (int v = 0; v < count; v++) {
-            int fi = v * FLOATS_PER_VERTEX;
-            int ni = v * INTS_PER_VERTEX;
-            int argb = colorOverride != -1 ? colorOverride : applyHurtTint(n[ni], n[ni + 1]);
-            float light = fullBright ? 1.0F : brightness(n[ni + 2]);
-            out.put(f[fi]).put(f[fi + 1]).put(f[fi + 2]);
-            out.put(f[fi + 3]).put(f[fi + 4]);
-            out.put(f[fi + 5]).put(f[fi + 6]).put(f[fi + 7]);
-            out.put((argb >> 16 & 0xFF) / 255.0F * light)
-                .put((argb >> 8 & 0xFF) / 255.0F * light)
-                .put((argb & 0xFF) / 255.0F * light)
-                .put((argb >>> 24) / 255.0F);
-            anyWhite |= colorOverride == -1 && whiteOverlay(n[ni + 1]) > 0;
-        }
-
-        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-        GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-        GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
-        GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
-        try {
-            bindPointers(out);
-            GL11.glDrawArrays(renderType.glMode(), 0, count);
-
-            if (anyWhite) {
-                drawWhiteOverlay(batch, out, renderType);
-            }
-        } finally {
-            GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-            GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-            GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
-            GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
-            // Leave the current colour white so vanilla code drawing after us isn't tinted.
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        }
+        out.put(batch.data, 0, floats);
+        out.flip();
     }
 
-    /**
-     * Points GL at the interleaved data in {@link #glBytes}. Offsets are in bytes: position, then uv at float 3, normal
-     * at float 5 and colour at float 8.
-     */
-    private static void bindPointers(FloatBuffer out) {
+    private static void bindPointers() {
         ByteBuffer bytes = glBytes;
-        bytes.limit(out.limit() * 4);
+        bytes.limit(glBuffer.limit() * 4);
         bytes.position(0);
         GL11.glVertexPointer(3, GL11.GL_FLOAT, GL_STRIDE, bytes);
         bytes.position(3 * 4);
         GL11.glTexCoordPointer(2, GL11.GL_FLOAT, GL_STRIDE, bytes);
         bytes.position(5 * 4);
         GL11.glNormalPointer(GL11.GL_FLOAT, GL_STRIDE, bytes);
-        bytes.position(8 * 4);
+        bytes.position(COLOR_OFFSET * 4);
         GL11.glColorPointer(4, GL11.GL_FLOAT, GL_STRIDE, bytes);
         bytes.position(0);
     }
 
-    private static void drawWhiteOverlay(Batch batch, FloatBuffer out, RenderType renderType) {
-        int[] n = batch.ints;
+    /**
+     * Second pass for the 1.18 white damage flash: same geometry, white colour with the flash strength as alpha, drawn
+     * over the first pass with an equal depth test. Rewrites only the colours in the direct buffer; the batch's own
+     * data is untouched, and the pointers bound for the first pass stay valid.
+     */
+    private static void drawWhiteOverlay(Batch batch) {
+        FloatBuffer out = glBuffer;
+        float[] flash = batch.flash;
         int count = batch.vertexCount;
         for (int v = 0; v < count; v++) {
-            int ni = v * INTS_PER_VERTEX;
-            float white = whiteOverlay(n[ni + 1]) * ((n[ni] >>> 24) / 255.0F);
-            int base = v * GL_FLOATS_PER_VERTEX + 8;
-            out.put(base, 1.0F).put(base + 1, 1.0F).put(base + 2, 1.0F).put(base + 3, white);
+            int base = v * GL_FLOATS_PER_VERTEX + COLOR_OFFSET;
+            out.put(base, 1.0F).put(base + 1, 1.0F).put(base + 2, 1.0F).put(base + 3, flash[v]);
         }
 
         boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
@@ -292,8 +270,7 @@ public final class AzBufferSource implements MultiBufferSource {
         GL11.glDepthFunc(GL11.GL_EQUAL);
         GL11.glDepthMask(false);
         try {
-            bindPointers(out);
-            GL11.glDrawArrays(renderType.glMode(), 0, count);
+            GL11.glDrawArrays(batch.renderType.glMode(), 0, count);
         } finally {
             GL11.glDepthMask(true);
             GL11.glDepthFunc(depthFunc);
@@ -304,6 +281,16 @@ public final class AzBufferSource implements MultiBufferSource {
             if (alphaTest)
                 GL11.glEnable(GL11.GL_ALPHA_TEST);
         }
+    }
+
+    /**
+     * Beta has no lightmap texture: lighting is a per-vertex brightness multiplied into the colour, exactly like
+     * vanilla's {@code glColor(brightness)} before drawing a model. AzureLib keeps 1.18-style packed light values
+     * (block and sky level, 0..15) and folds the brighter of the two into the vertex colour.
+     */
+    private static float brightness(int packedLight) {
+        int level = Math.max(LightTexture.block(packedLight), LightTexture.sky(packedLight));
+        return Math.max(0, Math.min(15, level)) / 15.0F;
     }
 
     /** Strength (0..1) of the 1.18 white flash encoded in the overlay's U coordinate. */
@@ -331,22 +318,52 @@ public final class AzBufferSource implements MultiBufferSource {
         return a << 24 | (int) (r * 255.0F) << 16 | (int) (g * 255.0F) << 8 | (int) (b * 255.0F);
     }
 
+    private static int clampColor(float value) {
+        return Math.max(0, Math.min(255, (int) (value * 255.0F)));
+    }
+
     private static final class Batch implements VertexConsumer {
+
+        private static final int INITIAL_VERTICES = 256;
 
         private final AzBufferSource owner;
 
         private final RenderType renderType;
 
-        private float[] floats = new float[FLOATS_PER_VERTEX * 256];
+        /** Final GL vertex data, {@link #GL_FLOATS_PER_VERTEX} floats per vertex. */
+        private float[] data = new float[GL_FLOATS_PER_VERTEX * INITIAL_VERTICES];
 
-        private int[] ints = new int[INTS_PER_VERTEX * 256];
+        /** White-flash alpha per vertex; only meaningful while {@link #hasFlash} is set. */
+        private float[] flash = new float[INITIAL_VERTICES];
 
         private int vertexCount;
 
         private boolean queued;
 
+        private boolean hasFlash;
+
+        // Colour cache: consecutive vertices almost always share colour, overlay and light, so the folded colour is
+        // computed once per change instead of once per vertex. Keys are only ever compared, never reset: the result is
+        // a pure function of the key and the (final) render type.
+        private boolean colorCached;
+
+        private int cArgb, cOverlay, cLight;
+
+        private float cr, cg, cb, ca, cFlash;
+
+        // Float-colour cache for the bulk vertex(...) path, which receives r/g/b/a floats.
+        private float fr = Float.NaN, fg, fb, fa;
+
+        private int fArgb;
+
+        // Normal cache: the four vertices of a quad share one normal, so it is normalised once per quad.
+        // NaN keys never compare equal, so the first vertex (and any NaN normal) always recomputes.
+        private float rnx = Float.NaN, rny = Float.NaN, rnz = Float.NaN;
+
+        private float nnx, nny = 1.0F, nnz;
+
         // Element-by-element vertex state
-        private float x, y, z, u, v, nx, ny, nz;
+        private float x, y, z, u, v, nx, ny = 1.0F, nz;
 
         private int color = 0xFFFFFFFF;
 
@@ -362,18 +379,52 @@ public final class AzBufferSource implements MultiBufferSource {
         private void reset() {
             this.vertexCount = 0;
             this.queued = false;
+            this.hasFlash = false;
         }
 
         private void ensureCapacity() {
-            if ((this.vertexCount + 1) * FLOATS_PER_VERTEX > this.floats.length) {
-                int newVertices = Math.max(256, this.vertexCount * 2);
-                this.floats = Arrays.copyOf(this.floats, newVertices * FLOATS_PER_VERTEX);
-                this.ints = Arrays.copyOf(this.ints, newVertices * INTS_PER_VERTEX);
+            if (this.vertexCount >= this.flash.length) {
+                int newVertices = Math.max(INITIAL_VERTICES, this.vertexCount * 2);
+                this.data = Arrays.copyOf(this.data, newVertices * GL_FLOATS_PER_VERTEX);
+                this.flash = Arrays.copyOf(this.flash, newVertices);
             }
             if (!this.queued) {
                 this.queued = true;
                 this.owner.pending.add(this);
             }
+        }
+
+        private void updateColor(int argb, int overlayUV, int lightmapUV) {
+            this.cArgb = argb;
+            this.cOverlay = overlayUV;
+            this.cLight = lightmapUV;
+            this.colorCached = true;
+
+            int out;
+            float lightLevel;
+            float white;
+            switch (this.renderType.glintMode()) {
+                case ITEM:
+                    out = ITEM_GLINT_COLOR;
+                    lightLevel = 1.0F;
+                    white = 0.0F;
+                    break;
+                case ARMOR:
+                    out = ARMOR_GLINT_COLOR;
+                    lightLevel = 1.0F;
+                    white = 0.0F;
+                    break;
+                default:
+                    out = applyHurtTint(argb, overlayUV);
+                    lightLevel = this.renderType.isEmissive() ? 1.0F : brightness(lightmapUV);
+                    white = whiteOverlay(overlayUV) * ((argb >>> 24) / 255.0F);
+                    break;
+            }
+            this.cr = (out >> 16 & 0xFF) / 255.0F * lightLevel;
+            this.cg = (out >> 8 & 0xFF) / 255.0F * lightLevel;
+            this.cb = (out & 0xFF) / 255.0F * lightLevel;
+            this.ca = (out >>> 24) / 255.0F;
+            this.cFlash = white;
         }
 
         private void put(
@@ -390,35 +441,55 @@ public final class AzBufferSource implements MultiBufferSource {
             float normalZ
         ) {
             ensureCapacity();
-            int fi = this.vertexCount * FLOATS_PER_VERTEX;
-            int ni = this.vertexCount * INTS_PER_VERTEX;
-            this.floats[fi] = px;
-            this.floats[fi + 1] = py;
-            this.floats[fi + 2] = pz;
-            this.floats[fi + 3] = tu;
-            this.floats[fi + 4] = tv;
-            float lenSq = normalX * normalX + normalY * normalY + normalZ * normalZ;
-            if (lenSq > 1.0E-12F && Float.isFinite(lenSq)) {
-                float inv = 1.0F / (float) Math.sqrt(lenSq);
-                normalX *= inv;
-                normalY *= inv;
-                normalZ *= inv;
-            } else {
-                normalX = 0.0F;
-                normalY = 1.0F;
-                normalZ = 0.0F;
-            }
-            this.floats[fi + 5] = normalX;
-            this.floats[fi + 6] = normalY;
-            this.floats[fi + 7] = normalZ;
-            this.ints[ni] = argb;
-            this.ints[ni + 1] = overlayUV;
-            this.ints[ni + 2] = lightmapUV;
-            this.vertexCount++;
-        }
 
-        private static int clampColor(float value) {
-            return Math.max(0, Math.min(255, (int) (value * 255.0F)));
+            if (!this.colorCached || argb != this.cArgb || overlayUV != this.cOverlay || lightmapUV != this.cLight) {
+                updateColor(argb, overlayUV, lightmapUV);
+            }
+
+            if (normalX != this.rnx || normalY != this.rny || normalZ != this.rnz) {
+                this.rnx = normalX;
+                this.rny = normalY;
+                this.rnz = normalZ;
+                float lenSq = normalX * normalX + normalY * normalY + normalZ * normalZ;
+                if (lenSq > 1.0E-12F && Float.isFinite(lenSq)) {
+                    float inv = 1.0F / (float) Math.sqrt(lenSq);
+                    this.nnx = normalX * inv;
+                    this.nny = normalY * inv;
+                    this.nnz = normalZ * inv;
+                } else {
+                    this.nnx = 0.0F;
+                    this.nny = 1.0F;
+                    this.nnz = 0.0F;
+                }
+            }
+
+            int i = this.vertexCount;
+            float[] d = this.data;
+            int o = i * GL_FLOATS_PER_VERTEX;
+            d[o] = px;
+            d[o + 1] = py;
+            d[o + 2] = pz;
+            d[o + 3] = tu;
+            d[o + 4] = tv;
+            d[o + 5] = this.nnx;
+            d[o + 6] = this.nny;
+            d[o + 7] = this.nnz;
+            d[o + 8] = this.cr;
+            d[o + 9] = this.cg;
+            d[o + 10] = this.cb;
+            d[o + 11] = this.ca;
+
+            float white = this.cFlash;
+            if (white > 0.0F && !this.hasFlash) {
+                // First flashing vertex in this batch: earlier vertices have no flash.
+                this.hasFlash = true;
+                Arrays.fill(this.flash, 0, i, 0.0F);
+            }
+            if (this.hasFlash) {
+                this.flash[i] = white;
+            }
+
+            this.vertexCount = i + 1;
         }
 
         @Override
@@ -438,8 +509,16 @@ public final class AzBufferSource implements MultiBufferSource {
             float normalY,
             float normalZ
         ) {
-            int argb = clampColor(alpha) << 24 | clampColor(red) << 16 | clampColor(green) << 8 | clampColor(blue);
-            put(x, y, z, argb, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
+            if (red != this.fr || green != this.fg || blue != this.fb || alpha != this.fa) {
+                this.fr = red;
+                this.fg = green;
+                this.fb = blue;
+                this.fa = alpha;
+                this.fArgb = clampColor(alpha) << 24 | clampColor(red) << 16 | clampColor(green) << 8 | clampColor(
+                    blue
+                );
+            }
+            put(x, y, z, this.fArgb, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
         }
 
         @Override
