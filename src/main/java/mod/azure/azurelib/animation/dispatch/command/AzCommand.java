@@ -15,6 +15,7 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
@@ -318,7 +319,7 @@ public final class AzCommand {
 
         if (entity.world.isRemote) {
             AzIdentifiableItemStackAnimatorCache.getInstance()
-                .forEach(
+                .dispatchOrQueue(
                     uuid,
                     view,
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
@@ -369,6 +370,8 @@ public final class AzCommand {
 
         if (animator != null) {
             actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+        } else {
+            AzPendingDispatches.enqueue(animatable, an -> actions.forEach(a -> a.handle(AzDispatchSide.CLIENT, an)));
         }
     }
 }
