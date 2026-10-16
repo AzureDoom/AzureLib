@@ -6,6 +6,7 @@ import net.minecraft.world.World;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
@@ -56,6 +57,11 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+        } else {
+            AzPendingDispatches.enqueue(
+                entity,
+                an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
+            );
         }
     }
 }

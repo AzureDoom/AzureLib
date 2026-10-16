@@ -87,7 +87,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
             adoptServerId();
         }
 
-        cache.forEach(
+        cache.dispatchOrQueue(
             this.itemStackId,
             this.view.orElse(null),
             animator -> this.dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator))
