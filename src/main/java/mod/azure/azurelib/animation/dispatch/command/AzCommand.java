@@ -13,6 +13,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
@@ -25,7 +27,7 @@ import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.Services;
-import mod.azure.azurelib.util.AzItemIds;
+import mod.azure.azurelib.util.AzureLibUtil;
 import mod.azure.azurelib.util.codec.AzListStreamCodec;
 import mod.azure.azurelib.util.math.BlockPos;
 
@@ -295,6 +297,9 @@ public final class AzCommand {
      * Sends animation commands for the specified item based on the configured dispatch origin. The method determines
      * whether the command can proceed, assigns a unique identifier to the item if required, and dispatches the
      * animation commands either from the client or the server side. <br>
+     * On the server this is where a stack first gets its persistent AzureLib id ({@link AzItemIdentity#getOrCreate}),
+     * so pass the stack that lives in the inventory rather than a copy. On the client the command only runs locally,
+     * keyed by {@link AzItemIdentity#resolve}, and never writes to the stack. <br>
      * The command runs on every animator the stack has. If the item's renderer uses a separate first-person animator
      * ({@code AzItemRendererConfig.Builder#useSeparateFirstPersonAnimator()}), both the first-person and third-person
      * views play it; use {@link #sendForItem(Entity, ItemStack, AzItemAnimatorView)} to target only one of them.
@@ -317,37 +322,40 @@ public final class AzCommand {
      * @param view      the animator to target, or null to target every animator the stack has.
      */
     public void sendForItem(Entity entity, ItemStack itemStack, AzItemAnimatorView view) {
-        UUID uuid = AzItemIds.get(itemStack.getTagCompound());
+        if (itemStack == null || AzureLibUtil.isEmpty(itemStack)) {
+            return;
+        }
 
         if (entity.worldObj.isRemote) {
             AzIdentifiableItemStackAnimatorCache.getInstance()
                 .dispatchOrQueue(
-                    uuid,
+                    AzItemIdentity.resolve(itemStack),
                     view,
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
                 );
-        } else {
-            if (itemStack.getTagCompound() == null) {
-                return;
-            }
-            if (!AzItemIds.has(itemStack.getTagCompound())) {
-                AzureLib.LOGGER.warn(
-                    AzureLib.MAIN_MARKER,
-                    "Missing '{}' UUID tag on ItemStack (item={}). "
-                        + "Cannot dispatch animation commands. Ensure this is an AzureLib-animated item and that its UUID is assigned.",
-                    AzureLib.ITEM_UUID_TAG,
-                    Item.itemRegistry.getNameForObject(itemStack.getItem())
-                );
-                return;
-            }
-
-            AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(
-                uuid,
-                this,
-                Optional.ofNullable(view)
-            );
-            Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
+            return;
         }
+
+        UUID uuid = AzItemIdentity.getOrCreate(itemStack);
+
+        if (uuid == null) {
+            AzureLib.LOGGER.warn(
+                AzureLib.MAIN_MARKER,
+                "Cannot dispatch animation commands for ItemStack (item={}): {}",
+                Item.itemRegistry.getNameForObject(itemStack.getItem()),
+                AzIdentityRegistry.hasIdentity(itemStack.getItem())
+                    ? "no '" + AzureLib.ITEM_UUID_TAG + "' id could be assigned."
+                    : "the item is not registered with AzIdentityRegistry#register()."
+            );
+            return;
+        }
+
+        AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(
+            uuid,
+            this,
+            Optional.ofNullable(view)
+        );
+        Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
     }
 
     /**

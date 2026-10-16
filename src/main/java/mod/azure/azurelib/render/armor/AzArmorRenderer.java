@@ -7,12 +7,12 @@ import net.minecraft.item.ItemStack;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.AzRendererConfig;
 import mod.azure.azurelib.util.AzEquipmentSlot;
-import mod.azure.azurelib.util.AzItemIds;
 
 public class AzArmorRenderer {
 
@@ -29,7 +29,7 @@ public class AzArmorRenderer {
         this.provider = new AzProvider<>(
             config::createAnimator,
             config::modelLocation,
-            AzArmorRenderer::getStackId
+            AzItemIdentity::resolve
         );
         this.rendererPipeline = createPipeline(config);
     }
@@ -82,15 +82,5 @@ public class AzArmorRenderer {
 
     public AzArmorRendererPipeline rendererPipeline() {
         return rendererPipeline;
-    }
-
-    private static UUID getStackId(ItemStack stack) {
-        net.minecraft.nbt.NBTTagCompound tag = stack.getTagCompound();
-
-        if (tag != null && AzItemIds.has(tag)) {
-            return AzItemIds.get(tag);
-        }
-
-        return UUID.randomUUID();
     }
 }

@@ -8,10 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.UUID;
-
 import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
-import mod.azure.azurelib.util.AzItemIds;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
+import mod.azure.azurelib.util.AzureLibUtil;
 
 /**
  * Gives a creative "pick block" (middle click, click mode 3) copy of an AzureLib-identified stack its own Az ID, so the
@@ -23,7 +22,7 @@ public abstract class ContainerMixin_AzItemIDFix {
     private static final int CLONE_MODE = 3;
 
     @Inject(method = "slotClick", at = @At("RETURN"))
-    private void azurelib$reassignCloneId(
+    private void azurelib$clearCloneId(
         int slotId,
         int clickedButton,
         int mode,
@@ -36,10 +35,10 @@ public abstract class ContainerMixin_AzItemIDFix {
 
         ItemStack held = player.inventory.getItemStack();
 
-        if (held == null || !AzIdentityRegistry.hasIdentity(held.getItem()) || !held.hasTagCompound()) {
+        if (AzureLibUtil.isEmpty(held) || !AzIdentityRegistry.hasIdentity(held.getItem())) {
             return;
         }
 
-        AzItemIds.set(held.getTagCompound(), UUID.randomUUID());
+        AzItemIdentity.clear(held);
     }
 }

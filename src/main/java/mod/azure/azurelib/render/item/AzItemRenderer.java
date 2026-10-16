@@ -1,12 +1,12 @@
 package mod.azure.azurelib.render.item;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.model.AzBakedModel;
@@ -17,7 +17,6 @@ import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
-import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.client.RenderUtils;
 
@@ -41,21 +40,8 @@ public abstract class AzItemRenderer {
 
     protected AzItemRenderer(AzItemRendererConfig config) {
         this.rendererPipeline = createPipeline(config);
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemRenderer::getStackId);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemIdentity::resolve);
         this.config = config;
-    }
-
-    /**
-     * The stack's AzureLib identity, or a random id for stacks that don't carry one.
-     */
-    static UUID getStackId(ItemStack stack) {
-        NBTTagCompound tag = stack.getTagCompound();
-
-        if (tag != null && AzItemIds.has(tag)) {
-            return AzItemIds.get(tag);
-        }
-
-        return UUID.randomUUID();
     }
 
     protected AzItemRendererPipeline createPipeline(AzItemRendererConfig config) {
