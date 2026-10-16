@@ -52,7 +52,7 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
 
     public void handle() {
         AzIdentifiableItemStackAnimatorCache.getInstance()
-            .forEach(
+            .dispatchOrQueue(
                 itemStackId,
                 view.orElse(null),
                 animator -> dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator))

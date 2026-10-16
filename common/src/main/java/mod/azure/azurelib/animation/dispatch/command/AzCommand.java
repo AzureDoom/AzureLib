@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation.dispatch.command;
 
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -300,7 +301,7 @@ public record AzCommand(List<AzAction> actions) {
 
         if (entity.level.isClientSide()) {
             AzIdentifiableItemStackAnimatorCache.getInstance()
-                .forEach(
+                .dispatchOrQueue(
                     uuid,
                     view,
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
@@ -333,6 +334,8 @@ public record AzCommand(List<AzAction> actions) {
 
         if (animator != null) {
             actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+        } else {
+            AzPendingDispatches.enqueue(animatable, an -> actions.forEach(a -> a.handle(AzDispatchSide.CLIENT, an)));
         }
     }
 }
