@@ -1,5 +1,6 @@
 package mod.azure.azurelib.network.packet;
 
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -41,6 +42,11 @@ public record AzEntityDispatchCommandPacket(
 
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+        } else {
+            AzPendingDispatches.enqueue(
+                    entity,
+                    an -> dispatchCommand.actions().forEach(a -> a.handle(AzDispatchSide.SERVER, an))
+            );
         }
     }
 
