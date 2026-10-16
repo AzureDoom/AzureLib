@@ -157,8 +157,65 @@ public final class Matrix3f {
         this.m22 = a22;
     }
 
+    /** this = this * rotation(quaternion), in place (no allocation). */
     public void mul(Quaternion quaternion) {
-        this.mul(new Matrix3f(quaternion));
+        float i = quaternion.i(), j = quaternion.j(), k = quaternion.k(), r = quaternion.r();
+        float ii = 2.0F * i * i, jj = 2.0F * j * j, kk = 2.0F * k * k;
+        float ij = i * j, jk = j * k, ki = k * i, ir = i * r, jr = j * r, kr = k * r;
+        this.mulRotation(
+            1.0F - jj - kk,
+            2.0F * (ij - kr),
+            2.0F * (ki + jr),
+            2.0F * (ij + kr),
+            1.0F - kk - ii,
+            2.0F * (jk - ir),
+            2.0F * (ki - jr),
+            2.0F * (jk + ir),
+            1.0F - ii - jj
+        );
+    }
+
+    /** this = this * R, with R given row-major. */
+    public void mulRotation(
+        float r00,
+        float r01,
+        float r02,
+        float r10,
+        float r11,
+        float r12,
+        float r20,
+        float r21,
+        float r22
+    ) {
+        float a0 = this.m00, a1 = this.m01, a2 = this.m02;
+        this.m00 = a0 * r00 + a1 * r10 + a2 * r20;
+        this.m01 = a0 * r01 + a1 * r11 + a2 * r21;
+        this.m02 = a0 * r02 + a1 * r12 + a2 * r22;
+        a0 = this.m10;
+        a1 = this.m11;
+        a2 = this.m12;
+        this.m10 = a0 * r00 + a1 * r10 + a2 * r20;
+        this.m11 = a0 * r01 + a1 * r11 + a2 * r21;
+        this.m12 = a0 * r02 + a1 * r12 + a2 * r22;
+        a0 = this.m20;
+        a1 = this.m21;
+        a2 = this.m22;
+        this.m20 = a0 * r00 + a1 * r10 + a2 * r20;
+        this.m21 = a0 * r01 + a1 * r11 + a2 * r21;
+        this.m22 = a0 * r02 + a1 * r12 + a2 * r22;
+    }
+
+    /** this = this * scale(x, y, z), in place: scales each column. */
+    public void mulScale(float x, float y, float z) {
+        this.m00 *= x;
+        this.m10 *= x;
+        this.m20 *= x;
+        this.m01 *= y;
+        this.m11 *= y;
+        this.m21 *= y;
+        this.m02 *= z;
+        this.m12 *= z;
+        this.m22 *= z;
     }
 
     public void mul(float multiplier) {
