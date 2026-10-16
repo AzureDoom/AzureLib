@@ -3,6 +3,8 @@ package mod.azure.azurelib;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
+import mod.azure.azurelib.client.AzureLibClientInit;
+
 /**
  * Forge entry point for AzureLib on Minecraft 1.7.10.
  */
@@ -14,7 +16,7 @@ public final class ForgeAzureLibMod {
         AzureLib.initialize();
         if (event.getSide().isClient()) {
             // Kept in a separate class so that no client-only class is touched on a dedicated server.
-            mod.azure.azurelib.client.AzureLibClientInit.init();
+            AzureLibClientInit.init();
         }
     }
 }
