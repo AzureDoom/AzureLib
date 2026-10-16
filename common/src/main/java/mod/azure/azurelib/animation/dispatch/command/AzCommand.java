@@ -15,6 +15,7 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
@@ -300,7 +301,7 @@ public record AzCommand(List<AzAction> actions) {
 
         if (entity.level().isClientSide()) {
             AzIdentifiableItemStackAnimatorCache.getInstance()
-                .forEach(
+                .dispatchOrQueue(
                     uuid,
                     view,
                     animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
@@ -333,6 +334,8 @@ public record AzCommand(List<AzAction> actions) {
 
         if (animator != null) {
             actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+        } else {
+            AzPendingDispatches.enqueue(animatable, an -> actions.forEach(a -> a.handle(AzDispatchSide.CLIENT, an)));
         }
     }
 }

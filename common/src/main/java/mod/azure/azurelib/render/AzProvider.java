@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.cache.AzBakedModelCache;
 
@@ -85,7 +86,7 @@ public class AzProvider<K, T> {
         if (cachedAnimator == null) {
             cachedAnimator = animatorSupplier.get();
             if (cachedAnimator != null) {
-                var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
+                var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable), animatable);
 
                 if (shared != null) {
                     ctx.boneCache().setActiveModel(shared);
@@ -93,6 +94,7 @@ public class AzProvider<K, T> {
 
                 cachedAnimator.registerControllers(cachedAnimator.getAnimationControllerContainer());
                 accessor.setAnimator(cachedAnimator);
+                AzPendingDispatches.flush(animatable, cachedAnimator);
             }
         } else {
             var ctx = cachedAnimator.context();
@@ -118,7 +120,7 @@ public class AzProvider<K, T> {
     private AzAnimator<K, T> cacheAnimator(AzAnimatorAccessor<K, T> accessor, AzBakedModel shared, T animatable) {
         var cachedAnimator = animatorSupplier.get();
         if (cachedAnimator != null) {
-            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable));
+            var ctx = cachedAnimator.getOrCreateContext(UUIDProvider.apply(animatable), animatable);
 
             if (shared != null) {
                 ctx.boneCache().setActiveModel(shared);
@@ -126,6 +128,7 @@ public class AzProvider<K, T> {
 
             cachedAnimator.registerControllers(cachedAnimator.getAnimationControllerContainer());
             accessor.setAnimator(cachedAnimator);
+            AzPendingDispatches.flush(animatable, cachedAnimator);
         }
         return cachedAnimator;
     }
