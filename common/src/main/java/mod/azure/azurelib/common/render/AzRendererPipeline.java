@@ -209,16 +209,16 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         }
     }
 
+    public AzModelRenderer<K, T> modelRenderer() {
+        return modelRenderer;
+    }
+
     /**
      * Provides access to the rendering configuration associated with this rendering pipeline.
      *
      * @return An instance of {@link AzRendererConfig} that contains the configuration details for this rendering
      *         pipeline, including animator, model location, texture location, render layers, and scaling parameters.
      */
-    public AzModelRenderer<K, T> modelRenderer() {
-        return modelRenderer;
-    }
-
     public AzRendererConfig<K, T> config() {
         return config;
     }
