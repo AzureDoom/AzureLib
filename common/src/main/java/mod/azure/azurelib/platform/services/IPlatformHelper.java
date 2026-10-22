@@ -1,5 +1,7 @@
 package mod.azure.azurelib.platform.services;
 
+import net.minecraft.world.entity.player.Player;
+
 import java.nio.file.Path;
 
 public interface IPlatformHelper {
@@ -40,5 +42,7 @@ public interface IPlatformHelper {
     boolean isServerEnvironment();
 
     Path modsDir();
+
+    double getEntityInteractionRange(Player player);
 
 }

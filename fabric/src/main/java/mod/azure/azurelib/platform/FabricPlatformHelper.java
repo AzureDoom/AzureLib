@@ -2,6 +2,7 @@ package mod.azure.azurelib.platform;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.world.entity.player.Player;
 
 import java.nio.file.Path;
 
@@ -37,5 +38,10 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public Path modsDir() {
         return FabricLoader.getInstance().getGameDir().resolve("mods");
+    }
+
+    @Override
+    public double getEntityInteractionRange(Player player) {
+        return player.isCreative() ? 5.0D : 3.0D;
     }
 }

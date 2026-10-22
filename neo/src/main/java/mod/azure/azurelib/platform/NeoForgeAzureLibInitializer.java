@@ -4,6 +4,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import mod.azure.azurelib.cache.AzureLibCache;
+import mod.azure.azurelib.network.AzServerboundPackets;
 import mod.azure.azurelib.platform.services.AzureLibInitializer;
 
 public class NeoForgeAzureLibInitializer implements AzureLibInitializer {
@@ -14,5 +15,6 @@ public class NeoForgeAzureLibInitializer implements AzureLibInitializer {
             AzureLibCache.registerReloadListener();
         }
         Services.NETWORK.registerClientReceiverPackets();
+        AzServerboundPackets.register(Services.NETWORK);
     }
 }

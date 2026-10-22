@@ -1,21 +1,22 @@
 package mod.azure.azurelib.platform;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.*;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzServerboundPacket;
 import mod.azure.azurelib.network.Networking;
 import mod.azure.azurelib.network.S2C_SendConfigData;
 import mod.azure.azurelib.network.packet.*;
@@ -24,6 +25,8 @@ import mod.azure.azurelib.platform.services.AzureLibNetwork;
 public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     private static final String VER = "1";
+
+    private static int nextMessageId = 0;
 
     private static final SimpleChannel PACKET_CHANNEL = NetworkRegistry.newSimpleChannel(
         AzureLib.modResource("main"),
@@ -45,24 +48,22 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     @Override
     public void registerClientReceiverPackets() {
-        int id = 0;
-
         PACKET_CHANNEL.registerMessage(
-            id++,
+            nextMessageId++,
             AzBlockEntityDispatchCommandPacket.class,
             AzBlockEntityDispatchCommandPacket::encode,
             AzBlockEntityDispatchCommandPacket::receive,
             this::handlePacket
         );
         PACKET_CHANNEL.registerMessage(
-            id++,
+            nextMessageId++,
             AzEntityDispatchCommandPacket.class,
             AzEntityDispatchCommandPacket::encode,
             AzEntityDispatchCommandPacket::receive,
             this::handlePacket
         );
         PACKET_CHANNEL.registerMessage(
-            id++,
+            nextMessageId++,
             AzItemStackDispatchCommandPacket.class,
             AzItemStackDispatchCommandPacket::encode,
             AzItemStackDispatchCommandPacket::receive,
@@ -90,5 +91,29 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void sendClientPacket(ServerPlayer player, String id) {
         Networking.sendClientPacket(player, new S2C_SendConfigData(id));
+    }
+
+    @Override
+    public <P extends AzServerboundPacket> void registerServerbound(
+        ResourceLocation id,
+        Class<P> type,
+        Function<FriendlyByteBuf, P> decoder
+    ) {
+        PACKET_CHANNEL.messageBuilder(type, nextMessageId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(AzServerboundPacket::write)
+            .decoder(decoder)
+            .consumerMainThread((packet, context) -> {
+                var sender = context.get().getSender();
+
+                if (sender != null) {
+                    packet.handleServer(sender);
+                }
+            })
+            .add();
+    }
+
+    @Override
+    public void sendToServer(AzServerboundPacket packet) {
+        PACKET_CHANNEL.sendToServer(packet);
     }
 }
