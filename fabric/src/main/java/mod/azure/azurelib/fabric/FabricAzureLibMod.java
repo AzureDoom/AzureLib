@@ -3,6 +3,7 @@ package mod.azure.azurelib.fabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibMod;
@@ -11,6 +12,9 @@ import mod.azure.azurelib.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.AzEntityDispatchCommandPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxAttackPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxInteractPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxPosePacket;
 import mod.azure.azurelib.common.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.fabric.platform.FabricAzureLibNetwork;
@@ -45,5 +49,20 @@ public final class FabricAzureLibMod implements ModInitializer {
                 SendConfigDataPacket.TYPE,
                 SendConfigDataPacket.CODEC
             );
+        PayloadTypeRegistry.playC2S().register(AzHitboxPosePacket.TYPE, AzHitboxPosePacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(AzHitboxAttackPacket.TYPE, AzHitboxAttackPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(AzHitboxInteractPacket.TYPE, AzHitboxInteractPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxPosePacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxAttackPacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxInteractPacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
     }
 }

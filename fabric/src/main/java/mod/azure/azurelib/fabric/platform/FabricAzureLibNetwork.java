@@ -73,4 +73,9 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     public void sendClientPacket(ServerPlayer player, String id) {
         ServerPlayNetworking.send(player, new SendConfigDataPacket(id));
     }
+
+    @Override
+    public void sendToServer(CustomPacketPayload packet) {
+        ClientPlayNetworking.send(packet);
+    }
 }

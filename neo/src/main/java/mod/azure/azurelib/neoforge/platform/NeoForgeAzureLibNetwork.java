@@ -59,4 +59,9 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     public void sendToPlayer(AbstractPacket packet, ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, packet);
     }
+
+    @Override
+    public void sendToServer(CustomPacketPayload packet) {
+        PacketDistributor.sendToServer(packet);
+    }
 }

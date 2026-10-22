@@ -2,6 +2,7 @@ package mod.azure.azurelib.neoforge;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -18,6 +19,9 @@ import mod.azure.azurelib.common.config.format.ConfigFormats;
 import mod.azure.azurelib.common.config.io.ConfigIO;
 import mod.azure.azurelib.common.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.AzEntityDispatchCommandPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxAttackPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxInteractPacket;
+import mod.azure.azurelib.common.network.packet.AzHitboxPosePacket;
 import mod.azure.azurelib.common.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.SendConfigDataPacket;
 
@@ -76,6 +80,21 @@ public final class NeoForgeAzureLibMod {
             SendConfigDataPacket.TYPE,
             SendConfigDataPacket.CODEC,
             (msg, ctx) -> msg.handle()
+        );
+        registrar.playToServer(
+            AzHitboxPosePacket.TYPE,
+            AzHitboxPosePacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
+        );
+        registrar.playToServer(
+            AzHitboxAttackPacket.TYPE,
+            AzHitboxAttackPacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
+        );
+        registrar.playToServer(
+            AzHitboxInteractPacket.TYPE,
+            AzHitboxInteractPacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
         );
     }
 }

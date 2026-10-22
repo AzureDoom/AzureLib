@@ -10,13 +10,20 @@
     "AbstractContainerMenuMixin_AzItemIDFix",
     "ItemMixin_EnsureCraftHasID",
     "ItemStackMixin_AzItemStackIdentityRegistry",
-    "PlayerListMixin"
+    "PlayerListMixin",
+    "EntityMixin_AzHitboxState",
+    "LivingEntityMixin_AzHitboxDamage",
+    "ProjectileUtilMixin_AzHitboxes",
+    "ServerGamePacketListenerImplMixin_AzHitboxReach",
+    "PlayerMixin_AzHitboxInteract"
   ],
   "client": [
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
     "MinecraftMixin",
+    "MinecraftMixin_AzHitboxOffscreen",
+    "MultiPlayerGameModeMixin_AzHitboxAttack",
     "MixinItemRenderer",
     "TextureManagerMixin"
   ]
