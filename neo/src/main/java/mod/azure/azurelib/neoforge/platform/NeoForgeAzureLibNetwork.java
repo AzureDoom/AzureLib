@@ -1,6 +1,7 @@
 package mod.azure.azurelib.neoforge.platform;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -49,7 +50,14 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
 
     @Override
     public void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos) {
-        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(blockPos.getX(), blockPos.getZ()), packet);
+        PacketDistributor.sendToPlayersTrackingChunk(
+            level,
+            new ChunkPos(
+                SectionPos.blockToSectionCoord(blockPos.getX()),
+                SectionPos.blockToSectionCoord(blockPos.getZ())
+            ),
+            packet
+        );
     }
 
     @Override
