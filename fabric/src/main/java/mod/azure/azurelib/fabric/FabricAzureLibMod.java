@@ -1,14 +1,12 @@
 package mod.azure.azurelib.fabric;
 
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.fabric.platform.FabricAzureLibNetwork;
-import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.*;
 
 public final class FabricAzureLibMod implements ModInitializer {
 
@@ -31,10 +29,25 @@ public final class FabricAzureLibMod implements ModInitializer {
                 AzItemStackDispatchCommandPacket.TYPE,
                 AzItemStackDispatchCommandPacket.CODEC
             );
-        PayloadTypeRegistry.serverboundPlay()
-                .register(
-                        SendConfigDataPacket.TYPE,
-                        SendConfigDataPacket.CODEC
-                );
+        PayloadTypeRegistry.clientboundPlay()
+            .register(
+                SendConfigDataPacket.TYPE,
+                SendConfigDataPacket.CODEC
+            );
+        PayloadTypeRegistry.serverboundPlay().register(AzHitboxPosePacket.TYPE, AzHitboxPosePacket.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AzHitboxAttackPacket.TYPE, AzHitboxAttackPacket.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AzHitboxInteractPacket.TYPE, AzHitboxInteractPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxPosePacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxAttackPacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
+        ServerPlayNetworking.registerGlobalReceiver(
+            AzHitboxInteractPacket.TYPE,
+            (packet, context) -> packet.handleServer(context.player())
+        );
     }
 }

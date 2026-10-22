@@ -1,6 +1,8 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -19,6 +21,8 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzBufferSource;
 import mod.azure.azurelib.render.AzProvider;
@@ -67,6 +71,33 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         this.rendererPipeline = createPipeline(config);
     }
 
+    public void poseOffscreen(T entity, float partialTick) {
+        if (!(rendererPipeline.modelRenderer() instanceof AzEntityModelRenderer<T> modelRenderer)) {
+            return;
+        }
+
+        var animator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        var azBakedModel = provider.provideBakedModel(entity, entity);
+
+        if (azBakedModel == null) {
+            return;
+        }
+
+        var previousAnimator = reusedAzEntityAnimator;
+        var previousRenderOffset = currentRenderOffset;
+
+        reusedAzEntityAnimator = animator;
+        currentRenderOffset = Vec3.ZERO;
+
+        try {
+            modelRenderer.poseBonesOffscreen(entity, azBakedModel, animator, partialTick);
+            AzHitboxClientHooks.afterOffscreenPose(entity, azBakedModel, partialTick);
+        } finally {
+            reusedAzEntityAnimator = previousAnimator;
+            currentRenderOffset = previousRenderOffset;
+        }
+    }
+
     public AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
         return new AzEntityRendererPipeline<>(config, this);
     }
@@ -113,6 +144,10 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
                 partialTick,
                 state.lightCoords
             );
+
+            if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+                AzHitboxClientHooks.afterEntityRender(entity, azBakedModel, partialTick);
+            }
         } finally {
             if (poseStack == extractPoseStack) {
                 extractPoseStackInUse = false;
@@ -120,6 +155,12 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
 
             reusedAzEntityAnimator = previousAnimator;
             animateThisFrame = previousAnimate;
+        }
+
+        state.hitboxDebugBoxes.clear();
+
+        if (shouldDrawHitboxes() && !entity.isInvisible()) {
+            AzHitboxClientHooks.collectDebugBoxes(entity, state.hitboxDebugBoxes);
         }
     }
 
@@ -154,6 +195,12 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         if (state.geometry != null) {
             state.geometry.submitAll(collector, poseStack);
         }
+
+        AzHitboxClientHooks.submitDebugBoxes(state.hitboxDebugBoxes, poseStack, collector);
+    }
+
+    private static boolean shouldDrawHitboxes() {
+        return Minecraft.getInstance().debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES);
     }
 
     private static float bodyYaw(Entity entity, float partialTick) {

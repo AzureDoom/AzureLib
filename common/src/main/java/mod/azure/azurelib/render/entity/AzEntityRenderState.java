@@ -3,6 +3,10 @@ package mod.azure.azurelib.render.entity;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import mod.azure.azurelib.hitbox.client.AzHitboxDebugBox;
 import mod.azure.azurelib.render.AzBufferSource;
 
 /**
@@ -17,4 +21,6 @@ import mod.azure.azurelib.render.AzBufferSource;
 public class AzEntityRenderState extends EntityRenderState {
 
     public @Nullable AzBufferSource geometry;
+
+    public final List<AzHitboxDebugBox> hitboxDebugBoxes = new ArrayList<>();
 }

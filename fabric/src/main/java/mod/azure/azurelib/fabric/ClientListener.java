@@ -1,6 +1,5 @@
 package mod.azure.azurelib.fabric;
 
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -12,6 +11,7 @@ import mod.azure.azurelib.cache.AzureLibCache;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.render.item.AzItemSpecialRenderer;
 
 public final class ClientListener implements ClientModInitializer {
@@ -34,8 +34,8 @@ public final class ClientListener implements ClientModInitializer {
             (packet, _) -> packet.handle()
         );
         ClientPlayNetworking.registerGlobalReceiver(
-                SendConfigDataPacket.TYPE,
-                (packet, context) -> packet.handle()
+            SendConfigDataPacket.TYPE,
+            (packet, context) -> packet.handle()
         );
     }
 }

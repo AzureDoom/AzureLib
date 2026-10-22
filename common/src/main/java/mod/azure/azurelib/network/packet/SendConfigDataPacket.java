@@ -4,13 +4,6 @@
  */
 package mod.azure.azurelib.network.packet;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.config.ConfigHolderRegistry;
-import mod.azure.azurelib.config.adapter.TypeAdapter;
-import mod.azure.azurelib.config.value.ConfigValue;
-import mod.azure.azurelib.network.AbstractPacket;
-import mod.azure.azurelib.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.util.AzureLibException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,6 +13,14 @@ import org.apache.logging.log4j.MarkerManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.config.ConfigHolderRegistry;
+import mod.azure.azurelib.config.adapter.TypeAdapter;
+import mod.azure.azurelib.config.value.ConfigValue;
+import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.platform.services.AzureLibNetwork;
+import mod.azure.azurelib.util.AzureLibException;
 
 public record SendConfigDataPacket(String config) implements AbstractPacket {
 

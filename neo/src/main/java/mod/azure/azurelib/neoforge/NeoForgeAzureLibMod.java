@@ -1,7 +1,7 @@
 package mod.azure.azurelib.neoforge;
 
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -9,9 +9,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
-import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.*;
 
 @Mod(AzureLib.MOD_ID)
 public final class NeoForgeAzureLibMod {
@@ -46,9 +44,24 @@ public final class NeoForgeAzureLibMod {
             (msg, _) -> msg.handle()
         );
         registrar.playBidirectional(
-                SendConfigDataPacket.TYPE,
-                SendConfigDataPacket.CODEC,
-                (msg, ctx) -> msg.handle()
+            SendConfigDataPacket.TYPE,
+            SendConfigDataPacket.CODEC,
+            (msg, ctx) -> msg.handle()
+        );
+        registrar.playToServer(
+            AzHitboxPosePacket.TYPE,
+            AzHitboxPosePacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
+        );
+        registrar.playToServer(
+            AzHitboxAttackPacket.TYPE,
+            AzHitboxAttackPacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
+        );
+        registrar.playToServer(
+            AzHitboxInteractPacket.TYPE,
+            AzHitboxInteractPacket.CODEC,
+            (msg, ctx) -> msg.handleServer((ServerPlayer) ctx.player())
         );
     }
 }

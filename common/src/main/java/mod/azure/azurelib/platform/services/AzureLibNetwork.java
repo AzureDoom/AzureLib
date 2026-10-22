@@ -28,6 +28,12 @@ public interface AzureLibNetwork {
 
     Identifier CONFIG_PACKET_ID = AzureLib.modResource("config_packet");
 
+    Identifier AZ_HITBOX_POSE_PACKET_ID = AzureLib.modResource("az_hitbox_pose");
+
+    Identifier AZ_HITBOX_ATTACK_PACKET_ID = AzureLib.modResource("az_hitbox_attack");
+
+    Identifier AZ_HITBOX_INTERACT_PACKET_ID = AzureLib.modResource("az_hitbox_interact");
+
     static void sendWithCallback(AbstractPacket packet, IPacketCallback callback) {
         callback.onReadyToSend(packet);
     }
@@ -45,6 +51,8 @@ public interface AzureLibNetwork {
     void sendClientPacket(ServerPlayer player, String id);
 
     void sendToPlayer(AbstractPacket packet, ServerPlayer player);
+
+    void sendToServer(CustomPacketPayload packet);
 
     interface IPacketCallback {
 

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.neoforge.platform;
 
-import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,10 +8,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
 
 @SuppressWarnings("unchecked")
@@ -59,5 +60,10 @@ public class NeoForgeAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void sendToPlayer(AbstractPacket packet, ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, packet);
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload packet) {
+        ClientPacketDistributor.sendToServer(packet);
     }
 }
