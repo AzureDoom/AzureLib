@@ -1,5 +1,6 @@
 package mod.azure.azurelib.neoforge;
 
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -43,6 +44,11 @@ public final class NeoForgeAzureLibMod {
             AzBlockEntityDispatchCommandPacket.TYPE,
             AzBlockEntityDispatchCommandPacket.CODEC,
             (msg, _) -> msg.handle()
+        );
+        registrar.playBidirectional(
+                SendConfigDataPacket.TYPE,
+                SendConfigDataPacket.CODEC,
+                (msg, ctx) -> msg.handle()
         );
     }
 }

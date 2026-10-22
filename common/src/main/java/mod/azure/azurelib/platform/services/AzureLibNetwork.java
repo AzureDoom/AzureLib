@@ -42,6 +42,8 @@ public interface AzureLibNetwork {
 
     void sendToEntitiesTrackingChunk(AbstractPacket packet, ServerLevel level, BlockPos blockPos);
 
+    void sendClientPacket(ServerPlayer player, String id);
+
     void sendToPlayer(AbstractPacket packet, ServerPlayer player);
 
     interface IPacketCallback {

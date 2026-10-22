@@ -1,5 +1,6 @@
 package mod.azure.azurelib.fabric;
 
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
@@ -30,5 +31,10 @@ public final class FabricAzureLibMod implements ModInitializer {
                 AzItemStackDispatchCommandPacket.TYPE,
                 AzItemStackDispatchCommandPacket.CODEC
             );
+        PayloadTypeRegistry.serverboundPlay()
+                .register(
+                        SendConfigDataPacket.TYPE,
+                        SendConfigDataPacket.CODEC
+                );
     }
 }

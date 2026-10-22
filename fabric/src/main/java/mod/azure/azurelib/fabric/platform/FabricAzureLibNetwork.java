@@ -1,5 +1,6 @@
 package mod.azure.azurelib.fabric.platform;
 
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -62,5 +63,10 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void sendToPlayer(AbstractPacket packet, ServerPlayer player) {
         ServerPlayNetworking.send(player, packet);
+    }
+
+    @Override
+    public void sendClientPacket(ServerPlayer player, String id) {
+        ServerPlayNetworking.send(player, new SendConfigDataPacket(id));
     }
 }

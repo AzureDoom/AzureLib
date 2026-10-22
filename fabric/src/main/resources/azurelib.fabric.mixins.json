@@ -9,7 +9,8 @@
   "mixins": [
     "AbstractContainerMenuMixin_AzItemIDFix",
     "ItemMixin_EnsureCraftHasID",
-    "ItemStackMixin_AzItemStackIdentityRegistry"
+    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "PlayerListMixin"
   ],
   "client": [
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
