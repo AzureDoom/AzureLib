@@ -2,10 +2,7 @@ package mod.azure.azurelib.platform;
 
 import java.util.ServiceLoader;
 
-import mod.azure.azurelib.platform.services.AzureLibInitializer;
-import mod.azure.azurelib.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.platform.services.CommonRegistry;
-import mod.azure.azurelib.platform.services.IPlatformHelper;
+import mod.azure.azurelib.platform.services.*;
 
 public class Services {
 
@@ -21,5 +18,14 @@ public class Services {
         return ServiceLoader.load(clazz)
             .findFirst()
             .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
+    }
+
+    public static IClientPlatformHelper clientPlatform() {
+        return ClientHolder.INSTANCE;
+    }
+
+    private static final class ClientHolder {
+
+        static final IClientPlatformHelper INSTANCE = load(IClientPlatformHelper.class);
     }
 }
