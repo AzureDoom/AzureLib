@@ -1,14 +1,15 @@
 package mod.azure.azurelib.hitbox.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -16,7 +17,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.hitbox.*;
+import mod.azure.azurelib.hitbox.AzHitbox;
+import mod.azure.azurelib.hitbox.AzHitboxClientAccess;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.AzHitboxInteractions;
+import mod.azure.azurelib.hitbox.AzHitboxRole;
+import mod.azure.azurelib.hitbox.AzHitboxState;
+import mod.azure.azurelib.hitbox.AzHitboxSync;
+import mod.azure.azurelib.hitbox.AzHitboxes;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.network.packet.AzHitboxAttackPacket;
@@ -41,12 +49,11 @@ public final class AzHitboxClientHooks {
     }
 
     public static void afterEntityRender(
-        Entity entity,
-        AzBakedModel model,
-        float partialTick,
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        boolean drawDebug
+            Entity entity,
+            AzBakedModel model,
+            float partialTick,
+            MultiBufferSource bufferSource,
+            boolean drawDebug
     ) {
         if (!(entity instanceof AzHitboxHolder)) {
             return;
@@ -62,7 +69,7 @@ public final class AzHitboxClientHooks {
         AzHitboxClientAccess.markRendered(state, entity.level().getGameTime());
 
         if (drawDebug) {
-            renderDebug(state, poseStack, bufferSource);
+            renderDebug(entity, state, bufferSource, partialTick);
         }
 
         report(entity, state);
@@ -169,18 +176,18 @@ public final class AzHitboxClientHooks {
             var rotation = matrix.getNormalizedRotation(SCRATCH_ROTATION);
 
             AzHitboxClientAccess.setBox(
-                state,
-                i,
-                center.x,
-                center.y,
-                center.z,
-                box[3] * Math.abs(scale.x),
-                box[4] * Math.abs(scale.y),
-                box[5] * Math.abs(scale.z),
-                rotation.x,
-                rotation.y,
-                rotation.z,
-                rotation.w
+                    state,
+                    i,
+                    center.x,
+                    center.y,
+                    center.z,
+                    box[3] * Math.abs(scale.x),
+                    box[4] * Math.abs(scale.y),
+                    box[5] * Math.abs(scale.z),
+                    rotation.x,
+                    rotation.y,
+                    rotation.z,
+                    rotation.w
             );
         }
 
@@ -234,9 +241,9 @@ public final class AzHitboxClientHooks {
         if (hitbox.fitsCubes()) {
             if (!hasCubes) {
                 AzureLib.LOGGER.warn(
-                    "Hitbox '{}' fits bone '{}', which has no cubes; give it an explicit size",
-                    hitbox.name(),
-                    hitbox.bone()
+                        "Hitbox '{}' fits bone '{}', which has no cubes; give it an explicit size",
+                        hitbox.name(),
+                        hitbox.bone()
                 );
                 return null;
             }
@@ -260,12 +267,12 @@ public final class AzHitboxClientHooks {
         }
 
         return new float[] {
-            centerX - hitbox.offsetX() / 16f,
-            centerY + hitbox.offsetY() / 16f,
-            centerZ + hitbox.offsetZ() / 16f,
-            halfX,
-            halfY,
-            halfZ
+                centerX - hitbox.offsetX() / 16f,
+                centerY + hitbox.offsetY() / 16f,
+                centerZ + hitbox.offsetZ() / 16f,
+                halfX,
+                halfY,
+                halfZ
         };
     }
 
@@ -328,12 +335,24 @@ public final class AzHitboxClientHooks {
         }
     }
 
-    private static void renderDebug(AzHitboxState state, PoseStack poseStack, MultiBufferSource bufferSource) {
+    private static void renderDebug(
+            Entity entity,
+            AzHitboxState state,
+            MultiBufferSource bufferSource,
+            float partialTick
+    ) {
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        var lerped = entity.getPosition(partialTick);
+        var offsetX = lerped.x - entity.getX() - camera.x;
+        var offsetY = lerped.y - entity.getY() - camera.y;
+        var offsetZ = lerped.z - entity.getZ() - camera.z;
         var buffer = bufferSource.getBuffer(RenderType.lines());
+        var pose = new PoseStack().last();
+        var boxes = state.worldBoxes(entity);
         var set = state.set();
 
-        for (int i = 0; i < state.size(); i++) {
-            if (!state.isActive(i)) {
+        for (int i = 0; i < boxes.length; i++) {
+            if (boxes[i] == null) {
                 continue;
             }
 
@@ -359,27 +378,59 @@ public final class AzHitboxClientHooks {
                 b = 1f;
             }
 
-            var hx = AzHitboxClientAccess.localData(state, i, 3);
-            var hy = AzHitboxClientAccess.localData(state, i, 4);
-            var hz = AzHitboxClientAccess.localData(state, i, 5);
+            var corners = boxes[i].corners();
 
-            poseStack.pushPose();
-            poseStack.translate(
-                AzHitboxClientAccess.localData(state, i, 0),
-                AzHitboxClientAccess.localData(state, i, 1),
-                AzHitboxClientAccess.localData(state, i, 2)
-            );
-            poseStack.mulPose(
-                SCRATCH_ROTATION.set(
-                    AzHitboxClientAccess.localData(state, i, 6),
-                    AzHitboxClientAccess.localData(state, i, 7),
-                    AzHitboxClientAccess.localData(state, i, 8),
-                    AzHitboxClientAccess.localData(state, i, 9)
-                )
-            );
-            LevelRenderer.renderLineBox(poseStack, buffer, -hx, -hy, -hz, hx, hy, hz, r, g, b, 1f);
-            poseStack.popPose();
+            for (int a = 0; a < 8; a++) {
+                for (int bit = 1; bit < 8; bit <<= 1) {
+                    if ((a & bit) == 0) {
+                        drawEdge(buffer, pose, corners[a], corners[a | bit], offsetX, offsetY, offsetZ, r, g, b);
+                    }
+                }
+            }
         }
+    }
+
+    private static void drawEdge(
+            VertexConsumer buffer,
+            PoseStack.Pose pose,
+            Vec3 from,
+            Vec3 to,
+            double offsetX,
+            double offsetY,
+            double offsetZ,
+            float r,
+            float g,
+            float b
+    ) {
+        var dx = (float) (to.x - from.x);
+        var dy = (float) (to.y - from.y);
+        var dz = (float) (to.z - from.z);
+        var length = Mth.sqrt(dx * dx + dy * dy + dz * dz);
+
+        if (length < 1.0E-6f) {
+            return;
+        }
+
+        dx /= length;
+        dy /= length;
+        dz /= length;
+
+        buffer.vertex(
+                        pose.pose(),
+                        (float) (from.x + offsetX),
+                        (float) (from.y + offsetY),
+                        (float) (from.z + offsetZ)
+                )
+                .color(r, g, b, 1f)
+                .normal(pose.normal(), dx, dy, dz).endVertex();
+        buffer.vertex(
+                        pose.pose(),
+                        (float) (to.x + offsetX),
+                        (float) (to.y + offsetY),
+                        (float) (to.z + offsetZ)
+                )
+                .color(r, g, b, 1f)
+                .normal(pose.normal(), dx, dy, dz).endVertex();
     }
 
     public static void onAttack(Player player, Entity target) {
@@ -392,8 +443,8 @@ public final class AzHitboxClientHooks {
         var end = eye.add(player.getViewVector(1f).scale(reach));
 
         AzHitboxes.raycast(target, eye, end, AzHitbox::isPickable)
-            .filter(hit -> hit.hitbox().role() == AzHitboxRole.COMBAT)
-            .ifPresent(hit -> Services.NETWORK.sendToServer(new AzHitboxAttackPacket(target.getId(), hit.index())));
+                .filter(hit -> hit.hitbox().role() == AzHitboxRole.COMBAT)
+                .ifPresent(hit -> Services.NETWORK.sendToServer(new AzHitboxAttackPacket(target.getId(), hit.index())));
     }
 
     public static void onInteract(Player player, Entity target) {
@@ -413,10 +464,10 @@ public final class AzHitboxClientHooks {
 
         if (WARNED_MISSING.add(key)) {
             AzureLib.LOGGER.warn(
-                "Hitbox '{}' on {} references bone '{}', which is not in the model",
-                hitbox.name(),
-                entity.getType(),
-                hitbox.bone()
+                    "Hitbox '{}' on {} references bone '{}', which is not in the model",
+                    hitbox.name(),
+                    entity.getType(),
+                    hitbox.bone()
             );
         }
     }
