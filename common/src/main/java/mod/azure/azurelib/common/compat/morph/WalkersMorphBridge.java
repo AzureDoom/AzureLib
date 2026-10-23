@@ -87,7 +87,10 @@ public final class WalkersMorphBridge {
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException exception) {
             state = State.DISABLED;
-            AzureLib.LOGGER.warn("Walkers detected but its shape hook could not be found; morphs will not animate", exception);
+            AzureLib.LOGGER.warn(
+                "Walkers detected but its shape hook could not be found; morphs will not animate",
+                exception
+            );
             return;
         }
 
