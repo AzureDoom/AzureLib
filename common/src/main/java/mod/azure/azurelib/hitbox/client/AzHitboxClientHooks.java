@@ -4,12 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -58,17 +60,24 @@ public final class AzHitboxClientHooks {
         report(entity, state);
     }
 
-    public static void collectDebugBoxes(Entity entity, List<AzHitboxDebugBox> out) {
-        var state = AzHitboxes.getState(entity);
+    public static void collectDebugBoxes(Entity entity, float partialTick, List<AzHitboxDebugBox> out) {
+        var state = AzHitboxes.getLiveState(entity);
 
         if (state == null) {
             return;
         }
 
+        var lerped = entity.getPosition(partialTick);
+        var offsetX = lerped.x - entity.getX();
+        var offsetY = lerped.y - entity.getY();
+        var offsetZ = lerped.z - entity.getZ();
+        var boxes = state.worldBoxes(entity);
         var set = state.set();
 
-        for (int i = 0; i < state.size(); i++) {
-            if (!state.isActive(i)) {
+        for (int i = 0; i < boxes.length; i++) {
+            var box = boxes[i];
+
+            if (box == null) {
                 continue;
             }
 
@@ -94,20 +103,32 @@ public final class AzHitboxClientHooks {
                 b = 1f;
             }
 
+            var axisX = box.axisX();
+            var axisY = box.axisY();
+            var axisZ = box.axisZ();
+            var rotation = new Quaternionf().setFromNormalized(
+                new Matrix3f(
+                    (float) axisX.x,
+                    (float) axisX.y,
+                    (float) axisX.z,
+                    (float) axisY.x,
+                    (float) axisY.y,
+                    (float) axisY.z,
+                    (float) axisZ.x,
+                    (float) axisZ.y,
+                    (float) axisZ.z
+                )
+            );
+
             out.add(
                 new AzHitboxDebugBox(
-                    AzHitboxClientAccess.localData(state, i, 0),
-                    AzHitboxClientAccess.localData(state, i, 1),
-                    AzHitboxClientAccess.localData(state, i, 2),
-                    AzHitboxClientAccess.localData(state, i, 3),
-                    AzHitboxClientAccess.localData(state, i, 4),
-                    AzHitboxClientAccess.localData(state, i, 5),
-                    new Quaternionf(
-                        AzHitboxClientAccess.localData(state, i, 6),
-                        AzHitboxClientAccess.localData(state, i, 7),
-                        AzHitboxClientAccess.localData(state, i, 8),
-                        AzHitboxClientAccess.localData(state, i, 9)
-                    ),
+                    box.centerX() + offsetX,
+                    box.centerY() + offsetY,
+                    box.centerZ() + offsetZ,
+                    (float) box.halfExtentX(),
+                    (float) box.halfExtentY(),
+                    (float) box.halfExtentZ(),
+                    rotation,
                     ARGB.colorFromFloat(1f, r, g, b)
                 )
             );
@@ -116,7 +137,7 @@ public final class AzHitboxClientHooks {
 
     public static void submitDebugBoxes(
         List<AzHitboxDebugBox> boxes,
-        PoseStack poseStack,
+        CameraRenderState camera,
         SubmitNodeCollector collector
     ) {
         if (boxes.isEmpty()) {
@@ -128,10 +149,16 @@ public final class AzHitboxClientHooks {
         var renderType = gameRenderer.useImprovedTransparency()
             ? RenderTypes.linesTranslucentNoDepthWrite()
             : RenderTypes.linesTranslucent();
+        var poseStack = new PoseStack();
+        var cameraPos = camera.pos;
 
         for (var box : boxes) {
             poseStack.pushPose();
-            poseStack.translate(box.centerX(), box.centerY(), box.centerZ());
+            poseStack.translate(
+                box.centerX() - cameraPos.x,
+                box.centerY() - cameraPos.y,
+                box.centerZ() - cameraPos.z
+            );
             poseStack.rotate(box.rotation());
             collector.submitShapeOutline(
                 poseStack,

@@ -3,9 +3,9 @@ package mod.azure.azurelib.hitbox.client;
 import org.joml.Quaternionf;
 
 public record AzHitboxDebugBox(
-    float centerX,
-    float centerY,
-    float centerZ,
+    double centerX,
+    double centerY,
+    double centerZ,
     float halfX,
     float halfY,
     float halfZ,

@@ -160,7 +160,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         state.hitboxDebugBoxes.clear();
 
         if (shouldDrawHitboxes() && !entity.isInvisible()) {
-            AzHitboxClientHooks.collectDebugBoxes(entity, state.hitboxDebugBoxes);
+            AzHitboxClientHooks.collectDebugBoxes(entity, partialTick, state.hitboxDebugBoxes);
         }
     }
 
@@ -196,7 +196,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             state.geometry.submitAll(collector, poseStack);
         }
 
-        AzHitboxClientHooks.submitDebugBoxes(state.hitboxDebugBoxes, poseStack, collector);
+        AzHitboxClientHooks.submitDebugBoxes(state.hitboxDebugBoxes, cameraRenderState, collector);
     }
 
     private static boolean shouldDrawHitboxes() {
