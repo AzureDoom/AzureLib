@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
@@ -49,6 +51,30 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
         this.config = config;
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUniqueID);
         this.rendererPipeline = createPipeline(config);
+    }
+
+    public void poseOffscreen(T entity, float partialTick) {
+        if (!(rendererPipeline.modelRenderer() instanceof AzEntityModelRenderer)) {
+            return;
+        }
+
+        AzEntityModelRenderer<T> modelRenderer = (AzEntityModelRenderer<T>) rendererPipeline.modelRenderer();
+        AzEntityAnimator<T> animator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
+
+        if (azBakedModel == null) {
+            return;
+        }
+
+        AzEntityAnimator<T> previousAnimator = reusedAzEntityAnimator;
+        reusedAzEntityAnimator = animator;
+
+        try {
+            modelRenderer.poseBonesOffscreen(entity, azBakedModel, animator, partialTick);
+            AzHitboxClientHooks.afterOffscreenPose(entity, azBakedModel, partialTick);
+        } finally {
+            reusedAzEntityAnimator = previousAnimator;
+        }
     }
 
     protected AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
@@ -110,6 +136,15 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
                 entity.getBrightnessForRender()
             );
             bufferSource.endBatch();
+
+            if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+                AzHitboxClientHooks.afterEntityRender(
+                    entity,
+                    azBakedModel,
+                    partialTick,
+                    renderManager.isDebugBoundingBox() && !entity.isInvisible() && !this.renderOutlines
+                );
+            }
         } finally {
             if (this.renderOutlines) {
                 GlStateManager.disableOutlineMode();
@@ -135,12 +170,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
             return true;
         }
 
-        AzLodManager manager = lodManagers.get(entity);
-
-        if (manager == null) {
-            manager = new AzLodManager(lodConfig);
-            lodManagers.put(entity, manager);
-        }
+        AzLodManager manager = lodManagers.computeIfAbsent(entity, k -> new AzLodManager(lodConfig));
 
         return manager.update(entity, bakedModel);
     }
@@ -169,7 +199,4 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
         return config;
     }
 
-    public RenderManager getRenderManager() {
-        return renderManager;
-    }
 }

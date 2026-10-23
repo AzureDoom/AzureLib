@@ -5,14 +5,20 @@
   "refmap": "azurelib.refmap.json",
   "mixins": [
     "ContainerMixin_AzItemIDFix",
-    "ItemStackMixin_AzAssignIdInInventory"
+    "EntityArrowMixin_AzHitboxes",
+    "EntityMixin_AzHitboxState",
+    "ItemStackMixin_AzAssignIdInInventory",
+    "NetHandlerPlayServerMixin_AzHitboxReach",
+    "ProjectileHelperMixin_AzHitboxes"
   ],
   "client": [
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
+    "EntityRendererMixin_AzHitboxPick",
     "ForgeHooksClientMixin",
     "ItemMixin_AzIdentityReequip",
     "ItemStackMixin_AzItemAnimatorCache",
+    "PlayerControllerMPMixin_AzHitboxClaims",
     "RenderItemMixin"
   ],
   "minVersion": "0.8",

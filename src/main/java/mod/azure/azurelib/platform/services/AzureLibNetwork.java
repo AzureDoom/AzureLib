@@ -1,12 +1,16 @@
 package mod.azure.azurelib.platform.services;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.function.Function;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzServerboundPacket;
 
 public interface AzureLibNetwork {
 
@@ -22,6 +26,12 @@ public interface AzureLibNetwork {
         "az_item_stack_dispatch_command_sync"
     );
 
+    ResourceLocation AZ_HITBOX_POSE_PACKET_ID = AzureLib.modResource("az_hitbox_pose");
+
+    ResourceLocation AZ_HITBOX_ATTACK_PACKET_ID = AzureLib.modResource("az_hitbox_attack");
+
+    ResourceLocation AZ_HITBOX_INTERACT_PACKET_ID = AzureLib.modResource("az_hitbox_interact");
+
     /**
      * Used to register packets that the server sends
      **/
@@ -30,6 +40,14 @@ public interface AzureLibNetwork {
     void sendToTrackingEntityAndSelf(AbstractPacket packet, Entity entityToTrack);
 
     void sendToEntitiesTrackingChunk(AbstractPacket packet, World level, BlockPos blockPos);
+
+    <P extends AzServerboundPacket> void registerServerbound(
+        ResourceLocation id,
+        Class<P> type,
+        Function<PacketBuffer, P> decoder
+    );
+
+    void sendToServer(AzServerboundPacket packet);
 
     static void sendWithCallback(AbstractPacket packet, IPacketCallback callback) {
         callback.onReadyToSend(packet);
