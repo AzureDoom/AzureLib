@@ -16,6 +16,7 @@ public record AzHitboxInteractPacket(
     int entityId,
     int hitboxIndex
 ) implements AzServerboundPacket {
+
     public static final Type<AzHitboxInteractPacket> TYPE = new Type<>(AzureLibNetwork.AZ_HITBOX_INTERACT_PACKET_ID);
 
     public static final StreamCodec<FriendlyByteBuf, AzHitboxInteractPacket> CODEC = StreamCodec.composite(

@@ -1,6 +1,7 @@
 package mod.azure.azurelib.common.hitbox;
 
 public enum AzHitboxRole {
+
     COMBAT,
     INTERACT,
     ANCHOR;

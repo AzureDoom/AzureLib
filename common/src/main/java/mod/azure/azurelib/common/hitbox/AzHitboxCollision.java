@@ -24,6 +24,7 @@ public final class AzHitboxCollision {
     }
 
     public enum Query {
+
         PICK(AzHitbox::isPickable),
         PROJECTILE(AzHitbox::blocksProjectiles);
 

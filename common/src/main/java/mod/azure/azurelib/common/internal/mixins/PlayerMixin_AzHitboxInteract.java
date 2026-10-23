@@ -13,6 +13,7 @@ import mod.azure.azurelib.common.hitbox.AzHitboxInteractions;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin_AzHitboxInteract {
+
     @Inject(method = "interactOn", at = @At("HEAD"), cancellable = true)
     private void azurelib$interactHitbox(
         Entity target,

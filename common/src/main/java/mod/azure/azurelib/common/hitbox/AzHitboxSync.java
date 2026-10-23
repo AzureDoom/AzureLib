@@ -28,8 +28,10 @@ public final class AzHitboxSync {
             return false;
         }
 
-        if (state.lastReportTime != Long.MIN_VALUE && gameTime - state.lastReportTime < state.set()
-            .reportIntervalTicks()) {
+        if (
+            state.lastReportTime != Long.MIN_VALUE && gameTime - state.lastReportTime < state.set()
+                .reportIntervalTicks()
+        ) {
             return false;
         }
 
@@ -152,8 +154,10 @@ public final class AzHitboxSync {
         var uuid = sender.getUUID();
         var stale = state.reporterTime == Long.MIN_VALUE || now - state.reporterTime > state.set().poseTimeoutTicks();
 
-        if (state.reporter == null || stale || uuid.equals(state.reporter)
-            || distanceSqr < state.reporterDistanceSqr * TAKEOVER_RATIO) {
+        if (
+            state.reporter == null || stale || uuid.equals(state.reporter)
+                || distanceSqr < state.reporterDistanceSqr * TAKEOVER_RATIO
+        ) {
             state.reporter = uuid;
             state.reporterDistanceSqr = distanceSqr;
             state.reporterTime = now;

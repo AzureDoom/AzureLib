@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public final class AzHitboxInteractions {
+
     private AzHitboxInteractions() {
         throw new UnsupportedOperationException();
     }

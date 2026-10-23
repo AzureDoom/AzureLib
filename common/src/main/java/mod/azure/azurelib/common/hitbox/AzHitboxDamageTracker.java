@@ -24,7 +24,12 @@ public final class AzHitboxDamageTracker {
         throw new UnsupportedOperationException();
     }
 
-    private record Claim(int targetId, int index, Vec3 location, long time) {}
+    private record Claim(
+        int targetId,
+        int index,
+        Vec3 location,
+        long time
+    ) {}
 
     public static void claimMelee(ServerPlayer player, Entity target, int index) {
         var claim = validateClaim(player, target, index, AzHitboxRole.COMBAT);
