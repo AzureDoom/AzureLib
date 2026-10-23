@@ -164,7 +164,8 @@ If hitboxes stick far outside the vanilla box (long tails or necks), the game ca
 
 ```java
 @Override
-public AABB getBoundingBoxForCulling() {
-    return AzHitboxes.getCullingBox(this, super.getBoundingBoxForCulling());
+@SideOnly(Side.CLIENT)
+public AxisAlignedBB getRenderBoundingBox() {
+    return AzHitboxes.getCullingBox(this, super.getRenderBoundingBox());
 }
 ```
