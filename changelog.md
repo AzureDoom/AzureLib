@@ -1,28 +1,28 @@
-v1.0.8
+v1.1.0
 
 ### Additions
-- `AzItemIdentity`, the single utility for reading, creating and clearing an item stack's AzureLib id (`resolve`, `getOrCreate`, `peek`, `hasPersistentId`, `clear`).
+- Added bone hitboxes. Entities can now define hitboxes that follow bones in their model, rotate with them, and stay in sync with whatever animation is playing. Implement `AzHitboxHolder` and return an `AzHitboxSet` to use them.
+- Hitboxes can fit a bone's cubes automatically or use an explicit size, offset and inflate in Blockbench pixels, and several hitboxes can share one bone.
+- Hitboxes have three roles.
+    - `COMBAT` hitboxes take crosshair targeting, projectiles and damage.
+    - `INTERACT` hitboxes can be right-clicked to trigger custom logic without affecting combat.
+    - `ANCHOR` hitboxes can't be hit and exist only to track a bone's position.
+- Melee hits, projectile hits and right-clicks report which hitbox they landed on, so damage can be scaled per hitbox (headshots, armoured plates, weak points).
+- Hitboxes are drawn with F3 + B, colored by role and damage multiplier.
+- Clients report animated poses to the server, so server-side checks such as projectiles and AI attacks line up with what players see.
+- Entities that a nearby player isn't looking at still have their hitboxes posed and reported, so server-side checks keep working behind the camera.
+- Added a Bone Hitboxes page to the docs.
+- First-person item arms now render the player's worn chestplate sleeve, supporting vanilla armor (including dye and enchantment glint) and AzureLib armor.
 
 ### Fixes
-- Item stacks are no longer given an `az_id` UUID when they are constructed. Creative tabs, recipe outputs and JEI's ingredient list now see NBT-free stacks, so AzureLib items match their JEI entries and recipes again, and crafted copies of a recipe output no longer share one id.
-- Item and armor animators are no longer lost on garbage collection while the stack is still being rendered, which could restart idle animations or cut off triggered ones mid-play.
-- Stacks without an id now keep one stable animator while rendered, instead of a new animator (and a new random id) every frame.
-- `AzCommand#sendForItem` no longer throws a `NullPointerException` when the stack has no NBT.
+- Fixed animated textures causing large frame-time spikes and heavy memory churn. Each frame change re-decoded the texture pixel by pixel and re-created its GPU storage, for both the base texture and its glow mask. Frames are now decoded once and uploaded into storage allocated a single time, so frame changes no longer allocate memory.
 
 ### Changes
-- Improved animation performance on models with many bones. The bone cache now walks bones in a fixed array and skips any bone that has fully eased back to its bind pose, so its cost scales with the animated bones instead of the whole model.
-- Bones scaled to zero on every axis, along with everything under them, are no longer rendered, instead of being drawn as collapsed geometry.
-- A stack gets its persistent id on the server when it first ticks in an entity's inventory, or on its first server-side dispatch (`AzCommand#sendForItem`) if it never does. Rendering never writes NBT; stacks without an id are keyed by a transient, per-instance id.
-- Item animators now expire after 120 seconds without being rendered or dispatched to, instead of being weakly held.
-- Creative "pick block" clones have their copied id removed rather than replaced, and get their own the next time one is assigned.
-- Adding or swapping only the `az_id` on a held stack no longer plays the re-equip animation.
-- Removed `ItemStackMixin_AzItemStackIdentityRegistry` and `ItemMixin_EnsureCraftHasID`; added `ItemStackMixin_AzAssignIdInInventory`.
+- The server's attack reach check now includes an entity's hitboxes, so parts that stick out past the vanilla bounding box (tails, weapons) can be hit from as far as they reach.
+- Entities using an `AzEntityRenderer` that have hitboxes now run their animator while off-screen within 64 blocks of a player. Keyframe events, including sound keyframes, will fire for those entities even when they aren't visible.
 
 ### Developer Notes
-- `AzCachedBoneUpdateUtil` has new overloads that take an `AzBoneSnapshot` directly and return whether the channel is at rest. The existing `Map` overloads still work and delegate to them.
-- Added `AzBoneCache#invalidateBoneArrays()`. Call it if you replace or remove entries in `getBoneSnapshotsByName()` directly; changing a snapshot's values doesn't need it.
-- While a bone is scaled to zero on all three axes, its descendants don't update their tracked matrices and per-bone render layers aren't called for that subtree.
-- Only register items that use triggered animations in `AzIdentityRegistry`. Registered items get a unique `az_id` once they sit in an inventory, so stackable items registered there stop merging.
-- When dispatching for a stack that never sits in an inventory (such as a mob's held item), call `sendForItem` on the server with the actual stack, not a copy: that stack is the one that receives the id.
-- Code that read `az_id` directly from NBT should use `AzItemIdentity.peek` (maybe null until an id is assigned) or `AzItemIdentity.getOrCreate` on the server.
-- Existing stacks that already carry an `az_id` keep it.
+- `AzHitboxHolder#onHitboxHit` runs on the server at the start of `LivingEntity#hurt` and returns the damage to apply. `AzHitboxHolder#onHitboxInteract` runs on both sides before `mobInteract`.
+- Server-side poses only exist while a player within 64 blocks has the entity loaded. With no player nearby, hitbox queries return nothing and projectiles fall back to the vanilla bounding box, so server logic that reads hitboxes should keep a fallback.
+- Reported poses are bounds-checked but come from clients. A modified client can shift a mob's hitboxes within `maxReach` and `maxHalfExtent`. Use `AzHitboxSet.Builder#clientOnly()` where that isn't acceptable.
+- Added `AzRendererPipeline#modelRenderer()`, `AzEntityRenderer#poseOffscreen` and `AzEntityModelRenderer#poseBonesOffscreen`. The entity transforms and bone matrix tracking in `AzEntityModelRenderer` were moved into private methods shared by the on-screen and off-screen paths. Behavior is unchanged for subclasses.
