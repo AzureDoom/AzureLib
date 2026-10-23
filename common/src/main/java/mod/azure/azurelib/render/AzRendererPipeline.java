@@ -200,6 +200,10 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         }
     }
 
+    public AzModelRenderer<K, T> modelRenderer() {
+        return modelRenderer;
+    }
+
     /**
      * Provides access to the rendering configuration associated with this rendering pipeline.
      *

@@ -9,7 +9,9 @@ import net.minecraft.world.entity.*;
 import mod.azure.azurelib.config.TestingConfig;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.config.io.ConfigIO;
+import mod.azure.azurelib.network.AzServerboundPackets;
 import mod.azure.azurelib.platform.FabricAzureLibNetwork;
+import mod.azure.azurelib.platform.Services;
 
 public final class FabricAzureLibMod implements ModInitializer {
 
@@ -19,6 +21,7 @@ public final class FabricAzureLibMod implements ModInitializer {
         AzureLibMod.config = AzureLibMod.registerConfig(TestingConfig.class, ConfigFormats.json()).getConfigInstance();
         AzureLib.initialize();
         new FabricAzureLibNetwork();
+        AzServerboundPackets.register(Services.NETWORK);
 
         ServerLifecycleEvents.SERVER_STOPPING.register((server) -> ConfigIO.FILE_WATCH_MANAGER.stopService());
     }

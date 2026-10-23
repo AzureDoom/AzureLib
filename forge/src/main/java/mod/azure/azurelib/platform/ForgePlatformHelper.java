@@ -1,5 +1,6 @@
 package mod.azure.azurelib.platform;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -39,5 +40,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public Path modsDir() {
         return FMLPaths.MODSDIR.get();
+    }
+
+    @Override
+    public double getEntityInteractionRange(Player player) {
+        return player.isCreative() ? 5.0D : 3.0D;
     }
 }

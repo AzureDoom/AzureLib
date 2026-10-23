@@ -10,12 +10,16 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
+import java.util.function.Function;
+
 import mod.azure.azurelib.network.AbstractPacket;
+import mod.azure.azurelib.network.AzServerboundPacket;
 import mod.azure.azurelib.network.Networking;
 import mod.azure.azurelib.network.S2C_SendConfigData;
 import mod.azure.azurelib.network.packet.*;
@@ -98,5 +102,24 @@ public class FabricAzureLibNetwork implements AzureLibNetwork {
     @Override
     public void sendClientPacket(ServerPlayer player, String id) {
         Networking.sendClientPacket(player, new S2C_SendConfigData(id));
+    }
+
+    @Override
+    public <P extends AzServerboundPacket> void registerServerbound(
+        ResourceLocation id,
+        Class<P> type,
+        Function<FriendlyByteBuf, P> decoder
+    ) {
+        ServerPlayNetworking.registerGlobalReceiver(id, (server, player, handler, buf, responseSender) -> {
+            var packet = decoder.apply(buf);
+            server.execute(() -> packet.handleServer(player));
+        });
+    }
+
+    @Override
+    public void sendToServer(AzServerboundPacket packet) {
+        var buf = PacketByteBufs.create();
+        packet.write(buf);
+        ClientPlayNetworking.send(packet.id(), buf);
     }
 }

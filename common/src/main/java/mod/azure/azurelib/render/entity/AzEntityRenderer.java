@@ -15,6 +15,8 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
 import mod.azure.azurelib.render.lod.AzLodConfig;
@@ -50,6 +52,23 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         this.config = config;
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Entity::getUUID);
         this.rendererPipeline = createPipeline(config);
+    }
+
+    public void poseOffscreen(T entity, float partialTick) {
+        if (!(rendererPipeline.modelRenderer() instanceof AzEntityModelRenderer<T> modelRenderer)) {
+            return;
+        }
+
+        var animator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        var azBakedModel = provider.provideBakedModel(entity, entity);
+
+        if (azBakedModel == null) {
+            return;
+        }
+
+        reusedAzEntityAnimator = animator;
+        modelRenderer.poseBonesOffscreen(entity, azBakedModel, animator, partialTick);
+        AzHitboxClientHooks.afterOffscreenPose(entity, azBakedModel, partialTick);
     }
 
     protected AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
@@ -103,6 +122,17 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             partialTick,
             packedLight
         );
+
+        if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+            AzHitboxClientHooks.afterEntityRender(
+                entity,
+                azBakedModel,
+                partialTick,
+                poseStack,
+                bufferSource,
+                entityRenderDispatcher.shouldRenderHitBoxes() && !entity.isInvisible()
+            );
+        }
     }
 
     protected boolean updateLod(T entity, @Nullable AzEntityAnimator<T> animator, @Nullable AzBakedModel bakedModel) {
