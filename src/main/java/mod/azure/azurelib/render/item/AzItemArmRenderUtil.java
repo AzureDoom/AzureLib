@@ -112,6 +112,14 @@ public class AzItemArmRenderUtil {
                 playerEntityModel.bipedLeftArm,
                 null
             );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                    context.multiBufferSource(),
+                    poseStack,
+                    true,
+                    bone,
+                    playerEntityModel,
+                    context.packedLight()
+            );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
             poseStack.scale(0.67f, 1.33f, 0.67f);
             poseStack.translate(0.25, -0.43625, 0.1625);
@@ -122,6 +130,14 @@ public class AzItemArmRenderUtil {
                 playerSkin,
                 playerEntityModel.bipedRightArm,
                 null
+            );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                    context.multiBufferSource(),
+                    poseStack,
+                    false,
+                    bone,
+                    playerEntityModel,
+                    context.packedLight()
             );
         }
 
@@ -164,7 +180,7 @@ public class AzItemArmRenderUtil {
         GlStateManager.popMatrix();
     }
 
-    private static void renderPart(ModelRenderer part, AzBone bone) {
+    static void renderPart(ModelRenderer part, AzBone bone) {
         float oldX = part.rotationPointX, oldY = part.rotationPointY, oldZ = part.rotationPointZ;
         float oldRotX = part.rotateAngleX, oldRotY = part.rotateAngleY, oldRotZ = part.rotateAngleZ;
 
