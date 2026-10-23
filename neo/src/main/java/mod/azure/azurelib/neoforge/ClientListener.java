@@ -6,6 +6,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
@@ -23,6 +24,8 @@ import mod.azure.azurelib.config.client.ConfigurationClient;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
+import mod.azure.azurelib.network.packet.SendConfigDataPacket;
+import mod.azure.azurelib.render.item.AzItemArmArmorRenderUtil;
 import mod.azure.azurelib.render.item.AzItemSpecialRenderer;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = AzureLib.MOD_ID)
@@ -71,6 +74,12 @@ public class ClientListener {
         event.register(AzEntityDispatchCommandPacket.TYPE, (msg, ctx) -> msg.handle());
         event.register(AzItemStackDispatchCommandPacket.TYPE, (msg, ctx) -> msg.handle());
         event.register(AzBlockEntityDispatchCommandPacket.TYPE, (msg, ctx) -> msg.handle());
+        event.register(SendConfigDataPacket.TYPE, (msg, ctx) -> msg.handle());
+    }
+
+    @SubscribeEvent
+    public static void onAddLayers(EntityRenderersEvent.AddLayers event) {
+        AzItemArmArmorRenderUtil.setEquipmentAssets(event.getContext().getEquipmentAssets());
     }
 
 }

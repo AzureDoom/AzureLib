@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -115,6 +116,15 @@ public class AzItemArmRenderUtil {
                 itemContext,
                 modelRenderer
             );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                poseStack,
+                HumanoidArm.LEFT,
+                bone,
+                playerEntityModel,
+                packedLight,
+                itemContext,
+                modelRenderer
+            );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
             poseStack.scale(0.67f, 1.33f, 0.67f);
             poseStack.translate(0.25, -0.43625, 0.1625);
@@ -124,6 +134,15 @@ public class AzItemArmRenderUtil {
                 playerEntityModel.rightArm,
                 playerEntityModel.rightSleeve,
                 playerSkin,
+                packedLight,
+                itemContext,
+                modelRenderer
+            );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                poseStack,
+                HumanoidArm.RIGHT,
+                bone,
+                playerEntityModel,
                 packedLight,
                 itemContext,
                 modelRenderer
