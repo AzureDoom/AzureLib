@@ -489,7 +489,6 @@ public class AnimatableTexture extends SimpleTexture {
                 this.allocatedGlowmaskId = -1;
             }
 
-
             void uploadFrame(int frameIndex) {
                 copyFrame(basePixels(), this.baseImage.getWidth(), frameIndex, this.frameBuffer);
                 upload(AnimatableTexture.this.getGlTextureId(), this.frameBuffer, false);
@@ -525,17 +524,17 @@ public class AnimatableTexture extends SimpleTexture {
                 } else if (this.currentSubframe != lastSubframe && this.interpolating) {
                     generateInterpolatedFrame(
                         AnimatableTexture.this.getGlTextureId(),
-                            basePixels(),
-                            this.baseImage.getWidth(),
-                            false
+                        basePixels(),
+                        this.baseImage.getWidth(),
+                        false
                     );
 
                     if (this.glowmaskImage != null && this.glowMaskTextureId != -1) {
                         generateInterpolatedFrame(
                             this.glowMaskTextureId,
-                                glowmaskPixels(),
-                                this.glowmaskImage.getWidth(),
-                                true
+                            glowmaskPixels(),
+                            this.glowmaskImage.getWidth(),
+                            true
                         );
                     }
                 }
@@ -579,7 +578,7 @@ public class AnimatableTexture extends SimpleTexture {
                     int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
 
                     this.frameBuffer[i] =
-                            prevFramePixel & 0xFF000000 | blendedRed << 16 | blendedGreen << 8 | blendedBlue;
+                        prevFramePixel & 0xFF000000 | blendedRed << 16 | blendedGreen << 8 | blendedBlue;
                 }
 
                 upload(textureId, this.frameBuffer, glowmask);
