@@ -27,7 +27,9 @@
     "MixinHumanoidArmorLayer",
     "MixinEntityRendererArmorContext",
     "TextureManagerMixin",
-    "GameRendererMixin_AzFrameArena"
+    "GameRendererMixin_AzFrameArena",
+    "EntityRenderDispatcherAccessor",
+    "MinecraftMixin_AzMorphCompat"
   ],
   "overwrites": {
     "requireAnnotations": true
