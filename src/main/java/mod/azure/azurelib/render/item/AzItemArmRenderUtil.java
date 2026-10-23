@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
@@ -112,6 +113,14 @@ public class AzItemArmRenderUtil {
                 playerEntityModel.bipedLeftArm,
                 playerEntityModel.bipedLeftArmwear
             );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                context.multiBufferSource(),
+                poseStack,
+                EnumHandSide.LEFT,
+                bone,
+                playerEntityModel,
+                context.packedLight()
+            );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
             poseStack.scale(0.67f, 1.33f, 0.67f);
             poseStack.translate(0.25, -0.43625, 0.1625);
@@ -122,6 +131,14 @@ public class AzItemArmRenderUtil {
                 playerSkin,
                 playerEntityModel.bipedRightArm,
                 playerEntityModel.bipedRightArmwear
+            );
+            AzItemArmArmorRenderUtil.renderArmArmor(
+                context.multiBufferSource(),
+                poseStack,
+                EnumHandSide.RIGHT,
+                bone,
+                playerEntityModel,
+                context.packedLight()
             );
         }
 
@@ -161,7 +178,7 @@ public class AzItemArmRenderUtil {
         GlStateManager.popMatrix();
     }
 
-    private static void renderPart(ModelRenderer part, AzBone bone) {
+    static void renderPart(ModelRenderer part, AzBone bone) {
         float oldX = part.rotationPointX, oldY = part.rotationPointY, oldZ = part.rotationPointZ;
         float oldRotX = part.rotateAngleX, oldRotY = part.rotateAngleY, oldRotZ = part.rotateAngleZ;
 
