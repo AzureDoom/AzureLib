@@ -1,0 +1,179 @@
+---
+title: Bone Hitboxes
+hide_meta: true
+---
+
+# Bone Hitboxes
+
+Bone hitboxes let an entity be hit per body part. Each hitbox follows a bone in your model, rotates with it, and stays in sync with whatever animation is playing, because it is read from the same bone matrices the model is drawn with.
+
+## Quick start
+
+Implement `AzHitboxHolder` on your entity and return a static `AzHitboxSet`:
+
+```java
+public class XenoEntity extends Monster implements AzHitboxHolder {
+
+    private static final AzHitboxSet HITBOXES = AzHitboxSet.builder()
+        // Fitted to the head bone's cubes, double damage
+        .add("head", h -> h.damageMultiplier(2f).tag("weak_point"))
+        .add("body")
+        // Second hitbox name on a bone, explicit size in pixels
+        .add("tail_tip", "tail4", h -> h.size(4, 4, 10).inflate(1))
+        .build();
+
+    @Override
+    public AzHitboxSet getHitboxSet() {
+        return HITBOXES;
+    }
+}
+```
+
+That is all that is required. The entity must be rendered with an `AzEntityRenderer`. Press **F3 + B** to see the hitboxes: red is above 1x damage, blue is below 1x, green is 1x, cyan is an interaction hitbox and yellow is an anchor.
+
+## Defining a hitbox
+
+All lengths are Blockbench pixels and offsets use Blockbench's axes, so values can be read straight from the model.
+
+| Method | Effect |
+| --- | --- |
+| `size(x, y, z)` / `size(s)` | Explicit size. Without it the box fits the cubes owned by the bone (not its children). |
+| `offset(x, y, z)` | Moves the box from its default center. |
+| `inflate(pixels)` | Grows or shrinks every side. |
+| `anchorAtPivot()` | Centers on the bone pivot instead of the center of the bone's cubes. |
+| `damageMultiplier(f)` | Used by the default `onHitboxHit`. |
+| `tag(String)` | Free-form tags for your own logic. |
+
+A hitbox is disabled while its bone (or a parent hiding its children) is hidden, or scaled to zero.
+
+## Roles
+
+Every hitbox has a role that decides which systems use it:
+
+| Role | Crosshair | Projectiles | `onHitboxHit` | `onHitboxInteract` | Queries |
+| --- | --- | --- | --- | --- | --- |
+| `COMBAT` (default) | ✓ | ✓ | ✓ | | ✓ |
+| `INTERACT` | ✓ | | | ✓ | ✓ |
+| `ANCHOR` | | | | | ✓ |
+
+Set it with `.interact()`, `.anchor()` or `.role(AzHitboxRole)`. The crosshair always lands on the nearest pickable box, so a combat hitbox in front of an interaction hitbox blocks the click, the same way a wall would.
+
+### Interaction hitboxes
+
+Right-clicking an `INTERACT` hitbox calls `onHitboxInteract` on both sides, before the entity's normal `mobInteract`. Return anything other than `PASS` to consume the click:
+
+```java
+.add("saddlebag", "sled", h -> h.interact().size(10, 8, 12).anchorAtPivot().offset(18, -6, 14))
+```
+
+```java
+@Override
+public InteractionResult onHitboxInteract(AzHitboxHit hit, Player player, InteractionHand hand) {
+    if (hit.name().equals("saddlebag")) {
+        if (!level().isClientSide()) {
+            openSaddlebag(player);
+        }
+        return InteractionResult.sidedSuccess(level().isClientSide());
+    }
+    return InteractionResult.PASS;
+}
+```
+
+The client tells the server which hitbox it clicked, and the server checks it against reach, so small or fast-moving interaction hitboxes resolve reliably. This works with `clientOnly()` sets too. Attacking an interaction hitbox deals normal damage with no hitbox attached.
+
+### Anchor hitboxes
+
+An `ANCHOR` hitbox is never hit by anything; it only tracks a bone so your own logic can read its position:
+
+```java
+.add("mouth", "lowJaw", h -> h.anchor().size(2))
+```
+
+```java
+var mouth = AzHitboxes.getWorldBox(this, "mouth");
+
+if (mouth != null) {
+    var bite = mouth.inflate(0.5);
+
+    for (var target : level().getEntitiesOfClass(LivingEntity.class, bite.bounds(), e -> e != this)) {
+        if (bite.intersects(target.getBoundingBox())) {
+            target.hurt(damageSources().mobAttack(this), 8f);
+        }
+    }
+}
+```
+
+Give anchors a non-zero size; a box with no size is treated as empty. On the server, anchors follow the pose reported by nearby clients, so they trail the animation by a few ticks and are unavailable when no player is near the mob. Keep a fallback for that case, and time server-side checks slightly after the keyframe they belong to.
+
+## Reacting to hits
+
+`onHitboxHit` runs on the server at the start of `LivingEntity#hurt` and returns the damage to apply:
+
+```java
+@Override
+public float onHitboxHit(AzHitboxHit hit, DamageSource source, float amount) {
+    if (hit.hasTag("weak_point")) {
+        this.playSound(SoundEvents.SHIELD_BREAK);
+    }
+    return amount * hit.hitbox().damageMultiplier();
+}
+```
+
+It runs before vanilla's invulnerability checks, so treat it as a damage modifier. Inside your own `hurt` override, `AzHitboxes.getLastHit(this)` returns the same hit for the rest of the tick.
+
+## Querying hitboxes
+
+`AzHitboxes` works on either side:
+
+- `raycast(entity, from, to)` returns the nearest hitbox hit.
+- `getIntersecting(entity, aabb)` returns every hitbox touching a box (for sweeps and area attacks).
+- `getWorldBox(entity, name)` and `getActiveHitboxes(entity)` return world-space boxes (for particles, AI targeting).
+- `raycast`, `getIntersecting` and `getActiveHitboxes` also take a `Predicate<AzHitbox>`, e.g. `AzHitbox::isPickable` or `h -> h.role() == AzHitboxRole.COMBAT`.
+- `hasLivePose(entity)` tells you whether hitboxes are currently active.
+
+## How syncing works
+
+Animations only run on the client, so the server has no bone positions of its own.
+
+1. **Client:** after the model renders, each hitbox is read from its bone's matrix. Crosshair targeting and client-side projectile checks use these boxes.
+2. **Melee:** when you attack, the client tells the server which hitbox the crosshair was on. The server checks it against reach before using it.
+3. **Server:** clients that render the entity report its pose every few ticks. The server listens to the closest one, rejects out-of-range values, and uses the pose for projectiles and reach checks.
+
+Entities a nearby player isn't looking at still report. Each tick, the client poses any hitbox entity within 64 blocks that it didn't render, by running its animator and computing bone positions without drawing anything, and reports that pose when one is due. Only entities that use an `AzEntityRenderer` get this.
+
+If no client has reported recently (no player within 64 blocks of the mob), hit detection falls back to the vanilla bounding box.
+
+### Trust
+
+A modified client can move a mob's hitboxes, but only within `maxReach` of the entity and up to `maxHalfExtent` in size. That only changes where projectiles land on that mob. If that is not acceptable for your entity, call `clientOnly()`: melee hitboxes still work, but projectiles use the vanilla box.
+
+## Set options
+
+| Method | Default | Effect |
+| --- | --- | --- |
+| `keepEntityBox(true)` | `false` | Keep the vanilla box hittable alongside the hitboxes (as a plain body hit). |
+| `clientOnly()` | off | Disable pose reports to the server. |
+| `reportInterval(ticks)` | `2` | How often clients report a pose. |
+| `poseTimeout(ticks)` | `10` | When a pose is considered stale. |
+| `maxReach(blocks)` | `max(4, 3 * max(width, height))` | Furthest a hitbox center may be from the entity. |
+| `maxHalfExtent(blocks)` | `4` | Largest accepted hitbox half size. |
+
+## Large entities
+
+If hitboxes stick far outside the vanilla box (long tails or necks), the game can cull the entity while part of it is on screen, which also stops the hitboxes updating. Grow the culling box:
+
+```java
+public ExampleEntity(World world) {
+    super(world);
+    this.ignoreFrustumCheck = true;
+}
+
+@Override
+@SideOnly(Side.CLIENT)
+public boolean isInRangeToRenderDist(double distanceSq) {
+    AxisAlignedBB box = AzHitboxes.getCullingBox(this, this.boundingBox);
+    double size = (box.maxX - box.minX + box.maxY - box.minY + box.maxZ - box.minZ) / 3.0;
+    double range = size * 64.0 * this.renderDistanceWeight;
+    return distanceSq < range * range;
+}
+```

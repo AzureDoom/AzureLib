@@ -5,6 +5,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import mod.azure.azurelib.cache.AzureLibCache;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientTicker;
 import mod.azure.azurelib.util.client.AzRenderTick;
 
 /**
@@ -26,5 +27,6 @@ public final class AzureLibClientInit {
         AzureLibCache.registerReloadListener();
         // 1.7.10 fires tick events on FML's bus, not on MinecraftForge.EVENT_BUS.
         FMLCommonHandler.instance().bus().register(new AzRenderTick());
+        FMLCommonHandler.instance().bus().register(new AzHitboxClientTicker());
     }
 }

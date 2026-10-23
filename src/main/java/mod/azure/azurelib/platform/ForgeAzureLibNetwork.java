@@ -8,6 +8,7 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -20,6 +21,7 @@ import java.util.function.Function;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.network.AzServerboundPacket;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
@@ -40,7 +42,14 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
 
     private static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
 
+    private static final List<Function<AzByteBuf, ? extends AzServerboundPacket>> SERVERBOUND_DECODERS =
+        new ArrayList<>();
+
+    private static final Map<ResourceLocation, Integer> SERVERBOUND_IDS = new HashMap<>();
+
     private boolean registered;
+
+    private boolean serverboundRegistered;
 
     private static void registerPacket(ResourceLocation id, Function<AzByteBuf, ? extends AbstractPacket> decoder) {
         IDS.put(id, DECODERS.size());
@@ -101,6 +110,80 @@ public class ForgeAzureLibNetwork implements AzureLibNetwork {
                 trackingRange
             )
         );
+    }
+
+    public <P extends AzServerboundPacket> void registerServerbound(
+        ResourceLocation id,
+        Class<P> type,
+        Function<AzByteBuf, P> decoder
+    ) {
+        if (SERVERBOUND_IDS.containsKey(id)) {
+            return;
+        }
+
+        SERVERBOUND_IDS.put(id, SERVERBOUND_DECODERS.size());
+        SERVERBOUND_DECODERS.add(decoder);
+
+        if (!serverboundRegistered) {
+            serverboundRegistered = true;
+            PACKET_CHANNEL.registerMessage(AzServerboundHandler.class, AzServerboundMessage.class, 1, Side.SERVER);
+        }
+    }
+
+    @Override
+    public void sendToServer(AzServerboundPacket packet) {
+        PACKET_CHANNEL.sendToServer(new AzServerboundMessage(packet));
+    }
+
+    public static class AzServerboundMessage implements IMessage {
+
+        private AzServerboundPacket packet;
+
+        public AzServerboundMessage() {}
+
+        public AzServerboundMessage(AzServerboundPacket packet) {
+            this.packet = packet;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf) {
+            AzByteBuf buffer = new AzByteBuf(buf);
+            int id = buffer.readUnsignedByte();
+
+            if (id >= SERVERBOUND_DECODERS.size()) {
+                throw new IllegalStateException("Unknown AzureLib serverbound packet id " + id);
+            }
+
+            this.packet = SERVERBOUND_DECODERS.get(id).apply(buffer);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf) {
+            AzByteBuf buffer = new AzByteBuf(buf);
+            Integer id = SERVERBOUND_IDS.get(this.packet.id());
+
+            if (id == null) {
+                throw new IllegalStateException("Unregistered AzureLib serverbound packet " + this.packet.id());
+            }
+
+            buffer.writeByte(id);
+            this.packet.write(buffer);
+        }
+    }
+
+    public static class AzServerboundHandler implements IMessageHandler<AzServerboundMessage, IMessage> {
+
+        @Override
+        public IMessage onMessage(AzServerboundMessage message, MessageContext ctx) {
+            final AzServerboundPacket packet = message.packet;
+            final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+
+            if (packet != null && sender != null) {
+                packet.handleServer(sender);
+            }
+
+            return null;
+        }
     }
 
     /**
