@@ -28,6 +28,8 @@
     "MixinItemRenderer",
     "TextureManagerMixin",
     "ClientHooksMixin",
-    "NeoMixinHumanoidArmorLayer"
+    "NeoMixinHumanoidArmorLayer",
+    "EntityRenderDispatcherAccessor",
+    "MinecraftMixin_AzMorphCompat"
   ]
 }
