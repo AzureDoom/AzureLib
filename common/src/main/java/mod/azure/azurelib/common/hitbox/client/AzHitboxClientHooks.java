@@ -1,14 +1,15 @@
 package mod.azure.azurelib.common.hitbox.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -51,7 +52,6 @@ public final class AzHitboxClientHooks {
         Entity entity,
         AzBakedModel model,
         float partialTick,
-        PoseStack poseStack,
         MultiBufferSource bufferSource,
         boolean drawDebug
     ) {
@@ -69,7 +69,7 @@ public final class AzHitboxClientHooks {
         AzHitboxClientAccess.markRendered(state, entity.level().getGameTime());
 
         if (drawDebug) {
-            renderDebug(state, poseStack, bufferSource);
+            renderDebug(entity, state, bufferSource, partialTick);
         }
 
         report(entity, state);
@@ -335,12 +335,24 @@ public final class AzHitboxClientHooks {
         }
     }
 
-    private static void renderDebug(AzHitboxState state, PoseStack poseStack, MultiBufferSource bufferSource) {
+    private static void renderDebug(
+        Entity entity,
+        AzHitboxState state,
+        MultiBufferSource bufferSource,
+        float partialTick
+    ) {
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        var lerped = entity.getPosition(partialTick);
+        var offsetX = lerped.x - entity.getX() - camera.x;
+        var offsetY = lerped.y - entity.getY() - camera.y;
+        var offsetZ = lerped.z - entity.getZ() - camera.z;
         var buffer = bufferSource.getBuffer(RenderType.lines());
+        var pose = new PoseStack().last();
+        var boxes = state.worldBoxes(entity);
         var set = state.set();
 
-        for (int i = 0; i < state.size(); i++) {
-            if (!state.isActive(i)) {
+        for (int i = 0; i < boxes.length; i++) {
+            if (boxes[i] == null) {
                 continue;
             }
 
@@ -366,27 +378,59 @@ public final class AzHitboxClientHooks {
                 b = 1f;
             }
 
-            var hx = AzHitboxClientAccess.localData(state, i, 3);
-            var hy = AzHitboxClientAccess.localData(state, i, 4);
-            var hz = AzHitboxClientAccess.localData(state, i, 5);
+            var corners = boxes[i].corners();
 
-            poseStack.pushPose();
-            poseStack.translate(
-                AzHitboxClientAccess.localData(state, i, 0),
-                AzHitboxClientAccess.localData(state, i, 1),
-                AzHitboxClientAccess.localData(state, i, 2)
-            );
-            poseStack.mulPose(
-                SCRATCH_ROTATION.set(
-                    AzHitboxClientAccess.localData(state, i, 6),
-                    AzHitboxClientAccess.localData(state, i, 7),
-                    AzHitboxClientAccess.localData(state, i, 8),
-                    AzHitboxClientAccess.localData(state, i, 9)
-                )
-            );
-            LevelRenderer.renderLineBox(poseStack, buffer, -hx, -hy, -hz, hx, hy, hz, r, g, b, 1f);
-            poseStack.popPose();
+            for (int a = 0; a < 8; a++) {
+                for (int bit = 1; bit < 8; bit <<= 1) {
+                    if ((a & bit) == 0) {
+                        drawEdge(buffer, pose, corners[a], corners[a | bit], offsetX, offsetY, offsetZ, r, g, b);
+                    }
+                }
+            }
         }
+    }
+
+    private static void drawEdge(
+        VertexConsumer buffer,
+        PoseStack.Pose pose,
+        Vec3 from,
+        Vec3 to,
+        double offsetX,
+        double offsetY,
+        double offsetZ,
+        float r,
+        float g,
+        float b
+    ) {
+        var dx = (float) (to.x - from.x);
+        var dy = (float) (to.y - from.y);
+        var dz = (float) (to.z - from.z);
+        var length = Mth.sqrt(dx * dx + dy * dy + dz * dz);
+
+        if (length < 1.0E-6f) {
+            return;
+        }
+
+        dx /= length;
+        dy /= length;
+        dz /= length;
+
+        buffer.addVertex(
+            pose,
+            (float) (from.x + offsetX),
+            (float) (from.y + offsetY),
+            (float) (from.z + offsetZ)
+        )
+            .setColor(r, g, b, 1f)
+            .setNormal(pose, dx, dy, dz);
+        buffer.addVertex(
+            pose,
+            (float) (to.x + offsetX),
+            (float) (to.y + offsetY),
+            (float) (to.z + offsetZ)
+        )
+            .setColor(r, g, b, 1f)
+            .setNormal(pose, dx, dy, dz);
     }
 
     public static void onAttack(Player player, Entity target) {
