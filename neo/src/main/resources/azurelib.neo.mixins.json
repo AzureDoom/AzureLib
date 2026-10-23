@@ -25,6 +25,8 @@
     "MinecraftMixin_AzHitboxOffscreen",
     "MultiPlayerGameModeMixin_AzHitboxAttack",
     "MixinItemRenderer",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "EntityRenderDispatcherAccessor",
+    "MinecraftMixin_AzMorphCompat"
   ]
 }

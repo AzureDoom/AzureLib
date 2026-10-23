@@ -1,0 +1,201 @@
+---
+title: Morph Compatibility
+hide_meta: true
+---
+
+# Morph Compatibility
+
+AzureLib makes entities animate when a player is morphed into them with [Walkers](https://modrinth.com/mod/walkers) or ReMorphed, which is a front end for Walkers. Nothing is required for entities whose animations are driven only by Molang queries. Entities that choose their clips in their own tick, from `MoveAnalysis`, or from server-side AI need a small hook, described below.
+
+Walkers is optional. AzureLib does not depend on it, and none of this runs unless it is installed.
+
+## Why morphs need help
+
+Walkers draws a morph by keeping a client-side copy of the mob and copying the player's position, rotation, walk cycle and swing onto it every frame. The copy is never ticked and has no server-side counterpart, so on a morph copy:
+
+- server AI never runs, so flags it would set stay at their defaults and `AzCommand`s it would send are never sent;
+- the entity's own client tick never runs, so clips chosen there are never chosen;
+- `tickCount` never advances, so animation LOD stops updating;
+- `MoveAnalysis.update()` is normally called from the entity's tick, so it never runs and `isMoving()` stays `false`.
+
+Left alone, the morph stands in its idle (or first) clip and slides along with the player.
+
+## What AzureLib does for you
+
+AzureLib hooks every entity type rendered by an `AzEntityRenderer`. For each morph copy it:
+
+**Every frame**
+- copies the player's position and previous position onto the copy;
+- sets the copy's delta movement from how far the player moved, so `query.ground_speed` works, including for other players' morphs;
+- copies ground contact, sprinting and sneaking.
+
+**Once per player tick**
+- advances `tickCount`, so animation LOD and `ageInTicks` keep working;
+- copies `hurtTime`;
+- calls your hook, if you have one.
+
+If your animator only reads Molang queries (`query.ground_speed`, `query.is_on_ground`, `query.limb_swing`...), you are done.
+
+AzureLib does not run your entity's `tick()`, so anything your tick normally does for animation, such as calling `moveAnalysis.update()` or choosing clips, needs a hook.
+
+## Quick start
+
+There are two ways to drive a morph copy. Pick whichever fits how your entity already chooses its clips.
+
+### Entity picks its clips on the client: `AzMorphable`
+
+If your entity chooses its clips in its own client tick, implement `AzMorphable` and call the same code:
+
+```java
+public class Yautja extends Monster implements AzMorphable {
+
+    @Override
+    public void onMorphTick(AzMorphContext context) {
+        updateAirborneTicks();
+        dispatchBodyAnimations();
+    }
+}
+```
+
+`onMorphTick` is only ever called on morph copies, never on a real mob, so it needs no checks. `AzMorphable` and `AzMorphContext` reference no client-only classes, so they are safe to implement on a common entity class.
+
+### Using `MoveAnalysis`
+
+`MoveAnalysis.update()` is usually called from the entity's tick, which a morph copy never runs. Call it from `onMorphTick` before choosing clips:
+
+```java
+public class XenomorphEntity extends AbstractAlienEntity implements AzMorphable {
+
+    @Override
+    public void onMorphTick(AzMorphContext context) {
+        moveAnalysis.update();
+        updateAnimations();
+    }
+}
+```
+
+By the time `onMorphTick` runs, AzureLib has moved the copy to the player and advanced its `tickCount`, so `update()` sees a new tick and a new position, the same as on a real mob.
+
+### Server AI sets the flags your animator reads: a handler
+
+If your animator reads synced data that server AI sets (moving, sprinting, attack type), register a handler from client setup and set those flags from the player:
+
+```java
+AzMorphCompat.registerNamespace(MyMod.MOD_ID, (shape, context) -> {
+    if (shape instanceof MyMob mob) {
+        var moving = context.isMovingHorizontally();
+        mob.isMoving.set(moving);
+        mob.isRunning.set(moving && context.isSprinting());
+    }
+});
+```
+
+`registerNamespace` covers every entity type in your mod and is resolved lazily, so it is safe to call before your entity types are registered (NeoForge runs client setup during mod construction). Use `register(EntityType, handler)` for a single type. A type handler takes priority over a namespace handler, which takes priority over `AzMorphable`.
+
+Setting synced data on a morph copy is safe: the copy is client-side, so the change goes nowhere else.
+
+## State only the tick updates
+
+Some vanilla state is only refreshed inside the entity's own tick, or is set by server AI. On a morph copy it stays at its default, so any clip that depends on it never plays. Set it from the player in `onMorphTick`:
+
+```java
+@Override
+public void onMorphTick(AzMorphContext context) {
+    var player = context.player();
+
+    // isInWater() reads a flag only the entity's tick refreshes.
+    this.wasTouchingWater = player.isInWater();
+
+    // isAggressive() is set by server AI; map it to sprinting for a run clip.
+    this.setAggressive(context.isSprinting());
+
+    moveAnalysis.update();
+    updateAnimations();
+}
+```
+
+| Check                     | Why it is stuck on a copy                             | Set it from                                          |
+|---------------------------|-------------------------------------------------------|------------------------------------------------------|
+| `isInWater()`             | `wasTouchingWater` is refreshed in the entity's tick. | `player.isInWater()`                                 |
+| `isAggressive()`          | Set by server AI.                                     | `context.isSprinting()`, or whatever suits your clip |
+| `moveAnalysis.isMoving()` | `update()` is called from the entity's tick.          | Call `moveAnalysis.update()`                         |
+| Synced flags your AI sets | Server AI never runs.                                 | Player state, as in the handler example above        |
+
+Setting these on a morph copy is safe: the copy is client-side, so the change goes nowhere else.
+
+## Playing commands on a morph
+
+Because the copy is client-side, `sendForEntity` dispatches straight to its animator with no packet. Your existing commands work as-is:
+
+```java
+AzMorphCompat.registerNamespace(MyMod.MOD_ID, (shape, context) -> {
+    if (context.startedSwing()) {
+        MyAnimations.ATTACK.sendForEntity(shape);
+    }
+});
+```
+
+## The context
+
+`AzMorphContext` describes the copy and the player wearing it for the current tick:
+
+| Method                               | Returns                                                            |
+|--------------------------------------|--------------------------------------------------------------------|
+| `player()`                           | The player wearing the morph.                                      |
+| `shape()`                            | The morph copy.                                                    |
+| `morphTicks()`                       | Player ticks this copy has been driven for; `1` on the first tick. |
+| `deltaX()` / `deltaY()` / `deltaZ()` | How far the player moved this tick.                                |
+| `isMovingHorizontally()`             | `true` above 0.01 blocks of horizontal travel this tick.           |
+| `isSprinting()` / `isOnGround()`     | The player's sprint and ground state.                              |
+| `startedSwing()`                     | `true` only on the tick the player's arm swing began.              |
+| `state(key, factory)`                | Per-copy scratch state for your handler, dropped with the copy.    |
+
+Movement is measured from the player's position, not its delta movement. On the client, other players carry no delta movement of their own, so delta-based checks would leave their morphs standing still.
+
+`state` is for things like cycling through attacks or timing when one ends. Use a private static key so mods never collide:
+
+```java
+private static final Object ATTACK_KEY = new Object();
+
+var attack = context.state(ATTACK_KEY, AttackState::new);
+```
+
+## Skipping spawn animations
+
+A morph copy runs `onFirstAnimate` like any new entity, which would play your spawn or emerge clip every time a player morphs. `isMorphCopy` is already `true` by then:
+
+```java
+@Override
+protected void onFirstAnimate(MyMob entity) {
+    if (AzMorphCompat.isMorphCopy(entity)) {
+        return;
+    }
+    MyAnimations.SPAWN.sendForEntity(entity);
+}
+```
+
+## Rules for handlers
+
+- **Don't change size or pose.** Walkers sizes the player from the morph copy. Changing something that affects the copy's dimensions on the client only, such as a crawling or swimming pose or a scale, desyncs the player's hitbox from the server.
+- **Don't tick the copy.** Calling `tick()` or `aiStep()` runs AI, movement and sounds on an entity that is not in the world. Call the specific methods that choose your clips instead.
+- **Keep it cheap.** Handlers run once per tick for every morphed player in view.
+
+A handler that throws is logged once and disabled for that entity type. That type's morphs fall back to the default behavior above.
+
+## API reference
+
+| Method                                                | Effect                                                                            |
+|-------------------------------------------------------|-----------------------------------------------------------------------------------|
+| `AzMorphCompat.register(type, handler)`               | Drive morph copies of one entity type.                                            |
+| `AzMorphCompat.registerNamespace(namespace, handler)` | Drive morph copies of every type in a namespace.                                  |
+| `AzMorphCompat.exclude(type)`                         | Keep AzureLib's hook off a type, e.g. one whose mod still handles Walkers itself. |
+| `AzMorphCompat.isMorphCopy(entity)`                   | Whether the entity is a morph copy.                                               |
+| `AzMorphCompat.contextOf(entity)`                     | The copy's `AzMorphContext`, or `null` if it is not a morph copy.                 |
+
+Register handlers and exclusions from client setup. Types are hooked on the first client tick after entity renderers are created. A type that isn't rendered by an `AzEntityRenderer` is only hooked if a handler was registered for it by then.
+
+## Notes
+
+- Morph copies are never used for [bone hitboxes](./hitboxes). Their pose is not reported to the server, so morphing into an entity never moves a real mob's hitboxes.
+- If Walkers already has its own updater for a type, AzureLib keeps it and runs it before its own.
+- When Walkers is detected, the log shows how many types were hooked: `Walkers detected: morph animations hooked for N AzureLib entity types`. If N is `0`, check that your entities use an `AzEntityRenderer`.
