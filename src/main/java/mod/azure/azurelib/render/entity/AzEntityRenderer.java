@@ -103,7 +103,6 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void doRender(@Nonnull T entity, double x, double y, double z, float entityYaw, float partialTick) {
         AzEntityAnimator<T> cachedEntityAnimator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
         AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
