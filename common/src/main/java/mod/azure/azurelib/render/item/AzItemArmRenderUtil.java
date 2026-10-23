@@ -6,6 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -139,6 +140,16 @@ public class AzItemArmRenderUtil {
             packedLight,
             OverlayTexture.NO_OVERLAY
         );
+
+        AzItemArmArmorRenderUtil.renderArmArmor(
+                poseStack,
+                HumanoidArm.LEFT,
+                bone,
+                playerEntityModel,
+                packedLight,
+                itemContext,
+                modelRenderer
+        );
     }
 
     /**
@@ -174,6 +185,16 @@ public class AzItemArmRenderUtil {
             modelRenderer.getOrRefreshBufferRenderType(itemContext, bone, RenderType.entityTranslucent(playerSkin)),
             packedLight,
             OverlayTexture.NO_OVERLAY
+        );
+
+        AzItemArmArmorRenderUtil.renderArmArmor(
+                poseStack,
+                HumanoidArm.RIGHT,
+                bone,
+                playerEntityModel,
+                packedLight,
+                itemContext,
+                modelRenderer
         );
     }
 }
