@@ -49,11 +49,11 @@ public final class AzHitboxClientHooks {
     }
 
     public static void afterEntityRender(
-            Entity entity,
-            AzBakedModel model,
-            float partialTick,
-            MultiBufferSource bufferSource,
-            boolean drawDebug
+        Entity entity,
+        AzBakedModel model,
+        float partialTick,
+        MultiBufferSource bufferSource,
+        boolean drawDebug
     ) {
         if (!(entity instanceof AzHitboxHolder)) {
             return;
@@ -176,18 +176,18 @@ public final class AzHitboxClientHooks {
             var rotation = matrix.getNormalizedRotation(SCRATCH_ROTATION);
 
             AzHitboxClientAccess.setBox(
-                    state,
-                    i,
-                    center.x,
-                    center.y,
-                    center.z,
-                    box[3] * Math.abs(scale.x),
-                    box[4] * Math.abs(scale.y),
-                    box[5] * Math.abs(scale.z),
-                    rotation.x,
-                    rotation.y,
-                    rotation.z,
-                    rotation.w
+                state,
+                i,
+                center.x,
+                center.y,
+                center.z,
+                box[3] * Math.abs(scale.x),
+                box[4] * Math.abs(scale.y),
+                box[5] * Math.abs(scale.z),
+                rotation.x,
+                rotation.y,
+                rotation.z,
+                rotation.w
             );
         }
 
@@ -241,9 +241,9 @@ public final class AzHitboxClientHooks {
         if (hitbox.fitsCubes()) {
             if (!hasCubes) {
                 AzureLib.LOGGER.warn(
-                        "Hitbox '{}' fits bone '{}', which has no cubes; give it an explicit size",
-                        hitbox.name(),
-                        hitbox.bone()
+                    "Hitbox '{}' fits bone '{}', which has no cubes; give it an explicit size",
+                    hitbox.name(),
+                    hitbox.bone()
                 );
                 return null;
             }
@@ -267,12 +267,12 @@ public final class AzHitboxClientHooks {
         }
 
         return new float[] {
-                centerX - hitbox.offsetX() / 16f,
-                centerY + hitbox.offsetY() / 16f,
-                centerZ + hitbox.offsetZ() / 16f,
-                halfX,
-                halfY,
-                halfZ
+            centerX - hitbox.offsetX() / 16f,
+            centerY + hitbox.offsetY() / 16f,
+            centerZ + hitbox.offsetZ() / 16f,
+            halfX,
+            halfY,
+            halfZ
         };
     }
 
@@ -336,10 +336,10 @@ public final class AzHitboxClientHooks {
     }
 
     private static void renderDebug(
-            Entity entity,
-            AzHitboxState state,
-            MultiBufferSource bufferSource,
-            float partialTick
+        Entity entity,
+        AzHitboxState state,
+        MultiBufferSource bufferSource,
+        float partialTick
     ) {
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         var lerped = entity.getPosition(partialTick);
@@ -391,16 +391,16 @@ public final class AzHitboxClientHooks {
     }
 
     private static void drawEdge(
-            VertexConsumer buffer,
-            PoseStack.Pose pose,
-            Vec3 from,
-            Vec3 to,
-            double offsetX,
-            double offsetY,
-            double offsetZ,
-            float r,
-            float g,
-            float b
+        VertexConsumer buffer,
+        PoseStack.Pose pose,
+        Vec3 from,
+        Vec3 to,
+        double offsetX,
+        double offsetY,
+        double offsetZ,
+        float r,
+        float g,
+        float b
     ) {
         var dx = (float) (to.x - from.x);
         var dy = (float) (to.y - from.y);
@@ -416,21 +416,23 @@ public final class AzHitboxClientHooks {
         dz /= length;
 
         buffer.vertex(
-                        pose.pose(),
-                        (float) (from.x + offsetX),
-                        (float) (from.y + offsetY),
-                        (float) (from.z + offsetZ)
-                )
-                .color(r, g, b, 1f)
-                .normal(pose.normal(), dx, dy, dz).endVertex();
+            pose.pose(),
+            (float) (from.x + offsetX),
+            (float) (from.y + offsetY),
+            (float) (from.z + offsetZ)
+        )
+            .color(r, g, b, 1f)
+            .normal(pose.normal(), dx, dy, dz)
+            .endVertex();
         buffer.vertex(
-                        pose.pose(),
-                        (float) (to.x + offsetX),
-                        (float) (to.y + offsetY),
-                        (float) (to.z + offsetZ)
-                )
-                .color(r, g, b, 1f)
-                .normal(pose.normal(), dx, dy, dz).endVertex();
+            pose.pose(),
+            (float) (to.x + offsetX),
+            (float) (to.y + offsetY),
+            (float) (to.z + offsetZ)
+        )
+            .color(r, g, b, 1f)
+            .normal(pose.normal(), dx, dy, dz)
+            .endVertex();
     }
 
     public static void onAttack(Player player, Entity target) {
@@ -443,8 +445,8 @@ public final class AzHitboxClientHooks {
         var end = eye.add(player.getViewVector(1f).scale(reach));
 
         AzHitboxes.raycast(target, eye, end, AzHitbox::isPickable)
-                .filter(hit -> hit.hitbox().role() == AzHitboxRole.COMBAT)
-                .ifPresent(hit -> Services.NETWORK.sendToServer(new AzHitboxAttackPacket(target.getId(), hit.index())));
+            .filter(hit -> hit.hitbox().role() == AzHitboxRole.COMBAT)
+            .ifPresent(hit -> Services.NETWORK.sendToServer(new AzHitboxAttackPacket(target.getId(), hit.index())));
     }
 
     public static void onInteract(Player player, Entity target) {
@@ -464,10 +466,10 @@ public final class AzHitboxClientHooks {
 
         if (WARNED_MISSING.add(key)) {
             AzureLib.LOGGER.warn(
-                    "Hitbox '{}' on {} references bone '{}', which is not in the model",
-                    hitbox.name(),
-                    entity.getType(),
-                    hitbox.bone()
+                "Hitbox '{}' on {} references bone '{}', which is not in the model",
+                hitbox.name(),
+                entity.getType(),
+                hitbox.bone()
             );
         }
     }
