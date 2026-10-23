@@ -1,9 +1,5 @@
 package mod.azure.azurelib.compat.morph;
 
-import mod.azure.azurelib.AzureLib;
-import mod.azure.azurelib.mixins.EntityRenderDispatcherAccessor;
-import mod.azure.azurelib.platform.Services;
-import mod.azure.azurelib.render.entity.AzEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.EntityType;
@@ -14,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.mixins.EntityRenderDispatcherAccessor;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.render.entity.AzEntityRenderer;
 
 public final class WalkersMorphBridge {
 
@@ -86,7 +87,10 @@ public final class WalkersMorphBridge {
             }
         } catch (ReflectiveOperationException | LinkageError | RuntimeException exception) {
             state = State.DISABLED;
-            AzureLib.LOGGER.warn("Walkers detected but its shape hook could not be found; morphs will not animate", exception);
+            AzureLib.LOGGER.warn(
+                "Walkers detected but its shape hook could not be found; morphs will not animate",
+                exception
+            );
             return;
         }
 

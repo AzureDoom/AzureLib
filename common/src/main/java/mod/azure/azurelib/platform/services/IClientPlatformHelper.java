@@ -9,18 +9,18 @@ import org.jetbrains.annotations.Nullable;
 public interface IClientPlatformHelper {
 
     String getArmorTexture(
-            LivingEntity entity,
-            ItemStack stack,
-            EquipmentSlot slot,
-            String defaultTexture,
-            @Nullable String type
+        LivingEntity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        String defaultTexture,
+        @Nullable String type
     );
 
     @Nullable
     HumanoidModel<?> getArmorModel(
-            LivingEntity entity,
-            ItemStack stack,
-            EquipmentSlot slot,
-            HumanoidModel<?> fallback
+        LivingEntity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> fallback
     );
 }
