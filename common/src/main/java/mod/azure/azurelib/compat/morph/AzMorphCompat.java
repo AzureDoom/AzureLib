@@ -1,7 +1,5 @@
 package mod.azure.azurelib.compat.morph;
 
-import mod.azure.azurelib.AzureLib;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import mod.azure.azurelib.AzureLib;
 
 public final class AzMorphCompat {
 
