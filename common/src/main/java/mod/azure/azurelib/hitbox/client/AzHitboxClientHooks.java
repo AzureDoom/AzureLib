@@ -52,6 +52,7 @@ public final class AzHitboxClientHooks {
         Entity entity,
         AzBakedModel model,
         float partialTick,
+        PoseStack poseStack,
         MultiBufferSource bufferSource,
         boolean drawDebug
     ) {
@@ -69,7 +70,7 @@ public final class AzHitboxClientHooks {
         AzHitboxClientAccess.markRendered(state, entity.level().getGameTime());
 
         if (drawDebug) {
-            renderDebug(entity, state, bufferSource, partialTick);
+            renderDebug(entity, state, poseStack, bufferSource);
         }
 
         report(entity, state);
@@ -338,16 +339,14 @@ public final class AzHitboxClientHooks {
     private static void renderDebug(
         Entity entity,
         AzHitboxState state,
-        MultiBufferSource bufferSource,
-        float partialTick
+        PoseStack poseStack,
+        MultiBufferSource bufferSource
     ) {
-        var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        var lerped = entity.getPosition(partialTick);
-        var offsetX = lerped.x - entity.getX() - camera.x;
-        var offsetY = lerped.y - entity.getY() - camera.y;
-        var offsetZ = lerped.z - entity.getZ() - camera.z;
+        var offsetX = -entity.getX();
+        var offsetY = -entity.getY();
+        var offsetZ = -entity.getZ();
         var buffer = bufferSource.getBuffer(RenderType.lines());
-        var pose = new PoseStack().last();
+        var pose = poseStack.last();
         var boxes = state.worldBoxes(entity);
         var set = state.set();
 

@@ -132,6 +132,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
                 entity,
                 azBakedModel,
                 partialTick,
+                poseStack,
                 bufferSource,
                 entityRenderDispatcher.shouldRenderHitBoxes() && !entity.isInvisible()
             );
