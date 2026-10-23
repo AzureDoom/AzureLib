@@ -28,6 +28,8 @@
     "MultiPlayerGameModeMixin_AzHitboxAttack",
     "ForgeMixinHumanoidArmorLayer",
     "MixinItemRenderer",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "EntityRenderDispatcherAccessor",
+    "MinecraftMixin_AzMorphCompat"
   ]
 }

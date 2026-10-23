@@ -19,6 +19,10 @@
         "name": "Bone Hitboxes",
         "icon": "Target"
     },
+    "morph_compat.mdx": {
+        "name": "Morph Compatibility",
+        "icon": "Shapes"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"
