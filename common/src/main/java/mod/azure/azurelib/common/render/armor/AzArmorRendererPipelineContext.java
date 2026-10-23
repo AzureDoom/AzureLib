@@ -1,6 +1,7 @@
 package mod.azure.azurelib.common.render.armor;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,9 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
     private ItemStack currentStack;
 
     private boolean translucent = false;
+
+    @Nullable
+    private ModelPart visiblePartOverride;
 
     public AzArmorRendererPipelineContext(AzRendererPipeline<UUID, ItemStack> rendererPipeline) {
         super(rendererPipeline);
@@ -64,6 +68,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         this.currentStack = stack;
         this.animatable = stack;
         this.currentSlot = slot;
+        this.visiblePartOverride = null;
     }
 
     /**
@@ -109,5 +114,13 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     public ItemStack currentStack() {
         return currentStack;
+    }
+
+    public void setVisiblePartOverride(@Nullable ModelPart part) {
+        this.visiblePartOverride = part;
+    }
+
+    public @Nullable ModelPart visiblePartOverride() {
+        return visiblePartOverride;
     }
 }

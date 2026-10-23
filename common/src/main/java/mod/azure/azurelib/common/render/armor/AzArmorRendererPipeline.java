@@ -85,8 +85,12 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
         scaleBoneWithModelPart(armorContext, boneContext, isReRender);
 
-        if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
+        var partOverride = armorContext.visiblePartOverride();
+        if (partOverride != null) {
+            boneContext.applyBoneVisibilityByPart(currentSlot, partOverride, baseModel);
+        } else if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null) {
             boneContext.applyBoneVisibilityBySlot(currentSlot);
+        }
 
         var alphaValue = config.alpha(context.animatable());
         if (ShoulderSurfingCompat.isLoaded() && ShoulderSurfingCompat.getAlpha(armorContext.currentEntity()) < 1) {

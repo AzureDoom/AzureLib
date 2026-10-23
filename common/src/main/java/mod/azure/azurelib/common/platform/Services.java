@@ -23,4 +23,13 @@ public final class Services {
             .findFirst()
             .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
     }
+
+    public static IClientPlatformHelper clientPlatform() {
+        return ClientHolder.INSTANCE;
+    }
+
+    private static final class ClientHolder {
+
+        static final IClientPlatformHelper INSTANCE = load(IClientPlatformHelper.class);
+    }
 }
