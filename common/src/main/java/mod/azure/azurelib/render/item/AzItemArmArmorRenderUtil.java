@@ -1,11 +1,6 @@
 package mod.azure.azurelib.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.platform.Services;
-import mod.azure.azurelib.render.AzModelRenderer;
-import mod.azure.azurelib.render.armor.AzArmorRenderer;
-import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -29,6 +24,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.platform.Services;
+import mod.azure.azurelib.render.AzModelRenderer;
+import mod.azure.azurelib.render.armor.AzArmorRenderer;
+import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
+
 public final class AzItemArmArmorRenderUtil {
 
     private static final Map<String, ResourceLocation> ARMOR_TEXTURE_CACHE = new HashMap<>();
@@ -40,20 +41,20 @@ public final class AzItemArmArmorRenderUtil {
     private static HumanoidModel<LivingEntity> outerArmorModel() {
         if (outerArmorModel == null) {
             outerArmorModel = new HumanoidModel<>(
-                    Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)
+                Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)
             );
         }
         return outerArmorModel;
     }
 
     public static void renderArmArmor(
-            PoseStack poseStack,
-            HumanoidArm arm,
-            AzBone bone,
-            PlayerModel<?> playerModel,
-            int packedLight,
-            AzItemRendererPipelineContext ctx,
-            AzModelRenderer<UUID, ItemStack> modelRenderer
+        PoseStack poseStack,
+        HumanoidArm arm,
+        AzBone bone,
+        PlayerModel<?> playerModel,
+        int packedLight,
+        AzItemRendererPipelineContext ctx,
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         var player = Minecraft.getInstance().player;
         if (player == null)
@@ -67,8 +68,8 @@ public final class AzItemArmArmorRenderUtil {
         if (azRenderer != null) {
             renderAzArmorArm(poseStack, arm, playerModel, chest, azRenderer, packedLight);
         } else if (
-                chest.getItem() instanceof ArmorItem armorItem
-                        && armorItem.getEquipmentSlot() == EquipmentSlot.CHEST
+            chest.getItem() instanceof ArmorItem armorItem
+                && armorItem.getEquipmentSlot() == EquipmentSlot.CHEST
         ) {
             renderVanillaArmorArm(poseStack, arm, bone, player, armorItem, chest, packedLight, ctx, modelRenderer);
         }
@@ -79,15 +80,15 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static void renderVanillaArmorArm(
-            PoseStack poseStack,
-            HumanoidArm arm,
-            AzBone bone,
-            LivingEntity player,
-            ArmorItem armorItem,
-            ItemStack chest,
-            int packedLight,
-            AzItemRendererPipelineContext ctx,
-            AzModelRenderer<UUID, ItemStack> modelRenderer
+        PoseStack poseStack,
+        HumanoidArm arm,
+        AzBone bone,
+        LivingEntity player,
+        ArmorItem armorItem,
+        ItemStack chest,
+        int packedLight,
+        AzItemRendererPipelineContext ctx,
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         var fallback = outerArmorModel();
         var fallbackPart = armPart(fallback, arm);
@@ -111,10 +112,52 @@ public final class AzItemArmArmorRenderUtil {
             float r = (color >> 16 & 255) / 255.0F;
             float g = (color >> 8 & 255) / 255.0F;
             float b = (color & 255) / 255.0F;
-            renderLayer(poseStack, part, player, armorItem, chest, null, r, g, b, packedLight, ctx, bone, modelRenderer);
-            renderLayer(poseStack, part, player, armorItem, chest, "overlay", 1, 1, 1, packedLight, ctx, bone, modelRenderer);
+            renderLayer(
+                poseStack,
+                part,
+                player,
+                armorItem,
+                chest,
+                null,
+                r,
+                g,
+                b,
+                packedLight,
+                ctx,
+                bone,
+                modelRenderer
+            );
+            renderLayer(
+                poseStack,
+                part,
+                player,
+                armorItem,
+                chest,
+                "overlay",
+                1,
+                1,
+                1,
+                packedLight,
+                ctx,
+                bone,
+                modelRenderer
+            );
         } else {
-            renderLayer(poseStack, part, player, armorItem, chest, null, 1, 1, 1, packedLight, ctx, bone, modelRenderer);
+            renderLayer(
+                poseStack,
+                part,
+                player,
+                armorItem,
+                chest,
+                null,
+                1,
+                1,
+                1,
+                packedLight,
+                ctx,
+                bone,
+                modelRenderer
+            );
         }
 
         ArmorTrim.getTrim(player.level().registryAccess(), chest).ifPresent(trim -> {
@@ -126,29 +169,32 @@ public final class AzItemArmArmorRenderUtil {
 
         if (chest.hasFoil()) {
             part.render(
-                    poseStack,
-                    modelRenderer.getOrRefreshBufferRenderType(ctx, bone, RenderType.armorEntityGlint()),
-                    packedLight,
-                    OverlayTexture.NO_OVERLAY,
-                    1, 1, 1, 1
+                poseStack,
+                modelRenderer.getOrRefreshBufferRenderType(ctx, bone, RenderType.armorEntityGlint()),
+                packedLight,
+                OverlayTexture.NO_OVERLAY,
+                1,
+                1,
+                1,
+                1
             );
         }
     }
 
     private static void renderLayer(
-            PoseStack poseStack,
-            ModelPart part,
-            LivingEntity player,
-            ArmorItem armorItem,
-            ItemStack chest,
-            @Nullable String type,
-            float r,
-            float g,
-            float b,
-            int packedLight,
-            AzItemRendererPipelineContext ctx,
-            AzBone bone,
-            AzModelRenderer<UUID, ItemStack> modelRenderer
+        PoseStack poseStack,
+        ModelPart part,
+        LivingEntity player,
+        ArmorItem armorItem,
+        ItemStack chest,
+        @Nullable String type,
+        float r,
+        float g,
+        float b,
+        int packedLight,
+        AzItemRendererPipelineContext ctx,
+        AzBone bone,
+        AzModelRenderer<UUID, ItemStack> modelRenderer
     ) {
         var texture = armorTexture(player, armorItem, chest, type);
         if (texture == null) {
@@ -160,18 +206,19 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static @Nullable ResourceLocation armorTexture(
-            LivingEntity entity,
-            ArmorItem armorItem,
-            ItemStack stack,
-            @Nullable String type
+        LivingEntity entity,
+        ArmorItem armorItem,
+        ItemStack stack,
+        @Nullable String type
     ) {
-        var path = Services.clientPlatform().getArmorTexture(
+        var path = Services.clientPlatform()
+            .getArmorTexture(
                 entity,
                 stack,
                 EquipmentSlot.CHEST,
                 defaultArmorTexturePath(armorItem, type),
                 type
-        );
+            );
         // tryParse returns null for malformed mod paths; computeIfAbsent doesn't cache nulls
         return ARMOR_TEXTURE_CACHE.computeIfAbsent(path, ResourceLocation::tryParse);
     }
@@ -189,21 +236,21 @@ public final class AzItemArmArmorRenderUtil {
             name = name.substring(idx + 1);
         }
         return String.format(
-                Locale.ROOT,
-                "%s:textures/models/armor/%s_layer_1%s.png",
-                domain,
-                name,
-                type == null ? "" : "_" + type
+            Locale.ROOT,
+            "%s:textures/models/armor/%s_layer_1%s.png",
+            domain,
+            name,
+            type == null ? "" : "_" + type
         );
     }
 
     private static void renderAzArmorArm(
-            PoseStack poseStack,
-            HumanoidArm arm,
-            PlayerModel<?> playerModel,
-            ItemStack chest,
-            AzArmorRenderer azRenderer,
-            int packedLight
+        PoseStack poseStack,
+        HumanoidArm arm,
+        PlayerModel<?> playerModel,
+        ItemStack chest,
+        AzArmorRenderer azRenderer,
+        int packedLight
     ) {
         var player = Minecraft.getInstance().player;
 
@@ -213,7 +260,7 @@ public final class AzItemArmArmorRenderUtil {
         azRenderer.rendererPipeline().context().setVisiblePartOverride(basePart);
 
         azRenderer.rendererPipeline()
-                .armorModel()
-                .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+            .armorModel()
+            .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

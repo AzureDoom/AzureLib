@@ -142,13 +142,13 @@ public class AzItemArmRenderUtil {
         );
 
         AzItemArmArmorRenderUtil.renderArmArmor(
-                poseStack,
-                HumanoidArm.LEFT,
-                bone,
-                playerEntityModel,
-                packedLight,
-                itemContext,
-                modelRenderer
+            poseStack,
+            HumanoidArm.LEFT,
+            bone,
+            playerEntityModel,
+            packedLight,
+            itemContext,
+            modelRenderer
         );
     }
 
@@ -188,13 +188,13 @@ public class AzItemArmRenderUtil {
         );
 
         AzItemArmArmorRenderUtil.renderArmArmor(
-                poseStack,
-                HumanoidArm.RIGHT,
-                bone,
-                playerEntityModel,
-                packedLight,
-                itemContext,
-                modelRenderer
+            poseStack,
+            HumanoidArm.RIGHT,
+            bone,
+            playerEntityModel,
+            packedLight,
+            itemContext,
+            modelRenderer
         );
     }
 }
