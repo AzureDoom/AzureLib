@@ -29,7 +29,7 @@ import mod.azure.azurelib.util.client.RenderUtils;
 public final class AzItemArmArmorRenderUtil {
 
     private static final ResourceLocation ENCHANTED_ITEM_GLINT = new ResourceLocation(
-            "textures/misc/enchanted_item_glint.png"
+        "textures/misc/enchanted_item_glint.png"
     );
 
     private static final int CHEST_ARMOR_INDEX = 2;
@@ -51,12 +51,12 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     public static void renderArmArmor(
-            MultiBufferSource bufferSource,
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            ModelBiped playerModel,
-            int packedLight
+        MultiBufferSource bufferSource,
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        ModelBiped playerModel,
+        int packedLight
     ) {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         if (player == null) {
@@ -75,8 +75,8 @@ public final class AzItemArmArmorRenderUtil {
         }
 
         if (
-                chest.getItem() instanceof ItemArmor
-                        && ((ItemArmor) chest.getItem()).armorType == CHEST_ARMOR_TYPE
+            chest.getItem() instanceof ItemArmor
+                && ((ItemArmor) chest.getItem()).armorType == CHEST_ARMOR_TYPE
         ) {
             renderVanillaArmorArm(bufferSource, poseStack, leftArm, bone, player, (ItemArmor) chest.getItem(), chest);
         }
@@ -87,13 +87,13 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static void renderVanillaArmorArm(
-            MultiBufferSource bufferSource,
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            EntityLivingBase player,
-            ItemArmor armorItem,
-            ItemStack chest
+        MultiBufferSource bufferSource,
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        EntityLivingBase player,
+        ItemArmor armorItem,
+        ItemStack chest
     ) {
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
@@ -131,7 +131,12 @@ public final class AzItemArmArmorRenderUtil {
         GL11.glPopMatrix();
     }
 
-    private static void renderGlint(TextureManager textureManager, EntityLivingBase entity, ModelRenderer part, AzBone bone) {
+    private static void renderGlint(
+        TextureManager textureManager,
+        EntityLivingBase entity,
+        ModelRenderer part,
+        AzBone bone
+    ) {
         float time = entity.ticksExisted + AzRenderTick.partialTicks();
 
         textureManager.bindTexture(ENCHANTED_ITEM_GLINT);
@@ -165,13 +170,13 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static void renderAzArmorArm(
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            ModelBiped playerModel,
-            ItemStack chest,
-            AzArmorRenderer azRenderer,
-            int packedLight
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        ModelBiped playerModel,
+        ItemStack chest,
+        AzArmorRenderer azRenderer,
+        int packedLight
     ) {
         EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         ModelRenderer basePart = armPart(playerModel, leftArm);
@@ -190,8 +195,8 @@ public final class AzItemArmArmorRenderUtil {
             azRenderer.rendererPipeline().context().setVisiblePartOverride(basePart);
 
             azRenderer.rendererPipeline()
-                    .armorModel()
-                    .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                .armorModel()
+                .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
         } finally {
             basePart.setRotationPoint(oldX, oldY, oldZ);
             basePart.rotateAngleX = oldRotX;
