@@ -14,7 +14,7 @@ import org.joml.Matrix4f;
 import java.util.List;
 import java.util.UUID;
 
-import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.impl.AzEntityAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzLayerRenderer;
@@ -236,7 +236,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
     public void poseBonesOffscreen(
         T animatable,
         AzBakedModel model,
-        @Nullable AzAnimator<?, T> animator,
+        @Nullable AzEntityAnimator<T> animator,
         float partialTick
     ) {
         var poseStack = new PoseStack();
