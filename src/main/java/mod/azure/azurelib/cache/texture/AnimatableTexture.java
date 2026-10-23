@@ -188,8 +188,10 @@ public class AnimatableTexture extends SimpleTexture {
     }
 
     void forceFrameUpload() {
-        if (this.animationContents != null)
+        if (this.animationContents != null) {
+            this.animationContents.animatedTexture.invalidateAllocations();
             this.animationContents.animatedTexture.uploadFrame(this.animationContents.animatedTexture.currentFrame);
+        }
     }
 
     public static void setAndUpdate(ResourceLocation texturePath) {
@@ -365,8 +367,6 @@ public class AnimatableTexture extends SimpleTexture {
 
             private final boolean interpolating;
 
-            private final BufferedImage interpolatedFrame;
-
             private final int totalFrameTime;
 
             protected int glowMaskTextureId = -1;
@@ -379,12 +379,25 @@ public class AnimatableTexture extends SimpleTexture {
 
             private int currentSubframe;
 
+            private final int[] frameBuffer;
+
+            private final int[] nextFrameBuffer;
+
+            private int[] basePixels;
+
+            private int[] glowmaskPixels;
+
+            private int allocatedBaseId = -1;
+
+            private int allocatedGlowmaskId = -1;
+
             private Texture(BufferedImage baseImage, Frame[] frames, int framePanelSize, boolean interpolating) {
                 this.baseImage = baseImage;
                 this.frames = frames;
                 this.framePanelSize = framePanelSize;
                 this.interpolating = interpolating;
-                this.interpolatedFrame = interpolating ? newFrameImage() : null;
+                this.frameBuffer = new int[AnimationContents.this.frameWidth * AnimationContents.this.frameHeight];
+                this.nextFrameBuffer = interpolating ? new int[this.frameBuffer.length] : null;
 
                 int time = 0;
 
@@ -394,14 +407,6 @@ public class AnimatableTexture extends SimpleTexture {
 
                 this.totalFrameTime = time;
                 this.currentFrame = this.frames[0].index;
-            }
-
-            private BufferedImage newFrameImage() {
-                return new BufferedImage(
-                    AnimationContents.this.frameWidth,
-                    AnimationContents.this.frameHeight,
-                    BufferedImage.TYPE_INT_ARGB
-                );
             }
 
             private int getFrameX(int frameIndex) {
@@ -419,34 +424,76 @@ public class AnimatableTexture extends SimpleTexture {
             ) {
                 this.glowMaskTextureId = texture.getGlTextureId();
                 this.glowmaskImage = glowMask;
-                this.glowmaskInterpolatedFrame = this.interpolating ? newFrameImage() : null;
+                this.glowmaskInterpolatedFrame = null;
                 this.baseImage = baseImage;
+                this.basePixels = null;
+                this.glowmaskPixels = null;
+                this.allocatedBaseId = -1;
+                this.allocatedGlowmaskId = -1;
             }
 
-            private BufferedImage frameOf(BufferedImage image, int frameIndex) {
-                return image.getSubimage(
-                    getFrameX(frameIndex) * AnimationContents.this.frameWidth,
-                    getFrameY(frameIndex) * AnimationContents.this.frameHeight,
-                    AnimationContents.this.frameWidth,
-                    AnimationContents.this.frameHeight
-                );
+            private int[] basePixels() {
+                if (this.basePixels == null) {
+                    this.basePixels = argbPixels(this.baseImage);
+                }
+
+                return this.basePixels;
+            }
+
+            private int[] glowmaskPixels() {
+                if (this.glowmaskPixels == null) {
+                    this.glowmaskPixels = argbPixels(this.glowmaskImage);
+                }
+
+                return this.glowmaskPixels;
+            }
+
+            private int[] argbPixels(BufferedImage image) {
+                int width = image.getWidth();
+                int height = image.getHeight();
+                return image.getRGB(0, 0, width, height, null, 0, width);
+            }
+
+            private void copyFrame(int[] sheet, int sheetWidth, int frameIndex, int[] dest) {
+                int frameWidth = AnimationContents.this.frameWidth;
+                int frameHeight = AnimationContents.this.frameHeight;
+                int originX = getFrameX(frameIndex) * frameWidth;
+                int originY = getFrameY(frameIndex) * frameHeight;
+
+                for (int y = 0; y < frameHeight; y++) {
+                    System.arraycopy(sheet, (originY + y) * sheetWidth + originX, dest, y * frameWidth, frameWidth);
+                }
+            }
+
+            private void upload(int textureId, int[] pixels, boolean glowmask) {
+                int frameWidth = AnimationContents.this.frameWidth;
+                int frameHeight = AnimationContents.this.frameHeight;
+
+                if (glowmask ? this.allocatedGlowmaskId != textureId : this.allocatedBaseId != textureId) {
+                    TextureUtil.allocateTexture(textureId, frameWidth, frameHeight);
+
+                    if (glowmask) {
+                        this.allocatedGlowmaskId = textureId;
+                    } else {
+                        this.allocatedBaseId = textureId;
+                    }
+                }
+
+                TextureUtil.uploadTexture(textureId, pixels, frameWidth, frameHeight);
+            }
+
+            void invalidateAllocations() {
+                this.allocatedBaseId = -1;
+                this.allocatedGlowmaskId = -1;
             }
 
             void uploadFrame(int frameIndex) {
-                TextureUtil.uploadTextureImageAllocate(
-                    AnimatableTexture.this.getGlTextureId(),
-                    frameOf(this.baseImage, frameIndex),
-                    false,
-                    false
-                );
+                copyFrame(basePixels(), this.baseImage.getWidth(), frameIndex, this.frameBuffer);
+                upload(AnimatableTexture.this.getGlTextureId(), this.frameBuffer, false);
 
                 if (this.glowmaskImage != null && this.glowMaskTextureId != -1) {
-                    TextureUtil.uploadTextureImageAllocate(
-                        this.glowMaskTextureId,
-                        frameOf(this.glowmaskImage, frameIndex),
-                        false,
-                        false
-                    );
+                    copyFrame(glowmaskPixels(), this.glowmaskImage.getWidth(), frameIndex, this.frameBuffer);
+                    upload(this.glowMaskTextureId, this.frameBuffer, true);
                 }
             }
 
@@ -475,15 +522,17 @@ public class AnimatableTexture extends SimpleTexture {
                 } else if (this.currentSubframe != lastSubframe && this.interpolating) {
                     generateInterpolatedFrame(
                         AnimatableTexture.this.getGlTextureId(),
-                        this.baseImage,
-                        this.interpolatedFrame
+                        basePixels(),
+                        this.baseImage.getWidth(),
+                        false
                     );
 
                     if (this.glowmaskImage != null && this.glowMaskTextureId != -1) {
                         generateInterpolatedFrame(
                             this.glowMaskTextureId,
-                            this.glowmaskImage,
-                            this.glowmaskInterpolatedFrame
+                            glowmaskPixels(),
+                            this.glowmaskImage.getWidth(),
+                            true
                         );
                     }
                 }
@@ -507,49 +556,30 @@ public class AnimatableTexture extends SimpleTexture {
                 return 0;
             }
 
-            private void generateInterpolatedFrame(
-                int textureId,
-                BufferedImage image,
-                BufferedImage interpolatedFrame
-            ) {
+            private void generateInterpolatedFrame(int textureId, int[] sheet, int sheetWidth, boolean glowmask) {
                 Frame frame = frameForIndex(this.currentFrame);
                 double frameProgress = 1 - (double) this.currentSubframe / (double) frame.time();
                 int nextFrameIndex = this.frames[(framePosition(frame) + 1) % this.frames.length].index();
 
-                if (frame.index() != nextFrameIndex) {
-                    for (int y = 0; y < interpolatedFrame.getHeight(); ++y) {
-                        for (int x = 0; x < interpolatedFrame.getWidth(); ++x) {
-                            int prevFramePixel = getPixel(image, frame.index(), x, y);
-                            int nextFramePixel = getPixel(image, nextFrameIndex, x, y);
-                            int blendedRed = interpolate(
-                                frameProgress,
-                                prevFramePixel >> 16 & 255,
-                                nextFramePixel >> 16 & 255
-                            );
-                            int blendedGreen = interpolate(
-                                frameProgress,
-                                prevFramePixel >> 8 & 255,
-                                nextFramePixel >> 8 & 255
-                            );
-                            int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
-
-                            interpolatedFrame.setRGB(
-                                x,
-                                y,
-                                prevFramePixel & 0xFF000000 | blendedRed << 16 | blendedGreen << 8 | blendedBlue
-                            );
-                        }
-                    }
-
-                    TextureUtil.uploadTextureImageAllocate(textureId, interpolatedFrame, false, false);
+                if (frame.index() == nextFrameIndex) {
+                    return;
                 }
-            }
 
-            private int getPixel(BufferedImage image, int frameIndex, int x, int y) {
-                return image.getRGB(
-                    x + getFrameX(frameIndex) * AnimationContents.this.frameWidth,
-                    y + getFrameY(frameIndex) * AnimationContents.this.frameHeight
-                );
+                copyFrame(sheet, sheetWidth, frame.index(), this.frameBuffer);
+                copyFrame(sheet, sheetWidth, nextFrameIndex, this.nextFrameBuffer);
+
+                for (int i = 0; i < this.frameBuffer.length; i++) {
+                    int prevFramePixel = this.frameBuffer[i];
+                    int nextFramePixel = this.nextFrameBuffer[i];
+                    int blendedRed = interpolate(frameProgress, prevFramePixel >> 16 & 255, nextFramePixel >> 16 & 255);
+                    int blendedGreen = interpolate(frameProgress, prevFramePixel >> 8 & 255, nextFramePixel >> 8 & 255);
+                    int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
+
+                    this.frameBuffer[i] =
+                        prevFramePixel & 0xFF000000 | blendedRed << 16 | blendedGreen << 8 | blendedBlue;
+                }
+
+                upload(textureId, this.frameBuffer, glowmask);
             }
 
             private int interpolate(double frameProgress, double prevColour, double nextColour) {
