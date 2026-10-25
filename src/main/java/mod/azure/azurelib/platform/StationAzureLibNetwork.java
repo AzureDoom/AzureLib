@@ -19,6 +19,8 @@ import java.util.function.Function;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.network.AzServerboundPacket;
+import mod.azure.azurelib.network.AzServerboundPackets;
 import mod.azure.azurelib.network.ByteBuf;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
@@ -43,6 +45,14 @@ public class StationAzureLibNetwork implements AzureLibNetwork {
 
     public static final String CHANNEL = "packet";
 
+    /** Client-to-server channel. Only the server ever receives on it. */
+    public static final String SERVERBOUND_CHANNEL = "serverbound";
+
+    private static final List<Function<AzByteBuf, ? extends AzServerboundPacket>> SERVERBOUND_DECODERS =
+        new ArrayList<>();
+
+    private static final Map<ResourceLocation, Integer> SERVERBOUND_IDS = new HashMap<>();
+
     private static final List<Function<AzByteBuf, ? extends AbstractPacket>> DECODERS = new ArrayList<>();
 
     private static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
@@ -57,6 +67,10 @@ public class StationAzureLibNetwork implements AzureLibNetwork {
 
     public static Identifier channelId() {
         return Identifier.of(Namespace.of(AzureLib.MOD_ID), CHANNEL);
+    }
+
+    public static Identifier serverboundChannelId() {
+        return Identifier.of(Namespace.of(AzureLib.MOD_ID), SERVERBOUND_CHANNEL);
     }
 
     private static void registerPacket(ResourceLocation id, Function<AzByteBuf, ? extends AbstractPacket> decoder) {
@@ -82,6 +96,75 @@ public class StationAzureLibNetwork implements AzureLibNetwork {
             AzureLibNetwork.AZ_ITEM_STACK_DISPATCH_COMMAND_SYNC_PACKET_ID,
             AzItemStackDispatchCommandPacket::receive
         );
+        // Both sides register in the same order, so the one-byte ids line up.
+        AzServerboundPackets.register(this);
+    }
+
+    @Override
+    public <P extends AzServerboundPacket> void registerServerbound(
+        ResourceLocation id,
+        Class<P> type,
+        Function<AzByteBuf, P> decoder
+    ) {
+        if (SERVERBOUND_IDS.containsKey(id)) {
+            return;
+        }
+        SERVERBOUND_IDS.put(id, SERVERBOUND_DECODERS.size());
+        SERVERBOUND_DECODERS.add(decoder);
+    }
+
+    /**
+     * Sends a packet to the server. In single player there is no server to send to and the client world is the
+     * authoritative one, so the packet is handled immediately with the local player as its sender.
+     * <p>
+     * Client only: callers are client hooks.
+     */
+    @Override
+    public void sendToServer(AzServerboundPacket packet) {
+        PlayerEntity player = mod.azure.azurelib.platform.mc.McClient.player();
+        if (player == null) {
+            return;
+        }
+
+        if (!Mc.isClientSide(player.world)) {
+            packet.handleServer(player);
+            return;
+        }
+
+        Integer id = SERVERBOUND_IDS.get(packet.id());
+        if (id == null) {
+            throw new IllegalStateException("Unregistered AzureLib serverbound packet " + packet.id());
+        }
+        ByteBuf raw = new ByteBuf();
+        AzByteBuf buffer = new AzByteBuf(raw);
+        buffer.writeByte(id);
+        packet.write(buffer);
+
+        MessagePacket message = new MessagePacket(serverboundChannelId());
+        message.bytes = raw.toByteArray();
+        PacketHelper.send(message);
+    }
+
+    /** Decodes and handles a packet a client sent. Runs on the server thread. */
+    public static void receiveServerbound(PlayerEntity sender, byte[] bytes) {
+        if (sender == null || bytes == null || bytes.length == 0) {
+            return;
+        }
+        AzByteBuf buffer = new AzByteBuf(ByteBuf.wrap(bytes));
+        int id = buffer.readUnsignedByte();
+        if (id >= SERVERBOUND_DECODERS.size()) {
+            AzureLib.LOGGER.warn("Unknown AzureLib serverbound packet id {} from {}", id, sender.name);
+            return;
+        }
+        try {
+            AzServerboundPacket packet = SERVERBOUND_DECODERS.get(id).apply(buffer);
+            if (packet != null) {
+                packet.handleServer(sender);
+            }
+        } catch (RuntimeException e) {
+            // Client-controlled bytes: log and drop instead of letting a bad packet kick anyone.
+            AzureLib.LOGGER.warn("Dropped malformed AzureLib serverbound packet {} from {}", id, sender.name, e);
+        }
     }
 
     @Override

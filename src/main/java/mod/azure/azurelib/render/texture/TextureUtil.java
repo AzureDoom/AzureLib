@@ -19,15 +19,15 @@ public final class TextureUtil {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         setParameters(false, false);
         GL11.glTexImage2D(
-                GL11.GL_TEXTURE_2D,
-                0,
-                GL11.GL_RGBA,
-                width,
-                height,
-                0,
-                GL11.GL_RGBA,
-                GL11.GL_UNSIGNED_BYTE,
-                (ByteBuffer) null
+            GL11.GL_TEXTURE_2D,
+            0,
+            GL11.GL_RGBA,
+            width,
+            height,
+            0,
+            GL11.GL_RGBA,
+            GL11.GL_UNSIGNED_BYTE,
+            (ByteBuffer) null
         );
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, previous);
     }
@@ -36,7 +36,7 @@ public final class TextureUtil {
         int count = width * height;
         if (pixels.length < count) {
             throw new IllegalArgumentException(
-                    "Expected at least " + count + " pixels for " + width + "x" + height + ", got " + pixels.length
+                "Expected at least " + count + " pixels for " + width + "x" + height + ", got " + pixels.length
             );
         }
         fillBuffer(pixels, count);
@@ -45,15 +45,15 @@ public final class TextureUtil {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         setParameters(false, false);
         GL11.glTexSubImage2D(
-                GL11.GL_TEXTURE_2D,
-                0,
-                0,
-                0,
-                width,
-                height,
-                GL11.GL_RGBA,
-                GL11.GL_UNSIGNED_BYTE,
-                buffer
+            GL11.GL_TEXTURE_2D,
+            0,
+            0,
+            0,
+            width,
+            height,
+            GL11.GL_RGBA,
+            GL11.GL_UNSIGNED_BYTE,
+            buffer
         );
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, previous);
     }
@@ -69,15 +69,15 @@ public final class TextureUtil {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
         setParameters(blur, clamp);
         GL11.glTexImage2D(
-                GL11.GL_TEXTURE_2D,
-                0,
-                GL11.GL_RGBA,
-                width,
-                height,
-                0,
-                GL11.GL_RGBA,
-                GL11.GL_UNSIGNED_BYTE,
-                buffer
+            GL11.GL_TEXTURE_2D,
+            0,
+            GL11.GL_RGBA,
+            width,
+            height,
+            0,
+            GL11.GL_RGBA,
+            GL11.GL_UNSIGNED_BYTE,
+            buffer
         );
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, previous);
     }

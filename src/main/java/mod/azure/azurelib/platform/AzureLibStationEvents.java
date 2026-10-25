@@ -22,5 +22,10 @@ public final class AzureLibStationEvents {
             StationAzureLibNetwork.channelId(),
             (player, message) -> StationAzureLibNetwork.receive(message.bytes)
         );
+        // Client-to-server: hitbox poses and melee/interact claims. Only the server receives on this channel.
+        event.register(
+            StationAzureLibNetwork.serverboundChannelId(),
+            (player, message) -> StationAzureLibNetwork.receiveServerbound(player, message.bytes)
+        );
     }
 }

@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "ArsenicOverlayRendererMixin_AzItems",
+    "GameRendererMixin_AzHitboxPick",
     "HeldItemRendererMixin_AzItems",
+    "InteractionManagerMixin_AzHitboxClaims",
     "ItemRendererMixin_AzItems",
+    "MinecraftMixin_AzHitboxClientTick",
     "PlayerEntityRendererMixin_AzArmor"
   ],
   "injectors": {

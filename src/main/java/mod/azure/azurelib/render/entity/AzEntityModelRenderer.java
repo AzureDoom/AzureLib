@@ -4,8 +4,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzLayerRenderer;
@@ -55,28 +57,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         PoseStack poseStack = context.poseStack();
 
         poseStack.pushPose();
-
-        float lerpBodyRot = getLerpRot(animatable, partialTick);
-
-        if (isSleeping(animatable)) {
-            Direction bedDirection = getBedOrientation(animatable);
-
-            if (bedDirection != null) {
-                float eyePosOffset = ((LivingEntity) animatable).getEyeHeight() - 0.1F;
-
-                poseStack.translate(
-                    -bedDirection.getStepX() * eyePosOffset,
-                    0,
-                    -bedDirection.getStepZ() * eyePosOffset
-                );
-            }
-        }
-
-        float nativeScale = 1; // Beta has no baby mobs
-        float ageInTicks = Mc.age(animatable) + partialTick;
-
-        poseStack.scale(nativeScale, nativeScale, nativeScale);
-        applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
+        applyEntityTransforms(animatable, poseStack, partialTick);
 
         if (!isReRender || context.applyAnimationOnReRender()) {
             AzEntityRenderer<T> renderer = entityRendererPipeline.getRenderer();
@@ -94,6 +75,116 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
         }
 
         poseStack.popPose();
+    }
+
+    private void applyEntityTransforms(T animatable, PoseStack poseStack, float partialTick) {
+        float lerpBodyRot = getLerpRot(animatable, partialTick);
+
+        if (isSleeping(animatable)) {
+            Direction bedDirection = getBedOrientation(animatable);
+
+            if (bedDirection != null) {
+                float eyePosOffset = animatable.getEyeHeight() - 0.1F;
+
+                poseStack.translate(
+                    -bedDirection.getStepX() * eyePosOffset,
+                    0,
+                    -bedDirection.getStepZ() * eyePosOffset
+                );
+            }
+        }
+
+        float nativeScale = 1;
+        float ageInTicks = animatable.age + partialTick;
+
+        poseStack.scale(nativeScale, nativeScale, nativeScale);
+        applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
+    }
+
+    public void poseBonesOffscreen(
+        T animatable,
+        AzBakedModel model,
+        @Nullable AzEntityAnimator<T> animator,
+        float partialTick
+    ) {
+        PoseStack poseStack = new PoseStack();
+        AzEntityRendererConfig<T> config = entityRendererPipeline.getRenderer().config();
+        float scaleWidth = config.scaleWidth(animatable);
+        float scaleHeight = config.scaleHeight(animatable);
+
+        entityRendererPipeline.entityRenderTranslations.setIdentity();
+
+        if (scaleWidth != 1 || scaleHeight != 1) {
+            poseStack.scale(scaleWidth, scaleHeight, scaleWidth);
+        }
+
+        applyEntityTransforms(animatable, poseStack, partialTick);
+
+        if (animator != null) {
+            handleAnimation(animator, animatable, partialTick);
+        }
+
+        entityRendererPipeline.modelRenderTranslations.load(poseStack.last().pose());
+
+        for (AzBone bone : model.getTopLevelBones()) {
+            poseBoneOffscreen(animatable, poseStack, bone);
+        }
+    }
+
+    private void poseBoneOffscreen(T animatable, PoseStack poseStack, AzBone bone) {
+        if (bone.isHidden()) {
+            if (!bone.isHidingChildren()) {
+                for (AzBone child : bone.getChildBones()) {
+                    poseBoneOffscreen(animatable, poseStack, child);
+                }
+            }
+            return;
+        }
+
+        if (bone.getScaleX() == 0f && bone.getScaleY() == 0f && bone.getScaleZ() == 0f) {
+            return;
+        }
+
+        poseStack.pushPose();
+        RenderUtils.translateMatrixToBone(poseStack, bone);
+        RenderUtils.translateToPivotPoint(poseStack, bone);
+        RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+        RenderUtils.scaleMatrixForBone(poseStack, bone);
+
+        if (bone.isTrackingMatrices()) {
+            trackBoneMatrices(animatable, bone, poseStack.last().pose());
+        }
+
+        RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+
+        if (!bone.isHidingChildren()) {
+            for (AzBone child : bone.getChildBones()) {
+                poseBoneOffscreen(animatable, poseStack, child);
+            }
+        }
+
+        poseStack.popPose();
+    }
+
+    private void trackBoneMatrices(T entity, AzBone bone, Matrix4f pose) {
+        scratchPoseState.load(pose);
+        Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
+            scratchPoseState,
+            entityRendererPipeline.entityRenderTranslations
+        );
+        bone.setModelSpaceMatrix(
+            RenderUtils.invertAndMultiplyMatrices(
+                scratchPoseState,
+                entityRendererPipeline.modelRenderTranslations
+            )
+        );
+        scratchLocalMatrix.load(localMatrix);
+        RenderUtils.translateMatrixInPlace(
+            scratchLocalMatrix,
+            new Vector3f(entityRendererPipeline.getRenderer().getRenderOffset(entity, 1))
+        );
+        bone.setLocalSpaceMatrix(localMatrix);
+        bone.setWorldSpaceMatrix(scratchLocalMatrix);
     }
 
     /**

@@ -36,12 +36,12 @@ public final class AzItemArmArmorRenderUtil {
     private AzItemArmArmorRenderUtil() {}
 
     public static void renderArmArmor(
-            MultiBufferSource bufferSource,
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            BipedEntityModel playerModel,
-            int packedLight
+        MultiBufferSource bufferSource,
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        BipedEntityModel playerModel,
+        int packedLight
     ) {
         PlayerEntity player = McClient.player();
 
@@ -73,11 +73,11 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static void renderVanillaArmorArm(
-            MultiBufferSource bufferSource,
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            Item item
+        MultiBufferSource bufferSource,
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        Item item
     ) {
         if (bufferSource instanceof AzBufferSource) {
             ((AzBufferSource) bufferSource).endBatch();
@@ -104,8 +104,8 @@ public final class AzItemArmArmorRenderUtil {
 
         if (texture == null) {
             texture = new ResourceLocation(
-                    ResourceLocation.DEFAULT_NAMESPACE,
-                    "armor/" + ARMOR_PREFIXES[index] + "_1.png"
+                ResourceLocation.DEFAULT_NAMESPACE,
+                "armor/" + ARMOR_PREFIXES[index] + "_1.png"
             );
             CHEST_TEXTURES[index] = texture;
         }
@@ -114,14 +114,14 @@ public final class AzItemArmArmorRenderUtil {
     }
 
     private static void renderAzArmorArm(
-            PlayerEntity player,
-            PoseStack poseStack,
-            boolean leftArm,
-            AzBone bone,
-            BipedEntityModel playerModel,
-            ItemStack chest,
-            AzArmorRenderer azRenderer,
-            int packedLight
+        PlayerEntity player,
+        PoseStack poseStack,
+        boolean leftArm,
+        AzBone bone,
+        BipedEntityModel playerModel,
+        ItemStack chest,
+        AzArmorRenderer azRenderer,
+        int packedLight
     ) {
         ModelPart basePart = armPart(playerModel, leftArm);
 
@@ -138,8 +138,8 @@ public final class AzItemArmArmorRenderUtil {
             azRenderer.rendererPipeline().context().setVisiblePartOverride(basePart);
 
             azRenderer.rendererPipeline()
-                    .armorModel()
-                    .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                .armorModel()
+                .renderToBuffer(poseStack, null, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
         } finally {
             azRenderer.rendererPipeline().context().setVisiblePartOverride(null);
 
