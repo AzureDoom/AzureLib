@@ -240,8 +240,8 @@ public class MolangParser extends MathBuilder {
                 symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
                     && symbols.get(1).equals("=")
             ) {
-                symbols = symbols.subList(2, symbols.size());
                 String key = normalizeName(name);
+                symbols = symbols.subList(2, symbols.size());
                 LazyVariable variable = locals.get(key);
 
                 if (variable == null) {
