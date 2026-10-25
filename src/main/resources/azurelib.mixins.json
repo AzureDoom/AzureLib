@@ -4,16 +4,24 @@
   "package": "mod.azure.azurelib.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ArrowEntityMixin_AzHitboxes",
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
+    "EntityMixin_AzHitboxState",
+    "FireballEntityMixin_AzHitboxes",
     "ItemStackMixin_AzItemAnimatorCache",
     "ItemStackMixin_AzItemStackData",
     "ItemStackMixin_AzItemStackIdentityRegistry",
+    "MobEntityMixin_AzHitboxDamage",
+    "PlayerEntityMixin_AzHitboxes",
+    "ThrownEntityMixin_AzHitboxes",
     "accessor.BlockEntityAccessor",
     "accessor.EntityRegistryAccessor"
   ],
   "client": [],
-  "server": [],
+  "server": [
+    "ServerPlayNetworkHandlerMixin_AzHitboxReach"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

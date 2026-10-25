@@ -10,6 +10,9 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.HitResult;
 import net.minecraft.world.World;
 
 import java.util.Collections;
@@ -439,5 +442,52 @@ public final class Mc {
 
     public static float itemEntityHoverStart(ItemEntity entity) {
         return entity.bobOffset;
+    }
+
+    // ---- Hitboxes ---------------------------------------------------------------------------------------------------
+    // Box/Vec3d constructors are private on Beta and opened by azurelib.accesswidener. Constructing directly (rather
+    // than through the static factories) also guarantees fresh instances: Beta's createVector/getBoundingBoxFromPool
+    // return pooled objects that are reused every tick, and hitbox claims keep their vectors across ticks.
+
+    /** MCP: {@code Entity#boundingBox}. */
+    public static Box boundingBox(Entity e) {
+        return e.shape;
+    }
+
+    /** MCP: {@code AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)} (private, widened). */
+    public static Box box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return new Box(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    /** MCP: {@code Vec3D(x, y, z)} (private, widened). */
+    public static Vec3d vec(double x, double y, double z) {
+        return new Vec3d(x, y, z);
+    }
+
+    /**
+     * An entity-style hit at {@code pos}. Only the position is read by the projectile and crosshair code AzureLib
+     * hooks. MCP: {@code MovingObjectPosition(int, int, int, int, Vec3D)}.
+     */
+    public static HitResult hitResult(Vec3d pos) {
+        return new HitResult(0, 0, 0, 1, pos);
+    }
+
+    /** MCP: {@code AxisAlignedBB#func_1169_a(Vec3D, Vec3D)} / {@code calculateIntercept}. */
+    @Nullable
+    public static HitResult clipBox(Box box, Vec3d from, Vec3d to) {
+        return box.clip(from, to);
+    }
+
+    /** MCP: {@code AxisAlignedBB#isVecInside(Vec3D)}. */
+    public static boolean boxContains(Box box, Vec3d point) {
+        return box.contains(point);
+    }
+
+    /** Squared distance between entity positions, as {@code Entity#getDistanceSqToEntity} computes it. */
+    public static double distanceSq(Entity a, Entity b) {
+        double dx = x(a) - x(b);
+        double dy = y(a) - y(b);
+        double dz = z(a) - z(b);
+        return dx * dx + dy * dy + dz * dz;
     }
 }

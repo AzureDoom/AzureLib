@@ -105,12 +105,12 @@ public class AzItemArmRenderUtil {
                 null
             );
             AzItemArmArmorRenderUtil.renderArmArmor(
-                    context.multiBufferSource(),
-                    poseStack,
-                    true,
-                    bone,
-                    playerEntityModel,
-                    context.packedLight()
+                context.multiBufferSource(),
+                poseStack,
+                true,
+                bone,
+                playerEntityModel,
+                context.packedLight()
             );
         } else if (RIGHT_ARM_BONE.equals(bone.getName())) {
             poseStack.scale(0.67f, 1.33f, 0.67f);
@@ -124,12 +124,12 @@ public class AzItemArmRenderUtil {
                 null
             );
             AzItemArmArmorRenderUtil.renderArmArmor(
-                    context.multiBufferSource(),
-                    poseStack,
-                    false,
-                    bone,
-                    playerEntityModel,
-                    context.packedLight()
+                context.multiBufferSource(),
+                poseStack,
+                false,
+                bone,
+                playerEntityModel,
+                context.packedLight()
             );
         }
 

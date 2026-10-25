@@ -8,5 +8,11 @@ public class OrnitheAzureLibInitializer implements AzureLibInitializer {
     public void initialize() {
         OrnitheAzureLibNetwork.registerChannel();
         Services.NETWORK.registerClientReceiverPackets();
+
+        if (
+            net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.SERVER
+        ) {
+            OrnitheAzureLibNetwork.registerServerListener();
+        }
     }
 }

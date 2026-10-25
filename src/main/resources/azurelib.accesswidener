@@ -1,2 +1,5 @@
 accessWidener	v2	named
 accessible field net/minecraft/entity/Entity fallDistance F
+# Hitboxes: Beta's Box and Vec3d constructors are private; AzureLib builds unpooled instances (see Mc#box, Mc#vec).
+accessible method net/minecraft/util/math/Box <init> (DDDDDD)V
+accessible method net/minecraft/util/math/Vec3d <init> (DDD)V

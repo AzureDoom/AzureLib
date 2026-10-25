@@ -6,9 +6,12 @@
   "client": [
     "BlockEntityRenderDispatcherMixin_AzRenderers",
     "EntityRenderDispatcherMixin_AzRenderers",
+    "GameRendererMixin_AzHitboxPick",
     "HeldItemRendererMixin_AzItems",
+    "InteractionManagerMixin_AzHitboxClaims",
     "ItemRendererMixin_AzItems",
     "LanguageMixin_AzModLang",
+    "MinecraftMixin_AzHitboxClientTick",
     "PlayerEntityRendererMixin_AzArmor",
     "SoundEngineMixin_AzModSounds",
     "TextureManagerMixin_AzItemIcons",

@@ -11,6 +11,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzEntityAnimator;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
+import mod.azure.azurelib.hitbox.client.AzHitboxClientTicker;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzProvider;
@@ -53,6 +56,30 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
         this.config = config;
         this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, Mc::entityUuid);
         this.rendererPipeline = createPipeline(config);
+    }
+
+    public void poseOffscreen(T entity, float partialTick) {
+        if (!(rendererPipeline.modelRenderer() instanceof AzEntityModelRenderer)) {
+            return;
+        }
+
+        AzEntityModelRenderer<T> modelRenderer = (AzEntityModelRenderer<T>) rendererPipeline.modelRenderer();
+        AzEntityAnimator<T> animator = (AzEntityAnimator<T>) provider.provideAnimator(entity, entity);
+        AzBakedModel azBakedModel = provider.provideBakedModel(entity, entity);
+
+        if (azBakedModel == null) {
+            return;
+        }
+
+        AzEntityAnimator<T> previousAnimator = reusedAzEntityAnimator;
+        reusedAzEntityAnimator = animator;
+
+        try {
+            modelRenderer.poseBonesOffscreen(entity, azBakedModel, animator, partialTick);
+            AzHitboxClientHooks.afterOffscreenPose(entity, azBakedModel, partialTick);
+        } finally {
+            reusedAzEntityAnimator = previousAnimator;
+        }
     }
 
     protected AzEntityRendererPipeline<T> createPipeline(AzEntityRendererConfig<T> config) {
@@ -117,6 +144,14 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer 
                 LightTexture.fromBrightness(Mc.brightness(entity, partialTick))
             );
             bufferSource.endBatch();
+            if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+                AzHitboxClientHooks.afterEntityRender(
+                    entity,
+                    azBakedModel,
+                    partialTick,
+                    AzHitboxClientTicker.isDebugEnabled()
+                );
+            }
         } finally {
             GlStateManager.popMatrix();
         }

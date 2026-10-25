@@ -130,6 +130,23 @@ public final class McClient {
         renderer.init(dispatcher);
     }
 
+    /**
+     * The renderer the dispatcher would use for this entity, found the way {@code getEntityRenderObject} does (walking
+     * up the class hierarchy) through the accessor, so no dispatcher method name is involved.
+     */
+    @Nullable
+    public static EntityRenderer entityRenderer(Entity entity) {
+        java.util.Map<?, ?> renderers = ((EntityRenderDispatcherAccessor) EntityRenderDispatcher.INSTANCE)
+            .azurelib$getRenderers();
+        for (Class<?> type = entity.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+            Object renderer = renderers.get(type);
+            if (renderer instanceof EntityRenderer) {
+                return (EntityRenderer) renderer;
+            }
+        }
+        return null;
+    }
+
     public static EntityRenderDispatcher entityRenderDispatcher() {
         return EntityRenderDispatcher.INSTANCE;
     }

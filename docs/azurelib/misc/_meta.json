@@ -7,6 +7,10 @@
         "name": "Rendering Topics",
         "icon": "Info"
     },
+    "hitboxes.mdx": {
+        "name": "Bone Hitboxes",
+        "icon": "Target"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"
