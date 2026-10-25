@@ -3,6 +3,7 @@
   "package": "mod.azure.azurelib.mixins",
   "compatibilityLevel": "JAVA_8",
   "refmap": "azurelib.refmap.json",
+  "plugin": "mod.azure.azurelib.mixins.AzureLibMixinPlugin",
   "mixins": [
     "ContainerMixin_AzItemIDFix",
     "EntityArrowMixin_AzHitboxes",
