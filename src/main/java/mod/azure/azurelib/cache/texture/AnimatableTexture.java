@@ -184,15 +184,15 @@ public class AnimatableTexture extends SimpleTexture {
     }
 
     void setGlowMaskTexture(AutoGlowingTexture texture, BufferedImage baseImage, BufferedImage glowMask) {
-        if (this.animationContents != null) {
-            this.animationContents.animatedTexture.invalidateAllocations();
+        if (this.animationContents != null)
             this.animationContents.animatedTexture.setGlowMaskTexture(texture, baseImage, glowMask);
-        }
     }
 
     void forceFrameUpload() {
-        if (this.animationContents != null)
+        if (this.animationContents != null) {
+            this.animationContents.animatedTexture.invalidateAllocations();
             this.animationContents.animatedTexture.uploadFrame(this.animationContents.animatedTexture.currentFrame);
+        }
     }
 
     public static void setAndUpdate(ResourceLocation texturePath) {
