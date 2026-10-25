@@ -83,8 +83,13 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         scaleModelForRender(context, scaleWidth, scaleHeight, isReRender);
         scaleBoneWithModelPart(armorContext, boneContext, isReRender);
 
-        if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null)
+        ModelPart partOverride = armorContext.visiblePartOverride();
+        if (partOverride != null) {
+            boneContext.applyBoneVisibilityByPart(currentSlot, partOverride, baseModel);
+        } else if (AzAnimatorAccessor.getOrNull(context().currentEntity()) == null) {
             boneContext.applyBoneVisibilityBySlot(currentSlot);
+        }
+
         if (config.alpha(context.animatable()) < 1) {
             armorContext.setAlpha(config.alpha(context.animatable()));
             armorContext.setTranslucent(true);
@@ -160,10 +165,6 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         bone.setScaleZ(ModelPartScaleCompat.getZScale(modelPart));
     }
 
-    /**
-     * Apply custom scaling to account for {@link net.minecraft.client.model.AgeableListModel AgeableListModel} baby
-     * models
-     */
     public void scaleModelForBaby(AzArmorRendererPipelineContext context, boolean isReRender) {
         Entity currentEntity = context.currentEntity();
         if (

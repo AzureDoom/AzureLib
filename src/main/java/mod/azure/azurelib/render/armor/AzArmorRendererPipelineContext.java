@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render.armor;
 
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -29,6 +30,9 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     private boolean translucent = false;
 
+    @Nullable
+    private ModelPart visiblePartOverride;
+
     public AzArmorRendererPipelineContext(AzRendererPipeline<UUID, ItemStack> rendererPipeline) {
         super(rendererPipeline);
         this.baseModel = null;
@@ -36,6 +40,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         this.currentEntity = null;
         this.currentSlot = null;
         this.currentStack = null;
+        this.visiblePartOverride = null;
     }
 
     @Override
@@ -105,5 +110,13 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
 
     public ItemStack currentStack() {
         return currentStack;
+    }
+
+    public void setVisiblePartOverride(@Nullable ModelPart part) {
+        this.visiblePartOverride = part;
+    }
+
+    public @Nullable ModelPart visiblePartOverride() {
+        return visiblePartOverride;
     }
 }
