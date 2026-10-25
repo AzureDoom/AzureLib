@@ -128,7 +128,7 @@ jar {
     from {
         configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
     } {
-        exclude 'LICENSE.txt', 'META-INF/MANIFEST.MF', 'META-INF/maven/**', 'META-INF/*.RSA', 'META-INF/*.SF'
+        exclude 'LICENSE.txt', 'META-INF/MANIFEST.MF', 'META-INF/maven/**', 'META-INF/*.RSA', 'META-INF/*.SF', 'module-info.class'
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
