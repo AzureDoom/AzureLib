@@ -185,7 +185,6 @@ Beta's server rejects an attack or interaction when the target's position is 6 o
 If hitboxes stick far outside the vanilla box (long tails or necks), the game can also skip drawing the entity while part of it is on screen, which stops the hitboxes updating. Widen the render distance check with the culling box:
 
 ```java
-
 public ExampleEntity(World world) {
     super(world);
     this.ignoreFrustumCull = true;
