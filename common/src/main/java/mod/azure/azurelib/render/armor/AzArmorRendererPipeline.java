@@ -72,7 +72,9 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         var model = armorRenderer.provider().provideBakedModel(currentEntity, animatable);
         var poseStack = armorContext.poseStack();
 
-        this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
+        if (!isReRender) {
+            this.entityRenderTranslations.set(poseStack.last().pose());
+        }
 
         if (armorContext.setupBaseModel()) {
             ((HumanoidModel) baseModel).setupAnim(renderState);
