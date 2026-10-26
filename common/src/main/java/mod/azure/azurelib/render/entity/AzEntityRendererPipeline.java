@@ -67,7 +67,9 @@ public class AzEntityRendererPipeline<T extends Entity> extends AzRendererPipeli
     @Override
     public void preRender(AzRendererPipelineContext<UUID, T> context, boolean isReRender) {
         var poseStack = context.poseStack();
-        this.entityRenderTranslations.set(poseStack.last().pose());
+        if (!isReRender) {
+            this.entityRenderTranslations.set(poseStack.last().pose());
+        }
 
         var config = entityRenderer.config();
         var scaleWidth = config.scaleWidth(context.animatable());
