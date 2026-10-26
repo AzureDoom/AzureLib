@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.platform.Services;
 
 public final class AzPendingDispatches {
 
@@ -22,7 +23,8 @@ public final class AzPendingDispatches {
     public static void flush(Object animatable, AzAnimator<?, ?> animator) {
         List<Consumer<AzAnimator<?, ?>>> queued = PENDING.remove(animatable);
         if (queued != null) {
-            AzureLib.LOGGER.info("Replaying {} queued command(s) for {}", queued.size(), animatable);
+            if (Services.PLATFORM.isDevelopmentEnvironment())
+                AzureLib.LOGGER.info("Replaying {} queued command(s) for {}", queued.size(), animatable);
             queued.forEach(d -> d.accept(animator));
         }
     }
