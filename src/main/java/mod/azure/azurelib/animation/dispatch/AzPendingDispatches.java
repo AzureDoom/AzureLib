@@ -1,5 +1,7 @@
 package mod.azure.azurelib.animation.dispatch;
 
+import net.fabricmc.loader.api.FabricLoader;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,8 @@ public final class AzPendingDispatches {
     public static void flush(Object animatable, AzAnimator<?, ?> animator) {
         List<Consumer<AzAnimator<?, ?>>> queued = PENDING.remove(animatable);
         if (queued != null) {
-            AzureLib.LOGGER.info("Replaying {} queued command(s) for {}", queued.size(), animatable);
+            if (FabricLoader.getInstance().isDevelopmentEnvironment())
+                AzureLib.LOGGER.info("Replaying {} queued command(s) for {}", queued.size(), animatable);
             queued.forEach(d -> d.accept(animator));
         }
     }
