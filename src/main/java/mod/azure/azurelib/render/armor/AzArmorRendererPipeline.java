@@ -74,7 +74,9 @@ public class AzArmorRendererPipeline extends AzRendererPipeline<UUID, ItemStack>
         AzBakedModel model = armorRenderer.provider().provideBakedModel(context().currentEntity(), animatable);
         PoseStack poseStack = armorContext.poseStack();
 
-        this.entityRenderTranslations = new Matrix4f(poseStack.last().pose());
+        if (!isReRender) {
+            this.entityRenderTranslations.load(poseStack.last().pose());
+        }
 
         armorModel.applyBaseModel(baseModel);
         boneContext.grabRelevantBones(model, config.boneProvider());
