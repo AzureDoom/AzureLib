@@ -4,7 +4,7 @@ hide_meta: true
 ---
 
 <Callout variant="info">
-    See [How to use Molang](../blockbench/animating_in_bb#how-to-use-molang) for how to use your custom Molang Queries.
+    See [How to use Molang](../blockbench/animating_in_bb#how-to-use-molang) for how to use your custom Molang Queries, and the list of built-in queries. Variables and the expression syntax are covered [below](#variables).
 </Callout>
 
 # Overview
@@ -151,6 +151,74 @@ MolangParser.INSTANCE.register(new LazyVariable(ModClass.MY_CUSTOM_VALUE, 42.0))
 
 Queries can be written with either the full or the short prefix, so `query.my_custom_value` and `q.my_custom_value` are the same query. The same applies to `variable.`/`v.`, `temp.`/`t.` and `context.`/`c.`.
 
+## Variables
+
+Molang has three kinds of names you can store values in:
+
+| Prefix                  | Lives                                                         | Typical use                                        |
+|-------------------------|---------------------------------------------------------------|----------------------------------------------------|
+| `variable.` / `v.`      | On each animatable, across frames and across every expression | State an animation keeps, values driven from code  |
+| `temp.` / `t.`          | One evaluation of one expression; starts at 0 every time      | Intermediate results inside a longer expression    |
+| `query.` / `q.`, `context.` / `c.`, `math.` | Read-only                                 | Game state and built-in functions                  |
+
+Each entity, block entity and item has its own set of `variable.*` values, so a value one entity assigns is never seen by another. A value assigned in one keyframe is readable in every other keyframe of that animatable, on the same frame and later frames.
+
+Assigning to a query, a `context.*` or `math.*` name, or a constant is an error: the expression logs a message and evaluates to 0.
+
+### Driving `variable.*` from Code
+
+The simplest way to feed per-entity data to an animation, without registering a query, is to set a variable on the animatable's scope:
+
+```java
+@Override
+protected void applyMolangQueries(MyEntity entity, double animTime, float partialTicks) {
+    super.applyMolangQueries(entity, animTime, partialTicks);
+
+    this.context().molangScope().set("v.charge", entity.getChargeLevel());
+}
+```
+
+Animations read it as `v.charge` or `variable.charge`. The scope also has `get`, `isSet`, `remove` and `clear`.
+
+<Callout variant="info">
+    A `variable.*` name you register or drive globally with `MolangParser.INSTANCE.register`, `setValue` or `setMemoizedValue` still works the way it always has: every animatable reads that global value until it assigns its own. For per-entity data, prefer the scope above, or a query.
+</Callout>
+
+## Expression Syntax
+
+Keyframe values can be a single expression or several statements separated by `;`:
+
+```
+t.wave = math.sin(q.anim_time * 360);
+v.peak = math.max(v.peak ?? 0, t.wave);
+return t.wave * 10;
+```
+
+| Syntax                                   | Meaning                                                                                       |
+|------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `+ - * / % ^`                            | Arithmetic (`^` is power).                                                                    |
+| `< <= > >= == !=`                        | Comparisons, giving 1 or 0.                                                                   |
+| `&&`, `\|\|`, `!`                         | Logic. `&&` and `\|\|` stop early, so the right side isn't evaluated when it can't matter.      |
+| `a ? b : c`                              | `b` if `a` is non-zero, else `c`.                                                             |
+| `a ? b`                                  | `b` if `a` is non-zero, else 0.                                                               |
+| `v.x ?? 1`                               | `v.x` if it has been given a value, else 1.                                                   |
+| `name = value`                           | Assignment. Allowed anywhere an expression is; it evaluates to the assigned value.            |
+| `{ ...; ...; }`                          | A block of statements, e.g. as the branch of a conditional.                                   |
+| `return value`                           | Ends the expression with `value`.                                                             |
+| `loop(count, { ... })`                   | Runs the block `count` times (at most 1024). `break` leaves the loop, `continue` skips ahead. |
+| `true`, `false`, `math.pi`               | 1, 0 and π.                                                                                   |
+
+A conditional with blocks:
+
+```
+q.is_on_ground ? { v.air_time = 0; } : { v.air_time = (v.air_time ?? 0) + 1; };
+return math.min(v.air_time, 20) * 2;
+```
+
+- Without a `return`, a multi-statement expression evaluates to its last statement.
+- Names are case-insensitive.
+- Strings, arrays, `for_each`, `this` and `->` aren't supported. An expression using them is retried with AzureLib's older parser and logs a warning containing "Falling back to the legacy parser"; if that fails too, it evaluates to 0.
+
 ## Best Practices
 
 1. Always use `MolangQueries.normalize()` when defining query constants
@@ -159,3 +227,5 @@ Queries can be written with either the full or the short prefix, so `query.my_cu
 4. Use memoized values unless a query really needs recalculating on every read
 5. In animators, bind through a `MolangVariableRef` and create suppliers once, reading the current entity from a field, instead of creating new lambdas every frame
 6. Keep query names descriptive and consistent
+7. For simple per-entity values, `context().molangScope().set("v.name", value)` avoids registering anything
+8. Use `temp.*` for scratch values inside an expression and `variable.*` only for state that must persist or be shared between keyframes
