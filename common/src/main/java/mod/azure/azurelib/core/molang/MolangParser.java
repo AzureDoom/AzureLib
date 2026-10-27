@@ -8,6 +8,14 @@ package mod.azure.azurelib.core.molang;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -21,13 +29,6 @@ import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.*;
 import mod.azure.azurelib.core.molang.functions.query.*;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.DoubleSupplier;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
@@ -203,16 +204,16 @@ public class MolangParser extends MathBuilder {
             }
 
             AzureLib.LOGGER.warn(
-                    "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
-                    expression,
-                    e.getMessage()
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
             );
             return parseExpressionLegacy(expression);
         } catch (RuntimeException e) {
             AzureLib.LOGGER.warn(
-                    "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
-                    expression,
-                    e.getMessage()
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
             );
             return parseExpressionLegacy(expression);
         }
@@ -276,12 +277,12 @@ public class MolangParser extends MathBuilder {
      */
     @Deprecated
     protected static MolangValue parseOneLine(
-            String expression,
-            MolangCompoundValue currentStatement
+        String expression,
+        MolangCompoundValue currentStatement
     ) {
         Map<String, LazyVariable> locals = currentStatement != null
-                ? currentStatement.locals
-                : new Object2ObjectOpenHashMap<>();
+            ? currentStatement.locals
+            : new Object2ObjectOpenHashMap<>();
 
         return parseOneLine(expression, locals);
     }
@@ -303,8 +304,8 @@ public class MolangParser extends MathBuilder {
             List<Object> symbols = INSTANCE.breakdownChars(INSTANCE.breakdown(expression));
 
             if (
-                    symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
-                            && symbols.get(1).equals("=")
+                symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
+                    && symbols.get(1).equals("=")
             ) {
                 String key = normalizeName(name);
                 symbols = symbols.subList(2, symbols.size());
@@ -365,16 +366,16 @@ public class MolangParser extends MathBuilder {
         remap("min_angle", "math.min_angle");
 
         String[] easingCurves = {
-                "quad",
-                "cubic",
-                "quart",
-                "quint",
-                "sine",
-                "expo",
-                "circ",
-                "back",
-                "elastic",
-                "bounce" };
+            "quad",
+            "cubic",
+            "quart",
+            "quint",
+            "sine",
+            "expo",
+            "circ",
+            "back",
+            "elastic",
+            "bounce" };
 
         for (String curve : easingCurves) {
             remap("ease_in_" + curve, "math.ease_in_" + curve);
@@ -484,8 +485,7 @@ public class MolangParser extends MathBuilder {
      * {@code "q.my_query"} and {@code "query.my_query"} register the same function, and animations can call it with
      * either prefix.
      * <p>
-     * Functions that read game state should extend
-     * {@link ContextQueryFunction} or otherwise live outside the
+     * Functions that read game state should extend {@link ContextQueryFunction} or otherwise live outside the
      * {@code mod.azure.azurelib.core.molang.functions} package, so they are not folded to a constant at load time.
      * Register during mod initialization, before resources load.
      * </p>

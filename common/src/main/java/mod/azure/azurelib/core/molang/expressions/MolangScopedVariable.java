@@ -1,12 +1,12 @@
 package mod.azure.azurelib.core.molang.expressions;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import mod.azure.azurelib.core.math.Variable;
 import mod.azure.azurelib.core.molang.LazyVariable;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.MolangScope;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A Molang {@code variable.*} reference whose value lives in the {@link MolangScope} that is current when it is
