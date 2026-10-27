@@ -1,8 +1,9 @@
 package mod.azure.azurelib.animation.dispatch.command.sequence;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.*;
 import java.util.function.UnaryOperator;
-import javax.annotation.Nonnull;
 
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.dispatch.command.stage.AzAnimationStage;
@@ -50,30 +51,73 @@ import mod.azure.azurelib.animation.property.AzAnimationStageProperties;
  * {@link #hold(String)} freezes on the final frame, and {@link #then(String, AzPlayBehavior)} accepts any behavior.
  * Looping, holding and freezing stages never finish, so adding a stage after one of them is rejected with an
  * {@link IllegalStateException} instead of silently producing an unreachable stage.
- * <h2>Events</h2> {@link #event(String, int)} schedules a named event {@code tick} game ticks after the sequence
- * starts. Timing is measured from the start of the sequence, not from the stage the call follows; its position in the
- * chain is only for readability. Events are not sent to the client: they are delivered by an {@link AzSequencePlayer},
- * which is what lets them drive server-side logic such as dealing damage.
+ * <h2>Stage settings</h2> Besides its behavior, a stage can set its own speed, transition length, easing, start offset,
+ * freeze point, repeat count and direction through the customizer of
+ * {@link #then(String, AzPlayBehavior, UnaryOperator)}. These apply to that stage only and are layered over the
+ * controller's settings while it plays, so they never leak into whatever plays next (unlike the controller-wide setters
+ * on {@link AzCommand} builders).
+ * <h2>Events</h2> Events are not sent to the client: they are delivered by an {@link AzSequencePlayer}, which is what
+ * lets them drive server-side logic such as dealing damage. There are two kinds:
+ * <ul>
+ * <li>{@link #event(String, int)} fires a fixed number of game ticks after the sequence starts, regardless of speed or
+ * transitions. Its position in the chain is only for readability.</li>
+ * <li>{@link Builder#eventAt(String, double)}, {@link Builder#eventOnStart(String)} and
+ * {@link Builder#eventOnEnd(String)} are anchored to the stage they follow: "when this animation reaches keyframe tick
+ * 12", "when this stage starts playing", "when it finishes". The player places them using an {@link AzSequenceTiming},
+ * so they stay in step with the animation when its speed, transition length, start offset or repeat count changes, and
+ * when earlier stages change length.</li>
+ * </ul>
+ *
+ * <pre>
+ *
+ * {
+ *     &#64;code
+ *
+ *     static final AzSequence SLAM = AzSequence.builder()
+ *         .play("windup")
+ *         .then("strike", AzPlayBehaviors.PLAY_ONCE, props -> props.withAnimationSpeed(1.5))
+ *         .eventAt("damage", 8) // keyframe tick 8 of "strike", at 1.5x speed, after the transition into it
+ *         .eventOnEnd("recovered")
+ *         .play("recovery")
+ *         .build();
+ * }
+ * </pre>
+ *
  * <h2>Playing</h2> Use {@link #toCommand(String)} / {@link #toRootCommand()} to get a normal {@link AzCommand}, or an
  * {@link AzSequencePlayer} when the sequence has events.
  */
 public final class AzSequence {
 
-    private static final AzSequence EMPTY = new AzSequence(
-        java.util.Collections.emptyList(),
-        java.util.Collections.emptyList()
-    );
+    private static final AzSequence EMPTY = new AzSequence(Collections.emptyList(), Collections.emptyList());
 
     /**
      * Built-in behaviors that never finish on their own; anything queued after them could never play.
      */
-    private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = mod.azure.azurelib.util.AzCollections
-        .immutableSetOf(
-            AzPlayBehaviors.LOOP,
-            AzPlayBehaviors.PING_PONG,
-            AzPlayBehaviors.HOLD_ON_LAST_FRAME,
-            AzPlayBehaviors.FREEZE_ON_FRAME
-        );
+    private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = ImmutableSet.of(
+        AzPlayBehaviors.LOOP,
+        AzPlayBehaviors.PING_PONG,
+        AzPlayBehaviors.HOLD_ON_LAST_FRAME,
+        AzPlayBehaviors.FREEZE_ON_FRAME
+    );
+
+    private static final Comparator<AzSequenceEvent> EVENT_ORDER = Comparator
+        .comparing(AzSequenceEvent::isAnchored)
+        .thenComparingInt(AzSequenceEvent::tick)
+        .thenComparingInt(AzSequenceEvent::stage)
+        .thenComparingInt(event -> {
+            switch (event.anchor()) {
+                case SEQUENCE:
+                case STAGE_START:
+                    return 0;
+                case KEYFRAME:
+                    return 1;
+                case STAGE_END:
+                    return 2;
+                default:
+                    throw new IllegalStateException("Unexpected anchor: " + event.anchor());
+            }
+        })
+        .thenComparingDouble(AzSequenceEvent::stageTick);
 
     private final List<AzAnimationStage> stages;
 
@@ -82,12 +126,13 @@ public final class AzSequence {
     private final AzAnimationSequence animationSequence;
 
     private AzSequence(List<AzAnimationStage> stages, List<AzSequenceEvent> events) {
-        this.stages = mod.azure.azurelib.util.AzCollections.immutableList(stages);
+        this.stages = Collections.unmodifiableList(new ArrayList<>(stages));
 
         ArrayList<AzSequenceEvent> sortedEvents = new ArrayList<>(events);
-        // Stable sort: events on the same tick fire in declaration order.
-        sortedEvents.sort(Comparator.comparingInt(AzSequenceEvent::tick));
-        this.events = mod.azure.azurelib.util.AzCollections.immutableList(sortedEvents);
+        // Stable sort: events on the same tick fire in declaration order. Fixed-tick events first by tick, then
+        // anchored events by stage and position within it; the player re-sorts by resolved time anyway.
+        sortedEvents.sort(EVENT_ORDER);
+        this.events = Collections.unmodifiableList(new ArrayList<>(sortedEvents));
 
         this.animationSequence = new AzAnimationSequence(this.stages);
     }
@@ -180,17 +225,56 @@ public final class AzSequence {
     }
 
     /**
-     * Returns a new sequence with a named event scheduled {@code tick} ticks after the sequence starts.
+     * Returns a new sequence with {@code animationName} appended as a stage that freezes at {@code freezeTick} (final).
+     */
+    public AzSequence freeze(String animationName, double freezeTick) {
+        return toBuilder().freeze(animationName, freezeTick).build();
+    }
+
+    /**
+     * Returns a new sequence with a named event scheduled {@code tick} game ticks after the sequence starts.
      */
     public AzSequence event(String name, int tick) {
         return toBuilder().event(name, tick).build();
     }
 
     /**
+     * Returns a new sequence with a named event fired when the last stage's animation reaches {@code animationTick}.
+     * See {@link Builder#eventAt(String, double)}.
+     */
+    public AzSequence eventAt(String name, double animationTick) {
+        return toBuilder().eventAt(name, animationTick).build();
+    }
+
+    /**
+     * Returns a new sequence with a named event fired when the last stage starts playing. See
+     * {@link Builder#eventOnStart(String)}.
+     */
+    public AzSequence eventOnStart(String name) {
+        return toBuilder().eventOnStart(name).build();
+    }
+
+    /**
+     * Returns a new sequence with a named event fired when the last stage finishes. See
+     * {@link Builder#eventOnEnd(String)}.
+     */
+    public AzSequence eventOnEnd(String name) {
+        return toBuilder().eventOnEnd(name).build();
+    }
+
+    /**
+     * Works out when each stage plays and each event fires with the given timing. {@link AzSequencePlayer} does this
+     * itself; this is for inspecting or debugging a sequence, or for game logic that needs a stage's duration.
+     */
+    public AzSequenceTimeline timeline(AzSequenceTiming timing) {
+        return AzSequenceTimeline.compute(this, timing);
+    }
+
+    /**
      * @return a builder pre-filled with this sequence's stages and events
      */
     public Builder toBuilder() {
-        AzSequence.Builder builder = new Builder();
+        Builder builder = new Builder();
         builder.stages.addAll(stages);
         builder.events.addAll(events);
         return builder;
@@ -246,7 +330,9 @@ public final class AzSequence {
             return false;
         }
 
-        return stages.equals(((AzSequence) object).stages) && events.equals(((AzSequence) object).events);
+        AzSequence that = (AzSequence) object;
+
+        return stages.equals(that.stages) && events.equals(that.events);
     }
 
     @Override
@@ -299,16 +385,15 @@ public final class AzSequence {
          */
         public Builder then(
             String animationName,
-            @Nonnull AzPlayBehavior playBehavior,
-            @Nonnull UnaryOperator<AzAnimationStageProperties> customizer
+            AzPlayBehavior playBehavior,
+            UnaryOperator<AzAnimationStageProperties> customizer
         ) {
             requireName(animationName, "Animation name");
             Objects.requireNonNull(playBehavior, "playBehavior");
             Objects.requireNonNull(customizer, "customizer");
             ensureNotAfterFinalStage(animationName);
 
-            // Always start from a fresh instance: the with* methods on AzAnimationStageProperties mutate the
-            // receiver, so building on the shared EMPTY/DEFAULT constants would leak state between sequences.
+            // Start from all-unset properties so every value the stage doesn't set is inherited from the controller.
             AzAnimationStageProperties properties = customizer.apply(freshProperties().withPlayBehavior(playBehavior));
 
             if (properties == null) {
@@ -333,8 +418,11 @@ public final class AzSequence {
                 ensureNotAfterFinalStage(other.stages.get(0).name());
             }
 
+            int stageOffset = stages.size();
+
             stages.addAll(other.stages);
-            other.events.forEach(event -> events.add(new AzSequenceEvent(event.name(), event.tick() + offsetTicks)));
+            // Fixed-tick events move by offsetTicks; anchored events stay on their stage, wherever it ends up.
+            other.events.forEach(event -> events.add(event.shifted(stageOffset, offsetTicks)));
             return this;
         }
 
@@ -382,8 +470,74 @@ public final class AzSequence {
         }
 
         /**
+         * Appends a stage that plays until {@code freezeTick} (animation ticks) and freezes there. The freeze point
+         * belongs to this stage only. Nothing can follow it.
+         */
+        public Builder freeze(String animationName, double freezeTick) {
+            if (!(freezeTick > 0)) {
+                throw new IllegalArgumentException(
+                    "Freeze tick of '" + animationName + "' must be > 0, was " + freezeTick
+                );
+            }
+
+            return then(
+                animationName,
+                AzPlayBehaviors.FREEZE_ON_FRAME,
+                properties -> properties.withFreezeTickOffset(freezeTick)
+            );
+        }
+
+        /**
+         * Fires a named event when the most recently added stage's animation reaches {@code animationTick} on its own
+         * timeline, the tick you see in Blockbench (keyframe events use the same time base). For a reversed stage that
+         * is still the keyframe's tick, reached counting down. The player accounts for the transition into the stage,
+         * its speed and start offset, and the length of every stage before it. Repeating, looping and ping-pong stages
+         * fire it on their first pass only.
+         *
+         * @param name          an identifier your {@link AzSequenceEventListener} can match on
+         * @param animationTick the tick on the stage animation's timeline, {@code >= 0}
+         * @throws IllegalStateException if no stage has been added yet
+         */
+        public Builder eventAt(String name, double animationTick) {
+            requireName(name, "Event name");
+
+            if (!(animationTick >= 0)) {
+                throw new IllegalArgumentException("Event '" + name + "' has an invalid tick: " + animationTick);
+            }
+
+            events.add(
+                new AzSequenceEvent(name, 0, lastStageIndex(name), animationTick, AzSequenceEvent.Anchor.KEYFRAME)
+            );
+            return this;
+        }
+
+        /**
+         * Fires a named event when the most recently added stage starts playing, once the transition into it is done.
+         *
+         * @throws IllegalStateException if no stage has been added yet
+         */
+        public Builder eventOnStart(String name) {
+            requireName(name, "Event name");
+            events.add(new AzSequenceEvent(name, 0, lastStageIndex(name), 0, AzSequenceEvent.Anchor.STAGE_START));
+            return this;
+        }
+
+        /**
+         * Fires a named event when the most recently added stage finishes: after its last repeat, at its freeze point,
+         * or at the end of the first pass for looping, ping-pong and holding stages.
+         *
+         * @throws IllegalStateException if no stage has been added yet
+         */
+        public Builder eventOnEnd(String name) {
+            requireName(name, "Event name");
+            events.add(new AzSequenceEvent(name, 0, lastStageIndex(name), 0, AzSequenceEvent.Anchor.STAGE_END));
+            return this;
+        }
+
+        /**
          * Schedules a named event {@code tick} game ticks after the sequence starts. The position of this call in the
-         * chain does not affect timing.
+         * chain does not affect timing, and neither do playback speed or transitions; use
+         * {@link #eventAt(String, double)} for an event that should follow the animation.
          *
          * @param name an identifier your {@link AzSequenceEventListener} can match on
          * @param tick ticks after the start of the sequence, {@code >= 0}
@@ -405,6 +559,16 @@ public final class AzSequence {
             }
 
             return new AzSequence(stages, events);
+        }
+
+        private int lastStageIndex(String eventName) {
+            if (stages.isEmpty()) {
+                throw new IllegalStateException(
+                    "Event '" + eventName + "' is anchored to a stage, so add a stage before it"
+                );
+            }
+
+            return stages.size() - 1;
         }
 
         private void ensureNotAfterFinalStage(String nextAnimationName) {
