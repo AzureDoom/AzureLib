@@ -17,6 +17,7 @@ import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangScope;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.profiling.AzProfileStage;
 import mod.azure.azurelib.profiling.AzProfiler;
@@ -151,6 +152,19 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.begin(AzProfileStage.ANIMATE, animatable);
         this.currentContext.animatable = animatable;
 
+        // Molang variable.* reads and writes go to this animatable's own scope while it animates.
+        MolangScope previousScope = MolangScope.setCurrent(this.currentContext.molangScope());
+
+        try {
+            animateInScope(animatable, partialTicks, updateTimer);
+        } finally {
+            MolangScope.setCurrent(previousScope);
+        }
+
+        AzProfiler.end(AzProfileStage.ANIMATE);
+    }
+
+    private void animateInScope(T animatable, float partialTicks, boolean updateTimer) {
         AzBoneCache boneCache = this.currentContext.boneCache();
         AzAnimationTimer timer = this.currentContext.timer();
 
@@ -184,8 +198,6 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.begin(AzProfileStage.CUSTOM_ANIMATIONS, animatable);
         setCustomAnimations(animatable, partialTicks);
         AzProfiler.end(AzProfileStage.CUSTOM_ANIMATIONS);
-
-        AzProfiler.end(AzProfileStage.ANIMATE);
     }
 
     public void animate(T animatable, float partialTicks) {
