@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation;
 
-import mod.azure.azurelib.core.molang.MolangScope;
 import net.minecraft.world.World;
 
 import java.util.WeakHashMap;
@@ -16,6 +15,7 @@ import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.core.molang.MolangQueries;
+import mod.azure.azurelib.core.molang.MolangScope;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.platform.mc.McClient;
