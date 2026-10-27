@@ -1,7 +1,7 @@
 package mod.azure.azurelib.animation.dispatch.command.sequence;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.tileentity.TileEntity;
 
 import java.util.Collections;
 import java.util.List;
@@ -125,7 +125,7 @@ public final class AzSequencePlayer {
      * Creates a player that drives {@code controllerName} on a block entity.
      */
     public static AzSequencePlayer forBlockEntity(
-        TileEntity blockEntity,
+        BlockEntity blockEntity,
         String controllerName,
         AzSequenceEventListener listener
     ) {

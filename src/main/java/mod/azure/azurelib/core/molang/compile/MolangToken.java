@@ -8,8 +8,11 @@ import java.util.Objects;
 final class MolangToken {
 
     private final Type type;
+
     private final String text;
+
     private final double number;
+
     private final int position;
 
     MolangToken(Type type, String text, double number, int position) {
@@ -74,9 +77,9 @@ final class MolangToken {
 
         MolangToken other = (MolangToken) obj;
         return type == other.type
-                && Objects.equals(text, other.text)
-                && Double.doubleToLongBits(number) == Double.doubleToLongBits(other.number)
-                && position == other.position;
+            && Objects.equals(text, other.text)
+            && Double.doubleToLongBits(number) == Double.doubleToLongBits(other.number)
+            && position == other.position;
     }
 
     @Override

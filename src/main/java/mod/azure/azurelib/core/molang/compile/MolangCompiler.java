@@ -1,14 +1,14 @@
 package mod.azure.azurelib.core.molang.compile;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+
 import mod.azure.azurelib.core.math.*;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangLocalVariable;
 import mod.azure.azurelib.core.molang.expressions.MolangScopedVariable;
 import mod.azure.azurelib.core.molang.runtime.*;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 
 /**
  * Compiles a Molang expression into an {@link IValue} tree. A recursive-descent (precedence climbing) parser over
@@ -359,9 +359,9 @@ public final class MolangCompiler {
 
         if (constant(name) != null) {
             throw new MolangSyntaxException(
-                    "'" + token.text() + "' is a constant and can't be assigned to",
-                    token.position(),
-                    false
+                "'" + token.text() + "' is a constant and can't be assigned to",
+                token.position(),
+                false
             );
         }
 

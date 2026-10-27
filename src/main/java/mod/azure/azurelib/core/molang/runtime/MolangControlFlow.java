@@ -58,7 +58,7 @@ public final class MolangControlFlow implements IValue {
     public String toString() {
         if (frame.signal == MolangFrame.RETURN) {
             return "return " + value;
-        }  else if (frame.signal == MolangFrame.BREAK) {
+        } else if (frame.signal == MolangFrame.BREAK) {
             return "break";
         } else {
             return "continue";
