@@ -9,8 +9,8 @@ hide_meta: true
 
 ### **The Three Configuration Layers**:
     - **Root**: Applies to every controller at once.
-    - **Controller**: Applies to one named controller. Playback properties (speed, transition length, offsets, repeat count, direction) live here and **stay set** until something changes them.
-    - **Animation**: Applies to one animation (a stage of a sequence): its play behavior and, optionally, its direction. These only last while that animation plays.
+    - **Controller**: Applies to one named controller. Playback properties (speed, transition length, offsets, repeat count, freeze point, direction) live here and **stay set** until something changes them.
+    - **Animation**: Applies to one animation (a stage of a sequence): its play behavior and, optionally, its own speed, transition length, easing, start offset, freeze point, repeat count and direction. These only last while that animation plays, then the controller's settings apply again (see [Stage Settings](#stage-settings)).
 
 ## Getting Started with `AzCommand`
 
@@ -49,8 +49,8 @@ AzCommand idleCommand = AzCommand.create("base", "IDLE_ANIMATION", AzPlayBehavio
 | `AzPlayBehaviors.AS_AUTHORED`        | Uses the Loop Mode from the animation file. This is what `create(controller, animation)` uses. | Depends on the file |
 
 - **Repeat count** is the **total** number of plays: `3` plays the animation three times. `1` or less plays it once.
-- **Freeze point** is set in ticks when set from code (`freezeTickOffset`), and in seconds in Blockbench.
-- If both code and the animation file set a repeat count or freeze point, the code's value wins.
+- **Freeze point** is set in ticks when set from code (`freezeTickOffset`), and in seconds in Blockbench. It only ever applies to animations playing with `FREEZE_ON_FRAME`; a `FREEZE_ON_FRAME` animation with no freeze point holds its last frame.
+- If a repeat count or freeze point is set in more than one place, the stage's value wins, then the controller's, then the animation file's.
 
 #### **Setting Play Behaviors in Blockbench**
 With the AzureLib Animator plugin (2.2.0+), open an animation's **Properties** (double-click it in the Animations panel, or right-click → Properties) and pick its **Loop Mode**: Once, Hold, Loop, Ping-Pong, Repeat or Freeze. Repeat adds a **Repeat Count** field, and Freeze adds a **Freeze At** time with a **Use Playhead Time** button. Blockbench previews all of them on the timeline.
@@ -83,7 +83,7 @@ AzCommand slamCommand = AzCommand.create(
 `AzCommand.createRoot(...)` takes the same arguments without the controller name and applies them to every controller.
 
 <Callout variant="info">
-    These properties are stored on the controller, so they also apply to every animation played on it afterwards, until another command changes them.
+    These properties are stored on the controller, so they also apply to every animation played on it afterwards, until another command changes them. The freeze point is the exception in practice: it only affects `FREEZE_ON_FRAME` animations, so leaving one on the controller won't stall later loops or sequences. If a setting should only apply to one animation, set it on a [sequence stage](#stage-settings) instead.
 </Callout>
 
 To change only some properties, or change them without playing anything, use `AzCommand.controllerBuilder()` (one controller) or `AzCommand.rootBuilder()` (all controllers):
@@ -99,7 +99,7 @@ AzCommand sprintCommand = AzCommand.controllerBuilder()
 |-----------------------------------------------------|--------------------------------|----------------------------------------------------------------------------------------|
 | `setSpeed(controller, speed)`                       | `setSpeed(speed)`              | Playback speed multiplier (`1` = normal).                                              |
 | `setTransitionSpeed(controller, ticks)`             | `setTransitionSpeed(ticks)`    | Transition length in ticks when switching animations.                                  |
-| `setStartTickOffset(controller, ticks)`             | `setStartTickOffset(ticks)`    | Ticks skipped at the start of each animation.                                          |
+| `setStartTickOffset(controller, ticks)`             | `setStartTickOffset(ticks)`    | Ticks skipped at the start of each animation (not scaled by speed).                    |
 | `setFreezeTickOffset(controller, ticks)`            | `setFreezeTickOffset(ticks)`   | Freeze point for `FREEZE_ON_FRAME`.                                                    |
 | `setRepeatAmount(controller, count)`                | `setRepeatAmount(count)`       | Total plays for `REPEAT_X_TIMES`.                                                      |
 | `setReverseAnimation(controller, reverse)`          | `setReverseAnimation(reverse)` | Play direction (see [Playing Animations in Reverse](#playing-animations-in-reverse)).  |
@@ -147,6 +147,7 @@ SLAM.toCommand("base").sendForEntity(myEntity);
 | `pingPong(name)`                     | Plays forward and backward forever.                                                |
 | `playReversed(name)`                 | Plays once backwards and continues.                                                |
 | `authored(name)`                     | Uses the animation file's Loop Mode.                                               |
+| `freeze(name, tick)`                 | Plays until `tick`, then holds that frame.                                         |
 | `then(name, behavior)`               | Any behavior.                                                                      |
 | `then(name, behavior, props -> ...)` | Any behavior with stage properties, e.g. `props -> props.withShouldReverse(true)`. |
 
@@ -154,22 +155,61 @@ SLAM.toCommand("base").sendForEntity(myEntity);
 - Use `toCommand(controller)` for one controller, or `toRootCommand()` for all of them.
 - Sending a sequence that is already playing does nothing, so it's safe to send it every tick.
 
+#### **Stage Settings**
+Besides its behavior, each stage can set its own playback properties through the `props -> ...` customizer of `then`:
+
+```java
+static final AzSequence DIAL = AzSequence.builder()
+    .play("RING_SPIN")
+    .then("CHEVRON_LOCK", AzPlayBehaviors.PLAY_ONCE, props -> props.withAnimationSpeed(2))
+    .then("KAWOOSH", AzPlayBehaviors.PLAY_ONCE, props -> props.withTransitionLength(10))
+    .then("RING_SPIN", AzPlayBehaviors.FREEZE_ON_FRAME, props -> props.withFreezeTickOffset(18))
+    .build();
+```
+
+| Stage property                 | Sets                                                    |
+|--------------------------------|---------------------------------------------------------|
+| `withAnimationSpeed(speed)`    | Playback speed of this stage, including its transition. |
+| `withTransitionLength(ticks)`  | Length of the blend into this stage.                    |
+| `withEasingType(easing)`       | Easing used by this stage.                              |
+| `withStartTickOffset(ticks)`   | Ticks skipped at the start of this stage.               |
+| `withFreezeTickOffset(ticks)`  | Freeze point, for `FREEZE_ON_FRAME` stages.             |
+| `withRepeatXTimes(count)`      | Total plays, for `REPEAT_X_TIMES` stages.               |
+| `withShouldReverse(reverse)`   | Direction of this stage.                                |
+
+- Stage settings are layered over the controller's settings while that stage plays. Anything the stage doesn't set comes from the controller.
+- Unlike the controller builder's setters, they never stick: the next stage, or the next command, plays with the controller's settings again. Prefer them whenever only one animation needs different settings.
+
 #### **Sequence Events**
-`event(name, tick)` schedules a named event a number of game ticks after the sequence starts. Events run on the side that ticks an `AzSequencePlayer`, usually the server, which makes them suitable for gameplay such as dealing damage on the right frame:
+Sequence events are named points in time that run on the side that ticks an `AzSequencePlayer`, usually the server, which makes them suitable for gameplay such as dealing damage on the right frame. There are two kinds:
+
+| Method                    | Fires                                                                                                   |
+|---------------------------|---------------------------------------------------------------------------------------------------------|
+| `event(name, tick)`       | A fixed number of game ticks after the sequence starts, wherever it appears in the chain.               |
+| `eventAt(name, keyTick)`  | When the stage it follows reaches `keyTick` on its own timeline (the tick shown in Blockbench).          |
+| `eventOnStart(name)`      | When the stage it follows starts playing, after the transition into it.                                 |
+| `eventOnEnd(name)`        | When the stage it follows finishes: after its last repeat, at its freeze point, or after its first pass. |
+
+`eventAt`, `eventOnStart` and `eventOnEnd` are **anchored** to their stage. The player works out when they happen from the controller's speed and transition length, each stage's own settings, and the length of each animation, so they stay lined up with the animation when any of those change. `event(name, tick)` ignores all of that.
 
 **Example**:
 ```java
 static final AzSequence SLAM = AzSequence.builder()
     .play("WINDUP_ANIMATION")
-    .event("damage", 12)
     .play("STRIKE_ANIMATION")
+    .eventAt("damage", 6)        // when STRIKE_ANIMATION reaches tick 6
+    .eventOnEnd("recovered")     // when STRIKE_ANIMATION finishes
     .build();
 
 private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", (sequence, event) -> {
     if (event.is("damage")) {
         dealSlamDamage();
     }
-});
+}).withTiming(AzSequenceTiming.builder()
+    .transitionLength(4)                // the same value the "base" controller was built with
+    .length("WINDUP_ANIMATION", 20)     // animation lengths in ticks, as shown in Blockbench
+    .length("STRIKE_ANIMATION", 12)
+    .build());
 
 public void startSlam() { // server side, e.g. from your mob's attack code
     attackPlayer.play(SLAM);
@@ -183,9 +223,15 @@ public void tick() {
     }
 }
 ```
-- Event ticks count from the start of the whole sequence, not from the stage they follow.
-- They aren't scaled by animation speed, and each stage starts after the controller's transition length. Account for both when lining an event up with a keyframe.
+- **Give the player the controller's settings.** `AzSequenceTiming` should match how the controller was built (speed, transition length, start offset). Settings a stage sets for itself are read from the sequence, so you don't repeat those.
+- **Give it the animation lengths anchored events depend on.** Animation files only exist on the client, so the server can't look them up. An event needs the lengths of every stage before it, plus its own stage's length for `eventOnEnd` or a reversed stage. An event whose time can't be worked out is skipped with a warning instead of firing at the wrong moment.
+- **On the client**, `controller.sequenceTiming()` builds the timing from a live controller and reads every length from the animation file.
+- Stages played with `authored(...)` are timed as play-once stages, since the server can't read the file's Loop Mode. Give a stage an explicit behavior if later events depend on it repeating or freezing.
+- `event(name, tick)` counts game ticks from the start of the whole sequence and isn't affected by speed or transitions.
+- Anchored events on looping, ping-pong and repeating stages fire on the first pass only.
+- Changes made to the controller while the sequence runs (another command changing its speed, say) aren't seen by the player, and the client starts the sequence when the command arrives, so allow about a tick of slack.
 - If another animation takes over the controller (hurt, death), call `attackPlayer.cancel()` so pending events don't fire.
+- To inspect when everything happens, `SLAM.timeline(timing)` returns each stage's start and end and each event's tick.
 
 ### 3. **Composing Multiple Commands**
 If you need to merge several commands into one, you can use the `compose` method. This is helpful for combining animations across multiple controllers:
@@ -353,10 +399,11 @@ public class ExampleEntity extends MobEntity {
             pendingStateTicks = 0;
             currentCommand = null; // pick a new start for the new state
         }
-    }
 
-    /** Called every frame from the renderer (client only), so the server never sends a packet per tick. */
-    public void updateAnimations() {
+        if (!Mc.isClientSide(this.world)) {
+            return; // Only dispatch on the client, so the server doesn't send a packet every tick
+        }
+
         if (currentCommand == null) {
             AzWeightedPoolBehavior pool = walking ? WALK_POOL : IDLE_POOL;
             currentCommand = pool.randomSequence().toCommand("base");
@@ -422,7 +469,7 @@ public void fire(PlayerEntity player, ItemStack stack) {
 3. **Set play behaviors in Blockbench**:
     - Choosing the Loop Mode in Blockbench keeps it next to the animation and lets you preview it. Then `AzCommand.create(controller, animation)` is all your code needs. Pass a behavior in code only when it must differ from the file.
 4. **Remember that controller properties stick**:
-    - Speed, transition length, offsets, repeat count and direction stay on the controller after a command sets them. If one animation needs different settings, set them back afterwards, or keep that animation on its own controller.
+    - Speed, transition length, offsets, repeat count and direction stay on the controller after a command sets them. If one animation needs different settings, set them on its [sequence stage](#stage-settings) instead, so they only apply while it plays.
 
 
 ## Converting from `AnimationController` to `AzCommand`
@@ -475,16 +522,15 @@ public class ExampleEntity extends MobEntity {
     public void tick() {
         super.tick(); // Update base entity behavior
         moveAnalysis.update(); // Analyze the entity's movement state
-    }
 
-    /** Called every frame from the renderer, so it only runs on the client. */
-    public void updateAnimations() {
-        boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && Mc.onGround(this);
+        if (Mc.isClientSide(this.world)) { // Only execute animation logic on the client
+            boolean isMovingOnGround = moveAnalysis.isMovingHorizontally() && Mc.onGround(this);
 
-        if (isMovingOnGround) {
-            walkCommand.sendForEntity(this); // Send the walk animation if moving
-        } else {
-            idleCommand.sendForEntity(this); // Otherwise, send the idle animation
+            if (isMovingOnGround) {
+                walkCommand.sendForEntity(this); // Send the walk animation if moving
+            } else {
+                idleCommand.sendForEntity(this); // Otherwise, send the idle animation
+            }
         }
     }
 }
