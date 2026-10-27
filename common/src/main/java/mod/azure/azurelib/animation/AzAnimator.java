@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation;
 
+import mod.azure.azurelib.core.molang.MolangScope;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -148,6 +149,19 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.begin(AzProfileStage.ANIMATE, animatable);
         this.currentContext.animatable = animatable;
 
+        // Molang variable.* reads and writes go to this animatable's own scope while it animates.
+        MolangScope previousScope = MolangScope.setCurrent(this.currentContext.molangScope());
+
+        try {
+            animateInScope(animatable, partialTicks, updateTimer);
+        } finally {
+            MolangScope.setCurrent(previousScope);
+        }
+
+        AzProfiler.end(AzProfileStage.ANIMATE);
+    }
+
+    private void animateInScope(T animatable, float partialTicks, boolean updateTimer) {
         var boneCache = this.currentContext.boneCache();
         var timer = this.currentContext.timer();
 
@@ -181,8 +195,6 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.begin(AzProfileStage.CUSTOM_ANIMATIONS, animatable);
         setCustomAnimations(animatable, partialTicks);
         AzProfiler.end(AzProfileStage.CUSTOM_ANIMATIONS);
-
-        AzProfiler.end(AzProfileStage.ANIMATE);
     }
 
     public void animate(T animatable, float partialTicks) {
