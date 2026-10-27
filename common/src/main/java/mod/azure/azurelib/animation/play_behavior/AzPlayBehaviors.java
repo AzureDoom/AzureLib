@@ -1,6 +1,9 @@
 package mod.azure.azurelib.animation.play_behavior;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
+import mod.azure.azurelib.animation.controller.AzAnimationControllerTimer;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbackHandler;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeManager;
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 
 public class AzPlayBehaviors {
@@ -62,13 +65,16 @@ public class AzPlayBehaviors {
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
                 AzAnimationController<?> controller = context.animationController();
-                var maxRepeats = controller.animationProperties().repeatXTimes();
-                var repeatCount = controller.incrementRepeatCount();
 
-                if (maxRepeats > 1 && repeatCount <= maxRepeats) {
-                    var controllerTimer = controller.controllerTimer();
-                    var keyframeManager = controller.keyframeManager();
-                    var keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
+                // Stage value, else controller value, else the file's authored repeat_times.
+                double maxRepeats = controller.effectiveRepeatXTimes();
+                int repeatCount = controller.incrementRepeatCount();
+
+                // repeatXTimes is the total number of plays: after the n-th play finishes, replay only while n < total.
+                if (maxRepeats > 1 && repeatCount < maxRepeats) {
+                    AzAnimationControllerTimer<?> controllerTimer = controller.controllerTimer();
+                    AzKeyframeManager<?> keyframeManager = controller.keyframeManager();
+                    AzKeyframeCallbackHandler<?> keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
 
                     controllerTimer.reset();
                     keyframeCallbackHandler.reset();
