@@ -1,0 +1,89 @@
+apply plugin: 'com.diffplug.spotless'
+apply plugin: 'maven-publish'
+
+spotless {
+    java {
+        target 'src/*/java/**/*.java'
+        eclipse('4.13.0').configFile("$rootDir/eclipse-formatter.xml")
+        endWithNewline()
+        importOrder('', 'java', 'mod.azure.azurelib', '\\#')
+        indentWithSpaces(4)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn 'spotlessApply'
+}
+
+tasks.named('processResources', ProcessResources) {
+    def packProps = [
+            mod_id            : modId,
+            mod_name          : modName,
+            mod_description   : modDescription,
+            pack_format_number: packFormatNumber
+    ]
+    inputs.properties packProps
+    filesMatching('pack.mcmeta') {
+        expand packProps
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+// Same coordinates and artifacts as the old ForgeGradle build:
+//   mod.azure.azurelib:azurelib-forge-1.7.10:<version>            (reobfuscated, release jar)
+//   mod.azure.azurelib:azurelib-forge-1.7.10:<version>:dev        (MCP names, used by dependents in dev)
+//   mod.azure.azurelib:azurelib-forge-1.7.10:<version>:sources
+//
+// GTNHGradle always registers its own 'maven' publication (even with usesMavenPublishing = false),
+// so ours gets a different name and GTNH's is switched off below so `publish` only uploads ours.
+publishing {
+    repositories {
+        maven {
+            name = modId
+            url = uri(azureMavenUrl)
+
+            credentials(PasswordCredentials)
+
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+
+    publications {
+        register('azurelib', MavenPublication) {
+            groupId = modGroup
+            artifactId = customArchiveBaseName
+
+            artifact(tasks.named('reobfJar'))
+            artifact(tasks.named('jar')) {
+                classifier = 'dev'
+            }
+            artifact(tasks.named('sourcesJar')) {
+                classifier = 'sources'
+            }
+
+            pom {
+                name = modName
+                description = modDescription
+                url = 'https://github.com/AzureDoom/AzureLib'
+
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(AbstractPublishToMaven).matching { it.name.contains('MavenPublication') }.configureEach {
+    enabled = false
+}

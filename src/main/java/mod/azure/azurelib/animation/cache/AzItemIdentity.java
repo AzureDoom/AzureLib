@@ -166,7 +166,7 @@ public final class AzItemIdentity {
         }
 
         if (
-            a.getItem() != b.getItem() || a.getCurrentDurability() != b.getCurrentDurability()
+            a.getItem() != b.getItem() || a.getItemDamage() != b.getItemDamage()
                 || a.stackSize != b.stackSize
                 || !AzIdentityRegistry.hasIdentity(a.getItem())
         ) {

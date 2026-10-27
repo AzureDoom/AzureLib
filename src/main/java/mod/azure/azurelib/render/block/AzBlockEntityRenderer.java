@@ -52,7 +52,7 @@ public abstract class AzBlockEntityRenderer<T extends TileEntity> extends TileEn
         reusedAzBlockAnimator = cachedEntityAnimator;
 
         int packedLight = entity.hasWorldObj()
-            ? entity.getWorld().getLightBrightnessForSkyBlocks(entity.xCoord, entity.yCoord, entity.zCoord, 0)
+            ? entity.getWorldObj().getLightBrightnessForSkyBlocks(entity.xCoord, entity.yCoord, entity.zCoord, 0)
             : LightTexture.FULL_BRIGHT;
 
         AzBufferSource bufferSource = AzBufferSource.getInstance();

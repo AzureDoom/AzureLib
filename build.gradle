@@ -1,242 +1,91 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url = 'https://maven.minecraftforge.net/' }
-    }
-    dependencies {
-        classpath 'com.anatawa12.forge:ForgeGradle:1.2-1.1.1'
-    }
-}
-
 plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'maven-publish'
-    id 'com.diffplug.spotless' version '5.17.1'
+    id 'com.gtnewhorizons.gtnhconvention'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
 }
 
-apply plugin: 'forge'
-
-
-version = mod_version
-group = mod_group_id
-
-base {
-    archivesName = "${mod_id}-forge-${mc_version}"
+tasks.matching { it.name == 'publishCurseforge' || it.name == 'publishModrinth' }.configureEach {
+    dependsOn tasks.named('build')
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+def keyPropsFile = rootProject.file('key.properties')
+if (keyPropsFile.exists()) {
+    def releaseProp = new Properties()
+    keyPropsFile.withInputStream { releaseProp.load(it) }
 
-minecraft {
-    version = "${mc_version}-${forge_version}"
-    runDir = 'run'
-    mappings = "${mappings_channel}_${mappings_version}"
+    def modrinthKey = releaseProp.getProperty('modrinthKey')?.trim()
+    def discordKey = releaseProp.getProperty('discordKey')?.trim()
 
-    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-        accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
-    }
-}
+    publishMods {
+        // reobfJar is the release jar under RFG; the plain `jar` task is the -dev jar.
+        file = tasks.named('reobfJar').flatMap { it.archiveFile }
+        changelog = rootProject.file('changelog.md').text
+        type = STABLE
+        modLoaders.add('forge')
+        displayName = file.map { it.asFile.name }
 
-repositories {
-    mavenCentral()
-    maven { url = 'https://maven.minecraftforge.net/' }
-    maven { url = 'https://jitpack.io' }
-
-    maven {
-        name = 'Cursemaven'
-        url = 'https://www.cursemaven.com/'
-        content {
-            includeGroup 'curse.maven'
+        curseforge {
+            projectId = '817423'
+            projectSlug = 'azurelib'
+            accessToken = releaseProp.getProperty('curseKey')
+            minecraftVersions.add(project.minecraftVersion)
+            client = true
+            server = true
         }
-    }
-}
 
-dependencies {
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-
-    implementation(
-            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
-    ) {
-        transitive = false
-    }
-
-    annotationProcessor(
-            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10:${unimixins_version}:dev"
-    ) {
-        transitive = false
-    }
-}
-
-def mixinSrg = file("${buildDir}/tmp/compileJava/${mod_id}.mixins.srg")
-def mixinRefmap = file("${buildDir}/tmp/compileJava/${mod_id}.refmap.json")
-
-spotless {
-    java {
-        eclipse('4.13.0').configFile("$rootDir/eclipse-formatter.xml")
-        endWithNewline()
-        importOrder('', 'java', 'mod.azure.azurelib', '\\#')
-        indentWithSpaces(4)
-        removeUnusedImports()
-        trimTrailingWhitespace()
-    }
-}
-
-compileJava {
-    dependsOn 'genSrgs'
-    dependsOn 'spotlessApply'
-
-    outputs.file mixinSrg
-    outputs.file mixinRefmap
-
-    doFirst {
-        mixinSrg.parentFile.mkdirs()
-        mixinSrg.text = ''
-
-        options.compilerArgs += [
-                "-AreobfSrgFile=${tasks.reobf.srg}",
-                "-AoutSrgFile=${mixinSrg}",
-                "-AoutRefMapFile=${mixinRefmap}",
-                '-AdefaultObfuscationEnv=searge'
-        ]
-    }
-}
-
-reobf {
-    addExtraSrgFile mixinSrg
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-tasks.register('sourcesJar', Jar) {
-    archiveClassifier.set('sources')
-    from sourceSets.main.allSource
-}
-
-processResources {
-    def replaceProperties = [
-            mc_version: mc_version,
-            forge_version: forge_version,
-            mod_id: mod_id,
-            mod_name: mod_name,
-            mod_license: mod_license,
-            mod_version: mod_version,
-            mod_authors: mod_authors,
-            mod_description: mod_description,
-            pack_format_number: pack_format_number,
-            version: project.version,
-            mcversion: mc_version
-    ]
-
-    inputs.properties replaceProperties
-
-    filesMatching(['mcmod.info', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
-    }
-
-    filesMatching('META-INF/accesstransformer.cfg') {
-        name = "${mod_id}_at.cfg"
-    }
-}
-
-jar {
-    dependsOn compileJava
-
-    from mixinRefmap
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes(
-                'FMLCorePlugin': 'mod.azure.azurelib.coremod.AzureLibLoadingPlugin',
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLAT': "${mod_id}_at.cfg",
-                'Specification-Title': mod_id,
-                'Specification-Vendor': mod_authors,
-                'Specification-Version': '1',
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Implementation-Vendor': mod_authors
-        )
-    }
-}
-
-tasks.matching {
-    it.name == 'runClient' || it.name == 'runServer'
-}.all {
-    args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker'
-
-    systemProperty 'mixin.env.remapRefMap', 'true'
-
-    doFirst {
-        systemProperty(
-                'mixin.env.refMapRemappingFile',
-                tasks.genSrgs.srgToMcp.absolutePath
-        )
-    }
-}
-
-tasks.register('devJar', Jar) {
-    dependsOn compileJava
-    archiveClassifier.set('dev')
-    from sourceSets.main.output
-    from mixinRefmap
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest.from(jar.manifest)
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
-}
-
-publishing {
-    repositories {
-        maven {
-            name = mod_id
-            url = uri(maven_url)
-
-            credentials(PasswordCredentials)
-
-            authentication {
-                basic(BasicAuthentication)
+        if (modrinthKey) {
+            modrinth {
+                projectId = '7zlUOZvb'
+                accessToken = modrinthKey
+                minecraftVersions.add(project.minecraftVersion)
+                environment = CLIENT_AND_SERVER
             }
         }
-    }
 
-    publications {
-        register('maven', MavenPublication) {
-            groupId = project.group.toString()
-            artifactId = base.archivesName.get()
-            version = project.version.toString()
+        if (discordKey) {
+            discord {
+                webhookUrl = discordKey
+                username = 'Azurelib Update Bot'
+                avatarUrl = 'https://cdn.modrinth.com/data/7zlUOZvb/a722b12250c1f42c63dd269f2e4aeefd7611f8fd.png'
 
-            artifact tasks.jar
-            artifact tasks.devJar
-            artifact tasks.sourcesJar
+                content = changelog.map { text ->
+                    final String mcVersion = project.property('minecraftVersion')
 
-            pom {
-                name = mod_name
-                description = mod_description
-                url = 'https://github.com/AzureDoom/AzureLib'
+                    final String header =
+                            "# A new version of AzureLib has been released for Minecraft ${mcVersion}!\n\n"
 
-                licenses {
-                    license {
-                        name = mod_license
-                        url = 'https://opensource.org/licenses/MIT'
+                    final String suffix =
+                            "\n\n**Full changelog available on CurseForge and Modrinth below.**"
+
+                    if (header.length() + text.length() + suffix.length() <= 2000) {
+                        return header + text + suffix
                     }
+
+                    def result = new StringBuilder(header)
+
+                    for (String line : text.readLines()) {
+                        if (result.length() + line.length() + 1 + suffix.length() > 2000) {
+                            break
+                        }
+
+                        result.append(line).append('\n')
+                    }
+
+                    return result.toString().trim() + suffix
                 }
+
+                style {
+                    look = 'MODERN'
+                    link = 'BUTTON'
+                }
+
+                def platformsToLink = [publishMods.platforms.curseforge]
+                if (modrinthKey) {
+                    platformsToLink << publishMods.platforms.modrinth
+                }
+                setPlatforms(*platformsToLink)
             }
         }
     }
-}
-
-tasks.withType(PublishToMavenRepository) {
-    dependsOn reobf
-}
-
-tasks.withType(PublishToMavenLocal) {
-    dependsOn reobf
+} else {
+    logger.info('key.properties not found; CurseForge/Modrinth/Discord publishing is not configured.')
 }

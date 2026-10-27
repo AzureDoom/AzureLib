@@ -287,12 +287,12 @@ public final class AzCommand {
      * @param entity the target {@link TileEntity} for which the animation commands are dispatched.
      */
     public void sendForBlockEntity(TileEntity entity) {
-        if (entity.getWorld() != null && entity.getWorld().isRemote) {
+        if (entity.getWorldObj() != null && entity.getWorldObj().isRemote) {
             dispatchFromClient(entity);
         } else {
             BlockPos entityBlockPos = BlockPos.of(entity);
             AzBlockEntityDispatchCommandPacket packet = new AzBlockEntityDispatchCommandPacket(entityBlockPos, this);
-            Services.NETWORK.sendToEntitiesTrackingChunk(packet, entity.getWorld(), entityBlockPos);
+            Services.NETWORK.sendToEntitiesTrackingChunk(packet, entity.getWorldObj(), entityBlockPos);
         }
     }
 

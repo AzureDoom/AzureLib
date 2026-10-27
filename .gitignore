@@ -5,6 +5,7 @@ bin
 .metadata
 .classpath
 .project
+.idea.backup
 
 # idea
 out
@@ -29,3 +30,6 @@ selector.ts
 /logs/
 /SECRET.txt
 /mods/
+
+# Release secrets (CurseForge / Modrinth / Discord)
+/key.properties

@@ -2,7 +2,7 @@
   "required": true,
   "package": "mod.azure.azurelib.mixins",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "azurelib.refmap.json",
+  "refmap": "mixins.azurelib.refmap.json",
   "minVersion": "0.8",
   "injectors": {
     "defaultRequire": 1

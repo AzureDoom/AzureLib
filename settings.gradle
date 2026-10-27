@@ -1,1 +1,21 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'GTNH Maven'
+            url = 'https://nexus.gtnewhorizons.com/repository/public/'
+            mavenContent {
+                includeGroup 'com.gtnewhorizons'
+                includeGroupByRegex 'com\\.gtnewhorizons\\..+'
+            }
+        }
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+plugins {
+    id 'com.gtnewhorizons.gtnhsettingsconvention' version '1.0.41'
+}
+
 rootProject.name = 'AzureLib 1.7.10'

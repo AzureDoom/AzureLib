@@ -122,7 +122,7 @@ public final class AzMolangQueryContext implements MolangQueryContext {
             return 0;
 
         ItemStack stack = ARMOR_SLOTS[slot].getStack(livingEntity);
-        return stack == null ? 0 : stack.getCurrentDurability();
+        return stack == null ? 0 : stack.getItemDamage();
     }
 
     @Override
