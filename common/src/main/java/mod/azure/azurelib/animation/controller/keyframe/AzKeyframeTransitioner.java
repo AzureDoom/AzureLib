@@ -1,5 +1,7 @@
 package mod.azure.azurelib.animation.controller.keyframe;
 
+import net.minecraft.util.Mth;
+
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.DoubleSupplier;
@@ -12,7 +14,6 @@ import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.model.AzBone;
-import net.minecraft.util.Mth;
 
 /**
  * AzKeyframeTransitioner is a specialized class for executing smooth animations and transitions between keyframes for

@@ -204,16 +204,16 @@ public class MolangParser extends MathBuilder {
             }
 
             AzureLib.LOGGER.warn(
-                    "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
-                    expression,
-                    e.getMessage()
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
             );
             return parseExpressionLegacy(expression);
         } catch (RuntimeException e) {
             AzureLib.LOGGER.warn(
-                    "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
-                    expression,
-                    e.getMessage()
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
             );
             return parseExpressionLegacy(expression);
         }
@@ -277,12 +277,12 @@ public class MolangParser extends MathBuilder {
      */
     @Deprecated
     protected static MolangValue parseOneLine(
-            String expression,
-            MolangCompoundValue currentStatement
+        String expression,
+        MolangCompoundValue currentStatement
     ) {
         Map<String, LazyVariable> locals = currentStatement != null
-                ? currentStatement.locals
-                : new Object2ObjectOpenHashMap<>();
+            ? currentStatement.locals
+            : new Object2ObjectOpenHashMap<>();
 
         return parseOneLine(expression, locals);
     }
@@ -304,8 +304,8 @@ public class MolangParser extends MathBuilder {
             List<Object> symbols = INSTANCE.breakdownChars(INSTANCE.breakdown(expression));
 
             if (
-                    symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
-                            && symbols.get(1).equals("=")
+                symbols.size() >= 3 && symbols.get(0) instanceof String name && INSTANCE.isVariable(symbols.get(0))
+                    && symbols.get(1).equals("=")
             ) {
                 String key = normalizeName(name);
                 symbols = symbols.subList(2, symbols.size());
@@ -366,16 +366,16 @@ public class MolangParser extends MathBuilder {
         remap("min_angle", "math.min_angle");
 
         String[] easingCurves = {
-                "quad",
-                "cubic",
-                "quart",
-                "quint",
-                "sine",
-                "expo",
-                "circ",
-                "back",
-                "elastic",
-                "bounce" };
+            "quad",
+            "cubic",
+            "quart",
+            "quint",
+            "sine",
+            "expo",
+            "circ",
+            "back",
+            "elastic",
+            "bounce" };
 
         for (String curve : easingCurves) {
             remap("ease_in_" + curve, "math.ease_in_" + curve);

@@ -1,10 +1,10 @@
 package mod.azure.azurelib.core.molang.runtime;
 
-import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.core.molang.expressions.MolangLocalVariable;
-
 import java.util.List;
 import java.util.StringJoiner;
+
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.molang.expressions.MolangLocalVariable;
 
 /**
  * A complete Molang expression with more than one statement, expression-scoped variables or control flow. Statements
