@@ -8,6 +8,14 @@ package mod.azure.azurelib.core.molang;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -21,13 +29,6 @@ import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.*;
 import mod.azure.azurelib.core.molang.functions.query.*;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.DoubleSupplier;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
@@ -484,8 +485,7 @@ public class MolangParser extends MathBuilder {
      * {@code "q.my_query"} and {@code "query.my_query"} register the same function, and animations can call it with
      * either prefix.
      * <p>
-     * Functions that read game state should extend
-     * {@link ContextQueryFunction} or otherwise live outside the
+     * Functions that read game state should extend {@link ContextQueryFunction} or otherwise live outside the
      * {@code mod.azure.azurelib.core.molang.functions} package, so they are not folded to a constant at load time.
      * Register during mod initialization, before resources load.
      * </p>

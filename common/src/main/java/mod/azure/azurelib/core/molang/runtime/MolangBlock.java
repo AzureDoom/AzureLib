@@ -1,9 +1,9 @@
 package mod.azure.azurelib.core.molang.runtime;
 
-import mod.azure.azurelib.core.math.IValue;
-
 import java.util.List;
 import java.util.StringJoiner;
+
+import mod.azure.azurelib.core.math.IValue;
 
 /**
  * A brace-delimited list of statements, {@code { v.a = 1; v.b = 2; }}, as used in conditionals and loops. A block is a

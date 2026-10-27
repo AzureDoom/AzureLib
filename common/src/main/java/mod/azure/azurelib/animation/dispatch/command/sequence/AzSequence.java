@@ -82,22 +82,22 @@ public final class AzSequence {
      * Built-in behaviors that never finish on their own; anything queued after them could never play.
      */
     private static final Set<AzPlayBehavior> NON_FINISHING_BEHAVIORS = Set.of(
-            AzPlayBehaviors.LOOP,
-            AzPlayBehaviors.PING_PONG,
-            AzPlayBehaviors.HOLD_ON_LAST_FRAME,
-            AzPlayBehaviors.FREEZE_ON_FRAME
+        AzPlayBehaviors.LOOP,
+        AzPlayBehaviors.PING_PONG,
+        AzPlayBehaviors.HOLD_ON_LAST_FRAME,
+        AzPlayBehaviors.FREEZE_ON_FRAME
     );
 
     private static final Comparator<AzSequenceEvent> EVENT_ORDER = Comparator
-            .comparing(AzSequenceEvent::isAnchored)
-            .thenComparingInt(AzSequenceEvent::tick)
-            .thenComparingInt(AzSequenceEvent::stage)
-            .thenComparingInt(event -> switch (event.anchor()) {
-                case SEQUENCE, STAGE_START -> 0;
-                case KEYFRAME -> 1;
-                case STAGE_END -> 2;
-            })
-            .thenComparingDouble(AzSequenceEvent::stageTick);
+        .comparing(AzSequenceEvent::isAnchored)
+        .thenComparingInt(AzSequenceEvent::tick)
+        .thenComparingInt(AzSequenceEvent::stage)
+        .thenComparingInt(event -> switch (event.anchor()) {
+            case SEQUENCE, STAGE_START -> 0;
+            case KEYFRAME -> 1;
+            case STAGE_END -> 2;
+        })
+        .thenComparingDouble(AzSequenceEvent::stageTick);
 
     private final List<AzAnimationStage> stages;
 
@@ -143,9 +143,9 @@ public final class AzSequence {
      * properties. The customizer runs after the behavior is applied, so it may override it.
      */
     public AzSequence then(
-            String animationName,
-            AzPlayBehavior playBehavior,
-            UnaryOperator<AzAnimationStageProperties> customizer
+        String animationName,
+        AzPlayBehavior playBehavior,
+        UnaryOperator<AzAnimationStageProperties> customizer
     ) {
         return toBuilder().then(animationName, playBehavior, customizer).build();
     }
@@ -362,9 +362,9 @@ public final class AzSequence {
          * runs after the behavior is applied, so it may override it.
          */
         public Builder then(
-                String animationName,
-                @NotNull AzPlayBehavior playBehavior,
-                @NotNull UnaryOperator<AzAnimationStageProperties> customizer
+            String animationName,
+            @NotNull AzPlayBehavior playBehavior,
+            @NotNull UnaryOperator<AzAnimationStageProperties> customizer
         ) {
             requireName(animationName, "Animation name");
             Objects.requireNonNull(playBehavior, "playBehavior");
@@ -454,14 +454,14 @@ public final class AzSequence {
         public Builder freeze(String animationName, double freezeTick) {
             if (!(freezeTick > 0)) {
                 throw new IllegalArgumentException(
-                        "Freeze tick of '" + animationName + "' must be > 0, was " + freezeTick
+                    "Freeze tick of '" + animationName + "' must be > 0, was " + freezeTick
                 );
             }
 
             return then(
-                    animationName,
-                    AzPlayBehaviors.FREEZE_ON_FRAME,
-                    properties -> properties.withFreezeTickOffset(freezeTick)
+                animationName,
+                AzPlayBehaviors.FREEZE_ON_FRAME,
+                properties -> properties.withFreezeTickOffset(freezeTick)
             );
         }
 
@@ -484,7 +484,7 @@ public final class AzSequence {
             }
 
             events.add(
-                    new AzSequenceEvent(name, 0, lastStageIndex(name), animationTick, AzSequenceEvent.Anchor.KEYFRAME)
+                new AzSequenceEvent(name, 0, lastStageIndex(name), animationTick, AzSequenceEvent.Anchor.KEYFRAME)
             );
             return this;
         }
@@ -542,7 +542,7 @@ public final class AzSequence {
         private int lastStageIndex(String eventName) {
             if (stages.isEmpty()) {
                 throw new IllegalStateException(
-                        "Event '" + eventName + "' is anchored to a stage, so add a stage before it"
+                    "Event '" + eventName + "' is anchored to a stage, so add a stage before it"
                 );
             }
 
@@ -559,8 +559,8 @@ public final class AzSequence {
 
             if (NON_FINISHING_BEHAVIORS.contains(lastBehavior)) {
                 throw new IllegalStateException(
-                        "Cannot add '" + nextAnimationName + "' after '" + last.name() + "': its play behavior '"
-                                + lastBehavior.name() + "' never finishes, so the stage would never play."
+                    "Cannot add '" + nextAnimationName + "' after '" + last.name() + "': its play behavior '"
+                        + lastBehavior.name() + "' never finishes, so the stage would never play."
                 );
             }
         }

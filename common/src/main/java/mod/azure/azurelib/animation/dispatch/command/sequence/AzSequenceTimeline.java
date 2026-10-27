@@ -42,10 +42,10 @@ public final class AzSequenceTimeline {
     private final double duration;
 
     private AzSequenceTimeline(
-            List<Stage> stages,
-            List<ScheduledEvent> events,
-            List<SkippedEvent> skipped,
-            double duration
+        List<Stage> stages,
+        List<ScheduledEvent> events,
+        List<SkippedEvent> skipped,
+        double duration
     ) {
         this.stages = List.copyOf(stages);
         this.events = List.copyOf(events);
@@ -67,13 +67,13 @@ public final class AzSequenceTimeline {
      * @param finishes      whether the sequence moves on to the next stage after {@code endTick}
      */
     public record Stage(
-            int index,
-            String animationName,
-            AzPlayBehavior playBehavior,
-            double arrivalTick,
-            double startTick,
-            double endTick,
-            boolean finishes
+        int index,
+        String animationName,
+        AzPlayBehavior playBehavior,
+        double arrivalTick,
+        double startTick,
+        double endTick,
+        boolean finishes
     ) {}
 
     /**
@@ -81,16 +81,16 @@ public final class AzSequenceTimeline {
      * first whole tick at or after them.
      */
     public record ScheduledEvent(
-            AzSequenceEvent event,
-            double tick
+        AzSequenceEvent event,
+        double tick
     ) {}
 
     /**
      * An event that will not fire, and why.
      */
     public record SkippedEvent(
-            AzSequenceEvent event,
-            String reason
+        AzSequenceEvent event,
+        String reason
     ) {}
 
     /**
@@ -111,15 +111,15 @@ public final class AzSequenceTimeline {
             if (!reachable) {
                 info.unreachable = true;
                 stages.add(
-                        new Stage(
-                                i,
-                                info.name,
-                                info.behavior,
-                                Double.POSITIVE_INFINITY,
-                                Double.POSITIVE_INFINITY,
-                                Double.POSITIVE_INFINITY,
-                                false
-                        )
+                    new Stage(
+                        i,
+                        info.name,
+                        info.behavior,
+                        Double.POSITIVE_INFINITY,
+                        Double.POSITIVE_INFINITY,
+                        Double.POSITIVE_INFINITY,
+                        false
+                    )
                 );
                 continue;
             }
@@ -148,8 +148,8 @@ public final class AzSequenceTimeline {
         scheduled.sort(BY_TICK);
 
         var duration = stages.isEmpty()
-                ? 0
-                : stages.get(stages.size() - 1).finishes()
+            ? 0
+            : stages.get(stages.size() - 1).finishes()
                 ? stages.get(stages.size() - 1).endTick()
                 : Double.POSITIVE_INFINITY;
 
@@ -157,10 +157,10 @@ public final class AzSequenceTimeline {
     }
 
     private static void resolve(
-            AzSequenceEvent event,
-            StageTiming[] stageInfo,
-            List<ScheduledEvent> scheduled,
-            List<SkippedEvent> skipped
+        AzSequenceEvent event,
+        StageTiming[] stageInfo,
+        List<ScheduledEvent> scheduled,
+        List<SkippedEvent> skipped
     ) {
         if (!event.isAnchored()) {
             scheduled.add(new ScheduledEvent(event, event.tick()));
@@ -176,7 +176,7 @@ public final class AzSequenceTimeline {
 
         if (info.unreachable) {
             skipped.add(
-                    new SkippedEvent(event, "stage '" + info.name + "' comes after a stage that never finishes")
+                new SkippedEvent(event, "stage '" + info.name + "' comes after a stage that never finishes")
             );
             return;
         }
@@ -272,11 +272,11 @@ public final class AzSequenceTimeline {
             info.behavior = properties.playBehavior();
             info.speed = properties.hasAnimationSpeed() ? properties.animationSpeed() : timing.animationSpeed();
             info.transitionLength = properties.hasTransitionLength()
-                    ? properties.transitionLength()
-                    : timing.transitionLength();
+                ? properties.transitionLength()
+                : timing.transitionLength();
             info.startTickOffset = Math.max(
-                    0,
-                    properties.hasStartTickOffset() ? properties.startTickOffset() : timing.startTickOffset()
+                0,
+                properties.hasStartTickOffset() ? properties.startTickOffset() : timing.startTickOffset()
             );
             info.reversed = properties.hasReversing() ? properties.isReversing() : timing.isReversing();
             info.length = timing.length(stage.name());
@@ -288,9 +288,9 @@ public final class AzSequenceTimeline {
             info.freezeTick = info.behavior == AzPlayBehaviors.FREEZE_ON_FRAME && freeze > 0 ? freeze : 0;
 
             info.finishes = info.behavior != AzPlayBehaviors.LOOP
-                    && info.behavior != AzPlayBehaviors.PING_PONG
-                    && info.behavior != AzPlayBehaviors.HOLD_ON_LAST_FRAME
-                    && info.behavior != AzPlayBehaviors.FREEZE_ON_FRAME;
+                && info.behavior != AzPlayBehaviors.PING_PONG
+                && info.behavior != AzPlayBehaviors.HOLD_ON_LAST_FRAME
+                && info.behavior != AzPlayBehaviors.FREEZE_ON_FRAME;
 
             return info;
         }
@@ -361,7 +361,7 @@ public final class AzSequenceTimeline {
 
         String missingLengthReason(AzSequenceEvent event) {
             return "the length of '" + name + "' or of an earlier stage's animation is unknown; add it to the "
-                    + "AzSequenceTiming (event " + event + ")";
+                + "AzSequenceTiming (event " + event + ")";
         }
     }
 }

@@ -66,8 +66,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     /**
      * How many times the current animation has finished and been replayed by
-     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#REPEAT_X_TIMES}. Kept per controller
-     * because play behaviors are shared singletons.
+     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#REPEAT_X_TIMES}. Kept per controller because
+     * play behaviors are shared singletons.
      */
     private int repeatCount;
 
@@ -89,10 +89,10 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     private final AzWeightFade weightFade = new AzWeightFade();
 
     AzAnimationController(
-            String name,
-            AzAnimator<?, T> animator,
-            AzAnimationProperties animationProperties,
-            AzKeyframeCallbacks<T> keyframeCallbacks
+        String name,
+        AzAnimator<?, T> animator,
+        AzAnimationProperties animationProperties,
+        AzKeyframeCallbacks<T> keyframeCallbacks
     ) {
         super(name);
 
@@ -104,17 +104,17 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         this.boneAnimationQueueCache = new AzBoneAnimationQueueCache<>(animator.context().boneCache());
         this.boneSnapshotCache = new AzBoneSnapshotCache();
         this.keyframeManager = new AzKeyframeManager<>(
-                this,
-                boneAnimationQueueCache,
-                boneSnapshotCache,
-                keyframeCallbacks
+            this,
+            boneAnimationQueueCache,
+            boneSnapshotCache,
+            keyframeCallbacks
         );
 
         var stateHolder = new AzAnimationControllerStateMachine.StateHolder<T>(
-                new AzAnimationPlayState<>(),
-                new AzAnimationPauseState<>(),
-                new AzAnimationStopState<>(),
-                new AzAnimationTransitionState<>()
+            new AzAnimationPlayState<>(),
+            new AzAnimationPauseState<>(),
+            new AzAnimationStopState<>(),
+            new AzAnimationTransitionState<>()
         );
 
         this.stateMachine = new AzAnimationControllerStateMachine<>(stateHolder, this, animator.context());
@@ -162,9 +162,9 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
             if (animation == null) {
                 LOGGER.warn(
-                        "Unable to find animation: {} for {}",
-                        stage.name(),
-                        animatable.getClass().getSimpleName()
+                    "Unable to find animation: {} for {}",
+                    stage.name(),
+                    animatable.getClass().getSimpleName()
                 );
                 return List.of();
             } else {
@@ -275,8 +275,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     /**
      * The settings the current animation actually plays with: the controller's {@link #animationProperties()}, with any
      * values the current sequence stage set for itself layered on top (see
-     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence.Builder#then}). Stage values only
-     * apply while that stage plays, so a stage that freezes, slows down or uses a longer transition does not leave the
+     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence.Builder#then}). Stage values only apply
+     * while that stage plays, so a stage that freezes, slows down or uses a longer transition does not leave the
      * controller frozen, slowed or blending slowly for whatever plays next.
      *
      * @return the effective playback properties of the current stage
@@ -386,9 +386,9 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     /**
      * Describes this controller's current playback settings for an
-     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequencePlayer}, so a player ticked on the
-     * client can line its events up with what this controller will actually play: its speed, transition length and
-     * other settings, plus the real length of every animation, read from the animation file.
+     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequencePlayer}, so a player ticked on the client
+     * can line its events up with what this controller will actually play: its speed, transition length and other
+     * settings, plus the real length of every animation, read from the animation file.
      * <p>
      * Server-side players can't use this (animation files only exist on the client); build an {@link AzSequenceTiming}
      * with the lengths instead.
@@ -401,21 +401,21 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         var animatable = context == null ? null : context.animatable();
 
         return AzSequenceTiming.builder()
-                .animationSpeed(properties.animationSpeed())
-                .transitionLength(properties.transitionLength())
-                .startTickOffset(properties.startTickOffset())
-                .freezeTickOffset(properties.freezeTickOffset())
-                .repeatXTimes(properties.repeatXTimes())
-                .reversing(properties.isReversing())
-                .lengthResolver(name -> {
-                    if (animatable == null) {
-                        return Double.NaN;
-                    }
+            .animationSpeed(properties.animationSpeed())
+            .transitionLength(properties.transitionLength())
+            .startTickOffset(properties.startTickOffset())
+            .freezeTickOffset(properties.freezeTickOffset())
+            .repeatXTimes(properties.repeatXTimes())
+            .reversing(properties.isReversing())
+            .lengthResolver(name -> {
+                if (animatable == null) {
+                    return Double.NaN;
+                }
 
-                    var animation = animator.getAnimation(animatable, name);
-                    return animation == null ? Double.NaN : animation.length();
-                })
-                .build();
+                var animation = animator.getAnimation(animatable, name);
+                return animation == null ? Double.NaN : animation.length();
+            })
+            .build();
     }
 
     public @Nullable AzQueuedAnimation currentAnimation() {
@@ -483,8 +483,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public boolean isPlayingReversed() {
         var base = currentAnimation != null && currentAnimation.reverseOverride() != null
-                ? currentAnimation.reverseOverride()
-                : animationProperties.isReversing();
+            ? currentAnimation.reverseOverride()
+            : animationProperties.isReversing();
 
         return base ^ directionFlipped;
     }
@@ -512,8 +512,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     /**
      * Flips the direction of the current animation for its next leg. The caller is expected to restart progress (as
-     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#PING_PONG} does at a leg boundary), so
-     * the sampled pose stays continuous: the end of one leg is the start of the next.
+     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#PING_PONG} does at a leg boundary), so the
+     * sampled pose stays continuous: the end of one leg is the start of the next.
      */
     public void flipDirection() {
         this.directionFlipped = !directionFlipped;
@@ -583,9 +583,9 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
         if (behavior == null || behavior == AzPlayBehaviors.AS_AUTHORED) {
             LOGGER.warn(
-                    "Animation '{}' asks for unknown play behavior '{}', playing it once instead",
-                    animation.name(),
-                    authored
+                "Animation '{}' asks for unknown play behavior '{}', playing it once instead",
+                animation.name(),
+                authored
             );
             return AzPlayBehaviors.PLAY_ONCE;
         }
