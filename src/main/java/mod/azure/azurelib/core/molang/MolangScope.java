@@ -50,7 +50,7 @@ public final class MolangScope {
      * @return the scope that was bound before, so callers can restore it
      */
     public static MolangScope setCurrent(MolangScope scope) {
-        var previous = current;
+        MolangScope previous = current;
         current = scope == null ? GLOBAL : scope;
         return previous;
     }
@@ -60,7 +60,7 @@ public final class MolangScope {
      * scope stores the same name at the same index. Called at parse time, possibly from several threads.
      */
     static int slot(String normalizedName) {
-        var existing = SLOTS.get(normalizedName);
+        Integer existing = SLOTS.get(normalizedName);
 
         if (existing != null) {
             return existing;
@@ -73,7 +73,7 @@ public final class MolangScope {
                 return existing;
             }
 
-            var slot = SLOT_NAMES.size();
+            int slot = SLOT_NAMES.size();
             SLOT_NAMES.add(normalizedName);
             SLOTS.put(normalizedName, slot);
             return slot;
@@ -84,7 +84,7 @@ public final class MolangScope {
      * Turns {@code "v.foo"}, {@code "variable.foo"} or {@code "foo"} into {@code "variable.foo"}.
      */
     static String variableName(String name) {
-        var normalized = MolangParser.normalizeName(name.toLowerCase(Locale.ROOT));
+        String normalized = MolangParser.normalizeName(name.toLowerCase(Locale.ROOT));
         return normalized.startsWith(MolangParser.VARIABLE_PREFIX)
             ? normalized
             : MolangParser.VARIABLE_PREFIX + normalized;
@@ -100,7 +100,7 @@ public final class MolangScope {
 
     public void set(int slot, double value) {
         if (slot >= values.length) {
-            var size = Math.max(slot + 1, values.length * 2);
+            int size = Math.max(slot + 1, values.length * 2);
             values = Arrays.copyOf(values, size);
             assigned = Arrays.copyOf(assigned, size);
         }
@@ -121,7 +121,7 @@ public final class MolangScope {
      * @return the value this scope holds for the variable, or 0 if it has none
      */
     public double get(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
         return slot == null ? 0 : get(slot);
     }
 
@@ -137,7 +137,7 @@ public final class MolangScope {
      * @return whether this scope holds a value for the variable
      */
     public boolean isSet(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
         return slot != null && isSet(slot);
     }
 
@@ -145,7 +145,7 @@ public final class MolangScope {
      * Forgets the variable, so reads fall back to the global value (or 0) and {@code ??} treats it as unset.
      */
     public void remove(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
 
         if (slot != null) {
             remove(slot);
@@ -164,7 +164,7 @@ public final class MolangScope {
      * @return every variable this scope holds, by full name, for debugging
      */
     public Map<String, Double> snapshot() {
-        var snapshot = new LinkedHashMap<String, Double>();
+        LinkedHashMap<String, Double> snapshot = new LinkedHashMap<>();
 
         synchronized (SLOT_NAMES) {
             for (int slot = 0; slot < assigned.length && slot < SLOT_NAMES.size(); slot++) {
