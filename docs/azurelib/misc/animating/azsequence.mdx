@@ -29,15 +29,36 @@ private static final AzSequence EXECUTION = AzSequence.builder()
     .build();
 ```
 
-| Method                 | Behavior                                                                                                          |
-|------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `play(name)`           | Plays once, then continues to the next stage (or stops if it is the last).                                        |
-| `loop(name)`           | Loops until something else is played.                                                                             |
-| `hold(name)`           | Plays once and freezes on the final frame.                                                                        |
-| `then(name, behavior)` | Any `AzPlayBehavior`. An overload takes a `UnaryOperator<AzAnimationStageProperties>` for extra stage properties. |
-| `event(name, tick)`    | A named event `tick` game ticks after the sequence starts.                                                        |
+| Method                    | Behavior                                                                                                          |
+|---------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `play(name)`              | Plays once, then continues to the next stage (or stops if it is the last).                                        |
+| `loop(name)`              | Loops until something else is played.                                                                             |
+| `hold(name)`              | Plays once and freezes on the final frame.                                                                        |
+| `pingPong(name)`          | Plays forward, then backward, forever.                                                                            |
+| `playReversed(name)`      | Plays once from the last frame to the first, then continues.                                                      |
+| `freeze(name, tick)`      | Plays until `tick`, then holds that frame.                                                                        |
+| `authored(name)`          | Plays however the animation file's Loop Mode says.                                                                |
+| `then(name, behavior)`    | Any `AzPlayBehavior`. An overload takes a `UnaryOperator<AzAnimationStageProperties>` for extra stage properties. |
+| `event(name, tick)`       | A named event `tick` game ticks after the sequence starts.                                                        |
+| `eventAt(name, keyTick)`  | A named event when the stage it follows reaches `keyTick` on its own timeline.                                    |
+| `eventOnStart(name)`      | A named event when the stage it follows starts playing.                                                           |
+| `eventOnEnd(name)`        | A named event when the stage it follows finishes.                                                                 |
 
-`loop`, `hold` and `FREEZE_ON_FRAME` stages never finish, so adding a stage after one throws an `IllegalStateException` instead of silently creating a stage that can never play.
+`loop`, `hold`, `pingPong`, `freeze` and `FREEZE_ON_FRAME` stages never finish, so adding a stage after one throws an `IllegalStateException` instead of silently creating a stage that can never play.
+
+## Stage settings
+
+The `then(name, behavior, props -> ...)` overload lets a stage set its own speed, transition length, easing, start offset, freeze point, repeat count and direction:
+
+```java
+private static final AzSequence LUNGE = AzSequence.builder()
+    .play("crouch")
+    .then("lunge", AzPlayBehaviors.PLAY_ONCE, props -> props.withAnimationSpeed(1.5).withTransitionLength(2))
+    .then("land", AzPlayBehaviors.REPEAT_X_TIMES, props -> props.withRepeatXTimes(2))
+    .build();
+```
+
+These only apply while that stage plays; everything else, and every later stage, uses the controller's settings. Unlike the controller-wide setters on `AzCommand` builders, nothing needs to be reset afterwards.
 
 ## Playing a sequence
 
@@ -51,16 +72,22 @@ AzCommand.create("base", EXECUTION).sendForEntity(this);
 
 ## Timed events
 
+There are two kinds of events:
+
+- `event(name, tick)` fires a fixed number of game ticks after the sequence starts. Its position in the chain is only for readability, and it doesn't follow speed or transitions.
+- `eventAt(name, keyTick)`, `eventOnStart(name)` and `eventOnEnd(name)` are **anchored** to the stage they follow. They fire when that stage's animation reaches a keyframe tick (the tick shown in Blockbench), starts playing, or finishes, so they stay lined up with the animation when its speed, transition length, start offset or repeat count changes.
+
 ```java
 private static final AzSequence SLAM = AzSequence.builder()
     .play("windup")
-    .event("damage", 12)
     .play("strike")
+    .eventAt("damage", 6)       // when "strike" reaches tick 6
     .hold("recovery")
+    .eventOnStart("recovering") // when "recovery" starts, after the blend into it
     .build();
 ```
 
-Event ticks are counted from the start of the sequence, not from the stage they follow; their position in the chain is only for readability. Events are not sent to the client. They are delivered by an `AzSequencePlayer`, which counts ticks on whichever side ticks it, so they can drive server-side logic such as damage:
+Events are not sent to the client. They are delivered by an `AzSequencePlayer`, which counts ticks on whichever side ticks it, so they can drive server-side logic such as damage:
 
 ```java
 private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", (sequence, event) -> {
@@ -84,6 +111,25 @@ public void tick() {
 
 `play` cancels the controller first, so replaying a sequence that is still running restarts it on the client too and keeps the events in step. If another animation interrupts the sequence (a hurt or death animation, for example), call `attackPlayer.cancel()` so pending events do not fire.
 
+### Timing anchored events
+
+To place anchored events, the player needs to know what the client will play: the controller's settings and how long each animation is. Animation files only exist on the client, so give the player an `AzSequenceTiming`:
+
+```java
+private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", this::onAttackEvent)
+    .withTiming(AzSequenceTiming.builder()
+        .transitionLength(4)       // match how the "base" controller was built
+        .length("windup", 20)      // lengths in ticks at speed 1
+        .length("strike", 12)
+        .build());
+```
+
+- An anchored event needs the lengths of every stage before it, plus its own stage's length for `eventOnEnd` or a reversed stage. If a length is missing, the event is skipped with a warning rather than fired early.
+- Settings a stage sets for itself are read from the sequence; the timing only needs the controller's.
+- On the client, `controller.sequenceTiming()` builds a timing from a live controller and reads lengths from the animation file.
+- Stages played with `authored(...)` are timed as play-once stages. Anchored events on looping, ping-pong and repeating stages fire on their first pass only.
+- `SLAM.timeline(timing)` returns when each stage starts and ends and when each event fires, which is handy for debugging.
+
 <Callout variant="info">
-Event ticks are not scaled by the controller's animation speed, and on the client each stage is preceded by the controller's transition length. Account for both when lining an event up with a specific keyframe.
+Events added with `event(name, tick)` are not scaled by animation speed and don't account for transitions. Use the anchored events above to line an event up with a specific keyframe.
 </Callout>
