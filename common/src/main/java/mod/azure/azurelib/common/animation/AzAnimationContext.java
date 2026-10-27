@@ -1,6 +1,7 @@
 package mod.azure.azurelib.common.animation;
 
 import mod.azure.azurelib.common.animation.cache.AzBoneCache;
+import mod.azure.azurelib.core.molang.MolangScope;
 
 /**
  * The {@code AzAnimationContext} class provides a context for managing animation-related state and behaviors for
@@ -16,6 +17,8 @@ public class AzAnimationContext<T> {
     private final AzAnimatorConfig config;
 
     private final AzAnimationTimer timer;
+
+    private final MolangScope molangScope = new MolangScope();
 
     // Package-private for mutability purposes.
     T animatable;
@@ -67,5 +70,16 @@ public class AzAnimationContext<T> {
      */
     public AzAnimationTimer timer() {
         return timer;
+    }
+
+    /**
+     * This animatable's Molang {@code variable.*} values. Animations read and write them while this animatable is
+     * animated; code can set them too, e.g. {@code context.molangScope().set("v.charge", charge)}, to drive an
+     * animation per animatable without registering a global variable.
+     *
+     * @return the Molang variable scope of this animatable
+     */
+    public MolangScope molangScope() {
+        return molangScope;
     }
 }

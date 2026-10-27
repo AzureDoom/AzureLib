@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleSupplier;
 
@@ -21,6 +22,8 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.math.MathBuilder;
 import mod.azure.azurelib.core.math.Variable;
 import mod.azure.azurelib.core.math.functions.Function;
+import mod.azure.azurelib.core.molang.compile.MolangCompiler;
+import mod.azure.azurelib.core.molang.compile.MolangSyntaxException;
 import mod.azure.azurelib.core.molang.expressions.MolangCompoundValue;
 import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
@@ -35,7 +38,25 @@ import mod.azure.azurelib.core.molang.functions.query.*;
 @SuppressWarnings("unused")
 public class MolangParser extends MathBuilder {
 
-    public static final Map<String, LazyVariable> VARIABLES = new Object2ObjectOpenHashMap<>();
+    /**
+     * Global variables by normalized name. Concurrent because animation files are parsed in parallel, and parsing looks
+     * variables up (and creates missing ones).
+     */
+    public static final Map<String, LazyVariable> VARIABLES = new ConcurrentHashMap<>();
+
+    /** Full-name prefix of per-animatable variables; {@code v.} is expanded to it. */
+    public static final String VARIABLE_PREFIX = "variable.";
+
+    /**
+     * Names that code registers or drives ({@link #register}, {@link #alias}, {@link #setValue},
+     * {@link #setMemoizedValue}), as opposed to names that were only created by being looked up. A {@code variable.*}
+     * name in here is read from the global variable; any other {@code variable.*} lives in the animatable's
+     * {@link MolangScope}.
+     */
+    private static final Set<String> DRIVEN = ConcurrentHashMap.newKeySet();
+
+    /** Bumped whenever a name is added to {@link #DRIVEN}, so scoped variables re-check their global fallback. */
+    private static volatile int drivenGeneration;
 
     /**
      * Fallback returned for expressions that fail to parse. The failure is logged once at parse time; evaluating this
@@ -160,9 +181,55 @@ public class MolangParser extends MathBuilder {
     }
 
     /**
-     * Parse a molang expression
+     * Parse a Molang expression: one or more statements, with assignments, variables, conditionals, blocks and loops
+     * (see {@link MolangCompiler} for the full grammar). An expression that fails to compile is retried with the older,
+     * more limited parser, so nothing that loaded before stops loading; a warning names the problem.
      */
     public static MolangValue parseExpression(String expression) {
+        String source = expression.toLowerCase(Locale.ROOT).trim();
+
+        if (source.isEmpty()) {
+            AzureLib.LOGGER.error("Molang expression cannot be empty! Defaulted to 0");
+            return ZERO;
+        }
+
+        IValue root;
+
+        try {
+            root = MolangCompiler.compile(INSTANCE, source);
+        } catch (MolangSyntaxException e) {
+            if (!e.isRetryable()) {
+                AzureLib.LOGGER.error("Invalid Molang expression '{}': {}. Defaulted to 0", expression, e.getMessage());
+                return ZERO;
+            }
+
+            AzureLib.LOGGER.warn(
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
+            );
+            return parseExpressionLegacy(expression);
+        } catch (RuntimeException e) {
+            AzureLib.LOGGER.warn(
+                "Couldn't compile Molang expression '{}': {}. Falling back to the legacy parser.",
+                expression,
+                e.getMessage()
+            );
+            return parseExpressionLegacy(expression);
+        }
+
+        MolangCompoundValue result = new MolangCompoundValue(new MolangValue(root));
+        result.compact();
+
+        return result;
+    }
+
+    /**
+     * The parser used before {@link MolangCompiler}: statements split on {@code ;}, an assignment only at the start of
+     * a statement, no blocks or loops, and {@code variable.*} values shared by every animatable. Only used as a
+     * fallback for expressions the compiler rejects.
+     */
+    public static MolangValue parseExpressionLegacy(String expression) {
         Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
         Map<String, LazyVariable> outerLocals = PARSE_LOCALS.get();
         MolangCompoundValue result = null;
@@ -433,7 +500,9 @@ public class MolangParser extends MathBuilder {
      * re-registering {@code target} later does not update the alias.
      */
     public void alias(String alias, String target) {
-        VARIABLES.put(normalizeName(alias), getVariable(target));
+        String name = normalizeName(alias);
+        VARIABLES.put(name, getVariable(target));
+        markDriven(name);
         registrationGeneration++;
     }
 
@@ -454,7 +523,9 @@ public class MolangParser extends MathBuilder {
         if (!(variable instanceof LazyVariable))
             variable = LazyVariable.from(variable);
 
-        VARIABLES.put(normalizeName(variable.getName()), (LazyVariable) variable);
+        String name = normalizeName(variable.getName());
+        VARIABLES.put(name, (LazyVariable) variable);
+        markDriven(name);
         registrationGeneration++;
     }
 
@@ -479,8 +550,10 @@ public class MolangParser extends MathBuilder {
     public void setValue(String name, DoubleSupplier value) {
         LazyVariable variable = getVariable(name);
 
-        if (variable != null)
+        if (variable != null) {
             variable.set(value);
+            markDriven(variable.getName());
+        }
     }
 
     /**
@@ -489,7 +562,44 @@ public class MolangParser extends MathBuilder {
      * This should be used wherever per-call accuracy is not needed.
      */
     public void setMemoizedValue(String name, DoubleSupplier value) {
-        getVariable(name).setMemoized(value);
+        LazyVariable variable = getVariable(name);
+        variable.setMemoized(value);
+        markDriven(variable.getName());
+    }
+
+    /**
+     * Whether code registers or drives this variable globally, rather than it only existing because something looked it
+     * up. See {@link MolangScope} for how that decides where {@code variable.*} values live.
+     */
+    public boolean isDriven(String name) {
+        return DRIVEN.contains(normalizeName(name));
+    }
+
+    /**
+     * @return the global variable code drives under this (normalized) name, or {@code null}
+     */
+    public static LazyVariable drivenVariableOrNull(String normalizedName) {
+        return DRIVEN.contains(normalizedName) ? VARIABLES.get(normalizedName) : null;
+    }
+
+    /**
+     * Changes whenever a variable becomes driven; see {@link #drivenVariableOrNull}.
+     */
+    public static int drivenGeneration() {
+        return drivenGeneration;
+    }
+
+    /**
+     * The {@link MolangScope} slot for a normalized {@code variable.*} name.
+     */
+    public static int scopeSlot(String normalizedName) {
+        return MolangScope.slot(normalizedName);
+    }
+
+    private static void markDriven(String normalizedName) {
+        if (DRIVEN.add(normalizedName)) {
+            drivenGeneration++;
+        }
     }
 
     /**
@@ -525,7 +635,7 @@ public class MolangParser extends MathBuilder {
      * Expands Molang's short prefixes so both spellings of a name reach the same variable: {@code q.} = {@code query.},
      * {@code v.} = {@code variable.}, {@code t.} = {@code temp.}, {@code c.} = {@code context.}.
      */
-    static String normalizeName(String name) {
+    public static String normalizeName(String name) {
         if (name.length() > 2 && name.charAt(1) == '.') {
             switch (name.charAt(0)) {
                 case 'q':
