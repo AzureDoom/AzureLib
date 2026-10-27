@@ -1,6 +1,5 @@
 package mod.azure.azurelib.common.animation.dispatch.command.sequence;
 
-import mod.azure.azurelib.AzureLib;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.animation.dispatch.command.AzCommand;
 
 /**
