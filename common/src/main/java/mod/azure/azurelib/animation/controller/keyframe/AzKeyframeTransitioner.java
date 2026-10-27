@@ -12,6 +12,7 @@ import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.model.AzBone;
+import net.minecraft.util.Mth;
 
 /**
  * AzKeyframeTransitioner is a specialized class for executing smooth animations and transitions between keyframes for
@@ -50,17 +51,21 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
 
     public void transition(Map<String, AzBone> bones, boolean crashWhenCantFindBone, double adjustedTick) {
         var currentAnimation = animationController.currentAnimation();
-        var transitionLength = animationController.animationProperties().transitionLength();
+        var properties = animationController.effectiveProperties();
+        var transitionLength = properties.transitionLength();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
         var animation = currentAnimation.animation();
+        var length = animation.length();
+        // Blend towards the pose playback will actually start on: the start offset, from whichever end it plays from.
+        var startProgress = Mth.clamp(properties.startTickOffset(), 0D, length);
 
-        currentAdjustedTick = animationController.isPlayingReversed() ? animation.length() : 0D;
+        currentAdjustedTick = animationController.isPlayingReversed() ? length - startProgress : startProgress;
         ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
         var boneAnimations = animation.boneAnimations();
         this.cursors = prepareKeyframeCursors(animation);
-        this.easingOverride = animationController.animationProperties().easingType();
+        this.easingOverride = properties.easingType();
         var queues = boneAnimationQueueCache.resolveQueues(animation);
 
         for (var boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {
