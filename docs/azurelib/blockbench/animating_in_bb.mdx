@@ -46,6 +46,24 @@ Easing curves help make animations look more realistic and visually appealing.
 
 Molang empowers you to input mathematical expressions as keyframe values, extending beyond mere numerical inputs. You can employ mathematical functions such as `math.sin`, `math.cos`, and `math.abs`. Detailed information on these math functions can be found on the [Bedrock Wiki](https://bedrock.dev/docs/1.19.0.0/1.19.30.23/Molang#Math%20Functions).
 
+### Variables and Multi-Statement Expressions
+
+A keyframe value can do more than a single calculation. You can store values in variables, write several statements separated by `;`, and use conditionals, blocks and loops:
+
+```
+t.wave = math.sin(q.anim_time * 360);
+q.is_on_ground ? { v.air_time = 0; } : { v.air_time = (v.air_time ?? 0) + 1; };
+return t.wave * 10 + math.min(v.air_time, 20);
+```
+
+- `temp.` / `t.` variables are scratch values. They start at 0 every time the keyframe is evaluated.
+- `variable.` / `v.` variables belong to the entity, block or item being animated. Each one keeps its own values between frames, and a value set in one keyframe can be read in any other keyframe of the same animatable.
+- `v.name ?? 1` uses `v.name` if it has been set, otherwise 1. This is handy for giving a variable a starting value.
+- `return` ends the expression with a value. Without one, the last statement's value is used.
+- Queries, `context.` names and `math.` constants are read-only.
+
+See [Expression Syntax](../molang/molang#expression-syntax) for the full list of operators and statements, and [Driving `variable.*` from Code](../molang/molang#driving-variable-from-code) for setting variables from your mod.
+
 ### Supported Queries
 
 Every query can be written with the full `query.` prefix or the short `q.` prefix, so `query.is_on_ground` and `q.is_on_ground` are the same query. Queries that don't apply to what's being animated (for example `query.health` on an item) return `0`. Values that are true or false return `1` or `0`.
