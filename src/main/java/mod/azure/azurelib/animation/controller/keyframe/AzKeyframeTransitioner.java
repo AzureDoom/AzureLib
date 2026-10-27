@@ -10,12 +10,14 @@ import mod.azure.azurelib.animation.controller.AzBoneSnapshotCache;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
+import mod.azure.azurelib.animation.property.AzAnimationProperties;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.core.object.Axis;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
+import mod.azure.azurelib.util.math.Mth;
 
 /**
  * AzKeyframeTransitioner is a specialized class for executing smooth animations and transitions between keyframes for
@@ -55,16 +57,20 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
     public void transition(Map<String, AzBone> bones, boolean crashWhenCantFindBone, double adjustedTick) {
         AzQueuedAnimation currentAnimation = animationController.currentAnimation();
         float transitionLength = animationController.animationProperties().transitionLength();
+        AzAnimationProperties properties = animationController.effectiveProperties();
         adjustedTick = Math.min(adjustedTick, transitionLength); // Cap tick length
 
         AzBakedAnimation animation = currentAnimation.animation();
+        double length = animation.length();
+        // Blend towards the pose playback will actually start on: the start offset, from whichever end it plays from.
+        double startProgress = Mth.clamp(properties.startTickOffset(), 0D, length);
 
-        currentAdjustedTick = animationController.isPlayingReversed() ? animation.length() : 0D;
+        currentAdjustedTick = animationController.isPlayingReversed() ? length - startProgress : startProgress;
         ANIM_TIME_REF.setMemoized(animTimeSupplier);
 
         AzBoneAnimation[] boneAnimations = animation.boneAnimations();
         this.cursors = prepareKeyframeCursors(animation);
-        this.easingOverride = animationController.animationProperties().easingType();
+        this.easingOverride = properties.easingType();
         AzBoneAnimationQueue[] queues = boneAnimationQueueCache.resolveQueues(animation);
 
         for (int boneIndex = 0; boneIndex < boneAnimations.length; boneIndex++) {

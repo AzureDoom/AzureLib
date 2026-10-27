@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbacks;
 import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeManager;
@@ -19,6 +20,7 @@ import mod.azure.azurelib.animation.controller.state.impl.AzAnimationTransitionS
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequence;
+import mod.azure.azurelib.animation.dispatch.command.sequence.AzSequenceTiming;
 import mod.azure.azurelib.animation.dispatch.command.stage.AzAnimationStage;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviorRegistry;
@@ -62,17 +64,22 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     private AzAnimationProperties animationProperties;
 
     /**
-     * How many times the current animation has finished and been replayed by
-     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#REPEAT_X_TIMES}. Kept per controller because
-     * play behaviors are shared singletons.
+     * {@link #animationProperties} with the current stage's own settings layered on top, or {@code null} when it has to
+     * be recomputed. See {@link #effectiveProperties()}.
+     */
+    private @Nullable AzAnimationProperties effectiveProperties;
+
+    /**
+     * How many times the current animation has finished and been replayed by {@link AzPlayBehaviors#REPEAT_X_TIMES}.
+     * Kept per controller because play behaviors are shared singletons.
      */
     private int repeatCount;
 
     /**
      * Runtime flip of the current animation's direction, layered on top of the stage/controller direction. Toggled by
-     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#PING_PONG} at each leg and by
-     * {@link #setReversing(boolean)} when the direction changes mid-animation. Kept per controller because play
-     * behaviors are shared singletons, and cleared whenever a new animation starts.
+     * {@link AzPlayBehaviors#PING_PONG} at each leg and by {@link #setReversing(boolean)} when the direction changes
+     * mid-animation. Kept per controller because play behaviors are shared singletons, and cleared whenever a new
+     * animation starts.
      */
     private boolean directionFlipped;
 
@@ -108,7 +115,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         );
 
         AzAnimationControllerStateMachine.StateHolder<T> stateHolder =
-            new AzAnimationControllerStateMachine.StateHolder<T>(
+            new AzAnimationControllerStateMachine.StateHolder<>(
                 new AzAnimationPlayState<>(),
                 new AzAnimationPauseState<>(),
                 new AzAnimationStopState<>(),
@@ -153,7 +160,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
             return ImmutableList.of();
         }
         List<AzAnimationStage> stages = sequence.stages();
-        ArrayList<AzQueuedAnimation> animations = new ArrayList<AzQueuedAnimation>();
+        ArrayList<AzQueuedAnimation> animations = new ArrayList<>();
 
         for (AzAnimationStage stage : stages) {
             AzBakedAnimation animation = animator.getAnimation(animatable, stage.name());
@@ -169,7 +176,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
                 AzAnimationStageProperties properties = stage.properties();
                 Boolean reverseOverride = properties.hasReversing() ? properties.isReversing() : null;
                 AzPlayBehavior playBehavior = resolvePlayBehavior(properties, animation);
-                animations.add(new AzQueuedAnimation(animation, playBehavior, reverseOverride));
+                AzAnimationStageProperties stageProperties = properties.isEmpty() ? null : properties;
+                animations.add(new AzQueuedAnimation(animation, playBehavior, reverseOverride, stageProperties));
             }
         }
 
@@ -189,7 +197,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         // Advance any weight fade before applying this frame's values.
         updateWeightFade();
         // Update bone animation queue cache.
-        boneAnimationQueueCache.update(animationProperties.easingType(), weight, blendMode);
+        boneAnimationQueueCache.update(effectiveProperties().easingType(), weight, blendMode);
     }
 
     /**
@@ -223,6 +231,9 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
         if (currentSequence == null || !currentSequence.equals(sequence)) {
             this.currentAnimation = null;
+            this.repeatCount = 0;
+            this.directionFlipped = false;
+            this.effectiveProperties = null;
         }
 
         T animatable = animator.context().animatable();
@@ -263,6 +274,28 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public void setAnimationProperties(AzAnimationProperties animationProperties) {
         this.animationProperties = animationProperties;
+        this.effectiveProperties = null;
+    }
+
+    /**
+     * The settings the current animation actually plays with: the controller's {@link #animationProperties()}, with any
+     * values the current sequence stage set for itself layered on top (see
+     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequence.Builder#then}). Stage values only apply
+     * while that stage plays, so a stage that freezes, slows down or uses a longer transition does not leave the
+     * controller frozen, slowed or blending slowly for whatever plays next.
+     *
+     * @return the effective playback properties of the current stage
+     */
+    public AzAnimationProperties effectiveProperties() {
+        AzAnimationProperties cached = effectiveProperties;
+
+        if (cached == null) {
+            AzAnimationProperties stage = currentAnimation == null ? null : currentAnimation.stageProperties();
+            cached = animationProperties.overlay(stage);
+            this.effectiveProperties = cached;
+        }
+
+        return cached;
     }
 
     public AzAnimationQueue animationQueue() {
@@ -349,6 +382,47 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         return controllerTimer;
     }
 
+    /**
+     * @return the animator this controller belongs to
+     */
+    public AzAnimator<?, T> animator() {
+        return animator;
+    }
+
+    /**
+     * Describes this controller's current playback settings for an
+     * {@link mod.azure.azurelib.animation.dispatch.command.sequence.AzSequencePlayer}, so a player ticked on the client
+     * can line its events up with what this controller will actually play: its speed, transition length and other
+     * settings, plus the real length of every animation, read from the animation file.
+     * <p>
+     * Server-side players can't use this (animation files only exist on the client); build an {@link AzSequenceTiming}
+     * with the lengths instead.
+     *
+     * @return timing for sequences played on this controller
+     */
+    public AzSequenceTiming sequenceTiming() {
+        AzAnimationProperties properties = animationProperties;
+        AzAnimationContext<T> context = animator.context();
+        T animatable = context == null ? null : context.animatable();
+
+        return AzSequenceTiming.builder()
+            .animationSpeed(properties.animationSpeed())
+            .transitionLength(properties.transitionLength())
+            .startTickOffset(properties.startTickOffset())
+            .freezeTickOffset(properties.freezeTickOffset())
+            .repeatXTimes(properties.repeatXTimes())
+            .reversing(properties.isReversing())
+            .lengthResolver(name -> {
+                if (animatable == null) {
+                    return Double.NaN;
+                }
+
+                AzBakedAnimation animation = animator.getAnimation(animatable, name);
+                return animation == null ? Double.NaN : animation.length();
+            })
+            .build();
+    }
+
     public @Nullable AzQueuedAnimation currentAnimation() {
         return currentAnimation;
     }
@@ -371,6 +445,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public void setCurrentAnimation(AzQueuedAnimation currentAnimation) {
         this.currentAnimation = currentAnimation;
+        this.effectiveProperties = null;
         // A new (or canceled) animation must not inherit the previous animation's repeat progress.
         this.repeatCount = 0;
         // ...nor the previous animation's ping-pong leg or in-place reversal.
@@ -442,8 +517,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     /**
      * Flips the direction of the current animation for its next leg. The caller is expected to restart progress (as
-     * {@link mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors#PING_PONG} does at a leg boundary), so the
-     * sampled pose stays continuous: the end of one leg is the start of the next.
+     * {@link AzPlayBehaviors#PING_PONG} does at a leg boundary), so the sampled pose stays continuous: the end of one
+     * leg is the start of the next.
      */
     public void flipDirection() {
         this.directionFlipped = !directionFlipped;
@@ -457,6 +532,14 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
      */
     public void reverseInPlace() {
         if (currentAnimation == null) {
+            return;
+        }
+
+        if (stateMachine.isTransitioning() || stateMachine.isStopped()) {
+            // Nothing has been sampled from this animation yet, so there is no pose to turn around from: just change
+            // the direction. A transition re-targets itself every frame, so it blends towards the new end smoothly.
+            // Remapping progress here would push the transition timer to the far end and skip the blend.
+            flipDirection();
             return;
         }
 
@@ -476,6 +559,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     public void setReversing(boolean reversing) {
         boolean wasReversed = isPlayingReversed();
         this.animationProperties = animationProperties.withShouldReverse(reversing);
+        this.effectiveProperties = null;
 
         if (currentAnimation != null && isPlayingReversed() != wasReversed) {
             // The property change already flipped the effective direction; undo that with a runtime flip so the
@@ -530,24 +614,27 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     }
 
     /**
-     * The freeze point, in ticks, used by the controller timer and {@link AzPlayBehaviors#FREEZE_ON_FRAME}: a value set
-     * on the controller wins; otherwise the current animation's authored {@code freeze_at}, but only while that
-     * animation is actually playing with freeze_on_frame (so a file's freeze point can't stall a stage the code chose
-     * to loop).
+     * The freeze point, in ticks of playback progress, used by the controller timer and
+     * {@link AzPlayBehaviors#FREEZE_ON_FRAME}. Only applies while the current animation actually plays with
+     * freeze_on_frame; for every other behavior this is 0 (no freeze), so a freeze point left on the controller by an
+     * earlier command can no longer stall a later loop, ping-pong or sequence stage.
+     * <p>
+     * Where the value comes from, first match wins: the current stage's own freeze point, the controller's, then the
+     * animation file's authored {@code freeze_at}. A freeze_on_frame animation without any freeze point holds its last
+     * frame.
      */
     public double effectiveFreezeTickOffset() {
-        double commanded = animationProperties.freezeTickOffset();
+        if (currentAnimation == null || currentAnimation.playBehavior() != AzPlayBehaviors.FREEZE_ON_FRAME) {
+            return 0;
+        }
 
-        if (commanded > 0 || currentAnimation == null) {
+        double commanded = effectiveProperties().freezeTickOffset();
+
+        if (commanded > 0) {
             return commanded;
         }
 
         AzAnimationDefaults defaults = currentAnimation.animation().defaults();
-
-        if (currentAnimation.playBehavior() == AzPlayBehaviors.FREEZE_ON_FRAME && defaults.hasFreezeTick()) {
-            return defaults.freezeTick();
-        }
-
-        return commanded;
+        return defaults.hasFreezeTick() ? defaults.freezeTick() : 0;
     }
 }

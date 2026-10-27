@@ -178,7 +178,10 @@ public final class AzCommand {
 
     /**
      * Creates an animation command for a specific controller that plays the animation and sets every playback property
-     * on the controller. These values stay on the controller for later commands too.
+     * on the controller. These values stay on the controller for later commands too, though the freeze point only
+     * affects animations played with {@link AzPlayBehaviors#FREEZE_ON_FRAME}. For settings that should only last for
+     * one animation, set them on a sequence stage instead
+     * ({@code AzSequence.Builder#then(name, behavior, props -> ...)}).
      *
      * @param controllerName   the name of the animation controller to target
      * @param animationName    the name of the animation to be played

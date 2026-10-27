@@ -58,7 +58,7 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
         AzAnimationControllerStateMachine<T> stateMachine = context.stateMachine();
         AzBoneCache boneCache = animContext.boneCache();
 
-        float transitionLength = controller.animationProperties().transitionLength();
+        float transitionLength = controller.effectiveProperties().transitionLength();
         boolean hasFinishedTransitioning = controllerTimer.getAdjustedTick() >= transitionLength;
 
         if (hasFinishedTransitioning) {

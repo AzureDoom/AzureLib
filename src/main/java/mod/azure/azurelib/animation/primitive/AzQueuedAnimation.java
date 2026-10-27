@@ -19,6 +19,9 @@ import mod.azure.azurelib.animation.property.AzAnimationProperties;
  * the animation.</li>
  * <li>{@code reverseOverride}: the stage's own playback direction, or {@code null} to inherit the controller's
  * {@link AzAnimationProperties#isReversing()}.</li>
+ * <li>{@code stageProperties}: the stage's own playback settings (speed, transition length, easing, start offset,
+ * freeze point, repeat count), layered over the controller's while this stage plays; {@code null} or unset values
+ * inherit the controller's. Unlike controller-level settings, these never outlive the stage.</li>
  * </ul>
  */
 public final class AzQueuedAnimation {
@@ -29,10 +32,30 @@ public final class AzQueuedAnimation {
 
     private final Boolean reverseOverride;
 
-    public AzQueuedAnimation(AzBakedAnimation animation, AzPlayBehavior playBehavior, Boolean reverseOverride) {
+    private final AzAnimationProperties stageProperties;
+
+    public AzQueuedAnimation(
+        AzBakedAnimation animation,
+        AzPlayBehavior playBehavior,
+        Boolean reverseOverride,
+        AzAnimationProperties stageProperties
+    ) {
         this.animation = animation;
         this.playBehavior = playBehavior;
         this.reverseOverride = reverseOverride;
+        this.stageProperties = stageProperties;
+    }
+
+    public AzQueuedAnimation(AzBakedAnimation animation, AzPlayBehavior playBehavior) {
+        this(animation, playBehavior, null, null);
+    }
+
+    public AzQueuedAnimation(
+        AzBakedAnimation animation,
+        AzPlayBehavior playBehavior,
+        Boolean reverseOverride
+    ) {
+        this(animation, playBehavior, reverseOverride, null);
     }
 
     public AzBakedAnimation animation() {
@@ -45,6 +68,10 @@ public final class AzQueuedAnimation {
 
     public Boolean reverseOverride() {
         return this.reverseOverride;
+    }
+
+    public AzAnimationProperties stageProperties() {
+        return this.stageProperties;
     }
 
     @Override
@@ -72,9 +99,5 @@ public final class AzQueuedAnimation {
     public String toString() {
         return "AzQueuedAnimation[animation=" + this.animation + ", playBehavior=" + this.playBehavior
             + ", reverseOverride=" + this.reverseOverride + "]";
-    }
-
-    public AzQueuedAnimation(AzBakedAnimation animation, AzPlayBehavior playBehavior) {
-        this(animation, playBehavior, null);
     }
 }
