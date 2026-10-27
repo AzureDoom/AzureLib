@@ -1,3 +1,7 @@
+v1.1.3
+
+Moved to GTNH build script will require a new build for maven due to mapping name changes.
+
 v1.1.2
 
 ### Additions
