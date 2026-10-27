@@ -47,7 +47,8 @@ public final class AzAnimationTransitionState<T> extends AzAnimationState<T> {
         var stateMachine = context.stateMachine();
         var boneCache = animContext.boneCache();
 
-        var transitionLength = controller.animationProperties().transitionLength();
+        // The incoming stage's own transition length, if it set one (the next animation is already current here).
+        var transitionLength = controller.effectiveProperties().transitionLength();
         var hasFinishedTransitioning = controllerTimer.getAdjustedTick() >= transitionLength;
 
         if (hasFinishedTransitioning) {

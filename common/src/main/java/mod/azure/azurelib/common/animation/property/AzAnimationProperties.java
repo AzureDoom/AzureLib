@@ -168,6 +168,38 @@ public class AzAnimationProperties {
         );
     }
 
+    /**
+     * Returns these properties with every value that {@code overrides} sets put in place of this one's. Values that
+     * {@code overrides} leaves unset ({@code null}) keep this object's value. Used to layer a sequence stage's own
+     * playback settings over its controller's, so they apply to that stage only and never stick to the controller.
+     *
+     * @param overrides the properties to layer on top, or {@code null} for none
+     * @return the merged properties, or {@code this} if {@code overrides} sets nothing
+     */
+    public AzAnimationProperties overlay(@Nullable AzAnimationProperties overrides) {
+        if (overrides == null || overrides.isEmpty()) {
+            return this;
+        }
+
+        return new AzAnimationProperties(
+            overrides.animationSpeed != null ? overrides.animationSpeed : animationSpeed,
+            overrides.easingType != null ? overrides.easingType : easingType,
+            overrides.transitionLength != null ? overrides.transitionLength : transitionLength,
+            overrides.startTickOffset != null ? overrides.startTickOffset : startTickOffset,
+            overrides.freezeTickOffset != null ? overrides.freezeTickOffset : freezeTickOffset,
+            overrides.repeatXTimes != null ? overrides.repeatXTimes : repeatXTimes,
+            overrides.isReversing != null ? overrides.isReversing : isReversing
+        );
+    }
+
+    /**
+     * @return whether none of the playback values are set
+     */
+    public boolean isEmpty() {
+        return animationSpeed == null && easingType == null && transitionLength == null && startTickOffset == null
+            && freezeTickOffset == null && repeatXTimes == null && isReversing == null;
+    }
+
     public double animationSpeed() {
         return animationSpeed == null ? DEFAULT.animationSpeed() : animationSpeed;
     }

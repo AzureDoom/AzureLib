@@ -1,7 +1,7 @@
 package mod.azure.azurelib.common.animation.controller;
 
-import mod.azure.azurelib.common.animation.AzAnimationContext;
 import mod.azure.azurelib.common.animation.controller.state.machine.AzAnimationControllerStateMachine;
+import mod.azure.azurelib.common.animation.property.AzAnimationProperties;
 
 /**
  * A timer utility that integrates directly with an {@link AzAnimationController} to track and adjust tick values for
@@ -22,32 +22,39 @@ public class AzAnimationControllerTimer<T> {
     }
 
     public void update() {
-        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
-        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
-        double animationSpeed = animationController.animationProperties().animationSpeed();
-        double tick = animContext.timer().getAnimTime();
-        double tickStartOffset = animationController.animationProperties().startTickOffset();
-        double freezeTick = animationController.effectiveFreezeTickOffset();
+        AzAnimationControllerStateMachine<T> stateMachine = animationController.stateMachine();
+        AzAnimationProperties properties = animationController.effectiveProperties();
+        double animationSpeed = properties.animationSpeed();
+        double elapsed = animTime() - tickOffset;
 
-        if (freezeTick > 0 && adjustedTick >= freezeTick) {
-            adjustedTick = freezeTick;
+        if (stateMachine.isTransitioning()) {
+            adjustedTick = Math.max(0, animationSpeed * elapsed);
             return;
         }
 
-        adjustedTick = animationSpeed * Math.max((tick + tickStartOffset) - tickOffset, tickStartOffset);
+        double progress = Math.max(0, properties.startTickOffset() + animationSpeed * elapsed);
+        double freezeTick = animationController.effectiveFreezeTickOffset();
+
+        if (freezeTick > 0 && progress > freezeTick) {
+            progress = freezeTick;
+        }
+
+        adjustedTick = progress;
     }
 
     /**
-     * Resets the internal state of the animation timer. This method updates the tick offset value to the current
-     * animation time retrieved from the associated animation context's timer and resets the adjusted tick to zero. It
-     * effectively synchronizes the timer with the current state of the animation controller, ensuring that subsequent
-     * tick calculations reflect the reset starting point.
+     * Restarts elapsed time from the animator's current clock. While transitioning that puts {@link #getAdjustedTick()}
+     * at 0; otherwise at the start tick offset, so the first frame of an animation (and of every loop, ping-pong leg or
+     * repeat) already samples the right pose instead of frame 0.
      */
     public void reset() {
-        AzAnimationControllerStateMachine<?> stateMachine = animationController.stateMachine();
-        AzAnimationContext<?> animContext = stateMachine.getContext().animationContext();
-        this.tickOffset = animContext.timer().getAnimTime();
-        this.adjustedTick = 0;
+        this.tickOffset = animTime();
+
+        if (animationController.stateMachine().isTransitioning()) {
+            this.adjustedTick = 0;
+        } else {
+            this.adjustedTick = Math.max(0, animationController.effectiveProperties().startTickOffset());
+        }
     }
 
     /**
@@ -58,12 +65,12 @@ public class AzAnimationControllerTimer<T> {
      * @param progress the adjusted tick to continue from
      */
     public void seek(double progress) {
-        var properties = animationController.animationProperties();
+        var properties = animationController.effectiveProperties();
         var speed = properties.animationSpeed();
-        var animTime = animationController.stateMachine().getContext().animationContext().timer().getAnimTime();
 
         if (speed != 0) {
-            this.tickOffset = animTime + properties.startTickOffset() - progress / speed;
+            var origin = animationController.stateMachine().isTransitioning() ? 0 : properties.startTickOffset();
+            this.tickOffset = animTime() - (progress - origin) / speed;
         }
 
         this.adjustedTick = progress;
@@ -82,12 +89,15 @@ public class AzAnimationControllerTimer<T> {
     /**
      * Adds the specified value to the currently tracked adjusted tick value for the animation controller timer. This
      * method increments the adjusted tick by the provided amount, allowing for cumulative adjustments to the tick value
-     * over time.
+     * over time. The change only lasts until the next {@link #update()}; use {@link #seek(double)} to move playback.
      *
-     * @param adjustedTick The value to be added to the current-adjusted tick. This parameter represents the amount by
-     *                     which the adjusted tick should be updated.
+     * @param adjustedTick The value to be added to the current-adjusted tick.
      */
     public void addToAdjustedTick(double adjustedTick) {
         this.adjustedTick += adjustedTick;
+    }
+
+    private double animTime() {
+        return animationController.stateMachine().getContext().animationContext().timer().getAnimTime();
     }
 }

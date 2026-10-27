@@ -1,6 +1,9 @@
 package mod.azure.azurelib.common.animation.play_behavior;
 
 import mod.azure.azurelib.common.animation.controller.AzAnimationController;
+import mod.azure.azurelib.common.animation.controller.AzAnimationControllerTimer;
+import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframeCallbackHandler;
+import mod.azure.azurelib.common.animation.controller.keyframe.AzKeyframeManager;
 import mod.azure.azurelib.common.animation.controller.state.machine.AzAnimationControllerStateMachine;
 
 public class AzPlayBehaviors {
@@ -62,13 +65,15 @@ public class AzPlayBehaviors {
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
                 AzAnimationController<?> controller = context.animationController();
-                var maxRepeats = controller.animationProperties().repeatXTimes();
-                var repeatCount = controller.incrementRepeatCount();
+                // Stage value, else controller value, else the file's authored repeat_times.
+                double maxRepeats = controller.effectiveRepeatXTimes();
+                int repeatCount = controller.incrementRepeatCount();
 
-                if (maxRepeats > 1 && repeatCount <= maxRepeats) {
-                    var controllerTimer = controller.controllerTimer();
-                    var keyframeManager = controller.keyframeManager();
-                    var keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
+                // repeatXTimes is the total number of plays: after the n-th play finishes, replay only while n < total.
+                if (maxRepeats > 1 && repeatCount < maxRepeats) {
+                    AzAnimationControllerTimer<?> controllerTimer = controller.controllerTimer();
+                    AzKeyframeManager<?> keyframeManager = controller.keyframeManager();
+                    AzKeyframeCallbackHandler<?> keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
 
                     controllerTimer.reset();
                     keyframeCallbackHandler.reset();
@@ -84,6 +89,10 @@ public class AzPlayBehaviors {
 
     /**
      * A predefined {@code AzPlayBehavior} that freezes the animation at a specific frame and pauses the state machine.
+     * The freeze point comes from the stage ({@code props.withFreezeTickOffset(...)}), else the controller, else the
+     * animation file's authored {@code freeze_at}; with none of those it holds the last frame. The freeze point only
+     * ever applies to animations playing with this behavior, so leaving one on the controller is harmless to later
+     * stages.
      */
     public static final AzPlayBehavior FREEZE_ON_FRAME = AzPlayBehaviorRegistry.register(
         new AzPlayBehavior("freeze_on_frame") {
@@ -91,11 +100,12 @@ public class AzPlayBehaviors {
             @Override
             public void onUpdate(AzAnimationControllerStateMachine.Context<?> context) {
                 var controller = context.animationController();
-                var controllerTimer = controller.controllerTimer();
-                var freezeTickOffset = controller.animationProperties().freezeTickOffset();
+                var freezeTickOffset = controller.effectiveFreezeTickOffset();
 
-                if (controllerTimer.getAdjustedTick() >= freezeTickOffset) {
-                    controllerTimer.addToAdjustedTick(0);
+                // No freeze point at all: hold the last frame instead (handled by onFinish). Checking ">= 0" here
+                // used to pause on the very first frame, and the controller-level value ignored the stage and the
+                // animation file's authored freeze_at.
+                if (freezeTickOffset > 0 && controller.controllerTimer().getAdjustedTick() >= freezeTickOffset) {
                     context.stateMachine().pause();
                 }
             }

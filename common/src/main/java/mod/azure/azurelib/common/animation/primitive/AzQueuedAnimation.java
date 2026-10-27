@@ -21,15 +21,27 @@ import mod.azure.azurelib.common.animation.property.AzAnimationProperties;
  * the animation.</li>
  * <li>{@code reverseOverride}: the stage's own playback direction, or {@code null} to inherit the controller's
  * {@link AzAnimationProperties#isReversing()}.</li>
+ * <li>{@code stageProperties}: the stage's own playback settings (speed, transition length, easing, start offset,
+ * freeze point, repeat count), layered over the controller's while this stage plays; {@code null} or unset values
+ * inherit the controller's. Unlike controller-level settings, these never outlive the stage.</li>
  * </ul>
  */
 public record AzQueuedAnimation(
     AzBakedAnimation animation,
     AzPlayBehavior playBehavior,
-    @Nullable Boolean reverseOverride
+    @Nullable Boolean reverseOverride,
+    @Nullable AzAnimationProperties stageProperties
 ) {
 
     public AzQueuedAnimation(AzBakedAnimation animation, AzPlayBehavior playBehavior) {
-        this(animation, playBehavior, null);
+        this(animation, playBehavior, null, null);
+    }
+
+    public AzQueuedAnimation(
+        AzBakedAnimation animation,
+        AzPlayBehavior playBehavior,
+        @Nullable Boolean reverseOverride
+    ) {
+        this(animation, playBehavior, reverseOverride, null);
     }
 }
