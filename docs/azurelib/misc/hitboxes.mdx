@@ -12,7 +12,7 @@ Bone hitboxes let an entity be hit per body part. Each hitbox follows a bone in 
 Implement `AzHitboxHolder` on your entity and return a static `AzHitboxSet`:
 
 ```java
-public class XenoEntity extends MonsterEntity implements AzHitboxHolder {
+public class ExampleEntity extends MonsterEntity implements AzHitboxHolder {
 
     private static final AzHitboxSet HITBOXES = AzHitboxSet.builder()
         // Fitted to the head bone's cubes, double damage
@@ -22,7 +22,7 @@ public class XenoEntity extends MonsterEntity implements AzHitboxHolder {
         .add("tail_tip", "tail4", h -> h.size(4, 4, 10).inflate(1))
         .build();
 
-    public XenoEntity(World world) {
+    public ExampleEntity(World world) {
         super(world);
     }
 
@@ -177,6 +177,137 @@ A modified client can move a mob's hitboxes, but only within `maxReach` of the e
 | `poseTimeout(ticks)` | `10` | When a pose is considered stale. |
 | `maxReach(blocks)` | `max(4, 3 * max(width, height))` | Furthest a hitbox center may be from the entity. |
 | `maxHalfExtent(blocks)` | `4` | Largest accepted hitbox half size. |
+
+## Scaled entities
+
+Hitboxes are read from the same bone matrices the model is drawn with. Renderer scaling therefore affects both hitbox positions and sizes, including during render-layer re-renders.
+
+Keep hitbox definitions in unscaled Blockbench pixels. Do not multiply or divide hitbox sizes by the entity's scale.
+
+Minecraft Beta 1.7.3 does not have a scale attribute or modern entity-dimensions system. With Babric and StationAPI, use tracked entity data to synchronize growth and manually scale the vanilla bounding box.
+
+### 1. Sync the scale
+
+Use Beta's `DataTracker` to synchronize growth between the server and clients.
+
+```java
+private static final int GROWTH = 21;
+
+private static final float MAX_GROWTH = 1200f;
+
+private static final float BASE_WIDTH = 0.9f;
+private static final float BASE_HEIGHT = 1.9f;
+
+@Override
+protected void initDataTracker() {
+    super.initDataTracker();
+    dataTracker.startTracking(GROWTH, Float.valueOf(0f));
+}
+
+public float getGrowthScale() {
+    float growth = dataTracker.getFloat(GROWTH);
+
+    return Math.max(
+        0.5f,
+        Math.min(
+            1f,
+            0.5f + (growth / MAX_GROWTH) * 0.5f
+        )
+    );
+}
+
+public void setGrowth(float growth) {
+    if (!world.isRemote) {
+        dataTracker.set(
+            GROWTH,
+            Float.valueOf(
+                Math.max(0f, Math.min(MAX_GROWTH, growth))
+            )
+        );
+    }
+}
+```
+
+Choose a tracker index that does not conflict with the entity's existing tracked data or inherited values.
+
+The server should be authoritative over growth. The client receives tracked updates and uses the synchronized value for rendering and bounding-box calculations.
+
+Persist the growth value using your entity's NBT read/write hooks, storing it with `putFloat("growth", value)` and restoring it with `getFloat("growth")` in mappings that expose those names.
+
+### 2. Scale the entity's bounding box
+
+Beta 1.7.3 uses `setBoundingBoxSpacing(width, height)` rather than modern `setSize()` or `refreshDimensions()`.
+
+```java
+private float lastAppliedScale = -1f;
+
+private void updateScaledDimensions() {
+    float scale = getGrowthScale();
+
+    if (Math.abs(lastAppliedScale - scale) < 0.001f) {
+        return;
+    }
+
+    lastAppliedScale = scale;
+
+    setBoundingBoxSpacing(
+        BASE_WIDTH * scale,
+        BASE_HEIGHT * scale
+    );
+}
+```
+
+Call this after initial entity setup and after restoring saved growth.
+
+Also call it when tracked growth changes. If your Beta mappings do not provide a suitable data-tracker change callback, you can perform the comparison from your entity's regular tick method:
+
+```java
+@Override
+public void tick() {
+    super.tick();
+    updateScaledDimensions();
+}
+```
+
+The cached-scale comparison makes repeated calls inexpensive and avoids unnecessary bounding-box recalculations.
+
+If growth is modified during a tick, update the server's bounding box immediately after changing it rather than waiting for the next tick.
+
+If your entity overrides eye height, ensure it follows the scaled dimensions.
+
+### 3. Scale the model and bones
+
+Pass the growth scale to AzureLib's renderer configuration:
+
+```java
+public ExampleRenderer() {
+    super(
+        AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+            .setAnimatorProvider(XenoAnimator::new)
+            .setScale(ExampleEntity::getGrowthScale)
+            .build()
+    );
+}
+```
+
+AzureLib scales the rendered model and bone matrices, and the bone hitboxes inherit that scale automatically.
+
+You do not need to change hitbox definitions based on entity growth.
+
+For non-uniform scaling:
+
+```java
+.setScale(
+    ExampleEntity::getHeightScale,
+    ExampleEntity::getWidthScale
+)
+```
+
+**Function overload: height first, width second.**
+
+For fixed scaling, the float overload uses `setScale(width, height)`.
+
+Apply matching width and height scales to the entity's vanilla bounding box. The shadow radius can also be adjusted separately if desired.
 
 ## Large entities
 
