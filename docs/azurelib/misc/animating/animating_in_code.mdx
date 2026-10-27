@@ -50,10 +50,24 @@ bone.setRotX(base + angle);
 
 To mix whole animations together, layer controllers instead; see the Layering Controllers section of the [Animation Controller Builder](./animation_controller_builder) page.
 
+## Feeding Values to Keyframes Instead
+
+If you'd rather keep the motion in Blockbench and only supply a number from code (a charge level, an aim angle), set a Molang variable on the animatable and read it in the keyframe instead of moving bones yourself:
+
+```java
+@Override
+protected void applyMolangQueries(EntityCreeper animatable, double animTime, float partialTicks) {
+    super.applyMolangQueries(animatable, animTime, partialTicks);
+    this.context().molangScope().set("v.swell", animatable.getSwelling(partialTicks));
+}
+```
+
+A keyframe can then use `v.swell * 30`. Each animatable keeps its own values. See [Adding Custom Molang Queries](../../molang/molang#driving-variable-from-code).
+
 ## Example
 
 <Callout variant="info">
-    This example swings the arms and legs like a player's while walking. `Mth` is AzureLib's `mod.azure.azurelib.util.math.Mth`, which keeps the modern helper names (`lerp`, `cos`, `rotLerp`...) on 1.7.10. It sets each limb from its default pose, so it works whether or not your animations also move the limbs.
+    This example swings the arms and legs like a player's while walking. `Mth` is AzureLib's `mod.azure.azurelib.util.math.Mth`, which keeps the modern helper names (`lerp`, `cos`, `rotLerp`...) on 1.12.2. It sets each limb from its default pose, so it works whether or not your animations also move the limbs.
 </Callout>
 
 ```java
