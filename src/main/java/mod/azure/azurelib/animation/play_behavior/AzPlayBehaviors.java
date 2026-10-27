@@ -65,10 +65,13 @@ public class AzPlayBehaviors {
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
                 AzAnimationController<?> controller = context.animationController();
-                double maxRepeats = controller.animationProperties().repeatXTimes();
+
+                // Stage value, else controller value, else the file's authored repeat_times.
+                double maxRepeats = controller.effectiveRepeatXTimes();
                 int repeatCount = controller.incrementRepeatCount();
 
-                if (maxRepeats > 1 && repeatCount <= maxRepeats) {
+                // repeatXTimes is the total number of plays: after the n-th play finishes, replay only while n < total.
+                if (maxRepeats > 1 && repeatCount < maxRepeats) {
                     AzAnimationControllerTimer<?> controllerTimer = controller.controllerTimer();
                     AzKeyframeManager<?> keyframeManager = controller.keyframeManager();
                     AzKeyframeCallbackHandler<?> keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
