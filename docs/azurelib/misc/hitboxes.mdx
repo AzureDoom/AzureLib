@@ -12,7 +12,7 @@ Bone hitboxes let an entity be hit per body part. Each hitbox follows a bone in 
 Implement `AzHitboxHolder` on your entity and return a static `AzHitboxSet`:
 
 ```java
-public class XenoEntity extends Monster implements AzHitboxHolder {
+public class ExampleEntity extends Monster implements AzHitboxHolder {
 
     private static final AzHitboxSet HITBOXES = AzHitboxSet.builder()
         // Fitted to the head bone's cubes, double damage
@@ -157,6 +157,146 @@ A modified client can move a mob's hitboxes, but only within `maxReach` of the e
 | `poseTimeout(ticks)` | `10` | When a pose is considered stale. |
 | `maxReach(blocks)` | `max(4, 3 * max(width, height))` | Furthest a hitbox center may be from the entity. |
 | `maxHalfExtent(blocks)` | `4` | Largest accepted hitbox half size. |
+
+## Scaled entities
+
+Hitboxes are read from the same bone matrices the model is drawn with. Any scale applied by the renderer therefore carries over to their positions and sizes, including during render-layer re-renders.
+
+Keep hitbox definitions in unscaled Blockbench pixels. Do not scale them manually.
+
+Minecraft 1.7.10 has no scale attribute or `EntityDimensions` API. You must synchronize growth with `DataWatcher`, resize the vanilla bounding box, and apply the same scale to the AzureLib renderer.
+
+### 1. Sync the scale
+
+Use `DataWatcher` to synchronize growth between the server and client.
+
+```java
+private static final int GROWTH = 21;
+
+private static final float MAX_GROWTH = 1200f;
+
+private static final float BASE_WIDTH = 0.9f;
+private static final float BASE_HEIGHT = 1.9f;
+
+@Override
+protected void entityInit() {
+    super.entityInit();
+    dataWatcher.addObject(GROWTH, Float.valueOf(0f));
+}
+
+public float getGrowthScale() {
+    float growth = dataWatcher.getWatchableObjectFloat(GROWTH);
+
+    return Math.max(
+        0.5f,
+        Math.min(
+            1f,
+            0.5f + (growth / MAX_GROWTH) * 0.5f
+        )
+    );
+}
+
+public void setGrowth(float growth) {
+    if (!worldObj.isRemote) {
+        dataWatcher.updateObject(
+            GROWTH,
+            Float.valueOf(
+                Math.max(0f, Math.min(MAX_GROWTH, growth))
+            )
+        );
+    }
+}
+
+@Override
+public void writeEntityToNBT(NBTTagCompound tag) {
+    super.writeEntityToNBT(tag);
+    tag.setFloat(
+        "growth",
+        dataWatcher.getWatchableObjectFloat(GROWTH)
+    );
+}
+
+@Override
+public void readEntityFromNBT(NBTTagCompound tag) {
+    super.readEntityFromNBT(tag);
+    dataWatcher.updateObject(GROWTH, tag.getFloat("growth"));
+}
+```
+
+`GROWTH` is a DataWatcher index, not a data parameter object. Choose an unused index for your entity; the example uses `21`.
+
+DataWatcher indices must not conflict with values registered by vanilla entity classes or other code in your entity hierarchy.
+
+### 2. Scale the entity's bounding box
+
+Minecraft 1.7.10 uses `setSize(width, height)` for entity dimensions.
+
+Because there is no `refreshDimensions()`, recalculate the dimensions when the watched growth value changes.
+
+```java
+private void updateScaledDimensions() {
+    float scale = getGrowthScale();
+
+    float width = BASE_WIDTH * scale;
+    float height = BASE_HEIGHT * scale;
+
+    if (Math.abs(this.width - width) > 0.001f
+            || Math.abs(this.height - height) > 0.001f) {
+        setSize(width, height);
+    }
+}
+
+@Override
+public void func_145781_i(int id) {
+    super.func_145781_i(id);
+
+    if (id == GROWTH) {
+        updateScaledDimensions();
+    }
+}
+```
+
+`func_145781_i(int)` is the DataWatcher update callback in Minecraft 1.7.10. It runs when watched data changes, including when the client receives synchronized values.
+
+Call `updateScaledDimensions()` during initial entity setup as well, after establishing the base dimensions.
+
+If you override `getEyeHeight()`, return an appropriately scaled value.
+
+The width and height comparisons avoid unnecessary bounding-box updates for tiny scale changes.
+
+### 3. Scale the model and bones
+
+Use the same growth scale in your AzureLib renderer:
+
+```java
+public ExampleRenderer() {
+    super(
+        AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+            .setAnimatorProvider(XenoAnimator::new)
+            .setScale(ExampleEntity::getGrowthScale)
+            .build()
+    );
+}
+```
+
+AzureLib applies this scale to the rendered model and its bone matrices, which are also used for hitbox calculations.
+
+You do not need to multiply hitbox dimensions by the growth scale.
+
+For non-uniform scaling:
+
+```java
+.setScale(
+    ExampleEntity::getHeightScale,
+    ExampleEntity::getWidthScale
+)
+```
+
+**Function overload: height first, width second.**
+
+The float overload uses `setScale(width, height)`.
+
+Keep the vanilla bounding-box dimensions consistent with the renderer's scaling, and adjust the shadow radius separately if desired.
 
 ## Large entities
 
