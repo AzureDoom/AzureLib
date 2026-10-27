@@ -1,6 +1,9 @@
 package mod.azure.azurelib.animation.play_behavior;
 
 import mod.azure.azurelib.animation.controller.AzAnimationController;
+import mod.azure.azurelib.animation.controller.AzAnimationControllerTimer;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeCallbackHandler;
+import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeManager;
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 
 public class AzPlayBehaviors {
@@ -62,12 +65,15 @@ public class AzPlayBehaviors {
             @Override
             public void onFinish(AzAnimationControllerStateMachine.Context<?> context) {
                 AzAnimationController<?> controller = context.animationController();
-                var totalPlays = Math.max(1, (int) Math.round(controller.effectiveRepeatXTimes()));
-                var finishedPlays = controller.incrementRepeatCount();
+                // Stage value, else controller value, else the file's authored repeat_times.
+                double maxRepeats = controller.effectiveRepeatXTimes();
+                int repeatCount = controller.incrementRepeatCount();
 
-                if (finishedPlays < totalPlays) {
-                    var controllerTimer = controller.controllerTimer();
-                    var keyframeCallbackHandler = controller.keyframeManager().keyframeCallbackHandler();
+                // repeatXTimes is the total number of plays: after the n-th play finishes, replay only while n < total.
+                if (maxRepeats > 1 && repeatCount < maxRepeats) {
+                    AzAnimationControllerTimer<?> controllerTimer = controller.controllerTimer();
+                    AzKeyframeManager<?> keyframeManager = controller.keyframeManager();
+                    AzKeyframeCallbackHandler<?> keyframeCallbackHandler = keyframeManager.keyframeCallbackHandler();
 
                     controllerTimer.reset();
                     keyframeCallbackHandler.reset();

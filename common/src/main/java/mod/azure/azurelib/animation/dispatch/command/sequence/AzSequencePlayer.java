@@ -4,9 +4,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 
 /**
@@ -36,9 +40,27 @@ import mod.azure.azurelib.animation.dispatch.command.AzCommand;
  * }
  * }</pre>
  *
- * Timing notes: event ticks are not scaled by the controller's animation speed, and each stage of a sequence is
- * preceded by the controller's transition length on the client. Account for both when lining an event up with a
- * specific keyframe.
+ * <h2>Timing</h2> Events added with {@code event(name, tick)} fire that many game ticks after {@link #play}, whatever
+ * the animation is doing. Events anchored to a stage ({@code eventAt}, {@code eventOnStart}, {@code eventOnEnd}) are
+ * placed with this player's {@link AzSequenceTiming}: the controller's speed and transition length, each stage's own
+ * overrides, and each animation's length. Give the player the same settings the controller was built with, and the
+ * lengths of the animations those events depend on:
+ *
+ * <pre>{@code
+ *
+ * private final AzSequencePlayer attackPlayer = AzSequencePlayer.forEntity(this, "base", this::onAttackEvent)
+ *     .withTiming(
+ *         AzSequenceTiming.builder()
+ *             .transitionLength(5)
+ *             .length("attack_windup", 15)
+ *             .length("attack", 20)
+ *             .build()
+ *     );
+ * }</pre>
+ *
+ * An event whose time can't be worked out (a needed length is missing, or the animation never reaches it) is skipped
+ * with a warning instead of firing at the wrong moment. A player ticked on the client can use
+ * {@code AzAnimationController#sequenceTiming()}, which reads every length from the animation file.
  * <p>
  * If something else takes over the controller (a hurt or death animation, say), call {@link #cancel()} so that pending
  * events of the interrupted sequence do not fire.
@@ -51,7 +73,19 @@ public final class AzSequencePlayer {
 
     private final AzSequenceEventListener listener;
 
+    private static final Set<String> WARNED = ConcurrentHashMap.newKeySet();
+
+    private AzSequenceTiming timing = AzSequenceTiming.DEFAULT;
+
     private @Nullable AzSequence current;
+
+    private List<AzSequenceTimeline.ScheduledEvent> schedule = List.of();
+
+    private @Nullable AzSequence cachedSequence;
+
+    private @Nullable AzSequenceTiming cachedTiming;
+
+    private @Nullable AzSequenceTimeline cachedTimeline;
 
     private int elapsedTicks;
 
@@ -105,6 +139,30 @@ public final class AzSequencePlayer {
     }
 
     /**
+     * Sets the timing used to place stage-anchored events, and returns this player for chaining. Takes effect from the
+     * next {@link #play}.
+     */
+    public AzSequencePlayer withTiming(AzSequenceTiming timing) {
+        this.timing = Objects.requireNonNull(timing, "timing");
+        return this;
+    }
+
+    /**
+     * @return the timing used to place stage-anchored events
+     */
+    public AzSequenceTiming timing() {
+        return timing;
+    }
+
+    /**
+     * @return the timeline of the current sequence (when its stages play and its events fire), or {@code null} if
+     *         nothing is playing
+     */
+    public @Nullable AzSequenceTimeline timeline() {
+        return current == null ? null : timelineFor(current);
+    }
+
+    /**
      * Starts {@code sequence} from the beginning, replacing whatever this player was playing. The controller is
      * canceled first, so replaying the sequence that is already running restarts it on the client too and keeps events
      * in step with the animation. Events at tick 0 fire before this method returns.
@@ -120,6 +178,7 @@ public final class AzSequencePlayer {
         );
 
         this.current = sequence;
+        this.schedule = sequence.hasEvents() ? timelineFor(sequence).events() : List.of();
         this.elapsedTicks = 0;
         this.nextEventIndex = 0;
         this.generation++;
@@ -170,19 +229,46 @@ public final class AzSequencePlayer {
             return;
         }
 
-        var events = sequence.events();
+        var events = schedule;
         var startGeneration = generation;
 
         while (generation == startGeneration && nextEventIndex < events.size()) {
-            var event = events.get(nextEventIndex);
+            var scheduled = events.get(nextEventIndex);
 
-            if (event.tick() > elapsedTicks) {
+            // Fractional due ticks fire on the first whole tick at or after them, never early.
+            if (scheduled.tick() > elapsedTicks + 1.0E-6) {
                 break;
             }
 
             nextEventIndex++;
-            listener.onEvent(sequence, event);
+            listener.onEvent(sequence, scheduled.event());
         }
+    }
+
+    private AzSequenceTimeline timelineFor(AzSequence sequence) {
+        if (cachedTimeline != null && cachedSequence == sequence && cachedTiming == timing) {
+            return cachedTimeline;
+        }
+
+        var timeline = AzSequenceTimeline.compute(sequence, timing);
+
+        if (!timeline.skipped().isEmpty() && WARNED.add(sequence.toString())) {
+            for (var skipped : timeline.skipped()) {
+                AzureLib.LOGGER.warn(
+                    "Sequence event '{}' in {} on controller '{}' will not fire: {}",
+                    skipped.event().name(),
+                    sequence,
+                    controllerName,
+                    skipped.reason()
+                );
+            }
+        }
+
+        this.cachedSequence = sequence;
+        this.cachedTiming = timing;
+        this.cachedTimeline = timeline;
+
+        return timeline;
     }
 
     /**
@@ -203,7 +289,7 @@ public final class AzSequencePlayer {
      * @return whether the current sequence still has events that have not fired
      */
     public boolean hasPendingEvents() {
-        return current != null && nextEventIndex < current.events().size();
+        return current != null && nextEventIndex < schedule.size();
     }
 
     /**
