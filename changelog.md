@@ -1,33 +1,34 @@
-v1.1.0
+v1.1.1
 
 ### Additions
-- Added bone hitboxes. Entities can now define hitboxes that follow bones in their model, rotate with them, and stay in sync with whatever animation is playing. Implement `AzHitboxHolder` and return an `AzHitboxSet` to use them.
-- Hitboxes can fit a bone's cubes automatically or use an explicit size, offset and inflate in Blockbench pixels, and several hitboxes can share one bone.
-- Hitboxes have three roles.
-    - `COMBAT` hitboxes take crosshair targeting, projectiles and damage.
-    - `INTERACT` hitboxes can be right-clicked to trigger custom logic without affecting combat.
-    - `ANCHOR` hitboxes can't be hit and exist only to track a bone's position.
-- Melee hits, projectile hits (arrows, snowballs, eggs and ghast fireballs) and right-clicks report which hitbox they landed on, so damage can be scaled per hitbox (headshots, armoured plates, weak points).
-- Hitbox outlines can be toggled by holding F3 and pressing B, colored by role and damage multiplier. Beta has no entity box view, so this is AzureLib's own toggle.
-- In single player, hitboxes are read directly from the rendered pose. In multiplayer, clients report animated poses to the server, so server-side checks such as projectiles and AI attacks line up with what players see.
-- Entities that a nearby player isn't looking at still have their hitboxes posed (and reported in multiplayer), so checks keep working behind the camera.
-- Added a Bone Hitboxes page to the docs.
-- First-person item arms now render the player's worn chestplate sleeve, supporting vanilla armor and AzureLib armor.
+- Sequence stages can now set their own animation speed, transition length, easing, start offset, freeze point and repeat count. These only apply while that stage plays and no longer stick to the controller afterwards.
+- Added `AzSequence#freeze(name, tick)` for stages that freeze partway through.
+- Added stage-anchored sequence events: `eventAt(name, keyframeTick)`, `eventOnStart(name)` and `eventOnEnd(name)`. They follow playback speed, transitions, start offsets, repeats and stage lengths instead of a fixed game-tick count.
+- Added `AzSequenceTiming` and `AzSequenceTimeline` for working out when stages and events happen, plus `AzSequencePlayer#withTiming` and `AzAnimationController#sequenceTiming()` (client side, reads lengths from the animation file).
+- Molang: assignments anywhere in an expression, multiple `;`-separated statements, `{}` blocks, `return`, `loop(count, body)`, `break` and `continue`.
+- Molang: binary conditional (`a ? b`), null coalescing (`??`), short-circuiting `&&` / `||`, and `true` / `false`.
+- Molang: `variable.*` / `v.*` values are now stored per animatable, so each entity, block entity or item keeps its own copy. Code can read and write them through `AzAnimationContext#molangScope()`.
 
 ### Fixes
-- Fixed animated textures causing large frame-time spikes and heavy memory churn. Each frame change re-decoded the texture pixel by pixel and re-created its GPU storage, for both the base texture and its glow mask. Frames are now decoded once and uploaded into storage allocated a single time, so frame changes no longer allocate memory.
-- Fixed Molang variable assignments incorrectly reading the right-hand expression as the assignment target, preventing v. and t. variables from being assigned correctly.
+- Fixed bone hitboxes (and other bone matrix consumers) ignoring the renderer's `setScale` when the entity had a render layer that re-renders the model. Hitboxes now scale with the model on versions without the scale attribute.
+- Fixed animations getting stuck after a freeze point was set on a controller (e.g. through the full `AzCommand.create` overload). The freeze point now only applies to `FREEZE_ON_FRAME` animations, so later loops, ping-pongs and sequence stages play normally.
+- Fixed a freeze point shorter than the transition length holding the transition open forever.
+- Fixed changing direction during a transition skipping the blend and snapping to the new animation.
+- Fixed `FREEZE_ON_FRAME` pausing on the first frame when the freeze point came from the animation file.
+- Fixed `REPEAT_X_TIMES` playing one extra time and ignoring the animation file's authored `repeat_times`.
+- Fixed the start tick offset being multiplied by animation speed and shortening transitions. Transitions now blend towards the pose playback actually starts on.
+- Molang: `pi` and `e` now resolve to their constants instead of 0.
+- Molang: fixed a possible race when animation files are parsed in parallel.
 
 ### Changes
-- The server's attack and interact distance check now measures to an entity's hitboxes, so parts that stick out past the vanilla bounding box (tails, weapons) can be hit from as far as they reach.
-- Entities using an `AzEntityRenderer` that have hitboxes now run their animator while off-screen within 64 blocks of a player. Keyframe events, including sound keyframes, will fire for those entities even when they aren't visible.
-- AzureLib now sends packets from client to server on a second StationAPI channel, `azurelib:serverbound`. Multiplayer hitboxes need AzureLib on the server.
+- Reduced log spam: the "Replaying queued command(s)" message from pending animation dispatches now only appears in development environments.
+- `REPEAT_X_TIMES` now plays exactly `repeatXTimes` times in total, matching its documentation. Animations tuned around the old behavior will repeat once less.
+- Molang expressions are now compiled by a new parser. Anything it can't handle is retried with the old parser and logged as a warning ("Falling back to the legacy parser").
+- Molang: `temp.*` / `t.*` values now reset on every evaluation instead of carrying over between entities.
+- Molang: assigning to `query.*`, `context.*`, `math.*` or a constant is now rejected and logged, and the expression evaluates to 0.
 
 ### Developer Notes
-- `AzHitboxHolder#onHitboxHit(AzHitboxHit, Entity, int)` runs at the start of `LivingEntity#damage(Entity, int)` on the server (or in the single player world) and returns the damage to apply. The entity is the attacking player for melee or the projectile itself for projectiles. The default rounds `amount * damageMultiplier()`.
-- `AzHitboxHolder#onHitboxInteract(AzHitboxHit, PlayerEntity)` runs on both sides before `Entity#interact(PlayerEntity)` and item use. Return `true` to consume the click.
-- In multiplayer, server-side poses only exist while a player within 64 blocks has the entity loaded. With no player nearby, hitbox queries return nothing and projectiles fall back to the vanilla bounding box, so server logic that reads hitboxes should keep a fallback.
-- Reported poses are bounds-checked but come from clients. A modified client can shift a mob's hitboxes within `maxReach` and `maxHalfExtent`. Use `AzHitboxSet.Builder#clientOnly()` where that isn't acceptable.
-- Added `AzRendererPipeline#modelRenderer()`, `AzEntityRenderer#poseOffscreen` and `AzEntityModelRenderer#poseBonesOffscreen`. The entity transforms and bone matrix tracking in `AzEntityModelRenderer` were moved into private methods shared by the on-screen and off-screen paths. Behavior is unchanged for subclasses.
-- Added `AzureLibNetwork#registerServerbound` and `AzureLibNetwork#sendToServer` with `AzServerboundPacket`. In single player, `sendToServer` handles the packet immediately with the local player.
-- Added `AzArmorRendererPipelineContext#setVisiblePartOverride`, which limits an armor render to the bone matching one base model part.
+- Sequence events added with `event(name, tick)` keep their existing meaning (game ticks after `play()`).
+- Stage-anchored events need the animation lengths they depend on. On the server, pass them through `AzSequenceTiming.builder().length(name, ticks)`. Events whose time can't be worked out are skipped with a single warning instead of firing early.
+- Global variables driven from code with `MolangParser#register`, `setValue` or `setMemoizedValue` still work: animations read them until an animatable assigns its own value.
+- `AzQueuedAnimation` has a new `stageProperties` component; the existing constructors are kept.
