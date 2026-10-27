@@ -12,7 +12,7 @@ Bone hitboxes let an entity be hit per body part. Each hitbox follows a bone in 
 Implement `AzHitboxHolder` on your entity and return a static `AzHitboxSet`:
 
 ```java
-public class XenoEntity extends MonsterEntity implements AzHitboxHolder {
+public class ExampleEntity extends MonsterEntity implements AzHitboxHolder {
 
     private static final AzHitboxSet HITBOXES = AzHitboxSet.builder()
         // Fitted to the head bone's cubes, double damage
@@ -22,7 +22,7 @@ public class XenoEntity extends MonsterEntity implements AzHitboxHolder {
         .add("tail_tip", "tail4", h -> h.size(4, 4, 10).inflate(1))
         .build();
 
-    public XenoEntity(World world) {
+    public ExampleEntity(World world) {
         super(world);
     }
 
@@ -175,6 +175,161 @@ A modified client can move a mob's hitboxes, but only within `maxReach` of the e
 | `poseTimeout(ticks)` | `10` | When a pose is considered stale. |
 | `maxReach(blocks)` | `max(4, 3 * max(width, height))` | Furthest a hitbox center may be from the entity. |
 | `maxHalfExtent(blocks)` | `4` | Largest accepted hitbox half size. |
+
+## Scaled entities
+
+Hitboxes are read from the same bone matrices the model is drawn with. Any scale applied by the renderer therefore carries over to the hitboxes, including their positions and sizes. Renderer scale is also preserved during render-layer re-renders.
+
+Keep hitbox definitions in unscaled Blockbench pixels. Don't divide or multiply them by your scale.
+
+Minecraft Beta 1.7.3 does not have a scale attribute, so you must synchronize and apply the scale yourself. Three things have to agree: the vanilla bounding box, the rendered model, and the bone hitboxes.
+
+### 1. Sync the scale
+
+Use `DataTracker` to synchronize growth between the server and client. Persist the value to NBT so it survives world reloads.
+
+```java
+private static final int GROWTH = 21;
+
+private static final float MAX_GROWTH = 1200f;
+
+private static final float BASE_WIDTH = 0.9f;
+private static final float BASE_HEIGHT = 1.9f;
+
+@Override
+protected void initDataTracker() {
+    super.initDataTracker();
+    dataTracker.startTracking(GROWTH, Float.valueOf(0f));
+}
+
+public float getGrowthScale() {
+    float growth = dataTracker.getFloat(GROWTH);
+
+    return Math.max(
+        0.5f,
+        Math.min(
+            1f,
+            0.5f + (growth / MAX_GROWTH) * 0.5f
+        )
+    );
+}
+
+public void setGrowth(float growth) {
+    if (!world.isRemote) {
+        float clamped = Math.max(
+            0f,
+            Math.min(MAX_GROWTH, growth)
+        );
+
+        dataTracker.set(GROWTH, Float.valueOf(clamped));
+        updateScaledDimensions();
+    }
+}
+```
+
+`GROWTH` is a tracked-data index. Choose an unused index that does not conflict with the entity's inherited tracked values.
+
+The server controls growth and synchronizes it through the entity's data tracker. Clients use that same value for rendering and bounding-box calculations.
+
+Save and restore the growth value using the entity's NBT serialization methods. The stored value should be the raw growth amount, not the calculated scale.
+
+```java
+// Inside the entity's NBT write method:
+tag.putFloat("growth", dataTracker.getFloat(GROWTH));
+
+// Inside the entity's NBT read method:
+dataTracker.set(GROWTH, tag.getFloat("growth"));
+updateScaledDimensions();
+```
+
+Use the NBT method signatures provided by your specific Feather mapping build.
+
+### 2. Scale the entity's bounding box
+
+Beta 1.7.3 uses `setBoundingBoxSpacing(width, height)` instead of `EntityDimensions` and `refreshDimensions()`.
+
+Recalculate the dimensions whenever the synchronized growth value changes.
+
+```java
+private float lastAppliedScale = -1f;
+
+private void updateScaledDimensions() {
+    float scale = getGrowthScale();
+
+    if (Math.abs(lastAppliedScale - scale) < 0.001f) {
+        return;
+    }
+
+    lastAppliedScale = scale;
+
+    setBoundingBoxSpacing(
+        BASE_WIDTH * scale,
+        BASE_HEIGHT * scale
+    );
+}
+```
+
+Call this during initial entity setup, after loading saved growth, and whenever growth changes.
+
+For mappings without a suitable tracked-data update callback, you can check the scale during the entity's regular tick:
+
+```java
+@Override
+public void tick() {
+    super.tick();
+    updateScaledDimensions();
+}
+```
+
+The cached-scale comparison prevents unnecessary bounding-box recalculations when growth has not changed.
+
+This keeps the server and client bounding boxes consistent, including collision handling and client-side entity selection.
+
+If your entity overrides eye height, ensure it follows the scaled dimensions rather than returning an unscaled constant.
+
+### 3. Scale the model and bones
+
+Pass the same scale to AzureLib's renderer configuration:
+
+```java
+public ExampleRenderer() {
+    super(
+        AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+            .setAnimatorProvider(XenoAnimator::new)
+            .setScale(ExampleEntity::getGrowthScale)
+            .build()
+    );
+}
+```
+
+AzureLib applies the renderer scale to the model and bone matrices. Since bone hitboxes use those same matrices, their positions and dimensions follow automatically.
+
+Render layers also retain the scale during re-renders.
+
+Do not manually scale hitbox definitions. Doing so would apply scaling twice.
+
+For non-uniform scaling, use the two-function overload:
+
+```java
+.setScale(
+    ExampleEntity::getHeightScale,
+    ExampleEntity::getWidthScale
+)
+```
+
+**The function overload takes height first, then width.** The float overload uses `setScale(width, height)`.
+
+When applying non-uniform scaling, resize the vanilla bounding box with the corresponding width and height functions.
+
+You can also adjust the renderer's shadow radius to follow the entity's scale.
+
+### Important notes
+
+- Keep all hitbox definitions in their original Blockbench pixel dimensions.
+- Growth must be synchronized between server and client.
+- Update the vanilla bounding box independently of the renderer.
+- Do not repeatedly multiply the existing entity width or height. Always calculate from the unscaled base dimensions.
+- Scale-sensitive values such as eye height and shadow radius may need separate adjustments.
 
 ## Large entities
 
