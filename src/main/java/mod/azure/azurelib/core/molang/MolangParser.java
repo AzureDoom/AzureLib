@@ -7,12 +7,8 @@ package mod.azure.azurelib.core.molang;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleSupplier;
 
@@ -230,7 +226,7 @@ public class MolangParser extends MathBuilder {
      * fallback for expressions the compiler rejects.
      */
     public static MolangValue parseExpressionLegacy(String expression) {
-        Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
+        Map<String, LazyVariable> locals = new HashMap<>();
         Map<String, LazyVariable> outerLocals = PARSE_LOCALS.get();
         MolangCompoundValue result = null;
 
@@ -282,7 +278,7 @@ public class MolangParser extends MathBuilder {
     ) {
         Map<String, LazyVariable> locals = currentStatement != null
             ? currentStatement.locals
-            : new Object2ObjectOpenHashMap<>();
+            : new HashMap<>();
 
         return parseOneLine(expression, locals);
     }
