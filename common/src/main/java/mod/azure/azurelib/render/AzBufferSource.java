@@ -2,6 +2,7 @@ package mod.azure.azurelib.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * 26.2 stand-in for {@code MultiBufferSource}.
@@ -34,6 +36,11 @@ import java.util.function.Function;
  * A buffer source lives for one render of one animatable, so recordings are sized up front from what the same render
  * type needed last time and handed to the submit callback without copying. {@link #mirror} lets a layer re-submit a
  * range of an existing recording under another render type, instead of walking the model a second time.
+ * <p>
+ * With {@link #setTranslucencySorting translucency sorting} on, the recordings of matching render types are not
+ * submitted as one batch each: {@link AzTranslucencySorter} sorts their quads together back to front and submits them
+ * in runs. Recordings made by layers that opted out ({@link #pushUnsorted()}) and mirrors are then submitted after the
+ * sorted geometry.
  */
 @SuppressWarnings("unused")
 public final class AzBufferSource {
@@ -61,13 +68,59 @@ public final class AzBufferSource {
 
     private final List<MirrorEntry> mirrors = new ArrayList<>();
 
+    /**
+     * Recordings made while a layer that opted out of translucency sorting was writing (see {@link #pushUnsorted()}).
+     * Kept apart so they can be submitted after the sorted geometry, in order.
+     */
+    private final Map<RenderType, RecordingConsumer> unsortedBuffers = new LinkedHashMap<>();
+
+    /** Render types sorted together at submit time, or {@code null} when translucency sorting is off. */
+    private @Nullable Predicate<RenderType> sortFilter;
+
+    private int unsortedDepth;
+
+    /**
+     * Sorts the recordings of every render type matching {@code filter} back to front together when this buffer source
+     * is submitted, instead of submitting each render type as one batch. See {@link AzTranslucencySorter}.
+     *
+     * @param filter which render types to sort, or {@code null} to turn sorting off
+     */
+    public void setTranslucencySorting(@Nullable Predicate<RenderType> filter) {
+        this.sortFilter = filter;
+    }
+
+    /**
+     * @return whether translucency sorting is on for this buffer source
+     */
+    public boolean isSortingTranslucency() {
+        return sortFilter != null;
+    }
+
+    /**
+     * Until the matching {@link #popUnsorted()}, geometry of sorted render types is recorded separately and submitted
+     * after the sorted geometry, in submission order. For layers that opt out of sorting.
+     */
+    public void pushUnsorted() {
+        unsortedDepth++;
+    }
+
+    public void popUnsorted() {
+        if (unsortedDepth > 0) {
+            unsortedDepth--;
+        }
+    }
+
+    private Map<RenderType, RecordingConsumer> recordingsFor(RenderType renderType) {
+        return unsortedDepth > 0 && sortFilter != null && sortFilter.test(renderType) ? unsortedBuffers : buffers;
+    }
+
     public VertexConsumer getBuffer(RenderType renderType) {
-        return buffers.computeIfAbsent(renderType, NEW_CONSUMER);
+        return recordingsFor(renderType).computeIfAbsent(renderType, NEW_CONSUMER);
     }
 
     /** Number of vertices recorded so far for {@code renderType}, or 0 if nothing has been recorded for it. */
     public int vertexCount(RenderType renderType) {
-        var recording = renderType == null ? null : buffers.get(renderType);
+        var recording = renderType == null ? null : recordingsFor(renderType).get(renderType);
         return recording == null ? 0 : recording.vertexCount;
     }
 
@@ -76,6 +129,10 @@ public final class AzBufferSource {
         var total = 0;
 
         for (var recording : buffers.values()) {
+            total += recording.vertexCount;
+        }
+
+        for (var recording : unsortedBuffers.values()) {
             total += recording.vertexCount;
         }
 
@@ -180,7 +237,7 @@ public final class AzBufferSource {
     }
 
     public boolean isEmpty() {
-        return buffers.isEmpty() && deferred.isEmpty();
+        return buffers.isEmpty() && unsortedBuffers.isEmpty() && deferred.isEmpty();
     }
 
     /**
@@ -205,12 +262,15 @@ public final class AzBufferSource {
             deferred.clear();
         }
 
-        if (buffers.isEmpty()) {
+        if (buffers.isEmpty() && unsortedBuffers.isEmpty()) {
             mirrors.clear();
+            resetSorting();
             return;
         }
 
         Map<RenderType, Recording> recordings = mirrors.isEmpty() ? null : new LinkedHashMap<>();
+        List<RenderType> sortedTypes = null;
+        List<Recording> sortedRecordings = null;
 
         for (var entry : buffers.entrySet()) {
             var consumer = entry.getValue();
@@ -222,10 +282,44 @@ public final class AzBufferSource {
             var renderType = entry.getKey();
             var recording = consumer.snapshot();
             updateCapacityHint(renderType, recording.vertexCount());
-            collector.submitCustomGeometry(poseStack, renderType, recording::replay);
+
+            if (sortFilter != null && sortFilter.test(renderType)) {
+                // Held back and submitted together, back to front, once every recording is known.
+                if (sortedTypes == null) {
+                    sortedTypes = new ArrayList<>(4);
+                    sortedRecordings = new ArrayList<>(4);
+                }
+
+                sortedTypes.add(renderType);
+                sortedRecordings.add(recording);
+            } else {
+                collector.submitCustomGeometry(poseStack, renderType, recording::replay);
+            }
 
             if (recordings != null) {
                 recordings.put(renderType, recording);
+            }
+        }
+
+        // Whatever must draw after the sorted geometry is submitted through this: the collector itself, or the order
+        // after the last sorted run when the sorter had to spread runs over orders.
+        OrderedSubmitNodeCollector after = sortedTypes == null
+            ? collector
+            : AzTranslucencySorter.submitSorted(collector, poseStack, sortedTypes, sortedRecordings);
+
+        for (var entry : unsortedBuffers.entrySet()) {
+            var consumer = entry.getValue();
+
+            if (consumer.isEmpty()) {
+                continue;
+            }
+
+            var renderType = entry.getKey();
+            var recording = consumer.snapshot();
+            after.submitCustomGeometry(poseStack, renderType, recording::replay);
+
+            if (recordings != null) {
+                recordings.putIfAbsent(renderType, recording);
             }
         }
 
@@ -245,7 +339,7 @@ public final class AzBufferSource {
 
                 var runs = mirror.runs() != null ? mirror.runs() : new int[] { mirror.startVertex(), end };
 
-                collector.submitCustomGeometry(
+                after.submitCustomGeometry(
                     poseStack,
                     mirror.target(),
                     (pose, consumer) -> {
@@ -267,6 +361,13 @@ public final class AzBufferSource {
         }
 
         buffers.clear();
+        unsortedBuffers.clear();
+        resetSorting();
+    }
+
+    private void resetSorting() {
+        sortFilter = null;
+        unsortedDepth = 0;
     }
 
     private static int initialCapacity(RenderType renderType) {
@@ -295,13 +396,60 @@ public final class AzBufferSource {
         return alpha << 24 | red << 16 | green << 8 | blue;
     }
 
-    private record Recording(
+    /**
+     * One render type's recorded vertices, entity-local. Package-private so {@link AzTranslucencySorter} can read quad
+     * centroids and replay single quads.
+     */
+    record Recording(
         float[] floats,
         int[] ints,
         int vertexCount
     ) {
 
-        private void replay(PoseStack.Pose pose, VertexConsumer consumer) {
+        /** Number of whole quads recorded. */
+        int quadCount() {
+            return vertexCount >> 2;
+        }
+
+        /** Writes the average of quad {@code quad}'s four recorded positions into {@code out}. */
+        void quadCentroid(int quad, Vector3f out) {
+            var f = quad * 4 * RecordingConsumer.FLOAT_STRIDE;
+            float x = 0, y = 0, z = 0;
+
+            for (int v = 0; v < 4; v++, f += RecordingConsumer.FLOAT_STRIDE) {
+                x += floats[f];
+                y += floats[f + 1];
+                z += floats[f + 2];
+            }
+
+            out.set(x * 0.25F, y * 0.25F, z * 0.25F);
+        }
+
+        /** Replays the quads listed in {@code quads[0, count)}, in that order. */
+        void replayQuads(PoseStack.Pose pose, VertexConsumer consumer, int[] quads, int count) {
+            var matrix = pose.pose();
+            var position = new Vector3f();
+            var normal = new Vector3f();
+
+            for (int q = 0; q < count; q++) {
+                var first = quads[q] * 4;
+
+                for (var i = first; i < first + 4; i++) {
+                    var f = i * RecordingConsumer.FLOAT_STRIDE;
+                    var n = i * RecordingConsumer.INT_STRIDE;
+                    matrix.transformPosition(floats[f], floats[f + 1], floats[f + 2], position);
+                    pose.transformNormal(floats[f + 5], floats[f + 6], floats[f + 7], normal);
+                    consumer.addVertex(position.x, position.y, position.z)
+                        .setColor(ints[n])
+                        .setUv(floats[f + 3], floats[f + 4])
+                        .setOverlay(ints[n + 1])
+                        .setLight(ints[n + 2])
+                        .setNormal(normal.x, normal.y, normal.z);
+                }
+            }
+        }
+
+        void replay(PoseStack.Pose pose, VertexConsumer consumer) {
             replay(pose, consumer, 0, vertexCount, KEEP_LIGHT, NO_TINT);
         }
 

@@ -120,6 +120,15 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
     public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {}
 
     /**
+     * The glow is drawn over the model's own surfaces, so it stays on top of the sorted model instead of being
+     * interleaved with it.
+     */
+    @Override
+    public boolean sortsTranslucency() {
+        return false;
+    }
+
+    /**
      * Whether this layer may reuse the vertices of the main model pass instead of re-rendering the model. The renderer
      * still checks that the pass is reusable (no bone texture or render type overrides, nothing else drawn into the
      * model's render type). Override and return {@code false} if your renderer draws the glow pass differently from the

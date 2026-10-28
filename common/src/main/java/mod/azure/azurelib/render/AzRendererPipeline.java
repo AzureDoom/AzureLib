@@ -96,6 +96,15 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
         int packedLight
     ) {
         AzProfiler.begin(AzProfileStage.RENDER, animatable);
+
+        // With translucency sorting on, the buffer source sorts this render's translucent recordings together when it
+        // is submitted. A nested render into the same buffer source leaves the outer render's setting alone.
+        var sortFilter = config.translucencySortFilter();
+
+        if (sortFilter != null && !bufferSource.isSortingTranslucency()) {
+            bufferSource.setTranslucencySorting(sortFilter);
+        }
+
         renderType = context.getDefaultRenderType(
             animatable,
             config.textureLocation(context.currentEntity, animatable),
@@ -123,11 +132,9 @@ public abstract class AzRendererPipeline<K, T> implements AzPhasedRenderer<K, T>
 
         layerRenderer.preApplyRenderLayers(context);
         modelRenderer.cacheTexture(context);
-        context.beginModelPass();
         AzProfiler.begin(AzProfileStage.MODEL_RENDER, animatable);
         modelRenderer.render(context, false);
         AzProfiler.end(AzProfileStage.MODEL_RENDER);
-        context.endModelPass();
         modelRenderer.clearCacheTexture();
         AzProfiler.begin(AzProfileStage.RENDER_LAYERS, animatable);
         layerRenderer.applyRenderLayers(context);

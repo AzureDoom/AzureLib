@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render;
 
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -59,6 +61,8 @@ public class AzRendererConfig<K, T> {
 
     private final BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
+    private @Nullable Predicate<RenderType> translucencySortFilter;
+
     public AzRendererConfig(
         Supplier<AzAnimator<K, T>> animatorProvider,
         BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider,
@@ -91,6 +95,22 @@ public class AzRendererConfig<K, T> {
         this.scaleWidth = scaleWidth;
         this.boneTextureOverrideProvider = boneTextureOverrideProvider;
         this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
+    }
+
+    /**
+     * Copies options that subclass builders don't pass through their constructors from the base config built by
+     * {@link Builder#build()}. Subclass builders call this on the config they create.
+     */
+    protected void copyBaseOptions(AzRendererConfig<K, T> base) {
+        this.translucencySortFilter = base.translucencySortFilter;
+    }
+
+    /**
+     * @return which render types are sorted back to front across the model, its layers and bone overrides, or
+     *         {@code null} if translucency sorting is off. See {@link AzTranslucencySorter}.
+     */
+    public @Nullable Predicate<RenderType> translucencySortFilter() {
+        return translucencySortFilter;
     }
 
     public @Nullable AzAnimator<K, T> createAnimator() {
@@ -208,6 +228,8 @@ public class AzRendererConfig<K, T> {
 
         private BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
+        private @Nullable Predicate<RenderType> translucencySortFilter;
+
         protected Builder(
             BiFunction<@Nullable Entity, T, Identifier> modelLocationProvider,
             BiFunction<@Nullable Entity, T, Identifier> textureLocationProvider
@@ -229,6 +251,34 @@ public class AzRendererConfig<K, T> {
             this.scaleWidth = _ -> 1.0F;
             this.boneTextureOverrideProvider = (_, _) -> null;
             this.boneRenderTypeOverrideProvider = (_, _) -> null;
+        }
+
+        /**
+         * Sorts all of the animatable's translucent geometry back to front together, across the model, its render
+         * layers and bones with their own render type, instead of drawing each render type as its own batch. Fixes
+         * translucent parts of one render type hiding translucent parts of another behind them. Off by default; when
+         * the sorted geometry uses more than one render type it is submitted in runs over several submit orders. See
+         * {@link AzTranslucencySorter} for the details and limits.
+         *
+         * @param enabled whether to sort the render types vanilla treats as translucent
+         */
+        public Builder<K, T> setTranslucencySorting(boolean enabled) {
+            this.translucencySortFilter = enabled ? AzTranslucencySorter.DEFAULT_FILTER : null;
+            return this;
+        }
+
+        /**
+         * Like {@link #setTranslucencySorting(boolean)}, but with your own choice of which render types to sort, e.g.
+         * to include a custom translucent render type that vanilla doesn't sort. Only quad-based render types can be
+         * sorted.
+         *
+         * @param sortedRenderTypes which render types to sort, or {@code null} to turn sorting off
+         */
+        public Builder<K, T> setTranslucencySorting(@Nullable Predicate<RenderType> sortedRenderTypes) {
+            this.translucencySortFilter = sortedRenderTypes == null
+                ? null
+                : sortedRenderTypes.and(renderType -> renderType.primitiveTopology() == PrimitiveTopology.QUADS);
+            return this;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
@@ -402,7 +452,7 @@ public class AzRendererConfig<K, T> {
          *         location provider, texture location provider, render layers, and scale factors.
          */
         public AzRendererConfig<K, T> build() {
-            return new AzRendererConfig<>(
+            AzRendererConfig<K, T> config = new AzRendererConfig<>(
                 animatorProvider,
                 modelLocationProvider,
                 modelRendererProvider,
@@ -419,6 +469,9 @@ public class AzRendererConfig<K, T> {
                 boneTextureOverrideProvider,
                 boneRenderTypeOverrideProvider
             );
+
+            config.translucencySortFilter = translucencySortFilter;
+            return config;
         }
     }
 }

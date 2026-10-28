@@ -39,7 +39,7 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        var layers = renderLayerSupplier.get();
+        Collection<AzRenderLayer<K, T>> layers = renderLayerSupplier.get();
 
         if (layers.isEmpty()) {
             return;
@@ -56,7 +56,7 @@ public class AzLayerRenderer<K, T> {
             }
         } else {
             for (var renderLayer : layers) {
-                renderLayer.renderForBone(context, bone);
+                renderLayerForBone(context, renderLayer, bone);
             }
         }
 
@@ -72,8 +72,51 @@ public class AzLayerRenderer<K, T> {
      * Render the various {@link AzRenderLayer RenderLayers} that have been registered to this renderer
      */
     protected void applyRenderLayers(AzRendererPipelineContext<K, T> context) {
-        for (var renderLayer : renderLayerSupplier.get()) {
-            renderLayer.render(context);
+        for (AzRenderLayer<K, T> renderLayer : renderLayerSupplier.get()) {
+            AzBufferSource sorter = unsortedSorter(context, renderLayer);
+
+            if (sorter == null) {
+                renderLayer.render(context);
+                continue;
+            }
+
+            sorter.pushUnsorted();
+
+            try {
+                renderLayer.render(context);
+            } finally {
+                sorter.popUnsorted();
+            }
         }
+    }
+
+    private void renderLayerForBone(AzRendererPipelineContext<K, T> context, AzRenderLayer<K, T> layer, AzBone bone) {
+        AzBufferSource sorter = unsortedSorter(context, layer);
+
+        if (sorter == null) {
+            layer.renderForBone(context, bone);
+            return;
+        }
+
+        sorter.pushUnsorted();
+
+        try {
+            layer.renderForBone(context, bone);
+        } finally {
+            sorter.popUnsorted();
+        }
+    }
+
+    /**
+     * @return the buffer source if it sorts translucency and {@code layer} opts out of sorting, else {@code null}
+     */
+    private static AzBufferSource unsortedSorter(AzRendererPipelineContext<?, ?> context, AzRenderLayer<?, ?> layer) {
+        var bufferSource = context.multiBufferSource();
+
+        if (!layer.sortsTranslucency() && bufferSource != null && bufferSource.isSortingTranslucency()) {
+            return bufferSource;
+        }
+
+        return null;
     }
 }

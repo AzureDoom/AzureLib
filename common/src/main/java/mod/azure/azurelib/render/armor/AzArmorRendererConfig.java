@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -169,6 +170,16 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         @Override
+        public Builder setTranslucencySorting(boolean enabled) {
+            return (Builder) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder setTranslucencySorting(@Nullable Predicate<RenderType> sortedRenderTypes) {
+            return (Builder) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
             return (AzArmorRendererConfig.Builder) super.setAlpha(alphaFunction);
         }
@@ -205,7 +216,7 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         public AzArmorRendererConfig build() {
             var baseConfig = super.build();
 
-            return new AzArmorRendererConfig(
+            AzArmorRendererConfig config = new AzArmorRendererConfig(
                 baseConfig::createAnimator,
                 boneProvider,
                 baseConfig::getRenderType,
@@ -223,6 +234,9 @@ public class AzArmorRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 baseConfig::boneTextureOverrideProvider,
                 baseConfig::boneRenderTypeOverrideProvider
             );
+
+            config.copyBaseOptions(baseConfig);
+            return config;
         }
     }
 }
