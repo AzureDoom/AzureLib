@@ -13,6 +13,8 @@ public interface AzHitboxHolder {
         return amount * hit.hitbox().damageMultiplier();
     }
 
+    default void onHitboxDamaged(AzHitboxHit hit, DamageSource source, float amount) {}
+
     default InteractionResult onHitboxInteract(AzHitboxHit hit, Player player, InteractionHand hand) {
         return InteractionResult.PASS;
     }
