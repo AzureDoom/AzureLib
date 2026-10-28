@@ -90,7 +90,13 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
         cache.dispatchOrQueue(
             this.itemStackId,
             this.view.orElse(null),
-            animator -> this.dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator))
+            animator -> {
+                dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+                animator.forEachLinkedAnimator(
+                    linked -> dispatchCommand.actions()
+                        .forEach(action -> action.handle(AzDispatchSide.SERVER, linked))
+                );
+            }
         );
     }
 
