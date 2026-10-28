@@ -155,7 +155,7 @@ public abstract class AzRendererPipelineContext<K, T> {
     /**
      * Gets a packed overlay coordinate pair for rendering.<br>
      * Mostly just used for the red tint when an entity is hurt, but can be used for other things like the
-     * {@link net.minecraft.world.entity.monster.Creeper} white tint when exploding.
+     * {@link net.minecraft.entity.monster.EntityCreeper} white tint when exploding.
      */
     protected int getPackedOverlay(T animatable, float u, float partialTick) {
         return OverlayTexture.NO_OVERLAY;
@@ -233,6 +233,10 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.red = color.getRedFloat();
         this.green = color.getGreenFloat();
         this.blue = color.getBlueFloat();
+    }
+
+    public void setMultiBufferSource(MultiBufferSource multiBufferSource) {
+        this.multiBufferSource = multiBufferSource;
     }
 
     public int packedLight() {

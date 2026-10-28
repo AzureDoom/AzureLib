@@ -113,6 +113,7 @@ The `AzAutoGlowingLayer` renders the glow unlit and at full brightness; on 1.12.
 - `getPackedLight(context)`: the light value passed for the glow render (ignored by the default emissive render types on 1.12.2).
 - `getGlowColor(context)`: the ARGB tint for the glow. Override this instead of passing a function to the constructor if your tint logic is easier to keep in a subclass.
 - `determineRenderType(context)`: the render type used for the glow, including how invisible and glowing (outlined) entities are handled.
+- `sortsTranslucency()`: returns `false`, so the glow stays drawn on top of the model when its renderer has translucency sorting on. There's rarely a reason to change this.
 
 ```java
 public class PulsingGlowLayer<K, T> extends AzAutoGlowingLayer<K, T> {

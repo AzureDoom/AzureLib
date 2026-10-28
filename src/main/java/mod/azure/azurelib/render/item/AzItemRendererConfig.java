@@ -210,6 +210,16 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         @Override
+        public Builder setTranslucencySorting(boolean enabled) {
+            return (Builder) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder setTranslucencySorting(Predicate<RenderType> sortedRenderTypes) {
+            return (Builder) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
             return (Builder) super.setAlpha(alphaFunction);
         }
@@ -363,7 +373,7 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         public AzItemRendererConfig build() {
             AzRendererConfig<UUID, ItemStack> baseConfig = super.build();
 
-            return new AzItemRendererConfig(
+            AzItemRendererConfig config = new AzItemRendererConfig(
                 baseConfig::createAnimator,
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
@@ -384,6 +394,9 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 baseConfig::boneTextureOverrideProvider,
                 baseConfig::boneRenderTypeOverrideProvider
             );
+
+            config.copyBaseOptions(baseConfig);
+            return config;
         }
     }
 }
