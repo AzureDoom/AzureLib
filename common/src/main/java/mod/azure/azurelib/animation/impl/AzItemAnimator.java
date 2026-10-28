@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation.impl;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
@@ -7,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorConfig;
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
 import mod.azure.azurelib.util.client.RenderUtils;
@@ -72,5 +74,12 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
         ITEM_IS_ENCHANTED_REF.setMemoized(isEnchantedSupplier);
         MAX_DURABILITY_REF.setMemoized(maxDurabilitySupplier);
         REMAINING_DURABILITY_REF.setMemoized(remainingDurabilitySupplier);
+
+        // Like a Bedrock attachable, entity queries answer for whoever is holding the item, if anyone.
+        LivingEntity holder = AzMolangQueryContext.INSTANCE.itemHolder();
+
+        if (holder != null) {
+            AzMolangQueryContext.INSTANCE.bind(holder, partialTicks);
+        }
     }
 }

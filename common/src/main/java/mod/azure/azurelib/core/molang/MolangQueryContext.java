@@ -75,6 +75,37 @@ public interface MolangQueryContext {
         return 0;
     }
 
+    /**
+     * Whether {@code object} is a live entity reference this context can evaluate queries for, i.e. something the arrow
+     * operator ({@code t.e->q.health}) can switch to. Removed or otherwise stale entities should return {@code false}.
+     */
+    default boolean isEntity(Object object) {
+        return false;
+    }
+
+    /**
+     * Re-binds queries (and, if supported, {@code variable.*}) to {@code entity} for the right side of an arrow
+     * operator. Every successful call is matched by exactly one {@link #popEntity()}; calls may nest.
+     *
+     * @return {@code false} if {@code entity} isn't an entity this context can switch to; nothing was pushed then
+     */
+    default boolean pushEntity(Object entity) {
+        return false;
+    }
+
+    /**
+     * Restores the binding that was active before the matching {@link #pushEntity(Object)}.
+     */
+    default void popEntity() {}
+
+    /**
+     * The value of Molang's {@code this}: the current value of whatever the expression is computing. Contexts supply it
+     * only where it has a meaning (an animation channel, for AzureLib); everywhere else it is 0.
+     */
+    default double thisValue() {
+        return 0;
+    }
+
     final class Holder {
 
         private static MolangQueryContext current = EMPTY;
