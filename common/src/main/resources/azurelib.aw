@@ -45,3 +45,4 @@ accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double first Lcom
 accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double second Lcom/mojang/blaze3d/vertex/VertexConsumer;
 accessible field net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator delegate Lcom/mojang/blaze3d/vertex/VertexConsumer;
 accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+accessible field net/minecraft/client/renderer/RenderType sortOnUpload Z
