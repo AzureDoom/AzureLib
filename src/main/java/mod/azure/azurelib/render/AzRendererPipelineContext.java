@@ -236,6 +236,10 @@ public abstract class AzRendererPipelineContext<K, T> {
         this.blue = color.getBlueFloat();
     }
 
+    public void setMultiBufferSource(MultiBufferSource multiBufferSource) {
+        this.multiBufferSource = multiBufferSource;
+    }
+
     public int packedLight() {
         return packedLight;
     }

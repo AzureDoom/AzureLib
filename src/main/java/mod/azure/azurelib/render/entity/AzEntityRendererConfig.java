@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -201,6 +202,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         }
 
         @Override
+        public Builder<T> setTranslucencySorting(boolean enabled) {
+            return (Builder<T>) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder<T> setTranslucencySorting(Predicate<RenderType> sortedRenderTypes) {
+            return (Builder<T>) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
             return (Builder<T>) super.setAlpha(alphaFunction);
         }
@@ -233,7 +244,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         /**
          * Sets a provider for the max rotation value for dying entities.<br>
          * You might want to modify this for different aesthetics, such as a
-         * {@link net.minecraft.world.entity.monster.Spider} flipping upside down on death.<br>
+         * {@link net.minecraft.entity.mob.monster.SpiderEntity} flipping upside down on death.<br>
          * Functionally equivalent to {@code LivingEntityRenderer#getFlipDegrees} (1.18)
          */
         public Builder<T> setDeathMaxRotation(Function<T, Float> deathMaxRotationProvider) {
@@ -281,7 +292,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         public AzEntityRendererConfig<T> build() {
             AzRendererConfig<UUID, T> baseConfig = super.build();
 
-            return new AzEntityRendererConfig<>(
+            AzEntityRendererConfig<T> config = new AzEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
                 shadowRadius,
@@ -301,6 +312,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 baseConfig::boneRenderTypeOverrideProvider,
                 lodConfig
             );
+
+            config.copyBaseOptions(baseConfig);
+            return config;
         }
     }
 }

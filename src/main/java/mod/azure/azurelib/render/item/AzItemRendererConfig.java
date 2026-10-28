@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render.item;
 
+import mod.azure.azurelib.util.AzCollections;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -218,6 +219,16 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
         }
 
         @Override
+        public Builder setTranslucencySorting(boolean enabled) {
+            return (Builder) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder setTranslucencySorting(Predicate<RenderType> sortedRenderTypes) {
+            return (Builder) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder setAlpha(Function<ItemStack, Float> alphaFunction) {
             return (Builder) super.setAlpha(alphaFunction);
         }
@@ -409,7 +420,8 @@ public class AzItemRendererConfig extends AzRendererConfig<UUID, ItemStack> {
                 baseConfig::boneTextureOverrideProvider,
                 baseConfig::boneRenderTypeOverrideProvider
             );
-            config.vanillaContexts = mod.azure.azurelib.util.AzCollections.immutableSet(this.vanillaContexts);
+            config.vanillaContexts = AzCollections.immutableSet(this.vanillaContexts);
+            config.copyBaseOptions(baseConfig);
             return config;
         }
     }

@@ -25,6 +25,10 @@ public final class GlStateManager {
         GL11.glPopMatrix();
     }
 
+    public static void getFloat(int pname, FloatBuffer params) {
+        GL11.glGetFloat(pname, params);
+    }
+
     public static void translate(float x, float y, float z) {
         GL11.glTranslatef(x, y, z);
     }
