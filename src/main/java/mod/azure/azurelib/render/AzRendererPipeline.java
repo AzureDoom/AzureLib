@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render;
 
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.cache.texture.AnimatableTexture;
@@ -11,8 +12,6 @@ import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
-
-import java.util.function.Predicate;
 
 /**
  * Abstract base class for defining a rendering pipeline. The {@code AzRendererPipeline} provides a structured framework

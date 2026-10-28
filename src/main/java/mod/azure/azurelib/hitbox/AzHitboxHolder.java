@@ -38,4 +38,8 @@ public interface AzHitboxHolder {
     default boolean onHitboxInteract(AzHitboxHit hit, PlayerEntity player) {
         return false;
     }
+
+    default boolean isHitboxEnabled(AzHitbox hitbox) {
+        return true;
+    }
 }

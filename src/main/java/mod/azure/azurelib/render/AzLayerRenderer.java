@@ -96,16 +96,16 @@ public class AzLayerRenderer<K, T> {
     }
 
     private static AzTranslucencySorter unsortedSorter(
-            AzRendererPipelineContext<?, ?> context,
-            AzRenderLayer<?, ?> layer
+        AzRendererPipelineContext<?, ?> context,
+        AzRenderLayer<?, ?> layer
     ) {
         if (
-                !layer.sortsTranslucency()
-                        && context.multiBufferSource() instanceof AzTranslucencySorter
+            !layer.sortsTranslucency()
+                && context.multiBufferSource() instanceof AzTranslucencySorter
         ) {
 
             AzTranslucencySorter sorter =
-                    (AzTranslucencySorter) context.multiBufferSource();
+                (AzTranslucencySorter) context.multiBufferSource();
 
             if (sorter.isActive()) {
                 return sorter;
