@@ -25,8 +25,8 @@ public final class MolangLoop implements IValue {
 
     @Override
     public double get() {
-        var raw = count.get();
-        var iterations = Double.isNaN(raw) ? 0 : (int) Math.min(MAX_ITERATIONS, Math.max(0, Math.floor(raw)));
+        double raw = count.get();
+        int iterations = Double.isNaN(raw) ? 0 : (int) Math.clamp(Math.floor(raw), 0, MAX_ITERATIONS);
 
         for (int i = 0; i < iterations; i++) {
             body.get();

@@ -21,6 +21,7 @@
     "BlockEntityMixin_AzBlockEntityAnimatorCache",
     "EntityMixin_AzEntityAnimatorCache",
     "ItemStackMixin_AzItemAnimatorCache",
+    "ItemModelResolverMixin_AzItemHolder",
     "ItemStackRenderStateMixin_AzDisplayContext",
     "MinecraftMixin_AzHitboxOffscreen",
     "MultiPlayerGameModeMixin_AzHitboxAttack",

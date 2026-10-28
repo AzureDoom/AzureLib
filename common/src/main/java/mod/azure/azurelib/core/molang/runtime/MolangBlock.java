@@ -22,7 +22,7 @@ public final class MolangBlock implements IValue {
 
     @Override
     public double get() {
-        for (var statement : statements) {
+        for (IValue statement : statements) {
             statement.get();
 
             if (frame.signal != MolangFrame.NONE) {
@@ -44,9 +44,9 @@ public final class MolangBlock implements IValue {
 
     @Override
     public String toString() {
-        var joiner = new StringJoiner("; ", "{", statements.length > 0 ? ";}" : "}");
+        StringJoiner joiner = new StringJoiner("; ", "{", statements.length > 0 ? ";}" : "}");
 
-        for (var statement : statements) {
+        for (IValue statement : statements) {
             joiner.add(statement.toString());
         }
 

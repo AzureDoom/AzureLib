@@ -4,7 +4,8 @@ import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueryContext;
 
 /**
- * {@code query.is_item_equipped([hand])}: 1 if the hand (0 = main hand, the default, 1 = offhand) holds an item.
+ * {@code query.is_item_equipped([hand])}: 1 if the hand holds an item. The hand is 0 or {@code 'main_hand'} (the
+ * default), or 1 or {@code 'off_hand'}.
  */
 public class IsItemEquipped extends ContextQueryFunction {
 
@@ -14,6 +15,7 @@ public class IsItemEquipped extends ContextQueryFunction {
 
     @Override
     protected double evaluate(MolangQueryContext context) {
-        return context.isItemEquipped(intArg(0));
+        int hand = handArg(0, MAIN_HAND);
+        return hand < 0 ? 0 : context.isItemEquipped(hand);
     }
 }

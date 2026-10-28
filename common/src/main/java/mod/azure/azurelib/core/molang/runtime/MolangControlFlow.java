@@ -34,7 +34,7 @@ public final class MolangControlFlow implements IValue {
 
     @Override
     public double get() {
-        var result = value == null ? 0 : value.get();
+        double result = value == null ? 0 : value.get();
 
         // Don't let a nested signal (e.g. a return inside the returned expression) be overwritten.
         if (frame.signal == MolangFrame.NONE) {
