@@ -70,6 +70,18 @@ public class AzAnimationQueue {
     }
 
     /**
+     * Replaces this queue's contents with the animations still queued in {@code other}, in the same order.
+     */
+    public void copyFrom(@NotNull AzAnimationQueue other) {
+        if (other == this) {
+            return;
+        }
+
+        animationQueue.clear();
+        animationQueue.addAll(other.animationQueue);
+    }
+
+    /**
      * Clears all animations from the animation queue. This method removes all {@link AzQueuedAnimation} objects
      * currently stored in the queue, leaving it empty.
      */
