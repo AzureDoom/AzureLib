@@ -1,8 +1,10 @@
 package mod.azure.azurelib.render.layer;
 
+import java.util.function.Supplier;
+
+import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipeline;
@@ -64,44 +66,90 @@ public interface AzRenderLayer<K, T> {
     void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone);
 
     /**
-     * Re-renders the given renderer pipeline context using a specified baked model. The method temporarily replaces the
-     * current baked model with the provided one, triggers a re-render, and restores the original baked model upon
-     * completion. If the specified model is {@code null}, a default baked model is used.
+     * Re-renders the given renderer pipeline context using a specified baked model, posed to match the model that was
+     * just rendered. Every bone of {@code model} that shares a name with a bone of the current model copies that bone's
+     * animated pose (relative to each model's own bind pose) and visibility; bones that only exist in {@code model}
+     * keep their bind pose relative to their parent. If the specified model is {@code null}, a default baked model is
+     * used.
+     * <p>
+     * The animatable's bone cache is left untouched, so animation state, bone snapshots and bone matrix tracking (used
+     * by hitboxes and bone-attached effects) of the base model are unaffected by the layer. The animator is not run a
+     * second time.
      *
      * @param context The active renderer pipeline context containing the pipeline state, the animatable instance, and
      *                other rendering properties.
-     * @param model   The baked model that will temporarily replace the current one for a re-render.
+     * @param model   The baked model to render in place of the current one for this pass.
      */
     default void reRenderWithBakedModel(AzRendererPipelineContext<K, T> context, AzBakedModel model) {
-        AzRendererPipeline<K, T> pipeline = context.rendererPipeline();
-        AzBakedModel previousContextModel = context.bakedModel();
+        AzBakedModel baseModel = context.bakedModel();
         AzBakedModel targetModel = model != null ? model : AzBakedModel.getDefault();
+        AzAnimator<Object, T> baseAnimator = AzAnimatorAccessor.getOrNull(context.animatable());
+        AzAnimationContext<T> baseContext = baseAnimator != null ? baseAnimator.context() : null;
+        AzBakedModel overlay = baseModel != null
+            ? AzOverlayModels.posedOverlay(baseContext, baseModel, targetModel)
+            : targetModel;
 
-        AzAnimator<Object, T> animator = AzAnimatorAccessor.getOrNull(context.animatable());
+        renderOverlay(context, overlay);
+    }
 
-        if (animator == null || animator.context() == null || animator.context().boneCache() == null) {
-            context.setBakedModel(targetModel);
-            pipeline.reRender(context, true);
-            context.setBakedModel(previousContextModel);
-            return;
-        }
+    /**
+     * Opt-in variant of {@link #reRenderWithBakedModel} for overlays that have bones of their own which need to be
+     * animated (a strap that swings, a flap that opens, etc.).
+     * <p>
+     * The overlay gets its own animator, created once per animatable from {@code overlayAnimatorFactory} and kept for
+     * as long as the animatable's animator lives. That animator:
+     * <ul>
+     * <li>animates its own copy of {@code model} each time this is called, then every bone shared with the current
+     * model is overwritten with the current model's pose, exactly as in {@link #reRenderWithBakedModel}, so shared
+     * geometry still lines up with the base model;</li>
+     * <li>receives every animation command dispatched to the animatable (client and server), so controller settings
+     * such as speed, weight and reversal follow the base animator;</li>
+     * <li>is aligned every frame before it animates: each controller with the same name as one of the base animator's
+     * is set to the same sequence, origin side, stage, repeat count, direction and progress. Overlay-only bones stay
+     * frame-exact with the base animation, including when the overlay is created mid-animation or wasn't rendered for a
+     * while. A newly started overlay animation blends in over its transition, then snaps into step.</li>
+     * </ul>
+     * Typically the overlay animator returns the base animation file from {@link AzAnimator#getAnimationLocation} and
+     * registers controllers with the same names as the base animator, with the overlay-only bones keyed in that file.
+     * Don't register sound/particle/custom keyframe handlers on it unless they should fire a second time. This costs
+     * one extra animator update per animatable per frame, so prefer {@link #reRenderWithBakedModel} when the overlay
+     * has no bones of its own to animate.
+     *
+     * @param context                The active renderer pipeline context.
+     * @param model                  The overlay's baked model template, e.g. from {@code AzBakedModelCache}.
+     * @param overlayAnimatorFactory Creates the overlay's animator; called once per animatable and overlay model.
+     */
+    default void reRenderWithAnimatedBakedModel(
+        AzRendererPipelineContext<K, T> context,
+        AzBakedModel model,
+        Supplier<? extends AzAnimator<?, T>> overlayAnimatorFactory
+    ) {
+        AzBakedModel baseModel = context.bakedModel();
+        AzBakedModel targetModel = model != null ? model : AzBakedModel.getDefault();
+        AzAnimator<?, T> baseAnimator = AzAnimatorAccessor.getOrNull(context.animatable());
+        AzBakedModel overlay = baseModel != null
+            ? AzOverlayModels.animatedOverlay(
+                baseAnimator,
+                context.animatable(),
+                baseModel,
+                targetModel,
+                overlayAnimatorFactory,
+                context.partialTick()
+            )
+            : targetModel;
 
-        AzBoneCache boneCache = animator.context().boneCache();
-        AzBakedModel previousTemplateModel = boneCache.getTemplateModel();
-        AzBakedModel previousAnimatedModel = boneCache.getBakedModel();
+        renderOverlay(context, overlay);
+    }
+
+    static <K, T> void renderOverlay(AzRendererPipelineContext<K, T> context, AzBakedModel overlay) {
+        AzBakedModel previousModel = context.bakedModel();
+
+        context.setBakedModel(overlay);
 
         try {
-            boneCache.setActiveModel(targetModel);
-            context.setBakedModel(boneCache.getBakedModel());
-            pipeline.reRender(context, true);
+            context.rendererPipeline().reRender(context, false);
         } finally {
-            if (previousTemplateModel != null) {
-                boneCache.setActiveModel(previousTemplateModel);
-                context.setBakedModel(previousAnimatedModel);
-            } else {
-                boneCache.setBakedModel(previousAnimatedModel);
-                context.setBakedModel(previousAnimatedModel);
-            }
+            context.setBakedModel(previousModel);
         }
     }
 }
