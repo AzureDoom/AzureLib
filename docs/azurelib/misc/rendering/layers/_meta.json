@@ -19,6 +19,10 @@
         "name": "Adding Armor Layer",
         "icon": "Layers"
     },
+    "adding_overlay_model_layer.mdx": {
+        "name": "Adding Overlay Model Layer",
+        "icon": "Layers"
+    },
     "creating_custom_layers.mdx": {
         "name": "Creating Custom AzLayers",
         "icon": "Layers"

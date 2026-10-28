@@ -337,6 +337,9 @@ public record AzCommand(List<AzAction> actions) {
 
         if (animator != null) {
             actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+            animator.forEachLinkedAnimator(
+                linked -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, linked))
+            );
         } else {
             AzPendingDispatches.enqueue(animatable, an -> actions.forEach(a -> a.handle(AzDispatchSide.CLIENT, an)));
         }

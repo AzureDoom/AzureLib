@@ -426,6 +426,8 @@ public class AzBone {
         copy.hidden = this.hidden;
         copy.lodHidden = this.lodHidden;
         copy.childrenHidden = this.childrenHidden;
+        // Keep matrix tracking requested by hitboxes/bone attachments when the model is re-copied (e.g. model swaps)
+        copy.trackingMatrices = this.trackingMatrices;
 
         // Copy transforms
         copy.pivot.set(this.pivot);
