@@ -21,6 +21,17 @@ public interface AzHitboxHolder {
     }
 
     /**
+     * Called on the logical server (the client world in single player) at the end of
+     * {@code LivingEntity#damage(Entity, int)}, only if vanilla accepted the damage: it returned {@code true} and the
+     * entity lost health. Hits rejected by invulnerability frames never reach this, and it runs at most once per hit.
+     * <p>
+     * {@code source} is the same entity passed to {@link #onHitboxHit}. {@code amount} is the health the entity actually
+     * lost, which during invulnerability frames is only the part above the previous hit. Health has already been
+     * reduced, so a health of zero or less means the hit killed it.
+     */
+    default void onHitboxDamaged(AzHitboxHit hit, @Nullable Entity source, int amount) {}
+
+    /**
      * Called on both sides when a player right-clicks an {@link AzHitboxRole#INTERACT} hitbox, before
      * {@code Entity#interact(PlayerEntity)}. Return {@code true} to consume the click.
      */

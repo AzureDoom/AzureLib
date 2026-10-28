@@ -1,19 +1,16 @@
 package mod.azure.azurelib.mixins;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import mod.azure.azurelib.hitbox.AzHitboxDamageTracker;
 import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Replaces 1.7.10's {@code LivingHurtEvent} listener in {@code AzHitboxEvents}: hitbox holders get to rescale the
- * damage at the start of {@code damage(Entity, int)}, before vanilla's invulnerability checks.
- * <p>
- * MCP: {@code EntityLiving#attackEntityFrom(Entity, int)}.
- */
 @Mixin(MobEntity.class)
 public abstract class MobEntityMixin_AzHitboxDamage {
 
@@ -29,5 +26,12 @@ public abstract class MobEntityMixin_AzHitboxDamage {
         }
 
         return AzHitboxDamageTracker.applyHurt((MobEntity) (Object) this, amount);
+    }
+
+    @Inject(method = "takeDamage(Lnet/minecraft/entity/Entity;I)Z", at = @At("RETURN"))
+    private void azurelib$fireHitboxDamaged(Entity attacker, int amount, CallbackInfoReturnable<Boolean> cir) {
+        if (this instanceof AzHitboxHolder) {
+            AzHitboxDamageTracker.fireDamaged((MobEntity) (Object) this, cir.getReturnValueZ());
+        }
     }
 }

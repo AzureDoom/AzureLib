@@ -191,9 +191,31 @@ public final class AzHitboxDamageTracker {
         if (state != null) {
             state.lastHit = hit;
             state.lastHitTime = now;
+            state.pendingHit = hit;
+            state.pendingSource = source;
+            state.pendingHealth = Mc.health(target);
         }
 
         return ((AzHitboxHolder) target).onHitboxHit(hit, source, amount);
+    }
+
+    public static void fireDamaged(MobEntity target, boolean accepted) {
+        AzHitboxState state = AzHitboxes.getState(target);
+
+        if (state == null || state.pendingHit == null) {
+            return;
+        }
+
+        AzHitboxHit hit = state.pendingHit;
+        Entity source = state.pendingSource;
+        int lost = state.pendingHealth - Mc.health(target);
+        state.pendingHit = null;
+        state.pendingSource = null;
+        state.pendingHealth = 0;
+
+        if (accepted && lost > 0) {
+            ((AzHitboxHolder) target).onHitboxDamaged(hit, source, lost);
+        }
     }
 
     @Nullable

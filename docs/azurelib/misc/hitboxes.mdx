@@ -133,6 +133,25 @@ Beta has no damage sources and health is a whole number, so the hook differs fro
 - Projectiles that hit hitboxes are arrows, snowballs, eggs and ghast fireballs.
 - The result is an `int`. The default implementation rounds `amount * damageMultiplier()` to the nearest whole point, so a 0.5x hitbox still takes 1 damage from a 1 damage punch.
 
+### After the damage is applied
+
+`onHitboxDamaged` runs on the server once vanilla has accepted the damage, at the end of `LivingEntity#actuallyHurt`. Hits that are blocked by invulnerability frames or `isInvulnerableTo` never reach it, and it runs at most once per hit, so use it for anything that should only change when the entity actually took damage:
+
+```java
+@Override
+public void onHitboxDamaged(AzHitboxHit hit, DamageSource source, float amount) {
+    if (hit.hasTag("armor_plate")) {
+        crackPlate(hit.name(), amount);
+    }
+}
+```
+
+`amount` is the damage `onHitboxHit` returned (or, during invulnerability frames, the part above the previous hit), before armor and absorption. The entity's health has already been reduced, so `isDeadOrDying()` tells you whether the hit killed it. [Limb Health](./limb_health) builds on this hook.
+
+<Callout variant="info">
+    If your entity overrides `actuallyHurt`, call `super.actuallyHurt` or the hook won't run.
+</Callout>
+
 ## Querying hitboxes
 
 `AzHitboxes` works on either side:
@@ -142,6 +161,75 @@ Beta has no damage sources and health is a whole number, so the hook differs fro
 - `getWorldBox(entity, name)` and `getActiveHitboxes(entity)` return world-space boxes (for particles, AI targeting).
 - `raycast`, `getIntersecting` and `getActiveHitboxes` also take a `Predicate<AzHitbox>`, e.g. `AzHitbox::isPickable` or `h -> h.role() == AzHitboxRole.COMBAT`.
 - `hasLivePose(entity)` tells you whether hitboxes are currently active.
+
+## Custom projectiles and hitscan
+
+AzureLib hooks vanilla's projectile collision (`ProjectileUtil.getEntityHitResult`), which arrows, tridents, thrown items and fireballs all use. Projectiles that do their own collision, such as many modded bullets, and hitscan weapons with no projectile entity, never go through it. Against hitbox entities they hit the vanilla box and never trigger `onHitboxHit` or `onHitboxDamaged`.
+
+To give them hitbox support, do two things in your own hit check:
+
+1. Test the shot against the target's hitboxes with `AzHitboxes.raycast`, instead of (or as well as) its bounding box.
+2. Right before calling `hurt`, pass the hit to `AzHitboxDamageTracker.recordProjectileHit`. This is how `hurt` finds out which hitbox was hit.
+
+This helper does both, and treats misses the same way vanilla projectiles do:
+
+```java
+/**
+ * Returns where a shot from {@code from} to {@code to} hits {@code target}, or empty if it misses. If it hits a
+ * hitbox, the hit is recorded against {@code direct} for the next {@code hurt} call.
+ */
+public static Optional<Vec3> clipWithHitboxes(Entity target, Entity direct, Vec3 from, Vec3 to) {
+    var boxHit = target.getBoundingBox().clip(from, to);
+
+    if (
+        !(target instanceof AzHitboxHolder holder)
+            || AzHitboxes.getActiveHitboxes(target, AzHitbox::blocksProjectiles).isEmpty()
+    ) {
+        return boxHit; // No live hitboxes: use the vanilla box.
+    }
+
+    var hit = AzHitboxes.raycast(target, from, to, AzHitbox::blocksProjectiles);
+    var keepEntityBox = holder.getHitboxSet().keepEntityBox();
+
+    if (hit.isEmpty()) {
+        return keepEntityBox ? boxHit : Optional.empty();
+    }
+
+    var location = hit.get().location();
+
+    if (keepEntityBox && boxHit.isPresent() && from.distanceToSqr(boxHit.get()) < from.distanceToSqr(location)) {
+        return boxHit; // The vanilla box is closer: a plain body hit.
+    }
+
+    if (!target.level().isClientSide()) {
+        AzHitboxDamageTracker.recordProjectileHit(direct, hit.get());
+    }
+
+    return Optional.of(location);
+}
+```
+
+Then hurt the target straight away, in the same tick:
+
+```java
+if (clipWithHitboxes(target, this, from, to).isPresent()) {
+    // thrown(direct, causing): the projectile is the direct entity. Your own damage type works the same way.
+    target.hurt(damageSources().thrown(this, getOwner()), damage);
+}
+```
+
+`direct` must be the entity the damage source names as its direct entity (`DamageSource#getDirectEntity`), because that's what `hurt` looks the hit up by:
+
+- **Projectile entities:** pass the projectile itself, and build the damage source with the projectile as the direct entity, as vanilla does.
+- **Hitscan weapons:** there's no projectile, so pass the shooter, and use a damage source whose direct entity is the shooter.
+
+A recorded hit is used once and expires after a tick, so record it right before `hurt` rather than earlier in the projectile's life.
+
+Some more things to check in your own collision code:
+
+- Hitboxes can stick out past the vanilla box. When searching for entities that a shot might hit, inflate the search area by `AzHitboxes.maxOverhang()`, or entities whose hitboxes stick into the shot's path will be skipped.
+- Use `AzHitbox::blocksProjectiles` as the filter, so shots pass through `INTERACT` and `ANCHOR` hitboxes like vanilla projectiles do.
+- On the server, hitboxes are only live while a nearby client reports the entity's pose (see below). Without one, `clipWithHitboxes` falls back to the vanilla box.
 
 ## How syncing works
 

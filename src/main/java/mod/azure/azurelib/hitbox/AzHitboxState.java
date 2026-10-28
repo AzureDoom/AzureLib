@@ -1,6 +1,7 @@
 package mod.azure.azurelib.hitbox;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Box;
 
 import java.util.Arrays;
@@ -59,6 +60,14 @@ public final class AzHitboxState {
     AzHitboxHit lastHit;
 
     long lastHitTime = Long.MIN_VALUE;
+
+    @Nullable
+    AzHitboxHit pendingHit;
+
+    @Nullable
+    Entity pendingSource;
+
+    int pendingHealth;
 
     AzHitboxState(AzHitboxSet set) {
         this.set = set;
