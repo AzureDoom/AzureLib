@@ -42,6 +42,9 @@ public record AzEntityDispatchCommandPacket(
 
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+            animator.forEachLinkedAnimator(
+                linked -> dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, linked))
+            );
         } else {
             AzPendingDispatches.enqueue(
                 entity,

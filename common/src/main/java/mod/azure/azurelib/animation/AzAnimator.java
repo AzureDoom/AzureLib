@@ -6,6 +6,7 @@ import net.minecraft.world.level.MoonPhase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.AzureLib;
@@ -272,6 +273,22 @@ public abstract class AzAnimator<K, T> {
 
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
         return animationControllerContainer;
+    }
+
+    /**
+     * Runs {@code dispatch} on every animator linked to this animator's current context. Called by the command dispatch
+     * paths after a command has been applied to this animator.
+     */
+    public void forEachLinkedAnimator(Consumer<AzAnimator<?, ?>> dispatch) {
+        var context = this.currentContext;
+
+        if (context == null) {
+            return;
+        }
+
+        for (var linked : context.linkedAnimators()) {
+            dispatch.accept(linked);
+        }
     }
 
     /**
