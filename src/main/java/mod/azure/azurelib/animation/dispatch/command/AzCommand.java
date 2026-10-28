@@ -332,7 +332,12 @@ public final class AzCommand {
                 .dispatchOrQueue(
                     AzItemIdentity.resolve(itemStack),
                     view,
-                    animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
+                        animator -> {
+                            actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+                            animator.forEachLinkedAnimator(
+                                    linked -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, linked))
+                            );
+                        }
                 );
             return;
         }
