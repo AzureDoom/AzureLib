@@ -2,6 +2,7 @@ package mod.azure.azurelib.platform.mc;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityRegistry;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -11,6 +12,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.world.World;
+import net.modificationstation.stationapi.api.registry.ItemRegistry;
+import net.modificationstation.stationapi.api.tag.TagKey;
+import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.Collections;
 import java.util.List;
@@ -420,5 +424,55 @@ public final class Mc {
 
     public static float itemEntityHoverStart(ItemEntity entity) {
         return entity.initialRotationAngle;
+    }
+
+    // Molang
+
+    /**
+     * The entity's registry name as Beta knows it ({@code "Pig"}, {@code "PigZombie"}), or {@code "player"} for
+     * players, which aren't registered. {@code null} for unregistered entities.
+     */
+    @Nullable
+    public static String entityTypeName(Entity entity) {
+        return entity instanceof PlayerEntity ? "player" : EntityRegistry.getId(entity);
+    }
+
+    /**
+     * The name {@code query.is_name_any} compares against: the player name for players, otherwise the entity's registry
+     * name. Beta has no name tags.
+     */
+    @Nullable
+    public static String displayName(Entity entity) {
+        return entity instanceof PlayerEntity ? ((PlayerEntity) entity).name : entityTypeName(entity);
+    }
+
+    /**
+     * Attack target for {@code query.has_target} on entities that don't implement {@code AzMolangTargetProvider}. Beta
+     * keeps vanilla targets in protected per-class fields, so none are read here; implement the provider on your
+     * entities instead.
+     */
+    @Nullable
+    public static Entity attackTarget(Entity entity) {
+        return null;
+    }
+
+    /**
+     * The item's StationAPI registry id, {@code "minecraft:bow"}, or {@code null} if it isn't registered.
+     */
+    @Nullable
+    public static String itemIdentifier(Item item) {
+        Identifier id = ItemRegistry.INSTANCE.getId(item);
+        return id == null ? null : id.toString();
+    }
+
+    /**
+     * The StationAPI item tag named {@code id} ({@code "c:swords"}; no namespace means {@code minecraft:}).
+     */
+    public static TagKey<Item> itemTag(String id) {
+        return TagKey.of(ItemRegistry.KEY, Identifier.of(id));
+    }
+
+    public static boolean isIn(ItemStack stack, TagKey<Item> tag) {
+        return stack.isIn(tag);
     }
 }

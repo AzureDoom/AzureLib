@@ -45,7 +45,7 @@ public abstract class HeldItemRendererMixin_AzItems {
         if (adapter == null || !adapter.handles(type)) {
             return;
         }
-        adapter.renderItem(type, stack);
+        adapter.renderItem(type, stack, entity);
         ci.cancel();
     }
 }

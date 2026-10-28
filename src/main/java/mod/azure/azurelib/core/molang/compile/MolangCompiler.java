@@ -1,12 +1,12 @@
 package mod.azure.azurelib.core.molang.compile;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import mod.azure.azurelib.core.math.*;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.core.molang.expressions.MolangLocalVariable;
+import mod.azure.azurelib.core.molang.expressions.MolangObjectVariable;
 import mod.azure.azurelib.core.molang.expressions.MolangScopedVariable;
 import mod.azure.azurelib.core.molang.runtime.*;
 
@@ -21,14 +21,21 @@ import mod.azure.azurelib.core.molang.runtime.*;
  * <li>Null coalescing {@code v.x ?? 1}: the right side when the variable on the left has no value yet.</li>
  * <li>Assignment {@code name = value} anywhere an expression is allowed; it evaluates to the assigned value.</li>
  * <li>Multiple statements separated by {@code ;}, {@code {}} blocks, {@code return}, {@code loop(count, body)},
- * {@code break} and {@code continue}.</li>
+ * {@code for_each(variable, array, body)}, {@code break} and {@code continue}.</li>
+ * <li>Strings in single quotes, {@code 'minecraft:zombie'}, which keep their case and support only {@code ==} and
+ * {@code !=}. Using a string literal with any other operator is a compile error.</li>
+ * <li>Arrays: {@code array.*} names, query results such as {@code q.get_nearby_entities(8)}, and indexing with
+ * {@code [index]} (Bedrock rules: floored, negative reads 0, past-the-end wraps). Arrays are read-only references.</li>
+ * <li>The arrow operator {@code entity->expression}, which evaluates the right side against another entity.</li>
+ * <li>{@code this}: the current value of what the expression computes, supplied by the evaluation context (in an
+ * animation keyframe, the bone channel's current value).</li>
  * <li>Variables: {@code variable.*}/{@code v.*} are stored per animatable (see
  * {@link mod.azure.azurelib.core.molang.MolangScope}); {@code temp.*}/{@code t.*} live for one evaluation of the
- * expression; {@code query.*}/{@code q.*}, {@code context.*}/{@code c.*} and {@code math.*} are read-only.</li>
+ * expression; both can hold numbers, strings, arrays or entity references. {@code query.*}/{@code q.*},
+ * {@code context.*}/{@code c.*}, {@code math.*} and {@code array.*} are read-only.</li>
  * <li>Every function and constant registered on {@link MolangParser}.</li>
  * </ul>
- * Not supported (the expression fails to compile): strings, arrays, {@code for_each}, {@code this} and the arrow
- * operator {@code ->}.
+ * Names are case-insensitive; string contents are not.
  * <p>
  * Each compiled expression gets its own control-flow frame and expression-scoped variables, so a tree can be shared by
  * every animatable that plays the animation, but must only be evaluated by one thread at a time.
@@ -44,6 +51,8 @@ public final class MolangCompiler {
     private static final int PREC_COALESCE = 3;
 
     private static final String TEMP_PREFIX = "temp.";
+
+    private static final String ARRAY_PREFIX = "array.";
 
     private final MolangParser parser;
 
@@ -63,7 +72,7 @@ public final class MolangCompiler {
     }
 
     /**
-     * Compiles {@code source}, which should already be lower case (Molang names are case-insensitive).
+     * Compiles {@code source}. Names are lower-cased by the lexer; string literals keep their case.
      *
      * @return the simplified expression tree
      * @throws MolangSyntaxException if the expression is malformed or uses something unsupported
@@ -146,7 +155,9 @@ public final class MolangCompiler {
                 case "?": {
                     IValue ifTrue = parseExpression(PREC_ASSIGN);
                     IValue ifFalse = match(":") ? parseExpression(PREC_ASSIGN) : Constant.of(0);
-                    left = new Ternary(left, ifTrue, ifFalse);
+                    left = ifTrue instanceof MolangObjectValue || ifFalse instanceof MolangObjectValue
+                        ? new MolangConditional(left, ifTrue, ifFalse)
+                        : new Ternary(left, ifTrue, ifFalse);
                     break;
                 }
                 case "??":
@@ -159,14 +170,31 @@ public final class MolangCompiler {
                     left = MolangLogical.or(left, parseExpression(precedence + 1));
                     break;
                 case "=":
-                    throw error("Only variables can be assigned to", token);
+                    throw left instanceof MolangIndex
+                        ? rejected("Array elements are read-only", token)
+                        : error("Only variables can be assigned to", token);
                 case "->":
-                    throw error("The arrow operator '->' is not supported", token);
+                    left = new MolangArrow(left, parseExpression(precedence + 1));
+                    break;
                 default:
-                    left = new Operator(Operation.fromSign(operator), left, parseExpression(precedence + 1));
+                    left = parseBinary(Operation.fromSign(operator), left, parseExpression(precedence + 1), token);
                     break;
             }
         }
+    }
+
+    private static IValue parseBinary(Operation operation, IValue left, IValue right, MolangToken token) {
+        boolean objectOperand = left instanceof MolangObjectValue || right instanceof MolangObjectValue;
+
+        if (objectOperand && (operation == Operation.EQUALS || operation == Operation.NOT_EQUALS)) {
+            return new MolangEquality(left, right, operation == Operation.NOT_EQUALS);
+        }
+
+        if (left instanceof MolangString || right instanceof MolangString) {
+            throw rejected("Strings only support '==' and '!=', not '" + operation.sign + "'", token);
+        }
+
+        return new Operator(operation, left, right);
     }
 
     private static int infixPrecedence(String operator) {
@@ -200,8 +228,15 @@ public final class MolangCompiler {
     }
 
     private IValue parseUnary() {
-        if (match("-")) {
-            return new Negative(parseUnary());
+        if (peek().is("-")) {
+            MolangToken token = advance();
+            IValue operand = parseUnary();
+
+            if (operand instanceof MolangString) {
+                throw rejected("A string can't be negated", token);
+            }
+
+            return new Negative(operand);
         }
 
         if (match("!")) {
@@ -218,13 +253,17 @@ public final class MolangCompiler {
     private IValue parsePrimary() {
         MolangToken token = advance();
 
+        IValue primary;
         switch (token.type()) {
             case NUMBER:
-                return Constant.of(token.number());
+                primary = Constant.of(token.number());
+                break;
             case IDENTIFIER:
-                return parseName(token);
+                primary = parseName(token);
+                break;
             case STRING:
-                throw error("String values are not supported", token);
+                primary = new MolangString(token.text());
+                break;
             case END:
                 throw error("Expression ended early", token);
             case OPERATOR:
@@ -232,22 +271,45 @@ public final class MolangCompiler {
                     case "(": {
                         IValue inner = parseExpression(PREC_LOWEST);
                         expect(")");
-                        return new Group(inner);
+                        // Keep object-producing nodes visible to the operators around them.
+                        primary = inner instanceof MolangObjectValue ? inner : new Group(inner);
+                        break;
                     }
                     case "{": {
                         usesFrame = true;
                         List<IValue> statements = parseStatements(true);
                         expect("}");
-                        return new MolangBlock(statements, frame);
+                        primary = new MolangBlock(statements, frame);
+                        break;
                     }
                     case "[":
-                        throw error("Arrays are not supported", token);
+                        throw rejected(
+                            "Molang has no array literals; arrays come from array.* names and queries",
+                            token
+                        );
                     default:
                         throw error("Unexpected " + token, token);
                 }
+                break;
             default:
                 throw error("Unexpected " + token, token);
         }
+
+        return parsePostfix(primary);
+    }
+
+    /**
+     * Indexing, {@code value[index]}, which may repeat: {@code array.grid[1][2]}.
+     */
+    private IValue parsePostfix(IValue primary) {
+        while (peek().is("[")) {
+            advance();
+            IValue index = parseExpression(PREC_LOWEST);
+            expect("]");
+            primary = new MolangIndex(primary, index);
+        }
+
+        return primary;
     }
 
     private IValue parseName(MolangToken token) {
@@ -279,9 +341,9 @@ public final class MolangCompiler {
                 return new MolangLoop(count, body, frame);
             }
             case "for_each":
-                throw error("for_each is not supported", token);
+                return parseForEach(token);
             case "this":
-                throw error("'this' is not supported", token);
+                return MolangThis.INSTANCE;
             default:
                 break;
         }
@@ -299,8 +361,42 @@ public final class MolangCompiler {
         return resolveRead(name);
     }
 
+    /**
+     * {@code for_each(variable, array, body)}. The variable must be a {@code temp.*} or {@code variable.*}, since the
+     * elements are usually entity references.
+     */
+    private IValue parseForEach(MolangToken keyword) {
+        expect("(");
+        MolangToken variableToken = advance();
+
+        if (variableToken.type() != MolangToken.Type.IDENTIFIER) {
+            throw error(
+                "for_each needs a variable to assign each element to, but found " + variableToken,
+                variableToken
+            );
+        }
+
+        Variable target = resolveAssignmentTarget(variableToken);
+
+        if (!(target instanceof MolangObjectVariable)) {
+            throw rejected(
+                "for_each needs a temp.* or variable.* to iterate with, not '" + variableToken.text() + "'",
+                variableToken
+            );
+        }
+
+        expect(",");
+        IValue array = parseExpression(PREC_LOWEST);
+        expect(",");
+        IValue body = parseExpression(PREC_LOWEST);
+        expect(")");
+        usesFrame = true;
+
+        return new MolangForEach((MolangObjectVariable) target, array, body, frame);
+    }
+
     private IValue parseFunctionCall(MolangToken nameToken) {
-        List<IValue> arguments = new ArrayList<>();
+        ArrayList<IValue> arguments = new ArrayList<>();
 
         if (!match(")")) {
             do {
@@ -318,7 +414,7 @@ public final class MolangCompiler {
         }
 
         try {
-            Constructor<?> constructor = function.getConstructor(IValue[].class, String.class);
+            java.lang.reflect.Constructor<?> constructor = function.getConstructor(IValue[].class, String.class);
             return (IValue) constructor.newInstance(arguments.toArray(new IValue[0]), name);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause() != null ? e.getCause() : e;
@@ -347,6 +443,10 @@ public final class MolangCompiler {
             return local(name);
         }
 
+        if (name.startsWith(ARRAY_PREFIX)) {
+            return MolangArrayReference.of(name);
+        }
+
         if (name.startsWith(MolangParser.VARIABLE_PREFIX)) {
             return parser.isDriven(name) ? parser.getVariable(name) : MolangScopedVariable.of(name);
         }
@@ -365,7 +465,10 @@ public final class MolangCompiler {
             );
         }
 
-        if (name.startsWith("query.") || name.startsWith("context.") || name.startsWith("math.")) {
+        if (
+            name.startsWith("query.") || name.startsWith("context.") || name.startsWith("math.")
+                || name.startsWith(ARRAY_PREFIX)
+        ) {
             throw new MolangSyntaxException("'" + token.text() + "' is read-only", token.position(), false);
         }
 
@@ -451,5 +554,13 @@ public final class MolangCompiler {
 
     private static MolangSyntaxException error(String message, MolangToken token) {
         return new MolangSyntaxException(message, token.position());
+    }
+
+    /**
+     * An error for an expression that parses but is invalid Molang. Not retried with the legacy parser, which would
+     * silently produce a different result.
+     */
+    private static MolangSyntaxException rejected(String message, MolangToken token) {
+        return new MolangSyntaxException(message, token.position(), false);
     }
 }

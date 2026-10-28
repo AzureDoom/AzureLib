@@ -1,7 +1,5 @@
 package mod.azure.azurelib.core.molang.compile;
 
-import java.util.Objects;
-
 /**
  * One lexical token of a Molang expression.
  */
@@ -59,8 +57,13 @@ final class MolangToken {
         switch (type) {
             case NUMBER:
                 return Double.toString(number);
+
+            case STRING:
+                return "'" + text + "'";
+
             case END:
                 return "end of expression";
+
             default:
                 return "'" + text + "'";
         }
@@ -71,19 +74,21 @@ final class MolangToken {
         if (this == obj) {
             return true;
         }
+
         if (!(obj instanceof MolangToken)) {
             return false;
         }
 
         MolangToken other = (MolangToken) obj;
-        return type == other.type
-            && Objects.equals(text, other.text)
-            && Double.doubleToLongBits(number) == Double.doubleToLongBits(other.number)
-            && position == other.position;
+
+        return Double.compare(number, other.number) == 0
+            && position == other.position
+            && java.util.Objects.equals(type, other.type)
+            && java.util.Objects.equals(text, other.text);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, text, number, position);
+        return java.util.Objects.hash(type, text, number, position);
     }
 }

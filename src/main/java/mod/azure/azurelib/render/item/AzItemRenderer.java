@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzProvider;
@@ -168,6 +169,9 @@ public abstract class AzItemRenderer {
         // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
         // animator for this display context's view.
         AzItemAnimatorView previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+        AzItemDisplayContext previousDisplay = AzMolangQueryContext.INSTANCE.setItemDisplayContext(
+            transformType
+        );
 
         try {
             AzItemRendererPipelineContext itemContext = (AzItemRendererPipelineContext) rendererPipeline.context();
@@ -188,6 +192,7 @@ public abstract class AzItemRenderer {
                 packedLight
             );
         } finally {
+            AzMolangQueryContext.INSTANCE.setItemDisplayContext(previousDisplay);
             AzItemAnimatorView.restore(previousView);
         }
     }
@@ -202,10 +207,14 @@ public abstract class AzItemRenderer {
         // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
         // animator for this display context's view.
         AzItemAnimatorView previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+        AzItemDisplayContext previousDisplay = AzMolangQueryContext.INSTANCE.setItemDisplayContext(
+            transformType
+        );
 
         try {
             renderByItemInView(stack, transformType, poseStack, source, packedLight);
         } finally {
+            AzMolangQueryContext.INSTANCE.setItemDisplayContext(previousDisplay);
             AzItemAnimatorView.restore(previousView);
         }
     }

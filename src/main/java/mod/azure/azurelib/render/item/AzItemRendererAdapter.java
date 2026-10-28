@@ -1,9 +1,13 @@
 package mod.azure.azurelib.render.item;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nullable;
+
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.render.AzLighting;
 import mod.azure.azurelib.render.vertex.GlStateManager;
 
@@ -28,6 +32,17 @@ public class AzItemRendererAdapter {
     }
 
     public void renderItem(ItemRenderType type, ItemStack stack) {
+        renderItem(type, stack, null);
+    }
+
+    /**
+     * Renders {@code stack} for {@code type}.
+     *
+     * @param holder the entity holding the item, for {@code EQUIPPED} and {@code EQUIPPED_FIRST_PERSON}; recorded on
+     *               {@link AzMolangQueryContext} for the duration of the render so item animations answer entity
+     *               queries for the holder, like Bedrock attachables. {@code null} where there is none.
+     */
+    public void renderItem(ItemRenderType type, ItemStack stack, @Nullable LivingEntity holder) {
         AzItemRenderer renderer = AzItemRendererRegistry.getOrNull(this.item);
 
         if (renderer == null || stack == null) {
@@ -36,6 +51,7 @@ public class AzItemRendererAdapter {
 
         AzItemDisplayContext context = AzItemDisplayContext.from(type);
         boolean inventory = type == ItemRenderType.INVENTORY;
+        AzMolangQueryContext.INSTANCE.pushItemHolder(holder);
 
         GlStateManager.pushMatrix();
 
@@ -60,6 +76,7 @@ public class AzItemRendererAdapter {
                 GL11.glPopAttrib();
             }
             GlStateManager.popMatrix();
+            AzMolangQueryContext.INSTANCE.popItemHolder();
         }
     }
 

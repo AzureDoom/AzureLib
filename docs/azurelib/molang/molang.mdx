@@ -11,11 +11,6 @@ hide_meta: true
 
 Custom Molang queries allow you to expose additional data to your animations. These queries can be registered and updated through your animator implementations.
 
-
-<Callout variant="info">
-    Some queries have no Beta equivalent and return a fixed value: `query.is_invisible`, `query.is_sprinting`, `query.is_swimming`, `query.is_silent`, `query.is_spectator`, `query.is_fire_immune`, `query.is_leashed` and `query.is_gliding` are always false, `query.has_gravity` is always true, `query.swim_amount`, `query.player_level` and the item-use queries (`query.item_in_use_duration` and friends) are always 0, and `query.model_scale` is always 1 (Beta has no baby mobs). `query.is_tamed` and `query.is_sitting` work for wolves.
-</Callout>
-
 ## Defining Custom Queries
 
 ### Step 1: Define Query Constants
@@ -90,8 +85,7 @@ public class ChargeLevel extends ContextQueryFunction {
 
     @Override
     protected double evaluate(MolangQueryContext context) {
-        if (context instanceof AzMolangQueryContext && ((AzMolangQueryContext) context).entity() instanceof MyEntity) {
-            MyEntity entity = (MyEntity) ((AzMolangQueryContext) context).entity();
+        if (context instanceof AzMolangQueryContext azContext && azContext.entity() instanceof MyEntity entity) {
             return entity.getChargeLevel(intArg(0));
         }
 
@@ -165,7 +159,7 @@ Molang has three kinds of names you can store values in:
 |-------------------------|---------------------------------------------------------------|----------------------------------------------------|
 | `variable.` / `v.`      | On each animatable, across frames and across every expression | State an animation keeps, values driven from code  |
 | `temp.` / `t.`          | One evaluation of one expression; starts at 0 every time      | Intermediate results inside a longer expression    |
-| `query.` / `q.`, `context.` / `c.`, `math.` | Read-only                                 | Game state and built-in functions                  |
+| `query.` / `q.`, `context.` / `c.`, `math.`, `array.` | Read-only                       | Game state, built-in functions and arrays          |
 
 Each entity, block entity and item has its own set of `variable.*` values, so a value one entity assigns is never seen by another. A value assigned in one keyframe is readable in every other keyframe of that animatable, on the same frame and later frames.
 
@@ -185,6 +179,15 @@ protected void applyMolangQueries(MyEntity entity, double animTime, float partia
 ```
 
 Animations read it as `v.charge` or `variable.charge`. The scope also has `get`, `isSet`, `remove` and `clear`.
+
+Variables can hold strings, arrays and entity references as well as numbers. Set those with `setObject`:
+
+```java
+this.context().molangScope().setObject("v.mode", entity.isAngry() ? "angry" : "calm");
+this.context().molangScope().setObject("v.skins", MolangArray.ofNumbers(0, 1, 2));
+```
+
+Entity references stored in a `variable.*` are held weakly, so a scope never keeps an entity alive. Once the entity is gone the variable reads as unset, and `v.target ?? ...` falls through.
 
 <Callout variant="info">
     A `variable.*` name you register or drive globally with `MolangParser.INSTANCE.register`, `setValue` or `setMemoizedValue` still works the way it always has: every animatable reads that global value until it assigns its own. For per-entity data, prefer the scope above, or a query.
@@ -212,6 +215,11 @@ return t.wave * 10;
 | `{ ...; ...; }`                          | A block of statements, e.g. as the branch of a conditional.                                   |
 | `return value`                           | Ends the expression with `value`.                                                             |
 | `loop(count, { ... })`                   | Runs the block `count` times (at most 1024). `break` leaves the loop, `continue` skips ahead. |
+| `'text'`                                 | A string. Case is kept; strings support only `==` and `!=`.                                   |
+| `array[index]`                           | An array element. The index is floored, negative reads element 0, past the end wraps around.  |
+| `for_each(t.e, array, { ... })`          | Runs the block once per element, assigned to `t.e` (or a `v.*`). Supports `break`/`continue`. |
+| `entity->expression`                     | Evaluates `expression` against another entity, e.g. `t.e->q.health`. 0 if it isn't a live entity. |
+| `this`                                   | The current value of the bone channel the keyframe sets. 0 outside keyframes.                 |
 | `true`, `false`, `math.pi`               | 1, 0 and π.                                                                                   |
 
 A conditional with blocks:
@@ -222,8 +230,57 @@ return math.min(v.air_time, 20) * 2;
 ```
 
 - Without a `return`, a multi-statement expression evaluates to its last statement.
-- Names are case-insensitive.
-- Strings, arrays, `for_each`, `this` and `->` aren't supported. An expression using them is retried with AzureLib's older parser and logs a warning containing "Falling back to the legacy parser"; if that fails too, it evaluates to 0.
+- Names are case-insensitive; string contents are not.
+- An expression the compiler can't parse is retried with AzureLib's older parser and logs a warning containing "Falling back to the legacy parser"; if that fails too, it evaluates to 0. Invalid Molang, such as `'a' + 1` or assigning to an array element, is rejected outright and evaluates to 0.
+
+### Strings
+
+```
+q.get_equipped_item_name == 'bow'
+q.is_item_name_any('slot.weapon.mainhand', 0, 'minecraft:crossbow')
+q.equipped_item_any_tag('main_hand', 'minecraft:swords')
+q.any(q.get_equipped_item_name, 'bow', 'crossbow')
+```
+
+A string read as a number is 0.
+
+### Arrays and `for_each`
+
+Arrays come from queries such as `q.get_nearby_entities(radius, 'minecraft:pig')`, from `array.*` names registered in code, or from a `variable.*` set with `setObject`. They are read-only and shared by reference.
+
+```
+t.babies = 0;
+for_each(t.pig, q.get_nearby_entities(8, 'minecraft:pig'), {
+    t.babies = t.babies + t.pig->q.is_baby;
+});
+return t.babies;
+```
+
+`q.count(array)` gives the number of elements. `q.get_nearby_entities` scans the level each time it is called, so store the result in a `t.*` if you need it twice. Register an `array.*` with:
+
+```java
+MolangParser.INSTANCE.registerArray("array.skins", () -> MolangArray.ofNumbers(0, 1, 2));
+```
+
+### The arrow operator
+
+`entity->expression` evaluates the right side as if animating that entity. Its queries read the other entity, and its `variable.*` values are that entity's own if it has an AzureLib animator. A removed or non-entity value on the left gives 0 without evaluating the right side.
+
+### `this`
+
+In a keyframe, `this` is the value the bone channel currently holds, in the same units the keyframe uses: degrees offset from the bind rotation, position offset, or scale. That is the pose the bone finished the previous frame on, so this eases a bone toward 45° over several frames instead of snapping:
+
+```
+math.lerp(this, 45, 0.2)
+```
+
+### Targets
+
+`q.has_target`, `q.target_x_rotation` and `q.target_y_rotation` read the mob's attack target. Vanilla doesn't sync a mob's target to the client, so on most mobs these read 0 until you implement `AzMolangTargetProvider` on your entity and return a target you sync yourself (for example an entity id in `SynchedEntityData`). The rotations are absolute, like `q.body_y_rotation`; use `math.min_angle(q.target_y_rotation - q.body_y_rotation)` for a body-relative angle.
+
+### Items
+
+While an item renders in an entity's hand, entity queries in its animations answer for the holder, like Bedrock attachables, and `q.is_first_person` is 1 when the item itself is drawn in a first-person hand.
 
 ## Best Practices
 
