@@ -1,7 +1,6 @@
 package mod.azure.azurelib.hitbox;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Box;
 
 import java.util.Arrays;

@@ -61,6 +61,9 @@ public class AzBlockEntityDispatchCommandPacket extends AbstractPacket {
 
         if (animator != null && BlockPos.of(animator.context().animatable()).equals(blockPos)) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+            animator.forEachLinkedAnimator(
+                linked -> dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, linked))
+            );
         } else {
             AzPendingDispatches.enqueue(
                 blockEntity,
