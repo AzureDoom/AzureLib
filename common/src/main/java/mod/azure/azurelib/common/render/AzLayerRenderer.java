@@ -39,15 +39,15 @@ public class AzLayerRenderer<K, T> {
      * {@link AzRenderLayer#renderForBone per-bone} render actions.
      */
     public void applyRenderLayersForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {
-        var layers = renderLayerSupplier.get();
+        Collection<AzRenderLayer<K, T>> layers = renderLayerSupplier.get();
 
         if (layers instanceof List<AzRenderLayer<K, T>> list) {
             for (int i = 0, size = list.size(); i < size; i++) {
-                list.get(i).renderForBone(context, bone);
+                renderLayerForBone(context, list.get(i), bone);
             }
         } else {
             for (var renderLayer : layers) {
-                renderLayer.renderForBone(context, bone);
+                renderLayerForBone(context, renderLayer, bone);
             }
         }
     }
@@ -56,8 +56,52 @@ public class AzLayerRenderer<K, T> {
      * Render the various {@link AzRenderLayer RenderLayers} that have been registered to this renderer
      */
     protected void applyRenderLayers(AzRendererPipelineContext<K, T> context) {
-        for (var renderLayer : renderLayerSupplier.get()) {
-            renderLayer.render(context);
+        for (AzRenderLayer<K, T> renderLayer : renderLayerSupplier.get()) {
+            AzTranslucencySorter sorter = unsortedSorter(context, renderLayer);
+
+            if (sorter == null) {
+                renderLayer.render(context);
+                continue;
+            }
+
+            sorter.pushUnsorted();
+
+            try {
+                renderLayer.render(context);
+            } finally {
+                sorter.popUnsorted();
+            }
         }
+    }
+
+    private void renderLayerForBone(AzRendererPipelineContext<K, T> context, AzRenderLayer<K, T> layer, AzBone bone) {
+        AzTranslucencySorter sorter = unsortedSorter(context, layer);
+
+        if (sorter == null) {
+            layer.renderForBone(context, bone);
+            return;
+        }
+
+        sorter.pushUnsorted();
+
+        try {
+            layer.renderForBone(context, bone);
+        } finally {
+            sorter.popUnsorted();
+        }
+    }
+
+    private static AzTranslucencySorter unsortedSorter(
+        AzRendererPipelineContext<?, ?> context,
+        AzRenderLayer<?, ?> layer
+    ) {
+        if (
+            !layer.sortsTranslucency() && context.multiBufferSource() instanceof AzTranslucencySorter sorter && sorter
+                .isActive()
+        ) {
+            return sorter;
+        }
+
+        return null;
     }
 }

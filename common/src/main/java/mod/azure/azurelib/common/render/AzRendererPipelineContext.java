@@ -188,6 +188,10 @@ public abstract class AzRendererPipelineContext<K, T> {
         return multiBufferSource;
     }
 
+    public void setMultiBufferSource(MultiBufferSource multiBufferSource) {
+        this.multiBufferSource = multiBufferSource;
+    }
+
     public int packedLight() {
         return packedLight;
     }

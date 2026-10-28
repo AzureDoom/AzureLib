@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.common.animation.AzAnimator;
@@ -207,6 +208,16 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         }
 
         @Override
+        public Builder<T> setTranslucencySorting(boolean enabled) {
+            return (Builder<T>) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder<T> setTranslucencySorting(@Nullable Predicate<RenderType> sortedRenderTypes) {
+            return (Builder<T>) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder<T> setAlpha(float alpha) {
             return (AzEntityRendererConfig.Builder<T>) super.setAlpha(alpha);
         }
@@ -282,7 +293,7 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
         public AzEntityRendererConfig<T> build() {
             var baseConfig = super.build();
 
-            return new AzEntityRendererConfig<>(
+            AzEntityRendererConfig<T> config = new AzEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 deathMaxRotationProvider,
                 shadowRadius,
@@ -302,6 +313,9 @@ public class AzEntityRendererConfig<T extends Entity> extends AzRendererConfig<U
                 baseConfig::boneRenderTypeOverrideProvider,
                 lodConfig
             );
+
+            config.copyBaseOptions(baseConfig);
+            return config;
         }
     }
 }

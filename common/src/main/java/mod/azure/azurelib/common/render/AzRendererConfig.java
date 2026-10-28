@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.render;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.common.animation.AzAnimator;
@@ -57,6 +59,8 @@ public class AzRendererConfig<K, T> {
 
     private final BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
+    private @Nullable Predicate<RenderType> translucencySortFilter;
+
     public AzRendererConfig(
         Supplier<AzAnimator<K, T>> animatorProvider,
         BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
@@ -89,6 +93,14 @@ public class AzRendererConfig<K, T> {
         this.scaleWidth = scaleWidth;
         this.boneTextureOverrideProvider = boneTextureOverrideProvider;
         this.boneRenderTypeOverrideProvider = boneRenderTypeOverrideProvider;
+    }
+
+    protected void copyBaseOptions(AzRendererConfig<K, T> base) {
+        this.translucencySortFilter = base.translucencySortFilter;
+    }
+
+    public @Nullable Predicate<RenderType> translucencySortFilter() {
+        return translucencySortFilter;
     }
 
     public @Nullable AzAnimator<K, T> createAnimator() {
@@ -206,6 +218,8 @@ public class AzRendererConfig<K, T> {
 
         private BiFunction<@Nullable T, AzBone, @Nullable RenderType> boneRenderTypeOverrideProvider;
 
+        private @Nullable Predicate<RenderType> translucencySortFilter;
+
         protected Builder(
             BiFunction<@Nullable Entity, T, ResourceLocation> modelLocationProvider,
             BiFunction<@Nullable Entity, T, ResourceLocation> textureLocationProvider
@@ -225,6 +239,18 @@ public class AzRendererConfig<K, T> {
             this.scaleWidth = $ -> 1.0F;
             this.boneTextureOverrideProvider = (entity, bone) -> null;
             this.boneRenderTypeOverrideProvider = (entity, bone) -> null;
+        }
+
+        public Builder<K, T> setTranslucencySorting(boolean enabled) {
+            this.translucencySortFilter = enabled ? AzTranslucencySorter.DEFAULT_FILTER : null;
+            return this;
+        }
+
+        public Builder<K, T> setTranslucencySorting(@Nullable Predicate<RenderType> sortedRenderTypes) {
+            this.translucencySortFilter = sortedRenderTypes == null
+                ? null
+                : sortedRenderTypes.and(renderType -> renderType.mode() == VertexFormat.Mode.QUADS);
+            return this;
         }
 
         public Builder<K, T> setBoneTextureOverrideProvider(
@@ -398,7 +424,7 @@ public class AzRendererConfig<K, T> {
          *         location provider, texture location provider, render layers, and scale factors.
          */
         public AzRendererConfig<K, T> build() {
-            return new AzRendererConfig<>(
+            AzRendererConfig<K, T> config = new AzRendererConfig<>(
                 animatorProvider,
                 modelLocationProvider,
                 modelRendererProvider,
@@ -415,6 +441,9 @@ public class AzRendererConfig<K, T> {
                 boneTextureOverrideProvider,
                 boneRenderTypeOverrideProvider
             );
+
+            config.translucencySortFilter = translucencySortFilter;
+            return config;
         }
     }
 }
