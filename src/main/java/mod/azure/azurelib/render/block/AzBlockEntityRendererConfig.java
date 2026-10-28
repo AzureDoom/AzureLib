@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import mod.azure.azurelib.animation.AzAnimator;
@@ -164,6 +165,16 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         }
 
         @Override
+        public Builder<T> setTranslucencySorting(boolean enabled) {
+            return (Builder<T>) super.setTranslucencySorting(enabled);
+        }
+
+        @Override
+        public Builder<T> setTranslucencySorting(Predicate<RenderType> sortedRenderTypes) {
+            return (Builder<T>) super.setTranslucencySorting(sortedRenderTypes);
+        }
+
+        @Override
         public Builder<T> setAlpha(Function<T, Float> alphaFunction) {
             return (Builder<T>) super.setAlpha(alphaFunction);
         }
@@ -197,7 +208,7 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
         public AzBlockEntityRendererConfig<T> build() {
             AzRendererConfig<Long, T> baseConfig = super.build();
 
-            return new AzBlockEntityRendererConfig<>(
+            AzBlockEntityRendererConfig<T> config = new AzBlockEntityRendererConfig<>(
                 baseConfig::createAnimator,
                 baseConfig::modelLocation,
                 baseConfig::getRenderType,
@@ -214,6 +225,9 @@ public class AzBlockEntityRendererConfig<T extends BlockEntity> extends AzRender
                 baseConfig::boneTextureOverrideProvider,
                 baseConfig::boneRenderTypeOverrideProvider
             );
+
+            config.copyBaseOptions(baseConfig);
+            return config;
         }
     }
 }

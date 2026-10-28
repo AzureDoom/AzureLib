@@ -23,6 +23,21 @@ The base `AzRendererConfig` class serves as the foundation for all rendering con
 - **Pipeline Context configuration**: Easily modify or register your own Pipeline Context.
 - **Per Bone Texture and RenderTypes**: Easily change the texture or RenderType of a bone through customizable lambdas.
 - **Customizable `RenderType`**: Fine-tune rendering styles like cutouts, translucency, and more.
+- **Translucency sorting**: Sort all translucent geometry of a model, its layers and bone overrides back to front together.
+
+### Translucency Sorting
+
+When a model draws translucent geometry in more than one pass (a translucent body plus a translucent layer, or a bone with its own translucent render type), each pass draws in turn, and whichever draws first hides translucent parts of later passes behind it. Turning on translucency sorting draws all of them together, back to front:
+
+```java
+.setTranslucencySorting(true)
+```
+
+- Off by default. It copies the translucent vertices each render and adds a draw call wherever the sorted order switches render type.
+- `setTranslucencySorting(renderType -> ...)` picks which render types are sorted, e.g. to include a custom translucent render type.
+- Only one animatable's own geometry is sorted; separate entities still draw in the order the game renders them.
+- Item and armor base models aren't sorted (they come with their own buffer and glint); their layers are.
+- It doesn't fix translucent models looking wrong against water or other translucent blocks, which the game draws separately.
 
 <Callout variant="info">
     Beta 1.7.3 has no vanilla `RenderType`, so AzureLib provides its own in `mod.azure.azurelib.render.vertex` with the same factory methods (`entitySolid`, `entityCutout`, `entityCutoutNoCull`, `entityTranslucent`, `entityTranslucentCull`, `itemEntityTranslucentCull`, `armorCutoutNoCull`, `eyes`). `PoseStack`, `VertexConsumer` and `MultiBufferSource` live in the same package. AzureLib draws its vertices itself with OpenGL vertex arrays, and lighting follows Beta 1.7.3's model: the entity's brightness is folded into the vertex colour.
@@ -86,6 +101,7 @@ public class ExampleArmorRenderer extends AzArmorRenderer {
                 .setScale(1.0F) // Scale for width and height being the same
                 .setScale(exampleArmor -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleArmor -> 1.0F, exampleArmor -> 1.0F) // Scale for width and height with context
+                .setTranslucencySorting(true) // Sorts translucent geometry across the model, layers and bone overrides
                 .build()
         );
     }
@@ -147,6 +163,7 @@ public class ExampleBERenderer extends AzBlockEntityRenderer<ExampleBE> {
                 .setScale(1.0F) // Scale for width and height being the same
                 .setScale(exampleBEEntity -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleBEEntity -> 1.0F, exampleBEEntity -> 1.0F) // Scale for width and height with context
+                .setTranslucencySorting(true) // Sorts translucent geometry across the model, layers and bone overrides
                 .build()
         );
     }
@@ -214,6 +231,7 @@ public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
                 .setScale(exampleEntity -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleEntity -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
                 .withLodConfig(AzLodConfig.DEFAULT) // Opt in to LOD (it is disabled unless you set this)
+                .setTranslucencySorting(true) // Sorts translucent geometry across the model, layers and bone overrides
                 .build()
         );
     }
@@ -363,6 +381,7 @@ public class ExampleItemRenderer extends AzItemRenderer {
                 .setScale(1.0F) // Scale for width and height being the same
                 .setScale(exampleItem -> 1.0F) // Scale for width and height being the same with context
                 .setScale(exampleItem -> 1.0F, exampleEntity -> 1.0F) // Scale for width and height with context
+                .setTranslucencySorting(true) // Sorts translucent geometry across the model, layers and bone overrides
                 .build()
         );
     }

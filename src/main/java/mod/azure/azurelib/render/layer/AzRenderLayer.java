@@ -66,6 +66,19 @@ public interface AzRenderLayer<K, T> {
     void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone);
 
     /**
+     * Whether this layer's translucent geometry is sorted together with the models when the renderer has
+     * translucency sorting turned on ({@code setTranslucencySorting(true)} on its config builder). Return
+     * {@code false} for layers that draw over the model's own surfaces, like a glow or overlay texture: those are
+     * coplanar with the model, so sorting gains nothing and interleaving them with the model's quads costs a draw call
+     * per switch. Opted-out layers still draw after all sorted geometry, in order, as they do without sorting.
+     *
+     * @return {@code true} (the default) to sort this layer's translucent geometry with the model's
+     */
+    default boolean sortsTranslucency() {
+        return true;
+    }
+
+    /**
      * Re-renders the given renderer pipeline context using a specified baked model, posed to match the model that was
      * just rendered. Every bone of {@code model} that shares a name with a bone of the current model copies that bone's
      * animated pose (relative to each model's own bind pose) and visibility; bones that only exist in {@code model}
