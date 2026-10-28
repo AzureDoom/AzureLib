@@ -291,7 +291,12 @@ public record AzCommand(List<AzAction> actions) {
                 .dispatchOrQueue(
                     uuid,
                     view,
-                    animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
+                    animator -> {
+                        actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+                        animator.forEachLinkedAnimator(
+                            linked -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, linked))
+                        );
+                    }
                 );
         } else {
             var packet = new AzItemStackDispatchCommandPacket(uuid, this, Optional.ofNullable(view));
