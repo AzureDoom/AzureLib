@@ -6,9 +6,10 @@ import mod.azure.azurelib.core.molang.expressions.MolangDefinable;
 /**
  * {@code left ?? right}: {@code left} if it holds a value, otherwise {@code right}. Only variables can be unset
  * ({@link MolangDefinable}), so {@code v.speed ?? 1} gives 1 until something assigns {@code v.speed}; anything else on
- * the left is always used.
+ * the left is always used. A variable holding an entity that has since been collected counts as unset. Strings, arrays
+ * and entity references pass through unchanged.
  */
-public final class MolangCoalesce implements IValue {
+public final class MolangCoalesce implements MolangObjectValue {
 
     private IValue left;
 
@@ -21,11 +22,20 @@ public final class MolangCoalesce implements IValue {
 
     @Override
     public double get() {
-        if (left instanceof MolangCoalesce) {
+        if (left instanceof MolangDefinable && !((MolangDefinable) left).isDefined()) {
             return right.get();
         }
 
         return left.get();
+    }
+
+    @Override
+    public void evaluate(MolangSlot out) {
+        if (left instanceof MolangDefinable && !((MolangDefinable) left).isDefined()) {
+            MolangSlot.evaluate(right, out);
+        } else {
+            MolangSlot.evaluate(left, out);
+        }
     }
 
     @Override

@@ -3,20 +3,30 @@ package mod.azure.azurelib.mixins;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.render.item.AzItemRenderHooks;
 import mod.azure.azurelib.render.item.AzItemRenderer;
 import mod.azure.azurelib.render.item.AzItemRendererRegistry;
 
 /**
- * Render hook to inject AzureLib's item rendering. Every 1.12.2 item render (hand, GUI, ground, item frame, head)
- * funnels through {@code RenderItem#renderItem(ItemStack, IBakedModel)} after Forge has applied the model's camera
- * transforms, which is the same point 1.18 hands control to {@code BlockEntityWithoutLevelRenderer}.
+ * Render hooks for AzureLib's item rendering.
+ * <ul>
+ * <li>Every 1.12.2 item render (hand, GUI, ground, item frame, head) funnels through
+ * {@code RenderItem#renderItem(ItemStack, IBakedModel)} after Forge has applied the model's camera transforms, which is
+ * the same point 1.18 hands control to {@code BlockEntityWithoutLevelRenderer}.</li>
+ * <li>Held items, first and third person, are rendered through
+ * {@code RenderItem#renderItem(ItemStack, EntityLivingBase, TransformType, boolean)}, the one place the holder is
+ * known. It is recorded for the duration of that call so item animations answer entity queries for the holder, like
+ * Bedrock attachables. This is 1.12.2's counterpart to the {@code ItemRenderer#renderStatic} hook on 1.21.1.</li>
+ * </ul>
  */
 @Mixin(RenderItem.class)
 public abstract class RenderItemMixin {
@@ -45,5 +55,33 @@ public abstract class RenderItemMixin {
         renderer.render(stack, AzItemRenderHooks.consumeTransformType());
         GlStateManager.popMatrix();
         ci.cancel();
+    }
+
+    @Inject(
+        method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;Z)V",
+        at = @At("HEAD")
+    )
+    private void azurelib$pushItemHolder(
+        ItemStack stack,
+        EntityLivingBase holder,
+        ItemCameraTransforms.TransformType transformType,
+        boolean leftHanded,
+        CallbackInfo ci
+    ) {
+        AzMolangQueryContext.INSTANCE.pushItemHolder(holder);
+    }
+
+    @Inject(
+        method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;Z)V",
+        at = @At("RETURN")
+    )
+    private void azurelib$popItemHolder(
+        ItemStack stack,
+        EntityLivingBase holder,
+        ItemCameraTransforms.TransformType transformType,
+        boolean leftHanded,
+        CallbackInfo ci
+    ) {
+        AzMolangQueryContext.INSTANCE.popItemHolder();
     }
 }

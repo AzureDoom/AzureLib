@@ -96,6 +96,9 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
                 continue;
             }
 
+            // Molang's `this` in the target keyframes reads this bone's channels.
+            this.channelBone = bone;
+
             AzKeyframeStack<AzKeyframe<IValue>> rotationKeyframes = boneAnimation.rotationKeyframes();
             AzKeyframeStack<AzKeyframe<IValue>> positionKeyframes = boneAnimation.positionKeyframes();
             AzKeyframeStack<AzKeyframe<IValue>> scaleKeyframes = boneAnimation.scaleKeyframes();
@@ -135,6 +138,8 @@ public class AzKeyframeTransitioner<T> extends AzAbstractKeyframeExecutor {
                 queue.addNextScale(null, adjustedTick, transitionLength, snapshot, x, y, z);
             }
         }
+
+        this.channelBone = null;
     }
 
     /**

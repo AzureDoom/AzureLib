@@ -66,9 +66,9 @@ public final class AzHitboxDamageTracker {
         AzHitboxState state = AzHitboxes.getOrCreateState(target);
 
         if (
-                state == null || index < 0 || index >= state.size()
-                        || state.set().get(index).role() != role
-                        || !state.isEnabled(target, index)
+            state == null || index < 0 || index >= state.size()
+                || state.set().get(index).role() != role
+                || !state.isEnabled(target, index)
         ) {
             return null;
         }

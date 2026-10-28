@@ -5,8 +5,9 @@
  */
 package mod.azure.azurelib.core.molang.expressions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -19,9 +20,9 @@ import mod.azure.azurelib.core.molang.LazyVariable;
  */
 public class MolangCompoundValue extends MolangValue {
 
-    public final List<MolangValue> values = new ArrayList<>();
+    public final List<MolangValue> values = new ObjectArrayList<>();
 
-    public final Map<String, LazyVariable> locals = new HashMap<>();
+    public final Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
 
     /**
      * The statement's expression tree when this compound holds exactly one plain statement (no assignment), so
