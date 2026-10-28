@@ -106,7 +106,7 @@ public final class AzHitboxCollision {
 
         var state = AzHitboxes.getLiveState(candidate);
 
-        if (state == null || !AzHitboxes.hasActive(state, ctx.query.filter())) {
+        if (state == null || !AzHitboxes.hasActive(candidate, state, ctx.query.filter())) {
             return null;
         }
 

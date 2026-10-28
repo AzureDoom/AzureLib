@@ -65,6 +65,8 @@ public final class AzHitboxState {
     @Nullable
     DamageSource pendingSource;
 
+    private long cacheEnabledMask;
+
     AzHitboxState(AzHitboxSet set) {
         this.set = set;
         this.count = set.size();
@@ -161,8 +163,12 @@ public final class AzHitboxState {
         var y = entity.getY();
         var z = entity.getZ();
         var yaw = AzHitboxes.bodyYaw(entity);
+        var mask = enabledMask(entity);
 
-        if (cacheVersion == version && cacheX == x && cacheY == y && cacheZ == z && cacheYaw == yaw) {
+        if (
+            cacheVersion == version && cacheEnabledMask == mask
+                && cacheX == x && cacheY == y && cacheZ == z && cacheYaw == yaw
+        ) {
             return worldCache;
         }
 
@@ -174,7 +180,7 @@ public final class AzHitboxState {
         AABB bounds = null;
 
         for (int i = 0; i < count; i++) {
-            if (!active[i]) {
+            if (!active[i] || (mask & (1L << i)) == 0) {
                 worldCache[i] = null;
                 continue;
             }
@@ -197,6 +203,7 @@ public final class AzHitboxState {
         }
 
         cacheVersion = version;
+        cacheEnabledMask = mask;
         cacheX = x;
         cacheY = y;
         cacheZ = z;
@@ -213,5 +220,37 @@ public final class AzHitboxState {
     public @Nullable AABB worldBounds(Entity entity) {
         worldBoxes(entity);
         return cacheBounds;
+    }
+
+    long enabledMask(Entity entity) {
+        if (!(entity instanceof AzHitboxHolder holder)) {
+            return -1L;
+        }
+
+        long mask = 0L;
+
+        for (int i = 0; i < count; i++) {
+            if (holder.isHitboxEnabled(set.get(i))) {
+                mask |= 1L << i;
+            }
+        }
+
+        return mask;
+    }
+
+    public boolean isEnabled(Entity entity, int index) {
+        return !(entity instanceof AzHitboxHolder holder) || holder.isHitboxEnabled(set.get(index));
+    }
+
+    boolean hasEnabledActive(Entity entity) {
+        long mask = enabledMask(entity);
+
+        for (int i = 0; i < count; i++) {
+            if (active[i] && (mask & (1L << i)) != 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
