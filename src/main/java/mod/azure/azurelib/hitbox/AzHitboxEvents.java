@@ -21,6 +21,19 @@ public final class AzHitboxEvents {
         event.setAmount(AzHitboxDamageTracker.applyHurt(event.getEntityLiving(), event.getSource(), event.getAmount()));
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void onLivingHurtFinal(LivingHurtEvent event) {
+        if (!(event.getEntityLiving() instanceof AzHitboxHolder) || event.getEntityLiving().world.isRemote) {
+            return;
+        }
+
+        AzHitboxDamageTracker.confirmHurt(
+            event.getEntityLiving(),
+            event.getSource(),
+            event.isCanceled() ? 0 : event.getAmount()
+        );
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         EnumActionResult result = AzHitboxInteractions.interact(

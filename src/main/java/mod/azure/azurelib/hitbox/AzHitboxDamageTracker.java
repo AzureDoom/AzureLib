@@ -126,9 +126,49 @@ public final class AzHitboxDamageTracker {
         if (state != null) {
             state.lastHit = hit;
             state.lastHitTime = target.world.getTotalWorldTime();
+            state.pendingHit = hit;
+            state.pendingSource = source;
+            state.pendingAccepted = false;
         }
 
         return ((AzHitboxHolder) target).onHitboxHit(hit, source, amount);
+    }
+
+    public static void confirmHurt(EntityLivingBase target, DamageSource source, float amount) {
+        AzHitboxState state = AzHitboxes.getState(target);
+
+        if (state == null || state.pendingHit == null || state.pendingSource != source) {
+            return;
+        }
+
+        if (amount <= 0) {
+            clearPending(state);
+            return;
+        }
+
+        state.pendingAmount = amount;
+        state.pendingAccepted = true;
+    }
+
+    public static void fireDamaged(EntityLivingBase target, DamageSource source) {
+        AzHitboxState state = AzHitboxes.getState(target);
+
+        if (state == null || !state.pendingAccepted || state.pendingHit == null || state.pendingSource != source) {
+            return;
+        }
+
+        AzHitboxHit hit = state.pendingHit;
+        float amount = state.pendingAmount;
+        clearPending(state);
+
+        ((AzHitboxHolder) target).onHitboxDamaged(hit, source, amount);
+    }
+
+    private static void clearPending(AzHitboxState state) {
+        state.pendingHit = null;
+        state.pendingSource = null;
+        state.pendingAmount = 0;
+        state.pendingAccepted = false;
     }
 
     @Nullable

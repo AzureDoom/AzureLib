@@ -7,6 +7,7 @@
   "mixins": [
     "ContainerMixin_AzItemIDFix",
     "EntityArrowMixin_AzHitboxes",
+    "EntityLivingBaseMixin_AzHitboxDamage",
     "EntityMixin_AzHitboxState",
     "ItemStackMixin_AzAssignIdInInventory",
     "NetHandlerPlayServerMixin_AzHitboxReach",

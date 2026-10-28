@@ -13,6 +13,8 @@ public interface AzHitboxHolder {
         return amount * hit.hitbox().damageMultiplier();
     }
 
+    default void onHitboxDamaged(AzHitboxHit hit, DamageSource source, float amount) {}
+
     default EnumActionResult onHitboxInteract(AzHitboxHit hit, EntityPlayer player, EnumHand hand) {
         return EnumActionResult.PASS;
     }
