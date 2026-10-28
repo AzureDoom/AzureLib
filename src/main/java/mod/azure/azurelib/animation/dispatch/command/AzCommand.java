@@ -333,7 +333,12 @@ public final class AzCommand {
                 .dispatchOrQueue(
                     uuid,
                     view,
-                    animator -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator))
+                    animator -> {
+                        actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, animator));
+                        animator.forEachLinkedAnimator(
+                            linked -> actions.forEach(action -> action.handle(AzDispatchSide.CLIENT, linked))
+                        );
+                    }
                 );
         } else {
             // On Beta the identity UUID lives in AzureLib's own per-stack data. Assign it lazily here (server side, or

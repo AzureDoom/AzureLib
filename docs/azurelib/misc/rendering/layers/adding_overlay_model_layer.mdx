@@ -174,7 +174,7 @@ this.reRenderWithAnimatedBakedModel(context, model, SaddleAnimator::new);
 - **Keyframe handlers run again.** Don't register sound, particle or custom keyframe handlers on the overlay animator's controllers unless they should fire a second time.
 - **Molang variables are separate.** Values set with `context.molangScope().set(...)` on the entity's animator aren't visible to the overlay animator.
 - **It costs an extra animator update** per entity per frame. Prefer `reRenderWithBakedModel` when the overlay has nothing of its own to animate.
-- **Items aren't supported.** Commands sent with `sendForItem` aren't forwarded to overlay animators.
+- **Items get one overlay animator per view.** First-person and third-person item animators are separate, so each gets its own overlay animator, aligned with the item animator for that view. Commands sent with `sendForItem` reach the overlays of the views they target.
 
 ## Troubleshooting
 
