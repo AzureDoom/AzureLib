@@ -11,6 +11,7 @@ import com.google.gson.JsonPrimitive;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.core.math.Constant;
@@ -25,6 +26,7 @@ import mod.azure.azurelib.core.molang.expressions.MolangValue;
 import mod.azure.azurelib.core.molang.expressions.MolangVariableHolder;
 import mod.azure.azurelib.core.molang.functions.*;
 import mod.azure.azurelib.core.molang.functions.query.*;
+import mod.azure.azurelib.core.molang.runtime.MolangArrayReference;
 
 /**
  * Utility class for parsing and utilising MoLang functions and expressions
@@ -182,7 +184,8 @@ public class MolangParser extends MathBuilder {
      * more limited parser, so nothing that loaded before stops loading; a warning names the problem.
      */
     public static MolangValue parseExpression(String expression) {
-        String source = expression.toLowerCase(Locale.ROOT).trim();
+        // Not lower-cased here: the compiler lower-cases names itself, and string literals must keep their case.
+        String source = expression.trim();
 
         if (source.isEmpty()) {
             AzureLib.LOGGER.error("Molang expression cannot be empty! Defaulted to 0");
@@ -401,6 +404,7 @@ public class MolangParser extends MathBuilder {
         register(new LazyVariable(MolangQueries.HAS_GRAVITY, 0));
         register(new LazyVariable(MolangQueries.HAS_HEAD_GEAR, 0));
         register(new LazyVariable(MolangQueries.HAS_RIDER, 0));
+        register(new LazyVariable(MolangQueries.HAS_TARGET, 0));
         register(new LazyVariable(MolangQueries.HEAD_IS_IN_WATER, 0));
         register(new LazyVariable(MolangQueries.HEAD_PITCH, 0));
         register(new LazyVariable(MolangQueries.HEAD_YAW, 0));
@@ -448,6 +452,8 @@ public class MolangParser extends MathBuilder {
         register(new LazyVariable(MolangQueries.PLAYER_LEVEL, 0));
         register(new LazyVariable(MolangQueries.REMAINING_DURABILITY, 0));
         register(new LazyVariable(MolangQueries.SWIM_AMOUNT, 0));
+        register(new LazyVariable(MolangQueries.TARGET_X_ROTATION, 0));
+        register(new LazyVariable(MolangQueries.TARGET_Y_ROTATION, 0));
         register(new LazyVariable(MolangQueries.TIME_OF_DAY, 0));
         register(new LazyVariable(MolangQueries.TIME_STAMP, 0));
         register(new LazyVariable(MolangQueries.VERTICAL_SPEED, 0));
@@ -468,6 +474,7 @@ public class MolangParser extends MathBuilder {
         registerFunction(MolangQueries.ABOVE_TOP_SOLID, AboveTopSolid.class);
         registerFunction(MolangQueries.ARMOR_DAMAGE_SLOT, ArmorDamageSlot.class);
         registerFunction(MolangQueries.CAMERA_DISTANCE_RANGE_LERP, CameraDistanceRangeLerp.class);
+        registerFunction(MolangQueries.COUNT, Count.class);
         registerFunction(MolangQueries.HAS_ARMOR_SLOT, HasArmorSlot.class);
         registerFunction(MolangQueries.HEIGHTMAP, Heightmap.class);
         registerFunction(MolangQueries.IS_ITEM_EQUIPPED, IsItemEquipped.class);
@@ -488,6 +495,22 @@ public class MolangParser extends MathBuilder {
      */
     public void registerFunction(String name, Class<? extends Function> function) {
         this.functions.put(normalizeName(name), function);
+    }
+
+    /**
+     * Registers a read-only {@code array.*} name for Molang to read and index ({@code array.skins[v.variant]}). The
+     * supplier is called on the render thread each time the array is read, so it may depend on the animatable being
+     * animated. Unregistered {@code array.*} names read as an empty array.
+     * <p>
+     * For arrays that belong to one animatable, a {@code variable.*} holding a {@link MolangArray} is often simpler:
+     * {@code context.molangScope().setObject("v.skins", MolangArray.of(...))}.
+     * </p>
+     *
+     * @param name {@code "array.skins"} or just {@code "skins"}
+     */
+    public void registerArray(String name, Supplier<MolangArray> supplier) {
+        String normalized = name.toLowerCase(Locale.ROOT);
+        MolangArrayReference.register(normalized.startsWith("array.") ? normalized : "array." + normalized, supplier);
     }
 
     /**

@@ -100,7 +100,7 @@ Every query can be written with the full `query.` prefix or the short `q.` prefi
 - `query.in_air`
   - Returns whether the entity is currently off the ground (e.g., jumping or falling).
 - `query.is_moving`
-  - Returns whether the entity is moving horizontally.
+  - Returns whether the entity moved since the last tick, in any direction.
 - `query.is_in_water`
   - Returns whether the entity is currently in water.
 - `query.is_in_water_or_rain`
@@ -122,7 +122,7 @@ Every query can be written with the full `query.` prefix or the short `q.` prefi
 - `query.is_sprinting`
   - Returns whether the entity is sprinting.
 - `query.is_swimming`
-  - Returns whether the entity is swimming.
+  - Returns whether the entity is swimming: the swimming pose for players, floating in water for other entities.
 - `query.is_gliding`
   - Returns whether the entity is gliding with an elytra.
 - `query.is_sleeping`
@@ -148,7 +148,7 @@ Every query can be written with the full `query.` prefix or the short `q.` prefi
 - `query.is_local_player`
   - Returns whether the entity is the player playing on this client.
 - `query.is_first_person`
-  - Returns whether the entity is the camera entity and the camera is in first person.
+  - Returns whether the entity is the camera entity and the camera is in first person. In an item's animation, whether the item is drawn in a first-person hand.
 
 #### Health and Combat
 
@@ -162,11 +162,17 @@ Every query can be written with the full `query.` prefix or the short `q.` prefi
   - Returns the number of ticks since the entity started dying.
 - `query.is_blocking` (or `query.blocking`)
   - Returns whether the entity is actively blocking (e.g., holding a shield in defense).
+- `query.has_target`
+  - Returns whether a mob has an attack target. Needs the target on the client; see `AzMolangTargetProvider`.
+- `query.target_x_rotation`
+  - Returns the pitch, in degrees, needed to look at the attack target's eyes (negative is up), or 0.
+- `query.target_y_rotation`
+  - Returns the world yaw, in degrees, needed to face the attack target, or 0.
 
 #### Movement and Rotation
 
 - `query.ground_speed`
-  - Represents the entity's movement speed while on the ground.
+  - Returns the entity's horizontal speed, in blocks per second.
 - `query.vertical_speed`
   - Returns how fast the entity is moving up (positive) or down (negative), in blocks per second.
 - `query.yaw_speed`
@@ -197,7 +203,7 @@ Every query can be written with the full `query.` prefix or the short `q.` prefi
 - `query.is_using_item`
   - Returns whether the entity is actively using an item (e.g., eating or drinking).
 - `query.item_in_use_duration`
-  - Returns how long the entity has been using its current item, in seconds.
+  - Returns how long the entity has been using its current item, in seconds, up to the item's use duration.
 - `query.item_remaining_use_duration`
   - Returns how long the entity has left to use its current item, in seconds.
 - `query.item_max_use_duration`
@@ -227,8 +233,20 @@ These queries take arguments, so they are always written with parentheses, e.g. 
   - Returns how far the entity is moving this tick on an axis.
 - `query.movement_direction(axis)`
   - Returns the entity's normalized movement direction on an axis.
+- `query.count(value, ...)`
+  - Returns the number of elements in an array; anything else counts as 1.
+- `query.get_nearby_entities(radius[, 'entity_id'])` / `query.get_nearby_entities_except_self(...)`
+  - Returns an array of living entities within `radius` blocks (at most 64), nearest first, for use with `for_each`.
+- `query.get_equipped_item_name([hand])`
+  - Returns the held item's id without its namespace, e.g. `'bow'`. Hand is `'main_hand'` (default) or `'off_hand'`.
+- `query.is_item_name_any(slot, index, 'id', ...)`
+  - Returns whether the item in a slot such as `'slot.weapon.mainhand'` or `'slot.armor.head'` is any of the given ids.
+- `query.equipped_item_any_tag(slot, 'tag', ...)` / `query.equipped_item_all_tags(slot, 'tag', ...)`
+  - Returns whether the item in the slot has any / all of the given item tags.
+- `query.is_name_any('name', ...)`
+  - Returns whether the entity's name (name tag, player name or type name) is any of the given strings.
 - `query.is_item_equipped(hand)`
-  - Returns whether a hand holds an item (0 = main hand, 1 = off hand). The hand can be left out to check the main hand: `query.is_item_equipped()`.
+  - Returns whether a hand holds an item (0 or `'main_hand'`, 1 or `'off_hand'`). The hand can be left out to check the main hand: `query.is_item_equipped()`.
 - `query.has_armor_slot(slot)`
   - Returns whether an armor slot has an item (0 = head, 1 = chest, 2 = legs, 3 = feet).
 - `query.armor_damage_slot(slot)`
