@@ -18,4 +18,8 @@ public interface AzHitboxHolder {
     default InteractionResult onHitboxInteract(AzHitboxHit hit, Player player, InteractionHand hand) {
         return InteractionResult.PASS;
     }
+
+    default boolean isHitboxEnabled(AzHitbox hitbox) {
+        return true;
+    }
 }
