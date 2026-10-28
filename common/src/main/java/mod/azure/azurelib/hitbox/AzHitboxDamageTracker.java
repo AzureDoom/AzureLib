@@ -1,5 +1,6 @@
 package mod.azure.azurelib.hitbox;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -106,9 +107,25 @@ public final class AzHitboxDamageTracker {
         if (state != null) {
             state.lastHit = hit;
             state.lastHitTime = target.level().getGameTime();
+            state.pendingHit = hit;
+            state.pendingSource = source;
         }
 
         return holder.onHitboxHit(hit, source, amount);
+    }
+
+    public static @Nullable AzHitboxHit takeAccepted(LivingEntity target, DamageSource source) {
+        AzHitboxState state = AzHitboxes.getState(target);
+
+        if (state == null || state.pendingHit == null || state.pendingSource != source) {
+            return null;
+        }
+
+        AzHitboxHit hit = state.pendingHit;
+        state.pendingHit = null;
+        state.pendingSource = null;
+
+        return target.isInvulnerableTo((ServerLevel) target.level(), source) ? null : hit;
     }
 
     public static @Nullable AzHitboxHit takeInteract(ServerPlayer player, Entity target) {

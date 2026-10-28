@@ -1,5 +1,6 @@
 package mod.azure.azurelib.hitbox;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +58,12 @@ public final class AzHitboxState {
     AzHitboxHit lastHit;
 
     long lastHitTime = Long.MIN_VALUE;
+
+    @Nullable
+    AzHitboxHit pendingHit;
+
+    @Nullable
+    DamageSource pendingSource;
 
     AzHitboxState(AzHitboxSet set) {
         this.set = set;

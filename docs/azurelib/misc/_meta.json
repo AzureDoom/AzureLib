@@ -15,6 +15,10 @@
         "name": "Bone Hitboxes",
         "icon": "Target"
     },
+    "limb_health.mdx": {
+        "name": "Limb Health",
+        "icon": "HeartCrack"
+    },
     "morph_compat.mdx": {
         "name": "Morph Compatibility",
         "icon": "Shapes"
