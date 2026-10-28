@@ -1,0 +1,426 @@
+---
+title: Limb Health
+hide_meta: true
+---
+
+# Limb Health
+
+This page builds per-limb health on top of [Bone Hitboxes](./hitboxes): each limb takes damage separately, and once a limb runs out of health it is severed. A severed limb stops rendering, and its hitbox goes away with it, so attacks and projectiles pass through the space where it used to be.
+
+Everything here uses the public hitbox and animator APIs. You need a working `AzHitboxHolder` entity and AzureLib 3.2.2 or newer, for `onHitboxDamaged`.
+
+## How it fits together
+
+Limb health is split across both sides:
+
+1. **Server:** `onHitboxDamaged` tells you which limb took damage. The entity tracks each limb's health and records severed limbs in a synced bitmask.
+2. **Client:** the animator reads the bitmask and hides the bone of every severed limb.
+3. **Hitboxes:** AzureLib already disables a hitbox while its bone is hidden. The client stops targeting it straight away, and the server stops using it on the next pose report.
+
+The server decides when a limb is severed and the client only draws the result, so a modified client can't sever limbs on its own.
+
+## Defining limbs
+
+Keep the limb definitions in one place, with each limb's hitbox name, bone name and maximum health:
+
+```java
+public enum ExampleLimb {
+    LEFT_ARM("left_arm", "leftArm", 12f),
+    RIGHT_ARM("right_arm", "rightArm", 12f),
+    LEFT_LEG("left_leg", "leftLeg", 16f),
+    RIGHT_LEG("right_leg", "rightLeg", 16f),
+    TAIL("tail", "tail1", 20f);
+
+    private static final ExampleLimb[] VALUES = values();
+
+    public final String hitbox;
+
+    public final String bone;
+
+    public final float maxHealth;
+
+    ExampleLimb(String hitbox, String bone, float maxHealth) {
+        this.hitbox = hitbox;
+        this.bone = bone;
+        this.maxHealth = maxHealth;
+    }
+
+    public int bit() {
+        return 1 << ordinal();
+    }
+
+    public static @Nullable ExampleLimb byHitbox(String name) {
+        for (var limb : VALUES) {
+            if (limb.hitbox.equals(name)) {
+                return limb;
+            }
+        }
+
+        return null;
+    }
+
+    public static @Nullable ExampleLimb byBone(String name) {
+        for (var limb : VALUES) {
+            if (limb.bone.equals(name)) {
+                return limb;
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+The severed bitmask is an `int`, so it supports up to 32 limbs. Use `EntityDataSerializers.LONG` if you need more. `byBone` is only needed if you [show limb health on the client](#showing-limb-health-on-the-client).
+
+<Callout variant="info">
+    If one limb's bone is a child of another limb's bone (a hand under a forearm), list the parent first. The animator below sets each bone's visibility in enum order, and hiding a bone also hides its children.
+</Callout>
+
+Then build the hitbox set from the enum:
+
+```java
+private static final AzHitboxSet HITBOXES = buildHitboxes();
+
+private static AzHitboxSet buildHitboxes() {
+    var builder = AzHitboxSet.builder()
+        .add("head", h -> h.damageMultiplier(2f))
+        .add("body");
+
+    for (var limb : ExampleLimb.values()) {
+        builder.add(limb.hitbox, limb.bone, h -> h.damageMultiplier(0.5f));
+    }
+
+    return builder.build();
+}
+
+@Override
+public AzHitboxSet getHitboxSet() {
+    return HITBOXES;
+}
+```
+
+## Tracking limb health on the entity
+
+The severed bitmask is synced to clients so they can hide bones. The exact limb health values only live on the server; see [Showing limb health on the client](#showing-limb-health-on-the-client) to send clients an approximate value as well.
+
+```java
+private static final EntityDataAccessor<Integer> SEVERED_LIMBS = SynchedEntityData.defineId(
+    ExampleEntity.class,
+    EntityDataSerializers.INT
+);
+
+private final float[] limbHealth = new float[ExampleLimb.values().length];
+
+public ExampleEntity(EntityType<? extends Monster> type, Level level) {
+    super(type, level);
+
+    for (var limb : ExampleLimb.values()) {
+        limbHealth[limb.ordinal()] = limb.maxHealth;
+    }
+}
+
+@Override
+protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    super.defineSynchedData(builder);
+    builder.define(SEVERED_LIMBS, 0);
+}
+
+public boolean isSevered(ExampleLimb limb) {
+    return (entityData.get(SEVERED_LIMBS) & limb.bit()) != 0;
+}
+```
+
+## Damaging limbs
+
+Hitbox holders have two damage hooks, and limb health uses both:
+
+- `onHitboxHit` runs at the start of `LivingEntity#hurt`, before vanilla's invulnerability checks. It decides how much damage the hit deals, but the hit may still be rejected afterwards.
+- `onHitboxDamaged` runs once vanilla has accepted and applied the damage, at most once per hit. Hits blocked by invulnerability frames never reach it, so it's the place to change limb health.
+
+```java
+@Override
+public float onHitboxHit(AzHitboxHit hit, DamageSource source, float amount) {
+    var limb = ExampleLimb.byHitbox(hit.name());
+
+    if (limb != null && isSevered(limb)) {
+        // A stale pose can still place a severed limb for a tick or two. Count it as a body hit.
+        return amount;
+    }
+
+    return AzHitboxHolder.super.onHitboxHit(hit, source, amount);
+}
+
+@Override
+public void onHitboxDamaged(AzHitboxHit hit, DamageSource source, float amount) {
+    var limb = ExampleLimb.byHitbox(hit.name());
+
+    if (limb != null && !isSevered(limb)) {
+        damageLimb(limb, amount);
+    }
+}
+```
+
+The severed check in `onHitboxHit` is there because the server's copy of the pose trails the client by a few ticks. Right after a limb is severed, a projectile can still land on where it used to be.
+
+The limb takes the same amount the entity does: the value `onHitboxHit` returned, before armor and absorption. If limbs should take full damage while the body takes less, divide `amount` by `hit.hitbox().damageMultiplier()` before passing it to `damageLimb` (for any multiplier above zero).
+
+<Callout variant="info">
+    If your entity overrides `actuallyHurt`, call `super.actuallyHurt`. `onHitboxDamaged` is called from the end of it.
+</Callout>
+
+Severing the limb is a matter of setting its bit:
+
+```java
+private void damageLimb(ExampleLimb limb, float amount) {
+    var index = limb.ordinal();
+    limbHealth[index] = Math.max(0, limbHealth[index] - amount);
+
+    if (limbHealth[index] <= 0) {
+        severLimb(limb);
+    }
+}
+
+public void severLimb(ExampleLimb limb) {
+    if (isSevered(limb)) {
+        return;
+    }
+
+    limbHealth[limb.ordinal()] = 0;
+    entityData.set(SEVERED_LIMBS, entityData.get(SEVERED_LIMBS) | limb.bit());
+    playSound(SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, 1f, 1.4f);
+    updateLimbEffects();
+}
+
+public void restoreLimb(ExampleLimb limb) {
+    limbHealth[limb.ordinal()] = limb.maxHealth;
+    entityData.set(SEVERED_LIMBS, entityData.get(SEVERED_LIMBS) & ~limb.bit());
+    updateLimbEffects();
+}
+```
+
+`severLimb` is public, so other code (a special attack, a command, a regeneration timer calling `restoreLimb`) can use it too.
+
+## Saving
+
+Save both the bitmask and the remaining health, so a damaged limb stays damaged across reloads:
+
+```java
+@Override
+public void addAdditionalSaveData(CompoundTag tag) {
+    super.addAdditionalSaveData(tag);
+    tag.putInt("SeveredLimbs", entityData.get(SEVERED_LIMBS));
+
+    var health = new CompoundTag();
+
+    for (var limb : ExampleLimb.values()) {
+        health.putFloat(limb.hitbox, limbHealth[limb.ordinal()]);
+    }
+
+    tag.put("LimbHealth", health);
+}
+
+@Override
+public void readAdditionalSaveData(CompoundTag tag) {
+    super.readAdditionalSaveData(tag);
+    entityData.set(SEVERED_LIMBS, tag.getInt("SeveredLimbs"));
+
+    var health = tag.getCompound("LimbHealth");
+
+    for (var limb : ExampleLimb.values()) {
+        if (health.contains(limb.hitbox)) {
+            limbHealth[limb.ordinal()] = health.getFloat(limb.hitbox);
+        }
+    }
+
+    updateLimbEffects();
+}
+```
+
+## Hiding severed limbs
+
+Hide the bones in your animator's `setCustomAnimations`. See [Procedural Animation](./animating/procedural_animation) for how that method works.
+
+```java
+@Override
+public void setCustomAnimations(ExampleEntity entity, float partialTicks) {
+    super.setCustomAnimations(entity, partialTicks);
+
+    var model = context().boneCache().getBakedModel();
+
+    for (var limb : ExampleLimb.values()) {
+        var bone = model.getBoneOrNull(limb.bone);
+
+        // Skip bones that are missing or currently hidden by the LOD system; LOD restores them itself.
+        if (bone == null || bone.getLodHidden()) {
+            continue;
+        }
+
+        var severed = entity.isSevered(limb);
+
+        if (bone.isHidden() != severed) {
+            bone.setHidden(severed);
+        }
+    }
+}
+```
+
+Use the animator rather than a `setPrerenderEntry` hook. AzureLib also poses hitbox entities that are off screen, so their hitboxes keep updating for the server, and that path runs your animator but not your renderer hooks. Hiding the bone in the animator keeps both paths in agreement, so an off-screen mob doesn't report a severed limb's hitbox back to the server.
+
+Each entity has its own copy of the model's bones, so hiding a limb on one mob doesn't affect others using the same model.
+
+<Callout variant="warning">
+    Don't use this on bones that are hidden in Blockbench. The code above would show them for every limb that isn't severed.
+</Callout>
+
+### What hiding does
+
+`setHidden(true)` hides the bone and all of its children, and their hitboxes are disabled with them. Severing an upper arm removes the forearm, the hand and their hitboxes too.
+
+To hide a bone's own cubes but keep its children (for example, to keep a stump that is modelled as a child bone), call `bone.setChildrenHidden(false)` after `setHidden(true)`.
+
+With `keepEntityBox(false)` (the default), a shot through the space where the limb was misses the entity unless it hits another hitbox. With `keepEntityBox(true)`, it hits the vanilla box as a plain body hit.
+
+## Showing limb health on the client
+
+Clients only know which limbs are severed. To draw a health bar per limb, or switch a limb to a damaged texture as it weakens, sync an approximate health value as well.
+
+There's no serializer for float arrays, so pack each limb's health into one byte, as a fraction of its maximum from 0 to 255. One `long` holds 8 limbs:
+
+```java
+private static final EntityDataAccessor<Long> LIMB_HEALTH = SynchedEntityData.defineId(
+    ExampleEntity.class,
+    EntityDataSerializers.LONG
+);
+
+@Override
+protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    super.defineSynchedData(builder);
+    builder.define(SEVERED_LIMBS, 0);
+    builder.define(LIMB_HEALTH, -1L); // Every byte 0xFF: all limbs at full health.
+}
+
+private void syncLimbHealth(ExampleLimb limb) {
+    var fraction = limbHealth[limb.ordinal()] / limb.maxHealth;
+    // Round up so a limb that's still attached never shows as empty.
+    var value = (long) Mth.clamp(Mth.ceil(fraction * 255), 0, 255);
+    var shift = limb.ordinal() * 8;
+    var packed = entityData.get(LIMB_HEALTH);
+
+    entityData.set(LIMB_HEALTH, (packed & ~(0xFFL << shift)) | (value << shift));
+}
+
+/** Works on both sides. Returns 0 to 1. */
+public float getLimbHealthFraction(ExampleLimb limb) {
+    return ((entityData.get(LIMB_HEALTH) >>> (limb.ordinal() * 8)) & 0xFF) / 255f;
+}
+```
+
+Call `syncLimbHealth(limb)` wherever limb health changes: at the end of `damageLimb`, `severLimb` and `restoreLimb`, and for every limb at the end of `readAdditionalSaveData`. For example:
+
+```java
+private void damageLimb(ExampleLimb limb, float amount) {
+    var index = limb.ordinal();
+    limbHealth[index] = Math.max(0, limbHealth[index] - amount);
+    syncLimbHealth(limb);
+
+    if (limbHealth[index] <= 0) {
+        severLimb(limb);
+    }
+}
+```
+
+Synced data is only sent when it changes, so this costs nothing while the entity isn't being hit. With more than 8 limbs, add a second `LONG` accessor. If you need exact values on the client (rather than steps of about 0.4%), use one `EntityDataSerializers.FLOAT` accessor per limb instead.
+
+### Damaged textures
+
+`setBoneTextureOverrideProvider` can switch a limb to a different texture once it drops below a threshold. The override applies to each bone separately, so walk up the parents to find which limb a bone belongs to; that way a forearm and hand change along with the upper arm:
+
+```java
+private static final ResourceLocation DAMAGED_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    MOD_ID,
+    "textures/entity/example_damaged.png"
+);
+
+// In your renderer's config builder:
+.setBoneTextureOverrideProvider((entity, bone) -> {
+    if (entity == null) {
+        return null;
+    }
+
+    for (var current = bone; current != null; current = current.getParent()) {
+        var limb = ExampleLimb.byBone(current.getName());
+
+        if (limb != null) {
+            return entity.getLimbHealthFraction(limb) < 0.5f ? DAMAGED_TEXTURE : null;
+        }
+    }
+
+    return null; // Not part of a limb: use the normal texture.
+})
+```
+
+The damaged texture must use the same UV layout as the normal one. Returning `null` keeps the normal texture.
+
+## Gameplay effects
+
+Put anything that depends on severed limbs in `updateLimbEffects`. It runs whenever a limb is severed or restored and after loading, so effects that aren't saved (such as transient attribute modifiers) come back after a reload. For example, slowing the entity down for each missing leg:
+
+```java
+private static final ResourceLocation LEG_LOSS = ResourceLocation.fromNamespaceAndPath(MOD_ID, "leg_loss");
+
+private void updateLimbEffects() {
+    var speed = getAttribute(Attributes.MOVEMENT_SPEED);
+
+    if (speed == null) {
+        return;
+    }
+
+    var legsLost = (isSevered(ExampleLimb.LEFT_LEG) ? 1 : 0) + (isSevered(ExampleLimb.RIGHT_LEG) ? 1 : 0);
+    speed.removeModifier(LEG_LOSS);
+
+    if (legsLost > 0) {
+        speed.addTransientModifier(
+            new AttributeModifier(LEG_LOSS, -0.35 * legsLost, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+        );
+    }
+}
+```
+
+Your AI goals can also check `isSevered` directly, for example to stop a melee goal from using an arm that's gone.
+
+## Damage that isn't attributed to a limb
+
+`onHitboxHit` and `onHitboxDamaged` only run for player melee and for projectiles that use vanilla's collision. Other mobs' melee attacks, explosions, fire and so on only damage the entity's health.
+
+<Callout variant="warning">
+    Projectiles that do their own collision (many modded bullets) and hitscan weapons skip hitboxes entirely, so they never damage limbs. See [Custom projectiles and hitscan](./hitboxes#custom-projectiles-and-hitscan) for how to make them hit hitboxes.
+</Callout>
+
+To let another mob's melee attack hit a limb too, pick one yourself in `actuallyHurt`. This casts a line from the attacker's eyes to the entity's center and takes the first limb it crosses:
+
+```java
+@Override
+protected void actuallyHurt(DamageSource source, float amount) {
+    super.actuallyHurt(source, amount);
+
+    if (
+        source.getDirectEntity() instanceof LivingEntity attacker
+            && !(attacker instanceof Player)
+            && !isInvulnerableTo(source)
+    ) {
+        AzHitboxes.raycast(
+            this,
+            attacker.getEyePosition(),
+            getBoundingBox().getCenter(),
+            hitbox -> ExampleLimb.byHitbox(hitbox.name()) != null
+        ).ifPresent(hit -> damageLimb(ExampleLimb.byHitbox(hit.name()), amount));
+    }
+}
+```
+
+Mob melee never carries a hitbox hit, so this doesn't double up with `onHitboxDamaged`. Severed limbs have no active hitbox, so the raycast never returns one. For area damage such as explosions, `AzHitboxes.getIntersecting` returns every hitbox inside an area. On the server, both only work while a nearby client is reporting the entity's pose (see [How syncing works](./hitboxes#how-syncing-works)), so treat them as optional and fall back to plain damage when they return nothing.
+
+## Checking it
+
+Press **F3 + B** while looking at the entity. When a limb is severed, its bone stops rendering and its hitbox outline disappears with it.
