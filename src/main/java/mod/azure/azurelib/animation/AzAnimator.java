@@ -273,6 +273,16 @@ public abstract class AzAnimator<K, T> {
         return currentContext;
     }
 
+    /**
+     * Looks up the context this animator keeps for {@code key} without creating one or changing the current context.
+     * Molang's arrow operator uses it to read another animatable's {@code variable.*} values.
+     *
+     * @return the context, or {@code null} if this animator has never animated {@code key}
+     */
+    public AzAnimationContext<T> findContext(K key) {
+        return contextCache.get(key);
+    }
+
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
         return animationControllerContainer;
     }

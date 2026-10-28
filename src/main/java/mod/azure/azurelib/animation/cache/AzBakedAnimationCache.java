@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.animation.molang.functions.AzMolangFunctions;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.cache.AzResourceCache;
 import mod.azure.azurelib.core.molang.MolangParser;
@@ -40,6 +41,7 @@ public class AzBakedAnimationCache extends AzResourceCache {
         Executor backgroundExecutor,
         AzResourceManager resourceManager
     ) {
+        AzMolangFunctions.register();
         MolangParser.clearExpressionCache();
 
         return loadResources(

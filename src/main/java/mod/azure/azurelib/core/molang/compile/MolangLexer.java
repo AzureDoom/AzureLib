@@ -2,10 +2,16 @@ package mod.azure.azurelib.core.molang.compile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Splits a Molang expression into {@link MolangToken}s. Names may contain dots ({@code query.anim_time},
  * {@code math.cos}, {@code v.x}); numbers may have a fraction, a leading dot and an exponent.
+ * <p>
+ * Molang is case-insensitive except for strings, so names are lower-cased here and string contents are kept exactly as
+ * written. Strings are delimited by single quotes as in Bedrock ({@code 'minecraft:zombie'}, {@code ''} is empty);
+ * double quotes are accepted too. There are no escape sequences.
+ * </p>
  */
 final class MolangLexer {
 
@@ -60,7 +66,9 @@ final class MolangLexer {
             if (isDigit(c) || (c == '.' && i + 1 < length && isDigit(source.charAt(i + 1)))) {
                 i = scanNumber(source, i);
                 String text = source.substring(start, i);
-                String numberText = text.endsWith("f") ? text.substring(0, text.length() - 1) : text;
+                String numberText = text.endsWith("f") || text.endsWith("F")
+                    ? text.substring(0, text.length() - 1)
+                    : text;
 
                 try {
                     tokens.add(new MolangToken(MolangToken.Type.NUMBER, text, Double.parseDouble(numberText), start));
@@ -86,7 +94,8 @@ final class MolangLexer {
                     }
                 }
 
-                tokens.add(new MolangToken(MolangToken.Type.IDENTIFIER, source.substring(start, i), 0, start));
+                String name = source.substring(start, i).toLowerCase(Locale.ROOT);
+                tokens.add(new MolangToken(MolangToken.Type.IDENTIFIER, name, 0, start));
                 continue;
             }
 
@@ -148,7 +157,9 @@ final class MolangLexer {
         }
 
         // Bedrock content sometimes writes float literals C-style: 1.5f
-        if (i < length && source.charAt(i) == 'f' && (i + 1 >= length || !isNamePart(source.charAt(i + 1)))) {
+        int suffix = i < length ? source.charAt(i) : 0;
+
+        if ((suffix == 'f' || suffix == 'F') && (i + 1 >= length || !isNamePart(source.charAt(i + 1)))) {
             i++;
         }
 

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.mixins.accessor.EntityRegistryAccessor;
 import mod.azure.azurelib.util.AzEquipmentHolder;
 import mod.azure.azurelib.util.AzItemStackDataHolder;
 
@@ -489,5 +490,61 @@ public final class Mc {
         double dy = y(a) - y(b);
         double dz = z(a) - z(b);
         return dx * dx + dy * dy + dz * dz;
+    }
+
+    // Molang
+
+    /**
+     * The entity's registry name as Beta knows it ({@code "Pig"}, {@code "PigZombie"}), or {@code "player"} for
+     * players, which aren't registered. {@code null} for unregistered entities. Read from {@code Entities}'
+     * class-to-key map, the one {@link EntityRegistryAccessor#azurelib$getNameToClass()} exposes.
+     */
+    @Nullable
+    public static String entityTypeName(Entity entity) {
+        if (entity instanceof PlayerEntity) {
+            return "player";
+        }
+
+        Object key = EntityRegistryAccessor.azurelib$getNameToClass().get(entity.getClass());
+        return key == null ? null : key.toString();
+    }
+
+    /**
+     * The name {@code query.is_name_any} compares against: the player name for players, otherwise the entity's registry
+     * name. Beta has no name tags.
+     */
+    @Nullable
+    public static String displayName(Entity entity) {
+        return entity instanceof PlayerEntity ? ((PlayerEntity) entity).name : entityTypeName(entity);
+    }
+
+    /**
+     * Attack target for {@code query.has_target} on entities that don't implement {@code AzMolangTargetProvider}. Beta
+     * keeps vanilla targets in protected per-class fields, so none are read here; implement the provider on your
+     * entities instead.
+     */
+    @Nullable
+    public static Entity attackTarget(Entity entity) {
+        return null;
+    }
+
+    /**
+     * The item's Beta key: its translation key without the {@code item.} / {@code tile.} prefix ({@code "bow"},
+     * {@code "swordDiamond"}), or {@code null} if it has none. Beta has no namespaced item ids.
+     */
+    @Nullable
+    public static String itemKey(@Nullable Item item) {
+        if (item == null) {
+            return null;
+        }
+
+        String key = item.getTranslationKey();
+
+        if (key == null) {
+            return null;
+        }
+
+        int dot = key.indexOf('.');
+        return dot >= 0 && (key.startsWith("item.") || key.startsWith("tile.")) ? key.substring(dot + 1) : key;
     }
 }

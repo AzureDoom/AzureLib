@@ -5,11 +5,7 @@
  */
 package mod.azure.azurelib.core.molang.expressions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.LazyVariable;

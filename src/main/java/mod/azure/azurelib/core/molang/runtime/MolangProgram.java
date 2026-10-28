@@ -48,6 +48,12 @@ public final class MolangProgram implements IValue {
 
         // A break or continue outside a loop just ends the expression.
         frame.signal = MolangFrame.NONE;
+
+        // Cached trees outlive the entities they were evaluated for; don't let a temp keep one alive.
+        for (MolangLocalVariable local : locals) {
+            local.releaseObject();
+        }
+
         return value;
     }
 
