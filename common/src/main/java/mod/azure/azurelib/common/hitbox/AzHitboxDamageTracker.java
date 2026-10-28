@@ -106,9 +106,25 @@ public final class AzHitboxDamageTracker {
         if (state != null) {
             state.lastHit = hit;
             state.lastHitTime = target.level().getGameTime();
+            state.pendingHit = hit;
+            state.pendingSource = source;
         }
 
         return holder.onHitboxHit(hit, source, amount);
+    }
+
+    public static @Nullable AzHitboxHit takeAccepted(LivingEntity target, DamageSource source) {
+        AzHitboxState state = AzHitboxes.getState(target);
+
+        if (state == null || state.pendingHit == null || state.pendingSource != source) {
+            return null;
+        }
+
+        AzHitboxHit hit = state.pendingHit;
+        state.pendingHit = null;
+        state.pendingSource = null;
+
+        return target.isInvulnerableTo(source) ? null : hit;
     }
 
     public static @Nullable AzHitboxHit takeInteract(ServerPlayer player, Entity target) {
