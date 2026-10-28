@@ -58,7 +58,7 @@ public final class AzHitboxes {
             return null;
         }
 
-        return state.isLive(entity.level.getGameTime()) ? state : null;
+        return state.isLive(entity.level.getGameTime()) && state.hasEnabledActive(entity) ? state : null;
     }
 
     public static boolean hasLivePose(Entity entity) {
@@ -209,9 +209,9 @@ public final class AzHitboxes {
         return result;
     }
 
-    static boolean hasActive(AzHitboxState state, Predicate<AzHitbox> filter) {
+    static boolean hasActive(Entity entity, AzHitboxState state, Predicate<AzHitbox> filter) {
         for (int i = 0; i < state.size(); i++) {
-            if (state.isActive(i) && filter.test(state.set().get(i))) {
+            if (state.isActive(i) && state.isEnabled(entity, i) && filter.test(state.set().get(i))) {
                 return true;
             }
         }
