@@ -11,6 +11,10 @@
         "name": "Bone Hitboxes",
         "icon": "Target"
     },
+    "limb_health.mdx": {
+        "name": "Limb Health",
+        "icon": "HeartCrack"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"

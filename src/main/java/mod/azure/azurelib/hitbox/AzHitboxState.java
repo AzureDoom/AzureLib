@@ -58,6 +58,14 @@ public final class AzHitboxState {
 
     long lastHitTime = Long.MIN_VALUE;
 
+    @Nullable
+    AzHitboxHit pendingHit;
+
+    @Nullable
+    Entity pendingSource;
+
+    int pendingHealth;
+
     AzHitboxState(AzHitboxSet set) {
         this.set = set;
         this.count = set.size();
