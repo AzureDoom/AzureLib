@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.item;
 
-import mod.azure.azurelib.util.AzCollections;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
@@ -16,6 +15,7 @@ import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.*;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.RenderType;
+import mod.azure.azurelib.util.AzCollections;
 import mod.azure.azurelib.util.ResourceLocation;
 
 /**

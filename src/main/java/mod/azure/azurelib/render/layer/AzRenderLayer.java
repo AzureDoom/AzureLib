@@ -66,11 +66,11 @@ public interface AzRenderLayer<K, T> {
     void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone);
 
     /**
-     * Whether this layer's translucent geometry is sorted together with the models when the renderer has
-     * translucency sorting turned on ({@code setTranslucencySorting(true)} on its config builder). Return
-     * {@code false} for layers that draw over the model's own surfaces, like a glow or overlay texture: those are
-     * coplanar with the model, so sorting gains nothing and interleaving them with the model's quads costs a draw call
-     * per switch. Opted-out layers still draw after all sorted geometry, in order, as they do without sorting.
+     * Whether this layer's translucent geometry is sorted together with the models when the renderer has translucency
+     * sorting turned on ({@code setTranslucencySorting(true)} on its config builder). Return {@code false} for layers
+     * that draw over the model's own surfaces, like a glow or overlay texture: those are coplanar with the model, so
+     * sorting gains nothing and interleaving them with the model's quads costs a draw call per switch. Opted-out layers
+     * still draw after all sorted geometry, in order, as they do without sorting.
      *
      * @return {@code true} (the default) to sort this layer's translucent geometry with the model's
      */
