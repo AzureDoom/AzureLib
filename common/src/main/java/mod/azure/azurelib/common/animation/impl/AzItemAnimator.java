@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 
 import mod.azure.azurelib.common.animation.AzAnimator;
 import mod.azure.azurelib.common.animation.AzAnimatorConfig;
+import mod.azure.azurelib.common.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.common.util.client.RenderUtils;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangVariableRef;
@@ -72,5 +73,12 @@ public abstract class AzItemAnimator extends AzAnimator<UUID, ItemStack> {
         ITEM_IS_ENCHANTED_REF.setMemoized(isEnchantedSupplier);
         MAX_DURABILITY_REF.setMemoized(maxDurabilitySupplier);
         REMAINING_DURABILITY_REF.setMemoized(remainingDurabilitySupplier);
+
+        // Like a Bedrock attachable, entity queries answer for whoever is holding the item, if anyone.
+        var holder = AzMolangQueryContext.INSTANCE.itemHolder();
+
+        if (holder != null) {
+            AzMolangQueryContext.INSTANCE.bind(holder, partialTicks);
+        }
     }
 }

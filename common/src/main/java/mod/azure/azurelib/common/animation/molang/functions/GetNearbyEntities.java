@@ -1,0 +1,45 @@
+package mod.azure.azurelib.common.animation.molang.functions;
+
+import mod.azure.azurelib.common.animation.molang.AzMolangQueryContext;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.molang.MolangArray;
+import mod.azure.azurelib.core.molang.MolangQueryContext;
+import mod.azure.azurelib.core.molang.runtime.MolangObjectValue;
+import mod.azure.azurelib.core.molang.runtime.MolangSlot;
+
+/**
+ * {@code query.get_nearby_entities(radius[, 'entity_id'])}: an array of the living entities within {@code radius}
+ * blocks, nearest first, optionally only those of one type ({@code 'minecraft:pig'}); the entity itself is included
+ * when it matches. Meant for {@code for_each} and {@code query.count}. The radius is capped at
+ * {@value AzMolangQueryContext#MAX_NEARBY_RADIUS}.
+ * <p>
+ * This scans the level each time it is evaluated. Store the result in a {@code temp.*} rather than calling it several
+ * times in one expression.
+ * </p>
+ */
+public class GetNearbyEntities extends AzQueryFunction implements MolangObjectValue {
+
+    public GetNearbyEntities(IValue[] values, String name) throws Exception {
+        super(values, name);
+    }
+
+    @Override
+    public int getRequiredArguments() {
+        return 1;
+    }
+
+    @Override
+    protected double evaluate(AzMolangQueryContext context) {
+        return 0;
+    }
+
+    @Override
+    public void evaluate(MolangSlot out) {
+        if (!(MolangQueryContext.current() instanceof AzMolangQueryContext context)) {
+            out.setObject(MolangArray.EMPTY);
+            return;
+        }
+
+        out.setObject(context.nearbyEntities(getArg(0), stringArg(1), true));
+    }
+}

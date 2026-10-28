@@ -14,6 +14,7 @@ import java.util.UUID;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.common.animation.impl.AzItemAnimatorView;
+import mod.azure.azurelib.common.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.common.model.AzBakedModel;
 import mod.azure.azurelib.common.render.AzProvider;
 
@@ -64,6 +65,7 @@ public abstract class AzItemRenderer {
         // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
         // animator for this display context's view.
         var previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+        var previousDisplay = AzMolangQueryContext.INSTANCE.setItemDisplayContext(transformType);
 
         try {
             var context = rendererPipeline.context();
@@ -85,6 +87,7 @@ public abstract class AzItemRenderer {
                 packedLight
             );
         } finally {
+            AzMolangQueryContext.INSTANCE.setItemDisplayContext(previousDisplay);
             AzItemAnimatorView.restore(previousView);
         }
     }
@@ -99,10 +102,13 @@ public abstract class AzItemRenderer {
         // Everything below that looks up the stack's animator (provider, layers, model renderer) resolves to the
         // animator for this display context's view.
         var previousView = AzItemAnimatorView.push(config.animatorView(transformType));
+        // Lets Molang answer query.is_first_person for the item's own view.
+        var previousDisplay = AzMolangQueryContext.INSTANCE.setItemDisplayContext(transformType);
 
         try {
             renderByItemInView(stack, transformType, poseStack, source, packedLight);
         } finally {
+            AzMolangQueryContext.INSTANCE.setItemDisplayContext(previousDisplay);
             AzItemAnimatorView.restore(previousView);
         }
     }

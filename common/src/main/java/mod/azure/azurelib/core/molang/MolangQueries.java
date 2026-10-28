@@ -49,6 +49,8 @@ public final class MolangQueries {
 
     public static final String HAS_RIDER = normalize("query.has_rider");
 
+    public static final String HAS_TARGET = normalize("query.has_target");
+
     public static final String HEAD_IS_IN_WATER = normalize("query.head_is_in_water");
 
     public static final String HEAD_PITCH = normalize("query.head_pitch");
@@ -149,6 +151,10 @@ public final class MolangQueries {
 
     public static final String SWIM_AMOUNT = normalize("query.swim_amount");
 
+    public static final String TARGET_X_ROTATION = normalize("query.target_x_rotation");
+
+    public static final String TARGET_Y_ROTATION = normalize("query.target_y_rotation");
+
     public static final String TIME_OF_DAY = normalize("query.time_of_day");
 
     public static final String TIME_STAMP = normalize("query.time_stamp");
@@ -168,6 +174,22 @@ public final class MolangQueries {
     public static final String ARMOR_DAMAGE_SLOT = normalize("query.armor_damage_slot");
 
     public static final String CAMERA_DISTANCE_RANGE_LERP = normalize("query.camera_distance_range_lerp");
+
+    public static final String COUNT = normalize("query.count");
+
+    public static final String EQUIPPED_ITEM_ALL_TAGS = normalize("query.equipped_item_all_tags");
+
+    public static final String EQUIPPED_ITEM_ANY_TAG = normalize("query.equipped_item_any_tag");
+
+    public static final String GET_EQUIPPED_ITEM_NAME = normalize("query.get_equipped_item_name");
+
+    public static final String GET_NEARBY_ENTITIES = normalize("query.get_nearby_entities");
+
+    public static final String GET_NEARBY_ENTITIES_EXCEPT_SELF = normalize("query.get_nearby_entities_except_self");
+
+    public static final String IS_ITEM_NAME_ANY = normalize("query.is_item_name_any");
+
+    public static final String IS_NAME_ANY = normalize("query.is_name_any");
 
     public static final String HAS_ARMOR_SLOT = normalize("query.has_armor_slot");
 

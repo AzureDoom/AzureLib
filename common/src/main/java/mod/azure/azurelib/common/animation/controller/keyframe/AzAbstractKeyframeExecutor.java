@@ -7,7 +7,9 @@ import java.util.List;
 
 import mod.azure.azurelib.common.animation.easing.AzEasingType;
 import mod.azure.azurelib.common.animation.easing.AzEasingUtil;
+import mod.azure.azurelib.common.animation.molang.AzMolangQueryContext;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.object.Axis;
@@ -46,6 +48,13 @@ public class AzAbstractKeyframeExecutor {
     private final AzAnimationPoint scratchPoint = new AzAnimationPoint();
 
     private int[] keyframeCursors = NO_CURSORS;
+
+    /**
+     * The bone whose channels {@link #sampleValue} reads, for Molang's {@code this}. Set by subclasses before sampling;
+     * {@link #writeChannel} uses its queue's bone instead.
+     */
+    @Nullable
+    protected AzBone channelBone;
 
     @Nullable
     private AzBakedAnimation cursorAnimation;
@@ -124,15 +133,15 @@ public class AzAbstractKeyframeExecutor {
         }
 
         var frame = channel.frame(index);
-        var isRotation = transform == ROTATION;
+        var bone = queue.bone();
 
         queue.write(
             slot,
             frame,
             tick - channel.startTime(index),
             frame.length(),
-            readValue(frame.startValue(), isRotation, axis),
-            readValue(frame.endValue(), isRotation, axis),
+            readChannelValue(frame.startValue(), bone, transform, axis),
+            readChannelValue(frame.endValue(), bone, transform, axis),
             channel.transformer(index)
         );
     }
@@ -159,18 +168,38 @@ public class AzAbstractKeyframeExecutor {
         }
 
         var frame = channel.frame(index);
-        var isRotation = transform == ROTATION;
 
         scratchPoint.set(
             frame,
             tick - channel.startTime(index),
             frame.length(),
-            readValue(frame.startValue(), isRotation, axis),
-            readValue(frame.endValue(), isRotation, axis),
+            readChannelValue(frame.startValue(), channelBone, transform, axis),
+            readChannelValue(frame.endValue(), channelBone, transform, axis),
             channel.transformer(index)
         );
 
         return AzEasingUtil.lerpWithOverride(scratchPoint, easingOverride);
+    }
+
+    /**
+     * {@link #readValue}, with Molang's {@code this} bound to the bone channel being sampled while the expression runs.
+     * Constants skip the binding entirely.
+     */
+    protected static double readChannelValue(IValue value, @Nullable AzBone bone, int transform, Axis axis) {
+        var isRotation = transform == ROTATION;
+
+        if (value instanceof Constant || bone == null) {
+            return readValue(value, isRotation, axis);
+        }
+
+        var context = AzMolangQueryContext.INSTANCE;
+        context.bindChannel(bone, transform, axis.ordinal());
+
+        try {
+            return readValue(value, isRotation, axis);
+        } finally {
+            context.clearChannel();
+        }
     }
 
     /**

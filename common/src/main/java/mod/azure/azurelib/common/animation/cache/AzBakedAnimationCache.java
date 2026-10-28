@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import mod.azure.azurelib.common.animation.molang.functions.AzMolangFunctions;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.common.cache.AzResourceCache;
 import mod.azure.azurelib.common.loading.FileLoader;
@@ -42,6 +43,7 @@ public class AzBakedAnimationCache extends AzResourceCache {
         Executor backgroundExecutor,
         ResourceManager resourceManager
     ) {
+        AzMolangFunctions.register();
         MolangParser.clearExpressionCache();
 
         return loadResources(
