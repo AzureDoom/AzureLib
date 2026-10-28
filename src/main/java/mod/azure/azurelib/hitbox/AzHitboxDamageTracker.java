@@ -65,7 +65,11 @@ public final class AzHitboxDamageTracker {
     private static Claim validateClaim(EntityPlayerMP player, Entity target, int index, AzHitboxRole role) {
         AzHitboxState state = AzHitboxes.getOrCreateState(target);
 
-        if (state == null || index < 0 || index >= state.size() || state.set().get(index).role() != role) {
+        if (
+                state == null || index < 0 || index >= state.size()
+                        || state.set().get(index).role() != role
+                        || !state.isEnabled(target, index)
+        ) {
             return null;
         }
 
@@ -203,7 +207,7 @@ public final class AzHitboxDamageTracker {
     private static AzHitboxHit toHit(Entity target, Claim claim) {
         AzHitboxState state = AzHitboxes.getState(target);
 
-        if (state == null || claim.index >= state.size()) {
+        if (state == null || claim.index >= state.size() || !state.isEnabled(target, claim.index)) {
             return null;
         }
 

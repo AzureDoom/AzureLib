@@ -18,4 +18,8 @@ public interface AzHitboxHolder {
     default EnumActionResult onHitboxInteract(AzHitboxHit hit, EntityPlayer player, EnumHand hand) {
         return EnumActionResult.PASS;
     }
+
+    default boolean isHitboxEnabled(AzHitbox hitbox) {
+        return true;
+    }
 }
