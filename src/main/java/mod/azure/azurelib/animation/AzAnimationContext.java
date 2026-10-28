@@ -1,5 +1,10 @@
 package mod.azure.azurelib.animation;
 
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.core.molang.MolangScope;
 
@@ -19,6 +24,10 @@ public class AzAnimationContext<T> {
     private final AzAnimationTimer timer;
 
     private final MolangScope molangScope = new MolangScope();
+
+    private final List<AzAnimator<?, ?>> linkedAnimators = new ArrayList<>(0);
+
+    private final Map<Object, Object> attachments = new IdentityHashMap<>(0);
 
     // Package-private for mutability purposes.
     T animatable;
@@ -81,5 +90,26 @@ public class AzAnimationContext<T> {
      */
     public MolangScope molangScope() {
         return molangScope;
+    }
+
+    /**
+     * Animators that follow this one. Every animation command dispatched to this animatable's animator is also applied
+     * to each linked animator, with the same origin side. Used by animated render layer overlays (see
+     * {@code AzRenderLayer#reRenderWithAnimatedBakedModel}).
+     *
+     * @return the mutable list of linked animators
+     */
+    public List<AzAnimator<?, ?>> linkedAnimators() {
+        return linkedAnimators;
+    }
+
+    /**
+     * Per-animatable storage for render layers and addons, keyed by identity. Entries live exactly as long as this
+     * context, so they never need weak references back to the animatable.
+     *
+     * @return the mutable attachment map
+     */
+    public Map<Object, Object> attachments() {
+        return attachments;
     }
 }

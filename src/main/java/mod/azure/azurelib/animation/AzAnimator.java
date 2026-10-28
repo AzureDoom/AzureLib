@@ -5,6 +5,7 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import javax.annotation.Nonnull;
 
@@ -274,6 +275,22 @@ public abstract class AzAnimator<K, T> {
 
     public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
         return animationControllerContainer;
+    }
+
+    /**
+     * Runs {@code dispatch} on every animator linked to this animator's current context. Called by the command dispatch
+     * paths after a command has been applied to this animator.
+     */
+    public void forEachLinkedAnimator(Consumer<AzAnimator<?, ?>> dispatch) {
+        AzAnimationContext<T> context = this.currentContext;
+
+        if (context == null) {
+            return;
+        }
+
+        for (AzAnimator<?, ?> linked : context.linkedAnimators()) {
+            dispatch.accept(linked);
+        }
     }
 
     /**
