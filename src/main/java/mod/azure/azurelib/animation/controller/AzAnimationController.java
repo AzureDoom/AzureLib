@@ -260,6 +260,16 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         }
     }
 
+    /**
+     * Plays {@code sequence} as if it had been dispatched from {@code originSide}, without the check that makes a
+     * client-side sequence yield to an unfinished server-side one. Used to make a linked animator follow another
+     * controller exactly; normal dispatches should go through {@link #run}.
+     */
+    public void mirrorSequence(@Nullable AzDispatchSide originSide, AzAnimationSequence sequence) {
+        this.currentSequenceOrigin = null;
+        run(originSide, sequence);
+    }
+
     public AzAnimationProperties animationProperties() {
         return animationProperties;
     }

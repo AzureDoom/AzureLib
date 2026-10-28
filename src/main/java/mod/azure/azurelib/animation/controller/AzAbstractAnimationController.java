@@ -21,6 +21,21 @@ public class AzAbstractAnimationController {
     }
 
     /**
+     * The sequence this controller is currently playing, or {@code null} if none. Don't modify it.
+     */
+    public AzAnimationSequence currentSequence() {
+        return currentSequence;
+    }
+
+    /**
+     * The side the current sequence was dispatched from, or {@code null} if no sequence is playing or it was not
+     * dispatched through a command.
+     */
+    public AzDispatchSide currentSequenceOrigin() {
+        return currentSequenceOrigin;
+    }
+
+    /**
      * Checks whether the last animation playing on this controller has finished or not.<br>
      * This will return true if the controller has had an animation set previously, and it has finished playing and
      * isn't going to loop or proceed to another animation.<br>

@@ -57,6 +57,9 @@ public class AzEntityDispatchCommandPacket extends AbstractPacket {
 
         if (animator != null) {
             dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, animator));
+            animator.forEachLinkedAnimator(
+                linked -> dispatchCommand.actions().forEach(action -> action.handle(AzDispatchSide.SERVER, linked))
+            );
         } else {
             AzPendingDispatches.enqueue(
                 entity,

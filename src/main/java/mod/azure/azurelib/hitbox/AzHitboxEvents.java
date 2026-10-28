@@ -23,9 +23,9 @@ public final class AzHitboxEvents {
         }
 
         AzHitboxDamageTracker.confirmHurt(
-                event.entityLiving,
-                event.source,
-                event.isCanceled() ? 0 : event.ammount
+            event.entityLiving,
+            event.source,
+            event.isCanceled() ? 0 : event.ammount
         );
     }
 

@@ -1,0 +1,201 @@
+---
+title: Adding Overlay Model Layer
+hide_meta: true
+---
+
+# How to render an overlay model with a layer
+
+## Overview
+
+An **overlay model layer** renders a second `.geo.json` model on top of your entity, posed to match it every frame. Use it for anything that sits on or wraps around the model but lives in its own file: saddles, harnesses, armor plating, chests, or a second skin.
+
+`AzRenderLayer` provides two methods for this:
+
+- `reRenderWithBakedModel(context, model)`: the overlay follows the base model's pose. This is the one you want in almost every case.
+- `reRenderWithAnimatedBakedModel(context, model, animatorFactory)`: opt-in. The overlay also has its own animator, so bones that only exist in the overlay can be animated.
+
+Neither method touches your entity's own animation state, so hitboxes, bone-attached effects and animation transitions keep working with the layer enabled.
+
+## How the overlay is posed
+
+The overlay is matched to your model **by bone name**:
+
+- Every overlay bone with the same name as a bone in your model copies that bone's animated rotation, position and scale, as well as its hidden state. The offset from the bind pose is what gets copied, so a bone with a different bind rotation in the overlay still lines up.
+- Bones that only exist in the overlay keep their bind pose relative to their parent. Parent them to a shared bone and they move with it.
+
+Each entity gets its own copy of the overlay model, created the first time the layer renders it.
+
+## Setup Instructions
+
+### Step 1: Prepare the Overlay Model
+
+1. **Copy the bone hierarchy you need.** Start from your entity's model and keep the bones the overlay attaches to, with the **same names and pivots**. You don't need every bone: a saddle only needs the bones from the root down to the one it sits on.
+
+2. **Add the overlay geometry.** Add the new cubes under the bone they should follow. A saddle that rides on the chest goes under `Chest`, or under a new bone parented to `Chest`.
+
+3. **Duplicate cubes for skin-style overlays.** If part of the overlay is painted directly onto the body (straps, markings), copy the body cube into the overlay model with the **same origin, size and pivot** and texture it there. Leave everywhere else transparent in the overlay texture.
+
+```
+Root
+└── Chest            ← same name and pivot as the entity model
+    ├── (Chest cube) ← duplicate of the body cube, textured with the straps
+    └── Saddle       ← overlay-only bone, keeps its bind pose relative to Chest
+        └── (saddle cubes)
+```
+
+### Step 2: Prepare the Texture
+
+Create a texture for the overlay model as usual (e.g. `saddle.png`). Any area that should show the entity underneath must be fully transparent.
+
+### Step 3: Create the Layer
+
+```java
+public class SaddleLayer implements AzRenderLayer<UUID, ExampleEntity> {
+
+    private static final ResourceLocation MODEL =
+        new ResourceLocation("yourmodid", "geo/entity/saddle.geo.json");
+
+    private static final ResourceLocation TEXTURE =
+        new ResourceLocation("yourmodid", "textures/entity/saddle.png");
+
+    @Override
+    public void preRender(AzRendererPipelineContext<UUID, ExampleEntity> context) {}
+
+    @Override
+    public void render(AzRendererPipelineContext<UUID, ExampleEntity> context) {
+        if (!context.animatable().isSaddled()) {
+            return;
+        }
+
+        var model = AzBakedModelCache.getInstance().getNullable(MODEL);
+
+        // Skip until the model is loaded, otherwise the default (empty) model is rendered.
+        if (model == null) {
+            return;
+        }
+
+        var bufferSource = context.multiBufferSource();
+        var previousRenderType = context.renderType();
+        var layerRenderType = RenderType.entityCutoutNoCull(TEXTURE);
+
+        context.setRenderType(layerRenderType);
+        context.setVertexConsumer(bufferSource.getBuffer(layerRenderType));
+
+        try {
+            this.reRenderWithBakedModel(context, model);
+        } finally {
+            context.setRenderType(previousRenderType);
+            // Request the buffer again instead of restoring the old reference: the old consumer may be a shared
+            // BufferBuilder that is now building the overlay's render type.
+            context.setVertexConsumer(bufferSource.getBuffer(previousRenderType));
+        }
+    }
+
+    @Override
+    public void renderForBone(AzRendererPipelineContext<UUID, ExampleEntity> context, AzBone bone) {}
+}
+```
+
+### Step 4: Add the Layer to Your Renderer
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+    private static final ResourceLocation MODEL_LOCATION =
+        new ResourceLocation("yourmodid", "geo/entity/example_entity.geo.json");
+
+    private static final ResourceLocation TEXTURE_LOCATION =
+        new ResourceLocation("yourmodid", "textures/entity/example_entity.png");
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL_LOCATION, TEXTURE_LOCATION)
+                .addRenderLayer(new SaddleLayer())
+                .build(), context
+        );
+    }
+}
+```
+
+### Choosing a Render Type
+
+Use a regular entity render type such as `RenderType.entityCutoutNoCull`, or `RenderType.entityTranslucent` for semi-transparent overlays.
+
+**Don't use a polygon-offset render type.** Duplicated cubes are posed from exactly the same bone values as the body, so their vertices match exactly and the overlay wins the depth test by drawing second, the same way vanilla's horse markings work. Polygon offset pulls overlay geometry toward the camera, which drags edges of buried overlay cubes through the body as faint lines.
+
+## Animated Overlays (Optional)
+
+Use `reRenderWithAnimatedBakedModel` only if the overlay has **bones of its own** that need animating, such as a strap that swings or a flap that opens. Shared bones follow the entity with either method.
+
+### Step 1: Create an Animator for the Overlay
+
+Give the overlay animator the **same animation file** and the **same controller names** as your entity's animator. Then add keyframes for the overlay-only bones to that animation file, under the overlay's bone names.
+
+```java
+public class SaddleAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    private static final ResourceLocation ANIMATIONS =
+        new ResourceLocation("yourmodid", "animations/entity/example_entity.animation.json");
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleEntity> container) {
+        container.add(
+            AzAnimationController.builder(this, ExampleEntity.BASE_CONTROLLER)
+                .setTransitionLength(5)
+                .build()
+        );
+    }
+
+    @Override
+    public @NotNull ResourceLocation getAnimationLocation(ExampleEntity entity) {
+        return ANIMATIONS;
+    }
+}
+```
+
+### Step 2: Use It in the Layer
+
+Replace the `reRenderWithBakedModel` call in your layer:
+
+```java
+this.reRenderWithAnimatedBakedModel(context, model, SaddleAnimator::new);
+```
+
+### How It Works
+
+- The animator is created once per entity and overlay model, and is kept for as long as the entity's own animator.
+- Every animation command sent to the entity, from the client or the server, is also applied to the overlay animator, so settings such as speed, weight and reversal follow the entity.
+- Every frame, before the overlay animates, each overlay controller is lined up with the entity controller of the same name: same sequence, same stage, same repeat count, same direction and same progress. Overlay-only bones stay frame-exact with the entity's animation, even if the overlay starts mid-animation or wasn't rendered for a while.
+- When the overlay starts playing something new, it blends in over its transition, then snaps into step with the entity.
+- After the overlay animates, shared bones are still overwritten with the entity's pose, so duplicated cubes keep lining up exactly.
+- Keyframes for bones the overlay model doesn't have are skipped.
+
+### Things to Keep in Mind
+
+- **Keyframe handlers run again.** Don't register sound, particle or custom keyframe handlers on the overlay animator's controllers unless they should fire a second time.
+- **Molang variables are separate.** Values set with `context.molangScope().set(...)` on the entity's animator aren't visible to the overlay animator.
+- **It costs an extra animator update** per entity per frame. Prefer `reRenderWithBakedModel` when the overlay has nothing of its own to animate.
+- **Items aren't supported.** Commands sent with `sendForItem` aren't forwarded to overlay animators.
+
+## Troubleshooting
+
+1. **Overlay Doesn't Move With the Entity:**
+   - Check that the overlay's bone names match the entity model's exactly, including case.
+   - Overlay cubes on a bone that only exists in the overlay follow that bone's parent. Make sure the parent is a shared bone.
+
+2. **Overlay Is Offset or Rotated Wrong:**
+   - Make sure shared bones have the same pivots as in the entity model.
+
+3. **Faint Lines or Flickering Where the Overlay Meets the Body:**
+   - Switch from a polygon-offset render type to `RenderType.entityCutoutNoCull`.
+   - If a render-batching mod changes draw order and duplicated cubes z-fight, give those cubes a tiny inflate (around `0.01`) in Blockbench instead.
+
+4. **Overlay Never Appears:**
+   - The layer skips rendering until the model has loaded. Check the log for errors loading your `.geo.json`, and that the path in `MODEL` is correct.
+
+5. **Overlay-Only Bones Don't Animate:**
+   - Use `reRenderWithAnimatedBakedModel`, not `reRenderWithBakedModel`.
+   - Check that the overlay animator's controller names match the entity animator's, and that the keyframes in the animation file use the overlay's bone names.
+
+6. **Overlay-Only Bones Are Out of Step With the Entity:**
+   - Only controllers with the same name are lined up. Check the overlay animator registers its controllers under the entity animator's controller names.
+   - Make sure the overlay animator uses the same animation file. An animation it can't find is skipped, with a warning in the log.
