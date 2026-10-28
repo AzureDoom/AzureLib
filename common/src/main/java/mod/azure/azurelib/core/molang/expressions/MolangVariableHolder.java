@@ -24,7 +24,7 @@ public class MolangVariableHolder extends MolangValue {
 
     @Override
     public double get() {
-        var value = super.get();
+        double value = super.get();
 
         if (this.variable == null) {
             AzureLib.LOGGER.error("Variable is null, defaulting to 0");

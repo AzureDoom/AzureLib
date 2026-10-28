@@ -2,6 +2,7 @@ package mod.azure.azurelib.core.molang;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Reads of a variable this scope has never set fall back to a variable with the same name registered globally on
  * {@link MolangParser} (with {@code register} or driven with {@code setValue}/{@code setMemoizedValue}), and to 0
  * otherwise. Render thread only, like the rest of Molang evaluation.
+ * <p>
+ * Besides numbers, a variable can hold a string, a {@link MolangArray} or an entity reference
+ * ({@code v.mode = 'angry'}, {@code v.nearby = q.get_nearby_entities(8)}, or {@link #setObject(String, Object)} from
+ * code). Entity references are held weakly: a scope never keeps an entity alive, and once the entity has been collected
+ * the variable reads as unset, so {@code v.target ?? ...} behaves like Bedrock's stale actor references.
+ * </p>
  */
 public final class MolangScope {
 
@@ -40,6 +47,12 @@ public final class MolangScope {
     private boolean[] assigned = new boolean[8];
 
     /**
+     * Non-numeric values by slot: a {@link String}, a {@link MolangArray}, or a {@link WeakReference} to anything else
+     * (entity references). Allocated the first time this scope stores one, so numeric-only scopes pay nothing.
+     */
+    private Object @Nullable [] objects;
+
+    /**
      * @return the scope Molang {@code variable.*} reads and writes right now
      */
     public static MolangScope current() {
@@ -52,7 +65,7 @@ public final class MolangScope {
      * @return the scope that was bound before, so callers can restore it
      */
     public static MolangScope setCurrent(@Nullable MolangScope scope) {
-        var previous = current;
+        MolangScope previous = current;
         current = scope == null ? GLOBAL : scope;
         return previous;
     }
@@ -62,7 +75,7 @@ public final class MolangScope {
      * scope stores the same name at the same index. Called at parse time, possibly from several threads.
      */
     static int slot(String normalizedName) {
-        var existing = SLOTS.get(normalizedName);
+        Integer existing = SLOTS.get(normalizedName);
 
         if (existing != null) {
             return existing;
@@ -75,7 +88,7 @@ public final class MolangScope {
                 return existing;
             }
 
-            var slot = SLOT_NAMES.size();
+            int slot = SLOT_NAMES.size();
             SLOT_NAMES.add(normalizedName);
             SLOTS.put(normalizedName, slot);
             return slot;
@@ -86,7 +99,7 @@ public final class MolangScope {
      * Turns {@code "v.foo"}, {@code "variable.foo"} or {@code "foo"} into {@code "variable.foo"}.
      */
     static String variableName(String name) {
-        var normalized = MolangParser.normalizeName(name.toLowerCase(Locale.ROOT));
+        String normalized = MolangParser.normalizeName(name.toLowerCase(Locale.ROOT));
         return normalized.startsWith(MolangParser.VARIABLE_PREFIX)
             ? normalized
             : MolangParser.VARIABLE_PREFIX + normalized;
@@ -97,24 +110,86 @@ public final class MolangScope {
     }
 
     public boolean isSet(int slot) {
-        return slot < assigned.length && assigned[slot];
+        if (slot >= assigned.length || !assigned[slot]) {
+            return false;
+        }
+
+        // An entity reference whose entity is gone reads as unset.
+        return objects == null || !(objects[slot] instanceof WeakReference<?> reference) || reference.get() != null;
     }
 
     public void set(int slot, double value) {
-        if (slot >= values.length) {
-            var size = Math.max(slot + 1, values.length * 2);
-            values = Arrays.copyOf(values, size);
-            assigned = Arrays.copyOf(assigned, size);
-        }
-
+        ensureCapacity(slot);
         values[slot] = value;
         assigned[slot] = true;
+
+        if (objects != null) {
+            objects[slot] = null;
+        }
+    }
+
+    /**
+     * Stores a string, array or entity reference in the slot. Numbers and {@code null} are stored as numbers.
+     */
+    public void setObject(int slot, @Nullable Object value) {
+        if (value == null || value instanceof Number) {
+            set(slot, value == null ? 0 : ((Number) value).doubleValue());
+            return;
+        }
+
+        ensureCapacity(slot);
+
+        if (objects == null) {
+            objects = new Object[values.length];
+        }
+
+        Object existing = objects[slot];
+
+        if (existing instanceof WeakReference<?> reference && reference.get() == value) {
+            // Re-assigning the same entity every frame shouldn't allocate a new reference each time.
+        } else if (value instanceof String || value instanceof MolangArray) {
+            objects[slot] = value;
+        } else {
+            objects[slot] = new WeakReference<>(value);
+        }
+
+        values[slot] = 0;
+        assigned[slot] = true;
+    }
+
+    /**
+     * @return the string, array or entity reference in the slot, or {@code null} if it holds a number, is unset, or
+     *         held an entity that has since been collected
+     */
+    public @Nullable Object getObject(int slot) {
+        if (objects == null || slot >= objects.length || !assigned[slot]) {
+            return null;
+        }
+
+        Object object = objects[slot];
+        return object instanceof WeakReference<?> reference ? reference.get() : object;
     }
 
     public void remove(int slot) {
         if (slot < assigned.length) {
             assigned[slot] = false;
             values[slot] = 0;
+
+            if (objects != null) {
+                objects[slot] = null;
+            }
+        }
+    }
+
+    private void ensureCapacity(int slot) {
+        if (slot >= values.length) {
+            int size = Math.max(slot + 1, values.length * 2);
+            values = Arrays.copyOf(values, size);
+            assigned = Arrays.copyOf(assigned, size);
+
+            if (objects != null) {
+                objects = Arrays.copyOf(objects, size);
+            }
         }
     }
 
@@ -123,7 +198,7 @@ public final class MolangScope {
      * @return the value this scope holds for the variable, or 0 if it has none
      */
     public double get(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
         return slot == null ? 0 : get(slot);
     }
 
@@ -135,11 +210,29 @@ public final class MolangScope {
     }
 
     /**
+     * Stores a string, {@link MolangArray} or entity reference, e.g. {@code setObject("v.mode", "angry")}.
+     *
+     * @param name {@code "v.foo"}, {@code "variable.foo"} or just {@code "foo"}
+     */
+    public void setObject(String name, @Nullable Object value) {
+        setObject(slot(variableName(name)), value);
+    }
+
+    /**
+     * @param name {@code "v.foo"}, {@code "variable.foo"} or just {@code "foo"}
+     * @return the string, array or entity reference this scope holds for the variable, or {@code null}
+     */
+    public @Nullable Object getObject(String name) {
+        Integer slot = SLOTS.get(variableName(name));
+        return slot == null ? null : getObject(slot);
+    }
+
+    /**
      * @param name {@code "v.foo"}, {@code "variable.foo"} or just {@code "foo"}
      * @return whether this scope holds a value for the variable
      */
     public boolean isSet(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
         return slot != null && isSet(slot);
     }
 
@@ -147,7 +240,7 @@ public final class MolangScope {
      * Forgets the variable, so reads fall back to the global value (or 0) and {@code ??} treats it as unset.
      */
     public void remove(String name) {
-        var slot = SLOTS.get(variableName(name));
+        Integer slot = SLOTS.get(variableName(name));
 
         if (slot != null) {
             remove(slot);
@@ -160,18 +253,46 @@ public final class MolangScope {
     public void clear() {
         Arrays.fill(values, 0);
         Arrays.fill(assigned, false);
+
+        if (objects != null) {
+            Arrays.fill(objects, null);
+        }
     }
 
     /**
-     * @return every variable this scope holds, by full name, for debugging
+     * @return every numeric variable this scope holds, by full name, for debugging. Variables holding strings, arrays
+     *         or entities are reported by {@link #objectSnapshot()} instead.
      */
     public Map<String, Double> snapshot() {
-        var snapshot = new LinkedHashMap<String, Double>();
+        LinkedHashMap<String, Double> snapshot = new LinkedHashMap<>();
 
         synchronized (SLOT_NAMES) {
             for (int slot = 0; slot < assigned.length && slot < SLOT_NAMES.size(); slot++) {
-                if (assigned[slot]) {
+                if (assigned[slot] && (objects == null || objects[slot] == null)) {
                     snapshot.put(SLOT_NAMES.get(slot), values[slot]);
+                }
+            }
+        }
+
+        return snapshot;
+    }
+
+    /**
+     * @return every variable this scope holds a string, array or live entity reference for, by full name, for debugging
+     */
+    public Map<String, Object> objectSnapshot() {
+        LinkedHashMap<String, Object> snapshot = new LinkedHashMap<String, Object>();
+
+        if (objects == null) {
+            return snapshot;
+        }
+
+        synchronized (SLOT_NAMES) {
+            for (int slot = 0; slot < objects.length && slot < SLOT_NAMES.size(); slot++) {
+                Object object = getObject(slot);
+
+                if (object != null) {
+                    snapshot.put(SLOT_NAMES.get(slot), object);
                 }
             }
         }
@@ -181,6 +302,7 @@ public final class MolangScope {
 
     @Override
     public String toString() {
-        return "MolangScope" + snapshot();
+        Map<String, Object> objectValues = objectSnapshot();
+        return "MolangScope" + snapshot() + (objectValues.isEmpty() ? "" : objectValues);
     }
 }

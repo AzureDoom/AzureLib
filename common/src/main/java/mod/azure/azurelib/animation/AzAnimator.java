@@ -3,6 +3,7 @@ package mod.azure.azurelib.animation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
@@ -270,8 +271,14 @@ public abstract class AzAnimator<K, T> {
         return currentContext;
     }
 
-    public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
-        return animationControllerContainer;
+    /**
+     * Looks up the context this animator keeps for {@code key} without creating one or changing the current context.
+     * Molang's arrow operator uses it to read another animatable's {@code variable.*} values.
+     *
+     * @return the context, or {@code null} if this animator has never animated {@code key}
+     */
+    public @Nullable AzAnimationContext<T> findContext(K key) {
+        return contextCache.get(key);
     }
 
     /**
@@ -288,6 +295,10 @@ public abstract class AzAnimator<K, T> {
         for (var linked : context.linkedAnimators()) {
             dispatch.accept(linked);
         }
+    }
+
+    public AzAnimationControllerContainer<T> getAnimationControllerContainer() {
+        return animationControllerContainer;
     }
 
     /**

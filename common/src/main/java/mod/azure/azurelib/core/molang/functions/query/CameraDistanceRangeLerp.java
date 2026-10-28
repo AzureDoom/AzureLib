@@ -1,7 +1,5 @@
 package mod.azure.azurelib.core.molang.functions.query;
 
-import net.minecraft.util.Mth;
-
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangQueryContext;
 
@@ -33,6 +31,6 @@ public class CameraDistanceRangeLerp extends ContextQueryFunction {
 
         double t = (context.distanceFromCamera() - near) / (far - near);
 
-        return Mth.clamp(t, 0, 1);
+        return Math.clamp(t, 0, 1);
     }
 }
