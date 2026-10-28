@@ -127,6 +127,15 @@ public class AzAutoGlowingLayer<K, T> implements AzRenderLayer<K, T> {
     public void renderForBone(AzRendererPipelineContext<K, T> context, AzBone bone) {}
 
     /**
+     * The glow is drawn over the model's own surfaces, so it stays on top of the sorted model instead of being
+     * interleaved with it.
+     */
+    @Override
+    public boolean sortsTranslucency() {
+        return false;
+    }
+
+    /**
      * Which quads to draw for the glow, by their UVs. The default keeps only quads whose UV area holds non-transparent
      * pixels in the glowmask, since the rest draw nothing.
      * <p>
