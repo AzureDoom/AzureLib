@@ -2,10 +2,10 @@ package mod.azure.azurelib.hitbox;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
 
 import java.util.Arrays;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public final class AzHitboxState {
 
@@ -33,30 +33,33 @@ public final class AzHitboxState {
 
     private float cacheYaw;
 
-    @Nullable
     private AxisAlignedBB cacheBounds;
 
-    @Nullable
     UUID fitModel;
 
-    @Nullable
     float[][] fitCache;
 
     long lastReportTime = Long.MIN_VALUE;
 
     long lastRenderCaptureTime = Long.MIN_VALUE;
 
-    @Nullable
     UUID reporter;
 
     double reporterDistanceSqr;
 
     long reporterTime = Long.MIN_VALUE;
 
-    @Nullable
     AzHitboxHit lastHit;
 
     long lastHitTime = Long.MIN_VALUE;
+
+    AzHitboxHit pendingHit;
+
+    DamageSource pendingSource;
+
+    float pendingAmount;
+
+    boolean pendingAccepted;
 
     AzHitboxState(AzHitboxSet set) {
         this.set = set;
@@ -213,7 +216,6 @@ public final class AzHitboxState {
         return worldCache;
     }
 
-    @Nullable
     public AxisAlignedBB worldBounds(Entity entity) {
         worldBoxes(entity);
         return cacheBounds;

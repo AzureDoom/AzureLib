@@ -7,6 +7,7 @@
     "ContainerMixin_AzItemIDFix",
     "EntityArrowMixin_AzHitboxes",
     "EntityFireballMixin_AzHitboxes",
+    "EntityLivingBaseMixin_AzHitboxDamage",
     "EntityMixin_AzHitboxState",
     "EntityThrowableMixin_AzHitboxes",
     "ItemStackMixin_AzAssignIdInInventory",

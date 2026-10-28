@@ -16,6 +16,19 @@ public final class AzHitboxEvents {
         event.ammount = AzHitboxDamageTracker.applyHurt(event.entityLiving, event.source, event.ammount);
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public void onLivingHurtFinal(LivingHurtEvent event) {
+        if (!(event.entityLiving instanceof AzHitboxHolder) || event.entityLiving.worldObj.isRemote) {
+            return;
+        }
+
+        AzHitboxDamageTracker.confirmHurt(
+                event.entityLiving,
+                event.source,
+                event.isCanceled() ? 0 : event.ammount
+        );
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onEntityInteract(EntityInteractEvent event) {
         if (AzHitboxInteractions.interact(event.entityPlayer, event.target)) {

@@ -11,6 +11,8 @@ public interface AzHitboxHolder {
         return amount * hit.hitbox().damageMultiplier();
     }
 
+    default void onHitboxDamaged(AzHitboxHit hit, DamageSource source, float amount) {}
+
     default boolean onHitboxInteract(AzHitboxHit hit, EntityPlayer player) {
         return false;
     }
