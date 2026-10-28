@@ -16,4 +16,8 @@ public interface AzHitboxHolder {
     default boolean onHitboxInteract(AzHitboxHit hit, EntityPlayer player) {
         return false;
     }
+
+    default boolean isHitboxEnabled(AzHitbox hitbox) {
+        return true;
+    }
 }

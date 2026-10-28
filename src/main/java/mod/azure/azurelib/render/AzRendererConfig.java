@@ -2,6 +2,7 @@ package mod.azure.azurelib.render;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,6 @@ import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.RenderType;
-import org.lwjgl.opengl.GL11;
 
 /**
  * The {@code AzRendererConfig} class is a configuration class used for defining rendering configurations for generic
@@ -248,8 +248,8 @@ public class AzRendererConfig<K, T> {
 
         public Builder<K, T> setTranslucencySorting(@Nullable Predicate<RenderType> sortedRenderTypes) {
             this.translucencySortFilter = sortedRenderTypes == null
-                    ? null
-                    : sortedRenderTypes.and(renderType -> renderType.glMode() == GL11.GL_QUADS);
+                ? null
+                : sortedRenderTypes.and(renderType -> renderType.glMode() == GL11.GL_QUADS);
             return this;
         }
 

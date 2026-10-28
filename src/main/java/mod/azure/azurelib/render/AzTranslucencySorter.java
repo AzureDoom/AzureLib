@@ -1,7 +1,5 @@
 package mod.azure.azurelib.render;
 
-import mod.azure.azurelib.render.layer.AzRenderLayer;
-import mod.azure.azurelib.render.vertex.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -11,6 +9,9 @@ import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Predicate;
+
+import mod.azure.azurelib.render.layer.AzRenderLayer;
+import mod.azure.azurelib.render.vertex.*;
 
 /**
  * Sorts all of one animatable's translucent geometry back to front, across every pass that draws it: the model, its
