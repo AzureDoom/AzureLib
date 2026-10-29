@@ -96,16 +96,16 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
 
             boolean hasRotation = rotation != null && rotation.length >= 3;
             baked.put(
+                entry.getKey(),
+                new AzBoneLocator(
                     entry.getKey(),
-                    new AzBoneLocator(
-                            entry.getKey(),
-                            (float) (position[0] - pivot.x),
-                            (float) (position[1] - pivot.y),
-                            (float) (position[2] - pivot.z),
-                            hasRotation ? (float) rotation[0] : 0,
-                            hasRotation ? (float) rotation[1] : 0,
-                            hasRotation ? (float) rotation[2] : 0
-                    )
+                    (float) (position[0] - pivot.x),
+                    (float) (position[1] - pivot.y),
+                    (float) (position[2] - pivot.z),
+                    hasRotation ? (float) rotation[0] : 0,
+                    hasRotation ? (float) rotation[1] : 0,
+                    hasRotation ? (float) rotation[2] : 0
+                )
             );
         }
 

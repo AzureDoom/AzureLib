@@ -1,17 +1,18 @@
 package mod.azure.azurelib.animation.blend;
 
-import mod.azure.azurelib.animation.AzAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import mod.azure.azurelib.animation.AzAnimator;
 
 /**
  * A blend space over two inputs, such as forward and strafe speed, or aim yaw and pitch. Samples can be placed
  * anywhere; weights use gradient band interpolation (see {@link AzBlendWeights#gradientBand}), so the input landing on
  * a sample plays exactly that sample and moving between samples blends smoothly.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * AzBlendSpace2D.builder(this, "strafe")
  *     .input((entity, partialTick) -> entity.strafeSpeed(), (entity, partialTick) -> entity.forwardSpeed())
  *     .sample(0, 0, "idle")
@@ -21,7 +22,8 @@ import java.util.stream.Collectors;
  *     .sample(1, 0, "walk_right")
  *     .build()
  *     .addTo(container);
- * }</pre>
+ * }
+ * </pre>
  *
  * @param <T> the animatable type
  */
@@ -40,7 +42,12 @@ public final class AzBlendSpace2D<T> extends AzBlendSpace<T> {
     private double smoothedX = Double.NaN, smoothedY = Double.NaN;
 
     private AzBlendSpace2D(Builder<T> builder) {
-        super(builder.animator, builder.name, builder.settings, builder.points.stream().map(Point::animation).collect(Collectors.toList()));
+        super(
+            builder.animator,
+            builder.name,
+            builder.settings,
+            builder.points.stream().map(Point::animation).collect(Collectors.toList())
+        );
         this.xs = builder.points.stream().mapToDouble(Point::x).toArray();
         this.ys = builder.points.stream().mapToDouble(Point::y).toArray();
         this.inputX = builder.inputX;

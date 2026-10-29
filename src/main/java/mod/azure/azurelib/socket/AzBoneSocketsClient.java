@@ -1,14 +1,15 @@
 package mod.azure.azurelib.socket;
 
+import net.minecraft.entity.Entity;
+
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneLocator;
 import mod.azure.azurelib.util.math.Matrix4f;
 import mod.azure.azurelib.util.math.Vector4f;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 
 /**
  * Client half of {@link AzBoneSockets}, kept separate so the server never loads the animator classes it touches.
@@ -73,8 +74,12 @@ final class AzBoneSocketsClient {
 
         AzBoneSockets.rotateBasis(BASIS, socket.rotationX(), socket.rotationY(), socket.rotationZ());
 
-        BlockPos origin = entity.getPosition();
-        dest.set(origin.getX() + px, origin.getY() + py, origin.getZ() + pz, BASIS);
+        dest.set(
+            AzEntityModelSpace.renderX(entity, partialTick) + px,
+            AzEntityModelSpace.renderY(entity, partialTick) + py,
+            AzEntityModelSpace.renderZ(entity, partialTick) + pz,
+            BASIS
+        );
         return true;
     }
 

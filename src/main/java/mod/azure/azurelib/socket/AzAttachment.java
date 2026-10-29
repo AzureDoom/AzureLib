@@ -1,13 +1,5 @@
 package mod.azure.azurelib.socket;
 
-import java.util.Objects;
-import java.util.function.Function;
-
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.AzRendererPipelineContext;
-import mod.azure.azurelib.render.vertex.AzBufferSource;
-import mod.azure.azurelib.render.vertex.PoseStack;
-import mod.azure.azurelib.util.client.RenderUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,10 +9,19 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 
+import java.util.Objects;
+import java.util.function.Function;
+
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.AzRendererPipelineContext;
+import mod.azure.azurelib.render.vertex.AzBufferSource;
+import mod.azure.azurelib.render.vertex.PoseStack;
+import mod.azure.azurelib.util.client.RenderUtils;
+
 /**
- * Something rendered at a socket by an {@link AzAttachmentLayer}: an item, a block,
- * or anything you draw yourself. When {@link #render} runs, the pose stack is at
- * the socket (its position, rotation and the bone's scale), one unit per block.
+ * Something rendered at a socket by an {@link AzAttachmentLayer}: an item, a block, or anything you draw yourself. When
+ * {@link #render} runs, the pose stack is at the socket (its position, rotation and the bone's scale), one unit per
+ * block.
  *
  * @param <T> the animatable type
  */
@@ -48,9 +49,9 @@ public interface AzAttachment<T> {
 
             int packedLight = context.packedLight();
             OpenGlHelper.setLightmapTextureCoords(
-                    OpenGlHelper.lightmapTexUnit,
-                    packedLight & 0xFFFF,
-                    packedLight >> 16
+                OpenGlHelper.lightmapTexUnit,
+                packedLight & 0xFFFF,
+                packedLight >> 16
             );
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -59,12 +60,14 @@ public interface AzAttachment<T> {
                 RenderUtils.applyPoseToGl(context.poseStack().last());
 
                 if (animatable instanceof EntityLivingBase) {
-                    Minecraft.getMinecraft().getRenderItem().renderItem(
+                    Minecraft.getMinecraft()
+                        .getRenderItem()
+                        .renderItem(
                             item,
                             (EntityLivingBase) animatable,
                             displayContext,
                             false
-                    );
+                        );
                 } else {
                     Minecraft.getMinecraft().getRenderItem().renderItem(item, displayContext);
                 }
@@ -96,9 +99,9 @@ public interface AzAttachment<T> {
 
                 int packedLight = context.packedLight();
                 OpenGlHelper.setLightmapTextureCoords(
-                        OpenGlHelper.lightmapTexUnit,
-                        packedLight & 0xFFFF,
-                        packedLight >> 16
+                    OpenGlHelper.lightmapTexUnit,
+                    packedLight & 0xFFFF,
+                    packedLight >> 16
                 );
 
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

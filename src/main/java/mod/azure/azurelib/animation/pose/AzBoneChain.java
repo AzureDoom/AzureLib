@@ -1,12 +1,12 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.util.math.Mth;
-import mod.azure.azurelib.util.math.Vector3f;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.util.math.Mth;
+import mod.azure.azurelib.util.math.Vector3f;
 
 /**
  * A chain of bones, each a descendant of the one before it, that a pose modifier can solve as a skeleton: read where

@@ -1,11 +1,12 @@
 package mod.azure.azurelib.socket;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
+
 import mod.azure.azurelib.hitbox.AzHitboxes;
 import mod.azure.azurelib.hitbox.AzOrientedBox;
 import mod.azure.azurelib.util.math.Mth;
 import mod.azure.azurelib.util.math.Vec3;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 
 /**
  * Turns {@link AzBoneSocket}s into world positions and orientations.

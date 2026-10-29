@@ -1,10 +1,11 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.util.math.Mth;
-import mod.azure.azurelib.util.math.Vector3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+
+import mod.azure.azurelib.util.math.Mth;
+import mod.azure.azurelib.util.math.Vector3f;
 
 /**
  * Converts between an entity's model space (see {@link AzBoneChain}) and the world, the way the default entity renderer
@@ -34,7 +35,11 @@ public final class AzEntityModelSpace {
 
     public static float renderYaw(Entity entity, float partialTick) {
         if (entity instanceof EntityLiving) {
-            return Mth.rotLerp(partialTick, ((EntityLiving) entity).prevRenderYawOffset, ((EntityLiving) entity).renderYawOffset);
+            return Mth.rotLerp(
+                partialTick,
+                ((EntityLiving) entity).prevRenderYawOffset,
+                ((EntityLiving) entity).renderYawOffset
+            );
         }
 
         return Mth.rotLerp(partialTick, entity.prevRotationYaw, entity.rotationYaw);
@@ -69,13 +74,35 @@ public final class AzEntityModelSpace {
     }
 
     public Vector3f worldToModel(Entity entity, float partialTick, double x, double y, double z, Vector3f dest) {
-        BlockPos origin = entity.getPosition();
-        dest.set((float) (x - origin.getX()), (float) (y - origin.getY()), (float) (z - origin.getZ()));
+        dest.set(
+            (float) (x - renderX(entity, partialTick)),
+            (float) (y - renderY(entity, partialTick)),
+            (float) (z - renderZ(entity, partialTick))
+        );
         return entityToModel(entity, partialTick, dest);
     }
 
-    public BlockPos modelToWorld(Entity entity, float partialTick, Vector3f point) {
+    public Vec3d modelToWorld(Entity entity, float partialTick, Vector3f point) {
         Vector3f offset = modelToEntity(entity, partialTick, point.copy());
-        return entity.getPosition().add(offset.x, offset.y, offset.z);
+        return new Vec3d(
+            renderX(entity, partialTick) + offset.x,
+            renderY(entity, partialTick) + offset.y,
+            renderZ(entity, partialTick) + offset.z
+        );
+    }
+
+    /** The entity's X position interpolated for this frame, where the renderer draws it. */
+    public static double renderX(Entity entity, float partialTick) {
+        return entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTick;
+    }
+
+    /** The entity's Y position interpolated for this frame, where the renderer draws it. */
+    public static double renderY(Entity entity, float partialTick) {
+        return entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTick;
+    }
+
+    /** The entity's Z position interpolated for this frame, where the renderer draws it. */
+    public static double renderZ(Entity entity, float partialTick) {
+        return entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTick;
     }
 }

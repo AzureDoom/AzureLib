@@ -1,18 +1,19 @@
 package mod.azure.azurelib.animation.pose.ik;
 
+import java.util.*;
+
 import mod.azure.azurelib.animation.pose.AzBoneChain;
 import mod.azure.azurelib.animation.pose.AzBoneConstraint;
 import mod.azure.azurelib.animation.pose.AzPoseContext;
 import mod.azure.azurelib.animation.pose.AzPoseModifier;
 import mod.azure.azurelib.util.math.Vector3f;
 
-import java.util.*;
-
 /**
  * A pose modifier that solves an IK chain towards a target every frame, after the authored animation. The solved
  * rotations are blended in by the modifier's weight, so IK can be faded in and out per animatable.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * modifiers.add(
  *     "left_leg_ik",
  *     AzIkChain.<MyEntity>builder("left_thigh", "left_shin", "left_foot")
@@ -21,7 +22,8 @@ import java.util.*;
  *         .constraint(AzBoneConstraints.hingeX("left_shin", -150, 0))
  *         .build()
  * ).priority(50);
- * }</pre>
+ * }
+ * </pre>
  *
  * @param <T> the animatable type
  */

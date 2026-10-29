@@ -1,12 +1,13 @@
 package mod.azure.azurelib.animation.pose.secondary;
 
-import mod.azure.azurelib.animation.pose.*;
-import mod.azure.azurelib.util.math.Mth;
-import mod.azure.azurelib.util.math.Vector3f;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
+
+import mod.azure.azurelib.animation.pose.*;
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
+import mod.azure.azurelib.util.math.Mth;
+import mod.azure.azurelib.util.math.Vector3f;
 
 /**
  * Procedural secondary motion for tails, antennae, ears, hair and cloth-like bone chains. Each joint of the chain is a
@@ -15,7 +16,8 @@ import java.util.*;
  * chain swings and trails when the entity moves or turns, not only when its animation does. For other animatables it
  * runs in model space and reacts to the animation alone.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * modifiers.add(
  *     "tail",
  *     AzSpringBone.<MyEntity>chain("tail_1", "tail_2", "tail_3", "tail_4")
@@ -25,7 +27,8 @@ import java.util.*;
  *         .gravity(0.004f)
  *         .build()
  * ).priority(200);
- * }</pre>
+ * }
+ * </pre>
  * <p>
  * The first chain bone is driven by the animation alone and anchors the chain; every following bone swings. Give the
  * last bone a {@link Builder#tip} so it swings too.
@@ -115,10 +118,9 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         double ex = 0, ey = 0, ez = 0;
 
         if (entity != null) {
-            BlockPos position = entity.getPosition();
-            ex = position.getX();
-            ey = position.getY();
-            ez = position.getZ();
+            ex = AzEntityModelSpace.renderX(entity, partialTick);
+            ey = AzEntityModelSpace.renderY(entity, partialTick);
+            ez = AzEntityModelSpace.renderZ(entity, partialTick);
         }
 
         if (pose.isDiscontinuous() || !state.initialized) {

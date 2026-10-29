@@ -284,8 +284,8 @@ public class AzBone {
 
     public void setLocators(Map<String, AzBoneLocator> locators) {
         this.locators = locators == null
-                ? Collections.emptyMap()
-                : Collections.unmodifiableMap(new HashMap<>(locators));
+            ? Collections.emptyMap()
+            : Collections.unmodifiableMap(new HashMap<>(locators));
     }
 
     public List<GeoCube> getCubes() {

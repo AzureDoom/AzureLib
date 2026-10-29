@@ -3,8 +3,8 @@ package mod.azure.azurelib.animation.pose;
 import mod.azure.azurelib.util.math.Vector3f;
 
 /**
- * Small vector helpers the pose, IK and socket code needs that {@link Vector3f} doesn't have: its mutators
- * return {@code void}, and it has no distance or length methods. None of these allocate.
+ * Small vector helpers the pose, IK and socket code needs that {@link Vector3f} doesn't have: its mutators return
+ * {@code void}, and it has no distance or length methods. None of these allocate.
  */
 public final class AzVectors {
 

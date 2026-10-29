@@ -1,5 +1,9 @@
 package mod.azure.azurelib.animation.blend;
 
+import java.util.*;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorUpdateHook;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
@@ -11,10 +15,6 @@ import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenc
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
-
-import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 /**
  * Blends looping animations placed at points in an input space, driven by per-frame inputs. Each sample plays on its

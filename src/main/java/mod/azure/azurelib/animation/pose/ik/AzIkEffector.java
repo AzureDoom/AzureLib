@@ -9,6 +9,7 @@ import mod.azure.azurelib.util.math.Vector3f;
  * point just below it.
  */
 public final class AzIkEffector {
+
     private final float x;
 
     private final float y;

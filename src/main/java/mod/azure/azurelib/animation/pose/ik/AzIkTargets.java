@@ -1,14 +1,14 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 
 /**
  * Common {@link AzIkTarget}s. World-space targets are converted with an {@link AzEntityModelSpace}; pass
@@ -91,23 +91,23 @@ public final class AzIkTargets {
             }
 
             float partialTick = pose.partialTick();
-            BlockPos foot = space.modelToWorld(entity, partialTick, effector);
-            Vec3d from = new Vec3d(foot.getX(), foot.getY() + maxStepUp, foot.getZ());
-            Vec3d to = new Vec3d(foot.getX(), foot.getY() - maxStepDown, foot.getZ());
+            Vec3d foot = space.modelToWorld(entity, partialTick, effector);
+            Vec3d from = new Vec3d(foot.x, foot.y + maxStepUp, foot.z);
+            Vec3d to = new Vec3d(foot.x, foot.y - maxStepDown, foot.z);
             RayTraceResult hit = entity.world.rayTraceBlocks(
-                    from,
-                    to,
-                    false,
-                    true,
-                    false
+                from,
+                to,
+                false,
+                true,
+                false
             );
 
             if (hit == null || hit.typeOfHit != RayTraceResult.Type.BLOCK) {
                 return false;
             }
             // How far the ground under this foot is from the ground the entity stands on.
-            double groundOffset = hit.getBlockPos().getY() - entity.getPosition().getY();
-            space.worldToModel(entity, partialTick, foot.getX(), foot.getY() + groundOffset, foot.getZ(), dest);
+            double groundOffset = hit.hitVec.y - AzEntityModelSpace.renderY(entity, partialTick);
+            space.worldToModel(entity, partialTick, foot.x, foot.y + groundOffset, foot.z, dest);
             return true;
         };
     }

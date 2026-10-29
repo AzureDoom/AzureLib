@@ -1,5 +1,7 @@
 package mod.azure.azurelib.socket;
 
+import java.util.*;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneLocator;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
@@ -7,13 +9,12 @@ import mod.azure.azurelib.render.layer.AzRenderLayer;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.util.math.Vector3f;
 
-import java.util.*;
-
 /**
  * A render layer that draws {@link AzAttachment}s at {@link AzBoneSocket}s, so accessories, held items and props follow
  * animated bones without being part of the model.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * addRenderLayer(
  *     new AzAttachmentLayer<UUID, MyEntity>()
  *         .attach(
@@ -25,7 +26,8 @@ import java.util.*;
  *             AzAttachment.block(entity -> Blocks.LANTERN.defaultBlockState())
  *         )
  * );
- * }</pre>
+ * }
+ * </pre>
  *
  * @param <K> the animatable's key type
  * @param <T> the animatable type
@@ -33,7 +35,9 @@ import java.util.*;
 public class AzAttachmentLayer<K, T> implements AzRenderLayer<K, T> {
 
     private final class Entry<T> {
+
         private final AzBoneSocket socket;
+
         private final AzAttachment<T> attachment;
 
         public Entry(AzBoneSocket socket, AzAttachment<T> attachment) {

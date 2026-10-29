@@ -1,16 +1,17 @@
 package mod.azure.azurelib.animation.pose.ik;
 
+import java.util.*;
+
 import mod.azure.azurelib.animation.pose.*;
 import mod.azure.azurelib.util.math.Vector3f;
-
-import java.util.*;
 
 /**
  * A pose modifier that turns a chain of bones (e.g. spine, neck, head) so the last one faces a target, spreading the
  * turn evenly along the chain. Unlike {@code AzPoseModifiers.headLook}, which follows the entity's own head rotation,
  * this aims at an arbitrary point such as another entity.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * modifiers.add(
  *     "stare",
  *     AzLookAt.<MyEntity>builder("neck", "head")
@@ -18,7 +19,8 @@ import java.util.*;
  *         .constraint(AzBoneConstraints.limit("head", -40, 40, -70, 70, 0, 0))
  *         .build()
  * );
- * }</pre>
+ * }
+ * </pre>
  *
  * @param <T> the animatable type
  */

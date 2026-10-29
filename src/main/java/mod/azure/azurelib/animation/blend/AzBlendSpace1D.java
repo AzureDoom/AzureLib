@@ -1,17 +1,18 @@
 package mod.azure.azurelib.animation.blend;
 
-import mod.azure.azurelib.animation.AzAnimator;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mod.azure.azurelib.animation.AzAnimator;
+
 /**
  * A blend space over one input, such as movement speed or aim pitch. Samples sit at points along the input; the input
  * is clamped to their range and blends the two samples around it.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  *
  * public void registerControllers(AzAnimationControllerContainer<MyEntity> container) {
  *     AzBlendSpace1D.builder(this, "locomotion")
@@ -24,7 +25,8 @@ import java.util.stream.Collectors;
  *         .addTo(container);
  *     container.add(attackController);
  * }
- * }</pre>
+ * }
+ * </pre>
  *
  * @param <T> the animatable type
  */
@@ -39,7 +41,12 @@ public final class AzBlendSpace1D<T> extends AzBlendSpace<T> {
     private double smoothedInput = Double.NaN;
 
     private AzBlendSpace1D(Builder<T> builder, List<Point> points) {
-        super(builder.animator, builder.name, builder.settings, builder.points.stream().map(Point::animation).collect(Collectors.toList()));
+        super(
+            builder.animator,
+            builder.name,
+            builder.settings,
+            builder.points.stream().map(Point::animation).collect(Collectors.toList())
+        );
         this.positions = points.stream().mapToDouble(Point::position).toArray();
         this.input = builder.input;
     }

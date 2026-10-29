@@ -1,8 +1,8 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.util.math.Vector3f;
-
 import java.util.*;
+
+import mod.azure.azurelib.util.math.Vector3f;
 
 /**
  * Ready-made {@link AzBoneConstraint}s.
