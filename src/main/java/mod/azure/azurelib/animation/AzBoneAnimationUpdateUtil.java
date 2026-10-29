@@ -5,6 +5,7 @@ import mod.azure.azurelib.animation.controller.keyframe.AzAnimationPoint;
 import mod.azure.azurelib.animation.controller.keyframe.AzBoneAnimationQueue;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingUtil;
+import mod.azure.azurelib.animation.pose.AzTransformMath;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneSnapshot;
 
@@ -71,9 +72,9 @@ public class AzBoneAnimationUpdateUtil {
             float baseZ = layered ? bone.getPosZ() : initialSnapshot.getOffsetZ();
 
             if (blendMode == AzBlendMode.ADDITIVE) {
-                x = baseX + (x - initialSnapshot.getOffsetX()) * w;
-                y = baseY + (y - initialSnapshot.getOffsetY()) * w;
-                z = baseZ + (z - initialSnapshot.getOffsetZ()) * w;
+                x = AzTransformMath.additive(baseX, x, initialSnapshot.getOffsetX(), w);
+                y = AzTransformMath.additive(baseY, y, initialSnapshot.getOffsetY(), w);
+                z = AzTransformMath.additive(baseZ, z, initialSnapshot.getOffsetZ(), w);
             } else {
                 x = blend(baseX, x, w);
                 y = blend(baseY, y, w);
@@ -132,9 +133,9 @@ public class AzBoneAnimationUpdateUtil {
             float baseZ = layered ? bone.getRotZ() : initialSnapshot.getRotZ();
 
             if (blendMode == AzBlendMode.ADDITIVE) {
-                x = baseX + (x - initialSnapshot.getRotX()) * w;
-                y = baseY + (y - initialSnapshot.getRotY()) * w;
-                z = baseZ + (z - initialSnapshot.getRotZ()) * w;
+                x = AzTransformMath.additive(baseX, x, initialSnapshot.getRotX(), w);
+                y = AzTransformMath.additive(baseY, y, initialSnapshot.getRotY(), w);
+                z = AzTransformMath.additive(baseZ, z, initialSnapshot.getRotZ(), w);
             } else {
                 x = blend(baseX, x, w);
                 y = blend(baseY, y, w);
@@ -200,9 +201,9 @@ public class AzBoneAnimationUpdateUtil {
 
             if (blendMode == AzBlendMode.ADDITIVE) {
                 // Scale multiplies: a keyframe of 1.2 over a bind scale of 1 grows whatever is underneath by 20%.
-                x = baseX * blend(1, ratio(x, initialSnapshot.getScaleX()), w);
-                y = baseY * blend(1, ratio(y, initialSnapshot.getScaleY()), w);
-                z = baseZ * blend(1, ratio(z, initialSnapshot.getScaleZ()), w);
+                x = AzTransformMath.additiveScale(baseX, x, initialSnapshot.getScaleX(), w);
+                y = AzTransformMath.additiveScale(baseY, y, initialSnapshot.getScaleY(), w);
+                z = AzTransformMath.additiveScale(baseZ, z, initialSnapshot.getScaleZ(), w);
             } else {
                 x = blend(baseX, x, w);
                 y = blend(baseY, y, w);
@@ -220,11 +221,6 @@ public class AzBoneAnimationUpdateUtil {
     }
 
     private static float blend(float from, float to, float weight) {
-        return from + (to - from) * weight;
-    }
-
-    /** A scale keyframe relative to the bind scale; a bind scale of 0 has no meaningful ratio, so use the value. */
-    private static float ratio(float value, float bindScale) {
-        return bindScale == 0 ? value : value / bindScale;
+        return AzTransformMath.blend(from, to, weight);
     }
 }
