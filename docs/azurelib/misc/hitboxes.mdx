@@ -103,6 +103,8 @@ if (mouth != null) {
 }
 ```
 
+To find an exact point on a bone (a muzzle, a hand) rather than a box, use a [bone socket](./bone_sockets). Sockets use the bone directly on the client and an anchor hitbox on the server; `AzBoneSocket#toAnchorHitbox()` builds the matching anchor for you.
+
 Give anchors a non-zero size; a box with no size is treated as empty. On the server, anchors follow the pose reported by nearby clients, so they trail the animation by a few ticks and are unavailable when no player is near the mob. Keep a fallback for that case, and time server-side checks slightly after the keyframe they belong to.
 
 ## Reacting to hits
@@ -245,87 +247,6 @@ A modified client can move a mob's hitboxes, but only within `maxReach` of the e
 | `poseTimeout(ticks)` | `10` | When a pose is considered stale. |
 | `maxReach(blocks)` | `max(4, 3 * max(width, height))` | Furthest a hitbox center may be from the entity. |
 | `maxHalfExtent(blocks)` | `4` | Largest accepted hitbox half size. |
-
-## Scaled entities
-
-Hitboxes are read from the same bone matrices the model is drawn with. Any scale the renderer applies therefore carries over to the hitboxes, both their positions and their sizes. Keep hitbox definitions in unscaled Blockbench pixels; don't divide or multiply them by your scale.
-
-On versions with a scale attribute (1.20.5 and later), `Attributes.SCALE` is applied for you and scales the vanilla box, the model and the hitboxes together. Don't add `setScale` on top of it, or the model and hitboxes will be scaled twice.
-
-On 1.20.1 and earlier there is no scale attribute, so you sync the scale yourself. Three things have to agree: the vanilla bounding box, the rendered model, and the bone hitboxes.
-
-### 1. Sync the scale
-
-Store whatever drives the scale in synched entity data so the client sees the same value as the server:
-
-```java
-private static final EntityDataAccessor<Float> GROWTH =
-    SynchedEntityData.defineId(XenoEntity.class, EntityDataSerializers.FLOAT);
-
-@Override
-protected void defineSynchedData() {
-    super.defineSynchedData();
-    this.entityData.define(GROWTH, 0f);
-}
-
-public float getGrowthScale() {
-    return Mth.clamp(0.5f + (entityData.get(GROWTH) / MAX_GROWTH) * 0.5f, 0.5f, 1f);
-}
-
-@Override
-public void addAdditionalSaveData(CompoundTag tag) {
-    super.addAdditionalSaveData(tag);
-    tag.putFloat("growth", entityData.get(GROWTH));
-}
-
-@Override
-public void readAdditionalSaveData(CompoundTag tag) {
-    super.readAdditionalSaveData(tag);
-    entityData.set(GROWTH, tag.getFloat("growth"));
-}
-```
-
-### 2. Scale the entity's bounding box
-
-Scale the dimensions and refresh them whenever the value changes. `onSyncedDataUpdated` runs on both sides, so the client's box (used for picking, culling and the F3 + B outline) updates as well as the server's:
-
-```java
-@Override
-public EntityDimensions getDimensions(Pose pose) {
-    return super.getDimensions(pose).scale(getGrowthScale());
-}
-
-@Override
-public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
-    super.onSyncedDataUpdated(key);
-
-    if (GROWTH.equals(key)) {
-        this.refreshDimensions();
-    }
-}
-```
-
-If the value changes every tick, compare against the last applied scale before calling `refreshDimensions()` so you aren't rebuilding the box for changes too small to see.
-
-The default eye height is a fraction of the scaled height, so it follows automatically. If you override `getStandingEyeHeight`, scale your value there too.
-
-### 3. Scale the model and bones
-
-Pass the same scale to the renderer. Bones, render layers and hitboxes all follow it:
-
-```java
-public XenoRenderer(EntityRendererProvider.Context context) {
-    super(
-        AzEntityRendererConfig.<XenoEntity>builder(MODEL, TEXTURE)
-            .setAnimatorProvider(XenoAnimator::new)
-            .setScale(XenoEntity::getGrowthScale)
-            .build(),
-        context
-    );
-}
-```
-
-For non-uniform scaling, use the two-function overload. Note that it takes **height first**: `setScale(heightFunction, widthFunction)`. The float overload is `setScale(width, height)`. Make the shadow follow the scale too if you want it to.
 
 ## Large entities
 

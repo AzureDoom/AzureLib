@@ -1,0 +1,201 @@
+---
+title: Blend Spaces
+hide_meta: true
+---
+
+# Blend Spaces
+
+## Overview
+
+A blend space mixes several looping animations based on values you supply every frame. You place each animation at a point, such as `idle` at speed 0, `walk` at speed 2 and `run` at speed 6, and the blend space plays the right mix for the current speed: at speed 4, half walk and half run.
+
+Use them for anything that changes smoothly instead of switching:
+
+- **1D**: movement speed (idle, walk, run), aim pitch (aim down, level, up), lean amount.
+- **2D**: strafing (forward, back, left, right), aim yaw and pitch, swim direction.
+
+Without a blend space you'd add a controller per animation and work out all their weights yourself. A blend space does that for you.
+
+## How It Works
+
+Each animation in the blend space plays on its own controller. Every frame, just before the controllers update, the blend space:
+
+1. Reads your input and works out how much each animation counts for (all the shares add up to 1).
+2. Sets the controllers' weights so that, [layered](./animation_controller_builder#layering-controllers) on top of each other, they produce exactly that mix.
+3. Keeps all the animations on one shared cycle, so a walk and a run blended together keep their feet in step.
+
+Because the result is ordinary layered controllers, anything you add after the blend space layers on top of it, such as an attack on the upper body.
+
+## 1D Blend Spaces
+
+Build the blend space in `registerControllers` and add it to the container where it should sit in the layering:
+
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    @Override
+    public void registerControllers(AzAnimationControllerContainer<ExampleEntity> container) {
+        AzBlendSpace1D.builder(this, "locomotion")
+            .input((entity, partialTick) -> entity.getDeltaMovement().horizontalDistance() * 20)
+            .sample(0, "idle")
+            .sample(2, "walk")
+            .sample(6, "run")
+            .smoothing(3)
+            .build()
+            .addTo(container);
+
+        container.add(
+            AzAnimationController.builder(this, "attack")
+                .setBoneMask(AzBoneMask.only("upper_body"))
+                .build()
+        );
+    }
+
+    // ... getAnimationLocation, etc.
+}
+```
+
+- `input` returns the value to blend by each frame; here, horizontal speed in blocks per second.
+- `sample(position, animation)` places a looping animation at a point. The order you add them in doesn't matter.
+- Below the first sample or above the last, the nearest sample plays on its own.
+
+<Callout variant="info">
+    The animation names are the ones in your animation file, the same names you'd use in a command. The samples loop no matter what loop setting they have in Blockbench.
+</Callout>
+
+## 2D Blend Spaces
+
+A 2D blend space takes two inputs and samples placed anywhere on a plane:
+
+```java
+AzBlendSpace2D.builder(this, "strafe")
+    .input(
+        (entity, partialTick) -> entity.getStrafeSpeed(),     // X: left (-) to right (+)
+        (entity, partialTick) -> entity.getForwardSpeed()     // Y: back (-) to forward (+)
+    )
+    .sample(0, 0, "idle")
+    .sample(0, 1, "walk_forward")
+    .sample(0, -1, "walk_backward")
+    .sample(-1, 0, "walk_left")
+    .sample(1, 0, "walk_right")
+    .smoothing(2)
+    .build()
+    .addTo(container);
+```
+
+When the input lands exactly on a sample, that animation plays alone. Between samples, each sample's share falls off smoothly towards its neighbours, so walking diagonally forward-right blends `walk_forward` and `walk_right`. Samples don't need to be on a grid; add `run_forward` at `(0, 2)` and the space grows to fit.
+
+`getStrafeSpeed()` and `getForwardSpeed()` above are your own methods. For an entity, you can get them from its movement relative to where it's facing:
+
+```java
+public double getForwardSpeed() {
+    var motion = getDeltaMovement();
+    var yaw = Math.toRadians(yBodyRot);
+    return (-Math.sin(yaw) * motion.x + Math.cos(yaw) * motion.z) * 20;
+}
+
+public double getStrafeSpeed() {
+    var motion = getDeltaMovement();
+    var yaw = Math.toRadians(yBodyRot);
+    return -(Math.cos(yaw) * motion.x + Math.sin(yaw) * motion.z) * 20;
+}
+```
+
+## Options
+
+Both builders share these options:
+
+| Builder method | Default | What it does |
+|----------------|---------|--------------|
+| `smoothing(ticks)` | `0` (off) | Eases the input towards new values with this time constant, so sudden changes in speed don't snap the blend |
+| `syncPhase(boolean)` | `true` | Keeps all samples on one shared cycle. Turn it off for samples that aren't cycles of the same motion, such as aim poses |
+| `controller(builder -> ...)` | none | Configures every sample controller, for example a bone mask or transition length |
+
+```java
+AzBlendSpace1D.builder(this, "aim")
+    .input((entity, partialTick) -> entity.getViewXRot(partialTick))
+    .sample(-60, "aim_up")
+    .sample(0, "aim_level")
+    .sample(60, "aim_down")
+    .syncPhase(false)
+    .controller(builder -> builder.setBoneMask(AzBoneMask.only("upper_body")))
+    .build()
+    .addTo(container);
+```
+
+### Phase Sync
+
+Walk and run cycles usually have different lengths. Blending them while each plays at its own pace makes the feet slide and stutter. With phase sync on, every sample plays at the same point in its cycle (say, 30% through), and the shared cycle moves at the weighted average of the samples' speeds. Halfway between a 20 tick walk and a 12 tick run, both play at a 16 tick pace with their feet in step.
+
+For phase sync to look right, start every cycle on the same foot.
+
+## Setting Inputs Yourself
+
+Leave out `input` and set it from anywhere on the client instead. Keep the blend space in a field so you can reach it:
+
+```java
+private AzBlendSpace1D<ExampleEntity> locomotion;
+
+@Override
+public void registerControllers(AzAnimationControllerContainer<ExampleEntity> container) {
+    locomotion = AzBlendSpace1D.builder(this, "locomotion")
+        .sample(0, "idle").sample(2, "walk").sample(6, "run")
+        .build();
+    locomotion.addTo(container);
+}
+
+// Later, for example in setCustomAnimations:
+locomotion.setInput(speed);
+```
+
+`AzBlendSpace2D` has `setInput(x, y)`. `input()` (`inputX()` and `inputY()` in 2D) returns the smoothed value as of the last frame, and `weights()` returns each sample's share, which is handy for debugging.
+
+## Fading the Whole Blend
+
+A blend space can be weighted as a whole, so you can fade locomotion out while a full-body animation on a later controller takes over:
+
+```java
+locomotion.fadeWeight(0, 5);   // Ease the blend out over 5 ticks.
+locomotion.fadeWeight(1, 5);   // And back in.
+locomotion.setWeight(0.5);     // Or set it instantly.
+```
+
+## Things to Know
+
+- **Samples should animate the same bones.** If one sample doesn't animate a bone, that bone uses whatever is underneath (the default pose or earlier controllers) for that sample's share.
+- **All samples keep playing.** Samples with no share are still updated so they stay in step, which costs a little per sample. Their sound, particle and custom keyframes still fire, so put footstep sounds on one sample only, or on a separate controller.
+- **The controllers are client-side.** They're named `name/animation` (for example `locomotion/walk`). Don't send commands to them; the blend space drives them every frame.
+- **Add each blend space once.** Calling `addTo` twice throws.
+
+## Under the Hood
+
+Blend spaces update through `AzAnimator#addUpdateHook`, which runs code every frame just before the controllers update. You can use it yourself to drive controller weights from your own logic:
+
+```java
+@Override
+public void registerControllers(AzAnimationControllerContainer<ExampleEntity> container) {
+    var swim = AzAnimationController.builder(this, "swim").build();
+    container.add(swim);
+
+    addUpdateHook((entity, partialTicks) -> swim.setWeight(entity.isInWater() ? 1 : 0));
+}
+```
+
+The weight math is available in `AzBlendWeights` if you want to blend something else the same way: `linear` for 1D, `gradientBand` for 2D, and `layered` to turn shares into weights for layered controllers.
+
+## Troubleshooting
+
+1. **Only one animation ever plays.**
+   - Check the input is changing (log `input()`), and that the sample positions cover the range it moves through.
+
+2. **The blend snaps between animations.**
+   - Add `smoothing`, or smooth the input yourself.
+
+3. **Feet slide when blending walk and run.**
+   - Keep `syncPhase` on and make every cycle start on the same foot.
+
+4. **Footstep sounds play too often.**
+   - Sound keyframes fire on every sample. Keep them on one sample, or on a separate controller.
+
+5. **An attack doesn't show over the blend.**
+   - Add the attack controller after the blend space, and mask it to the bones it should take over.

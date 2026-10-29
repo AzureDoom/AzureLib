@@ -1,0 +1,100 @@
+---
+title: Secondary Motion
+hide_meta: true
+---
+
+# Secondary Motion
+
+## Overview
+
+Secondary motion is the movement a part makes because something else moved: a tail that trails behind when the entity turns, antennae that bob after it stops, ears that flop as it lands. `AzSpringBone` adds this to any chain of bones, so you don't have to animate every bit of follow-through by hand.
+
+Each joint of the chain behaves like a weight on a spring. It's pulled towards where your animation puts it, keeps its momentum, slows down, and stays at the right distance from the joint before it. The bones are then turned to follow. For entities this happens in world space, so the chain swings when the entity walks, turns or jumps, not only when its animation moves.
+
+`AzSpringBone` is a [pose modifier](./procedural_animation#pose-modifiers), so it runs after your animations and can be weighted, masked and faded per animatable.
+
+## Quick Start
+
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    @Override
+    protected void registerPoseModifiers(AzPoseModifierRegistry<ExampleEntity> modifiers) {
+        modifiers.add("tail", AzSpringBone.<ExampleEntity>chain("tail1", "tail2", "tail3", "tail4")
+            .tip(0, 0, 6)
+            .stiffness(0.15F)
+            .damping(0.2F)
+            .gravity(0.004F)
+            .build()).priority(200);
+    }
+}
+```
+
+List the bones from the root of the chain to the tip. Each bone must be a descendant of the one before it in Blockbench. The first bone anchors the chain: it follows your animation exactly, and every bone after it swings.
+
+<Callout variant="info">
+    Give secondary motion a high priority so it runs after IK, look-at and your other modifiers. It then swings around the final pose rather than one that a later modifier changes.
+</Callout>
+
+## Options
+
+| Builder method | Default | What it does |
+|----------------|---------|--------------|
+| `tip(x, y, z)` | none | The end of the last bone, in Blockbench pixels from its pivot. Without a tip the last bone doesn't swing on its own; it only moves with its parent |
+| `stiffness(value)` | `0.2` | How strongly joints are pulled back to where the animation puts them, per tick, from `0` (limp) to `1` (rigid) |
+| `damping(value)` | `0.25` | How much speed is lost per tick, from `0` (bouncy) to `1` (no overshoot) |
+| `gravity(value)` | `0` | Downward pull on every swinging joint, in blocks per tick squared. Small values like `0.002` to `0.01` make chains droop and hang |
+| `inertia(value)` | `1` | How much the entity moving through the world swings the chain, from `0` (only turning and animation) to `1` (fully) |
+| `constraint(...)` | none | [Bone constraints](./inverse_kinematics#bone-constraints) that keep swinging bones in range |
+| `space(AzEntityModelSpace)` | default | Needed if your renderer config scales the model; see [Model Space](./inverse_kinematics#model-space) |
+
+### Tuning
+
+- **Floppy ears, cloth, hair**: low stiffness (`0.05` to `0.15`), low damping, a little gravity.
+- **Tails**: medium stiffness (`0.15` to `0.3`) and damping (`0.2` to `0.4`).
+- **Antennae, whiskers**: high stiffness (`0.4` to `0.7`), low damping, so they snap back with a wobble.
+- **Big, heavy parts**: low stiffness and high damping, so they lag without bouncing.
+
+If a chain can swing into the body, constrain it:
+
+```java
+.constraint(
+    AzBoneConstraints.limit("tail2", -30, 30, -45, 45, 0, 0),
+    AzBoneConstraints.limit("tail3", -30, 30, -45, 45, 0, 0)
+)
+```
+
+## Turning It Off
+
+Fade the modifier's weight to ease the chain back onto the animation, for example during a scripted attack where the tail is fully animated:
+
+```java
+context().poseLayer().fadeWeight("tail", 0, 6);
+```
+
+When the modifier is switched back on, or the entity was off-screen for a while, the chain starts from the animated pose instead of swinging from where it was.
+
+## Simple Single-Bone Springs
+
+For a single bone that should only lag behind its own animation, `AzPoseModifiers.spring("ear")` is cheaper. It doesn't react to the entity moving; see [Built-in Modifiers](./procedural_animation#built-in-modifiers).
+
+## Things to Know
+
+- Items and block entities don't move through the world the way entities do, so for them the chain only reacts to its animation.
+- The simulation keeps each segment at the length it has in the animation, so chains never stretch.
+- The motion is the same at any frame rate and pauses with the game.
+
+## Troubleshooting
+
+1. **The chain doesn't move.**
+   - Check the bones are listed root first and each is under the one before it.
+   - Raise `inertia` or lower `stiffness`; a very stiff chain follows the animation almost exactly.
+
+2. **The last bone stays rigid.**
+   - Give the chain a `tip`.
+
+3. **The chain jitters or flips.**
+   - Increase `damping`, or add constraints so the bones can't swing past straight.
+
+4. **The chain clips into the body.**
+   - Add `limit` constraints on the swinging bones, or lower `gravity`.
