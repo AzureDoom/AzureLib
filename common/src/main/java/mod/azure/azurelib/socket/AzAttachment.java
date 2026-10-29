@@ -1,8 +1,6 @@
 package mod.azure.azurelib.socket;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.render.AzRendererPipelineContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -13,6 +11,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Objects;
 import java.util.function.Function;
+
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.render.AzRendererPipelineContext;
 
 /**
  * Something rendered at a socket by an {@link AzAttachmentLayer}: an item, a block, or anything you draw yourself. When

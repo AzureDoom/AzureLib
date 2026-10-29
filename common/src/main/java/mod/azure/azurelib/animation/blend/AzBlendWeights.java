@@ -1,9 +1,10 @@
 package mod.azure.azurelib.animation.blend;
 
-import mod.azure.azurelib.animation.controller.AzBlendMode;
 import net.minecraft.util.Mth;
 
 import java.util.Arrays;
+
+import mod.azure.azurelib.animation.controller.AzBlendMode;
 
 /**
  * The weight math behind blend spaces, usable on its own: how much each sample contributes for a given input, and how

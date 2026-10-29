@@ -1,14 +1,15 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzBoneChain;
-import mod.azure.azurelib.animation.pose.AzBoneConstraint;
-import mod.azure.azurelib.animation.pose.AzPoseContext;
-import mod.azure.azurelib.animation.pose.AzPoseModifier;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.animation.pose.AzBoneChain;
+import mod.azure.azurelib.animation.pose.AzBoneConstraint;
+import mod.azure.azurelib.animation.pose.AzPoseContext;
+import mod.azure.azurelib.animation.pose.AzPoseModifier;
 
 /**
  * A pose modifier that turns a chain of bones (e.g. spine, neck, head) so the last one faces a target, spreading the

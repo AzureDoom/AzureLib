@@ -1,13 +1,14 @@
 package mod.azure.azurelib.socket;
 
-import mod.azure.azurelib.hitbox.AzHitboxes;
-import mod.azure.azurelib.hitbox.AzOrientedBox;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
+
+import mod.azure.azurelib.hitbox.AzHitboxes;
+import mod.azure.azurelib.hitbox.AzOrientedBox;
 
 /**
  * Turns {@link AzBoneSocket}s into world positions and orientations.

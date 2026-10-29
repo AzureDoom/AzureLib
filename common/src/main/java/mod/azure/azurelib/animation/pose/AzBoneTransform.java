@@ -1,9 +1,10 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.model.AzBoneSnapshot;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneSnapshot;
 
 /**
  * A bone's local transform as one mutable value: position (model pixels), rotation (radians, applied Z then Y then X)

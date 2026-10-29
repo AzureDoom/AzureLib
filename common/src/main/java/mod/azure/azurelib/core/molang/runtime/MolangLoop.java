@@ -1,5 +1,7 @@
 package mod.azure.azurelib.core.molang.runtime;
 
+import net.minecraft.util.Mth;
+
 import mod.azure.azurelib.core.math.IValue;
 
 /**
@@ -26,7 +28,7 @@ public final class MolangLoop implements IValue {
     @Override
     public double get() {
         double raw = count.get();
-        int iterations = Double.isNaN(raw) ? 0 : (int) Math.clamp(Math.floor(raw), 0, MAX_ITERATIONS);
+        int iterations = Double.isNaN(raw) ? 0 : (int) Mth.clamp(Math.floor(raw), 0, MAX_ITERATIONS);
 
         for (int i = 0; i < iterations; i++) {
             body.get();

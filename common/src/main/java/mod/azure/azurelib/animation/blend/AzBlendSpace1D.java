@@ -1,10 +1,10 @@
 package mod.azure.azurelib.animation.blend;
 
-import mod.azure.azurelib.animation.AzAnimator;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import mod.azure.azurelib.animation.AzAnimator;
 
 /**
  * A blend space over one input, such as movement speed or aim pitch. Samples sit at points along the input; the input

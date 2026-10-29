@@ -1,8 +1,8 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.animation.AzAnimationContext;
-
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.animation.AzAnimationContext;
 
 /**
  * What a {@link AzPoseModifier} sees while it runs: the animatable, frame timing, its own weight and per-animatable

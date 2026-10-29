@@ -1,8 +1,5 @@
 package mod.azure.azurelib.animation;
 
-import mod.azure.azurelib.animation.pose.AzPoseLayer;
-import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
-import mod.azure.azurelib.animation.pose.AzPoseModifiers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +16,9 @@ import mod.azure.azurelib.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
+import mod.azure.azurelib.animation.pose.AzPoseLayer;
+import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
+import mod.azure.azurelib.animation.pose.AzPoseModifiers;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangScope;
@@ -332,7 +332,6 @@ public abstract class AzAnimator<K, T> {
 
         return poseModifiers;
     }
-
 
     /**
      * Get the baked animation object used for rendering from the given resource path

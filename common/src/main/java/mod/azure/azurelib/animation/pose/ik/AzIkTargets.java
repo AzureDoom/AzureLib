@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -10,6 +9,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 
 /**
  * Common {@link AzIkTarget}s. World-space targets are converted with an {@link AzEntityModelSpace}; pass

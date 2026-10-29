@@ -1,11 +1,12 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzBoneChain;
-import mod.azure.azurelib.animation.pose.AzBoneConstraint;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.List;
+
+import mod.azure.azurelib.animation.pose.AzBoneChain;
+import mod.azure.azurelib.animation.pose.AzBoneConstraint;
 
 /**
  * The built-in IK solvers.

@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.pose.secondary;
 
-import mod.azure.azurelib.animation.pose.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -10,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.animation.pose.*;
 
 /**
  * Procedural secondary motion for tails, antennae, ears, hair and cloth-like bone chains. Each joint of the chain is a

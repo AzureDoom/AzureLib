@@ -95,7 +95,7 @@ public final class MolangCompiler {
         IValue root;
 
         if (statements.size() == 1 && locals.isEmpty() && !usesFrame) {
-            root = statements.getFirst();
+            root = statements.get(0);
         } else {
             root = new MolangProgram(statements, new ArrayList<>(locals.values()), frame);
         }

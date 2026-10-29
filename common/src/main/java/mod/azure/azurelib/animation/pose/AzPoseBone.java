@@ -1,10 +1,11 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.model.AzBone;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import mod.azure.azurelib.model.AzBone;
 
 /**
  * A pose modifier's handle on one bone for the current frame.

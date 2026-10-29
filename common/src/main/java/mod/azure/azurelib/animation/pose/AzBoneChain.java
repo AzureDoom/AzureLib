@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.model.AzBone;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -9,6 +8,8 @@ import org.joml.Vector3fc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+
+import mod.azure.azurelib.model.AzBone;
 
 /**
  * A chain of bones, each a descendant of the one before it, that a pose modifier can solve as a skeleton: read where

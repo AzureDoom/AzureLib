@@ -1,9 +1,9 @@
 package mod.azure.azurelib.animation.blend;
 
-import mod.azure.azurelib.animation.AzAnimator;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import mod.azure.azurelib.animation.AzAnimator;
 
 /**
  * A blend space over two inputs, such as forward and strafe speed, or aim yaw and pitch. Samples can be placed

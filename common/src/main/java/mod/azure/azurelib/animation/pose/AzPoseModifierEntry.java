@@ -1,9 +1,10 @@
 package mod.azure.azurelib.animation.pose;
 
-import mod.azure.azurelib.animation.controller.AzBoneMask;
 import net.minecraft.util.Mth;
 
 import java.util.Objects;
+
+import mod.azure.azurelib.animation.controller.AzBoneMask;
 
 /**
  * A registered {@link AzPoseModifier} and its settings. Settings are shared by every animatable using the animator; the

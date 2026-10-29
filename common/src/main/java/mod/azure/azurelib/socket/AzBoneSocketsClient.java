@@ -1,16 +1,17 @@
 package mod.azure.azurelib.socket;
 
-import mod.azure.azurelib.animation.AzAnimator;
-import mod.azure.azurelib.animation.AzAnimatorAccessor;
-import mod.azure.azurelib.model.AzBakedModel;
-import mod.azure.azurelib.model.AzBone;
-import mod.azure.azurelib.model.AzBoneLocator;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+
+import mod.azure.azurelib.animation.AzAnimator;
+import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneLocator;
 
 /**
  * Client half of {@link AzBoneSockets}, kept separate so the server never loads the animator classes it touches.

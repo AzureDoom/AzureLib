@@ -2,15 +2,16 @@ package mod.azure.azurelib.animation.pose;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.animation.AzAnimationContext;
-import mod.azure.azurelib.animation.controller.AzWeightFade;
-import mod.azure.azurelib.model.AzBakedModel;
-import mod.azure.azurelib.model.AzBone;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Supplier;
+
+import mod.azure.azurelib.animation.AzAnimationContext;
+import mod.azure.azurelib.animation.controller.AzWeightFade;
+import mod.azure.azurelib.model.AzBakedModel;
+import mod.azure.azurelib.model.AzBone;
 
 /**
  * The procedural pose state of one animatable: per-modifier weights and state, and the bones the pose modifiers wrote

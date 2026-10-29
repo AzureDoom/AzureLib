@@ -1,9 +1,10 @@
 package mod.azure.azurelib.socket;
 
-import mod.azure.azurelib.hitbox.AzHitbox;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+
+import mod.azure.azurelib.hitbox.AzHitbox;
 
 /**
  * A named attachment point that follows an animated bone: a bone plus an offset and rotation in that bone's space, or a

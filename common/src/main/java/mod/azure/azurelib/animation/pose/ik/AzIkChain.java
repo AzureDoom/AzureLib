@@ -1,14 +1,15 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzBoneChain;
-import mod.azure.azurelib.animation.pose.AzBoneConstraint;
-import mod.azure.azurelib.animation.pose.AzPoseContext;
-import mod.azure.azurelib.animation.pose.AzPoseModifier;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import mod.azure.azurelib.animation.pose.AzBoneChain;
+import mod.azure.azurelib.animation.pose.AzBoneConstraint;
+import mod.azure.azurelib.animation.pose.AzPoseContext;
+import mod.azure.azurelib.animation.pose.AzPoseModifier;
 
 /**
  * A pose modifier that solves an IK chain towards a target every frame, after the authored animation. The solved

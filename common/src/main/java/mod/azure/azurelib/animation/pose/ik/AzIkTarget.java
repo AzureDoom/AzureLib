@@ -1,8 +1,9 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzPoseContext;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import mod.azure.azurelib.animation.pose.AzPoseContext;
 
 /**
  * Where an IK chain or look-at should aim this frame, in model space. See {@link AzIkTargets} for common targets.

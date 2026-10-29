@@ -1,10 +1,11 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzBoneChain;
-import mod.azure.azurelib.animation.pose.AzBoneConstraint;
 import org.joml.Vector3fc;
 
 import java.util.List;
+
+import mod.azure.azurelib.animation.pose.AzBoneChain;
+import mod.azure.azurelib.animation.pose.AzBoneConstraint;
 
 /**
  * Turns the bones of a chain so its effector reaches a target. Solvers work on the chain's working rotations only; the

@@ -1,7 +1,8 @@
 package mod.azure.azurelib.animation.pose.ik;
 
-import mod.azure.azurelib.animation.pose.AzBoneChain;
 import org.joml.Vector3f;
+
+import mod.azure.azurelib.animation.pose.AzBoneChain;
 
 /**
  * The point of a chain that IK moves onto the target: a fixed offset, in Blockbench pixels, from the pivot of the

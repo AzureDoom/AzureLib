@@ -2,13 +2,14 @@ package mod.azure.azurelib.socket;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneLocator;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.layer.AzRenderLayer;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
 
 /**
  * A render layer that draws {@link AzAttachment}s at {@link AzBoneSocket}s, so accessories, held items and props follow

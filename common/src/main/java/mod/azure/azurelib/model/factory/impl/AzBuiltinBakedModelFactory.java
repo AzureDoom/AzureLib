@@ -1,25 +1,25 @@
 package mod.azure.azurelib.model.factory.impl;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import mod.azure.azurelib.loading.json.raw.Bone;
-import mod.azure.azurelib.loading.json.raw.LocatorValue;
-import mod.azure.azurelib.model.AzBoneLocator;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.loading.json.raw.Bone;
 import mod.azure.azurelib.loading.json.raw.Cube;
+import mod.azure.azurelib.loading.json.raw.LocatorValue;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
 import mod.azure.azurelib.loading.object.BoneStructure;
 import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzBoneLocator;
 import mod.azure.azurelib.model.AzBoneMetadata;
 import mod.azure.azurelib.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.client.RenderUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A concrete implementation of the {@link AzBakedModelFactory} that constructs baked models, bones, and cubes from raw
@@ -95,16 +95,16 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
 
             boolean hasRotation = rotation != null && rotation.length >= 3;
             baked.put(
+                entry.getKey(),
+                new AzBoneLocator(
                     entry.getKey(),
-                    new AzBoneLocator(
-                            entry.getKey(),
-                            (float) (position[0] - pivot.x),
-                            (float) (position[1] - pivot.y),
-                            (float) (position[2] - pivot.z),
-                            hasRotation ? (float) rotation[0] : 0,
-                            hasRotation ? (float) rotation[1] : 0,
-                            hasRotation ? (float) rotation[2] : 0
-                    )
+                    (float) (position[0] - pivot.x),
+                    (float) (position[1] - pivot.y),
+                    (float) (position[2] - pivot.z),
+                    hasRotation ? (float) rotation[0] : 0,
+                    hasRotation ? (float) rotation[1] : 0,
+                    hasRotation ? (float) rotation[2] : 0
+                )
             );
         }
 
