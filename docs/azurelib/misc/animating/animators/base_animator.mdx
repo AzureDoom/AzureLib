@@ -49,7 +49,25 @@ The `AzAnimator` is an abstract class with the following key features:
   ```java
   public void setCustomAnimations(T animatable, float partialTicks)
   ```
-  This is useful for unique animations that aren't predefined in the animation file.
+  This is useful for unique animations that aren't predefined in the animation file. Values set here become part of the animated pose; see [Writing Bones Directly](../procedural_animation#writing-bones-directly).
+
+#### 4. **`registerPoseModifiers`**
+- Override this method to add pose modifiers, which adjust the animated pose every frame after `setCustomAnimations`:
+  ```java
+  protected void registerPoseModifiers(AzPoseModifierRegistry<T> modifiers)
+  ```
+  Called once, before the first frame. Modifiers can be weighted, faded, ordered and limited to certain bones, and their changes never carry over into the next frame. Inverse kinematics, look-at and spring bones are added here too. See [Procedural Animation](../procedural_animation#pose-modifiers).
+- Modifiers can also be added or removed later through `getPoseModifiers()`, and weighted per animatable through `context().poseLayer()`.
+
+#### 5. **`addUpdateHook`**
+- Runs code every frame just before the controllers update, for example to set controller weights from per-frame values:
+  ```java
+  public void addUpdateHook(AzAnimatorUpdateHook<T> hook)
+  ```
+  [Blend spaces](../blend_spaces) use this to drive their controllers. Remove a hook with `removeUpdateHook`.
+
+#### 6. **`onFirstAnimate`**
+- Called once, on the animator's first frame, right before the controllers update for the first time. A good place to start an entity's spawn or idle animation.
 
 ### MoLang Integration
 

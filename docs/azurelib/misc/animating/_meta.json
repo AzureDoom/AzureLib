@@ -23,6 +23,18 @@
         "name": "Procedural Animation",
         "icon": "Activity"
     },
+    "inverse_kinematics.mdx": {
+        "name": "Inverse Kinematics",
+        "icon": "Footprints"
+    },
+    "secondary_motion.mdx": {
+        "name": "Secondary Motion",
+        "icon": "Waves"
+    },
+    "blend_spaces.mdx": {
+        "name": "Blend Spaces",
+        "icon": "Blend"
+    },
     "animation_includes.mdx": {
         "name": "Using the inclusion feature in Animation JSON",
         "icon": "Info"
