@@ -1,0 +1,291 @@
+---
+title: Setting Up Rig Features
+hide_meta: true
+---
+
+# Setting Up Rig Features
+
+The AzureLib Animator plugin can set up AzureLib's rig features right on your model, preview them in Blockbench, and write the Java code for them:
+
+- **Hitboxes** that follow your bones, for per-limb damage and interaction.
+- **Sockets**, named points on bones for spawning projectiles and particles or attaching items.
+- **IK chains**, so feet step onto slopes and stairs and limbs reach for targets.
+- **Look-at**, so a head, neck and spine turn to watch a target.
+- **Constraints**, which keep joints in a believable range.
+- **Spring bones**, for tails, antennae and ears that swing on their own.
+- **Blend spaces**, which mix walk, run or aim animations by speed, direction or pitch.
+
+All of these run in game on top of your animations. You still animate as usual; the plugin only helps you configure them and generate the code.
+
+<Callout variant="info">
+    These features need AzureLib Animator **2.3.0** or newer. See [Installing Blockbench Plugin](./blockbench_plugin) to install or update it.
+</Callout>
+
+## Finding the Panel
+
+The **AzureLib Rig** panel opens as a tab next to the **Outliner** on the right side of Blockbench. Click its tab to switch to it, and click **Outliner** to switch back.
+
+<ModAsset width="40%" title="AzureLib Rig panel" location="azurelib:rig_panel"/>
+
+The panel only shows when:
+
+- The project is an **AzureLib Animated Model** (see [Creating or Converting a Project](./creating_converting)).
+- You're in the **Edit** or **Animate** tab.
+
+<Callout variant="info">
+    You can drag the panel's tab anywhere, like any other Blockbench panel. If you've hidden or lost it, the same tools are also under `File` -> `Export`: `Generate AzureLib Rig Code` and `Check AzureLib Rig`.
+</Callout>
+
+## Using the Panel
+
+The top row has two buttons and three toggles:
+
+- **Code** writes the AzureLib Java for everything you've set up; see [Generating the Code](#generating-the-code).
+- **Check** looks for problems, such as a bone that was renamed or deleted. A number on the button means problems were found.
+- **Boxes**, **Sockets** and **Pose** switch the viewport preview of hitboxes, sockets and pose features on and off.
+
+Below that is a section for each feature. Each one is a single line with a count and a `+` button:
+
+- Click a section's name to open or close it.
+- Click `+` to add an entry. Most entries are made from what you have selected, so select bones or locators first.
+- Click an entry to edit it, or hover it and click `×` to remove it.
+
+An entry with a problem shows a yellow note, such as `missing bone tail3`.
+
+<ModAsset width="40%" title="AzureLib Rig panel sections" location="azurelib:rig_panel_sections"/>
+
+<Callout variant="info">
+    Everything you set up is saved inside your `.bbmodel` project and can be undone with `Ctrl+Z`. None of it goes into the exported `.geo.json`, so keep your `.bbmodel` to keep your rig setup.
+</Callout>
+
+# Hitboxes
+
+Hitboxes are boxes that follow your bones, so the game can tell which part of the model was hit. See [Bone Hitboxes](../misc/hitboxes) for what they do in game.
+
+## Adding Hitboxes
+
+- Select one or more bones in the Outliner.
+- Open the **AzureLib Rig** tab and press `+` next to **Hitboxes**. Each selected bone gets a hitbox named after it.
+- Click a hitbox to change its settings.
+
+The boxes show in the viewport as outlines that move with your animations:
+
+| Colour | Meaning |
+|--------|---------|
+| Green | A normal combat hitbox |
+| Red | Takes more damage (damage multiplier above 1) |
+| Blue | Takes less damage (damage multiplier below 1) |
+| Cyan | An interact hitbox |
+| Yellow | An anchor hitbox |
+
+<ModAsset width="60%" title="Hitboxes in the viewport" location="azurelib:rig_hitboxes"/>
+
+## Hitbox Settings
+
+| Setting | What it does |
+|---------|--------------|
+| Name | The hitbox's name in code. Defaults to the bone's name |
+| Bone | The bone it follows |
+| Role | **Combat** hitboxes take damage, **Interact** hitboxes only handle right-clicks, **Anchor** hitboxes are just tracked positions |
+| Fit to bone cubes | Sizes the box to fit the bone's own cubes (not its child bones). Turn it off to set a size yourself |
+| Size | The box's size in pixels, when not fitting |
+| Offset | Moves the box, in pixels |
+| Inflate | Grows (or with a negative number, shrinks) the box on every side, in pixels |
+| Center on pivot | Centers the box on the bone's pivot instead of on its cubes |
+| Damage multiplier | How much damage hits on this box do, for combat hitboxes. `2` is double, `0.5` is half |
+| Tags | Labels your code can check, such as `weak_point` |
+
+Under the hitbox list, **keep entity box** keeps the entity's normal hitbox working alongside the bone hitboxes, and **client only** turns off syncing hitboxes to the server.
+
+<Callout variant="info">
+    A hitbox fitted to a bone with no cubes of its own is empty and shows `empty box`. Give it a size, or put it on the bone that actually holds the cubes.
+</Callout>
+
+# Sockets
+
+Sockets are named points that follow a bone, such as a gun's muzzle or a hand. Your code can find where they are in the world, or draw items there. See [Bone Sockets and Attachments](../misc/bone_sockets) for using them in code.
+
+The easiest way to make one is with a [locator](./rigging_in_bb#locators).
+
+## Adding Sockets
+
+- **From locators:** select one or more locators and press `+` next to **Sockets**, or press `all` to add a socket for every locator in the model.
+- **On a bone:** select a bone and press `+`, then click the socket to set its offset from the bone's pivot.
+
+Each socket shows in the viewport as a pink arrow pointing the way the socket faces (its front, `-Z`) and a short purple arrow pointing up. Check the pink arrow points where you expect, for example out of the gun barrel.
+
+<ModAsset width="50%" title="Socket arrows" location="azurelib:rig_sockets"/>
+
+## Socket Settings
+
+| Setting | What it does |
+|---------|--------------|
+| Follows | **A bone** or **A Blockbench locator** |
+| Name | The socket's name, for bone sockets. Locator sockets use the locator's name |
+| Offset | Extra offset from the bone's pivot (or the locator), in pixels |
+| Rotation | Extra rotation, in degrees |
+| Server anchor hitbox | A name for an anchor hitbox, so the server can find the socket too (for example to spawn projectiles server-side) |
+
+<Callout variant="info">
+    Bone positions only exist on the client. If your mod spawns things at a socket on the server, give the socket a **Server anchor hitbox** name; the generated code adds the matching anchor hitbox for you. For locator sockets, the generated code leaves a note showing how to add it by hand.
+</Callout>
+
+# IK Chains
+
+IK (inverse kinematics) chains turn a limb so its end reaches a target. The most common use is feet that step onto slopes, stairs and ledges instead of floating or sinking. See [Inverse Kinematics](../misc/animating/inverse_kinematics) for how it works in game.
+
+## Adding an IK Chain
+
+- Select the chain's bones in the Outliner, from the root to the tip. For a leg, that's the thigh, the shin and the foot.
+- Or select just the root bone: the plugin follows its children down for as long as each bone has a single child bone.
+- Press `+` next to **IK chains**. The settings open straight away.
+
+<ModAsset width="50%" title="IK chain settings" location="azurelib:rig_ik_dialog"/>
+
+## IK Chain Settings
+
+| Setting | What it does |
+|---------|--------------|
+| Modifier id | The chain's name in code |
+| Bones | The chain's bones, root first, separated by commas |
+| Effector | The point that should reach the target, in pixels from the last bone's pivot. For a foot, move it down to the sole, e.g. `0, -2, 0` |
+| Solver | **Two-bone** for legs and arms, **CCD** for tails and tentacles. **Auto** picks two-bone for 2 or 3 bones |
+| Use pole / Pole | A point the knee or elbow turns towards, in pixels. Needed if the limb is modelled perfectly straight |
+| Iterations / Tolerance | How hard CCD tries, and how close (in pixels) counts as reached |
+| Target | Where the effector goes in game: **Ground** for foot placement, **Another entity's eyes**, a **World position** your code supplies, or a **Fixed model point** |
+| Max step up / down | How far above and below the foot to look for ground, in blocks |
+| Priority | The order pose features run in, lowest first |
+| Default weight | How strongly it applies, from 0 (off) to 1 (full) |
+
+<Callout variant="info">
+    If a knee or elbow bends the wrong way, add a [constraint](#constraints) to it, or set a pole in front of (or behind) the joint.
+</Callout>
+
+## Previewing an IK Chain
+
+In the **Animate** tab, with **Pose** switched on, the chain is solved on top of your animation every frame. The **Preview target** setting picks where the preview aims, since the real target only exists in game:
+
+- **Ground (raised by offset):** pretends the ground under each foot is higher or lower by **Ground offset** pixels. Try `4` to see the feet step up onto a ledge.
+- **Fixed point:** a point in the model, in pixels.
+- **Follow a locator:** follows a locator. Add a locator, pick it here, and move it around with Blockbench's move tool to drag the target.
+- **Off:** no preview.
+
+<ModAsset width="60%" title="IK preview" location="azurelib:rig_ik_preview.gif"/>
+
+# Look-At
+
+A look-at turns a chain of bones, such as the neck and head, so the last one faces a target. The turn is spread across the chain.
+
+- Select the bones from the root to the head (for example `neck`, `head`) and press `+` next to **Look-at**.
+- Click it to pick the target and preview settings.
+
+Look-at uses the same **Target**, **Priority**, **Default weight** and **Preview target** settings as [IK chains](#ik-chain-settings), plus **Forward**: the direction the last bone faces, in its own axes. The default `0, 0, -1` suits a head modelled facing north. Change it if the head looks sideways in the preview.
+
+# Constraints
+
+Constraints limit how far a bone can turn, like a knee that only bends one way. IK chains, look-at and spring bones all respect them.
+
+- Select a bone and press `+` next to **Constraints**.
+- Click it to set the limits.
+
+| Setting | What it does |
+|---------|--------------|
+| Type | **Limit** clamps all three axes. **Hinge X**, **Hinge Y** and **Hinge Z** allow turning on one axis only, like a knee or elbow |
+| Min / Max | The allowed range in degrees, relative to the bone's rest pose |
+| Also clamp the final pose | Also limits the animation itself, after everything else has run |
+
+<Callout variant="info">
+    Limits use the same signs as your keyframes. If a keyframe of `90` on X bends the knee the right way, a Hinge X from `0` to `150` allows that direction.
+</Callout>
+
+# Spring Bones
+
+Spring bones make a chain of bones swing on its own: it lags behind, overshoots and settles, and in game it trails when the entity moves or turns. See [Secondary Motion](../misc/animating/secondary_motion) for more.
+
+- Select the chain from the root to the tip (or just the root) and press `+` next to **Spring bones**.
+- Click it to tune the motion.
+
+| Setting | What it does |
+|---------|--------------|
+| Last bone swings (tip) / Tip | The end of the last bone, in pixels from its pivot. Without it, the last bone doesn't swing on its own |
+| Stiffness | How strongly the chain pulls back to the animation, from 0 (limp) to 1 (rigid) |
+| Damping | How quickly the swinging dies down, from 0 (bouncy) to 1 (no overshoot) |
+| Gravity | Pulls the chain down, in blocks per tick². Small values like `0.005` make it droop |
+| Inertia | How much moving through the world swings the chain in game, from 0 to 1 |
+
+The first bone follows the animation exactly and anchors the chain. Press play in the **Animate** tab to see the swing; it reacts to how the animation moves the chain.
+
+<ModAsset width="60%" title="Spring bone preview" location="azurelib:rig_spring.gif"/>
+
+# Blend Spaces
+
+A blend space mixes several looping animations based on a value such as movement speed. For example: `idle` at speed 0, `walk` at 2 and `run` at 6. See [Blend Spaces](../misc/animating/blend_spaces) for how they work in game.
+
+## Adding a Blend Space
+
+- Make the animations you want to blend first, in the **Animate** tab.
+- Press `+` next to **Blend spaces**. The settings open straight away.
+
+| Setting | What it does |
+|---------|--------------|
+| Name | The blend space's name in code |
+| Dimensions | **1D** blends by one value (speed). **2D** blends by two (forward and strafe speed) |
+| Input (X) / Input (Y) | The value to blend by: horizontal speed, forward speed, strafe speed, look pitch, or custom (you fill it in) |
+| Samples | One per line: `position, animation` for 1D, or `x, y, animation` for 2D |
+| Input smoothing | Eases sudden changes in the input, in ticks |
+| Sync phase | Keeps walk and run cycles in step while blending |
+
+For example, a 1D locomotion blend space:
+
+```
+0, idle
+2, walk
+6, run
+```
+
+## Previewing a Blend Space
+
+In the **Animate** tab, press `▶` on a blend space. Sliders appear under it; drag them to change the input and see each sample's share. Press play on the timeline to see the blended motion, and `■` to stop the preview.
+
+<ModAsset width="40%" title="Blend space preview" location="azurelib:rig_blend_preview"/>
+
+<Callout variant="info">
+    In the preview, all samples play on Blockbench's one timeline, so cycles of different lengths drift apart. In game, sync phase keeps them in step.
+</Callout>
+
+# Checking Your Rig
+
+Press **Check** (or `File` -> `Export` -> `Check AzureLib Rig`) to list problems, such as:
+
+- Bones or locators that were renamed or deleted.
+- Chain bones in the wrong order (each must be inside the one before it).
+- Names or modifier ids used twice.
+- Hitboxes with no size.
+- Blend space animations that don't exist.
+
+Fix these before generating code, or the code won't match your model.
+
+# Generating the Code
+
+- Press **Code** (or `File` -> `Export` -> `Generate AzureLib Rig Code`).
+- Pick your **AzureLib branch**: 26.3, 1.21.1, 1.20.1, 1.18.2, 1.12.2 / 1.7.10, or Beta 1.7.3.
+- Enter your **Animatable class**: the name of your entity class, for example `GraboidEntity`.
+- Leave **Package root** blank unless your AzureLib build uses a different package than the branch default.
+- Press `Confirm`. The code appears with `Copy` and `Save .java` buttons.
+
+<ModAsset width="60%" title="Generate AzureLib code" location="azurelib:rig_codegen"/>
+
+The code comes in sections. Each starts with a header naming the class it belongs in, followed by the imports it needs:
+
+| Section | Goes in |
+|---------|---------|
+| Entity | Your entity class: socket constants and the hitbox set (your entity implements `AzHitboxHolder`) |
+| Animator: pose modifiers | Your animator's `registerPoseModifiers` method: IK, look-at, spring bones and constraints |
+| Animator: blend spaces | Your animator's `registerControllers` method, plus any speed helper methods for your entity class |
+| Renderer: attachments | Your renderer config builder: an attachment layer with a spot for each socket |
+
+<Callout variant="info">
+    Look for `TODO` comments in the generated code. They mark the parts only you can fill in, such as which entity a look-at should watch or what to draw at a socket.
+</Callout>
+
+The branch, class name and package root are saved with your project, so next time you only need to press `Confirm`.
