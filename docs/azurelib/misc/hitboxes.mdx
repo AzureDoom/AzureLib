@@ -103,6 +103,8 @@ if (mouth != null) {
 }
 ```
 
+To find an exact point on a bone (a muzzle, a hand) rather than a box, use a [bone socket](./bone_sockets). Sockets use the bone directly on the client and an anchor hitbox on the server; `AzBoneSocket#toAnchorHitbox()` builds the matching anchor for you.
+
 Give anchors a non-zero size; a box with no size is treated as empty. On the server, anchors follow the pose reported by nearby clients, so they trail the animation by a few ticks and are unavailable when no player is near the mob. Keep a fallback for that case, and time server-side checks slightly after the keyframe they belong to.
 
 ## Reacting to hits
@@ -248,11 +250,11 @@ A modified client can move a mob's hitboxes, but only within `maxReach` of the e
 
 ## Large entities
 
-If hitboxes stick far outside the vanilla box (long tails or necks), the game can cull the entity while part of it is on screen, which also stops the hitboxes updating. Grow the culling box in your AzEntityRenderer class:
+If hitboxes stick far outside the vanilla box (long tails or necks), the game can cull the entity while part of it is on screen, which also stops the hitboxes updating. Grow the culling box:
 
 ```java
 @Override
-public AABB getBoundingBoxForCulling(ExampleEntity entity, float partialTicks) {
-    return AzHitboxes.getCullingBox(entity, super.getBoundingBoxForCulling(entity, partialTicks));
+public AABB getBoundingBoxForCulling() {
+    return AzHitboxes.getCullingBox(this, super.getBoundingBoxForCulling());
 }
 ```

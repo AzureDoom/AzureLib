@@ -11,9 +11,17 @@
         "name": "Config API",
         "icon": "Notebook"
     },
+    "azurenavigation_101.mdx": {
+        "name": "AzureNavigation 101",
+        "icon": "Info"
+    },
     "hitboxes.mdx": {
         "name": "Bone Hitboxes",
         "icon": "Target"
+    },
+    "bone_sockets.mdx": {
+        "name": "Bone Sockets and Attachments",
+        "icon": "Anchor"
     },
     "limb_health.mdx": {
         "name": "Limb Health",
