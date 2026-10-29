@@ -82,3 +82,13 @@ AzureLib keeps locators with their bone, so you can use them from code as [bone 
 - Put the locator **inside the bone it should follow**, so it moves with that bone's animation.
 - Give each locator a **unique, descriptive name** (`muzzle`, `right_hand_grip`), since code refers to it by name.
 - If something attached at the locator should point a certain way, rotate the locator; its rotation is used too.
+
+To add a locator, select the bone it should belong to, then use the add menu (the `+` above the Outliner) and choose `Locator`. Move it into place with the move tool.
+
+<ModAsset width="40%" title="Adding a locator" location="azurelib:add_locator"/>
+
+Once your locators are in place, turn them into sockets with the **AzureLib Rig** panel, where you can check which way they face and generate their code. See [Sockets](./rig_panel#sockets).
+
+# Next Steps
+
+With bones, pivots and locators set up, you can add AzureLib's rig features on top: hitboxes, sockets, IK for feet and hands, look-at, joint limits, spring bones for tails, and blend spaces. See [Setting Up Rig Features](./rig_panel).
