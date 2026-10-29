@@ -2,6 +2,8 @@ package mod.azure.azurelib.animation;
 
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -71,6 +73,8 @@ public abstract class AzAnimator<K, T> {
     private final AzPoseModifierRegistry<T> poseModifiers = new AzPoseModifierRegistry<>();
 
     private boolean poseModifiersRegistered;
+
+    private final List<AzAnimatorUpdateHook<T>> updateHooks = new ArrayList<>(0);
 
     public boolean reloadAnimations;
 
@@ -194,6 +198,10 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.end(AzProfileStage.MOLANG_SETUP);
 
         if (!boneCache.isEmpty()) {
+            for (int i = 0, n = updateHooks.size(); i < n; i++) {
+                updateHooks.get(i).beforeControllers(animatable, partialTicks);
+            }
+
             for (AzAnimationController<T> controller : animationControllerContainer.getAll()) {
                 AzProfiler.begin(AzProfileStage.CONTROLLER_UPDATE, controller);
                 controller.update();
@@ -306,6 +314,21 @@ public abstract class AzAnimator<K, T> {
      * @see AzAnimationContext#poseLayer()
      */
     protected void registerPoseModifiers(AzPoseModifierRegistry<T> modifiers) {}
+
+    /**
+     * Adds a hook that runs every frame just before the controllers update, e.g. to set controller weights from
+     * per-frame values. Blend spaces register themselves here. Hooks run in the order they were added.
+     */
+    public void addUpdateHook(AzAnimatorUpdateHook<T> hook) {
+        if (!updateHooks.contains(hook)) {
+            updateHooks.add(hook);
+        }
+    }
+
+    /** Removes a hook added with {@link #addUpdateHook}. */
+    public void removeUpdateHook(AzAnimatorUpdateHook<T> hook) {
+        updateHooks.remove(hook);
+    }
 
     /**
      * This animator's pose modifiers. Addons and compat code may add or remove modifiers here at any time; changes
