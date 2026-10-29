@@ -71,3 +71,15 @@ The pivot point can be set in the viewport using the Pivot Tool (found in the Ma
   title="Modrinth Download"
   location="azurelib:pivotsmenu"
 />
+
+
+# Locators
+
+Locators are named points you can add to a bone. They have no geometry; they just mark a spot that moves with the bone, such as the tip of a gun barrel, the palm of a hand or a mount point.
+
+AzureLib keeps locators with their bone, so you can use them from code as [bone sockets](../misc/bone_sockets#blockbench-locators): find where they are in the world to spawn projectiles or particles, or render items and blocks there with the attachment layer.
+
+### Tips for Locators:
+- Put the locator **inside the bone it should follow**, so it moves with that bone's animation.
+- Give each locator a **unique, descriptive name** (`muzzle`, `right_hand_grip`), since code refers to it by name.
+- If something attached at the locator should point a certain way, rotate the locator; its rotation is used too.

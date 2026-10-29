@@ -16,6 +16,10 @@ The `AzBlockAndItemLayer` handles the rendering logic for these elements by:
     - Other items go through Beta 1.7.3's held-item renderer, positioned the way Beta 1.7.3's biped renderer holds them: tools and swords diagonally, flat items as small sprites, and block items as a small tilted cube. Override `applyVanillaHandTransforms` (items) or `applyVanillaBlockInHandTransforms` (block items) if your hand bones are oriented differently.
     - Vanilla rendering draws through the OpenGL matrix stack, so the layer flushes AzureLib's pending vertices and pushes the bone's pose onto the GL matrix before handing over. Beta 1.7.3's held-item renderer needs a living holder, so items only render on `MobEntity` animatables, and blocks are an `AzBlockState` (block plus metadata) because Beta 1.7.3 has no block states.
 
+<Callout variant="info">
+    To place an item or block at an exact point on a bone (an offset, a rotation, or a Blockbench locator) rather than on the whole bone, use the [Attachment Layer](../../bone_sockets#rendering-attachments) instead.
+</Callout>
+
 ## Setup Instructions
 
 ### Step 1: Add the Block and Item Layer to Your Renderer
