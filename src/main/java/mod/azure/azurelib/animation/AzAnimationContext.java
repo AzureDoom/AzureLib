@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import mod.azure.azurelib.animation.cache.AzBoneCache;
+import mod.azure.azurelib.animation.pose.AzPoseLayer;
 import mod.azure.azurelib.core.molang.MolangScope;
 
 /**
@@ -29,6 +30,8 @@ public class AzAnimationContext<T> {
 
     private final Map<Object, Object> attachments = new IdentityHashMap<>(0);
 
+    private final AzPoseLayer<T> poseLayer;
+
     // Package-private for mutability purposes.
     T animatable;
 
@@ -40,6 +43,7 @@ public class AzAnimationContext<T> {
         this.boneCache = boneCache;
         this.config = config;
         this.timer = timer;
+        this.poseLayer = new AzPoseLayer<>(this);
     }
 
     /**
@@ -101,6 +105,18 @@ public class AzAnimationContext<T> {
      */
     public List<AzAnimator<?, ?>> linkedAnimators() {
         return linkedAnimators;
+    }
+
+    /**
+     * This animatable's procedural pose state: the live weight of each pose modifier (see
+     * {@link AzAnimator#registerPoseModifiers}), their per-animatable state, and the bookkeeping that keeps procedural
+     * offsets out of the animated pose. Use it to switch or fade modifiers per animatable, e.g.
+     * {@code context.poseLayer().fadeWeight("look", 0, 10)} while the entity is attacking.
+     *
+     * @return the pose layer of this animatable
+     */
+    public AzPoseLayer<T> poseLayer() {
+        return poseLayer;
     }
 
     /**
