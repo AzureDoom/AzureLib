@@ -11,6 +11,10 @@
         "name": "Bone Hitboxes",
         "icon": "Target"
     },
+    "bone_sockets.mdx": {
+        "name": "Bone Sockets and Attachments",
+        "icon": "Anchor"
+    },
     "limb_health.mdx": {
         "name": "Limb Health",
         "icon": "HeartCrack"
