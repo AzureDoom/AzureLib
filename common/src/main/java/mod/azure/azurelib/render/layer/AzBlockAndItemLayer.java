@@ -1,6 +1,9 @@
 package mod.azure.azurelib.render.layer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.entity.LivingEntity;
@@ -90,7 +93,7 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
             renderItemForBone(context, bone, stack, animatable);
 
         if (blockState != null)
-            renderItemForBone(context, bone, new ItemStack(blockState.getBlock()), animatable);
+            renderBlockForBone(context, bone, blockState);
 
         context.setVertexConsumer(context.multiBufferSource().getBuffer(context.renderType()));
 
@@ -176,6 +179,41 @@ public class AzBlockAndItemLayer<K, T> implements AzRenderLayer<K, T> {
                 context.poseStack(),
                 (poseStack, collector) -> renderState
                     .submit(poseStack, collector, packedLight, packedOverlay, outlineColor)
+            );
+    }
+
+    protected void renderBlockForBone(
+        AzRendererPipelineContext<K, T> context,
+        AzBone bone,
+        BlockState blockState
+    ) {
+        var minecraft = Minecraft.getInstance();
+        var resolver = new BlockModelResolver(minecraft.getModelManager());
+        var renderState = new BlockModelRenderState();
+
+        resolver.update(
+            renderState,
+            blockState,
+            BlockDisplayContext.create()
+        );
+
+        if (renderState.isEmpty()) {
+            return;
+        }
+
+        int packedLight = context.packedLight();
+        int packedOverlay = context.packedOverlay();
+
+        context.multiBufferSource()
+            .defer(
+                context.poseStack(),
+                (poseStack, collector) -> renderState.submit(
+                    poseStack,
+                    collector,
+                    packedLight,
+                    packedOverlay,
+                    0
+                )
             );
     }
 
