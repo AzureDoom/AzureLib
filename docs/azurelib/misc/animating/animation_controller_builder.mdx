@@ -96,6 +96,10 @@ A controller at weight `0` has no effect, and bones that no controller animates 
     With the default settings (weight `1`, `OVERRIDE`, no bone mask), a controller added later fully replaces an earlier one on any bone they both animate, which is how controllers behaved before layering was added.
 </Callout>
 
+<Callout variant="info">
+    To blend several looping animations by a value such as movement speed or strafe direction (idle, walk and run, say), use a [blend space](./blend_spaces) instead of managing the weights yourself. It sets up and weights the controllers for you, and keeps the cycles in step.
+</Callout>
+
 ### Example
 
 A walk cycle on the whole body, an aiming pose that takes over the upper body, and breathing added on top:
@@ -133,3 +137,9 @@ aim.fadeWeight(0, 10);     // Fade back out over 10 ticks.
 These methods change the weight only on the side that calls them. To set a weight from the server, send it as a command with `setWeight` or `fadeWeight`; see the AzCommands 101 page.
 
 Fades run smoothly between game ticks, pause while the game is paused, and are not affected by animation speed. Starting a new fade, or calling `setWeight`, replaces the current one.
+
+To set weights from per-frame values on the client (such as being in water), register an update hook in `registerControllers`; it runs every frame just before the controllers update:
+
+```java
+addUpdateHook((entity, partialTicks) -> swim.setWeight(Mc.isInWater(entity) ? 1 : 0));
+```
