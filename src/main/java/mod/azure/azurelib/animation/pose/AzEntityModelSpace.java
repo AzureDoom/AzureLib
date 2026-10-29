@@ -74,13 +74,35 @@ public final class AzEntityModelSpace {
     }
 
     public Vector3f worldToModel(Entity entity, float partialTick, double x, double y, double z, Vector3f dest) {
-        Vec3 origin = Vec3.createVectorHelper(entity.posX, entity.posY, entity.posZ);
-        dest.set((float) (x - origin.xCoord), (float) (y - origin.yCoord), (float) (z - origin.zCoord));
+        dest.set(
+            (float) (x - renderX(entity, partialTick)),
+            (float) (y - renderY(entity, partialTick)),
+            (float) (z - renderZ(entity, partialTick))
+        );
         return entityToModel(entity, partialTick, dest);
     }
 
     public Vec3 modelToWorld(Entity entity, float partialTick, Vector3f point) {
         Vector3f offset = modelToEntity(entity, partialTick, point.copy());
-        return Vec3.createVectorHelper(entity.posX, entity.posY, entity.posZ).addVector(offset.x, offset.y, offset.z);
+        return Vec3.createVectorHelper(
+            renderX(entity, partialTick) + offset.x,
+            renderY(entity, partialTick) + offset.y,
+            renderZ(entity, partialTick) + offset.z
+        );
+    }
+
+    /** The entity's X position interpolated for this frame, where the renderer draws it. */
+    public static double renderX(Entity entity, float partialTick) {
+        return entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTick;
+    }
+
+    /** The entity's Y position interpolated for this frame, where the renderer draws it. */
+    public static double renderY(Entity entity, float partialTick) {
+        return entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTick;
+    }
+
+    /** The entity's Z position interpolated for this frame, where the renderer draws it. */
+    public static double renderZ(Entity entity, float partialTick) {
+        return entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTick;
     }
 }
