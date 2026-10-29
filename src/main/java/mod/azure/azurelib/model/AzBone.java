@@ -423,6 +423,12 @@ public class AzBone {
         setScaleZ(scaleZ);
     }
 
+    public void setTransformUnmarked(Vector3f position, Vector3f rotation, Vector3f scale) {
+        this.position.load(position);
+        this.rotation.load(rotation);
+        this.scale.load(scale);
+    }
+
     public void updatePivot(float pivotX, float pivotY, float pivotZ) {
         setPivotX(pivotX);
         setPivotY(pivotY);

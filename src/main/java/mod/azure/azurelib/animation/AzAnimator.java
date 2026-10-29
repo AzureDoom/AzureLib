@@ -13,6 +13,9 @@ import mod.azure.azurelib.animation.cache.AzBoneCache;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
+import mod.azure.azurelib.animation.pose.AzPoseLayer;
+import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
+import mod.azure.azurelib.animation.pose.AzPoseModifiers;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.core.molang.MolangQueries;
@@ -64,6 +67,10 @@ public abstract class AzAnimator<K, T> {
     private final AzAnimationControllerContainer<T> animationControllerContainer;
 
     protected final AzAnimatorConfig config;
+
+    private final AzPoseModifierRegistry<T> poseModifiers = new AzPoseModifierRegistry<>();
+
+    private boolean poseModifiersRegistered;
 
     public boolean reloadAnimations;
 
@@ -173,6 +180,10 @@ public abstract class AzAnimator<K, T> {
             timer.tick();
         }
 
+        // Take last frame's procedural offsets back out before anything reads or animates the bones.
+        AzPoseLayer<T> poseLayer = this.currentContext.poseLayer();
+        poseLayer.restore();
+
         if (!hasAnimated) {
             hasAnimated = true;
             onFirstAnimate(animatable);
@@ -199,6 +210,14 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.begin(AzProfileStage.CUSTOM_ANIMATIONS, animatable);
         setCustomAnimations(animatable, partialTicks);
         AzProfiler.end(AzProfileStage.CUSTOM_ANIMATIONS);
+
+        AzPoseModifierRegistry<T> modifiers = getPoseModifiers();
+
+        if (!boneCache.isEmpty() && !modifiers.isEmpty()) {
+            AzProfiler.begin(AzProfileStage.POSE_MODIFIERS, animatable);
+            poseLayer.apply(modifiers, animatable, partialTicks);
+            AzProfiler.end(AzProfileStage.POSE_MODIFIERS);
+        }
     }
 
     public void animate(T animatable, float partialTicks) {
@@ -248,12 +267,50 @@ public abstract class AzAnimator<K, T> {
     /**
      * Sets custom animations for the given animatable object. This method is used to define and configure specific
      * animations unique to the context of the animatable and the current render state.
+     * <p>
+     * Writes made here go straight onto the bones and become part of the animated pose, so additive changes accumulate
+     * on bones no controller animated this frame (see {@link AzBoneCache#wasRotationAnimatedThisFrame}). For procedural
+     * posing prefer {@link #registerPoseModifiers}: modifiers are weighted, masked, ordered, and never leak into the
+     * next frame.
+     * </p>
      *
      * @param animatable   The object for which custom animations are being set.
      * @param partialTicks The partial tick time used for interpolating animations smoothly between frames.
      */
     @SuppressWarnings("unused")
     public void setCustomAnimations(T animatable, float partialTicks) {}
+
+    /**
+     * Registers this animator's procedural pose modifiers. Called once, before the first {@link #animate}. Modifiers
+     * run every frame after the controllers, the bone reset pass and {@link #setCustomAnimations}, in priority order,
+     * and their writes are undone before the next frame's controllers run.
+     *
+     * <pre>{@code
+     *
+     * protected void registerPoseModifiers(AzPoseModifierRegistry<MyEntity> modifiers) {
+     *     modifiers.add("look", AzPoseModifiers.headLook("neck", "head"));
+     *     modifiers.add("tail", AzPoseModifiers.spring("tail")).priority(100);
+     * }
+     * }</pre>
+     *
+     * @param modifiers the registry to add to
+     * @see AzPoseModifiers
+     * @see AzAnimationContext#poseLayer()
+     */
+    protected void registerPoseModifiers(AzPoseModifierRegistry<T> modifiers) {}
+
+    /**
+     * This animator's pose modifiers. Addons and compat code may add or remove modifiers here at any time; changes
+     * apply from the next frame.
+     */
+    public AzPoseModifierRegistry<T> getPoseModifiers() {
+        if (!poseModifiersRegistered) {
+            poseModifiersRegistered = true;
+            registerPoseModifiers(poseModifiers);
+        }
+
+        return poseModifiers;
+    }
 
     /**
      * Get the baked animation object used for rendering from the given resource path
