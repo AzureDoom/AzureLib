@@ -11,10 +11,11 @@ import mod.azure.azurelib.util.math.Vector3f;
 
 /**
  * Procedural secondary motion for tails, antennae, ears, hair and cloth-like bone chains. Each joint of the chain is a
- * particle pulled towards where the animation puts it, carrying momentum, damped, and held at the chain's segment
- * lengths; the bones are then turned to follow the particles. The simulation runs in world axes for entities, so the
- * chain swings and trails when the entity moves or turns, not only when its animation does. For other animatables it
- * runs in model space and reacts to the animation alone.
+ * particle pulled towards where the animation puts it relative to the joint before it, carrying momentum, damped, and
+ * held at the chain's segment lengths; the bones are then turned to follow the particles. Because each joint follows
+ * its parent, lag builds up towards the tip and the chain bends and whips rather than swinging as one piece.The
+ * simulation runs in world axes for entities, so the chain swings and trails when the entity moves or turns, not only
+ * when its animation does. For other animatables it runs in model space and reacts to the animation alone.
  *
  * <pre>
  * {@code
@@ -195,12 +196,16 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
             for (int j = 1; j < points; j++) {
                 int o = j * 3;
+                int q = o - 3;
                 state.previous[o] = p[o];
                 state.previous[o + 1] = p[o + 1];
                 state.previous[o + 2] = p[o + 2];
-                v[o] = (v[o] + (t[o] - p[o]) * stiffness * dt) * keep;
-                v[o + 1] = (v[o + 1] + (t[o + 1] - p[o + 1]) * stiffness * dt - gravity * dt) * keep;
-                v[o + 2] = (v[o + 2] + (t[o + 2] - p[o + 2]) * stiffness * dt) * keep;
+                float restX = t[o] - t[q] + p[q];
+                float restY = t[o + 1] - t[q + 1] + p[q + 1];
+                float restZ = t[o + 2] - t[q + 2] + p[q + 2];
+                v[o] = (v[o] + (restX - p[o]) * stiffness * dt) * keep;
+                v[o + 1] = (v[o + 1] + (restY - p[o + 1]) * stiffness * dt - gravity * dt) * keep;
+                v[o + 2] = (v[o + 2] + (restZ - p[o + 2]) * stiffness * dt) * keep;
                 p[o] += v[o] * dt;
                 p[o + 1] += v[o + 1] * dt;
                 p[o + 2] += v[o + 2] * dt;
