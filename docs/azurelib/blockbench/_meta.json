@@ -11,6 +11,10 @@
         "name": "How to Rig your Model for Animations",
         "icon": "Film"
     },
+    "rig_panel.mdx": {
+        "name": "Setting Up Rig Features",
+        "icon": "Film"
+    },
     "animating_in_bb.mdx": {
         "name": "How to Animate your model",
         "icon": "Film"
