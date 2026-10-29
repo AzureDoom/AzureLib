@@ -1,11 +1,7 @@
 package mod.azure.azurelib.model;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
+import org.joml.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -415,6 +411,12 @@ public class AzBone {
         setScaleX(scaleX);
         setScaleY(scaleY);
         setScaleZ(scaleZ);
+    }
+
+    public void setTransformUnmarked(Vector3fc position, Vector3fc rotation, Vector3fc scale) {
+        this.position.set(position);
+        this.rotation.set(rotation);
+        this.scale.set(scale);
     }
 
     public void updatePivot(float pivotX, float pivotY, float pivotZ) {
