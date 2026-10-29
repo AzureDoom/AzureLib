@@ -5,8 +5,8 @@ import net.minecraft.entity.Entity;
 import java.util.*;
 
 import mod.azure.azurelib.animation.pose.*;
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 import mod.azure.azurelib.util.math.Mth;
-import mod.azure.azurelib.util.math.Vec3;
 import mod.azure.azurelib.util.math.Vector3f;
 
 /**
@@ -118,10 +118,9 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         double ex = 0, ey = 0, ez = 0;
 
         if (entity != null) {
-            Vec3 position = new Vec3(entity.x, entity.y, entity.z);
-            ex = position.x;
-            ey = position.y;
-            ez = position.z;
+            ex = AzEntityModelSpace.renderX(entity, partialTick);
+            ey = AzEntityModelSpace.renderY(entity, partialTick);
+            ez = AzEntityModelSpace.renderZ(entity, partialTick);
         }
 
         if (pose.isDiscontinuous() || !state.initialized) {

@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
+import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneLocator;
@@ -74,7 +75,11 @@ final class AzBoneSocketsClient {
 
         AzBoneSockets.rotateBasis(BASIS, socket.rotationX(), socket.rotationY(), socket.rotationZ());
 
-        Vec3 origin = new Vec3(entity.x, entity.y, entity.z);
+        Vec3 origin = new Vec3(
+            AzEntityModelSpace.renderX(entity, partialTick),
+            AzEntityModelSpace.renderY(entity, partialTick),
+            AzEntityModelSpace.renderZ(entity, partialTick)
+        );
         dest.set(origin.x + px, origin.y + py, origin.z + pz, BASIS);
         return true;
     }

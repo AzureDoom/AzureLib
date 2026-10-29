@@ -122,7 +122,7 @@ public final class AzIkTargets {
             }
 
             // How far the ground under this foot is from the ground the entity stands on.
-            double groundOffset = hit.blockY - entity.y;
+            double groundOffset = hit.pos.y - AzEntityModelSpace.renderY(entity, partialTick);
             space.worldToModel(entity, partialTick, foot.x, foot.y + groundOffset, foot.z, dest);
             return true;
         };
