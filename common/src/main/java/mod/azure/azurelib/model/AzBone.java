@@ -4,6 +4,7 @@ import com.mojang.math.*;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import mod.azure.azurelib.cache.object.GeoCube;
@@ -52,6 +53,8 @@ public class AzBone {
     private Matrix3f worldSpaceNormal = new Matrix3f();
 
     private boolean trackingMatrices;
+
+    private Map<String, AzBoneLocator> locators = Map.of();
 
     public AzBone(AzBoneMetadata metadata) {
         this.metadata = metadata;
@@ -279,6 +282,14 @@ public class AzBone {
         return metadata.reset();
     }
 
+    public Map<String, AzBoneLocator> getLocators() {
+        return this.locators;
+    }
+
+    public void setLocators(Map<String, AzBoneLocator> locators) {
+        this.locators = locators == null ? Map.of() : Map.copyOf(locators);
+    }
+
     public List<GeoCube> getCubes() {
         return this.cubes;
     }
@@ -445,6 +456,7 @@ public class AzBone {
         copy.childrenHidden = this.childrenHidden;
         // Keep matrix tracking requested by hitboxes/bone attachments when the model is re-copied (e.g. model swaps)
         copy.trackingMatrices = this.trackingMatrices;
+        copy.locators = this.locators;
 
         // Copy transforms
         copy.pivot.load(this.pivot);
