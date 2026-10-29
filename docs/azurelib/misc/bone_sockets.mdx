@@ -1,0 +1,210 @@
+---
+title: Bone Sockets and Attachments
+hide_meta: true
+---
+
+# Bone Sockets and Attachments
+
+## Overview
+
+A bone socket is a named point that follows an animated bone: the tip of a gun barrel, the palm of a hand, a mount point on a saddle. AzureLib can tell you where a socket is in the world at any moment, and render things there, so you can:
+
+- Spawn a projectile or muzzle flash from an animated weapon.
+- Emit particles from a mouth, exhaust or wound.
+- Render an item in a hand, a lantern on a belt, or a hat on a head, without making it part of the model.
+- Position a passenger, a leash or an effect on a moving part.
+
+A socket is either a bone plus an offset and rotation, or a [locator](#blockbench-locators) you placed in Blockbench.
+
+## Defining Sockets
+
+Sockets are plain values, so keep them in `static final` fields:
+
+```java
+public class ExampleEntity extends Monster {
+
+    // 14 pixels along the barrel bone, pointing the way the barrel faces.
+    public static final AzBoneSocket MUZZLE = AzBoneSocket.bone("muzzle", "gun_barrel")
+        .offset(0, 0, -14)
+        .build();
+
+    // A locator named "mouth" placed in Blockbench.
+    public static final AzBoneSocket MOUTH = AzBoneSocket.locator("mouth").build();
+}
+```
+
+| Builder method | What it sets |
+|----------------|--------------|
+| `offset(x, y, z)` | Offset from the bone's pivot (or from the locator), in Blockbench pixels along the bone's axes |
+| `rotation(x, y, z)` | Rotation relative to the bone (or on top of the locator's), in Blockbench degrees |
+| `serverHitbox(name)` | An anchor hitbox to use on the server; see [Using Sockets on the Server](#using-sockets-on-the-server) |
+
+Offsets and rotations use the same axes and signs as Blockbench, so the easiest way to find them is to read the values off Blockbench: select the bone, note its pivot, and measure from there.
+
+## Finding a Socket in the World
+
+`AzBoneSockets.resolve` fills an `AzSocketTransform` with the socket's world position and orientation:
+
+```java
+private final AzSocketTransform muzzle = new AzSocketTransform();
+
+if (AzBoneSockets.resolve(entity, ExampleEntity.MUZZLE, partialTick, muzzle)) {
+    Vec3 position = muzzle.position();
+    Vec3 forward = muzzle.forward();      // Where the barrel points.
+}
+```
+
+It returns `false` when the socket can't be found yet; see [When a Socket Can't Resolve](#when-a-socket-cant-resolve). Pass the frame's partial tick when calling it while rendering, and `1` from tick code.
+
+`AzBoneSockets.position(entity, socket, partialTick)` is a shortcut that returns just the position, or `null`.
+
+### The Socket Transform
+
+| Method | Returns |
+|--------|---------|
+| `position()`, `x()`, `y()`, `z()` | The socket's world position |
+| `forward()` | The socket's front, `(0, 0, -1)` in its own axes: the way a part modelled facing north in Blockbench points |
+| `up()` | The socket's up, `(0, 1, 0)` in its own axes |
+| `direction(x, y, z)` | Any direction in the socket's Blockbench axes, as a world direction |
+| `point(x, y, z)` | A point in Blockbench pixels from the socket, as a world position. Follows the bone's and model's scale |
+| `rotation(Quaternionf)` | The socket's orientation as a quaternion |
+
+Reuse one `AzSocketTransform` rather than creating one per call.
+
+### Example: Muzzle Particles
+
+On the client, for example in `tick()` on the client side, or in a keyframe handler:
+
+```java
+if (level().isClientSide && AzBoneSockets.resolve(this, MUZZLE, 1, muzzle)) {
+    var dir = muzzle.forward();
+    level().addParticle(ParticleTypes.SMOKE, muzzle.x(), muzzle.y(), muzzle.z(), dir.x * 0.1, dir.y * 0.1, dir.z * 0.1);
+}
+```
+
+## Using Sockets on the Server
+
+Animations only run on the client, so the server has no bone positions of its own. To find a socket on the server, for example to spawn a projectile from the muzzle, back the socket with an [anchor hitbox](./hitboxes#anchor-hitboxes). Clients report anchor positions to the server just like other hitboxes.
+
+Name the hitbox in the socket, and let the socket build a matching hitbox for your hitbox set:
+
+```java
+public class ExampleEntity extends Monster implements AzHitboxHolder {
+
+    public static final AzBoneSocket MUZZLE = AzBoneSocket.bone("muzzle", "gun_barrel")
+        .offset(0, 0, -14)
+        .serverHitbox("muzzle_anchor")
+        .build();
+
+    private static final AzHitboxSet HITBOXES = AzHitboxSet.builder()
+        .add("body")
+        .add(MUZZLE.toAnchorHitbox())    // An anchor at exactly the socket's position.
+        .build();
+
+    private final AzSocketTransform muzzle = new AzSocketTransform();
+
+    @Override
+    public AzHitboxSet getHitboxSet() {
+        return HITBOXES;
+    }
+
+    public void shoot(LivingEntity target) {
+        if (!AzBoneSockets.resolve(this, MUZZLE, 1, muzzle)) {
+            return; // No client has reported the pose yet; fall back or skip.
+        }
+
+        var projectile = new SmallFireball(level(), this, muzzle.forward());
+        projectile.setPos(muzzle.x(), muzzle.y(), muzzle.z());
+        level().addFreshEntity(projectile);
+    }
+}
+```
+
+On the client, the same socket uses the bone directly; on the server it uses the anchor. The client also falls back to the anchor in the moment before the bone starts tracking.
+
+<Callout variant="warning">
+    Server-side anchors follow the pose reported by nearby clients, so they trail the animation by a few ticks and are unavailable when no player is near. Keep a fallback (such as the entity's eye position) and time server-side spawns slightly after the keyframe they belong to. See [How syncing works](./hitboxes#how-syncing-works).
+</Callout>
+
+`toAnchorHitbox()` only works for bone sockets. For a locator socket, add an anchor hitbox at the locator's position yourself with `AzHitbox.builder(name, bone).anchor().anchorAtPivot().offset(...)`.
+
+## Rendering Attachments
+
+`AzAttachmentLayer` is a render layer that draws things at sockets, so props follow animated bones without being part of the model:
+
+```java
+public class ExampleEntityRenderer extends AzEntityRenderer<ExampleEntity> {
+
+    public ExampleEntityRenderer(EntityRendererProvider.Context context) {
+        super(
+            AzEntityRendererConfig.<ExampleEntity>builder(MODEL, TEXTURE)
+                .setAnimatorProvider(ExampleEntityAnimator::new)
+                .addRenderLayer(
+                    new AzAttachmentLayer<UUID, ExampleEntity>()
+                        .attach(
+                            AzBoneSocket.bone("right_hand", "right_arm").offset(-1, -10, -1).rotation(-90, 0, 0).build(),
+                            AzAttachment.item(ExampleEntity::getMainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
+                        )
+                        .attach(
+                            AzBoneSocket.locator("belt_lantern").build(),
+                            AzAttachment.block(entity -> Blocks.LANTERN.defaultBlockState())
+                        )
+                )
+                .build(),
+            context
+        );
+    }
+}
+```
+
+| Attachment | What it draws |
+|------------|---------------|
+| `AzAttachment.item(stack, displayContext)` | An item stack; empty stacks draw nothing |
+| `AzAttachment.block(state)` | A block state at half size, centered on the socket; `null` draws nothing |
+| Your own lambda | Anything. The pose stack is already at the socket, one unit per block |
+
+```java
+.attach(HALO_SOCKET, (context, bone) -> {
+    var poseStack = context.poseStack();
+    var buffer = context.multiBufferSource().getBuffer(RenderType.entityTranslucent(HALO_TEXTURE));
+    // Draw your quad here using poseStack.last().
+})
+```
+
+Attachments only draw on bones that are visible, so hiding a bone also hides what's attached to it. Unlike the [Block and Item Layer](./rendering/layers/adding_blockitem_layer), which renders on whole bones you pick by name, the attachment layer places each item exactly where its socket says.
+
+## Blockbench Locators
+
+Locators are named points you can add to a bone in Blockbench's Bedrock and GeckoLib/AzureLib model formats. AzureLib reads them from the model file and keeps them with their bone, so a locator moves exactly like the bone it's in.
+
+They're the easiest way to define sockets: place the locator where you want it in Blockbench, give it a name, and refer to it with `AzBoneSocket.locator("name")`. If a locator has a rotation, the socket uses it too. You can still add an extra `offset` and `rotation` on top.
+
+You can also read them from code with `bone.getLocators()`, which gives each locator's offset from the bone's pivot (in Blockbench pixels) and its rotation (in Blockbench degrees).
+
+<Callout variant="info">
+    Keep locator names unique within a model. If two bones have a locator with the same name, `resolve` uses whichever it finds first, while the attachment layer draws at both.
+</Callout>
+
+## When a Socket Can't Resolve
+
+`resolve` returns `false` when:
+
+- **The bone has never been rendered with tracking on.** Bones start tracking their position the first time a socket asks, so the very first call for a bone returns `false`. Call `resolve` once early (for example when the entity spawns on the client) if the first frame matters.
+- **The entity is off-screen** and has no hitboxes. Off-screen entities aren't posed, so the socket keeps its last on-screen position, or has none. Entities with hitboxes are posed off-screen, so their sockets keep working.
+- **On the server, there's no server hitbox**, or no nearby client has reported a pose recently.
+- **The bone or locator doesn't exist** in the current model.
+
+## Troubleshooting
+
+1. **The socket is in the wrong place.**
+   - Offsets are from the bone's pivot, not from the model's origin, and along the bone's own axes.
+   - The X axis follows Blockbench; if the point is mirrored, check you measured from the right pivot.
+
+2. **The attachment points the wrong way.**
+   - Add a `rotation` on the socket. Items also have their own display transforms; try a different `ItemDisplayContext`.
+
+3. **`resolve` always returns `false` on the server.**
+   - Give the socket a `serverHitbox`, add the matching anchor to the entity's hitbox set, and make sure the set isn't `clientOnly()`.
+
+4. **The position lags behind the animation.**
+   - On the server, anchors trail the animation by a few ticks. On the client, the socket reflects the last rendered frame; pass the frame's partial tick when calling during rendering.
