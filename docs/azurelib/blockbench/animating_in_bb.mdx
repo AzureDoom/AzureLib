@@ -13,6 +13,10 @@ hide_meta: true
 
 - You can select the bones and start animating!
 
+<Callout variant="info">
+    If you've set up IK chains, look-at, spring bones or constraints in the **AzureLib Rig** panel, they run on top of your animation in the Animate tab, the way they will in game. Switch **Pose** off in the panel to see your keyframes alone. See [Setting Up Rig Features](./rig_panel).
+</Callout>
+
 
 # Video Guide
 
@@ -269,3 +273,18 @@ These queries take arguments, so they are always written with parentheses, e.g. 
 ## How to add Effect Keyframes
 
 Please see [Adding Effect Keyframes](../effectkeyframes/adding_keyframes) for this.
+
+## Previewing Rig Features While Animating
+
+The **AzureLib Rig** panel previews its features on top of the animation you're editing:
+
+- **IK chains and look-at** solve every frame towards a preview target: raised ground, a fixed point, or a locator you can drag around.
+- **Spring bones** swing while the animation plays. Press play to see them; scrubbing backwards resets them.
+- **Constraints** keep IK, look-at and spring bones within their limits, and can clamp the animation itself.
+- **Blend spaces** have a `▶` button that plays their samples together, with sliders for the input.
+
+None of this changes your keyframes. Switch **Pose** off in the panel to see your animation alone.
+
+<ModAsset width="60%" title="Rig features while animating" location="azurelib:rig_animate_preview.gif"/>
+
+See [Setting Up Rig Features](./rig_panel) for setting each one up.

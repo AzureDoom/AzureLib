@@ -5,6 +5,10 @@ hide_meta: true
 
 So you have finished your model and want to save it, its textures and it's animations, simply follow the steps below for each asset.
 
+<Callout variant="info">
+    Keep your `.bbmodel` project file as well. Hitboxes, sockets, IK, spring bones and the other features from the **AzureLib Rig** panel are saved only in it, not in any exported file.
+</Callout>
+
 ## Exporting the `geo.json` model.
 
 - Open `File` and then select `Export` and choose `Export Azurelib .geo Model`
@@ -81,3 +85,17 @@ If your model is one that will be used an item or reused as an Item, you will wa
 
 </Callout>
 - Click confirm to save your JSON file to your projects animations assets folder (Example: `/assets/animations/geo/`)
+
+## Generating the Rig Code
+
+If you've set up hitboxes, sockets, IK, look-at, constraints, spring bones or blend spaces in the **AzureLib Rig** panel, generate the Java for them:
+
+- Open `File` and then select `Export` and choose `Generate AzureLib Rig Code` (or press **Code** in the panel).
+- Choose your AzureLib branch and enter your entity class name, then press `Confirm`.
+- Press `Copy`, or `Save .java` to save the code to a file, and paste each section into the class named in its header.
+
+<ModAsset width="40%" title="Generate AzureLib Rig Code" location="azurelib:export_rig_code"/>
+
+<Callout variant="info">
+    Press `Check AzureLib Rig` (in the same menu) first to catch renamed or missing bones, so the code matches your model. See [Generating the Code](./rig_panel#generating-the-code) for what each section contains.
+</Callout>
