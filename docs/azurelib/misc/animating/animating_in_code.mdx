@@ -6,7 +6,7 @@ hide_meta: true
 # How to modify bones in-code to do animations
 
 <Callout variant="info">
-    This page covers the basics. For a full guide with more examples (head tracking, smoothing, hiding and resizing bones), see [Procedural Animation](./procedural_animation).
+    This page covers setting bones directly in `setCustomAnimations`. For most procedural motion, [pose modifiers](./procedural_animation#pose-modifiers) are easier: they can add to a bone every frame without drifting, and can be weighted, faded and limited to certain bones. See [Procedural Animation](./procedural_animation) for the full guide, and [Inverse Kinematics](./inverse_kinematics), [Secondary Motion](./secondary_motion) and [Blend Spaces](./blend_spaces) for the built-in systems.
 </Callout>
 
 - Open your AzAnimator class created for the targeted source you wish to do in-code animations for.
@@ -76,8 +76,8 @@ A keyframe can then use `v.swell * 30`. Each animatable keeps its own values. Se
         super.setCustomAnimations(animatable, partialTicks);
         AzBakedModel model = this.context().boneCache().getBakedModel();
 
-        float walkPosition = animatable.walkAnimation.position(partialTicks) * 0.6662F;
-        float walkSpeed = animatable.walkAnimation.speed(partialTicks);
+        float walkSpeed = Mth.lerp(partialTicks, animatable.animationSpeedOld, animatable.animationSpeed);
+        float walkPosition = (animatable.animationPosition - animatable.animationSpeed * (1 - partialTicks)) * 0.6662F;
 
         float armSwing = Mth.cos(walkPosition) * walkSpeed;
         float legSwing = Mth.cos(walkPosition) * 1.4F * walkSpeed;

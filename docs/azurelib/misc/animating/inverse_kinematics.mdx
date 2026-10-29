@@ -1,0 +1,269 @@
+---
+title: Inverse Kinematics
+hide_meta: true
+---
+
+# Inverse Kinematics and Bone Constraints
+
+## Overview
+
+Inverse kinematics (IK) works backwards from where a bone should end up. Instead of rotating each joint by hand, you say "put the foot here" and AzureLib turns the thigh and shin so it gets there. Use it to make authored animation adapt to the world:
+
+- Feet that step onto slopes, stairs and ledges instead of floating or sinking.
+- Hands that stay on a weapon's grip, a ladder or a lever.
+- A head, neck and spine that turn to watch a target.
+- Tails and tentacles that reach for a point.
+
+IK runs as a [pose modifier](./procedural_animation#pose-modifiers), after your animation controllers. The animation still plays; IK adjusts the result each frame, and can be weighted, masked and faded per animatable like any other modifier.
+
+<Callout variant="info">
+    IK only changes the pose that gets rendered on the client. It doesn't move hitboxes on the server until clients report the new pose, and it doesn't change collision.
+</Callout>
+
+## Quick Start: Feet on Uneven Ground
+
+```java
+public class ExampleEntityAnimator extends AzEntityAnimator<ExampleEntity> {
+
+    @Override
+    protected void registerPoseModifiers(AzPoseModifierRegistry<ExampleEntity> modifiers) {
+        modifiers.add("left_leg_ik", AzIkChain.<ExampleEntity>builder("left_thigh", "left_shin", "left_foot")
+            .target(AzIkTargets.ground(0.5F, 0.75F))
+            .constraint(AzBoneConstraints.hingeX("left_shin", 0, 150))
+            .build()).priority(50);
+
+        modifiers.add("right_leg_ik", AzIkChain.<ExampleEntity>builder("right_thigh", "right_shin", "right_foot")
+            .target(AzIkTargets.ground(0.5F, 0.75F))
+            .constraint(AzBoneConstraints.hingeX("right_shin", 0, 150))
+            .build()).priority(50);
+    }
+}
+```
+
+Each frame, each leg:
+
+1. Takes the foot's position from the animation.
+2. Looks for the ground under that foot, from half a block above it to three quarters of a block below.
+3. Moves the foot by the difference between that ground and the ground the entity is standing on, so a lifted foot mid-step stays lifted.
+4. Bends the knee and swings the thigh so the foot lands there.
+
+When the entity isn't on the ground, or no ground is found in range, the leg is left as animated.
+
+<Callout variant="warning">
+    Foot placement only moves feet. A foot can't reach lower than the leg is long, so on a big drop the leg straightens and the foot hovers. If you want the body to drop with it, add your own pose modifier that translates the root bone down.
+</Callout>
+
+## IK Chains
+
+`AzIkChain.builder(...)` takes the chain's bones in order from the root (hip, shoulder) to the tip (foot, hand). Each bone must be a descendant of the one before it, but doesn't have to be a direct child. If a bone is missing or the order is wrong, the chain is skipped for that model.
+
+| Builder method | What it sets |
+|----------------|--------------|
+| `target(AzIkTarget)` | Where the effector should go each frame. Required |
+| `effector(x, y, z)` | The point that should reach the target, in Blockbench pixels from the last bone's pivot. Default: the pivot itself |
+| `solver(AzIkSolver)` | How to solve the chain. Default: two-bone for 2 or 3 bones, CCD otherwise |
+| `constraint(...)` | Joint limits the solver respects; see [Bone Constraints](#bone-constraints) |
+
+### Effectors
+
+The effector is the part of the chain that touches the target. For a chain of `thigh, shin, foot`, the default effector is the foot's pivot (the ankle). To put the sole on the ground instead, move the effector down:
+
+```java
+AzIkChain.<ExampleEntity>builder("left_thigh", "left_shin", "left_foot")
+    .effector(0, -2, 0)    // 2 pixels below the ankle.
+```
+
+For a two-bone chain without a foot bone (`upper_arm, forearm`), use the effector to mark the hand at the end of the forearm, for example `effector(0, -10, 0)`.
+
+## Solvers
+
+### Two-Bone
+
+`AzIkSolvers.twoBone()` is exact and cheap, for legs and arms. It bends the middle joint (knee, elbow) so the limb is the right length, then swings the upper bone to point at the target. If the target is out of reach, the limb straightens and points at it.
+
+The knee bends in the same plane the animation put it in, so knees and elbows keep facing the way they were animated. When the limb is perfectly straight there is no plane to keep, so give it a pole: a point in model space (Blockbench pixels from the model's origin) the middle joint should turn towards:
+
+```java
+.solver(AzIkSolvers.twoBone().pole(-2, 6, -20))   // Knee points forwards.
+```
+
+The solver uses the first two chain bones. A third bone, like the foot, only carries the effector; its own rotation isn't changed.
+
+### CCD
+
+`AzIkSolvers.ccd(iterations, tolerance)` handles chains of any length, such as tails, tentacles and spines. Each pass turns every bone, tip first, to point the effector at the target, and stops once it's within `tolerance` pixels:
+
+```java
+modifiers.add("tail_reach", AzIkChain.<ExampleEntity>builder("tail1", "tail2", "tail3", "tail4")
+    .effector(0, 0, 6)
+    .solver(AzIkSolvers.ccd(12, 0.25F))
+    .target(AzIkTargets.entityEyes(ExampleEntity::getGrabTarget))
+    .build());
+```
+
+8 to 16 iterations is usually enough. CCD tends to curl the tip first; constraints on the tip bones keep that natural.
+
+### Custom Solvers
+
+A solver is a single method, so you can write your own:
+
+```java
+AzIkSolver solver = (chain, effector, target, constraints) -> {
+    var tip = effector.position(chain, new Vector3f());
+    chain.aim(0, tip, target, 0.5F);   // Turn the root halfway towards the target.
+};
+```
+
+See [`AzBoneChain`](#azbonechain) for what a chain can do.
+
+## Targets
+
+`AzIkTargets` has the common targets. They return model-space positions, and can skip solving for a frame (leaving the limb as animated) when there's nothing to aim at.
+
+| Target | Use |
+|--------|-----|
+| `ground(maxStepUp, maxStepDown)` | Foot placement, as in the [quick start](#quick-start-feet-on-uneven-ground) |
+| `world((entity, partialTick) -> Vec3)` | Any world position, such as a grip point or a ledge. Return `null` to skip |
+| `entityEyes(entity -> Entity)` | Another entity's eyes, for looking or reaching. Return `null` to skip |
+| `model(x, y, z)` | A fixed point in the model, in Blockbench pixels from the model's origin |
+
+A target is also a single method, so you can compute your own. It receives the effector's animated position, in model space, and writes the target into `dest`:
+
+```java
+AzIkTarget<ExampleEntity> holdUp = (pose, effector, dest) -> {
+    dest.load(effector);
+    dest.add(0, 0.25F, 0);   // A quarter block above where the animation put it.
+    return true;
+};
+```
+
+<Callout variant="info">
+    Remember that the client only knows synced data. A mob's attack target, for example, isn't synced by vanilla, so sync it yourself (an entity data accessor works) before using it in `entityEyes`.
+</Callout>
+
+## Look-At
+
+`AzLookAt` turns a chain of bones so the last one faces a target, spreading the turn along the chain so a spine, neck and head all share it:
+
+```java
+modifiers.add("stare", AzLookAt.<ExampleEntity>builder("chest", "neck", "head")
+    .target(AzIkTargets.entityEyes(ExampleEntity::getSyncedTarget))
+    .constraint(
+        AzBoneConstraints.limit("head", -40, 40, -70, 70, 0, 0),
+        AzBoneConstraints.limit("neck", -20, 20, -30, 30, 0, 0)
+    )
+    .build());
+```
+
+The last bone's front is `(0, 0, -1)` in its own Blockbench axes, the front of a model facing north in Blockbench. If your head faces another way, set it with `forward(x, y, z)`.
+
+`AzLookAt` aims at any target you give it. To follow where the entity itself is looking, the simpler [`AzPoseModifiers.headLook`](./procedural_animation#built-in-modifiers) is enough.
+
+Fade it in and out like any modifier, for example when the mob gains or loses its target:
+
+```java
+context().poseLayer().fadeWeight("stare", hasTarget ? 1 : 0, 8);
+```
+
+## Bone Constraints
+
+Constraints keep joints in a believable range. IK solvers apply them after every step, so a knee never bends backwards to reach a target.
+
+| Constraint | What it does |
+|------------|--------------|
+| `AzBoneConstraints.limit(bone, minX, maxX, minY, maxY, minZ, maxZ)` | Clamps each axis |
+| `AzBoneConstraints.hingeX(bone, min, max)` | Clamps X and holds Y and Z, for knees and elbows. `hingeY` and `hingeZ` work the same on the other axes |
+
+Angles are in degrees, relative to the bone's default pose, and use the same signs as Blockbench's rotation fields and your keyframes: if a keyframe of `[90, 0, 0]` bends the knee the way it should go, `hingeX("shin", 0, 150)` allows that direction.
+
+Constraints can also run on their own as a pose modifier, clamping whatever the animation and earlier modifiers produced:
+
+```java
+modifiers.add("neck_limits", AzBoneConstraints.modifier(
+    AzBoneConstraints.limit("neck", -30, 30, -45, 45, -10, 10)
+)).priority(100);
+```
+
+You can write your own by implementing `AzBoneConstraint`. It receives the bone's rotation (radians, in AzureLib's internal convention, where X and Y are negated from Blockbench) and its default rotation, and adjusts the rotation in place.
+
+## AzBoneChain
+
+IK chains, look-at and [spring bones](./secondary_motion) are built on `AzBoneChain`, which you can use directly in your own modifiers:
+
+```java
+private static final class ChainHolder {
+    AzBoneChain chain;
+}
+
+modifiers.add("point_up", pose -> {
+    var state = pose.state(ChainHolder::new);
+
+    if (state.chain == null) {
+        state.chain = AzBoneChain.resolve(pose, "shoulder", "arm");
+    }
+
+    var chain = state.chain;
+
+    if (chain == null) {
+        return;
+    }
+
+    chain.reset();                                         // Load this frame's pose.
+    var hand = chain.pointOnBone(1, 0, -12, 0, new Vector3f());
+    var sky = chain.joint(0, new Vector3f());
+    sky.add(0, 4, 0);
+    chain.aim(0, hand, sky, 1);                            // Turn the shoulder so the hand points up.
+    chain.apply();                                         // Write the result, scaled by the weight.
+});
+```
+
+| Method | What it does |
+|--------|--------------|
+| `resolve(pose, bones...)` | Builds a chain for this animatable's model, or `null` if the bones don't form a chain. Keep the result in `pose.state(...)` |
+| `reset()` | Reloads the chain bones' rotations from the current pose |
+| `joint(index, dest)` | A chain bone's pivot in model space |
+| `pointOnBone(index, x, y, z, dest)` | A point fixed to a bone, in Blockbench pixels from its pivot |
+| `directionOnBone(index, x, y, z, dest)` | A direction fixed to a bone, in model space |
+| `aim(index, from, to, fraction)` | Turns a bone so the direction to `from` points at `to` |
+| `rotateAround(index, axis, angle)` | Turns a bone around a model-space axis through its pivot |
+| `constrain(index, constraint)` | Applies a constraint to a bone |
+| `apply()` | Writes every chain bone to the pose once, scaled by the modifier's weight |
+
+The chain works on its own copy of the rotations, so you can call `aim` as often as you like; nothing is rendered until `apply()`.
+
+### Model Space
+
+Vectors here are Minecraft's `com.mojang.math.Vector3f`. Its methods return nothing rather than the vector, so they can't be chained; `AzVectors` has a few helpers it lacks, such as `distance`, `length` and a `set` that returns the vector.
+
+IK works in the model's own space: blocks, relative to the model's origin, before the entity's rotation and scale. Offsets you give AzureLib (effectors, poles, `pointOnBone`) are in Blockbench pixels, on Blockbench's axes. To convert world positions yourself, use `AzEntityModelSpace`:
+
+```java
+var modelPoint = AzEntityModelSpace.DEFAULT.worldToModel(entity, partialTick, x, y, z, new Vector3f());
+var worldPoint = AzEntityModelSpace.DEFAULT.modelToWorld(entity, partialTick, modelPoint);
+```
+
+It places the model the way the default entity renderer does: at the entity's position, turned by its body yaw and scaled by its scale attribute. If your renderer config scales the model with `setScale`, use `AzEntityModelSpace.scaled(width, height)` with the same values, and pass it to the targets that take one (`AzIkTargets.ground(up, down, space)`, `AzIkTargets.world(position, space)`).
+
+<Callout variant="warning">
+    Special render poses (dying, sleeping, spin attacks) aren't accounted for, and IK assumes bones aren't scaled unevenly or mirrored. Uneven scale on a parent bone makes the result approximate.
+</Callout>
+
+## Troubleshooting
+
+1. **The chain does nothing.**
+   - Check the bones are listed root first and that each one is under the one before it in Blockbench.
+   - Check the target can resolve: `ground` needs the entity on the ground, `entityEyes` needs a synced target.
+   - Make sure nothing masks the chain bones away from the modifier.
+
+2. **The knee or elbow bends the wrong way.**
+   - Add a hinge constraint in the direction it should bend, or give the two-bone solver a `pole` in front of (or behind) the joint.
+
+3. **The foot lands too high or too low.**
+   - Move the effector to the sole with `effector(0, -n, 0)`.
+   - If the renderer scales the model, pass `AzEntityModelSpace.scaled(...)` to `ground`.
+
+4. **The head looks sideways or behind.**
+   - Set the head's front with `forward(x, y, z)` on `AzLookAt`.
+
+5. **IK jitters on stairs.**
+   - Fade the modifier's weight while the entity is moving fast, or raise `maxStepUp` so the search starts above the step.
