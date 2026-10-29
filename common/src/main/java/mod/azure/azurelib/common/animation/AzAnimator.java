@@ -1,12 +1,12 @@
 package mod.azure.azurelib.common.animation;
 
-import mod.azure.azurelib.common.animation.pose.AzPoseLayer;
-import mod.azure.azurelib.common.animation.pose.AzPoseModifiers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -16,7 +16,9 @@ import mod.azure.azurelib.common.animation.cache.AzBakedAnimationCache;
 import mod.azure.azurelib.common.animation.cache.AzBoneCache;
 import mod.azure.azurelib.common.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.common.animation.molang.AzMolangQueryContext;
+import mod.azure.azurelib.common.animation.pose.AzPoseLayer;
 import mod.azure.azurelib.common.animation.pose.AzPoseModifierRegistry;
+import mod.azure.azurelib.common.animation.pose.AzPoseModifiers;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.core.molang.MolangQueries;
 import mod.azure.azurelib.core.molang.MolangScope;
@@ -68,6 +70,8 @@ public abstract class AzAnimator<K, T> {
     private final AzPoseModifierRegistry<T> poseModifiers = new AzPoseModifierRegistry<>();
 
     private boolean poseModifiersRegistered;
+
+    private final List<AzAnimatorUpdateHook<T>> updateHooks = new ArrayList<>(0);
 
     public boolean reloadAnimations;
 
@@ -192,6 +196,10 @@ public abstract class AzAnimator<K, T> {
         AzProfiler.end(AzProfileStage.MOLANG_SETUP);
 
         if (!boneCache.isEmpty()) {
+            for (int i = 0, n = updateHooks.size(); i < n; i++) {
+                updateHooks.get(i).beforeControllers(animatable, partialTicks);
+            }
+
             for (var controller : animationControllerContainer.getAll()) {
                 AzProfiler.begin(AzProfileStage.CONTROLLER_UPDATE, controller);
                 controller.update();
@@ -296,6 +304,21 @@ public abstract class AzAnimator<K, T> {
      * @see AzAnimationContext#poseLayer()
      */
     protected void registerPoseModifiers(AzPoseModifierRegistry<T> modifiers) {}
+
+    /**
+     * Adds a hook that runs every frame just before the controllers update, e.g. to set controller weights from
+     * per-frame values. Blend spaces register themselves here. Hooks run in the order they were added.
+     */
+    public void addUpdateHook(AzAnimatorUpdateHook<T> hook) {
+        if (!updateHooks.contains(hook)) {
+            updateHooks.add(hook);
+        }
+    }
+
+    /** Removes a hook added with {@link #addUpdateHook}. */
+    public void removeUpdateHook(AzAnimatorUpdateHook<T> hook) {
+        updateHooks.remove(hook);
+    }
 
     /**
      * This animator's pose modifiers. Addons and compat code may add or remove modifiers here at any time; changes
