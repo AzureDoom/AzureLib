@@ -19,11 +19,11 @@ import mod.azure.azurelib.util.math.Vector3f;
  *     new AzAttachmentLayer<UUID, MyEntity>()
  *         .attach(
  *             AzBoneSocket.bone("right_hand", "right_arm").offset(-1, -10, 0).build(),
- *             AzAttachment.item(MyEntity::getMainHandItem, ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
+ *             AzAttachment.item(entity -> Mc.heldItem(entity), AzItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
  *         )
  *         .attach(
- *             AzBoneSocket.locator("lantern").build(),
- *             AzAttachment.block(entity -> Blocks.LANTERN.defaultBlockState())
+ *             AzBoneSocket.locator("belt_torch").build(),
+ *             AzAttachment.block(entity -> AzBlockState.of(Block.TORCH))
  *         )
  * );
  * }
