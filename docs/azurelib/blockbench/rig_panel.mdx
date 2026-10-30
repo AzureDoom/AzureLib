@@ -195,7 +195,7 @@ Constraints limit how far a bone can turn, like a knee that only bends one way. 
 | Also clamp the final pose | Also limits the animation itself, after everything else has run |
 
 <Callout variant="info">
-    Limits use the same signs as your keyframes. If a keyframe of `90` on X bends the knee the right way, a Hinge X from `0` to `150` allows that direction.
+    Limits use the signs of your exported animation file. Blockbench 5 shows X and Y keyframe rotations with the opposite sign (Z is the same), so for X and Y, flip what Blockbench 5 shows: if a keyframe of `-90` on X bends the knee the right way, a Hinge X from `0` to `150` allows that direction.
 </Callout>
 
 # Spring Bones
@@ -230,9 +230,7 @@ Colliders stop spring chains swinging through the body, like a tail through the 
 
 Colliders show in the viewport as orange wireframes that move with their bones. In the **Animate** tab, play an animation to see the chain bump against them.
 
-{/* TODO image: orange collider capsules on the legs with a tail swinging around them
 <ModAsset width="60%" title="Spring bone colliders" location="azurelib:rig_colliders"/>
-*/}
 
 <Callout variant="info">
     Don't put a collider on one of the chain's own bones, or overlapping where the chain sits in its animation; the chain is always pushed out of colliders, so it would never settle. **Check** warns about the first case.
