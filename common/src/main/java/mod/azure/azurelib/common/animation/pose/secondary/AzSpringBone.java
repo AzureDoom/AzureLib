@@ -35,6 +35,10 @@ import mod.azure.azurelib.common.animation.pose.AzPoseModifier;
  * ).priority(200);
  * }</pre>
  * <p>
+ * Add {@link AzSpringCollider colliders} (and {@link Builder#ground ground}) to keep the chain from swinging through
+ * the body or the floor.
+ * </p>
+ * <p>
  * The first chain bone is driven by the animation alone and anchors the chain; every following bone swings. Give the
  * last bone a {@link Builder#tip} so it swings too.
  * </p>
@@ -61,6 +65,12 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
     private final List<AzBoneConstraint> constraints;
 
+    private final AzSpringCollider[] colliders;
+
+    private final float radius;
+
+    private final boolean ground;
+
     private final Vector3f scratch = new Vector3f(), scratch2 = new Vector3f();
 
     private AzSpringBone(Builder<T> builder) {
@@ -75,8 +85,12 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         this.inertia = builder.inertia;
         this.space = builder.space;
         this.constraints = List.copyOf(builder.constraints);
+        this.colliders = builder.colliders.toArray(new AzSpringCollider[0]);
+        this.radius = builder.radius;
+        this.ground = builder.ground;
     }
 
+    /** A spring chain over the given bones, root-most first; each must be a descendant of the one before it. */
     public static <T> Builder<T> chain(String... bones) {
         return new Builder<>(bones);
     }
@@ -98,6 +112,13 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
             }
 
             state.allocate(pointCount(state.chain));
+            state.colliderChains = new AzBoneChain[colliders.length];
+            state.colliders = new float[colliders.length * 7];
+
+            for (int k = 0; k < colliders.length; k++) {
+                // A collider on a bone this model doesn't have is skipped.
+                state.colliderChains[k] = AzBoneChain.resolve(pose, colliders[k].bone());
+            }
         }
 
         AzBoneChain chain = state.chain;
@@ -129,9 +150,12 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
             ez = position.z;
         }
 
+        updateColliders(state, entity, partialTick);
+
         if (pose.isDiscontinuous() || !state.initialized) {
             System.arraycopy(state.target, 0, state.position, 0, points * 3);
             Arrays.fill(state.velocity, 0);
+            collide(state, points);
             state.initialized = true;
         } else {
             // Particles keep their place in the world while the simulation frame follows the entity.
@@ -216,28 +240,143 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
                 p[o + 2] += v[o + 2] * dt;
             }
 
-            // Hold every segment at its animated length, then derive velocity from the corrected motion.
-            for (int j = 1; j < points; j++) {
-                int o = j * 3;
-                int q = o - 3;
-                float rx = t[o] - t[q], ry = t[o + 1] - t[q + 1], rz = t[o + 2] - t[q + 2];
-                float rest = (float) Math.sqrt(rx * rx + ry * ry + rz * rz);
-                float dx = p[o] - p[q], dy = p[o + 1] - p[q + 1], dz = p[o + 2] - p[q + 2];
-                float length = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+            // Hold every segment at its animated length and push joints out of colliders. The two passes are
+            // alternated so the chain ends up both the right length and outside the colliders.
+            for (int pass = 0; pass < (colliders.length > 0 || ground ? 3 : 1); pass++) {
+                for (int j = 1; j < points; j++) {
+                    int o = j * 3;
+                    int q = o - 3;
+                    float rx = t[o] - t[q], ry = t[o + 1] - t[q + 1], rz = t[o + 2] - t[q + 2];
+                    float rest = (float) Math.sqrt(rx * rx + ry * ry + rz * rz);
+                    float dx = p[o] - p[q], dy = p[o + 1] - p[q + 1], dz = p[o + 2] - p[q + 2];
+                    float length = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-                if (length > 1e-6f) {
-                    float k = rest / length;
-                    p[o] = p[q] + dx * k;
-                    p[o + 1] = p[q + 1] + dy * k;
-                    p[o + 2] = p[q + 2] + dz * k;
+                    if (length > 1e-6f) {
+                        float k = rest / length;
+                        p[o] = p[q] + dx * k;
+                        p[o + 1] = p[q + 1] + dy * k;
+                        p[o + 2] = p[q + 2] + dz * k;
+                    }
                 }
 
+                collide(state, points);
+            }
+
+            // Derive velocity from the corrected motion, so contact slides and settles instead of bouncing.
+            for (int j = 1; j < points; j++) {
+                int o = j * 3;
                 v[o] = (p[o] - state.previous[o]) / dt;
                 v[o + 1] = (p[o + 1] - state.previous[o + 1]) / dt;
                 v[o + 2] = (p[o + 2] - state.previous[o + 2]) / dt;
             }
 
             remaining -= dt;
+        }
+    }
+
+    /** Puts each collider's ends and radius into simulation space for this frame. */
+    private void updateColliders(State state, Entity entity, float partialTick) {
+        // Simulation-space length of one Blockbench pixel, including the model's scale for entities.
+        scratch.set(1 / 16f, 0, 0);
+
+        if (entity != null) {
+            space.modelToEntity(entity, partialTick, scratch);
+        }
+
+        float pixel = scratch.length();
+        state.particleRadius = radius * pixel;
+        float[] data = state.colliders;
+
+        for (int k = 0; k < colliders.length; k++) {
+            AzSpringCollider collider = colliders[k];
+            AzBoneChain chain = state.colliderChains[k];
+            int o = k * 7;
+
+            if (chain == null) {
+                data[o + 6] = -1;
+                continue;
+            }
+
+            chain.reset();
+            chain.pointOnBone(0, collider.startX(), collider.startY(), collider.startZ(), scratch);
+            chain.pointOnBone(0, collider.endX(), collider.endY(), collider.endZ(), scratch2);
+
+            if (entity != null) {
+                space.modelToEntity(entity, partialTick, scratch);
+                space.modelToEntity(entity, partialTick, scratch2);
+            }
+
+            data[o] = scratch.x;
+            data[o + 1] = scratch.y;
+            data[o + 2] = scratch.z;
+            data[o + 3] = scratch2.x;
+            data[o + 4] = scratch2.y;
+            data[o + 5] = scratch2.z;
+            data[o + 6] = collider.radius() * pixel;
+        }
+    }
+
+    /** Pushes every swinging joint out of the colliders and above the ground. */
+    private void collide(State state, int points) {
+        float[] p = state.position;
+        float[] data = state.colliders;
+        float particleRadius = state.particleRadius;
+
+        for (int j = 1; j < points; j++) {
+            int o = j * 3;
+
+            for (int k = 0; k < colliders.length; k++) {
+                int c = k * 7;
+                float colliderRadius = data[c + 6];
+
+                if (colliderRadius < 0) {
+                    continue;
+                }
+
+                // Closest point on the collider's core: its centre, or the nearest point on a capsule's line.
+                float cx = data[c], cy = data[c + 1], cz = data[c + 2];
+
+                if (colliders[k].shape() == AzSpringCollider.Shape.CAPSULE) {
+                    float ax = data[c + 3] - cx, ay = data[c + 4] - cy, az = data[c + 5] - cz;
+                    float lengthSq = ax * ax + ay * ay + az * az;
+
+                    if (lengthSq > 1e-12f) {
+                        float along = ((p[o] - cx) * ax + (p[o + 1] - cy) * ay + (p[o + 2] - cz) * az) / lengthSq;
+                        along = Math.clamp(along, 0, 1);
+                        cx += ax * along;
+                        cy += ay * along;
+                        cz += az * along;
+                    }
+                }
+
+                float reach = colliderRadius + particleRadius;
+                float dx = p[o] - cx, dy = p[o + 1] - cy, dz = p[o + 2] - cz;
+                float distSq = dx * dx + dy * dy + dz * dz;
+
+                if (distSq >= reach * reach) {
+                    continue;
+                }
+
+                float dist = (float) Math.sqrt(distSq);
+
+                if (dist < 1e-6f) {
+                    // Exactly on the core: push straight up.
+                    dx = 0;
+                    dy = 1;
+                    dz = 0;
+                    dist = 1;
+                }
+
+                float scale = reach / dist;
+                p[o] = cx + dx * scale;
+                p[o + 1] = cy + dy * scale;
+                p[o + 2] = cz + dz * scale;
+            }
+
+            // The ground is the entity's feet (or the model's origin for other animatables).
+            if (ground && p[o + 1] < particleRadius) {
+                p[o + 1] = particleRadius;
+            }
         }
     }
 
@@ -252,6 +391,12 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         private float[] position, previous, velocity, target;
 
         private double lastX, lastY, lastZ;
+
+        private AzBoneChain[] colliderChains;
+
+        private float[] colliders;
+
+        private float particleRadius;
 
         void allocate(int points) {
             position = new float[points * 3];
@@ -280,6 +425,12 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         private AzEntityModelSpace space = AzEntityModelSpace.DEFAULT;
 
         private final List<AzBoneConstraint> constraints = new ArrayList<>();
+
+        private final List<AzSpringCollider> colliders = new ArrayList<>();
+
+        private float radius;
+
+        private boolean ground;
 
         private Builder(String[] bones) {
             if (bones.length == 0) {
@@ -334,6 +485,30 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         /** Limits on how far each swinging bone may turn, e.g. to keep a tail from folding into the body. */
         public Builder<T> constraint(AzBoneConstraint... constraints) {
             this.constraints.addAll(List.of(constraints));
+            return this;
+        }
+
+        /**
+         * Shapes the chain can't pass through, such as capsules along the legs. Colliders follow their bones, and one
+         * collider can be shared by several chains.
+         */
+        public Builder<T> collider(AzSpringCollider... colliders) {
+            this.colliders.addAll(List.of(colliders));
+            return this;
+        }
+
+        /** How thick the chain is for collisions, in Blockbench pixels. 0 by default. */
+        public Builder<T> radius(float pixels) {
+            this.radius = Math.max(0, pixels);
+            return this;
+        }
+
+        /**
+         * Keeps the chain above the ground: the entity's feet, or the model's origin for items and block entities. Off
+         * by default.
+         */
+        public Builder<T> ground(boolean ground) {
+            this.ground = ground;
             return this;
         }
 
