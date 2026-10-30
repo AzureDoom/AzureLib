@@ -9,9 +9,11 @@ import java.util.Objects;
 /**
  * Ready-made {@link AzBoneConstraint}s.
  * <p>
- * Angles are in degrees, relative to the bone's bind pose and in the same convention as Blockbench's rotation fields
- * and your keyframes: a limit of {@code 0..120} on X allows exactly the rotations a keyframe of {@code [0..120, 0, 0]}
- * would produce. (AzureLib stores X and Y negated internally; the constraints convert.)
+ * Angles are in degrees, relative to the bone's bind pose, with the signs of the exported animation file: a limit of
+ * {@code 0..120} on X allows exactly the rotations a keyframe of {@code [0..120, 0, 0]} in the {@code .animation.json}
+ * would produce. Blockbench 5 shows X and Y keyframe rotations with the opposite sign to the exported file (Z is the
+ * same), so flip X and Y when reading values off Blockbench 5. (AzureLib stores X and Y negated internally; the
+ * constraints convert.)
  * </p>
  */
 public final class AzBoneConstraints {

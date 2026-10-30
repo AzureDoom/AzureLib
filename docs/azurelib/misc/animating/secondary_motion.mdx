@@ -101,7 +101,7 @@ Positions are in Blockbench pixels from the bone's pivot, along the bone's own a
 The AzureLib Blockbench plugin can fit colliders to your bones, draw them in the viewport, preview the collisions while animating, and write this code; see [Setting Up Rig Features](../../blockbench/rig_panel#spring-bones).
 
 <Callout variant="info">
-    Collisions are checked at the chain's joints. A very thin collider can slip between two joints, so keep colliders at least as thick as the chain's segments are long, or add a little `radius`.
+    Collisions are checked along the whole chain, not just at its joints, so even thin colliders like shins hold. Very fast swings can still pass through a collider between two frames; a little more `damping` or `radius` helps.
 </Callout>
 
 ## Turning It Off

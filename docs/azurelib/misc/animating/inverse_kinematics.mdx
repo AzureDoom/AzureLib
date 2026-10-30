@@ -173,7 +173,7 @@ Constraints keep joints in a believable range. IK solvers apply them after every
 | `AzBoneConstraints.limit(bone, minX, maxX, minY, maxY, minZ, maxZ)` | Clamps each axis |
 | `AzBoneConstraints.hingeX(bone, min, max)` | Clamps X and holds Y and Z, for knees and elbows. `hingeY` and `hingeZ` work the same on the other axes |
 
-Angles are in degrees, relative to the bone's default pose, and use the same signs as Blockbench's rotation fields and your keyframes: if a keyframe of `[90, 0, 0]` bends the knee the way it should go, `hingeX("shin", 0, 150)` allows that direction.
+Angles are in degrees, relative to the bone's default pose, and use the signs of your exported animation file. Blockbench 5 shows X and Y rotation keyframes with the opposite sign to the exported file (Z is the same), so for X and Y, flip the sign of what Blockbench 5 shows: if a keyframe of `[-90, 0, 0]` in Blockbench 5 bends the knee the way it should go, `hingeX("shin", 0, 150)` allows that direction. In Blockbench 4 and earlier, keyframes show the same signs as the exported file, so that keyframe would read `[90, 0, 0]`.
 
 Constraints can also run on their own as a pose modifier, clamping whatever the animation and earlier modifiers produced:
 
@@ -183,7 +183,7 @@ modifiers.add("neck_limits", AzBoneConstraints.modifier(
 )).priority(100);
 ```
 
-You can write your own by implementing `AzBoneConstraint`. It receives the bone's rotation (radians, in AzureLib's internal convention, where X and Y are negated from Blockbench) and its default rotation, and adjusts the rotation in place.
+You can write your own by implementing `AzBoneConstraint`. It receives the bone's rotation (radians, in AzureLib's internal convention: X and Y have the opposite sign to the exported animation file, which is the sign Blockbench 5 shows) and its default rotation, and adjusts the rotation in place.
 
 ## AzBoneChain
 

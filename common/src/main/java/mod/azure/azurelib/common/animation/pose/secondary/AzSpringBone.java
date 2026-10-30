@@ -316,7 +316,10 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         }
     }
 
-    /** Pushes every swinging joint out of the colliders and above the ground. */
+    /**
+     * Pushes the chain out of the colliders and above the ground. Each segment is tested against each collider's core,
+     * so thin colliders can't slip between two joints; the segment's outer joint is moved so the segment clears it.
+     */
     private void collide(State state, int points) {
         float[] p = state.position;
         float[] data = state.colliders;
@@ -324,6 +327,7 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
         for (int j = 1; j < points; j++) {
             int o = j * 3;
+            int q = o - 3;
 
             for (int k = 0; k < colliders.length; k++) {
                 int c = k * 7;
@@ -333,24 +337,23 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
                     continue;
                 }
 
-                // Closest point on the collider's core: its centre, or the nearest point on a capsule's line.
-                float cx = data[c], cy = data[c + 1], cz = data[c + 2];
+                boolean capsule = colliders[k].shape() == AzSpringCollider.Shape.CAPSULE;
+                float ax = data[c], ay = data[c + 1], az = data[c + 2];
+                float bx = capsule ? data[c + 3] : ax, by = capsule ? data[c + 4] : ay, bz = capsule ? data[c + 5] : az;
 
-                if (colliders[k].shape() == AzSpringCollider.Shape.CAPSULE) {
-                    float ax = data[c + 3] - cx, ay = data[c + 4] - cy, az = data[c + 5] - cz;
-                    float lengthSq = ax * ax + ay * ay + az * az;
-
-                    if (lengthSq > 1e-12f) {
-                        float along = ((p[o] - cx) * ax + (p[o + 1] - cy) * ay + (p[o + 2] - cz) * az) / lengthSq;
-                        along = Math.clamp(along, 0, 1);
-                        cx += ax * along;
-                        cy += ay * along;
-                        cz += az * along;
-                    }
-                }
+                // Closest points between the segment (q -> o) and the collider's core (a -> b).
+                closestSegmentParams(p[q], p[q + 1], p[q + 2], p[o], p[o + 1], p[o + 2], ax, ay, az, bx, by, bz);
+                float along = segmentS;
+                float core = segmentT;
+                float chainX = p[q] + (p[o] - p[q]) * along;
+                float chainY = p[q + 1] + (p[o + 1] - p[q + 1]) * along;
+                float chainZ = p[q + 2] + (p[o + 2] - p[q + 2]) * along;
+                float coreX = ax + (bx - ax) * core;
+                float coreY = ay + (by - ay) * core;
+                float coreZ = az + (bz - az) * core;
 
                 float reach = colliderRadius + particleRadius;
-                float dx = p[o] - cx, dy = p[o + 1] - cy, dz = p[o + 2] - cz;
+                float dx = chainX - coreX, dy = chainY - coreY, dz = chainZ - coreZ;
                 float distSq = dx * dx + dy * dy + dz * dz;
 
                 if (distSq >= reach * reach) {
@@ -360,17 +363,21 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
                 float dist = (float) Math.sqrt(distSq);
 
                 if (dist < 1e-6f) {
-                    // Exactly on the core: push straight up.
                     dx = 0;
                     dy = 1;
                     dz = 0;
-                    dist = 1;
+                } else {
+                    dx /= dist;
+                    dy /= dist;
+                    dz /= dist;
                 }
 
-                float scale = reach / dist;
-                p[o] = cx + dx * scale;
-                p[o + 1] = cy + dy * scale;
-                p[o + 2] = cz + dz * scale;
+                // Moving the outer joint by d moves the contact point by along * d; the root end of the segment is
+                // handled by the segment before it.
+                float lift = (reach - dist) / Math.max(along, 0.25f);
+                p[o] += dx * lift;
+                p[o + 1] += dy * lift;
+                p[o + 2] += dz * lift;
             }
 
             // The ground is the entity's feet (or the model's origin for other animatables).
@@ -378,6 +385,68 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
                 p[o + 1] = particleRadius;
             }
         }
+    }
+
+    // Results of closestSegmentParams, to avoid allocating.
+    private float segmentS, segmentT;
+
+    /** Closest points between segments p0-p1 and a-b; sets segmentS and segmentT, the parameters along each. */
+    private void closestSegmentParams(
+        float p0x,
+        float p0y,
+        float p0z,
+        float p1x,
+        float p1y,
+        float p1z,
+        float ax,
+        float ay,
+        float az,
+        float bx,
+        float by,
+        float bz
+    ) {
+        float d1x = p1x - p0x, d1y = p1y - p0y, d1z = p1z - p0z;
+        float d2x = bx - ax, d2y = by - ay, d2z = bz - az;
+        float rx = p0x - ax, ry = p0y - ay, rz = p0z - az;
+        float aa = d1x * d1x + d1y * d1y + d1z * d1z;
+        float ee = d2x * d2x + d2y * d2y + d2z * d2z;
+        float ff = d2x * rx + d2y * ry + d2z * rz;
+        float s, t;
+
+        if (aa <= 1e-12f && ee <= 1e-12f) {
+            s = 0;
+            t = 0;
+        } else if (aa <= 1e-12f) {
+            s = 0;
+            t = clamp01(ff / ee);
+        } else {
+            float c = d1x * rx + d1y * ry + d1z * rz;
+
+            if (ee <= 1e-12f) {
+                s = clamp01(-c / aa);
+                t = 0;
+            } else {
+                float bb = d1x * d2x + d1y * d2y + d1z * d2z;
+                float denom = aa * ee - bb * bb;
+                s = denom > 1e-12f ? clamp01((bb * ff - c * ee) / denom) : 0;
+                t = (bb * s + ff) / ee;
+
+                if (t < 0) {
+                    t = 0;
+                    s = clamp01(-c / aa);
+                } else if (t > 1) {
+                    t = 1;
+                    s = clamp01((bb - c) / aa);
+                }
+            }
+        }
+
+        segmentS = s;
+        segmentT = t;
+    }
+
+    private static float clamp01(float value) {
+        return Math.clamp(value, 0, 1);
     }
 
     private static final class State {
