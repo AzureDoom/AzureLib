@@ -12,7 +12,7 @@ The AzureLib Animator plugin can set up AzureLib's rig features right on your mo
 - **IK chains**, so feet step onto slopes and stairs and limbs reach for targets.
 - **Look-at**, so a head, neck and spine turn to watch a target.
 - **Constraints**, which keep joints in a believable range.
-- **Spring bones**, for tails, antennae and ears that swing on their own.
+- **Spring bones**, for tails, antennae and ears that swing on their own, with **colliders** so they swing around the body instead of through it.
 - **Blend spaces**, which mix walk, run or aim animations by speed, direction or pitch.
 
 All of these run in game on top of your animations. You still animate as usual; the plugin only helps you configure them and generate the code.
@@ -42,7 +42,7 @@ The top row has two buttons and three toggles:
 
 - **Code** writes the AzureLib Java for everything you've set up; see [Generating the Code](#generating-the-code).
 - **Check** looks for problems, such as a bone that was renamed or deleted. A number on the button means problems were found.
-- **Boxes**, **Sockets** and **Pose** switch the viewport preview of hitboxes, sockets and pose features on and off.
+- **Boxes**, **Sockets**, **Colliders** and **Pose** switch the viewport preview of hitboxes, sockets, spring colliders and pose features on and off.
 
 Below that is a section for each feature. Each one is a single line with a count and a `+` button:
 
@@ -212,10 +212,31 @@ Spring bones make a chain of bones swing on its own: it lags behind, overshoots 
 | Damping | How quickly the swinging dies down, from 0 (bouncy) to 1 (no overshoot) |
 | Gravity | Pulls the chain down, in blocks per tick². Small values like `0.005` make it droop |
 | Inertia | How much moving through the world swings the chain in game, from 0 to 1 |
+| Colliders | The [colliders](#colliders) the chain can't pass through, by id, separated by commas |
+| Chain radius | Roughly how thick the chain is, in pixels, so it stays off colliders and the ground |
+| Stay above the ground | Stops the chain going below the model's feet |
 
 The first bone follows the animation exactly and anchors the chain. Press play in the **Animate** tab to see the swing; it reacts to how the animation moves the chain.
 
 <ModAsset width="60%" title="Spring bone preview" location="azurelib:rig_spring.gif"/>
+
+## Colliders
+
+Colliders stop spring chains swinging through the body, like a tail through the legs.
+
+- Select the bones the chain hits, such as the thighs and the body, and press `+` next to **Colliders**. Each bone gets a capsule fitted along its cubes (or a sphere, if it's about as wide as it's long).
+- Click a collider to adjust its **Shape**, its **Start** and **End** (pixels from the bone's pivot) and its **Radius**.
+- Open the spring chain and list the colliders it should hit under **Colliders**, for example `gLeftLeg, gRightLeg`.
+
+Colliders show in the viewport as orange wireframes that move with their bones. In the **Animate** tab, play an animation to see the chain bump against them.
+
+{/* TODO image: orange collider capsules on the legs with a tail swinging around them
+<ModAsset width="60%" title="Spring bone colliders" location="azurelib:rig_colliders"/>
+*/}
+
+<Callout variant="info">
+    Don't put a collider on one of the chain's own bones, or overlapping where the chain sits in its animation; the chain is always pushed out of colliders, so it would never settle. **Check** warns about the first case.
+</Callout>
 
 # Blend Spaces
 
