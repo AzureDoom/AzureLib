@@ -1,91 +1,17 @@
-v3.2.3
+v3.2.4
 
 ### Additions
-- Added `AzHitboxHolder#onHitboxDamaged`, called on the server once a hitbox hit's damage has been accepted (after invulnerability frames and `isInvulnerableTo`). Use it for per-hitbox state such as limb health, which shouldn't change on hits that vanilla rejects.
-- Added `AzRenderLayer#reRenderWithAnimatedBakedModel`, an opt-in variant of `reRenderWithBakedModel` for overlays with bones of their own that need animating. The overlay gets its own animator per animatable and receives every command sent to the animatable. Each frame, before it animates, its controllers are aligned with the base controllers of the same name (sequence, origin side, stage, repeat count, direction and progress), so overlay-only bones stay frame-exact with the base animation, including when the overlay is created mid-animation or wasn't rendered for a while.
-- Added `AzAnimationContext#linkedAnimators()` and `AzAnimationContext#attachments()`, plus `AzAnimator#forEachLinkedAnimator`. Commands dispatched to an animatable (client, entity packet and block entity packet) are now also applied to its linked animators.
-- Added `AzAbstractAnimationController#currentSequence()` and `#currentSequenceOrigin()`, `AzAnimationController#mirrorSequence` (plays a sequence without the server-sequence priority check, for making one controller follow another) and `AzAnimationQueue#copyFrom`.
-- Added opt-in translucency sorting for renderers: `setTranslucencySorting(true)` on any renderer config builder sorts all of an animatable's translucent geometry back to front together, across the model, its render layers, re-renders and bones with their own render type. Fixes translucent parts drawn in one pass hiding translucent parts of another pass behind them, such as an inner translucent layer vanishing behind an outer translucent shell. A `setTranslucencySorting(Predicate<RenderType>)` overload chooses which render types are sorted, for custom translucent render types vanilla doesn't sort.
-- Added `AzRenderLayer#sortsTranslucency()` (default `true`), so layers drawn over the model's own surfaces can opt out of sorting. Opted-out layers still draw after the sorted geometry, in order.
-- Added `AzRendererPipelineContext#setMultiBufferSource`.
-- Added `AzHitboxHolder#isHitboxEnabled(AzHitbox)` to enable or disable individual bone hitboxes at runtime. Disabled hitboxes keep tracking their bone but are ignored by targeting, projectiles, melee and interaction checks.
-- Animated overlay layers (`reRenderWithAnimatedBakedModel`) now work on items. Commands sent with `sendForItem` also reach the overlay animators of the views they target, and each item view (default, first person) keeps its own overlay animator
-- Molang: strings (`'minecraft:zombie'`), compared with f`==` and `!=`. String contents keep their case.
-- Molang: arrays and indexing (`array.skins[v.variant]`) with Bedrock's index rules: floored, negative reads the first element, past the end wraps around. Register `array.*` names with `MolangParser#registerArray`.
-- Molang: `for_each(variable, array, { ... })`, with `break` and `continue`.
-- Molang: the arrow operator (`t.pig->q.health`) for reading another entity's queries and `variable.*` values.
-- Molang: `this`, which in a keyframe is the value the bone channel currently holds, so `math.lerp(this, 45, 0.2)` eases a bone toward a pose.
-- Molang: `variable.*` and `temp.*` can hold strings, arrays and entity references. Code can set them with `MolangScope#setObject`.
-- Added Molang queries `query.has_target`, `query.target_x_rotation` and `query.target_y_rotation`. Implement `AzMolangTargetProvider` on your entity to supply the target on the client.
-- Added Molang queries `query.get_nearby_entities`, `query.get_nearby_entities_except_self`, `query.count`, `query.get_equipped_item_name`, `query.is_item_name_any`, `query.equipped_item_any_tag`, `query.equipped_item_all_tags` and `query.is_name_any`.
-- `query.is_item_equipped` now also accepts `'main_hand'` and `'off_hand'`.
-- Item animations now answer entity queries for the entity holding the item, like Bedrock attachables.
-- Added a procedural pose API for posing bones from code on top of the animated pose. Register modifiers in the new `AzAnimator#registerPoseModifiers`, or add and remove them later through `AzAnimator#getPoseModifiers()`. Modifiers run every frame after the controllers, the bone reset pass and `setCustomAnimations`, in priority order, and their writes are undone before the next frame's controllers run, so additive offsets never accumulate and nothing pops when a modifier stops.
-- Added `AzPoseModifierRegistry` and `AzPoseModifierEntry`. Each modifier has an id, a priority, an `AzBoneMask` limiting which bones it may write, and a default weight.
-- Added `AzPoseContext` and `AzPoseBone`, what a modifier works with. Bones can be read as their bind pose, their animated pose (controllers only) or their current pose (including earlier modifiers), and written additively (`rotate`, `rotateDegrees`, `translate`, `scale`) or absolutely (`setRotation`, `setPosition`, `setScale`, `set`, `resetToBind`, `resetToAnimated`). Every write is scaled by the modifier's weight. The context also gives `deltaTicks`, `isDiscontinuous` and per-animatable modifier state through `state(Supplier)`.
-- Added `AzAnimationContext#poseLayer()`, which controls pose modifiers per animatable: `setWeight`, `fadeWeight`, `getWeight`, `resetState` and `resetAllState`.
-- Added built-in pose modifiers in `AzPoseModifiers`: `headLook` (split across several bones such as neck and head, with limits and `invertYaw`/`invertPitch`), `sway`, `followRotation` and `spring` (frame-rate independent secondary motion for tails, ears and antennae).
-- Added `AzBoneTransform`, a reusable position/rotation/scale value for saving, restoring, blending and copying bone poses, and `AzTransformMath` with the blend rules shared by controllers and pose modifiers.
-- Added `AzBone#setTransformUnmarked`, which sets a bone's transform without marking its channels as changed.
-- Added `AzProfileStage.POSE_MODIFIERS`, reported around the pose modifier pass.
-- Added inverse kinematics as pose modifiers, so feet, hands and heads adapt to their surroundings after the authored animation. `AzIkChain` solves a chain of bones towards an `AzIkTarget` every frame and blends the result in by the modifier's weight. `AzIkSolvers.twoBone()` is an analytic solver for legs and arms that keeps the animated bend plane, with an optional `pole`; `AzIkSolvers.ccd(iterations, tolerance)` handles chains of any length, such as tails and tentacles.
-- Added `AzIkTargets`: fixed model-space points (`model`), world positions (`world`), another entity's eyes (`entityEyes`) and foot placement (`ground`), which keeps each foot's animated height but measures it from the ground under that foot, so feet step onto slopes, stairs and ledges.
-- Added `AzLookAt`, which turns a chain of bones such as spine, neck and head to face a target, spreading the turn along the chain.
-- Added bone constraints: `AzBoneConstraint`, with `AzBoneConstraints.limit` and `hingeX`/`hingeY`/`hingeZ` in Blockbench degrees relative to the bind pose. IK solvers apply them after every step, and `AzBoneConstraints.modifier` runs them as a pose modifier on their own.
-- Added `AzBoneChain`, the skeleton solver underneath IK, look-at and spring chains: model-space joint positions, points and directions on bones, `aim` and `rotateAround` in model space, and a single weighted `apply()`. Custom solvers can use it directly.
-- Added `AzSpringBone`, procedural secondary motion for tails, antennae, ears and cloth-like bone chains. Each joint is a damped particle pulled towards its animated position and held at its segment length, with optional gravity and a `tip` so the last bone swings too. For entities it simulates in world axes, so chains trail and swing when the entity moves or turns, not only when its animation does.
-- Added `AzEntityModelSpace` for converting between an entity's model space and the world the way the default entity renderer places the model, with `scaled` for renderers that scale the model.
-- Added bone sockets: `AzBoneSocket` names an attachment point on a bone (with an offset and rotation) or at a Blockbench locator, and `AzBoneSockets.resolve` returns its world position and axes as an `AzSocketTransform`, e.g. to spawn a projectile from an animated muzzle. On the server, sockets resolve through a synced anchor hitbox; `AzBoneSocket#toAnchorHitbox` builds a matching one.
-- Added `AzAttachmentLayer` and `AzAttachment`, a render layer that draws items, block states or custom rendering at sockets, so accessories and props follow animated bones without being part of the model.
-- Blockbench locators are now baked onto their bones: `AzBone#getLocators()` returns each `AzBoneLocator`'s offset from the bone's pivot and its rotation.
-- Added 1D and 2D blend spaces. `AzBlendSpace1D` and `AzBlendSpace2D` place looping animations at points in an input space and blend them from per-frame inputs such as movement speed, strafing direction or aim pitch, with optional input smoothing. Each sample plays on its own controller, weighted so their layered result is exactly the weighted blend, and phase sync (on by default) keeps all samples on one shared cycle so blended walks and runs stay in step. The whole blend can be weighted or faded with `setWeight` and `fadeWeight`.
-- Added `AzBlendWeights` with the 1D, 2D (gradient band) and layered-controller weight math used by blend spaces.
-- Added `AzAnimator#addUpdateHook` and `AzAnimatorUpdateHook`, which run every frame just before the controllers update.
+- Added spring bone colliders. `AzSpringCollider` is a sphere or capsule attached to a bone, positioned in Blockbench pixels from the bone's pivot, that follows the bone's animated pose. Spring chains can't pass through them, so tails, ears and capes swing around the body instead of through it. One collider can be shared by several chains.
+- Added `AzSpringBone.Builder#collider` to give a chain its colliders, `#radius` for how thick the chain is, and `#ground` to keep the chain above the entity's feet (or the model's origin for items and block entities).
 
 ### Fixes
-- Fixed hitboxes (including anchors) never activating on entities with a render layer that calls `reRenderWithBakedModel`. The layer swapped the bone cache's model and restored it with a fresh deep copy every frame, which dropped bone matrix tracking.
-- Fixed render layers resetting the base model's bone snapshots every frame, which broke animation transitions and easing back to the bind pose.
-- Fixed render layers deep-copying two models per entity per frame and running the animator a second time.
-- `AzBone#deepCopy` now preserves matrix tracking, so model swaps no longer drop hitbox tracking for a frame.
-- Molang: fixed item and block animations reading entity query values left over from the last entity animated.
-- Molang: fixed `query.is_moving` and `query.vertical_speed` reading 0 or stale values for other entities on the client.
-- Molang: fixed `query.is_swimming` never being true for mobs swimming in water.
-- Molang: fixed `query.is_first_person` for items held in a first-person hand.
-- Molang: fixed `query.any` and `query.all` treating every string as equal.
+- N/A
 
 ### Changes
-- `AzRenderLayer#reRenderWithBakedModel` no longer touches the animatable's bone cache. The overlay model is a per-animatable copy whose bones copy the pose (relative to each model's bind pose) and visibility of same-named base bones. Bones that only exist in the overlay keep their bind pose relative to their parent.
-- Molang: `query.ground_speed` is now in blocks per second, as in Bedrock, and works for every entity rather than only living ones. It was blocks per tick before, so animations scaled around the old value need dividing by 20.
-- Molang: `query.item_in_use_duration` is now smoothed between ticks and stops at the item's use duration.
-- Molang: invalid Molang such as `'a' + 1` or assigning to an array element is rejected and evaluates to 0 instead of being retried with the legacy parser.
-- `AzBoneAnimationUpdateUtil` now uses `AzTransformMath` for weighted and additive controller blending. Results are unchanged.
+- Spring bone chains now bend and whip. Each joint springs towards where the animation puts it relative to the joint before it, so lag builds up towards the tip; before, every joint lagged by the same angle and chains swung as one stiff piece.
 
 ### Developer Notes
-- Overlays that relied on `reRenderWithBakedModel` animating overlay-only bones should switch to `reRenderWithAnimatedBakedModel`. Don't register sound, particle or custom keyframe handlers on the overlay animator unless they should fire twice.
-- Overlay cubes that duplicate base cubes are now posed from identical bone values, so their vertices match exactly and the overlay wins the depth test by drawing second. A polygon-offset render type is no longer needed for them; it can pull buried overlay edges through the base model. Use a regular entity render type such as `RenderType.entityCutoutNoCull`.
-- Translucency sorting is off by default. It copies the translucent vertices of each render and adds a draw call wherever the sorted order switches render type.
-- Sorting only orders one animatable's own geometry; separate entities still draw in the order the game renders them. Geometry written to a `VertexConsumer` passed straight into the pipeline (item and armor base models, which carry their glint) isn't sorted, and render types backed by one of the game's fixed buffers can't be reordered.
-- `AzAutoGlowingLayer` opts out of sorting, since its glow is drawn over the model's own surfaces and interleaving it with the model would cost a draw call per switch for no visual gain.
-- `AzRendererConfig` subclasses with their own builders should call `copyBaseOptions(baseConfig)` on the config they build, so options like translucency sorting carry over.
-- Vanilla doesn't sync a mob's attack target to the client, so `query.has_target` and the target rotations read 0 unless the entity implements `AzMolangTargetProvider` (or the target is otherwise set client-side).
-- The entity queries that `AzEntityAnimator` used to bind itself now live in `AzEntityMolangQueries` and read `AzMolangQueryContext`, so the arrow operator can point them at another entity. Subclasses that call `super.applyMolangQueries` need no changes.
-- Query functions can take string arguments and return strings, arrays or entities: see `ContextQueryFunction#stringArg`, `#handArg` and `MolangObjectValue`.
-- `MolangQueryContext` has new default methods (`isEntity`, `pushEntity`, `popEntity`, `thisValue`), so existing implementations keep compiling.
-- String, array, `for_each` and arrow evaluation allocates nothing per frame. Compiled expressions drop entity references once they finish, so cached animations never keep an entity or level alive.
-- `setCustomAnimations` behaves as before, but its writes still become part of the animated pose, so additive changes accumulate on bones no controller animated that frame. New procedural posing should use pose modifiers instead.
-- Pose modifiers write bones without marking them changed, so bones at rest stay at rest and overlays, hitboxes and bone matrices see the final pose. If other code writes a posed bone after the modifiers ran, the pose layer leaves that write in place instead of restoring over it.
-- Pose modifier definitions are shared by every animatable of an animator; weights, fades and modifier state are per animatable. State is dropped when the animatable's model changes.
-- `AzPoseBone` and `AzPoseContext` instances are reused every frame and must not be kept outside `AzPoseModifier#apply`. The pose modifier pass allocates nothing per frame once each bone has been looked up.
-- `headLook` follows GeckoLib's sign convention (positive pitch on X, net head yaw on Y). Use `invertYaw()` or `invertPitch()` for rigs that turn the wrong way.
-- `spring` reacts to the bone's own animated rotation, not to the parent bone or the entity moving through the world.
-- `AzProfileStage.POSE_MODIFIERS` is appended after `LOD_UPDATE`, so existing stage ordinals are unchanged.
-- IK, look-at and spring chains are pose modifiers, so they run after the controllers and `setCustomAnimations`, can be weighted, masked, ordered and faded per animatable, and never leak into the next frame. Give them priorities that put them after any modifiers whose result they should build on.
-- Chain bones must each be a descendant of the one before it, but don't have to be direct children. A chain whose bones are missing or out of order is skipped for that model without retrying every frame.
-- Model space for IK and sockets is the model's own space in blocks with X mirrored the way AzureLib mirrors it at load. Offsets on effectors, tips, sockets and IK model targets are in Blockbench pixels; rotations and constraint limits are in Blockbench degrees, matching keyframes.
-- Solved rotations assume ancestors have uniform, positive scale; non-uniform or mirrored scale on an ancestor makes them approximate.
-- `AzIkTargets.ground` raycasts once per foot per frame on the client. It only adjusts feet; lowering the body for a foot below the entity's feet is left to the mod.
-- Entity model-space conversions follow the default renderer's placement (position, body yaw, native scale). Special render poses such as dying or sleeping aren't accounted for, and renderers that scale the model need `AzEntityModelSpace.scaled` with the same values.
-- On the client, sockets follow the bone's pose from the last rendered frame. A bone starts tracking its matrices the first time a socket asks, so the first `resolve` returns `false`. Off-screen entities keep their last on-screen pose unless they have hitboxes, which pose them off-screen.
-- Sockets resolve on the server only through their `serverHitbox`, since bone poses are client-side. That hitbox must be in the entity's hitbox set with server sync enabled.
-- Blend space samples should animate the same bones; a sample that doesn't animate a bone contributes that bone's underlying pose instead. All samples keep updating while their weight is 0 so they stay in phase, which costs keyframe evaluation for every sample, and their sound, particle and custom keyframes still fire at weight 0.
-- Blend space controllers are named `name/animation` and are driven client-side; don't dispatch commands to them.
+- Because each joint now follows its parent, a given stiffness makes chains curl more than before. Chains tuned for the old behaviour may need a higher stiffness: around `0.3` to `0.5` suits tails.
+- Collisions are resolved at the chain's joints. A collider thinner than the distance between two joints can slip between them, so keep colliders at least that thick or add some `radius`.
+- With a `radius`, a chain stays above the ground and outside colliders, but can settle partway into its own thickness.
+- A collider on a bone the model doesn't have is skipped. Don't put a collider on one of the chain's own bones, or overlapping the chain's animated pose, or the chain is always being pushed out and never settles.
