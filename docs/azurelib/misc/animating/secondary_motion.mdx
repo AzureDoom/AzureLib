@@ -9,7 +9,7 @@ hide_meta: true
 
 Secondary motion is the movement a part makes because something else moved: a tail that trails behind when the entity turns, antennae that bob after it stops, ears that flop as it lands. `AzSpringBone` adds this to any chain of bones, so you don't have to animate every bit of follow-through by hand.
 
-Each joint of the chain behaves like a weight on a spring. It's pulled towards where your animation puts it, keeps its momentum, slows down, and stays at the right distance from the joint before it. The bones are then turned to follow. For entities this happens in world space, so the chain swings when the entity walks, turns or jumps, not only when its animation moves.
+Each joint of the chain behaves like a weight on a spring. It's pulled towards where your animation puts it relative to the joint before it, keeps its momentum, slows down, and stays at the right distance from that joint. Because each joint follows its parent, lag builds up towards the tip, so chains bend and whip rather than swinging as one stiff piece. The bones are then turned to follow. For entities this happens in world space, so the chain swings when the entity walks, turns or jumps, not only when its animation moves.
 
 `AzSpringBone` is a [pose modifier](./procedural_animation#pose-modifiers), so it runs after your animations and can be weighted, masked and faded per animatable.
 
@@ -46,16 +46,21 @@ List the bones from the root of the chain to the tip. Each bone must be a descen
 | `gravity(value)` | `0` | Downward pull on every swinging joint, in blocks per tick squared. Small values like `0.002` to `0.01` make chains droop and hang |
 | `inertia(value)` | `1` | How much the entity moving through the world swings the chain, from `0` (only turning and animation) to `1` (fully) |
 | `constraint(...)` | none | [Bone constraints](./inverse_kinematics#bone-constraints) that keep swinging bones in range |
+| `collider(...)` | none | Shapes the chain can't pass through; see [Colliders](#colliders) |
+| `radius(pixels)` | `0` | Roughly how thick the chain is, for colliders and the ground |
+| `ground(boolean)` | `false` | Keeps the chain above the entity's feet (or the model's origin for items and block entities) |
 | `space(AzEntityModelSpace)` | default | Needed if your renderer config scales the model; see [Model Space](./inverse_kinematics#model-space) |
 
 ### Tuning
 
-- **Floppy ears, cloth, hair**: low stiffness (`0.05` to `0.15`), low damping, a little gravity.
-- **Tails**: medium stiffness (`0.15` to `0.3`) and damping (`0.2` to `0.4`).
-- **Antennae, whiskers**: high stiffness (`0.4` to `0.7`), low damping, so they snap back with a wobble.
+- **Floppy ears, cloth, hair**: low stiffness (`0.1` to `0.25`), low damping, a little gravity.
+- **Tails**: medium stiffness (`0.3` to `0.5`) and damping (`0.25` to `0.4`).
+- **Antennae, whiskers**: high stiffness (`0.5` to `0.8`), low damping, so they snap back with a wobble.
 - **Big, heavy parts**: low stiffness and high damping, so they lag without bouncing.
 
-If a chain can swing into the body, constrain it:
+Animate the chain as usual: the spring follows the animated shape, including any wave you keyframe along it (a travelling sideways sine on each tail bone, offset a little per bone, makes a lively tail), and adds lag and follow-through on top. Twist that the animation gives each bone is kept.
+
+If a chain can swing into the body, constrain it, or give it [colliders](#colliders):
 
 ```java
 .constraint(
@@ -63,6 +68,41 @@ If a chain can swing into the body, constrain it:
     AzBoneConstraints.limit("tail3", -30, 30, -45, 45, 0, 0)
 )
 ```
+
+## Colliders
+
+Colliders stop a chain from swinging through the body: a tail around the legs, ears off the shoulders, a cape off the back. They're spheres and capsules attached to bones, so they move with the animation:
+
+```java
+private static final AzSpringCollider LEFT_THIGH = AzSpringCollider.capsule("left_thigh", 0, -1, 0, 0, -10, 0, 2.5F);
+private static final AzSpringCollider RIGHT_THIGH = AzSpringCollider.capsule("right_thigh", 0, -1, 0, 0, -10, 0, 2.5F);
+private static final AzSpringCollider BODY = AzSpringCollider.sphere("body", 0, 2, 1, 5);
+
+@Override
+protected void registerPoseModifiers(AzPoseModifierRegistry<ExampleEntity> modifiers) {
+    modifiers.add("tail", AzSpringBone.<ExampleEntity>chain("tail1", "tail2", "tail3", "tail4")
+        .tip(0, 0, 6)
+        .collider(LEFT_THIGH, RIGHT_THIGH, BODY)
+        .radius(1)
+        .ground(true)
+        .build()).priority(200);
+}
+```
+
+| Collider | What it is |
+|----------|------------|
+| `AzSpringCollider.sphere(bone, x, y, z, radius)` | A sphere centred `(x, y, z)` pixels from the bone's pivot |
+| `AzSpringCollider.capsule(bone, x1, y1, z1, x2, y2, z2, radius)` | Everything within `radius` of the line between two points, for limbs and bodies |
+
+Positions are in Blockbench pixels from the bone's pivot, along the bone's own axes, like socket offsets. A collider can be shared by several chains. A collider on a bone the model doesn't have is skipped.
+
+`radius` makes the chain itself thicker, so it stays off colliders and the ground by about that much. `ground(true)` stops the chain going below the entity's feet.
+
+The AzureLib Blockbench plugin can fit colliders to your bones, draw them in the viewport, preview the collisions while animating, and write this code; see [Setting Up Rig Features](../../blockbench/rig_panel#spring-bones).
+
+<Callout variant="info">
+    Collisions are checked at the chain's joints. A very thin collider can slip between two joints, so keep colliders at least as thick as the chain's segments are long, or add a little `radius`.
+</Callout>
 
 ## Turning It Off
 
@@ -97,4 +137,7 @@ For a single bone that should only lag behind its own animation, `AzPoseModifier
    - Increase `damping`, or add constraints so the bones can't swing past straight.
 
 4. **The chain clips into the body.**
-   - Add `limit` constraints on the swinging bones, or lower `gravity`.
+   - Add [colliders](#colliders) for the parts it hits, or `limit` constraints on the swinging bones, or lower `gravity`.
+
+5. **The chain sticks to or jitters on a collider.**
+   - Make sure the collider isn't on one of the chain's own bones, and that it doesn't overlap the chain's animated pose; the chain is always pushed out of it.
