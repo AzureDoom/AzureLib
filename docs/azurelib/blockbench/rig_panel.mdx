@@ -152,7 +152,7 @@ IK (inverse kinematics) chains turn a limb so its end reaches a target. The most
 | Solver | **Two-bone** for legs and arms, **CCD** for tails and tentacles. **Auto** picks two-bone for 2 or 3 bones |
 | Use pole / Pole | A point the knee or elbow turns towards, in pixels. Needed if the limb is modelled perfectly straight |
 | Iterations / Tolerance | How hard CCD tries, and how close (in pixels) counts as reached |
-| Target | Where the effector goes in game: **Ground** for foot placement, **Another entity's eyes**, a **World position** your code supplies, or a **Fixed model point** |
+| Target | Where the effector goes in game: **Animated bone** to follow a bone you animate (see [Animating Where a Limb Reaches](#animating-where-a-limb-reaches)), **Ground** for foot placement, **Another entity's eyes**, a **World position** your code supplies, or a **Fixed model point** |
 | Max step up / down | How far above and below the foot to look for ground, in blocks |
 | Priority | The order pose features run in, lowest first |
 | Default weight | How strongly it applies, from 0 (off) to 1 (full) |
@@ -161,9 +161,21 @@ IK (inverse kinematics) chains turn a limb so its end reaches a target. The most
     If a knee or elbow bends the wrong way, add a [constraint](#constraints) to it, or set a pole in front of (or behind) the joint.
 </Callout>
 
+## Animating Where a Limb Reaches
+
+To keyframe just where a hand or foot goes and have the rest of the limb follow, use the **Animated bone** target:
+
+- Add an empty bone (no cubes) for the target, such as `left_hand_target`, under the body or root. Keep it **out of the chain** it drives; **Check** warns if it isn't.
+- In the IK chain's settings, set **Target** to **Animated bone** and pick that bone. **Offset from its pivot** aims at a point beside it, if you need one.
+- Animate the target bone's position. In the **Animate** tab the limb follows it as you scrub and play, the same as in game.
+
+{/* TODO image or GIF: an arm reaching for an animated target bone in the Animate tab
+<ModAsset width="60%" title="Following an animated bone" location="azurelib:rig_ik_bone_target"/>
+*/}
+
 ## Previewing an IK Chain
 
-In the **Animate** tab, with **Pose** switched on, the chain is solved on top of your animation every frame. The **Preview target** setting picks where the preview aims, since the real target only exists in game:
+In the **Animate** tab, with **Pose** switched on, the chain is solved on top of your animation every frame. A chain with an **Animated bone** target follows that bone. For other targets, the **Preview target** setting picks where the preview aims, since the real target only exists in game:
 
 - **Ground (raised by offset):** pretends the ground under each foot is higher or lower by **Ground offset** pixels. Try `4` to see the feet step up onto a ledge.
 - **Fixed point:** a point in the model, in pixels.

@@ -83,11 +83,29 @@ AzureLib keeps locators with their bone, so you can use them from code as [bone 
 - Give each locator a **unique, descriptive name** (`muzzle`, `right_hand_grip`), since code refers to it by name.
 - If something attached at the locator should point a certain way, rotate the locator; its rotation is used too.
 
-To add a locator, select the bone it should belong to, then use the add menu (the `+` above the Outliner) and choose `Locator`. Move it into place with the move tool.
+### Adding a Locator
+
+Locators can only be added in the **Edit** tab.
+
+- In the Outliner, right-click the bone the locator should belong to and choose `Add Locator`.
+- Or select the bone, click the small arrow next to the `+` above the Outliner, and choose `Add Locator`.
+- The locator is added inside the bone. Rename it (double-click its name), then move it into place with the move tool.
 
 <ModAsset width="40%" title="Adding a locator" location="azurelib:add_locator"/>
 
 Once your locators are in place, turn them into sockets with the **AzureLib Rig** panel, where you can check which way they face and generate their code. See [Sockets](./rig_panel#sockets).
+
+# IK Target Bones
+
+To animate just where a hand or foot goes, and have the rest of the limb bend to reach it, add an **IK target bone**: an empty bone (no cubes) that you animate like any other bone, and that an IK chain follows.
+
+- Add a new bone, for example `left_hand_target`, under the **body or root**. Keep it **outside the limb** it will drive; if it were inside the arm, moving the arm would move its own target.
+- Place it where the hand should be at rest.
+- Animate its **position**. The arm follows once you give it an IK chain with the **Animated bone** target; see [Animating Where a Limb Reaches](./rig_panel#animating-where-a-limb-reaches).
+
+{/* TODO image: an empty target bone next to a hand, outside the arm, in the Outliner
+<ModAsset width="40%" title="IK target bone" location="azurelib:ik_target_bone"/>
+*/}
 
 # Next Steps
 
