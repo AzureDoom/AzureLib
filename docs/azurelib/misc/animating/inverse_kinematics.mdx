@@ -126,6 +126,7 @@ See [`AzBoneChain`](#azbonechain) for what a chain can do.
 | `world((entity, partialTick) -> Vec3)` | Any world position, such as a grip point or a ledge. Return `null` to skip |
 | `entityEyes(entity -> Entity)` | Another entity's eyes, for looking or reaching. Return `null` to skip |
 | `model(x, y, z)` | A fixed point in the model, in Blockbench pixels from the model's origin |
+| `bone(name)` | Wherever the animation puts that bone this frame; see [Following an Animated Bone](#following-an-animated-bone). `bone(name, x, y, z)` aims at a point offset from its pivot |
 
 A target is also a single method, so you can compute your own. It receives the effector's animated position, in model space, and writes the target into `dest`:
 
@@ -139,6 +140,25 @@ AzIkTarget<ExampleEntity> holdUp = (pose, effector, dest) -> {
 <Callout variant="info">
     Remember that the client only knows synced data. A mob's attack target, for example, isn't synced by vanilla, so sync it yourself (an entity data accessor works) before using it in `entityEyes`.
 </Callout>
+
+### Following an Animated Bone
+
+To animate just where a hand or foot goes and have the rest of the limb follow, give the limb a target bone:
+
+1. In Blockbench, add an **empty bone** (no cubes), such as `left_hand_target`. Put it under the body or root, **not** inside the arm it drives, or moving the arm would move its own target.
+2. Animate that bone's **position** like any other bone.
+3. Point the IK chain at it:
+
+```java
+modifiers.add("left_arm_ik", AzIkChain.<ExampleEntity>builder("left_arm", "left_forearm")
+    .effector(0, -8, 0)
+    .target(AzIkTargets.bone("left_hand_target"))
+    .build()).priority(50);
+```
+
+The arm reaches for the target bone every frame, so changing the animation needs no extra steps, and other modifiers (such as a later ground target) still apply on top. The bone is looked up once per entity. If the model has no bone with that name, the chain is left as animated.
+
+The AzureLib Blockbench plugin can preview this while you animate; see [Setting Up Rig Features](../../blockbench/rig_panel#ik-chains).
 
 ## Look-At
 
@@ -174,6 +194,7 @@ Constraints keep joints in a believable range. IK solvers apply them after every
 | `AzBoneConstraints.hingeX(bone, min, max)` | Clamps X and holds Y and Z, for knees and elbows. `hingeY` and `hingeZ` work the same on the other axes |
 
 Angles are in degrees, relative to the bone's default pose, and use the signs of your exported animation file. Blockbench 5 shows X and Y rotation keyframes with the opposite sign to the exported file (Z is the same), so for X and Y, flip the sign of what Blockbench 5 shows: if a keyframe of `[-90, 0, 0]` in Blockbench 5 bends the knee the way it should go, `hingeX("shin", 0, 150)` allows that direction. In Blockbench 4 and earlier, keyframes show the same signs as the exported file, so that keyframe would read `[90, 0, 0]`.
+
 Constraints can also run on their own as a pose modifier, clamping whatever the animation and earlier modifiers produced:
 
 ```java
