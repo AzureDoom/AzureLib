@@ -10,7 +10,9 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import mod.azure.azurelib.animation.pose.AzBoneChain;
 import mod.azure.azurelib.animation.pose.AzEntityModelSpace;
+import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.util.math.Vec3;
 
 /**
@@ -26,6 +28,44 @@ public final class AzIkTargets {
             dest.set(-x / 16f, y / 16f, z / 16f);
             return true;
         };
+    }
+
+    public static <T> AzIkTarget<T> bone(String boneName) {
+        return bone(boneName, 0, 0, 0);
+    }
+
+    public static <T> AzIkTarget<T> bone(String boneName, float x, float y, float z) {
+        Objects.requireNonNull(boneName, "boneName");
+        // Identifies this target's cached lookup in each animatable's context.
+        Object key = new Object();
+
+        return (pose, effector, dest) -> {
+            BoneLookup lookup = (BoneLookup) pose.animationContext()
+                .attachments()
+                .computeIfAbsent(key, k -> new BoneLookup());
+            AzBakedModel model = pose.animationContext().boneCache().getBakedModel();
+
+            // Look the bone up once per animatable, and again only if its model changes.
+            if (lookup.model != model) {
+                lookup.model = model;
+                lookup.chain = AzBoneChain.resolve(pose, boneName);
+            }
+
+            if (lookup.chain == null) {
+                return false;
+            }
+
+            lookup.chain.reset();
+            lookup.chain.pointOnBone(0, x, y, z, dest);
+            return true;
+        };
+    }
+
+    private static final class BoneLookup {
+
+        private AzBakedModel model;
+
+        private AzBoneChain chain;
     }
 
     public static <T extends Entity> AzIkTarget<T> world(BiFunction<T, Float, Vec3> position) {
