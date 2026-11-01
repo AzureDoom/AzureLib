@@ -109,7 +109,7 @@ A solver is a single method, so you can write your own:
 
 ```java
 AzIkSolver solver = (chain, effector, target, constraints) -> {
-    Vector3f tip = effector.position(chain, new Vector3f());
+    var tip = effector.position(chain, new Vector3f());
     chain.aim(0, tip, target, 0.5F);   // Turn the root halfway towards the target.
 };
 ```
@@ -123,23 +123,42 @@ See [`AzBoneChain`](#azbonechain) for what a chain can do.
 | Target | Use |
 |--------|-----|
 | `ground(maxStepUp, maxStepDown)` | Foot placement, as in the [quick start](#quick-start-feet-on-uneven-ground) |
-| `world((entity, partialTick) -> Vec3d)` | Any world position, such as a grip point or a ledge. Return `null` to skip |
+| `world((entity, partialTick) -> Vec3)` | Any world position, such as a grip point or a ledge. Return `null` to skip |
 | `entityEyes(entity -> Entity)` | Another entity's eyes, for looking or reaching. Return `null` to skip |
 | `model(x, y, z)` | A fixed point in the model, in Blockbench pixels from the model's origin |
+| `bone(name)` | Wherever the animation puts that bone this frame; see [Following an Animated Bone](#following-an-animated-bone). `bone(name, x, y, z)` aims at a point offset from its pivot |
 
 A target is also a single method, so you can compute your own. It receives the effector's animated position, in model space, and writes the target into `dest`:
 
 ```java
 AzIkTarget<ExampleEntity> holdUp = (pose, effector, dest) -> {
-    dest.load(effector);
-    dest.add(0, 0.25F, 0);   // A quarter block above where the animation put it.
+    dest.set(effector).add(0, 0.25F, 0);   // A quarter block above where the animation put it.
     return true;
 };
 ```
 
 <Callout variant="info">
-    Remember that the client only knows synced data. On 1.12.2 a mob's attack target only exists on the server, so sync it yourself (with a `DataParameter`, as shown on the [entities page](../../entities/entities)) before using it in `entityEyes`.
+    Remember that the client only knows synced data. A mob's attack target, for example, isn't synced by vanilla, so sync it yourself (an entity data accessor works) before using it in `entityEyes`.
 </Callout>
+
+### Following an Animated Bone
+
+To animate just where a hand or foot goes and have the rest of the limb follow, give the limb a target bone:
+
+1. In Blockbench, add an **empty bone** (no cubes), such as `left_hand_target`. Put it under the body or root, **not** inside the arm it drives, or moving the arm would move its own target.
+2. Animate that bone's **position** like any other bone.
+3. Point the IK chain at it:
+
+```java
+modifiers.add("left_arm_ik", AzIkChain.<ExampleEntity>builder("left_arm", "left_forearm")
+    .effector(0, -8, 0)
+    .target(AzIkTargets.bone("left_hand_target"))
+    .build()).priority(50);
+```
+
+The arm reaches for the target bone every frame, so changing the animation needs no extra steps, and other modifiers (such as a later ground target) still apply on top. The bone is looked up once per entity. If the model has no bone with that name, the chain is left as animated.
+
+The AzureLib Blockbench plugin can preview this while you animate; see [Setting Up Rig Features](../../blockbench/rig_panel#ik-chains).
 
 ## Look-At
 
@@ -175,6 +194,7 @@ Constraints keep joints in a believable range. IK solvers apply them after every
 | `AzBoneConstraints.hingeX(bone, min, max)` | Clamps X and holds Y and Z, for knees and elbows. `hingeY` and `hingeZ` work the same on the other axes |
 
 Angles are in degrees, relative to the bone's default pose, and use the signs of your exported animation file. Blockbench 5 shows X and Y rotation keyframes with the opposite sign to the exported file (Z is the same), so for X and Y, flip the sign of what Blockbench 5 shows: if a keyframe of `[-90, 0, 0]` in Blockbench 5 bends the knee the way it should go, `hingeX("shin", 0, 150)` allows that direction. In Blockbench 4 and earlier, keyframes show the same signs as the exported file, so that keyframe would read `[90, 0, 0]`.
+
 Constraints can also run on their own as a pose modifier, clamping whatever the animation and earlier modifiers produced:
 
 ```java
@@ -195,22 +215,21 @@ private static final class ChainHolder {
 }
 
 modifiers.add("point_up", pose -> {
-    ChainHolder state = pose.state(ChainHolder::new);
+    var state = pose.state(ChainHolder::new);
 
     if (state.chain == null) {
         state.chain = AzBoneChain.resolve(pose, "shoulder", "arm");
     }
 
-    AzBoneChain chain = state.chain;
+    var chain = state.chain;
 
     if (chain == null) {
         return;
     }
 
     chain.reset();                                         // Load this frame's pose.
-    Vector3f hand = chain.pointOnBone(1, 0, -12, 0, new Vector3f());
-    Vector3f sky = chain.joint(0, new Vector3f());
-    sky.add(0, 4, 0);
+    var hand = chain.pointOnBone(1, 0, -12, 0, new Vector3f());
+    var sky = chain.joint(0, new Vector3f()).add(0, 4, 0);
     chain.aim(0, hand, sky, 1);                            // Turn the shoulder so the hand points up.
     chain.apply();                                         // Write the result, scaled by the weight.
 });
@@ -232,19 +251,17 @@ The chain works on its own copy of the rotations, so you can call `aim` as often
 
 ### Model Space
 
-Vectors here are AzureLib's `mod.azure.azurelib.util.math.Vector3f`. Like the 1.18 vector it's modelled on, its methods return nothing rather than the vector, so they can't be chained; `AzVectors` adds `distance`, `length` and a `set` that returns the vector.
-
 IK works in the model's own space: blocks, relative to the model's origin, before the entity's rotation and scale. Offsets you give AzureLib (effectors, poles, `pointOnBone`) are in Blockbench pixels, on Blockbench's axes. To convert world positions yourself, use `AzEntityModelSpace`:
 
 ```java
-Vector3f modelPoint = AzEntityModelSpace.DEFAULT.worldToModel(entity, partialTick, x, y, z, new Vector3f());
-Vec3d worldPoint = AzEntityModelSpace.DEFAULT.modelToWorld(entity, partialTick, modelPoint);
+var modelPoint = AzEntityModelSpace.DEFAULT.worldToModel(entity, partialTick, x, y, z, new Vector3f());
+var worldPoint = AzEntityModelSpace.DEFAULT.modelToWorld(entity, partialTick, modelPoint);
 ```
 
-It places the model the way the default entity renderer does: at the entity's position for this frame, turned by its body yaw. `AzEntityModelSpace.renderX`, `renderY` and `renderZ` give that interpolated position. If your renderer config scales the model with `setScale`, use `AzEntityModelSpace.scaled(width, height)` with the same values, and pass it to the targets that take one (`AzIkTargets.ground(up, down, space)`, `AzIkTargets.world(position, space)`).
+It places the model the way the default entity renderer does: at the entity's position, turned by its body yaw and scaled by its scale attribute. If your renderer config scales the model with `setScale`, use `AzEntityModelSpace.scaled(width, height)` with the same values, and pass it to the targets that take one (`AzIkTargets.ground(up, down, space)`, `AzIkTargets.world(position, space)`).
 
 <Callout variant="warning">
-    Special render poses (dying, sleeping) aren't accounted for, and IK assumes bones aren't scaled unevenly or mirrored. Uneven scale on a parent bone makes the result approximate.
+    Special render poses (dying, sleeping, spin attacks) aren't accounted for, and IK assumes bones aren't scaled unevenly or mirrored. Uneven scale on a parent bone makes the result approximate.
 </Callout>
 
 ## Troubleshooting
