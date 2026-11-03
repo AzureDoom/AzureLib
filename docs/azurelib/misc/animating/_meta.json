@@ -38,5 +38,9 @@
     "animation_includes.mdx": {
         "name": "Using the inclusion feature in Animation JSON",
         "icon": "Info"
+    },
+    "better_combat_animations.mdx": {
+        "name": "Better Combat Animation Compatibility",
+        "icon": "Info"
     }
 }

@@ -10,7 +10,7 @@ mixin {
 
     config("${mod_id}.mixins.json")
     config("${mod_id}.forge.mixins.json")
-    config "${mod_id}.jeg.mixins.json"
+    config "${mod_id}.compat.mixins.json"
 }
 
 legacyForge {
@@ -62,6 +62,7 @@ dependencies {
         }
     }
     modCompileOnly "curse.maven:just-enough-guns-820727:8873359"
+    modCompileOnly "curse.maven:better-combat-by-daedelus-639842:7287334"
     //modImplementation "net.arna:jcraft-forge:0.18.0+b17"
     //modImplementation "curse.maven:architectury-api-419699:5137938"
     //modImplementation "curse.maven:playeranimator-658587:4587214"
@@ -76,7 +77,7 @@ dependencies {
 
 jar {
     manifest.attributes([
-        "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json,${mod_id}.jeg.mixins.json"
+        "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json,${mod_id}.compat.mixins.json"
     ])
 }
 

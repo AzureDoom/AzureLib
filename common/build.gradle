@@ -28,6 +28,7 @@ dependencies {
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
     compileOnly "org.ow2.asm:asm-tree:9.7.1"
     compileOnly "curse.maven:just-enough-guns-820727:8873359"
+    compileOnly "curse.maven:better-combat-by-daedelus-639842:7287334"
 }
 
 configurations {

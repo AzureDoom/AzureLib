@@ -3,10 +3,13 @@
   "minVersion": "0.8",
   "package": "mod.azure.azurelib.mixins.compat",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "mod.azure.azurelib.mixins.compat.JegMixinPlugin",
+  "plugin": "mod.azure.azurelib.mixins.compat.AzureLibCompatMixinPlugin",
   "refmap": "azurelib.refmap.json",
   "mixins": [
     "JegProjectileMixin"
+  ],
+  "client": [
+    "BetterCombatTargetFinderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

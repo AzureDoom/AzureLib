@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import mod.azure.azurelib.compat.bettercombat.AzBetterCombatCompat;
 import mod.azure.azurelib.config.ConfigHolder;
 import mod.azure.azurelib.config.client.AzureLibClient;
 
@@ -37,6 +38,9 @@ public class ClientModListener {
                     })
                 );
             });
+        }
+        if (ModList.get().isLoaded("bettercombat")) {
+            event.enqueueWork(AzBetterCombatCompat::init);
         }
     }
 }

@@ -1,3 +1,4 @@
+
 package mod.azure.azurelib.mixins.compat;
 
 import org.objectweb.asm.tree.ClassNode;
@@ -8,10 +9,13 @@ import org.spongepowered.asm.service.MixinService;
 import java.util.List;
 import java.util.Set;
 
-public final class JegMixinPlugin implements IMixinConfigPlugin {
+public final class AzureLibCompatMixinPlugin implements IMixinConfigPlugin {
 
     private static final String JEG_PROJECTILE =
         "ttv.migami.jeg.entity.projectile.ProjectileEntity";
+
+    private static final String BETTER_COMBAT_TARGET_FINDER =
+        "net.bettercombat.client.collision.TargetFinder$CollisionFilter";
 
     @Override
     public void onLoad(String mixinPackage) {}
@@ -26,14 +30,22 @@ public final class JegMixinPlugin implements IMixinConfigPlugin {
         String targetClassName,
         String mixinClassName
     ) {
-        if (!mixinClassName.endsWith("JegProjectileMixin")) {
-            return true;
+        if (mixinClassName.endsWith("JegProjectileMixin")) {
+            return classExists(JEG_PROJECTILE);
         }
 
+        if (mixinClassName.endsWith("BetterCombatTargetFinderMixin")) {
+            return classExists(BETTER_COMBAT_TARGET_FINDER);
+        }
+
+        return true;
+    }
+
+    private static boolean classExists(String className) {
         try {
             ClassNode node = MixinService.getService()
                 .getBytecodeProvider()
-                .getClassNode(JEG_PROJECTILE);
+                .getClassNode(className);
 
             return node != null;
         } catch (Exception exception) {
