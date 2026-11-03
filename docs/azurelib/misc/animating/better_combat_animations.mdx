@@ -1,0 +1,148 @@
+---
+title: Better Combat Animation Compatibility
+hide_meta: true
+---
+
+# Using AzureLib Item Animations with Better Combat
+
+<Callout variant="info">
+    AzureLib provides optional integration with [Better Combat](https://github.com/ZsoltMolnarrr/BetterCombat) for Minecraft 1.20.1. Use `AzBetterCombatAnimations` to map Better Combat weapon attacks to animations in your AzureLib animated item. The integration listens for Better Combat's attack-start event and triggers the selected AzureLib animation automatically.
+</Callout>
+
+## Before You Start
+
+- Install **Better Combat** alongside AzureLib. Better Combat is an optional dependency, not required for ordinary AzureLib items.
+- Create an **AzureLib animated item** with an item renderer and animator.
+- Include the desired attack animations in the item's Bedrock animation file.
+- Register an animation controller named **`better_combat`** in the item's `AzItemAnimator`. This is the controller targeted by the compatibility code.
+- Register the weapon's animations with `AzBetterCombatAnimations` during client initialization, after its item has been registered.
+
+<Callout variant="warning">
+    The controller name must be exactly `better_combat`, and the animation names passed to `register` must match the names in your item's animation file. `AzBetterCombatAnimations` selects animations; it does not create a controller, animations, or Better Combat weapon attributes for you.
+</Callout>
+
+## Registering a Single Attack Animation
+
+For a weapon that always plays the same AzureLib animation when Better Combat starts an attack, use the `register(Item, String)` overload:
+
+```java
+AzBetterCombatAnimations.register(
+    ModItems.ANIMATED_SWORD.get(),
+    "animation.sword.attack"
+);
+```
+
+Whenever Better Combat starts an attack with that item, AzureLib attempts to play `animation.sword.attack` on its `better_combat` controller.
+
+## Registering Combo Animations
+
+For different animations at each step of Better Combat's attack combo, pass a function instead of a single animation name:
+
+```java
+AzBetterCombatAnimations.register(
+    ModItems.ANIMATED_SWORD.get(),
+    attack -> switch (attack.combo().current()) {
+        case 1 -> "animation.sword.slash_right";
+        case 2 -> "animation.sword.slash_left";
+        case 3 -> "animation.sword.heavy_attack";
+        default -> "animation.sword.slash_right";
+    }
+);
+```
+
+The function receives Better Combat's `AttackHand` for the selected attack. In Better Combat 1.20.1, `attack.combo().current()` starts at **1**, not 0. The combo length is available through `attack.combo().total()`.
+
+The number of attacks in a combo comes from Better Combat's weapon attributes. Registering three AzureLib animations does not, by itself, configure a three-hit combo in Better Combat.
+
+## Handling Main-Hand and Off-Hand Attacks
+
+The `AttackHand` also identifies which hand is attacking. You can select different animations for dual-wielded weapons:
+
+```java
+AzBetterCombatAnimations.register(
+    ModItems.ANIMATED_DAGGER.get(),
+    attack -> attack.isOffHand()
+        ? "animation.dagger.slash_left"
+        : "animation.dagger.slash_right"
+);
+```
+
+You can combine the hand check with combo selection:
+
+```java
+AzBetterCombatAnimations.register(
+    ModItems.ANIMATED_DAGGER.get(),
+    attack -> {
+        String hand = attack.isOffHand() ? "left" : "right";
+        int combo = attack.combo().current();
+
+        return combo == 2
+            ? "animation.dagger." + hand + "_heavy"
+            : "animation.dagger." + hand + "_slash";
+    }
+);
+```
+
+<Callout variant="info">
+    The selection function is evaluated when Better Combat reports an attack start. The animation returned by the function is played by AzureLib; Better Combat still manages weapon swing timing, targeting, and attack damage.
+</Callout>
+
+## Skipping an Animation
+
+Your selector can return `null` to skip AzureLib animation playback for a particular attack:
+
+```java
+AzBetterCombatAnimations.register(
+    ModItems.ANIMATED_SWORD.get(),
+    attack -> attack.isOffHand()
+        ? null
+        : "animation.sword.attack"
+);
+```
+
+A `null` or empty animation name is ignored. If you do not register an item with `AzBetterCombatAnimations`, the integration does not start an AzureLib attack animation for it.
+
+## When to Register
+
+Register mappings from your mod's **client initialization** after your items are available. The `register` methods associate an `Item` with an animation name or selector; you do not need to register the same item every time it attacks.
+
+<Callout variant="warning">
+    `AzBetterCombatAnimations` uses Better Combat's `AttackHand` type. Keep code that references the integration behind a Better Combat mod-presence check, especially if your mod supports running without Better Combat. Do not call this integration unconditionally from a shared initializer.
+</Callout>
+
+A later call to `register` for the same item replaces its previous selector.
+
+## How It Works
+
+When Better Combat begins an attack, AzureLib's compatibility listener:
+
+1. Checks that the attack belongs to the local player.
+2. Checks that the held item has an AzureLib item renderer and animation UUID.
+3. Calls `AzBetterCombatAnimations.resolve(attack)` to select an animation.
+4. Dispatches that animation to the item's `better_combat` controller using `AzCommand`.
+
+The animation is triggered at **attack start**. Your selector does not run when a hit connects, and the current implementation does not automatically rescale the AzureLib animation to Better Combat's swing duration.
+
+<Callout variant="info">
+    The current attack-start bridge dispatches on the client. It does not by itself synchronize the selected item animation to other players. AzureLib's separate animated-entity hitbox compatibility is a different part of the integration; registering weapon animations does not configure hitboxes or weak-point damage.
+</Callout>
+
+## Troubleshooting
+
+**No AzureLib animation plays:** Check that Better Combat is installed, the item has an AzureLib renderer and UUID, the animator registers a controller named `better_combat`, and the selected animation exists in the Bedrock animation file.
+
+**Only one combo animation plays:** Check Better Combat's weapon attributes and confirm that the configured attacks actually advance `attack.combo().current()`. Its value is one-based.
+
+**An off-hand animation is wrong:** Use `attack.isOffHand()` in the selector and ensure the item is registered for that hand's weapon.
+
+**The animation looks too fast or slow:** The current compatibility triggers the animation without automatically matching its playback duration to Better Combat's attack cooldown. Adjust the animation or implement timing-aware playback separately.
+
+## API Reference
+
+| Method | Purpose |
+| --- | --- |
+| `AzBetterCombatAnimations.register(Item, String)` | Play one fixed AzureLib animation for attacks with an item. |
+| `AzBetterCombatAnimations.register(Item, Function<AttackHand, String>)` | Select an animation dynamically, using Better Combat's attack information. |
+| `AzBetterCombatAnimations.resolve(AttackHand)` | Return the selected animation name, or `null` if none is registered or selected. |
+
+`resolve` is used internally by the compatibility listener; most mods only need one of the two `register` overloads.

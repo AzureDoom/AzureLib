@@ -2,7 +2,9 @@ package mod.azure.azurelib.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 
+import mod.azure.azurelib.common.compat.bettercombat.AzBetterCombatCompat;
 import mod.azure.azurelib.common.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.common.network.packet.AzItemStackDispatchCommandPacket;
@@ -28,5 +30,8 @@ public final class ClientListener implements ClientModInitializer {
             SendConfigDataPacket.TYPE,
             (packet, context) -> packet.handle()
         );
+        if (FabricLoader.getInstance().isModLoaded("bettercombat")) {
+            AzBetterCombatCompat.init();
+        }
     }
 }

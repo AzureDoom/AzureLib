@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "mod.azure.azurelib.common.internal.mixins.compat",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "mod.azure.azurelib.common.internal.mixins.compat.AzureLibCompatMixinPlugin",
+  "refmap": "azurelib.refmap.json",
+  "mixins": [ ],
+  "client": [
+    "BetterCombatTargetFinderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

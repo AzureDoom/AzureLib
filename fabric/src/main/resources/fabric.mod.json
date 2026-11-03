@@ -28,7 +28,8 @@
   },
   "mixins": [
     "azurelib.mixins.json",
-    "azurelib.fabric.mixins.json"
+    "azurelib.fabric.mixins.json",
+    "azurelib.compat.mixins.json"
   ],
   "accessWidener": "azurelib.accesswidener",
   "depends": {
