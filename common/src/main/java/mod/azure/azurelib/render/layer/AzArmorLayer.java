@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.compat.geckolib.GeckoLibArmorCompat;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
@@ -156,26 +157,38 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
         var model = getModelForItem(bone, slot);
+
+        if (model == null) {
+            return;
+        }
+
         var modelPart = getModelPartForBone(context, bone, model);
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack);
 
-        if (!modelPart.cubes.isEmpty()) {
-            context.poseStack().pushPose();
-            RenderUtils.transformToBone(context.poseStack(), bone);
-            RenderUtils.translateAwayFromPivotPoint(context.poseStack(), bone);
-            context.poseStack().scale(-1, -1, 1);
+        if (modelPart.cubes.isEmpty()) {
+            return;
+        }
 
+        var renderer = getRendererForItem(armorStack);
+
+        context.poseStack().pushPose();
+        RenderUtils.transformToBone(context.poseStack(), bone);
+        RenderUtils.translateAwayFromPivotPoint(context.poseStack(), bone);
+        context.poseStack().scale(-1, -1, 1);
+
+        if (renderer != null) {
             if (armorStack.has(DataComponents.EQUIPPABLE)) {
                 prepModelPartForRender(context, bone, modelPart);
-                if (renderer != null) {
-                    renderAzArmorPiece(renderer, context, bone, slot, armorStack, modelPart, model);
-                } else if (HumanoidArmorLayer.shouldRender(armorStack, slot)) {
-                    renderArmorPiece(context, bone, slot, armorStack, modelPart, model);
-                }
+                renderAzArmorPiece(renderer, context, bone, slot, armorStack, modelPart, model);
             }
-
-            context.poseStack().popPose();
+        } else if (GeckoLibArmorCompat.hasArmorRenderer(armorStack, slot)) {
+            prepModelPartForRender(context, bone, modelPart);
+            renderGeckoLibArmorPiece(context, bone, slot, armorStack, modelPart, model);
+        } else if (armorStack.has(DataComponents.EQUIPPABLE) && HumanoidArmorLayer.shouldRender(armorStack, slot)) {
+            prepModelPartForRender(context, bone, modelPart);
+            renderArmorPiece(context, bone, slot, armorStack, modelPart, model);
         }
+
+        context.poseStack().popPose();
     }
 
     /**
@@ -248,6 +261,36 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             modelPart,
             context.packedLight()
         );
+    }
+
+    protected void renderGeckoLibArmorPiece(
+        AzRendererPipelineContext<UUID, T> context,
+        AzBone bone,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        ModelPart modelPart,
+        HumanoidModel<HumanoidRenderState> baseModel
+    ) {
+        var submission = GeckoLibArmorCompat.prepareArmorPiece(
+            context.animatable(),
+            armorStack,
+            slot,
+            baseModel,
+            modelPart,
+            context.partialTick(),
+            context.packedLight(),
+            context.packedOverlay()
+        );
+
+        if (submission == null) {
+            return;
+        }
+
+        context.multiBufferSource()
+            .defer(
+                context.poseStack(),
+                submission::accept
+            );
     }
 
     /**
