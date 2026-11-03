@@ -12,6 +12,7 @@ neoForge {
 dependencies {
     compileOnly('net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7')
     compileOnly(annotationProcessor('io.github.llamalad7:mixinextras-common:0.5.3'))
+    compileOnly "curse.maven:better-combat-by-daedelus-639842:8906530"
 }
 
 configurations {

@@ -4,11 +4,13 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.server.packs.PackType;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.AzureLibCache;
+import mod.azure.azurelib.compat.bettercombat.AzBetterCombatCompat;
 import mod.azure.azurelib.network.packet.AzBlockEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
@@ -45,5 +47,8 @@ public final class ClientListener implements ClientModInitializer {
                 context.getEquipmentAssets()
             )
         );
+        if (FabricLoader.getInstance().isModLoaded("bettercombat")) {
+            AzBetterCombatCompat.init();
+        }
     }
 }

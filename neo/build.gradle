@@ -38,6 +38,7 @@ neoForge {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
+    compileOnly "curse.maven:better-combat-by-daedelus-639842:8906530"
 }
 
  def keyPropsFile = new File(rootProject.projectDir, "key.properties")

@@ -10,6 +10,7 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation "com.terraformersmc:modmenu:${modmenu_version}"
+    compileOnly "curse.maven:better-combat-by-daedelus-639842:8906530"
 }
 
 loom {
