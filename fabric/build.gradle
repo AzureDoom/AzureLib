@@ -17,6 +17,7 @@ dependencies {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")))
+    compileOnly "curse.maven:better-combat-by-daedelus-639842:4428885"
 }
 
 loom {

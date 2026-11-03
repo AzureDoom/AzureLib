@@ -10,6 +10,7 @@ mixin {
 
     config("${mod_id}.mixins.json")
     config("${mod_id}.forge.mixins.json")
+    config("${mod_id}.compat.mixins.json")
 }
 
 legacyForge {
@@ -54,11 +55,12 @@ dependencies {
             prefer '0.4.1'
         }
     }
+    modCompileOnly "curse.maven:better-combat-by-daedelus-639842:4428885"
 }
 
 jar {
     manifest.attributes([
-        "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
+        "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json,${mod_id}.compat.mixins.json"
     ])
 }
 

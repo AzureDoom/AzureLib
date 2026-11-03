@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import mod.azure.azurelib.client.AzureLibClient;
+import mod.azure.azurelib.compat.bettercombat.AzBetterCombatCompat;
 import mod.azure.azurelib.config.ConfigHolder;
 
 @EventBusSubscriber(modid = AzureLib.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -37,6 +38,9 @@ public class ClientModListener {
                     })
                 );
             });
+        }
+        if (ModList.get().isLoaded("bettercombat")) {
+            event.enqueueWork(AzBetterCombatCompat::init);
         }
     }
 }
