@@ -5,6 +5,11 @@
     id 'com.diffplug.spotless' version "7.0.0.BETA3"
 }
 
+ configurations {
+     localRuntime
+     runtimeClasspath.extendsFrom localRuntime
+ }
+
 neoForge {
     version = "${neo_version}"
     accessTransformers = ["../common/src/main/resources/META-INF/accesstransformer.cfg"]
@@ -41,6 +46,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies {
     compileOnly "maven.modrinth:shoulder-surfing-reloaded:1.21.1-4.14.3+neoforge"
     compileOnly "curse.maven:better-combat-by-daedelus-639842:8430183"
+    compileOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.9.3"
 }
 
  def keyPropsFile = new File(rootProject.projectDir, "key.properties")

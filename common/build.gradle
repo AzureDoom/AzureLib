@@ -30,6 +30,7 @@ dependencies {
     compileOnly "maven.modrinth:shoulder-surfing-reloaded:1.21.1-4.11.0+neoforge"
     compileOnly "org.ow2.asm:asm-tree:9.7.1"
     compileOnly "curse.maven:better-combat-by-daedelus-639842:8430183"
+    compileOnly "software.bernie.geckolib:geckolib-common-1.21.1:4.9.3"
 }
 
 configurations {

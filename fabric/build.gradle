@@ -16,6 +16,7 @@ dependencies {
     modApi "com.terraformersmc:modmenu:${modmenu_version}"
     compileOnly "maven.modrinth:shoulder-surfing-reloaded:1.21.1-4.11.0+fabric"
     compileOnly "curse.maven:better-combat-by-daedelus-639842:8430183"
+    compileOnly "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.9.3"
 }
 
 loom {
