@@ -59,6 +59,10 @@ dependencies {
     modCompileOnly "curse.maven:geckolib-388172:4181370" // Forge 1.18.2
 }
 
+tasks.withType(Javadoc).configureEach {
+    options.addStringOption('sourcepath', '')
+}
+
 jar {
     manifest.attributes([
         "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json,${mod_id}.compat.mixins.json"
