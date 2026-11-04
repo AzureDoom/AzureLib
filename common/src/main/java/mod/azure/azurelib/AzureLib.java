@@ -30,6 +30,7 @@ public final class AzureLib {
             "az_id",
             builder -> builder.persistent(UUIDUtil.CODEC)
                 .networkSynchronized(UUIDUtil.STREAM_CODEC)
+                .ignoreSwapAnimation()
         );
 
     private AzureLib() {

@@ -8,8 +8,7 @@
   },
   "mixins": [
     "AbstractContainerMenuMixin_AzItemIDFix",
-    "ItemMixin_EnsureCraftHasID",
-    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "ItemStackMixin_AzAssignIdInInventory",
     "PlayerListMixin",
     "EntityMixin_AzHitboxState",
     "LivingEntityMixin_AzHitboxDamage",
@@ -30,7 +29,8 @@
     "TextureManagerMixin",
     "GameRendererMixin_AzFrameArena",
     "EntityRenderDispatcherAccessor",
-    "MinecraftMixin_AzMorphCompat"
+    "MinecraftMixin_AzMorphCompat",
+    "ClientHooksMixin_AzIdentityReequip"
   ],
   "overwrites": {
     "requireAnnotations": true

@@ -9,17 +9,17 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 
 /**
- * Singleton cache of {@link AzItemAnimator}s keyed by an {@link ItemStack}'s Az ID ({@link AzureLib#AZ_ID}). Animators
- * are stored per {@link AzItemAnimatorView}, so a single stack can have a separate first-person animator alongside its
- * default one. <br>
- * Entries expire after a period without access rather than being weakly keyed: the UUID instance read from a stack's
- * component is not reliably retained elsewhere, so weak keys would let the GC discard live animators mid-animation.
- * <br>
+ * Singleton cache of {@link AzItemAnimator}s keyed by an {@link ItemStack}'s id, as given by
+ * {@link AzItemIdentity#resolve(ItemStack)}: the stack's persistent Az ID, or a transient per-instance id for a stack
+ * that hasn't been given one yet. Animators are stored per {@link AzItemAnimatorView}, so a single stack can have a
+ * separate first-person animator alongside its default one. <br>
+ * Entries are strongly keyed and expire once an animator has gone unused for 300s. They can't be weakly keyed: nothing
+ * reliably holds the UUID instance for the stack's lifetime, so weak keys let the GC discard animators while the stack
+ * is still being rendered. <br>
  * Commands dispatched before a stack's animator exists are queued briefly and replayed once it is registered.
  */
 public class AzIdentifiableItemStackAnimatorCache {
@@ -38,7 +38,7 @@ public class AzIdentifiableItemStackAnimatorCache {
         for (var view : AzItemAnimatorView.values()) {
             ANIMATORS_BY_VIEW.put(
                 view,
-                CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build()
+                CacheBuilder.newBuilder().expireAfterAccess(300, TimeUnit.SECONDS).build()
             );
         }
     }
@@ -57,13 +57,22 @@ public class AzIdentifiableItemStackAnimatorCache {
     }
 
     /**
-     * Registers an animator for the given stack and view. If one is already registered it is kept, and the new one is
-     * ignored. Any commands queued for this stack and view are replayed on the newly registered animator.
+     * Registers an animator for the given stack and view, keyed by {@link AzItemIdentity#resolve(ItemStack)}. If one is
+     * already registered it is kept, and the new one is ignored. Never writes to the stack.
      */
     public void add(ItemStack itemStack, AzItemAnimatorView view, AzItemAnimator animator) {
-        var uuid = itemStack.get(AzureLib.AZ_ID.get());
+        if (itemStack == null || itemStack.isEmpty() || animator == null) {
+            return;
+        }
 
-        if (uuid == null) {
+        add(AzItemIdentity.resolve(itemStack), view, animator);
+    }
+
+    /**
+     * Registers an animator for {@code view} under {@code uuid}, replaying any commands that were queued for it.
+     */
+    public void add(@Nullable UUID uuid, AzItemAnimatorView view, @Nullable AzItemAnimator animator) {
+        if (uuid == null || animator == null) {
             return;
         }
 
@@ -84,10 +93,12 @@ public class AzIdentifiableItemStackAnimatorCache {
     }
 
     /**
-     * @return the animator for the given stack and view, or null if the stack has no Az ID or no animator yet.
+     * @return the animator for the given stack and view, or null if it has none yet.
      */
     public @Nullable AzItemAnimator getOrNull(ItemStack itemStack, AzItemAnimatorView view) {
-        return getOrNull(itemStack.get(AzureLib.AZ_ID.get()), view);
+        return itemStack == null || itemStack.isEmpty()
+            ? null
+            : getOrNull(AzItemIdentity.resolve(itemStack), view);
     }
 
     /**
