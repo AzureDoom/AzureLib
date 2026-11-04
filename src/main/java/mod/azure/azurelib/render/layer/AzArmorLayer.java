@@ -19,7 +19,6 @@ import mod.azure.azurelib.render.armor.AzArmorModel;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
 import mod.azure.azurelib.render.armor.AzArmorRendererPipeline;
 import mod.azure.azurelib.render.armor.AzArmorRendererRegistry;
-import mod.azure.azurelib.render.armor.bone.AzArmorBoneContext;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
 import mod.azure.azurelib.render.vertex.GlStateManager;
 import mod.azure.azurelib.render.vertex.LightTexture;
@@ -193,21 +192,25 @@ public class AzArmorLayer<T extends MobEntity> implements AzRenderLayer<UUID, T>
         ModelPart modelPart
     ) {
         AzArmorRendererPipeline renderPipelines = renderer.rendererPipeline();
-        AzArmorBoneContext boneContext = renderPipelines.context().boneContext();
         AzArmorModel armorModel = renderPipelines.armorModel();
 
         renderer.prepForRender(entity, armorStack, slot, model);
-        boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
-        armorModel.renderToBuffer(
-            context.poseStack(),
-            null,
-            context.packedLight(),
-            OverlayTexture.NO_OVERLAY,
-            context.red(),
-            context.green(),
-            context.blue(),
-            context.alpha()
-        );
+        renderPipelines.context().setVisiblePartOverride(modelPart);
+
+        try {
+            armorModel.renderToBuffer(
+                context.poseStack(),
+                null,
+                context.packedLight(),
+                OverlayTexture.NO_OVERLAY,
+                context.red(),
+                context.green(),
+                context.blue(),
+                context.alpha()
+            );
+        } finally {
+            renderPipelines.context().setVisiblePartOverride(null);
+        }
     }
 
     /**
