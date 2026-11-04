@@ -143,6 +143,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
                 prepModelPartForRender(context, bone, modelPart);
                 renderGeckoLibArmorPiece(context, bone, slot, armorStack, modelPart, geoArmorModel);
             } else if (armorStack.getItem() instanceof ArmorItem) {
+                if (renderer != null) {
+                    resetPose(model);
+                }
                 prepModelPartForRender(context, bone, modelPart);
                 if (renderer != null) {
                     renderAzArmorPiece(renderer, context, bone, slot, armorStack, modelPart, model);
@@ -210,12 +213,11 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         HumanoidModel<T> baseModel
     ) {
         var armorModel = renderer.rendererPipeline().armorModel();
-        var boneContext = renderer.rendererPipeline().context().boneContext();
         var color = armorStack.is(ItemTags.DYEABLE) ? DyedItemColor.getOrDefault(armorStack, -6265536) : -1;
         var animatable = context.animatable();
 
         renderer.prepForRender(animatable, armorStack, slot, baseModel);
-        boneContext.applyBoneVisibilityByPart(slot, modelPart, baseModel);
+        renderer.rendererPipeline().context().setVisiblePartOverride(modelPart);
         armorModel.renderToBuffer(
             context.poseStack(),
             null,
@@ -359,6 +361,21 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     @SuppressWarnings("unchecked")
     protected HumanoidModel<T> getModelForItem(EquipmentSlot slot) {
         return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
+    }
+
+    private static void resetPart(ModelPart part, float x, float y, float z) {
+        part.setPos(x, y, z);
+        part.setRotation(0, 0, 0);
+    }
+
+    private static void resetPose(HumanoidModel<?> model) {
+        resetPart(model.head, 0, 0, 0);
+        resetPart(model.hat, 0, 0, 0);
+        resetPart(model.body, 0, 0, 0);
+        resetPart(model.rightArm, -5, 2, 0);
+        resetPart(model.leftArm, 5, 2, 0);
+        resetPart(model.rightLeg, -1.9F, 12, 0);
+        resetPart(model.leftLeg, 1.9F, 12, 0);
     }
 
     /**
