@@ -23,7 +23,7 @@ import mod.azure.azurelib.util.AzureLibUtil;
  * Ids come from {@link AzItemIdentity#resolve(ItemStack)}, so they are either the stack's persistent id or a transient
  * id for a stack that has never been dispatched to.
  * <p>
- * Entries are strongly keyed and expire once an animator has gone unused for {@link #ANIMATOR_IDLE_SECONDS}. They can't
+ * Entries are strongly keyed and expire once an animator has gone unused for 300s. They can't
  * be weakly keyed: an animator's context holds its stack, so anything keeping the id alive for the stack's lifetime
  * would keep the animator alive forever, and nothing keeping it alive gets the animator collected at the next GC while
  * the stack is still being rendered.
@@ -32,8 +32,6 @@ import mod.azure.azurelib.util.AzureLibUtil;
 public class AzIdentifiableItemStackAnimatorCache {
 
     private static final AzIdentifiableItemStackAnimatorCache INSTANCE = new AzIdentifiableItemStackAnimatorCache();
-
-    public static final long ANIMATOR_IDLE_SECONDS = 120;
 
     private static final Map<AzItemAnimatorView, Cache<UUID, AzItemAnimator>> ANIMATORS_BY_VIEW;
 
@@ -47,7 +45,7 @@ public class AzIdentifiableItemStackAnimatorCache {
 
         for (AzItemAnimatorView view : AzItemAnimatorView.values()) {
             Cache<UUID, AzItemAnimator> animators = CacheBuilder.newBuilder()
-                .expireAfterAccess(ANIMATOR_IDLE_SECONDS, TimeUnit.SECONDS)
+                .expireAfterAccess(300, TimeUnit.SECONDS)
                 .build();
             ANIMATORS_BY_VIEW.put(view, animators);
         }
