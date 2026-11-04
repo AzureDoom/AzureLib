@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render.layer;
 
+import com.google.common.collect.MapMaker;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -29,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -61,8 +61,14 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         );
     }
 
+    /**
+     * Base armor models per bone instance. Entity bones belong to each animator's own copy of the model, so every
+     * wearer gets its own base models and no pose can carry over between them. Keys are weak and compared by identity:
+     * an entry goes away with its entity's bones, and {@link AzBone#equals} (name-based) would otherwise merge the
+     * same bone of different entities back into one shared model.
+     */
     private final Map<AzBone, ArmorModelSet<HumanoidModel<HumanoidRenderState>>> armorModels =
-        new IdentityHashMap<>();
+        new MapMaker().weakKeys().makeMap();
 
     protected final EquipmentLayerRenderer equipmentRenderer;
 
