@@ -51,6 +51,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)
     );
 
+    protected static final HumanoidModel<LivingEntity> AZ_ARMOR_BASE_MODEL = new HumanoidModel<>(
+        Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)
+    );
+
     @Nullable
     protected ItemStack mainHandStack;
 
@@ -213,11 +217,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         ModelPart modelPart
     ) {
         var renderPipelines = renderer.rendererPipeline();
-        var boneContext = renderPipelines.context().boneContext();
         var armorModel = renderPipelines.armorModel();
 
         renderer.prepForRender(entity, armorStack, slot, model);
-        boneContext.applyBoneVisibilityByPart(slot, modelPart, model);
+        renderPipelines.context().setVisiblePartOverride(modelPart);
         armorModel.renderToBuffer(
             context.poseStack(),
             null,
@@ -365,7 +368,23 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             return (HumanoidModel<T>) (slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL);
         }
 
-        return (HumanoidModel<T>) renderer.rendererPipeline().armorModel();
+        resetPose(AZ_ARMOR_BASE_MODEL);
+        return (HumanoidModel<T>) AZ_ARMOR_BASE_MODEL;
+    }
+
+    private static void resetPart(ModelPart part, float x, float y, float z) {
+        part.setPos(x, y, z);
+        part.setRotation(0, 0, 0);
+    }
+
+    private static void resetPose(HumanoidModel<?> model) {
+        resetPart(model.head, 0, 0, 0);
+        resetPart(model.hat, 0, 0, 0);
+        resetPart(model.body, 0, 0, 0);
+        resetPart(model.rightArm, -5, 2, 0);
+        resetPart(model.leftArm, 5, 2, 0);
+        resetPart(model.rightLeg, -1.9F, 12, 0);
+        resetPart(model.leftLeg, 1.9F, 12, 0);
     }
 
     /**
