@@ -11,8 +11,7 @@ import java.util.Set;
 
 public final class AzureLibCompatMixinPlugin implements IMixinConfigPlugin {
 
-    private static final String BETTER_COMBAT_TARGET_FINDER =
-        "net.bettercombat.client.collision.TargetFinder$CollisionFilter";
+    private static final String BETTER_COMBAT_TARGET_FINDER = "net.bettercombat.client.collision.TargetFinder";
 
     @Override
     public void onLoad(String mixinPackage) {}
@@ -27,7 +26,7 @@ public final class AzureLibCompatMixinPlugin implements IMixinConfigPlugin {
         String targetClassName,
         String mixinClassName
     ) {
-        if (mixinClassName.endsWith("BetterCombatTargetFinderMixin")) {
+        if (mixinClassName.contains(".compat.BetterCombat")) {
             return classExists(BETTER_COMBAT_TARGET_FINDER);
         }
 

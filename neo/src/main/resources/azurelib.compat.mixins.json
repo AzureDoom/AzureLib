@@ -6,7 +6,9 @@
   "plugin": "mod.azure.azurelib.mixins.compat.AzureLibCompatMixinPlugin",
   "mixins": [ ],
   "client": [
-    "BetterCombatTargetFinderMixin"
+    "BetterCombatCollisionFilterMixin",
+    "BetterCombatRadialFilterMixin",
+    "BetterCombatInitialTargetsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
