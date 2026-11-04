@@ -6,7 +6,7 @@ hide_meta: true
 # Using AzureLib Item Animations with Better Combat
 
 <Callout variant="info">
-    AzureLib provides optional integration with [Better Combat](https://github.com/ZsoltMolnarrr/BetterCombat) for Minecraft 1.20.1. Use `AzBetterCombatAnimations` to map Better Combat weapon attacks to animations in your AzureLib animated item. The integration listens for Better Combat's attack-start event and triggers the selected AzureLib animation automatically.
+    AzureLib provides optional integration with [Better Combat](https://www.curseforge.com/minecraft/mc-mods/better-combat-by-daedelus). Use `AzBetterCombatAnimations` to map Better Combat weapon attacks to animations in your AzureLib animated item. The integration listens for Better Combat's attack-start event and triggers the selected AzureLib animation automatically.
 </Callout>
 
 ## Before You Start
@@ -50,7 +50,7 @@ AzBetterCombatAnimations.register(
 );
 ```
 
-The function receives Better Combat's `AttackHand` for the selected attack. In Better Combat 1.20.1, `attack.combo().current()` starts at **1**, not 0. The combo length is available through `attack.combo().total()`.
+The function receives Better Combat's `AttackHand` for the selected attack. In Better Combat, `attack.combo().current()` starts at **1**, not 0. The combo length is available through `attack.combo().total()`.
 
 The number of attacks in a combo comes from Better Combat's weapon attributes. Registering three AzureLib animations does not, by itself, configure a three-hit combo in Better Combat.
 
