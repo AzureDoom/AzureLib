@@ -68,6 +68,7 @@ public class AzArmorRendererPipelineContext extends AzRendererPipelineContext<UU
         this.currentStack = stack;
         this.animatable = stack;
         this.currentSlot = slot;
+        this.visiblePartOverride = null;
     }
 
     /**
