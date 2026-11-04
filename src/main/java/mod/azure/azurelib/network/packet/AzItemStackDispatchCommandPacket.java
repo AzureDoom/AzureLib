@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
@@ -17,7 +18,6 @@ import mod.azure.azurelib.network.AbstractPacket;
 import mod.azure.azurelib.network.AzByteBuf;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.platform.services.AzureLibNetwork;
-import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.ResourceLocation;
 import mod.azure.azurelib.util.client.ClientUtils;
 
@@ -110,11 +110,8 @@ public class AzItemStackDispatchCommandPacket extends AbstractPacket {
         if (stack == null)
             return;
 
-        UUID previous = AzItemIds.getOrNull(stack);
-        AzItemIds.set(stack, this.itemStackId);
-        if (previous != null && !previous.equals(this.itemStackId)) {
-            AzIdentifiableItemStackAnimatorCache.getInstance().rekey(previous, this.itemStackId);
-        }
+        UUID previous = AzItemIdentity.adopt(stack, this.itemStackId);
+        AzIdentifiableItemStackAnimatorCache.getInstance().rekey(previous, this.itemStackId);
     }
 
     @Nullable

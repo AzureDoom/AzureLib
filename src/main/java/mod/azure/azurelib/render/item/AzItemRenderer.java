@@ -1,11 +1,14 @@
 package mod.azure.azurelib.render.item;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import mod.azure.azurelib.animation.molang.AzMolangQueryContext;
@@ -18,16 +21,14 @@ import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
 import mod.azure.azurelib.render.vertex.RenderType;
 import mod.azure.azurelib.render.vertex.VertexConsumer;
-import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.client.AzRenderTick;
 import mod.azure.azurelib.util.client.RenderUtils;
 
 /**
  * Base item renderer for AzureLib-animated items. Register instances with
- * {@link AzItemRendererRegistry#register(net.minecraft.item.Item, java.util.function.Supplier)} on the client; AzureLib
- * registers a Forge {@code IItemRenderer} for the item and renders it in every context. Display transforms are read
- * from the item's Blockbench-exported model json ({@code assets/<modid>/models/item/<name>.json}), as on modern
- * versions.
+ * {@link AzItemRendererRegistry#register(Item, Supplier)} on the client; AzureLib registers a Forge
+ * {@code IItemRenderer} for the item and renders it in every context. Display transforms are read from the item's
+ * Blockbench-exported model json ({@code assets/<modid>/models/item/<name>.json}), as on modern versions.
  */
 public abstract class AzItemRenderer {
 
@@ -42,17 +43,8 @@ public abstract class AzItemRenderer {
 
     protected AzItemRenderer(AzItemRendererConfig config) {
         this.rendererPipeline = createPipeline(config);
-        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemRenderer::getStackId);
+        this.provider = new AzProvider<>(config::createAnimator, config::modelLocation, AzItemIdentity::resolve);
         this.config = config;
-    }
-
-    /**
-     * The stack's AzureLib identity, or a random id for stacks that don't carry one.
-     */
-    static UUID getStackId(ItemStack stack) {
-        // Stacks of identity-registered items get their UUID on creation; anything else is given one on first render
-        // so its animator stays cached instead of being rebuilt every frame.
-        return AzItemIds.getOrCreate(stack);
     }
 
     protected AzItemRendererPipeline createPipeline(AzItemRendererConfig config) {

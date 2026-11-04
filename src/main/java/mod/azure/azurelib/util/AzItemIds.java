@@ -50,7 +50,11 @@ public final class AzItemIds {
         return has(tag) ? get(tag) : null;
     }
 
-    /** Returns the stack's UUID, assigning a fresh random one first if it has none. */
+    /**
+     * Returns the stack's UUID, assigning a fresh random one first if it has none. Writes NBT on whichever side it runs
+     * and ignores {@code AzIdentityRegistry}; prefer {@code AzItemIdentity#getOrCreate} (server-side assignment) or
+     * {@code AzItemIdentity#resolve} (read-only, for keying animators).
+     */
     public static UUID getOrCreate(ItemStack stack) {
         NbtCompound tag = Mc.stackNbt(stack);
         if (!has(tag)) {

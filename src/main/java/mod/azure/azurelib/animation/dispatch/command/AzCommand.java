@@ -12,6 +12,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
@@ -25,7 +27,6 @@ import mod.azure.azurelib.network.packet.AzEntityDispatchCommandPacket;
 import mod.azure.azurelib.network.packet.AzItemStackDispatchCommandPacket;
 import mod.azure.azurelib.platform.Services;
 import mod.azure.azurelib.platform.mc.Mc;
-import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.codec.AzListStreamCodec;
 import mod.azure.azurelib.util.math.BlockPos;
 
@@ -325,10 +326,7 @@ public final class AzCommand {
         }
 
         if (Mc.isClientSide(Mc.world(entity))) {
-            UUID uuid = AzItemIds.getOrNull(itemStack);
-            if (uuid == null) {
-                return;
-            }
+            UUID uuid = AzItemIdentity.resolve(itemStack);
             AzIdentifiableItemStackAnimatorCache.getInstance()
                 .dispatchOrQueue(
                     uuid,
@@ -341,9 +339,7 @@ public final class AzCommand {
                     }
                 );
         } else {
-            // On Beta the identity UUID lives in AzureLib's own per-stack data. Assign it lazily here (server side, or
-            // the local world in single player). Vanilla doesn't sync it; clients adopt it from the packet below.
-            if (!mod.azure.azurelib.animation.cache.AzIdentityRegistry.hasIdentity(Mc.item(itemStack))) {
+            if (!AzIdentityRegistry.hasIdentity(Mc.item(itemStack))) {
                 AzureLib.LOGGER.warn(
                     AzureLib.MAIN_MARKER,
                     "Item {} is not registered with AzIdentityRegistry. Cannot dispatch animation commands.",
@@ -351,10 +347,8 @@ public final class AzCommand {
                 );
                 return;
             }
-            UUID uuid = AzItemIds.getOrCreate(itemStack);
+            UUID uuid = AzItemIdentity.getOrCreate(itemStack);
 
-            // The packet also names the holder and the item id, so a client that doesn't know the stack's id yet
-            // can still find the stack (see AzItemStackDispatchCommandPacket#handle).
             AzItemStackDispatchCommandPacket packet = new AzItemStackDispatchCommandPacket(
                 uuid,
                 this,

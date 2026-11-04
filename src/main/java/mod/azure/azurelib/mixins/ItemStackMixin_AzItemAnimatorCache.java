@@ -11,13 +11,8 @@ import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
-import mod.azure.azurelib.util.AzItemIds;
 import mod.azure.azurelib.util.AzureLibUtil;
 
-/**
- * Item stacks are recreated freely (copies, network updates), so their animators are not stored on the stack itself but
- * in {@link AzIdentifiableItemStackAnimatorCache}, keyed by the stack's AzureLib UUID.
- */
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAccessor<UUID, ItemStack> {
 
@@ -30,9 +25,7 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
 
     @Override
     public @Nullable AzAnimator<UUID, ItemStack> getAnimatorOrNull() {
-        UUID uuid = AzItemIds.getOrNull(AzureLibUtil.self(this));
-        return uuid == null
-            ? null
-            : AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.current());
+        ItemStack self = AzureLibUtil.self(this);
+        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(self, AzItemAnimatorView.current());
     }
 }
