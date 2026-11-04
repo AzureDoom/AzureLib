@@ -14,8 +14,7 @@ public final class AzureLibCompatMixinPlugin implements IMixinConfigPlugin {
     private static final String JEG_PROJECTILE =
         "ttv.migami.jeg.entity.projectile.ProjectileEntity";
 
-    private static final String BETTER_COMBAT_TARGET_FINDER =
-        "net.bettercombat.client.collision.TargetFinder$CollisionFilter";
+    private static final String BETTER_COMBAT_TARGET_FINDER = "net.bettercombat.client.collision.TargetFinder";
 
     @Override
     public void onLoad(String mixinPackage) {}
@@ -34,7 +33,7 @@ public final class AzureLibCompatMixinPlugin implements IMixinConfigPlugin {
             return classExists(JEG_PROJECTILE);
         }
 
-        if (mixinClassName.endsWith("BetterCombatTargetFinderMixin")) {
+        if (mixinClassName.contains(".compat.BetterCombat")) {
             return classExists(BETTER_COMBAT_TARGET_FINDER);
         }
 

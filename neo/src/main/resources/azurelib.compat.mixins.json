@@ -9,7 +9,9 @@
     "JegProjectileMixin"
   ],
   "client": [
-    "BetterCombatTargetFinderMixin"
+    "BetterCombatCollisionFilterMixin",
+    "BetterCombatRadialFilterMixin",
+    "BetterCombatInitialTargetsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
