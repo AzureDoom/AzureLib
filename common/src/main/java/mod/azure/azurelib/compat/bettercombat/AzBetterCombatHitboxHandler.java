@@ -1,4 +1,3 @@
-
 package mod.azure.azurelib.compat.bettercombat;
 
 import net.bettercombat.client.collision.OrientedBoundingBox;
@@ -6,7 +5,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import mod.azure.azurelib.hitbox.AzHitboxHit;
 import mod.azure.azurelib.hitbox.AzHitboxRole;
@@ -17,13 +19,21 @@ public final class AzBetterCombatHitboxHandler {
 
     private static final double EPSILON = 1.0E-12;
 
+    private static final ThreadLocal<Map<Entity, List<AzOrientedBox>>> COLLISION_HITS =
+        ThreadLocal.withInitial(IdentityHashMap::new);
+
     private AzBetterCombatHitboxHandler() {}
 
+    public static Map<Entity, List<AzOrientedBox>> collisionHits() {
+        return COLLISION_HITS.get();
+    }
+
+    public static List<AzHitboxHit> combatHitboxes(Entity entity) {
+        return AzHitboxes.getActiveHitboxes(entity, hitbox -> hitbox.role() == AzHitboxRole.COMBAT);
+    }
+
     @Nullable
-    public static AzHitboxHit findHit(
-        Entity target,
-        AzOrientedBox attackVolume
-    ) {
+    public static AzHitboxHit findHit(Entity target, AzOrientedBox attackVolume) {
         for (AzHitboxHit hit : combatHitboxes(target)) {
             if (attackVolume.intersects(hit.box())) {
                 return hit;
@@ -34,10 +44,7 @@ public final class AzBetterCombatHitboxHandler {
     }
 
     @Nullable
-    public static AzHitboxHit findHit(
-        Entity target,
-        OrientedBoundingBox attackVolume
-    ) {
+    public static AzHitboxHit findHit(Entity target, OrientedBoundingBox attackVolume) {
         for (AzHitboxHit hit : combatHitboxes(target)) {
             if (intersects(attackVolume, hit.box())) {
                 return hit;
@@ -47,19 +54,19 @@ public final class AzBetterCombatHitboxHandler {
         return null;
     }
 
-    private static List<AzHitboxHit> combatHitboxes(
-        Entity entity
-    ) {
-        return AzHitboxes.getActiveHitboxes(
-            entity,
-            hitbox -> hitbox.role() == AzHitboxRole.COMBAT
-        );
+    public static List<AzOrientedBox> intersecting(List<AzHitboxHit> hitboxes, OrientedBoundingBox attackVolume) {
+        var result = new ArrayList<AzOrientedBox>(2);
+
+        for (AzHitboxHit hit : hitboxes) {
+            if (intersects(attackVolume, hit.box())) {
+                result.add(hit.box());
+            }
+        }
+
+        return result;
     }
 
-    private static boolean intersects(
-        OrientedBoundingBox attack,
-        AzOrientedBox target
-    ) {
+    private static boolean intersects(OrientedBoundingBox attack, AzOrientedBox target) {
         Vec3[] a = attack.vertices;
         Vec3[] b = target.corners();
 
@@ -67,17 +74,8 @@ public final class AzBetterCombatHitboxHandler {
             return false;
         }
 
-        Vec3[] axesA = {
-            attack.axisX,
-            attack.axisY,
-            attack.axisZ
-        };
-
-        Vec3[] axesB = {
-            target.axisX(),
-            target.axisY(),
-            target.axisZ()
-        };
+        Vec3[] axesA = { attack.axisX, attack.axisY, attack.axisZ };
+        Vec3[] axesB = { target.axisX(), target.axisY(), target.axisZ() };
 
         for (Vec3 axis : axesA) {
             if (separated(a, b, axis)) {
@@ -93,9 +91,7 @@ public final class AzBetterCombatHitboxHandler {
 
         for (Vec3 axisA : axesA) {
             for (Vec3 axisB : axesB) {
-                Vec3 cross = axisA.cross(axisB);
-
-                if (separated(a, b, cross)) {
+                if (separated(a, b, axisA.cross(axisB))) {
                     return false;
                 }
             }
@@ -104,33 +100,24 @@ public final class AzBetterCombatHitboxHandler {
         return true;
     }
 
-    private static boolean separated(
-        Vec3[] a,
-        Vec3[] b,
-        Vec3 axis
-    ) {
+    private static boolean separated(Vec3[] a, Vec3[] b, Vec3 axis) {
         if (axis.lengthSqr() < EPSILON) {
             return false;
         }
 
-        double minA = Double.POSITIVE_INFINITY;
-        double maxA = Double.NEGATIVE_INFINITY;
-
-        double minB = Double.POSITIVE_INFINITY;
-        double maxB = Double.NEGATIVE_INFINITY;
+        double minA = Double.POSITIVE_INFINITY, maxA = Double.NEGATIVE_INFINITY;
+        double minB = Double.POSITIVE_INFINITY, maxB = Double.NEGATIVE_INFINITY;
 
         for (Vec3 vertex : a) {
-            double projection = vertex.dot(axis);
-
-            minA = Math.min(minA, projection);
-            maxA = Math.max(maxA, projection);
+            double p = vertex.dot(axis);
+            minA = Math.min(minA, p);
+            maxA = Math.max(maxA, p);
         }
 
         for (Vec3 vertex : b) {
-            double projection = vertex.dot(axis);
-
-            minB = Math.min(minB, projection);
-            maxB = Math.max(maxB, projection);
+            double p = vertex.dot(axis);
+            minB = Math.min(minB, p);
+            maxB = Math.max(maxB, p);
         }
 
         return maxA < minB || maxB < minA;
