@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.compat.geckolib.GeckoLibArmorCompat;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorModel;
@@ -127,8 +128,9 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
         ItemStack armorStack
     ) {
         EntityEquipmentSlot slot = getEquipmentSlotForBone(context, bone, armorStack);
-        AzArmorRenderer renderer = AzArmorRendererRegistryHolder.get(armorStack);
-        ModelBiped model = getModelForItem(armorStack, slot);
+        AzArmorRenderer renderer = getRendererForItem(armorStack);
+        ModelBiped geoArmorModel = renderer == null ? getGeckoLibModelForItem(context, slot, armorStack) : null;
+        ModelBiped model = geoArmorModel != null ? geoArmorModel : getModelForItem(armorStack, slot);
         ModelRenderer modelPart = getModelPartForBone(context, bone, model);
 
         if (modelPart.cubeList.isEmpty()) {
@@ -153,6 +155,11 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
             if (idx >= 0)
                 entityPose[idx] = capturePart(modelPart);
             renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
+        } else if (geoArmorModel != null) {
+            prepModelPartForRender(context, bone, modelPart);
+            if (idx >= 0)
+                entityPose[idx] = capturePart(modelPart);
+            renderGeckoLibArmorPiece(context, bone, slot, armorStack, modelPart, geoArmorModel);
         } else if (armorStack.getItem() instanceof ItemArmor) {
             prepModelPartForRender(context, bone, modelPart);
             if (idx >= 0)
@@ -234,6 +241,44 @@ public class AzArmorLayer<T extends EntityLivingBase> implements AzRenderLayer<U
             context.green(),
             context.blue(),
             context.alpha()
+        );
+    }
+
+    @Nullable
+    protected ModelBiped getGeckoLibModelForItem(
+        AzRendererPipelineContext<UUID, T> context,
+        EntityEquipmentSlot slot,
+        ItemStack armorStack
+    ) {
+        if (!GeckoLibArmorCompat.isLoaded()) {
+            return null;
+        }
+
+        return GeckoLibArmorCompat.getArmorModel(
+            context.animatable(),
+            armorStack,
+            slot,
+            slot == EntityEquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL
+        );
+    }
+
+    protected void renderGeckoLibArmorPiece(
+        AzRendererPipelineContext<UUID, T> context,
+        AzBone bone,
+        EntityEquipmentSlot slot,
+        ItemStack armorStack,
+        ModelRenderer modelPart,
+        ModelBiped geoArmorModel
+    ) {
+        flush(context.multiBufferSource());
+
+        GeckoLibArmorCompat.renderArmorPiece(
+            geoArmorModel,
+            slot,
+            modelPart,
+            context.poseStack(),
+            context.packedLight(),
+            context.animatable().ticksExisted + Minecraft.getMinecraft().getRenderPartialTicks()
         );
     }
 

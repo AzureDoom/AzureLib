@@ -108,6 +108,9 @@ dependencies {
         transitive = false
     }
     annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+    // Optional GeckoLib armor support in AzArmorLayer. compileOnly keeps it out of the published POM;
+    // switch back to implementation (or add a runtimeOnly line) to test with GeckoLib in dev.
+    compileOnly fg.deobf("curse.maven:geckolib-388172:4020277") // 1.12.2 Forge
 }
 
 processResources {
