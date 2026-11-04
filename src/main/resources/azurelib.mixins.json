@@ -9,8 +9,8 @@
     "EntityMixin_AzEntityAnimatorCache",
     "EntityMixin_AzHitboxState",
     "FireballEntityMixin_AzHitboxes",
+    "ItemStackMixin_AzAssignIdInInventory",
     "ItemStackMixin_AzItemAnimatorCache",
-    "ItemStackMixin_AzItemStackIdentityRegistry",
     "LivingEntityMixin_AzHitboxDamage",
     "PlayerEntityMixin_AzHitboxes",
     "ThrownEntityMixin_AzHitboxes"
