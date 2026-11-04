@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.UUID;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.animation.cache.AzIdentifiableItemStackAnimatorCache;
@@ -27,12 +26,6 @@ public abstract class ItemStackMixin_AzItemAnimatorCache implements AzAnimatorAc
     @Override
     public @Nullable AzAnimator<UUID, ItemStack> getAnimatorOrNull() {
         var self = AzureLibUtil.<ItemStack>self(this);
-        var tag = self.getTag();
-        if (tag == null || !tag.contains(AzureLib.ITEM_UUID_TAG)) {
-            return null;
-        }
-
-        var uuid = tag.getUUID(AzureLib.ITEM_UUID_TAG);
-        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(uuid, AzItemAnimatorView.current());
+        return AzIdentifiableItemStackAnimatorCache.getInstance().getOrNull(self, AzItemAnimatorView.current());
     }
 }

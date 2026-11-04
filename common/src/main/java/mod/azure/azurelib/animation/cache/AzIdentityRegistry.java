@@ -5,10 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import mod.azure.azurelib.AzureLib;
 
 /**
  * The AzIdentityRegistry class provides functionality to register and check the identity of items. This class maintains
@@ -28,11 +25,6 @@ public class AzIdentityRegistry {
     public static void register(@NotNull Item first, Item... rest) {
         IDENTITY_OF_ITEMS.add(first);
         IDENTITY_OF_ITEMS.addAll(Arrays.asList(rest));
-
-        first.getDefaultInstance().getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
-        for (Item item : rest) {
-            item.getDefaultInstance().getOrCreateTag().putUUID(AzureLib.ITEM_UUID_TAG, UUID.randomUUID());
-        }
     }
 
     /**
