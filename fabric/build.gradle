@@ -17,6 +17,7 @@ dependencies {
     include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")))
     compileOnly "curse.maven:just-enough-guns-820727:8873359"
     compileOnly "curse.maven:better-combat-by-daedelus-639842:7287334"
+    modCompileOnly "curse.maven:geckolib-388172:8285786"
 }
 
 loom {

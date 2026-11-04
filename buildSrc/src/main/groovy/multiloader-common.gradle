@@ -48,6 +48,15 @@ repositories {
     maven { url "https://cfa2.cursemaven.com" }
     maven { url "https://maven.terraformersmc.com/" }
     maven { url "https://maven.terraformersmc.com/releases" } // modmenu
+    repositories {
+        maven {
+            name = 'GeckoLib'
+            url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            content {
+                includeGroup 'software.bernie.geckolib'
+            }
+        }
+    }
 }
 
 dependencies {

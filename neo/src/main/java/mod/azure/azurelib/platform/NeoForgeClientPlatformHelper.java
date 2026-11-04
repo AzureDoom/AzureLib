@@ -33,4 +33,14 @@ public class NeoForgeClientPlatformHelper implements IClientPlatformHelper {
         Model model = ForgeHooksClient.getArmorModel(entity, stack, slot, fallback);
         return model instanceof HumanoidModel<?> humanoid ? humanoid : null;
     }
+
+    @Override
+    public @Nullable HumanoidModel<?> getGeckoLibArmorModel(
+        LivingEntity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> fallback
+    ) {
+        return getArmorModel(entity, stack, slot, fallback);
+    }
 }

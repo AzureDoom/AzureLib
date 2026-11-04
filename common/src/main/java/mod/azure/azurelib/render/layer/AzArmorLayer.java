@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+import mod.azure.azurelib.compat.geckolib.GeckoLibArmorCompat;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
@@ -133,8 +134,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
-        var model = getModelForItem(armorStack, slot);
+        var renderer = getRendererForItem(armorStack);
+        var geoArmorModel = renderer == null ? getGeckoLibModelForItem(context, slot, armorStack) : null;
+        @SuppressWarnings("unchecked")
+        var model = geoArmorModel != null ? (HumanoidModel<T>) geoArmorModel : getModelForItem(armorStack, slot);
         var modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
@@ -144,6 +147,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             if (renderer != null) {
                 prepModelPartForRender(context, bone, modelPart);
                 renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
+            } else if (geoArmorModel != null) {
+                prepModelPartForRender(context, bone, modelPart);
+                renderGeckoLibArmorPiece(context, bone, slot, armorStack, modelPart, geoArmorModel);
             } else if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
                 renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
@@ -221,6 +227,43 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             context.green(),
             context.blue(),
             context.alpha()
+        );
+    }
+
+    protected @Nullable HumanoidModel<?> getGeckoLibModelForItem(
+        AzRendererPipelineContext<UUID, T> context,
+        EquipmentSlot slot,
+        ItemStack armorStack
+    ) {
+        if (!GeckoLibArmorCompat.isLoaded()) {
+            return null;
+        }
+
+        return GeckoLibArmorCompat.getArmorModel(
+            context.animatable(),
+            armorStack,
+            slot,
+            slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL
+        );
+    }
+
+    protected void renderGeckoLibArmorPiece(
+        AzRendererPipelineContext<UUID, T> context,
+        AzBone bone,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        ModelPart modelPart,
+        HumanoidModel<?> geoArmorModel
+    ) {
+        GeckoLibArmorCompat.renderArmorPiece(
+            geoArmorModel,
+            context.animatable(),
+            armorStack,
+            slot,
+            modelPart,
+            context.poseStack(),
+            context.packedLight(),
+            context.packedOverlay()
         );
     }
 
@@ -307,9 +350,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     }
 
     /**
-     * Returns a cached instance of a base HumanoidModel that is used for rendering/modelling the provided
+     * Returns a cached instance of a base HumanoidModel that is used for rendering/modeling the provided
      * {@link ItemStack}
      */
+    @SuppressWarnings("unchecked")
     protected HumanoidModel<T> getModelForItem(ItemStack stack, EquipmentSlot slot) {
         var renderer = getRendererForItem(stack);
 
@@ -381,7 +425,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
      * Prepares the given {@link ModelPart} for render by setting its translation, position, and rotation values based
      * on the provided {@link AzBone}
      *
-     * @param context
+     * @param context    The AzRendererPipelineContext context
      * @param bone       The AzBone to base the translations on
      * @param sourcePart The ModelPart to translate
      */

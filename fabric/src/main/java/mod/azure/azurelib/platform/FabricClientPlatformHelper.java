@@ -6,6 +6,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import mod.azure.azurelib.compat.geckolib.FabricGeckoLibArmorLookup;
+import mod.azure.azurelib.compat.geckolib.GeckoLibArmorCompat;
 import mod.azure.azurelib.platform.services.IClientPlatformHelper;
 
 public class FabricClientPlatformHelper implements IClientPlatformHelper {
@@ -29,5 +31,19 @@ public class FabricClientPlatformHelper implements IClientPlatformHelper {
         HumanoidModel<?> fallback
     ) {
         return fallback;
+    }
+
+    @Override
+    public HumanoidModel<?> getGeckoLibArmorModel(
+        LivingEntity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> fallback
+    ) {
+        if (!GeckoLibArmorCompat.isLoaded()) {
+            return fallback;
+        }
+
+        return FabricGeckoLibArmorLookup.getArmorModel(entity, stack, slot, fallback);
     }
 }

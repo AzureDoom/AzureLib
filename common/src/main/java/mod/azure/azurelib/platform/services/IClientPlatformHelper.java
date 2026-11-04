@@ -23,4 +23,12 @@ public interface IClientPlatformHelper {
         EquipmentSlot slot,
         HumanoidModel<?> fallback
     );
+
+    @Nullable
+    HumanoidModel<?> getGeckoLibArmorModel(
+        LivingEntity entity,
+        ItemStack stack,
+        EquipmentSlot slot,
+        HumanoidModel<?> fallback
+    );
 }
