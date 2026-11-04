@@ -89,11 +89,9 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
                 var blockState = entity.getBlockState();
                 var rt = context.renderType();
 
-                if (
-                    rt != null
-                        && AzBlockEntityGeometryCache.isEnabledFor(entity.getType())
-                        && !anyBoneTracksMatrices(model.getTopLevelBones())
-                ) {
+                blockEntityRendererPipeline.modelRenderTranslations.set(poseStack.last().pose());
+
+                if (rt != null && AzBlockEntityGeometryCache.isEnabledFor(entity.getType())) {
                     long boneHash = hashBones(model.getTopLevelBones());
                     capturedBoneHash = boneHash;
 
@@ -118,6 +116,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
                                 context.packedOverlay(),
                                 context.renderColor()
                             );
+                            renderLayersOnly(context);
                             return;
                         }
                     } else {
@@ -188,28 +187,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         RenderUtils.scaleMatrixForBone(poseStack, bone);
 
         if (bone.isTrackingMatrices()) {
-            Matrix4f poseState = new Matrix4f(poseStack.last().pose());
-            Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
-                poseState,
-                blockEntityRendererPipeline.entityRenderTranslations
-            );
-
-            bone.setModelSpaceMatrix(
-                RenderUtils.invertAndMultiplyMatrices(poseState, blockEntityRendererPipeline.modelRenderTranslations)
-            );
-            bone.setLocalSpaceMatrix(
-                RenderUtils.translateMatrix(localMatrix, Vec3.ZERO.toVector3f())
-            );
-            bone.setWorldSpaceMatrix(
-                RenderUtils.translateMatrix(
-                    new Matrix4f(localMatrix),
-                    new Vector3f(
-                        entity.getBlockPos().getX(),
-                        entity.getBlockPos().getY(),
-                        entity.getBlockPos().getZ()
-                    )
-                )
-            );
+            trackBoneMatrices(entity, bone, poseStack.last().pose());
         }
 
         RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
@@ -231,12 +209,109 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
             super.renderCubesOfBone(context, bone);
 
         if (!isReRender) {
-            layerRenderer.applyRenderLayersForBone(context, bone);
+            applyBoneLayersOutsideCapture(context, bone);
         }
 
         renderChildBones(context, bone, isReRender);
 
         poseStack.popPose();
+    }
+
+    private void trackBoneMatrices(T entity, AzBone bone, Matrix4f pose) {
+        Matrix4f poseState = new Matrix4f(pose);
+        Matrix4f localMatrix = RenderUtils.invertAndMultiplyMatrices(
+            poseState,
+            blockEntityRendererPipeline.entityRenderTranslations
+        );
+
+        bone.setModelSpaceMatrix(
+            RenderUtils.invertAndMultiplyMatrices(poseState, blockEntityRendererPipeline.modelRenderTranslations)
+        );
+        bone.setLocalSpaceMatrix(
+            RenderUtils.translateMatrix(localMatrix, Vec3.ZERO.toVector3f())
+        );
+        bone.setWorldSpaceMatrix(
+            RenderUtils.translateMatrix(
+                new Matrix4f(localMatrix),
+                new Vector3f(
+                    entity.getBlockPos().getX(),
+                    entity.getBlockPos().getY(),
+                    entity.getBlockPos().getZ()
+                )
+            )
+        );
+    }
+
+    private void applyBoneLayersOutsideCapture(AzRendererPipelineContext<Long, T> context, AzBone bone) {
+        if (!capturing) {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+            return;
+        }
+
+        var boneBuffer = context.vertexConsumer();
+
+        capturing = false;
+
+        if (boneBuffer == captureConsumer) {
+            context.setVertexConsumer(captureConsumer.delegate());
+        }
+
+        try {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+        } finally {
+            capturing = true;
+            context.setVertexConsumer(boneBuffer);
+        }
+    }
+
+    protected void renderLayersOnly(AzRendererPipelineContext<Long, T> context) {
+        var entity = context.animatable();
+        var model = context.bakedModel();
+        var config = blockEntityRendererPipeline.config();
+
+        blockEntityRendererPipeline.updateAnimatedTextureFrame(entity);
+
+        if (!config.renderLayers().isEmpty() || anyBoneTracksMatrices(model.getTopLevelBones())) {
+            for (var bone : model.getTopLevelBones()) {
+                walkBoneForLayers(context, bone);
+            }
+        }
+
+        config.renderEntry(context);
+    }
+
+    private void walkBoneForLayers(AzRendererPipelineContext<Long, T> context, AzBone bone) {
+        var previousBuffer = context.vertexConsumer();
+        var poseStack = context.poseStack();
+
+        poseStack.pushPose();
+
+        try {
+            RenderUtils.translateMatrixToBone(poseStack, bone);
+            RenderUtils.translateToPivotPoint(poseStack, bone);
+            RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+            RenderUtils.scaleMatrixForBone(poseStack, bone);
+
+            if (bone.isTrackingMatrices()) {
+                trackBoneMatrices(context.animatable(), bone, poseStack.last().pose());
+            }
+
+            RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+
+            context.setVertexConsumer(getOrRefreshRenderBuffer(false, context, bone));
+            layerRenderer.applyRenderLayersForBone(context, bone);
+
+            if (!bone.isHidingChildren()) {
+                var children = bone.getChildBones();
+
+                for (int i = 0, size = children.size(); i < size; i++) {
+                    walkBoneForLayers(context, children.get(i));
+                }
+            }
+        } finally {
+            context.setVertexConsumer(previousBuffer);
+            poseStack.popPose();
+        }
     }
 
     /**
@@ -321,6 +396,7 @@ public class AzBlockEntityModelRenderer<T extends BlockEntity> extends AzModelRe
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleX());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleY());
         h = h * 31 + Float.floatToRawIntBits(bone.getScaleZ());
+        h = h * 31 + (bone.isHidden() ? 1 : 0) + (bone.isHidingChildren() ? 2 : 0);
 
         var children = bone.getChildBones();
 

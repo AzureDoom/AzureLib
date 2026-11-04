@@ -148,11 +148,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 var model = context.bakedModel();
                 var rt = context.renderType();
 
-                if (
-                    rt != null
-                        && AzEntityGeometryCache.isEnabledFor(animatable.getType())
-                        && !anyBoneTracksMatrices(model.getTopLevelBones())
-                ) {
+                if (rt != null && AzEntityGeometryCache.isEnabledFor(animatable.getType())) {
                     long boneHash = hashBones(model.getTopLevelBones());
                     long poseHash = hashPose(poseStack.last().pose(), entityCamX, entityCamY, entityCamZ);
                     capturedBoneHash = boneHash;
@@ -180,6 +176,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                                 context.packedOverlay(),
                                 context.renderColor()
                             );
+                            renderLayersOnly(context);
                             return;
                         }
                     } else {
@@ -374,7 +371,7 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
                 super.renderCubesOfBone(context, bone);
 
             if (!isReRender) {
-                layerRenderer.applyRenderLayersForBone(context, bone);
+                applyBoneLayersOutsideCapture(context, bone);
             }
 
             renderChildBones(context, bone, isReRender);
@@ -382,6 +379,97 @@ public class AzEntityModelRenderer<T extends Entity> extends AzModelRenderer<UUI
             context.setVertexConsumer(previousBuffer);
             context.setTextureOverride(previousTextureOverride);
             poseStack.popPose();
+        }
+    }
+
+    private void applyBoneLayersOutsideCapture(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
+        if (!capturing) {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+            return;
+        }
+
+        var boneBuffer = context.vertexConsumer();
+
+        capturing = false;
+
+        if (boneBuffer == captureConsumer) {
+            context.setVertexConsumer(captureConsumer.delegate());
+        }
+
+        try {
+            layerRenderer.applyRenderLayersForBone(context, bone);
+        } finally {
+            capturing = true;
+            context.setVertexConsumer(boneBuffer);
+        }
+    }
+
+    protected void renderLayersOnly(AzRendererPipelineContext<UUID, T> context) {
+        var animatable = context.animatable();
+        var model = context.bakedModel();
+        var config = entityRendererPipeline.config();
+
+        entityRendererPipeline.updateAnimatedTextureFrame(animatable);
+
+        if (!config.renderLayers().isEmpty() || anyBoneTracksMatrices(model.getTopLevelBones())) {
+            for (var bone : model.getTopLevelBones()) {
+                walkBoneForLayers(context, bone);
+            }
+        }
+
+        config.renderEntry(context);
+    }
+
+    private void walkBoneForLayers(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
+        if (bone.isHidden()) {
+            if (!bone.isHidingChildren()) {
+                walkChildBonesForLayers(context, bone);
+            }
+            return;
+        }
+
+        if (bone.getScaleX() == 0f && bone.getScaleY() == 0f && bone.getScaleZ() == 0f) {
+            return;
+        }
+
+        var previousBuffer = context.vertexConsumer();
+        var previousTextureOverride = context.getTextureOverride();
+        var poseStack = context.poseStack();
+
+        poseStack.pushPose();
+
+        try {
+            RenderUtils.translateMatrixToBone(poseStack, bone);
+            RenderUtils.translateToPivotPoint(poseStack, bone);
+            RenderUtils.rotateMatrixAroundBone(poseStack, bone);
+            RenderUtils.scaleMatrixForBone(poseStack, bone);
+
+            if (bone.isTrackingMatrices()) {
+                trackBoneMatrices(bone, poseStack.last().pose());
+            }
+
+            RenderUtils.translateAwayFromPivotPoint(poseStack, bone);
+
+            context.setVertexConsumer(getOrRefreshRenderBuffer(false, context, bone));
+            layerRenderer.applyRenderLayersForBone(context, bone);
+
+            walkChildBonesForLayers(context, bone);
+        } finally {
+            context.setVertexConsumer(previousBuffer);
+            context.setTextureOverride(previousTextureOverride);
+            poseStack.popPose();
+        }
+    }
+
+    private void walkChildBonesForLayers(AzRendererPipelineContext<UUID, T> context, AzBone bone) {
+        if (bone.isHidingChildren()) {
+            return;
+        }
+
+        var children = bone.getChildBones();
+
+        for (int i = 0, size = children.size(); i < size; i++) {
+            walkBoneForLayers(context, children.get(i));
         }
     }
 
