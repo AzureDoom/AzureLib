@@ -171,8 +171,6 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         var renderer = getRendererForItem(armorStack);
 
         context.poseStack().pushPose();
-        RenderUtils.transformToBone(context.poseStack(), bone);
-        RenderUtils.translateAwayFromPivotPoint(context.poseStack(), bone);
         context.poseStack().scale(-1, -1, 1);
 
         if (renderer != null) {
@@ -435,7 +433,7 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
 
         poseStack.pushPose();
 
-        RenderUtils.transformToBone(poseStack, bone);
+        RenderUtils.translateToPivotPoint(poseStack, bone);
         poseStack.scale(-CustomHeadLayer.SKULL_SCALE, -CustomHeadLayer.SKULL_SCALE, CustomHeadLayer.SKULL_SCALE);
 
         context.multiBufferSource()
