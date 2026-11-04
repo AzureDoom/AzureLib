@@ -56,6 +56,7 @@ dependencies {
         }
     }
     modCompileOnly "curse.maven:better-combat-by-daedelus-639842:4428885"
+    modCompileOnly "curse.maven:geckolib-388172:4181370" // Forge 1.18.2
 }
 
 jar {

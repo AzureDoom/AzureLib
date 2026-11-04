@@ -28,6 +28,7 @@ dependencies {
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
     compileOnly "org.ow2.asm:asm-tree:9.7.1"
     compileOnly "curse.maven:better-combat-by-daedelus-639842:4428885"
+    compileOnly "curse.maven:geckolib-388172:4181370" // Forge 1.18.2
 }
 
 configurations {

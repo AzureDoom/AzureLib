@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+import mod.azure.azurelib.compat.geckolib.GeckoLibArmorCompat;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.render.AzRendererPipelineContext;
 import mod.azure.azurelib.render.armor.AzArmorRenderer;
@@ -133,8 +134,10 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
         ItemStack armorStack
     ) {
         var slot = getEquipmentSlotForBone(context, bone, armorStack);
-        var renderer = AzArmorRendererRegistry.getOrNull(armorStack.getItem());
-        var model = getModelForItem(armorStack, slot);
+        var renderer = getRendererForItem(armorStack);
+        var geoBaseModel = renderer == null ? getGeckoLibModelForItem(context, slot, armorStack) : null;
+        @SuppressWarnings("unchecked")
+        var model = geoBaseModel != null ? (HumanoidModel<T>) geoBaseModel : getModelForItem(armorStack, slot);
         var modelPart = getModelPartForBone(context, bone, model);
 
         if (!modelPart.cubes.isEmpty()) {
@@ -144,6 +147,9 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             if (renderer != null) {
                 prepModelPartForRender(context, bone, modelPart);
                 renderAzArmorPiece(context, slot, armorStack, renderer, context.animatable(), model, modelPart);
+            } else if (geoBaseModel != null) {
+                prepModelPartForRender(context, bone, modelPart);
+                renderGeckoLibArmorPiece(context, bone, slot, armorStack, modelPart, geoBaseModel);
             } else if (armorStack.getItem() instanceof ArmorItem) {
                 prepModelPartForRender(context, bone, modelPart);
                 renderVanillaArmorPiece(context, bone, slot, armorStack, modelPart);
@@ -221,6 +227,48 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
             context.green(),
             context.blue(),
             context.alpha()
+        );
+    }
+
+    protected @Nullable HumanoidModel<?> getGeckoLibModelForItem(
+        AzRendererPipelineContext<UUID, T> context,
+        EquipmentSlot slot,
+        ItemStack armorStack
+    ) {
+        if (!GeckoLibArmorCompat.isLoaded()) {
+            return null;
+        }
+
+        return GeckoLibArmorCompat.getArmorBaseModel(
+            context.animatable(),
+            armorStack,
+            slot,
+            slot == EquipmentSlot.LEGS ? INNER_ARMOR_MODEL : OUTER_ARMOR_MODEL
+        );
+    }
+
+    /**
+     * Renders a GeckoLib 3 armor piece for the given {@link AzBone}. Only the GeckoLib armor bone matching
+     * {@code modelPart} is shown.
+     */
+    protected void renderGeckoLibArmorPiece(
+        AzRendererPipelineContext<UUID, T> context,
+        AzBone bone,
+        EquipmentSlot slot,
+        ItemStack armorStack,
+        ModelPart modelPart,
+        HumanoidModel<?> geoBaseModel
+    ) {
+        GeckoLibArmorCompat.renderArmorPiece(
+            context.animatable(),
+            armorStack,
+            slot,
+            geoBaseModel,
+            modelPart,
+            context.poseStack(),
+            context.multiBufferSource(),
+            context.packedLight(),
+            context.packedOverlay()
         );
     }
 

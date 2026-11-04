@@ -77,3 +77,9 @@ if (keyPropsFile.exists()) {
         }
     }
 }
+
+sourceSets.main.java.srcDir 'src/geckolibStubs/java'
+
+tasks.withType(Jar).configureEach {
+    exclude 'software/bernie/geckolib3/**'
+}
