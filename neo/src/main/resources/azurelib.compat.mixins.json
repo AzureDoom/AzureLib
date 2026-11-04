@@ -7,7 +7,9 @@
   "refmap": "azurelib.refmap.json",
   "mixins": [ ],
   "client": [
-    "BetterCombatTargetFinderMixin"
+    "BetterCombatCollisionFilterMixin",
+    "BetterCombatRadialFilterMixin",
+    "BetterCombatInitialTargetsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
