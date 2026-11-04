@@ -7,7 +7,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.dispatch.command.AzCommand;
 import mod.azure.azurelib.render.item.AzItemRendererRegistry;
 
@@ -50,13 +49,6 @@ public final class AzBetterCombatCompat {
         }
 
         if (AzItemRendererRegistry.getOrNull(stack.getItem()) == null) {
-            return;
-        }
-
-        if (
-            stack.getTag() == null ||
-                !stack.getTag().hasUUID(AzureLib.ITEM_UUID_TAG)
-        ) {
             return;
         }
 

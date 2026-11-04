@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
@@ -29,12 +29,7 @@ public class AzArmorRenderer {
         this.provider = new AzProvider<>(
             config::createAnimator,
             config::modelLocation,
-            animator -> {
-                if (animator.getTag() != null && animator.getTag().contains(AzureLib.ITEM_UUID_TAG)) {
-                    animator.getTag().getUUID(AzureLib.ITEM_UUID_TAG);
-                }
-                return UUID.randomUUID();
-            }
+            AzItemIdentity::resolve
         );
         this.rendererPipeline = createPipeline(config);
     }
