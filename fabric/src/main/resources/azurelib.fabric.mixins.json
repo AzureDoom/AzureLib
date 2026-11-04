@@ -8,8 +8,7 @@
   },
   "mixins": [
     "AbstractContainerMenuMixin_AzItemIDFix",
-    "ItemMixin_EnsureCraftHasID",
-    "ItemStackMixin_AzItemStackIdentityRegistry",
+    "ItemStackMixin_AzAssignIdInInventory",
     "PlayerListMixin",
     "EntityMixin_AzHitboxState",
     "LivingEntityMixin_AzHitboxDamage",
@@ -28,6 +27,7 @@
     "MixinItemRenderer",
     "TextureManagerMixin",
     "EntityRenderDispatcherAccessor",
-    "MinecraftMixin_AzMorphCompat"
+    "MinecraftMixin_AzMorphCompat",
+    "ItemInHandRendererMixin_AzIdentityReequip"
   ]
 }

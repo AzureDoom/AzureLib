@@ -18,6 +18,8 @@ import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.common.animation.AzAnimator;
 import mod.azure.azurelib.common.animation.AzAnimatorAccessor;
 import mod.azure.azurelib.common.animation.cache.AzIdentifiableItemStackAnimatorCache;
+import mod.azure.azurelib.common.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.common.animation.cache.AzItemIdentity;
 import mod.azure.azurelib.common.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.common.animation.dispatch.AzPendingDispatches;
 import mod.azure.azurelib.common.animation.dispatch.command.action.AzAction;
@@ -258,6 +260,9 @@ public record AzCommand(List<AzAction> actions) {
      * Sends animation commands for the specified item based on the configured dispatch origin. The method determines
      * whether the command can proceed, assigns a unique identifier to the item if required, and dispatches the
      * animation commands either from the client or the server side. <br>
+     * On the server this is where a stack first gets its persistent Az ID ({@link AzItemIdentity#getOrCreate}), so
+     * pass the stack that lives in the inventory rather than a copy. On the client the command only runs locally,
+     * keyed by {@link AzItemIdentity#resolve}, and never writes to the stack. <br>
      * The command runs on every animator the stack has. If the item's renderer uses a separate first-person animator
      * ({@code AzItemRendererConfig.Builder#useSeparateFirstPersonAnimator()}), both the first-person and third-person
      * views play it; use {@link #sendForItem(Entity, ItemStack, AzItemAnimatorView)} to target only one of them.
@@ -280,18 +285,12 @@ public record AzCommand(List<AzAction> actions) {
      * @param view      the animator to target, or null to target every animator the stack has.
      */
     public void sendForItem(Entity entity, ItemStack itemStack, @Nullable AzItemAnimatorView view) {
-        var uuid = itemStack.get(AzureLib.AZ_ID.get());
-
-        if (uuid == null) {
-            AzureLib.LOGGER.warn(
-                "Could not find item stack UUID during dispatch. Did you forget to register an identity for the item? Item: {}, Item Stack: {}",
-                itemStack.getItem(),
-                itemStack
-            );
+        if (itemStack == null || itemStack.isEmpty()) {
             return;
         }
 
         if (entity.level().isClientSide()) {
+            var uuid = AzItemIdentity.resolve(itemStack);
             AzIdentifiableItemStackAnimatorCache.getInstance()
                 .dispatchOrQueue(
                     uuid,
@@ -303,10 +302,24 @@ public record AzCommand(List<AzAction> actions) {
                         );
                     }
                 );
-        } else {
-            var packet = new AzItemStackDispatchCommandPacket(uuid, this, Optional.ofNullable(view));
-            Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
+            return;
         }
+
+        var uuid = AzItemIdentity.getOrCreate(itemStack);
+
+        if (uuid == null) {
+            AzureLib.LOGGER.warn(
+                "Cannot dispatch animation commands for ItemStack (item={}): {}",
+                itemStack.getItem(),
+                AzIdentityRegistry.hasIdentity(itemStack.getItem())
+                    ? "no Az ID could be assigned."
+                    : "the item is not registered with AzIdentityRegistry#register()."
+            );
+            return;
+        }
+
+        var packet = new AzItemStackDispatchCommandPacket(uuid, this, Optional.ofNullable(view));
+        Services.NETWORK.sendToTrackingEntityAndSelf(packet, entity);
     }
 
     /**
