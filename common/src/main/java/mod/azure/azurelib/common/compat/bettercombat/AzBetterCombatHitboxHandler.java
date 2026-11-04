@@ -20,7 +20,7 @@ public final class AzBetterCombatHitboxHandler {
     private static final double EPSILON = 1.0E-12;
 
     private static final ThreadLocal<Map<Entity, List<AzOrientedBox>>> COLLISION_HITS =
-            ThreadLocal.withInitial(IdentityHashMap::new);
+        ThreadLocal.withInitial(IdentityHashMap::new);
 
     private AzBetterCombatHitboxHandler() {}
 

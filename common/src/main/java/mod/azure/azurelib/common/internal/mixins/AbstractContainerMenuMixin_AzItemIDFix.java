@@ -21,11 +21,11 @@ import mod.azure.azurelib.common.animation.cache.AzItemIdentity;
 public abstract class AbstractContainerMenuMixin_AzItemIDFix {
 
     @WrapOperation(
-            method = "doClick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/ItemStack;copyWithCount(I)Lnet/minecraft/world/item/ItemStack;"
-            )
+        method = "doClick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;copyWithCount(I)Lnet/minecraft/world/item/ItemStack;"
+        )
     )
     private ItemStack azurelib$clearCopiedAzId(ItemStack source, int count, Operation<ItemStack> original) {
         var copy = original.call(source, count);

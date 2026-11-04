@@ -17,9 +17,9 @@ import mod.azure.azurelib.common.animation.impl.AzItemAnimatorView;
  * {@link AzItemIdentity#resolve(ItemStack)}: the stack's persistent Az ID, or a transient per-instance id for a stack
  * that hasn't been given one yet. Animators are stored per {@link AzItemAnimatorView}, so a single stack can have a
  * separate first-person animator alongside its default one. <br>
- * Entries are strongly keyed and expire once an animator has gone unused for 300s. They
- * can't be weakly keyed: nothing reliably holds the UUID instance for the stack's lifetime, so weak keys let the GC
- * discard animators while the stack is still being rendered. <br>
+ * Entries are strongly keyed and expire once an animator has gone unused for 300s. They can't be weakly keyed: nothing
+ * reliably holds the UUID instance for the stack's lifetime, so weak keys let the GC discard animators while the stack
+ * is still being rendered. <br>
  * Commands dispatched before a stack's animator exists are queued briefly and replayed once it is registered.
  */
 public class AzIdentifiableItemStackAnimatorCache {

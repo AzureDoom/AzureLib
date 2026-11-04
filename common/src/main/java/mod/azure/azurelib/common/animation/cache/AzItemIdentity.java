@@ -15,11 +15,11 @@ import mod.azure.azurelib.AzureLib;
  * The single place AzureLib reads, creates and clears the identity of an {@link ItemStack}.
  * <p>
  * Stacks are never given an id when they are constructed. A stack receives its persistent id (the
- * {@link AzureLib#AZ_ID} component) through {@link #getOrCreate(ItemStack)} on the logical server, either when it
- * first ticks in an entity's inventory or, for stacks that never do, the first time an animation command is dispatched
- * for it. Assigning it while the stack sits in an inventory means the id, and the slot sync that carries it, arrives
- * before the item is first used rather than in the middle of that use. Creative tabs, recipe outputs, JEI/EMI's
- * ingredient lists and every other freshly built stack keep an empty component patch.
+ * {@link AzureLib#AZ_ID} component) through {@link #getOrCreate(ItemStack)} on the logical server, either when it first
+ * ticks in an entity's inventory or, for stacks that never do, the first time an animation command is dispatched for
+ * it. Assigning it while the stack sits in an inventory means the id, and the slot sync that carries it, arrives before
+ * the item is first used rather than in the middle of that use. Creative tabs, recipe outputs, JEI/EMI's ingredient
+ * lists and every other freshly built stack keep an empty component patch.
  * <p>
  * Rendering never writes components. {@link #resolve(ItemStack)} returns the persistent id when the stack has one and
  * otherwise a transient id tied to that stack instance, so a stack without an id still keeps one stable animator for as
@@ -53,8 +53,8 @@ public final class AzItemIdentity {
      * Returns the stack's persistent id, assigning one first if the stack has none and its item is registered in
      * {@link AzIdentityRegistry}. <br>
      * <b>Logical server only.</b> This writes a component, so call it on the server with the stack that actually lives
-     * in the inventory (not a copy): the normal slot sync then carries the id to clients. Calling it on the client gives
-     * the client a different id from the server's.
+     * in the inventory (not a copy): the normal slot sync then carries the id to clients. Calling it on the client
+     * gives the client a different id from the server's.
      *
      * @return the persistent id, or null for empty stacks and items without a registered identity.
      */
