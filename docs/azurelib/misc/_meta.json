@@ -31,6 +31,10 @@
         "name": "Morph Compatibility",
         "icon": "Shapes"
     },
+    "meshes.mdx": {
+        "name": "Polygon Meshes and Skinning",
+        "icon": "Shapes"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"

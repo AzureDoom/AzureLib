@@ -33,7 +33,8 @@ public record Bone(
     @Nullable Long renderGroupId,
     @Nullable Boolean reset,
     double[] rotation,
-    @Nullable TextureMesh[] textureMeshes
+    @Nullable TextureMesh[] textureMeshes,
+    SkinnedMesh[] skinnedMeshes
 ) {
 
     public static JsonDeserializer<Bone> deserializer() throws JsonParseException {
@@ -57,7 +58,14 @@ public record Bone(
             var neverRender = JsonUtil.getOptionalBoolean(obj, "neverRender");
             var parent = GsonHelper.getAsString(obj, "parent", null);
             var pivot = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "pivot", new JsonArray(0)));
-            var polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+            PolyMesh polyMesh;
+
+            try {
+                polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+            } catch (JsonParseException e) {
+                throw new JsonParseException("Bone '" + name + "' poly_mesh " + e.getMessage(), e);
+            }
+
             var renderGroupId = JsonUtil.getOptionalLong(obj, "render_group_id");
             var reset = JsonUtil.getOptionalBoolean(obj, "reset");
             var rotation = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "rotation", null));
@@ -66,6 +74,18 @@ public record Bone(
                 context,
                 TextureMesh.class
             );
+
+            SkinnedMesh[] skinnedMeshes;
+
+            try {
+                skinnedMeshes = JsonUtil.jsonArrayToObjectArray(
+                    GsonHelper.getAsJsonArray(obj, SkinnedMesh.KEY, new JsonArray(0)),
+                    context,
+                    SkinnedMesh.class
+                );
+            } catch (JsonParseException e) {
+                throw new JsonParseException("Bone '" + name + "' " + e.getMessage(), e);
+            }
 
             return new Bone(
                 bindPoseRotation,
@@ -82,7 +102,8 @@ public record Bone(
                 renderGroupId,
                 reset,
                 rotation,
-                textureMeshes
+                textureMeshes,
+                skinnedMeshes
             );
         };
     }

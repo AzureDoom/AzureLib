@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.azure.azurelib.common.cache.object.GeoCube;
-import mod.azure.azurelib.common.loading.json.raw.Bone;
-import mod.azure.azurelib.common.loading.json.raw.Cube;
-import mod.azure.azurelib.common.loading.json.raw.LocatorValue;
-import mod.azure.azurelib.common.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.common.cache.object.GeoMesh;
+import mod.azure.azurelib.common.cache.object.GeoSkinnedMesh;
+import mod.azure.azurelib.common.loading.json.raw.*;
 import mod.azure.azurelib.common.loading.object.BoneStructure;
 import mod.azure.azurelib.common.loading.object.GeometryTree;
 import mod.azure.azurelib.common.model.AzBakedModel;
 import mod.azure.azurelib.common.model.AzBone;
 import mod.azure.azurelib.common.model.AzBoneLocator;
 import mod.azure.azurelib.common.model.AzBoneMetadata;
+import mod.azure.azurelib.common.model.AzRestPose;
 import mod.azure.azurelib.common.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.common.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.common.util.client.RenderUtils;
@@ -35,6 +35,8 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
         for (var boneStructure : geometryTree.topLevelBones().values()) {
             bones.add(constructBone(boneStructure, geometryTree.properties(), null));
         }
+
+        bindSkinnedMeshes(bones, AzRestPose.of(geometryTree));
 
         return new AzBakedModel(bones);
     }
@@ -57,6 +59,22 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
 
         for (var cube : bone.cubes()) {
             newBone.getCubes().add(constructCube(cube, properties, newBone));
+        }
+
+        if (bone.polyMesh() != null) {
+            GeoMesh mesh = constructMesh(bone.polyMesh(), properties, newBone);
+
+            if (mesh != null) {
+                newBone.getMeshes().add(mesh);
+            }
+        }
+
+        for (SkinnedMesh skinnedMesh : bone.skinnedMeshes()) {
+            GeoSkinnedMesh mesh = constructSkinnedMesh(skinnedMesh, properties, newBone);
+
+            if (mesh != null) {
+                newBone.getSkinnedMeshes().add(mesh);
+            }
         }
 
         // TODO: Avoid recursive calls here.
