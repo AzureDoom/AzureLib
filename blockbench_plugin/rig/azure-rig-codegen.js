@@ -229,6 +229,10 @@ function ikTargetExpression(t, entityClass) {
     case 'entity_eyes': return `AzIkTargets.entityEyes(entity -> null /* TODO: return the (synced) entity to look at */)`;
     case 'world': return `AzIkTargets.world((entity, partialTick) -> null /* TODO: return the world position */)`;
     case 'model': return `AzIkTargets.<${entityClass}>model(${vecArgs(t.point)})`;
+    case 'bone':
+      return isZero(t.point)
+        ? `AzIkTargets.<${entityClass}>bone(${js(t.bone || '')})`
+        : `AzIkTargets.<${entityClass}>bone(${js(t.bone || '')}, ${vecArgs(t.point)})`;
     default: return 'null /* TODO: target */';
   }
 }

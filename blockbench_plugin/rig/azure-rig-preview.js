@@ -501,6 +501,11 @@ function solveCcd(bones, effector, target, constraints, iterations, tolerance) {
 
 /** Where a chain's preview target is this frame, in world space, or null to skip. */
 function previewTarget(entry, effectorWorld) {
+  if (entry.target?.type === 'bone') {
+    const mesh = entry.target.bone ? boneMesh(entry.target.bone) : null;
+    return mesh ? pointOnBone(mesh, entry.target.point || [0, 0, 0]) : null;
+  }
+
   const p = entry.preview || {};
   if (p.enabled === false || p.mode === 'off') return null;
 
@@ -680,14 +685,27 @@ function runSpring(spring) {
   const groundY = spring.ground ? modelToWorld([0, 0, 0]).y : null;
 
   const time = Timeline.time || 0;
+  const now = performance.now();
+  const playing = !!Timeline.playing;
   let state = springStates.get(spring.id);
   const fresh = !state || state.count !== count;
-  const delta = fresh ? 0 : (time - state.time) * TICKS_PER_SECOND;
+
+  // While playback runs, step by real time (scaled by the playback speed), so looping back to
+  // the start of the animation or the loop range doesn't count as going backwards. When
+  // scrubbing, step by timeline time, and reset on a jump backwards or a big jump forwards.
+  let delta = 0;
+  if (!fresh) {
+    delta = playing && state.playing
+      ? ((now - state.wall) / 1000) * TICKS_PER_SECOND * ((Timeline.playback_speed ?? 100) / 100)
+      : (time - state.time) * TICKS_PER_SECOND;
+  }
 
   if (fresh || delta < 0 || delta > 10) {
     state = {
       count,
       time,
+      wall: now,
+      playing,
       position: targets.map(t => t.clone()),
       velocity: targets.map(() => new THREE.Vector3()),
     };
@@ -737,6 +755,8 @@ function runSpring(spring) {
       remaining -= dt;
     }
     state.time = time;
+    state.wall = now;
+    state.playing = playing;
   }
 
   const constraints = constraintsFor(spring.bones);

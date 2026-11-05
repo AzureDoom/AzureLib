@@ -13,6 +13,7 @@ export const RIG_VERSION = 1;
 export const HITBOX_ROLES = ['COMBAT', 'INTERACT', 'ANCHOR'];
 
 export const IK_TARGETS = {
+  bone: 'Animated bone',
   ground: 'Ground (foot placement)',
   entity_eyes: 'Another entity\'s eyes',
   world: 'World position (code)',
@@ -84,7 +85,7 @@ export function newIkChain(id, bones) {
     pole: null,
     iterations: 10,
     tolerance: 0.1,
-    target: { type: 'ground', stepUp: 0.5, stepDown: 0.75, point: [0, 0, 0] },
+    target: { type: 'ground', stepUp: 0.5, stepDown: 0.75, point: [0, 0, 0], bone: '' },
     priority: 50,
     weight: 1,
     preview: { enabled: true, mode: 'ground', groundHeight: 0, locator: '', point: [0, 0, -16] },
@@ -96,7 +97,7 @@ export function newLookAt(id, bones) {
     id,
     bones,
     forward: [0, 0, -1],
-    target: { type: 'entity_eyes', point: [0, 0, 0] },
+    target: { type: 'entity_eyes', point: [0, 0, 0], bone: '' },
     priority: 40,
     weight: 1,
     preview: { enabled: true, mode: 'point', locator: '', point: [0, 24, -32] },
@@ -375,12 +376,33 @@ export function validateRig(rig = RigStore.rig) {
     if (count > 1) issues.push(`Locator name "${name}" is used ${count} times; AzureLib resolves the first one it finds.`);
   }
 
+  const checkBoneTarget = (kind, id, target, chainBones) => {
+    if (target?.type !== 'bone') return;
+    if (!target.bone) {
+      issues.push(`${kind} "${id}": pick the bone to follow.`);
+      return;
+    }
+    if (!bones.has(target.bone)) {
+      issues.push(`${kind} "${id}": target bone "${target.bone}" doesn't exist.`);
+      return;
+    }
+    const targetBone = findBone(target.bone);
+    const driven = chainBones.map(findBone).filter(Boolean);
+    if (chainBones.includes(target.bone) || driven.some(b => isDescendant(targetBone, b))) {
+      issues.push(`${kind} "${id}": target bone "${target.bone}" is part of the chain it drives; move it under a bone outside the chain.`);
+    }
+  };
+
   for (const c of rig.ikChains) {
     checkChain('IK chain', c.id, c.bones);
+    checkBoneTarget('IK chain', c.id, c.target, c.bones);
     const solver = c.solver === 'auto' ? (c.bones.length === 2 || c.bones.length === 3 ? 'two_bone' : 'ccd') : c.solver;
     if (solver === 'two_bone' && c.bones.length < 2) issues.push(`IK chain "${c.id}": the two-bone solver needs at least 2 bones.`);
   }
-  for (const l of rig.lookAts) checkChain('Look-at', l.id, l.bones);
+  for (const l of rig.lookAts) {
+    checkChain('Look-at', l.id, l.bones);
+    checkBoneTarget('Look-at', l.id, l.target, l.bones);
+  }
   for (const s of rig.springBones) checkChain('Spring bone', s.id, s.bones);
 
   for (const c of rig.constraints) {
