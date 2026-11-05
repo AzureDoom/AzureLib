@@ -1,14 +1,13 @@
-v1.1.6
+v1.1.7
 
 ### Additions
-- Added `AzIkTargets.bone(name)`, an IK target that follows a bone as animated this frame, optionally offset from its pivot with `bone(name, x, y, z)`. Animate the position of an empty target bone and the limb reaches for it, so you only keyframe where a hand or foot goes.
-- Added support for Geckolib armors in AzArmorLayer.
+- N/A
 
 ### Fixes
 - N/A
 
 ### Changes
-- N/A
+- Item animators now stay cached for 5 minutes without being rendered or dispatched to, up from 2. Stacks that go unrendered for a while, such as worn armor in first person, are less likely to lose their current animation before they're seen again.
 
 ### Developer Notes
-- `AzIkTargets.bone` looks the bone up once per animatable (and again if its model changes), and leaves the limb as animated if the model has no such bone. Keep the target bone outside the chain it drives, for example under the body or root; if it were inside the limb, moving the limb would move its own target.
+- `AzIdentifiableItemStackAnimatorCache.ANIMATOR_IDLE_SECONDS` is now 300 (was 120), matching the 1.18.2, 1.20.1, 1.21.1 and 26.3 branches.

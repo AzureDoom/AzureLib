@@ -22,10 +22,10 @@ import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
  * Ids come from {@link AzItemIdentity#resolve(ItemStack)}, so they are either the stack's persistent id or a transient
  * id for a stack that has never been dispatched to.
  * <p>
- * Entries are strongly keyed and expire once an animator has gone unused for 300s. They can't
- * be weakly keyed: an animator's context holds its stack, so anything keeping the id alive for the stack's lifetime
- * would keep the animator alive forever, and nothing keeping it alive gets the animator collected at the next GC while
- * the stack is still being rendered.
+ * Entries are strongly keyed and expire once an animator has gone unused for 300s. They can't be weakly keyed: an
+ * animator's context holds its stack, so anything keeping the id alive for the stack's lifetime would keep the animator
+ * alive forever, and nothing keeping it alive gets the animator collected at the next GC while the stack is still being
+ * rendered.
  */
 public class AzIdentifiableItemStackAnimatorCache {
 
