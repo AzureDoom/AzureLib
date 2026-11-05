@@ -64,8 +64,8 @@ public class AzArmorLayer<T extends LivingEntity> implements AzRenderLayer<UUID,
     /**
      * Base armor models per bone instance. Entity bones belong to each animator's own copy of the model, so every
      * wearer gets its own base models and no pose can carry over between them. Keys are weak and compared by identity:
-     * an entry goes away with its entity's bones, and {@link AzBone#equals} (name-based) would otherwise merge the
-     * same bone of different entities back into one shared model.
+     * an entry goes away with its entity's bones, and {@link AzBone#equals} (name-based) would otherwise merge the same
+     * bone of different entities back into one shared model.
      */
     private final Map<AzBone, ArmorModelSet<HumanoidModel<HumanoidRenderState>>> armorModels =
         new MapMaker().weakKeys().makeMap();
