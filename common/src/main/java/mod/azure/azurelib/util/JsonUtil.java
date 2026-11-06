@@ -56,6 +56,7 @@ public final class JsonUtil {
         .registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
         .registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
         .registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
+        .registerTypeAdapter(SkinnedMesh.class, SkinnedMesh.deserializer())
         .registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
         .registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
         .registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
