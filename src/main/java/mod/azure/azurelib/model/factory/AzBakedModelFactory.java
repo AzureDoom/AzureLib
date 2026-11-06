@@ -127,9 +127,9 @@ public abstract class AzBakedModelFactory {
     private static final float[] IDENTITY = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 
     /**
-     * Construct a {@link GeoSkinnedMesh} from an {@code azurelib:skinned_meshes} entry. The mesh is unbound; it gets its
-     * bind pose from {@link #bindSkinnedMeshes}. Influences are clamped to {@link GeoSkinnedMesh#MAX_INFLUENCES} per
-     * position (strongest first) and renormalized; positions with no usable influence are bound to the first joint,
+     * Construct a {@link GeoSkinnedMesh} from an {@code azurelib:skinned_meshes} entry. The mesh is unbound; it gets
+     * its bind pose from {@link #bindSkinnedMeshes}. Influences are clamped to {@link GeoSkinnedMesh#MAX_INFLUENCES}
+     * per position (strongest first) and renormalized; positions with no usable influence are bound to the first joint,
      * which the Blockbench plugin always writes as the armature itself.
      *
      * @return the mesh, or null if it has no drawable polygons or joints

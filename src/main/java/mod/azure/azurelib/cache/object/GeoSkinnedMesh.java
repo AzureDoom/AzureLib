@@ -8,16 +8,16 @@ import mod.azure.azurelib.model.factory.primitive.MeshPolygons;
  * Baked skinned polygon mesh, deformed every frame by the bones in {@link #joint(int) its joints} with linear blend
  * skinning.
  * <p>
- * Rest positions are in model space. Each position has up to {@link #MAX_INFLUENCES} joint influences with weights
- * that sum to one. The mesh belongs to an owner {@link AzBone} (the Blockbench armature) and renders as part of it, so
+ * Rest positions are in model space. Each position has up to {@link #MAX_INFLUENCES} joint influences with weights that
+ * sum to one. The mesh belongs to an owner {@link AzBone} (the Blockbench armature) and renders as part of it, so
  * hiding the owner hides the mesh.
  * </p>
  * <p>
  * Instances are immutable and shared between copies of a baked model: arrays are copied on construction, array
- * accessors return copies, and per-frame code reads through the indexed getters, which don't allocate. The inverse
- * bind matrices come from the geometry file's rest pose ({@link mod.azure.azurelib.model.AzRestPose}), never from live
- * bone state: the factory builds an unbound mesh, then {@link #withBindPose} produces the bound one once the whole bone
- * tree is known. An unbound mesh does not render.
+ * accessors return copies, and per-frame code reads through the indexed getters, which don't allocate. The inverse bind
+ * matrices come from the geometry file's rest pose ({@link mod.azure.azurelib.model.AzRestPose}), never from live bone
+ * state: the factory builds an unbound mesh, then {@link #withBindPose} produces the bound one once the whole bone tree
+ * is known. An unbound mesh does not render.
  * </p>
  * <p>
  * Matrices are {@code float[16]}, column-major, as used by {@link AzSkinning}.

@@ -6,8 +6,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 
 /**
- * Size limits and strict readers for mesh data, so a malformed or oversized mesh fails to load with a message that
- * says what is wrong and where, instead of an index exception at bake or render time.
+ * Size limits and strict readers for mesh data, so a malformed or oversized mesh fails to load with a message that says
+ * what is wrong and where, instead of an index exception at bake or render time.
  * <p>
  * Skinned meshes are deformed on the CPU every frame, so the limits are generous for hand-made models but stop runaway
  * files from stalling the game.

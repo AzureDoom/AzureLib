@@ -5,8 +5,8 @@ package mod.azure.azurelib.model;
  * {@link mod.azure.azurelib.util.client.RenderUtils#prepMatrixForBone}.
  * <p>
  * Matrices are {@code float[16]} in column-major order ({@code m[column * 4 + row]}), so this works the same on every
- * branch whatever math classes the game version provides. Every method writes into arrays the caller owns and
- * allocates nothing.
+ * branch whatever math classes the game version provides. Every method writes into arrays the caller owns and allocates
+ * nothing.
  * </p>
  */
 public final class AzSkinning {
@@ -48,8 +48,8 @@ public final class AzSkinning {
     }
 
     /**
-     * Multiplies {@code matrix} by {@code T(position) * T(pivot) * Rz * Ry * Rx * S * T(-pivot)}. Position and pivot are
-     * in AzBone units (pixels, X as stored on {@link AzBone}), rotation in radians; the result is in model units
+     * Multiplies {@code matrix} by {@code T(position) * T(pivot) * Rz * Ry * Rx * S * T(-pivot)}. Position and pivot
+     * are in AzBone units (pixels, X as stored on {@link AzBone}), rotation in radians; the result is in model units
      * (pixels / 16).
      */
     public static float[] mulLocal(
