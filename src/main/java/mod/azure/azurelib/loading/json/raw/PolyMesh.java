@@ -77,10 +77,17 @@ public final class PolyMesh {
     /** Reads poly mesh fields from {@code obj}. Shared with {@link SkinnedMesh}, which embeds the same fields. */
     static PolyMesh read(JsonObject obj, JsonDeserializationContext context) {
         Boolean normalizedUVs = JsonUtil.getOptionalBoolean(obj, "normalized_uvs");
-        double[][] positions = MeshValidation.vectors(obj.get("positions"), "positions", 3, MeshValidation.MAX_POSITIONS);
+        double[][] positions = MeshValidation.vectors(
+            obj.get("positions"),
+            "positions",
+            3,
+            MeshValidation.MAX_POSITIONS
+        );
         double[][] normals = MeshValidation.vectors(obj.get("normals"), "normals", 3, MeshValidation.MAX_ATTRIBUTES);
         double[][] uvs = MeshValidation.vectors(obj.get("uvs"), "uvs", 2, MeshValidation.MAX_ATTRIBUTES);
-        PolysUnion polys = obj.has("polys") ? context.<PolysUnion>deserialize(obj.get("polys"), PolysUnion.class) : null;
+        PolysUnion polys = obj.has("polys")
+            ? context.<PolysUnion>deserialize(obj.get("polys"), PolysUnion.class)
+            : null;
         PolyMesh mesh = new PolyMesh(normalizedUVs, normals, polys, positions, uvs);
 
         mesh.validate();

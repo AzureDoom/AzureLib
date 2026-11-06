@@ -1,5 +1,10 @@
 package mod.azure.azurelib.model.factory.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoMesh;
 import mod.azure.azurelib.cache.object.GeoQuad;
@@ -12,11 +17,6 @@ import mod.azure.azurelib.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.client.RenderUtils;
 import mod.azure.azurelib.util.math.Vec3;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A concrete implementation of the {@link AzBakedModelFactory} that constructs baked models, bones, and cubes from raw

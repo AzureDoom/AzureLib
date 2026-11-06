@@ -1,5 +1,9 @@
 package mod.azure.azurelib.model.factory;
 
+import java.util.ArrayDeque;
+import java.util.List;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.*;
 import mod.azure.azurelib.loading.json.raw.*;
@@ -13,10 +17,6 @@ import mod.azure.azurelib.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Vec3;
 import mod.azure.azurelib.util.math.Vector3f;
-
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.List;
 
 /**
  * Abstract factory class for constructing baked models, bones, and cubes from raw input data such as geometry trees or
@@ -118,9 +118,9 @@ public abstract class AzBakedModelFactory {
     private static final float[] IDENTITY = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 
     /**
-     * Construct a {@link GeoSkinnedMesh} from an {@code azurelib:skinned_meshes} entry. The mesh is unbound; it gets its
-     * bind pose from {@link #bindSkinnedMeshes}. Influences are clamped to {@link GeoSkinnedMesh#MAX_INFLUENCES} per
-     * position (strongest first) and renormalized; positions with no usable influence are bound to the first joint,
+     * Construct a {@link GeoSkinnedMesh} from an {@code azurelib:skinned_meshes} entry. The mesh is unbound; it gets
+     * its bind pose from {@link #bindSkinnedMeshes}. Influences are clamped to {@link GeoSkinnedMesh#MAX_INFLUENCES}
+     * per position (strongest first) and renormalized; positions with no usable influence are bound to the first joint,
      * which the Blockbench plugin always writes as the armature itself.
      *
      * @return the mesh, or null if it has no drawable polygons or joints

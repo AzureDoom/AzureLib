@@ -9,10 +9,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import mod.azure.azurelib.util.GsonHelper;
-import mod.azure.azurelib.util.JsonUtil;
 
 import java.util.Map;
+
+import mod.azure.azurelib.util.GsonHelper;
+import mod.azure.azurelib.util.JsonUtil;
 
 /**
  * Container class for cube information, only used in deserialization at startup

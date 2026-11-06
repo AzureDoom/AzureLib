@@ -1,11 +1,11 @@
 package mod.azure.azurelib.model;
 
+import java.util.*;
+
 import mod.azure.azurelib.cache.object.GeoCube;
 import mod.azure.azurelib.cache.object.GeoMesh;
 import mod.azure.azurelib.cache.object.GeoSkinnedMesh;
 import mod.azure.azurelib.util.math.*;
-
-import java.util.*;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>

@@ -291,8 +291,8 @@ public class AzModelRenderer<K, T> {
             int b = quad * 4;
 
             if (
-                    quadFilter != null
-                            && !quadFilter.test(mesh.uvBound(b), mesh.uvBound(b + 1), mesh.uvBound(b + 2), mesh.uvBound(b + 3))
+                quadFilter != null
+                    && !quadFilter.test(mesh.uvBound(b), mesh.uvBound(b + 1), mesh.uvBound(b + 2), mesh.uvBound(b + 3))
             ) {
                 continue;
             }
@@ -442,12 +442,12 @@ public class AzModelRenderer<K, T> {
             int b = quad * 4;
 
             if (
-                    quadFilter != null
-                            && !quadFilter.test(
-                            polygons.uvBound(b),
-                            polygons.uvBound(b + 1),
-                            polygons.uvBound(b + 2),
-                            polygons.uvBound(b + 3)
+                quadFilter != null
+                    && !quadFilter.test(
+                        polygons.uvBound(b),
+                        polygons.uvBound(b + 1),
+                        polygons.uvBound(b + 2),
+                        polygons.uvBound(b + 3)
                     )
             ) {
                 continue;
@@ -464,9 +464,9 @@ public class AzModelRenderer<K, T> {
                 float nz = polygons.cornerNormal(c + 2);
 
                 normalScratch.set(
-                        outNormals[n] * nx + outNormals[n + 3] * ny + outNormals[n + 6] * nz,
-                        outNormals[n + 1] * nx + outNormals[n + 4] * ny + outNormals[n + 7] * nz,
-                        outNormals[n + 2] * nx + outNormals[n + 5] * ny + outNormals[n + 8] * nz
+                    outNormals[n] * nx + outNormals[n + 3] * ny + outNormals[n + 6] * nz,
+                    outNormals[n + 1] * nx + outNormals[n + 4] * ny + outNormals[n + 7] * nz,
+                    outNormals[n + 2] * nx + outNormals[n + 5] * ny + outNormals[n + 8] * nz
                 );
                 normalScratch.transform(normalMatrix);
                 normalScratch.normalize();
@@ -498,20 +498,20 @@ public class AzModelRenderer<K, T> {
     /** Writes one mesh vertex from {@link #quadPosition} and {@link #normalScratch}. */
     private void emitMeshVertex(VertexConsumer buffer, float u, float v) {
         buffer.vertex(
-                quadPosition.x(),
-                quadPosition.y(),
-                quadPosition.z(),
-                meshRed,
-                meshGreen,
-                meshBlue,
-                meshAlpha,
-                u * meshUScale,
-                v * meshVScale,
-                meshOverlay,
-                meshLight,
-                normalScratch.x(),
-                normalScratch.y(),
-                normalScratch.z()
+            quadPosition.x(),
+            quadPosition.y(),
+            quadPosition.z(),
+            meshRed,
+            meshGreen,
+            meshBlue,
+            meshAlpha,
+            u * meshUScale,
+            v * meshVScale,
+            meshOverlay,
+            meshLight,
+            normalScratch.x(),
+            normalScratch.y(),
+            normalScratch.z()
         );
     }
 

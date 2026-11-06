@@ -97,6 +97,7 @@ public final class PolysUnion {
     }
 
     public enum Type {
+
         QUAD("quad_list"),
         TRI("tri_list");
 

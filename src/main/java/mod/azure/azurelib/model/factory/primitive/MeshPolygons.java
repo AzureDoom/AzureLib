@@ -1,9 +1,9 @@
 package mod.azure.azurelib.model.factory.primitive;
 
+import java.util.Arrays;
+
 import mod.azure.azurelib.loading.json.raw.PolyMesh;
 import mod.azure.azurelib.loading.json.raw.PolysUnion;
-
-import java.util.Arrays;
 
 /**
  * Turns Bedrock {@link PolyMesh} data into flat, render-ready quad arrays.
@@ -262,7 +262,9 @@ public final class MeshPolygons {
         ) < -EPSILON;
     }
 
-    /** Signed turn at {@code b} for the path a -> b -> c, positive when it follows the winding given by {@code normal}. */
+    /**
+     * Signed turn at {@code b} for the path a -> b -> c, positive when it follows the winding given by {@code normal}.
+     */
     private static float turn(float[] p, int a, int b, int c, float[] normal) {
         a *= 3;
         b *= 3;

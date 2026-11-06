@@ -1,10 +1,10 @@
 package mod.azure.azurelib.model;
 
+import java.util.*;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoSkinnedMesh;
-
-import javax.annotation.Nullable;
-import java.util.*;
 
 /**
  * Represents a baked 3D model consisting of hierarchical bone structures. This class is immutable and provides
@@ -21,7 +21,7 @@ public class AzBakedModel {
         Collections.synchronizedMap(new WeakHashMap<GeoSkinnedMesh, Boolean>())
     );
 
-    private static AzBakedModel defaultModel = new AzBakedModel(List.of());
+    private static AzBakedModel defaultModel = new AzBakedModel(java.util.Collections.emptyList());
 
     private final Map<String, AzBone> bonesByName;
 
@@ -176,6 +176,6 @@ public class AzBakedModel {
     }
 
     public static void setDefault(AzBakedModel model) {
-        defaultModel = model != null ? model : new AzBakedModel(List.of());
+        defaultModel = model != null ? model : new AzBakedModel(java.util.Collections.emptyList());
     }
 }
