@@ -50,6 +50,8 @@ public final class Bone {
 
     private final TextureMesh[] textureMeshes;
 
+    private final SkinnedMesh[] skinnedMeshes;
+
     public Bone(
         double[] bindPoseRotation,
         Cube[] cubes,
@@ -65,7 +67,8 @@ public final class Bone {
         Long renderGroupId,
         Boolean reset,
         double[] rotation,
-        TextureMesh[] textureMeshes
+        TextureMesh[] textureMeshes,
+        SkinnedMesh[] skinnedMeshes
     ) {
         this.bindPoseRotation = bindPoseRotation;
         this.cubes = cubes;
@@ -82,6 +85,7 @@ public final class Bone {
         this.reset = reset;
         this.rotation = rotation;
         this.textureMeshes = textureMeshes;
+        this.skinnedMeshes = skinnedMeshes;
     }
 
     public double[] bindPoseRotation() {
@@ -144,6 +148,11 @@ public final class Bone {
         return this.textureMeshes;
     }
 
+    /** Skinned meshes owned by this bone, from its {@code azurelib:skinned_meshes} list. Never null. */
+    public SkinnedMesh[] skinnedMeshes() {
+        return this.skinnedMeshes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -165,7 +174,8 @@ public final class Bone {
             && java.util.Objects.equals(this.renderGroupId, other.renderGroupId)
             && java.util.Objects.equals(this.reset, other.reset)
             && java.util.Objects.equals(this.rotation, other.rotation)
-            && java.util.Objects.equals(this.textureMeshes, other.textureMeshes);
+            && java.util.Objects.equals(this.textureMeshes, other.textureMeshes)
+            && java.util.Objects.equals(this.skinnedMeshes, other.skinnedMeshes);
     }
 
     @Override
@@ -186,6 +196,7 @@ public final class Bone {
         result = 31 * result + java.util.Objects.hashCode(this.reset);
         result = 31 * result + java.util.Objects.hashCode(this.rotation);
         result = 31 * result + java.util.Objects.hashCode(this.textureMeshes);
+        result = 31 * result + java.util.Objects.hashCode(this.skinnedMeshes);
         return result;
     }
 
@@ -195,7 +206,8 @@ public final class Bone {
             + ", inflate=" + this.inflate + ", locators=" + this.locators + ", mirror=" + this.mirror + ", name="
             + this.name + ", neverRender=" + this.neverRender + ", parent=" + this.parent + ", pivot=" + this.pivot
             + ", polyMesh=" + this.polyMesh + ", renderGroupId=" + this.renderGroupId + ", reset=" + this.reset
-            + ", rotation=" + this.rotation + ", textureMeshes=" + this.textureMeshes + "]";
+            + ", rotation=" + this.rotation + ", textureMeshes=" + this.textureMeshes
+            + ", skinnedMeshes=" + this.skinnedMeshes + "]";
     }
 
     public static JsonDeserializer<Bone> deserializer() throws JsonParseException {
@@ -219,7 +231,14 @@ public final class Bone {
             Boolean neverRender = JsonUtil.getOptionalBoolean(obj, "neverRender");
             String parent = GsonHelper.getAsString(obj, "parent", null);
             double[] pivot = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "pivot", new JsonArray()));
-            PolyMesh polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+            PolyMesh polyMesh;
+
+            try {
+                polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+            } catch (JsonParseException e) {
+                throw new JsonParseException("Bone '" + name + "' poly_mesh " + e.getMessage(), e);
+            }
+
             Long renderGroupId = JsonUtil.getOptionalLong(obj, "render_group_id");
             Boolean reset = JsonUtil.getOptionalBoolean(obj, "reset");
             double[] rotation = JsonUtil.jsonArrayToDoubleArray(GsonHelper.getAsJsonArray(obj, "rotation", null));
@@ -228,6 +247,18 @@ public final class Bone {
                 context,
                 TextureMesh.class
             );
+
+            SkinnedMesh[] skinnedMeshes;
+
+            try {
+                skinnedMeshes = JsonUtil.jsonArrayToObjectArray(
+                    GsonHelper.getAsJsonArray(obj, SkinnedMesh.KEY, new JsonArray()),
+                    context,
+                    SkinnedMesh.class
+                );
+            } catch (JsonParseException e) {
+                throw new JsonParseException("Bone '" + name + "' " + e.getMessage(), e);
+            }
 
             return new Bone(
                 bindPoseRotation,
@@ -244,7 +275,8 @@ public final class Bone {
                 renderGroupId,
                 reset,
                 rotation,
-                textureMeshes
+                textureMeshes,
+                skinnedMeshes
             );
         };
     }
