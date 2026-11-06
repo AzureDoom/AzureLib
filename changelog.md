@@ -1,24 +1,21 @@
-v1.1.5
+v1.1.6
 
 ### Additions
-- N/A
+- Added Blockbench polygon mesh rendering. Meshes inside a bone render and animate with it, like cubes. Requires AzureLib Animator 2.4.0.
+- Added skinned meshes with smooth deformation. Meshes inside a Blockbench armature bend with the armature's bones using linear blend skinning (up to four weights per vertex), matching the Blockbench preview. Armature bones export as regular bones, so animations, procedural poses, IK, sockets and hitboxes work on them.
+- Bedrock `poly_mesh` geometry from other tools now loads and renders, including mixed triangle and quad polygons and the `tri_list` / `quad_list` shorthands.
+- Bone hitboxes that fit their bone's geometry now include rigid meshes.
 
 ### Fixes
-- Fixed item and armor animations randomly snapping to their rest pose and restarting mid-animation. The item animator cache was keyed weakly, so live animators were being discarded on garbage collection.
-- Fixed all item stacks without an Az ID sharing a single animator.
-- Fixed the client giving stacks its own Az ID when rendering them, which could disagree with the server's ID for the same stack. Rendering no longer writes to stacks, including stacks of items that aren't registered for identity.
-- Fixed client-side animation commands being skipped for stacks that hadn't received an Az ID yet.
-- Fixed arm, leg and boot pieces of AzureLib armor on AzureLib entities being placed at the wrong position (for example, gauntlets rendering at the entity's feet), depending on the order the entity's bones rendered in.
+- Fixed `poly_mesh` geometry failing to load. Positions, normals and UVs were read as flat arrays, and polygons with different corner counts overflowed the polygon array.
 
 ### Changes
-- Az IDs are now assigned on the server when a stack first ticks in an inventory, or the first time an animation command is sent for it, instead of whenever a stack is created.
-- Item animators now stay cached for 5 minutes without being rendered or dispatched to.
+- N/A
 
 ### Developer Notes
-- Added `AzItemIdentity`, the single place stack identity is decided: `peek` reads the persistent ID, `resolve` returns the ID animators are keyed by (persistent, or a temporary per-instance ID), `getOrCreate` assigns one, and `adopt` applies a server-sent ID on the client. `AzItemIds` remains the low-level reader and writer of the StationAPI NBT.
-- `AzItemIdentity.getOrCreate` is server-only. Calling it on the client gives that stack a different ID from the server's.
-- On the server, `AzCommand.sendForItem` assigns the Az ID if the stack has none, so pass the stack that lives in the inventory rather than a copy.
-- Worn armor doesn't tick in the inventory, so it gets its Az ID the first time an animation command is sent for it.
-- When a dispatch arrives for a stack whose NBT hasn't synced yet, the client adopts the server's ID and moves the stack's existing animator to it, so the animation continues instead of restarting.
-- Added `getOrNull(ItemStack, AzItemAnimatorView)`, `add(ItemStack, AzItemAnimator)`, `add(UUID, AzItemAnimatorView, AzItemAnimator)`, `remove(UUID)`, `clear()` and `ANIMATOR_IDLE_SECONDS` to `AzIdentifiableItemStackAnimatorCache`. Call `clear()` on disconnect or world unload to release cached animators.
+- `PolyMesh` now reads `positions`, `normals` and `uvs` as `double[][]`, and `PolysUnion.union()` is now `int[][][]` with one entry per polygon corner (`[position, normal, uv]`).
+- `Bone` has a new `skinnedMeshes` component, read from the bone's `azurelib:skinned_meshes` list.
+- Added `AzBakedModelFactory#constructMesh` and `#constructSkinnedMesh`. They have default implementations, so custom factories only need to call them from `constructBone`.
+- `AzBone` has `getMeshes()`, `getSkinnedMeshes()` and `getSkinBindings()`. Skin bindings are resolved per `AzBakedModel` instance, so deep-copied models skin against their own bones.
+- Meshes render from `AzModelRenderer#renderCubesOfBone`, through the new overridable `renderMesh` and `renderSkinnedMesh`. Renderers that call `renderCubesOfBone` get mesh support automatically, and quad filters and per-bone texture overrides apply to meshes too.
 
