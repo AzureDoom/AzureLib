@@ -1,13 +1,20 @@
-v1.1.7
+v1.1.8
 
 ### Additions
-- N/A
+- Added Blockbench polygon mesh rendering. Meshes inside a bone render and animate with it, like cubes. Requires AzureLib Animator 2.4.0.
+- Added skinned meshes with smooth deformation. Meshes inside a Blockbench armature bend with the armature's bones using linear blend skinning (up to four weights per vertex), matching the Blockbench preview. Armature bones export as regular bones, so animations, procedural poses, IK, sockets and hitboxes work on them.
+- Bedrock `poly_mesh` geometry from other tools now loads and renders, including mixed triangle and quad polygons and the `tri_list` / `quad_list` shorthands.
+- Bone hitboxes that fit their bone's geometry now include rigid meshes.
 
 ### Fixes
-- N/A
+- Fixed `poly_mesh` geometry failing to load. Positions, normals and UVs were read as flat arrays, and polygons with different corner counts overflowed the polygon array.
 
 ### Changes
-- Item animators now stay cached for 5 minutes without being rendered or dispatched to, up from 2. Stacks that go unrendered for a while, such as worn armor in first person, are less likely to lose their current animation before they're seen again.
+- N/A
 
 ### Developer Notes
-- `AzIdentifiableItemStackAnimatorCache.ANIMATOR_IDLE_SECONDS` is now 300 (was 120), matching the 1.18.2, 1.20.1, 1.21.1 and 26.3 branches.
+- `PolyMesh` now reads `positions`, `normals` and `uvs` as `double[][]`, and `PolysUnion.union()` is now `int[][][]` with one entry per polygon corner (`[position, normal, uv]`).
+- `Bone` has a new `skinnedMeshes` component, read from the bone's `azurelib:skinned_meshes` list.
+- Added `AzBakedModelFactory#constructMesh` and `#constructSkinnedMesh`. They have default implementations, so custom factories only need to call them from `constructBone`.
+- `AzBone` has `getMeshes()`, `getSkinnedMeshes()` and `getSkinBindings()`. Skin bindings are resolved per `AzBakedModel` instance, so deep-copied models skin against their own bones.
+- Meshes render from `AzModelRenderer#renderCubesOfBone`, through the new overridable `renderMesh` and `renderSkinnedMesh`. Renderers that call `renderCubesOfBone` get mesh support automatically, and quad filters and per-bone texture overrides apply to meshes too.
