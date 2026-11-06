@@ -58,7 +58,8 @@ public final class FileLoader {
         try {
             return JsonUtil.GEO_GSON.fromJson(loadFile(location, manager), Model.class);
         } catch (Exception e) {
-            logError(location);
+            // Include the cause: mesh validation errors say which bone, mesh and index is wrong.
+            AzureLib.LOGGER.warn("Error parsing JSON from {}: {}; skipping", location, describe(e));
             return null;
         }
     }
@@ -103,6 +104,16 @@ public final class FileLoader {
      *
      * @param args Optional arguments to be formatted into the message placeholders.
      */
+    private static String describe(Throwable error) {
+        Throwable cause = error;
+
+        while (cause.getCause() != null && cause.getMessage() == null) {
+            cause = cause.getCause();
+        }
+
+        return cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName();
+    }
+
     private static void logError(Object args) {
         AzureLib.LOGGER.warn("Error parsing JSON from {}: skipping", args);
     }
