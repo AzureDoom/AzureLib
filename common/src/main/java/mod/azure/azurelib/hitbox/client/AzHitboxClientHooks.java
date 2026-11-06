@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.cache.object.AzMesh;
 import mod.azure.azurelib.hitbox.*;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
@@ -322,6 +323,17 @@ public final class AzHitboxClientHooks {
                     maxY = Math.max(maxY, point.y - pivotY);
                     maxZ = Math.max(maxZ, point.z - pivotZ);
                 }
+            }
+        }
+
+        for (AzMesh mesh : bone.getMeshes()) {
+            for (int i = 0; i < mesh.positionComponentCount(); i += 3) {
+                minX = Math.min(minX, mesh.position(i) - pivotX);
+                minY = Math.min(minY, mesh.position(i + 1) - pivotY);
+                minZ = Math.min(minZ, mesh.position(i + 2) - pivotZ);
+                maxX = Math.max(maxX, mesh.position(i) - pivotX);
+                maxY = Math.max(maxY, mesh.position(i + 1) - pivotY);
+                maxZ = Math.max(maxZ, mesh.position(i + 2) - pivotZ);
             }
         }
 

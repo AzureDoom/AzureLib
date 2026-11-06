@@ -4,11 +4,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.cache.object.AzSkinnedMesh;
+
 /**
  * Represents a baked 3D model consisting of hierarchical bone structures. This class is immutable and provides
  * read-only access to bones by name or as a list of top-level bones. Bones are uniquely identified by their names.
  */
 public class AzBakedModel {
+
+    private static final Set<AzSkinnedMesh> WARNED_UNBOUND = Collections.newSetFromMap(
+        Collections.synchronizedMap(new WeakHashMap<>())
+    );
+
+    private static final Set<AzSkinnedMesh> WARNED_MISSING_JOINT = Collections.newSetFromMap(
+        Collections.synchronizedMap(new WeakHashMap<>())
+    );
 
     private static AzBakedModel defaultModel = new AzBakedModel(List.of());
 
@@ -26,6 +37,90 @@ public class AzBakedModel {
         this.topLevelBones = Collections.unmodifiableList(topLevelBones);
         this.bonesByName = Collections.unmodifiableMap(mapBonesByName(topLevelBones));
         this.modelUUID = modelUUID;
+        bindSkinnedMeshes();
+    }
+
+    private void bindSkinnedMeshes() {
+        Map<AzBone, AzBone> parents = null;
+
+        for (AzBone owner : bonesByName.values()) {
+            List<AzSkinnedMesh> meshes = owner.getSkinnedMeshes();
+
+            if (meshes.isEmpty()) {
+                owner.setSkinBindings(null);
+                continue;
+            }
+
+            if (parents == null) {
+                parents = mapParents();
+            }
+
+            AzBone[] ownerChain = chainOf(owner, parents);
+            ArrayList<AzSkinBinding> bindings = new ArrayList<>(meshes.size());
+
+            for (AzSkinnedMesh mesh : meshes) {
+                if (!mesh.isBound()) {
+                    if (WARNED_UNBOUND.add(mesh)) {
+                        AzureLib.LOGGER.error(
+                            "Skinned mesh '{}' on bone '{}' has no bind pose and won't render. Custom model factories must call AzBakedModelFactory.bindSkinnedMeshes from constructGeoModel.",
+                            mesh.name(),
+                            owner.getName()
+                        );
+                    }
+
+                    continue;
+                }
+
+                int jointCount = mesh.jointCount();
+                AzBone[][] jointChains = new AzBone[jointCount][];
+
+                for (int i = 0; i < jointCount; i++) {
+                    AzBone joint = bonesByName.get(mesh.joint(i));
+
+                    if (joint == null && WARNED_MISSING_JOINT.add(mesh)) {
+                        AzureLib.LOGGER.warn(
+                            "Skinned mesh '{}' on bone '{}' references missing joint '{}'; its vertices will follow '{}'",
+                            mesh.name(),
+                            owner.getName(),
+                            mesh.joint(i),
+                            owner.getName()
+                        );
+                    }
+
+                    jointChains[i] = joint != null ? chainOf(joint, parents) : ownerChain;
+                }
+
+                bindings.add(new AzSkinBinding(mesh, ownerChain, jointChains));
+            }
+
+            owner.setSkinBindings(bindings.toArray(AzSkinBinding[]::new));
+        }
+    }
+
+    private Map<AzBone, AzBone> mapParents() {
+        IdentityHashMap<AzBone, AzBone> parents = new IdentityHashMap<>();
+        ArrayDeque<AzBone> queue = new ArrayDeque<>(topLevelBones);
+
+        while (!queue.isEmpty()) {
+            AzBone bone = queue.poll();
+
+            for (AzBone child : bone.getChildBones()) {
+                parents.put(child, bone);
+                queue.add(child);
+            }
+        }
+
+        return parents;
+    }
+
+    private static AzBone[] chainOf(AzBone bone, Map<AzBone, AzBone> parents) {
+        ArrayDeque<AzBone> chain = new ArrayDeque<>();
+
+        for (AzBone current = bone; current != null; current = parents.get(current)) {
+            chain.addFirst(current);
+        }
+
+        return chain.toArray(AzBone[]::new);
     }
 
     private Map<String, AzBone> mapBonesByName(List<AzBone> bones) {

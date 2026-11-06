@@ -7,16 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzMesh;
+import mod.azure.azurelib.cache.object.AzSkinnedMesh;
 import mod.azure.azurelib.loading.json.raw.Bone;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.LocatorValue;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.loading.json.raw.SkinnedMesh;
 import mod.azure.azurelib.loading.object.BoneStructure;
 import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
 import mod.azure.azurelib.model.AzBoneLocator;
 import mod.azure.azurelib.model.AzBoneMetadata;
+import mod.azure.azurelib.model.AzRestPose;
 import mod.azure.azurelib.model.factory.AzBakedModelFactory;
 import mod.azure.azurelib.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.client.RenderUtils;
@@ -35,6 +39,8 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
         for (var boneStructure : geometryTree.topLevelBones().values()) {
             bones.add(constructBone(boneStructure, geometryTree.properties(), null));
         }
+
+        bindSkinnedMeshes(bones, AzRestPose.of(geometryTree));
 
         return new AzBakedModel(bones);
     }
@@ -57,6 +63,22 @@ public final class AzBuiltinBakedModelFactory extends AzBakedModelFactory {
 
         for (var cube : bone.cubes()) {
             newBone.getCubes().add(constructCube(cube, properties, newBone));
+        }
+
+        if (bone.polyMesh() != null) {
+            AzMesh mesh = constructMesh(bone.polyMesh(), properties, newBone);
+
+            if (mesh != null) {
+                newBone.getMeshes().add(mesh);
+            }
+        }
+
+        for (SkinnedMesh skinnedMesh : bone.skinnedMeshes()) {
+            AzSkinnedMesh mesh = constructSkinnedMesh(skinnedMesh, properties, newBone);
+
+            if (mesh != null) {
+                newBone.getSkinnedMeshes().add(mesh);
+            }
         }
 
         // TODO: Avoid recursive calls here.

@@ -12,11 +12,18 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.List;
+
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzMesh;
 import mod.azure.azurelib.cache.object.AzQuad;
+import mod.azure.azurelib.cache.object.AzSkinnedMesh;
 import mod.azure.azurelib.cache.object.AzVertex;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzSkinBinding;
+import mod.azure.azurelib.model.AzSkinning;
+import mod.azure.azurelib.model.factory.primitive.MeshPolygons;
 import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.util.client.RenderUtils;
 
@@ -42,6 +49,30 @@ public class AzModelRenderer<K, T> {
     private final Matrix4f savedPoseScratch = new Matrix4f();
 
     private final Matrix3f savedNormalScratch = new Matrix3f();
+
+    // Mesh rendering scratch, reused across frames so meshes render without allocating.
+
+    private final Matrix4f skinOwnerInverse = new Matrix4f();
+
+    private final Matrix4f skinJoint = new Matrix4f();
+
+    private float[] skinJointMatrices = new float[0];
+
+    private float[] skinnedPositions = new float[0];
+
+    private float[] skinnedNormalMatrices = new float[0];
+
+    private int meshColor;
+
+    private int meshOverlay;
+
+    private int meshLight;
+
+    private float meshUScale = 1f;
+
+    private float meshVScale = 1f;
+
+    private boolean meshUseOverride;
 
     private final AzRendererPipeline<K, T> rendererPipeline;
 
@@ -119,6 +150,204 @@ public class AzModelRenderer<K, T> {
         for (int i = 0, size = cubes.size(); i < size; i++) {
             renderCube(context, cubes.get(i));
         }
+
+        List<AzMesh> meshes = bone.getMeshes();
+
+        for (int i = 0, size = meshes.size(); i < size; i++) {
+            renderMesh(context, meshes.get(i));
+        }
+
+        for (AzSkinBinding binding : bone.getSkinBindings()) {
+            renderSkinnedMesh(context, binding);
+        }
+    }
+
+    protected void renderMesh(AzRendererPipelineContext<K, T> context, AzMesh mesh) {
+        PoseStack.Pose last = context.poseStack().last();
+        Matrix4f pose = last.pose();
+        Matrix3f normalMatrix = last.normal();
+        VertexConsumer buffer = context.vertexConsumer();
+
+        beginMeshVertices(context);
+
+        for (int quad = 0, count = mesh.quadCount(); quad < count; quad++) {
+            for (int corner = quad * 4, end = corner + 4; corner < end; corner++) {
+                int p = corner * 3;
+                int t = corner * 2;
+                Vector4f position = pose.transform(
+                    quadPosition.set(mesh.position(p), mesh.position(p + 1), mesh.position(p + 2), 1f)
+                );
+                Vector3f normal = normalMatrix.transform(
+                    normalScratch.set(mesh.normal(p), mesh.normal(p + 1), mesh.normal(p + 2))
+                );
+
+                emitMeshVertex(buffer, position, mesh.uv(t), mesh.uv(t + 1), normal);
+            }
+        }
+    }
+
+    protected void renderSkinnedMesh(AzRendererPipelineContext<K, T> context, AzSkinBinding binding) {
+        AzSkinnedMesh mesh = binding.mesh();
+        if (!mesh.isBound() || mesh.isEmpty()) {
+            return;
+        }
+
+        AzBone[][] jointChains = binding.jointChains();
+        int jointCount = jointChains.length;
+        int positionCount = mesh.positionCount();
+
+        if (skinJointMatrices.length < jointCount * 12) {
+            skinJointMatrices = new float[jointCount * 12];
+        }
+
+        if (skinnedPositions.length < positionCount * 3) {
+            skinnedPositions = new float[positionCount * 3];
+            skinnedNormalMatrices = new float[positionCount * 9];
+        }
+
+        AzSkinning.chainMatrix(binding.ownerChain(), skinOwnerInverse).invert();
+
+        float[] k = skinJointMatrices;
+
+        for (int j = 0; j < jointCount; j++) {
+            AzSkinning.chainMatrix(jointChains[j], skinJoint);
+            skinJoint.mulLocal(skinOwnerInverse).mul(mesh.inverseBindMatrix(j));
+
+            int o = j * 12;
+            k[o] = skinJoint.m00();
+            k[o + 1] = skinJoint.m01();
+            k[o + 2] = skinJoint.m02();
+            k[o + 3] = skinJoint.m10();
+            k[o + 4] = skinJoint.m11();
+            k[o + 5] = skinJoint.m12();
+            k[o + 6] = skinJoint.m20();
+            k[o + 7] = skinJoint.m21();
+            k[o + 8] = skinJoint.m22();
+            k[o + 9] = skinJoint.m30();
+            k[o + 10] = skinJoint.m31();
+            k[o + 11] = skinJoint.m32();
+        }
+
+        MeshPolygons polygons = mesh.polygons();
+        float[] outPositions = skinnedPositions;
+        float[] outNormals = skinnedNormalMatrices;
+        int max = AzSkinnedMesh.MAX_INFLUENCES;
+
+        for (int p = 0; p < positionCount; p++) {
+            float a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0, a8 = 0, a9 = 0, a10 = 0, a11 = 0;
+
+            for (int i = p * max, end = i + max; i < end; i++) {
+                float w = mesh.influenceWeight(i);
+
+                if (w == 0f) {
+                    continue;
+                }
+
+                int o = mesh.influenceJoint(i) * 12;
+                a0 += w * k[o];
+                a1 += w * k[o + 1];
+                a2 += w * k[o + 2];
+                a3 += w * k[o + 3];
+                a4 += w * k[o + 4];
+                a5 += w * k[o + 5];
+                a6 += w * k[o + 6];
+                a7 += w * k[o + 7];
+                a8 += w * k[o + 8];
+                a9 += w * k[o + 9];
+                a10 += w * k[o + 10];
+                a11 += w * k[o + 11];
+            }
+
+            int r = p * 3;
+            float x = polygons.position(r);
+            float y = polygons.position(r + 1);
+            float z = polygons.position(r + 2);
+            outPositions[r] = a0 * x + a3 * y + a6 * z + a9;
+            outPositions[r + 1] = a1 * x + a4 * y + a7 * z + a10;
+            outPositions[r + 2] = a2 * x + a5 * y + a8 * z + a11;
+
+            float n0 = a4 * a8 - a5 * a7, n1 = a5 * a6 - a3 * a8, n2 = a3 * a7 - a4 * a6;
+            float n3 = a7 * a2 - a8 * a1, n4 = a8 * a0 - a6 * a2, n5 = a6 * a1 - a7 * a0;
+            float n6 = a1 * a5 - a2 * a4, n7 = a2 * a3 - a0 * a5, n8 = a0 * a4 - a1 * a3;
+            float sign = (a0 * n0 + a1 * n1 + a2 * n2) < 0f ? -1f : 1f;
+
+            int n = p * 9;
+            outNormals[n] = n0 * sign;
+            outNormals[n + 1] = n1 * sign;
+            outNormals[n + 2] = n2 * sign;
+            outNormals[n + 3] = n3 * sign;
+            outNormals[n + 4] = n4 * sign;
+            outNormals[n + 5] = n5 * sign;
+            outNormals[n + 6] = n6 * sign;
+            outNormals[n + 7] = n7 * sign;
+            outNormals[n + 8] = n8 * sign;
+        }
+
+        PoseStack.Pose last = context.poseStack().last();
+        Matrix4f pose = last.pose();
+        Matrix3f normalMatrix = last.normal();
+        VertexConsumer buffer = context.vertexConsumer();
+
+        beginMeshVertices(context);
+
+        for (int quad = 0, count = polygons.quadCount(); quad < count; quad++) {
+            for (int corner = quad * 4, end = corner + 4; corner < end; corner++) {
+                int positionIndex = polygons.cornerPosition(corner);
+                int r = positionIndex * 3;
+                int n = positionIndex * 9;
+                int c = corner * 3;
+                int t = corner * 2;
+                float nx = polygons.cornerNormal(c);
+                float ny = polygons.cornerNormal(c + 1);
+                float nz = polygons.cornerNormal(c + 2);
+
+                normalScratch.set(
+                    outNormals[n] * nx + outNormals[n + 3] * ny + outNormals[n + 6] * nz,
+                    outNormals[n + 1] * nx + outNormals[n + 4] * ny + outNormals[n + 7] * nz,
+                    outNormals[n + 2] * nx + outNormals[n + 5] * ny + outNormals[n + 8] * nz
+                );
+                normalMatrix.transform(normalScratch);
+
+                if (normalScratch.lengthSquared() > 1.0e-12f) {
+                    normalScratch.normalize();
+                }
+
+                Vector4f position = pose.transform(
+                    quadPosition.set(outPositions[r], outPositions[r + 1], outPositions[r + 2], 1f)
+                );
+
+                emitMeshVertex(buffer, position, polygons.cornerUv(t), polygons.cornerUv(t + 1), normalScratch);
+            }
+        }
+    }
+
+    private void beginMeshVertices(AzRendererPipelineContext<K, T> context) {
+        Identifier textureOverride = context.getTextureOverride();
+        IntIntPair boneTextureSize = textureOverride != null ? context.computeTextureSize(textureOverride) : null;
+
+        meshUseOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
+        meshUScale = meshUseOverride ? (float) entityTextureSize.firstInt() / boneTextureSize.firstInt() : 1f;
+        meshVScale = meshUseOverride ? (float) entityTextureSize.secondInt() / boneTextureSize.secondInt() : 1f;
+        meshColor = meshUseOverride ? -1 : context.renderColor();
+        meshOverlay = context.packedOverlay();
+        meshLight = context.packedLight();
+    }
+
+    private void emitMeshVertex(VertexConsumer buffer, Vector4f position, float u, float v, Vector3f normal) {
+        putFull(
+            buffer,
+            position.x(),
+            position.y(),
+            position.z(),
+            meshColor,
+            u * meshUScale,
+            v * meshVScale,
+            meshOverlay,
+            meshLight,
+            normal.x(),
+            normal.y(),
+            normal.z()
+        );
     }
 
     /**

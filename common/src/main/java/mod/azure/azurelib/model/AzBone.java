@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import mod.azure.azurelib.cache.object.AzCube;
+import mod.azure.azurelib.cache.object.AzMesh;
+import mod.azure.azurelib.cache.object.AzSkinnedMesh;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
@@ -21,6 +23,12 @@ public class AzBone {
     private final List<AzBone> children = new ObjectArrayList<>();
 
     private final List<AzCube> cubes = new ObjectArrayList<>();
+
+    private final List<AzMesh> meshes = new ObjectArrayList<>();
+
+    private final List<AzSkinnedMesh> skinnedMeshes = new ObjectArrayList<>();
+
+    private AzSkinBinding[] skinBindings = new AzSkinBinding[0];
 
     private final Matrix4f modelSpaceMatrix = new Matrix4f();
 
@@ -286,6 +294,26 @@ public class AzBone {
         return this.cubes;
     }
 
+    public List<AzMesh> getMeshes() {
+        return meshes;
+    }
+
+    public List<AzSkinnedMesh> getSkinnedMeshes() {
+        return skinnedMeshes;
+    }
+
+    public AzSkinBinding[] getSkinBindings() {
+        return skinBindings;
+    }
+
+    public void setSkinBindings(AzSkinBinding[] skinBindings) {
+        this.skinBindings = skinBindings != null ? skinBindings : new AzSkinBinding[0];
+    }
+
+    public boolean hasGeometry() {
+        return !cubes.isEmpty() || !meshes.isEmpty() || !skinnedMeshes.isEmpty();
+    }
+
     public Map<String, AzBoneLocator> getLocators() {
         return this.locators;
     }
@@ -460,6 +488,8 @@ public class AzBone {
 
         // Copy cubes (geometry)
         copy.cubes.addAll(this.cubes); // shallow copy OK if cubes are immutable
+        copy.meshes.addAll(this.meshes);
+        copy.skinnedMeshes.addAll(this.skinnedMeshes); // bindings are rebuilt by the copied AzBakedModel
 
         // Copy children recursively
         for (AzBone child : this.children) {
@@ -486,6 +516,7 @@ public class AzBone {
         var result = 31 + Objects.hashCode(getName());
         result = 31 * result + (getParent() != null ? Objects.hashCode(getParent().getName()) : 0);
         result = 31 * result + getCubes().size();
+        result = 31 * result + getMeshes().size() + getSkinnedMeshes().size();
         result = 31 * result + getChildBones().size();
         return result;
     }
