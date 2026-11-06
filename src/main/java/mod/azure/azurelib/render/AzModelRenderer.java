@@ -6,10 +6,15 @@ import javax.annotation.Nullable;
 
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoMesh;
 import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.GeoSkinnedMesh;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzSkinBinding;
+import mod.azure.azurelib.model.AzSkinning;
+import mod.azure.azurelib.model.factory.primitive.MeshPolygons;
 import mod.azure.azurelib.render.item.AzItemRendererPipelineContext;
 import mod.azure.azurelib.render.vertex.MultiBufferSource;
 import mod.azure.azurelib.render.vertex.PoseStack;
@@ -51,6 +56,37 @@ public class AzModelRenderer<K, T> {
     private final Vector3f normalScratch = new Vector3f();
 
     private final Vector4f quadPosition = new Vector4f();
+
+    // Mesh rendering scratch, reused across frames so meshes render without allocating. Skinning maths uses
+    // column-major float[16] matrices (see AzSkinning).
+
+    private final float[] skinOwnerInverse = new float[16];
+
+    private final float[] skinJoint = new float[16];
+
+    private final float[] skinScratch = new float[16];
+
+    private float[] skinJointMatrices = new float[0];
+
+    private float[] skinnedPositions = new float[0];
+
+    private float[] skinnedNormalMatrices = new float[0];
+
+    private float meshRed;
+
+    private float meshGreen;
+
+    private float meshBlue;
+
+    private float meshAlpha;
+
+    private int meshOverlay;
+
+    private int meshLight;
+
+    private float meshUScale = 1f;
+
+    private float meshVScale = 1f;
 
     private Matrix4f[] savedBonePoses = new Matrix4f[0];
 
@@ -231,6 +267,256 @@ public class AzModelRenderer<K, T> {
         for (int i = 0, size = cubes.size(); i < size; i++) {
             renderCube(context, cubes.get(i));
         }
+
+        List<GeoMesh> meshes = bone.getMeshes();
+
+        for (int i = 0, size = meshes.size(); i < size; i++) {
+            renderMesh(context, meshes.get(i));
+        }
+
+        for (AzSkinBinding binding : bone.getSkinBindings()) {
+            renderSkinnedMesh(context, binding);
+        }
+    }
+
+    /**
+     * Renders a rigid {@link GeoMesh} under the current bone pose, the same way cubes are rendered.
+     */
+    protected void renderMesh(AzRendererPipelineContext<K, T> context, GeoMesh mesh) {
+        PoseStack.Pose last = context.poseStack().last();
+        Matrix4f pose = last.pose();
+        Matrix3f normalMatrix = last.normal();
+        VertexConsumer buffer = context.vertexConsumer();
+        AzQuadFilter quadFilter = context.getTextureOverride() == null ? context.quadFilter() : null;
+
+        beginMeshVertices(context);
+
+        for (int quad = 0, count = mesh.quadCount(); quad < count; quad++) {
+            int b = quad * 4;
+
+            if (
+                quadFilter != null
+                    && !quadFilter.test(mesh.uvBound(b), mesh.uvBound(b + 1), mesh.uvBound(b + 2), mesh.uvBound(b + 3))
+            ) {
+                continue;
+            }
+
+            for (int corner = quad * 4, end = corner + 4; corner < end; corner++) {
+                int p = corner * 3;
+                int t = corner * 2;
+
+                quadPosition.set(mesh.position(p), mesh.position(p + 1), mesh.position(p + 2), 1f);
+                quadPosition.transform(pose);
+                normalScratch.set(mesh.normal(p), mesh.normal(p + 1), mesh.normal(p + 2));
+                normalScratch.transform(normalMatrix);
+
+                emitMeshVertex(buffer, mesh.uv(t), mesh.uv(t + 1));
+            }
+        }
+    }
+
+    /**
+     * Renders a {@link GeoSkinnedMesh} owned by the current bone with linear blend skinning.
+     * <p>
+     * Each joint contributes {@code K = owner(t)^-1 * joint(t) * joint(rest)^-1}: its movement since the rest pose,
+     * expressed relative to the owner, whose transform is already on the pose stack. Positions are skinned once each
+     * and shared by every corner that uses them. Normals use the inverse transpose of each position's blended matrix,
+     * so they stay perpendicular to the surface under non-uniform bone scale, and are renormalized.
+     * </p>
+     * <p>
+     * Linear blend skinning itself averages matrices, so strong twists, or very different scales on neighbouring
+     * joints, can still pinch or thin the mesh where their weights blend (the "candy-wrapper" effect). Lighting stays
+     * consistent with the deformed surface; the surface is what's approximate.
+     * </p>
+     */
+    protected void renderSkinnedMesh(AzRendererPipelineContext<K, T> context, AzSkinBinding binding) {
+        GeoSkinnedMesh mesh = binding.mesh();
+
+        if (!mesh.isBound() || mesh.isEmpty()) {
+            return;
+        }
+
+        AzBone[][] jointChains = binding.jointChains();
+        int jointCount = jointChains.length;
+        int positionCount = mesh.positionCount();
+
+        if (skinJointMatrices.length < jointCount * 12) {
+            skinJointMatrices = new float[jointCount * 12];
+        }
+
+        if (skinnedPositions.length < positionCount * 3) {
+            skinnedPositions = new float[positionCount * 3];
+            skinnedNormalMatrices = new float[positionCount * 9];
+        }
+
+        AzSkinning.chainMatrix(binding.ownerChain(), skinOwnerInverse);
+        AzSkinning.invert(skinOwnerInverse, skinOwnerInverse);
+
+        float[] k = skinJointMatrices;
+
+        for (int j = 0; j < jointCount; j++) {
+            AzSkinning.chainMatrix(jointChains[j], skinJoint);
+            AzSkinning.mul(skinOwnerInverse, skinJoint, skinJoint, skinScratch);
+            mesh.mulInverseBind(j, skinJoint, skinScratch);
+
+            // Keep the affine 3x4 part, column by column.
+            int o = j * 12;
+            k[o] = skinJoint[0];
+            k[o + 1] = skinJoint[1];
+            k[o + 2] = skinJoint[2];
+            k[o + 3] = skinJoint[4];
+            k[o + 4] = skinJoint[5];
+            k[o + 5] = skinJoint[6];
+            k[o + 6] = skinJoint[8];
+            k[o + 7] = skinJoint[9];
+            k[o + 8] = skinJoint[10];
+            k[o + 9] = skinJoint[12];
+            k[o + 10] = skinJoint[13];
+            k[o + 11] = skinJoint[14];
+        }
+
+        MeshPolygons polygons = mesh.polygons();
+        float[] outPositions = skinnedPositions;
+        float[] outNormals = skinnedNormalMatrices;
+        int max = GeoSkinnedMesh.MAX_INFLUENCES;
+
+        for (int p = 0; p < positionCount; p++) {
+            float a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0, a8 = 0, a9 = 0, a10 = 0, a11 = 0;
+
+            for (int i = p * max, end = i + max; i < end; i++) {
+                float w = mesh.influenceWeight(i);
+
+                if (w == 0f) {
+                    continue;
+                }
+
+                int o = mesh.influenceJoint(i) * 12;
+                a0 += w * k[o];
+                a1 += w * k[o + 1];
+                a2 += w * k[o + 2];
+                a3 += w * k[o + 3];
+                a4 += w * k[o + 4];
+                a5 += w * k[o + 5];
+                a6 += w * k[o + 6];
+                a7 += w * k[o + 7];
+                a8 += w * k[o + 8];
+                a9 += w * k[o + 9];
+                a10 += w * k[o + 10];
+                a11 += w * k[o + 11];
+            }
+
+            int r = p * 3;
+            float x = polygons.position(r);
+            float y = polygons.position(r + 1);
+            float z = polygons.position(r + 2);
+            outPositions[r] = a0 * x + a3 * y + a6 * z + a9;
+            outPositions[r + 1] = a1 * x + a4 * y + a7 * z + a10;
+            outPositions[r + 2] = a2 * x + a5 * y + a8 * z + a11;
+
+            // Normals need the inverse transpose of the blended 3x3, not the 3x3 itself, or non-uniform scale
+            // tilts them toward the stretched axis. With columns c0, c1, c2 the inverse transpose is
+            // [c1 x c2, c2 x c0, c0 x c1] / det; the 1/det only changes length, which is normalized away later,
+            // so keep its sign (mirrored scale) and skip the division.
+            float n0 = a4 * a8 - a5 * a7, n1 = a5 * a6 - a3 * a8, n2 = a3 * a7 - a4 * a6;
+            float n3 = a7 * a2 - a8 * a1, n4 = a8 * a0 - a6 * a2, n5 = a6 * a1 - a7 * a0;
+            float n6 = a1 * a5 - a2 * a4, n7 = a2 * a3 - a0 * a5, n8 = a0 * a4 - a1 * a3;
+            float sign = (a0 * n0 + a1 * n1 + a2 * n2) < 0f ? -1f : 1f;
+
+            int n = p * 9;
+            outNormals[n] = n0 * sign;
+            outNormals[n + 1] = n1 * sign;
+            outNormals[n + 2] = n2 * sign;
+            outNormals[n + 3] = n3 * sign;
+            outNormals[n + 4] = n4 * sign;
+            outNormals[n + 5] = n5 * sign;
+            outNormals[n + 6] = n6 * sign;
+            outNormals[n + 7] = n7 * sign;
+            outNormals[n + 8] = n8 * sign;
+        }
+
+        PoseStack.Pose last = context.poseStack().last();
+        Matrix4f pose = last.pose();
+        Matrix3f normalMatrix = last.normal();
+        VertexConsumer buffer = context.vertexConsumer();
+        AzQuadFilter quadFilter = context.getTextureOverride() == null ? context.quadFilter() : null;
+
+        beginMeshVertices(context);
+
+        for (int quad = 0, count = polygons.quadCount(); quad < count; quad++) {
+            int b = quad * 4;
+
+            if (
+                quadFilter != null
+                    && !quadFilter.test(
+                        polygons.uvBound(b),
+                        polygons.uvBound(b + 1),
+                        polygons.uvBound(b + 2),
+                        polygons.uvBound(b + 3)
+                    )
+            ) {
+                continue;
+            }
+
+            for (int corner = quad * 4, end = corner + 4; corner < end; corner++) {
+                int positionIndex = polygons.cornerPosition(corner);
+                int r = positionIndex * 3;
+                int n = positionIndex * 9;
+                int c = corner * 3;
+                int t = corner * 2;
+                float nx = polygons.cornerNormal(c);
+                float ny = polygons.cornerNormal(c + 1);
+                float nz = polygons.cornerNormal(c + 2);
+
+                normalScratch.set(
+                    outNormals[n] * nx + outNormals[n + 3] * ny + outNormals[n + 6] * nz,
+                    outNormals[n + 1] * nx + outNormals[n + 4] * ny + outNormals[n + 7] * nz,
+                    outNormals[n + 2] * nx + outNormals[n + 5] * ny + outNormals[n + 8] * nz
+                );
+                normalScratch.transform(normalMatrix);
+                normalScratch.normalize();
+
+                quadPosition.set(outPositions[r], outPositions[r + 1], outPositions[r + 2], 1f);
+                quadPosition.transform(pose);
+
+                emitMeshVertex(buffer, polygons.cornerUv(t), polygons.cornerUv(t + 1));
+            }
+        }
+    }
+
+    /** Captures the per-pass vertex state shared by every mesh vertex, mirroring {@link #createVerticesOfQuad}. */
+    private void beginMeshVertices(AzRendererPipelineContext<K, T> context) {
+        ResourceLocation textureOverride = context.getTextureOverride();
+        IntIntPair boneTextureSize = textureOverride != null ? context.computeTextureSize(textureOverride) : null;
+        boolean useOverride = textureOverride != null && boneTextureSize != null && entityTextureSize != null;
+
+        meshUScale = useOverride ? (float) entityTextureSize.firstInt() / boneTextureSize.firstInt() : 1f;
+        meshVScale = useOverride ? (float) entityTextureSize.secondInt() / boneTextureSize.secondInt() : 1f;
+        meshRed = context.red();
+        meshGreen = context.green();
+        meshBlue = context.blue();
+        meshAlpha = context.alpha();
+        meshOverlay = context.packedOverlay();
+        meshLight = context.packedLight();
+    }
+
+    /** Writes one mesh vertex from {@link #quadPosition} and {@link #normalScratch}. */
+    private void emitMeshVertex(VertexConsumer buffer, float u, float v) {
+        buffer.vertex(
+            quadPosition.x(),
+            quadPosition.y(),
+            quadPosition.z(),
+            meshRed,
+            meshGreen,
+            meshBlue,
+            meshAlpha,
+            u * meshUScale,
+            v * meshVScale,
+            meshOverlay,
+            meshLight,
+            normalScratch.x(),
+            normalScratch.y(),
+            normalScratch.z()
+        );
     }
 
     /**

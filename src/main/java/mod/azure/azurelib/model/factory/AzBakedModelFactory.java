@@ -1,18 +1,27 @@
 package mod.azure.azurelib.model.factory;
 
+import java.util.ArrayDeque;
+import java.util.List;
 import javax.annotation.Nullable;
 
+import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoMesh;
 import mod.azure.azurelib.cache.object.GeoQuad;
+import mod.azure.azurelib.cache.object.GeoSkinnedMesh;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.loading.json.raw.Cube;
 import mod.azure.azurelib.loading.json.raw.FaceUV;
 import mod.azure.azurelib.loading.json.raw.ModelProperties;
+import mod.azure.azurelib.loading.json.raw.PolyMesh;
+import mod.azure.azurelib.loading.json.raw.SkinnedMesh;
 import mod.azure.azurelib.loading.json.raw.UVUnion;
 import mod.azure.azurelib.loading.object.BoneStructure;
 import mod.azure.azurelib.loading.object.GeometryTree;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.model.AzBone;
+import mod.azure.azurelib.model.AzRestPose;
+import mod.azure.azurelib.model.factory.primitive.MeshPolygons;
 import mod.azure.azurelib.model.factory.primitive.VertexSet;
 import mod.azure.azurelib.util.math.Direction;
 import mod.azure.azurelib.util.math.Vec3;
@@ -51,6 +60,160 @@ public abstract class AzBakedModelFactory {
      * @param bone       The bone this cube belongs to
      */
     public abstract GeoCube constructCube(Cube cube, ModelProperties properties, AzBone bone);
+
+    /**
+     * Construct a rigid {@link GeoMesh} from a bone's Bedrock {@code poly_mesh}. Positions are in the same absolute
+     * bone space as cube origins.
+     *
+     * @return the mesh, or null if it has no drawable polygons
+     */
+    public GeoMesh constructMesh(PolyMesh polyMesh, ModelProperties properties, AzBone bone) {
+        MeshPolygons polygons = MeshPolygons.bake(
+            polyMesh,
+            (float) properties.textureWidth(),
+            (float) properties.textureHeight()
+        );
+        GeoMesh mesh = GeoMesh.of(polygons);
+
+        return mesh.isEmpty() ? null : mesh;
+    }
+
+    /**
+     * Binds every skinned mesh in the bone tree to the geometry's rest pose, replacing each mesh with its bound copy.
+     * Call this from {@link #constructGeoModel} once all bones are built; meshes left unbound don't render.
+     * <p>
+     * Joints the rest pose doesn't know (a name missing from the file) are bound to the owning bone's rest pose, which
+     * is also what {@link AzBakedModel} falls back to when it resolves the joint, so those vertices stay rigid with the
+     * owner.
+     * </p>
+     */
+    public static void bindSkinnedMeshes(List<AzBone> topLevelBones, AzRestPose restPose) {
+        ArrayDeque<AzBone> queue = new ArrayDeque<AzBone>(topLevelBones);
+
+        while (!queue.isEmpty()) {
+            AzBone bone = queue.poll();
+            queue.addAll(bone.getChildBones());
+
+            List<GeoSkinnedMesh> meshes = bone.getSkinnedMeshes();
+            float[] ownerRest = restPose.modelMatrix(bone.getName());
+
+            for (int m = 0; m < meshes.size(); m++) {
+                GeoSkinnedMesh mesh = meshes.get(m);
+
+                if (mesh.isBound()) {
+                    continue;
+                }
+
+                float[][] rest = new float[mesh.jointCount()][];
+
+                for (int i = 0; i < rest.length; i++) {
+                    float[] jointRest = restPose.modelMatrix(mesh.joint(i));
+                    rest[i] = jointRest != null ? jointRest : ownerRest != null ? ownerRest : IDENTITY;
+                }
+
+                if (ownerRest == null) {
+                    AzureLib.LOGGER.warn(
+                        "Skinned mesh '{}' is on bone '{}', which has no rest pose in its geometry",
+                        mesh.name(),
+                        bone.getName()
+                    );
+                }
+
+                meshes.set(m, mesh.withBindPose(rest));
+            }
+        }
+    }
+
+    private static final float[] IDENTITY = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+
+    /**
+     * Construct a {@link GeoSkinnedMesh} from an {@code azurelib:skinned_meshes} entry. The mesh is unbound; it gets its
+     * bind pose from {@link #bindSkinnedMeshes}. Influences are clamped to {@link GeoSkinnedMesh#MAX_INFLUENCES} per
+     * position (strongest first) and renormalized; positions with no usable influence are bound to the first joint,
+     * which the Blockbench plugin always writes as the armature itself.
+     *
+     * @return the mesh, or null if it has no drawable polygons or joints
+     */
+    public GeoSkinnedMesh constructSkinnedMesh(SkinnedMesh skinnedMesh, ModelProperties properties, AzBone bone) {
+        String[] joints = skinnedMesh.joints();
+
+        if (joints.length == 0) {
+            return null;
+        }
+
+        MeshPolygons polygons = MeshPolygons.bake(
+            skinnedMesh.mesh(),
+            (float) properties.textureWidth(),
+            (float) properties.textureHeight()
+        );
+
+        if (polygons.quadCount() == 0) {
+            return null;
+        }
+
+        int max = GeoSkinnedMesh.MAX_INFLUENCES;
+        int positionCount = polygons.positionCount();
+        int[] influenceJoints = new int[positionCount * max];
+        float[] influenceWeights = new float[positionCount * max];
+        int[][] sourceJoints = skinnedMesh.influenceJoints();
+        float[][] sourceWeights = skinnedMesh.influenceWeights();
+
+        for (int p = 0; p < positionCount; p++) {
+            int base = p * max;
+            int count = 0;
+            double total = 0d;
+
+            if (p < sourceJoints.length) {
+                int[] pj = sourceJoints[p];
+                float[] pw = sourceWeights[p];
+
+                for (int i = 0; i < pj.length; i++) {
+                    int joint = pj[i];
+                    float weight = pw[i];
+
+                    if (joint < 0 || joint >= joints.length || !(weight > 0f)) {
+                        continue;
+                    }
+
+                    if (count < max) {
+                        influenceJoints[base + count] = joint;
+                        influenceWeights[base + count] = weight;
+                        count++;
+                    } else {
+                        // Replace the weakest kept influence if this one is stronger.
+                        int weakest = base;
+
+                        for (int k = base + 1; k < base + max; k++) {
+                            if (influenceWeights[k] < influenceWeights[weakest]) {
+                                weakest = k;
+                            }
+                        }
+
+                        if (weight > influenceWeights[weakest]) {
+                            influenceJoints[weakest] = joint;
+                            influenceWeights[weakest] = weight;
+                        }
+                    }
+                }
+            }
+
+            for (int k = base; k < base + max; k++) {
+                total += influenceWeights[k];
+            }
+
+            if (!(total > 0d)) {
+                influenceJoints[base] = 0;
+                influenceWeights[base] = 1f;
+                continue;
+            }
+
+            for (int k = base; k < base + max; k++) {
+                influenceWeights[k] = (float) (influenceWeights[k] / total);
+            }
+        }
+
+        return new GeoSkinnedMesh(skinnedMesh.name(), joints, polygons, influenceJoints, influenceWeights);
+    }
 
     /**
      * Returns {@code null} for a quad with no area, so it is never rendered. Flat cubes (one dimension of zero) get
