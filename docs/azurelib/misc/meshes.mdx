@@ -1,0 +1,87 @@
+---
+title: Polygon Meshes and Skinning
+hide_meta: true
+---
+
+# Polygon Meshes and Skinning
+
+## Overview
+
+AzureLib renders Blockbench polygon meshes alongside cubes, and can deform meshes smoothly with an armature. You need the AzureLib Animator Blockbench plugin 2.4.0 or newer and Blockbench 5.0 or newer for armatures. Rigid meshes work on any Blockbench version with meshes.
+
+There are two kinds of mesh:
+
+- **Rigid meshes** sit directly inside a bone (group). They move with that bone exactly like a cube does.
+- **Skinned meshes** sit inside an armature. Each vertex is weighted to one or more armature bones, and the mesh bends smoothly as those bones animate.
+
+Nothing changes on the Java side: no new renderer, layer or registration is needed. Meshes render through the normal model renderer for entities, block entities, items and armor.
+
+## Rigid meshes
+
+1. Add a mesh (Edit → Add Mesh) inside the bone it should follow.
+2. Model and UV it as usual. Flat and smooth shading both export.
+3. Export the model with **Export AzureLib .geo Model**.
+
+The plugin writes the bone's meshes into the standard Bedrock `poly_mesh` field, so a geometry file written by another tool with `poly_mesh` data also loads.
+
+## Skinned meshes
+
+1. Add an armature (Edit → Add Armature), inside the bone the whole rig should follow, or at the root.
+2. Add armature bones and position them like a skeleton.
+3. Put the mesh inside the armature.
+4. Weight the mesh, either with **Attach Armature** for automatic weights or the **Weight Brush**.
+5. Animate the armature bones in the Animate tab like any other bone, then export the model and animations.
+
+On export the armature becomes a bone named after the armature, and each armature bone becomes a regular bone under it. That means armature bones work everywhere a bone does: animation keyframes, procedural poses, IK, bone sockets, hitboxes and `getBone(...)`.
+
+Each vertex keeps its four strongest weights, normalized to sum to one. Vertices with no weights stay rigid with the armature's parent bone. AzureLib deforms the mesh with linear blend skinning, the same method Blockbench uses for its preview, so the mesh deforms in game the way it does in the editor.
+
+## Tips
+
+- Armature bone names must not match any group name. AzureLib looks bones up by name, so one of the two would be ignored. The Validator warns about this.
+- Lost the `.bbmodel`? Open the exported `.geo.json` in Blockbench (or use File → Import → Import AzureLib .geo Model) and the plugin rebuilds the meshes, armatures and vertex weights. Then import the `.animation.json` to get the animations back. Weights come back normalized and capped at four per vertex, which is all AzureLib uses anyway.
+- Hiding a bone (or the armature bone) hides its meshes too.
+- Skinning runs on the CPU every frame, so keep skinned meshes to a reasonable vertex count. Rigid meshes cost the same as the equivalent cube faces.
+- Bone hitboxes set to fit their bone's geometry include rigid meshes. Skinned meshes move independently of any single bone, so give hitboxes on armature bones an explicit size.
+- Skinning blends bone transforms linearly, as Blockbench's preview does. Lighting stays correct under bone scaling, but strong twists, or very different scales on neighbouring bones, can pinch the mesh where their weights blend. Add more bones along a twist to spread it out.
+- Skinned meshes deform against the bind pose in the geometry file (each bone's pivot and rotation), not against whatever pose a model happens to be in when it is built.
+
+## Limits and errors
+
+A mesh that breaks these rules fails to load, and the log names the model, bone, mesh and the entry that is wrong:
+
+- Positions, normals, UVs and weights must be finite numbers that fit in a float (up to about 3.4 × 10³⁸). Positions and normals have 3 values each, UVs 2.
+- Every polygon needs at least 3 corners (at most 64), and every index has to point at an existing position, normal or UV. Normals and UVs can be left out entirely.
+- A skinned mesh needs at least one joint (at most 256) and, if it has `weights`, exactly one entry per position. Each entry is `[jointIndex]` or `[jointIndex, weight]` with a valid joint index and a weight of 0 or more.
+- One mesh can have up to 65,536 positions and 131,072 polygons.
+
+Polygons with more than four corners are triangulated in game, concave ones included.
+
+## Geometry format
+
+For tools that write AzureLib geometry directly, skinned meshes live on the owning bone:
+
+```json
+{
+  "name": "armature",
+  "parent": "body",
+  "pivot": [0, 12, 0],
+  "azurelib:armature": true,
+  "azurelib:skinned_meshes": [
+    {
+      "name": "tail",
+      "joints": ["armature", "tail_1", "tail_2"],
+      "normalized_uvs": false,
+      "positions": [[0, 12, 4], [1, 12, 8]],
+      "normals": [[0, 1, 0]],
+      "uvs": [[0, 0], [4, 4]],
+      "weights": [[[1, 1.0]], [[1, 0.4], [2, 0.6]]],
+      "polys": [[[0, 0, 0], [1, 0, 1], [2, 0, 2]]]
+    }
+  ]
+}
+```
+
+- `positions` are in model space at rest pose, in Bedrock coordinates (pixels, X mirrored).
+- `weights` has one entry per position: a list of `[jointIndex, weight]` pairs indexing into `joints`.
+- `polys`, `normals` and `uvs` follow Bedrock's `poly_mesh` layout. Polygons may mix triangles and quads.

@@ -19,6 +19,10 @@
         "name": "Limb Health",
         "icon": "HeartCrack"
     },
+    "meshes.mdx": {
+        "name": "Polygon Meshes and Skinning",
+        "icon": "Shapes"
+    },
     "misc.mdx": {
         "name": "Miscellaneous Features",
         "icon": "Info"

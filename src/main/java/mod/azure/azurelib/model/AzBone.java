@@ -1,9 +1,11 @@
 package mod.azure.azurelib.model;
 
-import java.util.*;
-
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoMesh;
+import mod.azure.azurelib.cache.object.GeoSkinnedMesh;
 import mod.azure.azurelib.util.math.*;
+
+import java.util.*;
 
 /**
  * Mutable bone object representing a set of cubes, as well as child bones.<br>
@@ -17,6 +19,12 @@ public class AzBone {
     private final List<AzBone> children = new ArrayList<>();
 
     private final List<GeoCube> cubes = new ArrayList<>();
+
+    private final List<GeoMesh> meshes = new ArrayList<>();
+
+    private final List<GeoSkinnedMesh> skinnedMeshes = new ArrayList<>();
+
+    private AzSkinBinding[] skinBindings = new AzSkinBinding[0];
 
     private final Matrix4f modelSpaceMatrix = new Matrix4f();
 
@@ -292,6 +300,32 @@ public class AzBone {
         return this.cubes;
     }
 
+    /** Rigid polygon meshes, rendered under this bone's pose like cubes. */
+    public List<GeoMesh> getMeshes() {
+        return meshes;
+    }
+
+    /** Skinned meshes owned (and rendered) by this bone. */
+    public List<GeoSkinnedMesh> getSkinnedMeshes() {
+        return skinnedMeshes;
+    }
+
+    /**
+     * {@link #getSkinnedMeshes()} resolved against the bones of the model this bone belongs to. Set by
+     * {@link AzBakedModel}.
+     */
+    public AzSkinBinding[] getSkinBindings() {
+        return skinBindings;
+    }
+
+    public void setSkinBindings(AzSkinBinding[] skinBindings) {
+        this.skinBindings = skinBindings != null ? skinBindings : new AzSkinBinding[0];
+    }
+
+    public boolean hasGeometry() {
+        return !cubes.isEmpty() || !meshes.isEmpty() || !skinnedMeshes.isEmpty();
+    }
+
     public boolean isTrackingMatrices() {
         return trackingMatrices;
     }
@@ -469,6 +503,8 @@ public class AzBone {
 
         // Copy cubes (geometry)
         copy.cubes.addAll(this.cubes); // shallow copy OK if cubes are immutable
+        copy.meshes.addAll(this.meshes);
+        copy.skinnedMeshes.addAll(this.skinnedMeshes); // bindings are rebuilt by the copied AzBakedModel
 
         // Copy children recursively
         for (AzBone child : this.children) {
@@ -495,6 +531,7 @@ public class AzBone {
         int result = 31 + Objects.hashCode(getName());
         result = 31 * result + (getParent() != null ? Objects.hashCode(getParent().getName()) : 0);
         result = 31 * result + getCubes().size();
+        result = 31 * result + getMeshes().size() + getSkinnedMeshes().size();
         result = 31 * result + getChildBones().size();
         return result;
     }

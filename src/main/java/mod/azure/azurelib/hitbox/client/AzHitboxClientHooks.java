@@ -14,6 +14,7 @@ import java.util.Set;
 
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.cache.object.GeoCube;
+import mod.azure.azurelib.cache.object.GeoMesh;
 import mod.azure.azurelib.cache.object.GeoQuad;
 import mod.azure.azurelib.cache.object.GeoVertex;
 import mod.azure.azurelib.hitbox.*;
@@ -290,6 +291,17 @@ public final class AzHitboxClientHooks {
                     maxY = Math.max(maxY, point.y() - pivotY);
                     maxZ = Math.max(maxZ, point.z() - pivotZ);
                 }
+            }
+        }
+
+        for (GeoMesh mesh : bone.getMeshes()) {
+            for (int i = 0; i < mesh.positionComponentCount(); i += 3) {
+                minX = Math.min(minX, mesh.position(i) - pivotX);
+                minY = Math.min(minY, mesh.position(i + 1) - pivotY);
+                minZ = Math.min(minZ, mesh.position(i + 2) - pivotZ);
+                maxX = Math.max(maxX, mesh.position(i) - pivotX);
+                maxY = Math.max(maxY, mesh.position(i + 1) - pivotY);
+                maxZ = Math.max(maxZ, mesh.position(i + 2) - pivotZ);
             }
         }
 

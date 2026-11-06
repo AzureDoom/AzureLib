@@ -25,19 +25,7 @@ import mod.azure.azurelib.animation.parse.AzBakedAnimationsAdapter;
 import mod.azure.azurelib.animation.parse.AzKeyframesAdapter;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.animation.primitive.AzKeyframes;
-import mod.azure.azurelib.loading.json.raw.Bone;
-import mod.azure.azurelib.loading.json.raw.Cube;
-import mod.azure.azurelib.loading.json.raw.FaceUV;
-import mod.azure.azurelib.loading.json.raw.LocatorClass;
-import mod.azure.azurelib.loading.json.raw.LocatorValue;
-import mod.azure.azurelib.loading.json.raw.MinecraftGeometry;
-import mod.azure.azurelib.loading.json.raw.Model;
-import mod.azure.azurelib.loading.json.raw.ModelProperties;
-import mod.azure.azurelib.loading.json.raw.PolyMesh;
-import mod.azure.azurelib.loading.json.raw.PolysUnion;
-import mod.azure.azurelib.loading.json.raw.TextureMesh;
-import mod.azure.azurelib.loading.json.raw.UVFaces;
-import mod.azure.azurelib.loading.json.raw.UVUnion;
+import mod.azure.azurelib.loading.json.raw.*;
 
 /**
  * Json helper class for various json functions
@@ -55,6 +43,7 @@ public final class JsonUtil {
         .registerTypeAdapter(ModelProperties.class, ModelProperties.deserializer())
         .registerTypeAdapter(PolyMesh.class, PolyMesh.deserializer())
         .registerTypeAdapter(PolysUnion.class, PolysUnion.deserializer())
+        .registerTypeAdapter(SkinnedMesh.class, SkinnedMesh.deserializer())
         .registerTypeAdapter(TextureMesh.class, TextureMesh.deserializer())
         .registerTypeAdapter(UVFaces.class, UVFaces.deserializer())
         .registerTypeAdapter(UVUnion.class, UVUnion.deserializer())
