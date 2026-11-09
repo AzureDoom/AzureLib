@@ -1,0 +1,140 @@
+---
+title: Simple API
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page assumes you have exported the assets properly as per [How to Export Your Project](../blockbench/exporting_assets).
+
+    The Simple API is optional. It is built on the same animators, controllers, commands and renderers as the rest of AzureLib, so you can switch to them whenever you need more control.
+</Callout>
+
+# Simple API
+
+The Simple API gets an animated entity, item or block entity working with one renderer class. You don't write an animator, an animation controller or a dispatcher.
+
+## 1. Put your files in the expected places
+
+The Simple API finds your files by name. For `AzSimple.entity("mymod", "monster")` it uses:
+
+```text
+assets/mymod/geo/entity/monster.geo.json
+assets/mymod/textures/entity/monster.png
+assets/mymod/animations/entity/monster.animation.json
+```
+
+Items use the `item` folder and block entities the `block` folder instead of `entity`.
+
+## 2. Make a renderer
+
+```java
+public class MonsterRenderer extends AzSimpleEntityRenderer<Monster> {
+
+    public MonsterRenderer(EntityRendererProvider.Context context) {
+        super(context, AzSimple.entity("mymod", "monster")
+            .idle("idle")
+            .walk("walk")
+        );
+    }
+}
+```
+
+The monster now loops `idle` while standing still and `walk` while moving.
+
+Register it like any other entity renderer:
+
+<CodeTabs>
+
+```java !!tabs Fabric
+@Override
+public void onInitializeClient() {
+    EntityRendererRegistry.register(YourEntities.MONSTER, MonsterRenderer::new);
+}
+```
+
+```java !!tabs NeoForge
+@SubscribeEvent
+public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+    event.registerEntityRenderer(YourEntities.MONSTER.get(), MonsterRenderer::new);
+}
+```
+
+</CodeTabs>
+
+## 3. Play animations
+
+Call these from your entity's server-side code, for example where it attacks:
+
+```java
+AzSimple.play(this, "attack"); // plays once, then goes back to idle/walk
+AzSimple.loop(this, "dance");  // loops until stopped or replaced
+AzSimple.stop(this);           // back to idle/walk
+```
+
+Any animation in your animation file can be played by name. Everyone near the entity sees it, and idle and walk wait until it is done. Animations are only visual: deal damage in your own code as usual.
+
+That's all you need for an animated entity.
+
+## Items
+
+```java
+public class BlasterRenderer extends AzSimpleItemRenderer {
+
+    public BlasterRenderer() {
+        super(AzSimple.item("mymod", "blaster")
+            .idle("idle")
+        );
+    }
+}
+```
+
+Play animations with the stack and the player holding it, from server-side code such as `use`:
+
+```java
+AzSimple.play(stack, player, "fire");
+```
+
+Items need two registrations: the renderer on the client, and the item itself during common setup so each stack can remember its own animation.
+
+<CodeTabs>
+
+```java !!tabs Fabric
+// In onInitialize()
+AzIdentityRegistry.register(YourItems.BLASTER);
+
+// In onInitializeClient()
+AzItemRendererRegistry.register(BlasterRenderer::new, YourItems.BLASTER);
+```
+
+```java !!tabs NeoForge
+// In your FMLCommonSetupEvent handler
+event.enqueueWork(() -> AzIdentityRegistry.register(YourItems.BLASTER.get()));
+
+// In your FMLClientSetupEvent handler
+event.enqueueWork(() -> AzItemRendererRegistry.register(BlasterRenderer::new, YourItems.BLASTER.get()));
+```
+
+</CodeTabs>
+
+## Block entities
+
+```java
+public class MachineRenderer extends AzSimpleBlockRenderer<MachineBlockEntity> {
+
+    public MachineRenderer() {
+        super(AzSimple.block("mymod", "machine")
+            .idle("idle")
+        );
+    }
+}
+```
+
+```java
+AzSimple.play(blockEntity, "activate");
+```
+
+Register it with `context -> new MachineRenderer()` wherever you register block entity renderers.
+
+## Next steps
+
+The [advanced page](simple_api_advanced) covers everything else the Simple API can do: custom asset paths, more automatic animations (swimming, running, death), animation priorities, layers for things like aiming or recoil, procedural bone tweaks, and mixing the Simple API with the full API.

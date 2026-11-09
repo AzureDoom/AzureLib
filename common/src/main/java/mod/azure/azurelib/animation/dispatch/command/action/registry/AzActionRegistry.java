@@ -13,6 +13,7 @@ import java.util.function.Function;
 import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
@@ -135,6 +136,12 @@ public class AzActionRegistry {
             AzControllerSetWeightAction.RESOURCE_LOCATION,
             AzControllerSetWeightAction::decode,
             AzControllerSetWeightAction::encode
+        );
+
+        register(
+            AzSimplePlayAction.RESOURCE_LOCATION,
+            AzSimplePlayAction::decode,
+            AzSimplePlayAction::encode
         );
     }
 
