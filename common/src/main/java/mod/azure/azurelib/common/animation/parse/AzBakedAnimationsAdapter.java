@@ -24,6 +24,7 @@ import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.common.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.common.animation.primitive.AzKeyframes;
 import mod.azure.azurelib.common.animation.primitive.AzLoopType;
+import mod.azure.azurelib.common.animation.primitive.AzPoseWeights;
 import mod.azure.azurelib.common.util.JsonUtil;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
@@ -321,8 +322,9 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             length = calculateAnimationLength(boneAnimations);
 
         var defaults = AzAnimationDefaults.fromJson(animationObj);
+        var poseWeights = AzPoseWeights.fromJson(animationObj);
 
-        return new AzBakedAnimation(name, length, loopType, boneAnimations, keyframes, defaults);
+        return new AzBakedAnimation(name, length, loopType, boneAnimations, keyframes, defaults, poseWeights);
     }
 
     /**

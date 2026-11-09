@@ -88,6 +88,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
 
     private final AzWeightFade weightFade = new AzWeightFade();
 
+    private final AzPoseWeightDriver poseWeightDriver = new AzPoseWeightDriver(this);
+
     AzAnimationController(
         String name,
         AzAnimator<?, T> animator,
@@ -189,6 +191,8 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
         boneAnimationQueueCache.prepareFrame();
         // Run state machine updates.
         stateMachine.update();
+        // Apply the pose modifier weights authored into the animation this controller now plays.
+        poseWeightDriver.update();
         // Advance any weight fade before applying this frame's values.
         updateWeightFade();
         // Update bone animation queue cache.
@@ -352,7 +356,7 @@ public class AzAnimationController<T> extends AzAbstractAnimationController {
     }
 
     private static double clampWeight(double weight) {
-        return Double.isNaN(weight) ? 0 : Math.max(0, Math.min(1, weight));
+        return Double.isNaN(weight) ? 0 : Math.clamp(weight, 0, 1);
     }
 
     /** How this controller combines with earlier controllers on the same bone. */

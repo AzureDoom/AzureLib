@@ -14,8 +14,24 @@ public record AzBakedAnimation(
     AzLoopType loopType,
     AzBoneAnimation[] boneAnimations,
     AzKeyframes keyframes,
-    AzAnimationDefaults defaults
+    AzAnimationDefaults defaults,
+    AzPoseWeights poseWeights
 ) {
+
+    public AzBakedAnimation {
+        poseWeights = poseWeights == null ? AzPoseWeights.NONE : poseWeights;
+    }
+
+    public AzBakedAnimation(
+        String name,
+        double length,
+        AzLoopType loopType,
+        AzBoneAnimation[] boneAnimations,
+        AzKeyframes keyframes,
+        AzAnimationDefaults defaults
+    ) {
+        this(name, length, loopType, boneAnimations, keyframes, defaults, AzPoseWeights.NONE);
+    }
 
     public AzBakedAnimation(
         String name,
@@ -24,6 +40,6 @@ public record AzBakedAnimation(
         AzBoneAnimation[] boneAnimations,
         AzKeyframes keyframes
     ) {
-        this(name, length, loopType, boneAnimations, keyframes, AzAnimationDefaults.NONE);
+        this(name, length, loopType, boneAnimations, keyframes, AzAnimationDefaults.NONE, AzPoseWeights.NONE);
     }
 }
