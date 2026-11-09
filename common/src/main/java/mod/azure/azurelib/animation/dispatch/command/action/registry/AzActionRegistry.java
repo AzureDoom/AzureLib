@@ -1,6 +1,7 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
 import it.unimi.dsi.fastutil.objects.Object2ShortArrayMap;
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
@@ -60,6 +61,8 @@ public class AzActionRegistry {
         register(AzControllerSetRepeatTimesAction.RESOURCE_LOCATION, AzControllerSetRepeatTimesAction.CODEC);
         register(AzControllerSetReverseAction.RESOURCE_LOCATION, AzControllerSetReverseAction.CODEC);
         register(AzControllerSetWeightAction.RESOURCE_LOCATION, AzControllerSetWeightAction.CODEC);
+
+        register(AzSimplePlayAction.RESOURCE_LOCATION, AzSimplePlayAction.CODEC);
     }
 
     private AzActionRegistry() {}
