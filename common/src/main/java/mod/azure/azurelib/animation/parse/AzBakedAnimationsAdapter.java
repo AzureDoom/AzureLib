@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.azurelib.animation.primitive.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -19,11 +20,6 @@ import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeStack;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingTypeLoader;
 import mod.azure.azurelib.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.animation.primitive.AzAnimationDefaults;
-import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
-import mod.azure.azurelib.animation.primitive.AzKeyframes;
-import mod.azure.azurelib.animation.primitive.AzLoopType;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;
@@ -321,8 +317,9 @@ public class AzBakedAnimationsAdapter implements JsonDeserializer<AzBakedAnimati
             length = calculateAnimationLength(boneAnimations);
 
         var defaults = AzAnimationDefaults.fromJson(animationObj);
+        var poseWeights = AzPoseWeights.fromJson(animationObj);
 
-        return new AzBakedAnimation(name, length, loopType, boneAnimations, keyframes, defaults);
+        return new AzBakedAnimation(name, length, loopType, boneAnimations, keyframes, defaults, poseWeights);
     }
 
     /**
