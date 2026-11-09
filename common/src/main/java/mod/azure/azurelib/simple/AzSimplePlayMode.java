@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public enum AzSimplePlayMode {
+
     PLAY,
     LOOP,
     STOP;
@@ -17,8 +18,9 @@ public enum AzSimplePlayMode {
         return id < VALUES.length ? VALUES[id] : STOP;
     };
 
-    public static final BiConsumer<FriendlyByteBuf, AzSimplePlayMode> ENCODER = (buf, mode) ->
-            buf.writeByte((mode == null ? STOP : mode).ordinal());
+    public static final BiConsumer<FriendlyByteBuf, AzSimplePlayMode> ENCODER = (buf, mode) -> buf.writeByte(
+        (mode == null ? STOP : mode).ordinal()
+    );
 
     public static AzSimplePlayMode decode(FriendlyByteBuf buf) {
         return DECODER.apply(buf);

@@ -1,8 +1,9 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.world.item.ItemStack;
+
 import mod.azure.azurelib.render.item.AzItemRenderer;
 import mod.azure.azurelib.render.item.AzItemRendererConfig;
-import net.minecraft.world.item.ItemStack;
 
 @SuppressWarnings("unused")
 public class AzSimpleItemRenderer extends AzItemRenderer {
