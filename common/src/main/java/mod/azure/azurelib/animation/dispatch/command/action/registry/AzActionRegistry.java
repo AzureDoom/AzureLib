@@ -1,6 +1,7 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
 import it.unimi.dsi.fastutil.objects.Object2ShortArrayMap;
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -135,6 +136,12 @@ public class AzActionRegistry {
             AzControllerSetWeightAction.RESOURCE_LOCATION,
             AzControllerSetWeightAction::decode,
             AzControllerSetWeightAction::encode
+        );
+
+        register(
+                AzSimplePlayAction.RESOURCE_LOCATION,
+                AzSimplePlayAction::decode,
+                AzSimplePlayAction::encode
         );
     }
 
