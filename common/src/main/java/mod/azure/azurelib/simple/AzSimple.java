@@ -1,8 +1,5 @@
 package mod.azure.azurelib.simple;
 
-import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
-import mod.azure.azurelib.animation.dispatch.command.AzCommand;
-import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -10,6 +7,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
 
 /**
  * The entry point of AzureLib's Simple API: a beginner-friendly layer over the regular animator, controller, command

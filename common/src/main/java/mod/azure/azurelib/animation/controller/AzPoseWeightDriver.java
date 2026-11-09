@@ -1,5 +1,10 @@
 package mod.azure.azurelib.animation.controller;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.controller.state.machine.AzAnimationControllerStateMachine;
 import mod.azure.azurelib.animation.pose.AzPoseLayer;
@@ -7,10 +12,6 @@ import mod.azure.azurelib.animation.pose.AzPoseModifierEntry;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimation;
 import mod.azure.azurelib.animation.primitive.AzPoseWeights;
 import mod.azure.azurelib.animation.primitive.AzQueuedAnimation;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 final class AzPoseWeightDriver {
 

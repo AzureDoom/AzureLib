@@ -1,5 +1,11 @@
 package mod.azure.azurelib.simple;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.AzAnimatorUpdateHook;
@@ -16,11 +22,6 @@ import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenc
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public final class AzSimpleAnimationResolver<T> implements AzAnimatorUpdateHook<T> {

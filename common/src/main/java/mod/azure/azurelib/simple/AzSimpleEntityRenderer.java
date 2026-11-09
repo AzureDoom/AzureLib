@@ -1,9 +1,10 @@
 package mod.azure.azurelib.simple;
 
-import mod.azure.azurelib.render.entity.AzEntityRenderer;
-import mod.azure.azurelib.render.entity.AzEntityRendererConfig;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
+
+import mod.azure.azurelib.render.entity.AzEntityRenderer;
+import mod.azure.azurelib.render.entity.AzEntityRendererConfig;
 
 @SuppressWarnings("unused")
 public class AzSimpleEntityRenderer<T extends Entity> extends AzEntityRenderer<T> {

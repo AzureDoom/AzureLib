@@ -1,5 +1,12 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
+
+import java.util.Collection;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
@@ -12,12 +19,6 @@ import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenc
 import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenceBuilder;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
-
-import java.util.Collection;
 
 public record AzSimplePlayAction(
     String controllerName,

@@ -1,12 +1,5 @@
 package mod.azure.azurelib.simple;
 
-import mod.azure.azurelib.animation.AzAnimatorConfig;
-import mod.azure.azurelib.animation.controller.AzBlendMode;
-import mod.azure.azurelib.animation.controller.AzBoneMask;
-import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
-import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
-import mod.azure.azurelib.animation.pose.AzPoseBone;
-import mod.azure.azurelib.animation.pose.AzPoseModifier;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +11,14 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import mod.azure.azurelib.animation.AzAnimatorConfig;
+import mod.azure.azurelib.animation.controller.AzBlendMode;
+import mod.azure.azurelib.animation.controller.AzBoneMask;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
+import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
+import mod.azure.azurelib.animation.pose.AzPoseBone;
+import mod.azure.azurelib.animation.pose.AzPoseModifier;
 
 @SuppressWarnings("unused")
 public final class AzSimpleConfig<T> {
