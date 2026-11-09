@@ -1,5 +1,6 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -134,6 +135,12 @@ public class AzActionRegistry {
             AzControllerSetWeightAction.RESOURCE_LOCATION,
             AzControllerSetWeightAction::decode,
             AzControllerSetWeightAction::encode
+        );
+
+        register(
+                AzSimplePlayAction.RESOURCE_LOCATION,
+                AzSimplePlayAction::decode,
+                AzSimplePlayAction::encode
         );
     }
 
