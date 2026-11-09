@@ -3,6 +3,10 @@
         "name": "Blockbench Plugin",
         "icon": "Film"
     },
+    "simple": {
+        "name": "Simple API",
+        "icon": "Zap"
+    },
     "armor": {
         "name": "Armor",
         "icon": "Shield"
