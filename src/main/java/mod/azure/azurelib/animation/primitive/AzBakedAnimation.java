@@ -22,13 +22,16 @@ public final class AzBakedAnimation {
 
     private final AzAnimationDefaults defaults;
 
+    private final AzPoseWeights poseWeights;
+
     public AzBakedAnimation(
         String name,
         double length,
         AzLoopType loopType,
         AzBoneAnimation[] boneAnimations,
         AzKeyframes keyframes,
-        AzAnimationDefaults defaults
+        AzAnimationDefaults defaults,
+        AzPoseWeights poseWeights
     ) {
         this.name = name;
         this.length = length;
@@ -36,6 +39,7 @@ public final class AzBakedAnimation {
         this.boneAnimations = boneAnimations;
         this.keyframes = keyframes;
         this.defaults = defaults;
+        this.poseWeights = poseWeights;
     }
 
     public String name() {
@@ -60,6 +64,10 @@ public final class AzBakedAnimation {
 
     public AzAnimationDefaults defaults() {
         return this.defaults;
+    }
+
+    public AzPoseWeights poseWeights() {
+        return this.poseWeights;
     }
 
     @Override
@@ -97,12 +105,23 @@ public final class AzBakedAnimation {
     }
 
     public AzBakedAnimation(
+            String name,
+            double length,
+            AzLoopType loopType,
+            AzBoneAnimation[] boneAnimations,
+            AzKeyframes keyframes,
+            AzAnimationDefaults defaults
+    ) {
+        this(name, length, loopType, boneAnimations, keyframes, defaults, AzPoseWeights.NONE);
+    }
+
+    public AzBakedAnimation(
         String name,
         double length,
         AzLoopType loopType,
         AzBoneAnimation[] boneAnimations,
         AzKeyframes keyframes
     ) {
-        this(name, length, loopType, boneAnimations, keyframes, AzAnimationDefaults.NONE);
+        this(name, length, loopType, boneAnimations, keyframes, AzAnimationDefaults.NONE, AzPoseWeights.NONE);
     }
 }
