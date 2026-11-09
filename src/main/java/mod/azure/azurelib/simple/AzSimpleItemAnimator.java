@@ -1,11 +1,12 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.item.ItemStack;
+
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.impl.AzItemAnimator;
 import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
 import mod.azure.azurelib.util.ResourceLocation;
-import net.minecraft.item.ItemStack;
 
 @SuppressWarnings("unused")
 public class AzSimpleItemAnimator extends AzItemAnimator implements AzSimpleAnimatorHandle {

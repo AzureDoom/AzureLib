@@ -1,8 +1,9 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.block.entity.BlockEntity;
+
 import mod.azure.azurelib.render.block.AzBlockEntityRenderer;
 import mod.azure.azurelib.render.block.AzBlockEntityRendererConfig;
-import net.minecraft.block.entity.BlockEntity;
 
 @SuppressWarnings("unused")
 public class AzSimpleBlockRenderer<T extends BlockEntity> extends AzBlockEntityRenderer<T> {
