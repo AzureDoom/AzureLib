@@ -5,11 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import it.unimi.dsi.fastutil.doubles.Double2DoubleFunction;
-import mod.azure.azurelib.animation.easing.AzEasingType;
-import mod.azure.azurelib.animation.easing.AzEasingTypeLoader;
-import mod.azure.azurelib.animation.easing.AzEasingTypes;
-import mod.azure.azurelib.core.math.IValue;
-import mod.azure.azurelib.core.molang.MolangParser;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +12,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import mod.azure.azurelib.animation.easing.AzEasingType;
+import mod.azure.azurelib.animation.easing.AzEasingTypeLoader;
+import mod.azure.azurelib.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.core.math.IValue;
+import mod.azure.azurelib.core.molang.MolangParser;
 
 public record AzPoseWeights(List<Entry> entries) {
 
@@ -91,7 +92,13 @@ public record AzPoseWeights(List<Entry> entries) {
         }
     }
 
-    public record Key(double tick, IValue weight, AzEasingType easing, @Nullable Double easingArg, boolean step) {
+    public record Key(
+        double tick,
+        IValue weight,
+        AzEasingType easing,
+        @Nullable Double easingArg,
+        boolean step
+    ) {
 
         public double value() {
             return clamp01(weight.get());
@@ -176,8 +183,10 @@ public record AzPoseWeights(List<Entry> entries) {
                     easing = AzEasingTypeLoader.fromJson(keyObj.get("easing"));
                 }
 
-                if (keyObj.get("easingArgs") instanceof JsonArray args && !args.isEmpty()
-                    && args.get(0) instanceof JsonPrimitive arg && arg.isNumber()) {
+                if (
+                    keyObj.get("easingArgs") instanceof JsonArray args && !args.isEmpty()
+                        && args.get(0) instanceof JsonPrimitive arg && arg.isNumber()
+                ) {
                     easingArg = arg.getAsDouble();
                 }
 
