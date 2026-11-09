@@ -1,17 +1,17 @@
 package mod.azure.azurelib.common.animation.controller;
 
-import mod.azure.azurelib.common.animation.controller.state.machine.AzAnimationControllerStateMachine;
-import mod.azure.azurelib.common.animation.pose.AzPoseModifierEntry;
-import mod.azure.azurelib.common.animation.primitive.AzQueuedAnimation;
 import org.jetbrains.annotations.Nullable;
-
-import mod.azure.azurelib.common.animation.AzAnimationContext;
-import mod.azure.azurelib.common.animation.pose.AzPoseLayer;
-import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
-import mod.azure.azurelib.common.animation.primitive.AzPoseWeights;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import mod.azure.azurelib.common.animation.AzAnimationContext;
+import mod.azure.azurelib.common.animation.controller.state.machine.AzAnimationControllerStateMachine;
+import mod.azure.azurelib.common.animation.pose.AzPoseLayer;
+import mod.azure.azurelib.common.animation.pose.AzPoseModifierEntry;
+import mod.azure.azurelib.common.animation.primitive.AzBakedAnimation;
+import mod.azure.azurelib.common.animation.primitive.AzPoseWeights;
+import mod.azure.azurelib.common.animation.primitive.AzQueuedAnimation;
 
 final class AzPoseWeightDriver {
 

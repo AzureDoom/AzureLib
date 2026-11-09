@@ -91,7 +91,13 @@ public record AzPoseWeights(List<Entry> entries) {
         }
     }
 
-    public record Key(double tick, IValue weight, AzEasingType easing, @Nullable Double easingArg, boolean step) {
+    public record Key(
+        double tick,
+        IValue weight,
+        AzEasingType easing,
+        @Nullable Double easingArg,
+        boolean step
+    ) {
 
         public double value() {
             return clamp01(weight.get());
@@ -131,7 +137,9 @@ public record AzPoseWeights(List<Entry> entries) {
                 continue;
             }
 
-            AzPoseWeights.Track track = node.get("keyframes") instanceof JsonObject keyframes ? parseTrack(keyframes) : null;
+            AzPoseWeights.Track track = node.get("keyframes") instanceof JsonObject keyframes
+                ? parseTrack(keyframes)
+                : null;
 
             entries.add(
                 new Entry(
@@ -176,8 +184,10 @@ public record AzPoseWeights(List<Entry> entries) {
                     easing = AzEasingTypeLoader.fromJson(keyObj.get("easing"));
                 }
 
-                if (keyObj.get("easingArgs") instanceof JsonArray args && !args.isEmpty()
-                    && args.get(0) instanceof JsonPrimitive arg && arg.isNumber()) {
+                if (
+                    keyObj.get("easingArgs") instanceof JsonArray args && !args.isEmpty()
+                        && args.get(0) instanceof JsonPrimitive arg && arg.isNumber()
+                ) {
                     easingArg = arg.getAsDouble();
                 }
 
