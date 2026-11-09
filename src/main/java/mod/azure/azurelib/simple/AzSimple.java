@@ -1,14 +1,15 @@
 package mod.azure.azurelib.simple;
 
-import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
-import mod.azure.azurelib.animation.dispatch.command.AzCommand;
-import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
-import mod.azure.azurelib.util.ResourceLocation;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
 import java.util.Collections;
+
+import mod.azure.azurelib.animation.cache.AzIdentityRegistry;
+import mod.azure.azurelib.animation.dispatch.command.AzCommand;
+import mod.azure.azurelib.animation.impl.AzItemAnimatorView;
+import mod.azure.azurelib.util.ResourceLocation;
 
 /**
  * The entry point of AzureLib's Simple API: a beginner-friendly layer over the regular animator, controller, command
@@ -244,7 +245,7 @@ public final class AzSimple {
     }
 
     private static void send(
-            BlockEntity blockEntity,
+        BlockEntity blockEntity,
         String layer,
         String animation,
         AzSimplePlayMode mode

@@ -4,15 +4,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import java.util.*;
+import javax.annotation.Nullable;
+
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingTypeLoader;
 import mod.azure.azurelib.animation.easing.AzEasingTypes;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangParser;
 import mod.azure.azurelib.util.function.Double2DoubleFunction;
-
-import javax.annotation.Nullable;
-import java.util.*;
 
 public final class AzPoseWeights {
 
@@ -44,16 +45,28 @@ public final class AzPoseWeights {
     }
 
     public static final class Entry {
+
         private final String modifierId;
+
         private final double weight;
+
         private final double fadeIn;
+
         private final double fadeOut;
+
         private final boolean restore;
+
         @Nullable
         private final Track track;
 
-        public Entry(String modifierId, double weight, double fadeIn, double fadeOut,
-                     boolean restore, @Nullable Track track) {
+        public Entry(
+            String modifierId,
+            double weight,
+            double fadeIn,
+            double fadeOut,
+            boolean restore,
+            @Nullable Track track
+        ) {
             this.modifierId = modifierId;
             this.weight = weight;
             this.fadeIn = fadeIn;
@@ -62,13 +75,30 @@ public final class AzPoseWeights {
             this.track = track;
         }
 
-        public String modifierId() { return modifierId; }
-        public double weight() { return weight; }
-        public double fadeIn() { return fadeIn; }
-        public double fadeOut() { return fadeOut; }
-        public boolean restore() { return restore; }
+        public String modifierId() {
+            return modifierId;
+        }
+
+        public double weight() {
+            return weight;
+        }
+
+        public double fadeIn() {
+            return fadeIn;
+        }
+
+        public double fadeOut() {
+            return fadeOut;
+        }
+
+        public boolean restore() {
+            return restore;
+        }
+
         @Nullable
-        public Track track() { return track; }
+        public Track track() {
+            return track;
+        }
 
         public double targetAt(double animTick) {
             return track == null ? weight : track.sample(animTick);
@@ -76,6 +106,7 @@ public final class AzPoseWeights {
     }
 
     public static final class Track {
+
         private final Key[] keys;
 
         public Track(Key[] keys) {
@@ -119,15 +150,25 @@ public final class AzPoseWeights {
     }
 
     public static final class Key {
+
         private final double tick;
+
         private final IValue weight;
+
         private final AzEasingType easing;
+
         @Nullable
         private final Double easingArg;
+
         private final boolean step;
 
-        public Key(double tick, IValue weight, AzEasingType easing,
-                   @Nullable Double easingArg, boolean step) {
+        public Key(
+            double tick,
+            IValue weight,
+            AzEasingType easing,
+            @Nullable Double easingArg,
+            boolean step
+        ) {
             this.tick = tick;
             this.weight = weight;
             this.easing = easing;
@@ -135,12 +176,26 @@ public final class AzPoseWeights {
             this.step = step;
         }
 
-        public double tick() { return tick; }
-        public IValue weight() { return weight; }
-        public AzEasingType easing() { return easing; }
+        public double tick() {
+            return tick;
+        }
+
+        public IValue weight() {
+            return weight;
+        }
+
+        public AzEasingType easing() {
+            return easing;
+        }
+
         @Nullable
-        public Double easingArg() { return easingArg; }
-        public boolean step() { return step; }
+        public Double easingArg() {
+            return easingArg;
+        }
+
+        public boolean step() {
+            return step;
+        }
 
         public double value() {
             return clamp01(weight.get());
@@ -184,24 +239,29 @@ public final class AzPoseWeights {
 
             JsonElement keyframesElement = node.get("keyframes");
             Track track = keyframesElement instanceof JsonObject
-                    ? parseTrack((JsonObject) keyframesElement) : null;
+                ? parseTrack((JsonObject) keyframesElement)
+                : null;
 
             boolean restore = true;
             JsonElement restoreElement = node.get("restore");
-            if (restoreElement instanceof JsonPrimitive
+            if (
+                restoreElement instanceof JsonPrimitive
                     && ((JsonPrimitive) restoreElement).isBoolean()
-                    && !restoreElement.getAsBoolean()) {
+                    && !restoreElement.getAsBoolean()
+            ) {
                 restore = false;
             }
 
-            entries.add(new Entry(
+            entries.add(
+                new Entry(
                     id,
                     clamp01(readNumber(node, "weight", 1)),
                     Math.max(0, readNumber(node, "fade_in", 0)),
                     Math.max(0, readNumber(node, "fade_out", 0)),
                     restore,
                     track
-            ));
+                )
+            );
         }
 
         return entries.isEmpty() ? NONE : new AzPoseWeights(entries);
@@ -235,16 +295,18 @@ public final class AzPoseWeights {
 
                 JsonElement argsElement = keyObj.get("easingArgs");
                 if (argsElement instanceof JsonArray args) {
-                    if (!args.isEmpty() && args.get(0) instanceof JsonPrimitive
-                            && ((JsonPrimitive) args.get(0)).isNumber()) {
+                    if (
+                        !args.isEmpty() && args.get(0) instanceof JsonPrimitive
+                            && ((JsonPrimitive) args.get(0)).isNumber()
+                    ) {
                         easingArg = args.get(0).getAsDouble();
                     }
                 }
 
                 JsonElement interpolation = keyObj.get("interpolation");
                 step = interpolation instanceof JsonPrimitive
-                        && ((JsonPrimitive) interpolation).isString()
-                        && "step".equals(interpolation.getAsString());
+                    && ((JsonPrimitive) interpolation).isString()
+                    && "step".equals(interpolation.getAsString());
             }
 
             keys.add(new Key(seconds * 20d, MolangParser.parseJson(valueElement), easing, easingArg, step));
@@ -260,7 +322,8 @@ public final class AzPoseWeights {
     private static double readNumber(JsonObject obj, String key, double fallback) {
         JsonElement element = obj.get(key);
         return element instanceof JsonPrimitive && ((JsonPrimitive) element).isNumber()
-                ? element.getAsDouble() : fallback;
+            ? element.getAsDouble()
+            : fallback;
     }
 
     private static double clamp01(double value) {

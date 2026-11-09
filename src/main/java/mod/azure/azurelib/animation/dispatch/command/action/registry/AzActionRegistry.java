@@ -137,9 +137,9 @@ public class AzActionRegistry {
         );
 
         register(
-                AzSimplePlayAction.RESOURCE_LOCATION,
-                AzSimplePlayAction::decode,
-                AzSimplePlayAction::encode
+            AzSimplePlayAction.RESOURCE_LOCATION,
+            AzSimplePlayAction::decode,
+            AzSimplePlayAction::encode
         );
     }
 

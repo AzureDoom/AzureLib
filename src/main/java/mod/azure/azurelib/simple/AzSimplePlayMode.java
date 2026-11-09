@@ -1,9 +1,9 @@
 package mod.azure.azurelib.simple;
 
-import mod.azure.azurelib.network.AzByteBuf;
-
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import mod.azure.azurelib.network.AzByteBuf;
 
 public enum AzSimplePlayMode {
 
