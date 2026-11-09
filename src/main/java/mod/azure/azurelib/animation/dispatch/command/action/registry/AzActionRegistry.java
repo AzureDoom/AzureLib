@@ -1,6 +1,5 @@
 package mod.azure.azurelib.animation.dispatch.command.action.registry;
 
-import mod.azure.azurelib.simple.AzSimplePlayAction;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 
 /**
  * The AzActionRegistry class serves as a centralized registry for mapping {@link AzAction} implementations to their
@@ -138,9 +138,9 @@ public class AzActionRegistry {
         );
 
         register(
-                AzSimplePlayAction.RESOURCE_LOCATION,
-                AzSimplePlayAction::decode,
-                AzSimplePlayAction::encode
+            AzSimplePlayAction.RESOURCE_LOCATION,
+            AzSimplePlayAction::decode,
+            AzSimplePlayAction::encode
         );
     }
 

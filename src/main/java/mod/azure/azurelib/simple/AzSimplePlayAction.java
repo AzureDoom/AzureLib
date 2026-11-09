@@ -1,5 +1,12 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.util.ResourceLocation;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 import mod.azure.azurelib.animation.AzAnimator;
 import mod.azure.azurelib.animation.controller.AzAnimationController;
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
@@ -12,12 +19,6 @@ import mod.azure.azurelib.animation.dispatch.command.sequence.AzAnimationSequenc
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehavior;
 import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.network.AzByteBuf;
-import net.minecraft.util.ResourceLocation;
-
-import java.util.Collection;
-import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public final class AzSimplePlayAction implements AzAction {
 

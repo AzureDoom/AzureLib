@@ -1,11 +1,12 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+
 import mod.azure.azurelib.animation.controller.AzAnimationControllerContainer;
 import mod.azure.azurelib.animation.dispatch.AzDispatchSide;
 import mod.azure.azurelib.animation.impl.AzBlockAnimator;
 import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 
 @SuppressWarnings("unused")
 public class AzSimpleBlockAnimator<T extends TileEntity> extends AzBlockAnimator<T> implements AzSimpleAnimatorHandle {

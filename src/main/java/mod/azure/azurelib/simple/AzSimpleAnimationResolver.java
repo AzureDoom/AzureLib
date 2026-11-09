@@ -1,5 +1,11 @@
 package mod.azure.azurelib.simple;
 
+import net.minecraft.util.ResourceLocation;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.animation.AzAnimationContext;
 import mod.azure.azurelib.animation.AzAnimator;
@@ -19,11 +25,6 @@ import mod.azure.azurelib.animation.play_behavior.AzPlayBehaviors;
 import mod.azure.azurelib.animation.pose.AzPoseModifierRegistry;
 import mod.azure.azurelib.animation.primitive.AzBakedAnimations;
 import mod.azure.azurelib.animation.property.AzAnimationStageProperties;
-import net.minecraft.util.ResourceLocation;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public final class AzSimpleAnimationResolver<T> implements AzAnimatorUpdateHook<T> {
