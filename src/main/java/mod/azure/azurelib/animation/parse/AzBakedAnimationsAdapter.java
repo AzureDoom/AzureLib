@@ -2,7 +2,6 @@ package mod.azure.azurelib.animation.parse;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
-import mod.azure.azurelib.animation.primitive.*;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -19,6 +18,7 @@ import mod.azure.azurelib.animation.controller.keyframe.AzKeyframeStack;
 import mod.azure.azurelib.animation.easing.AzEasingType;
 import mod.azure.azurelib.animation.easing.AzEasingTypeLoader;
 import mod.azure.azurelib.animation.easing.AzEasingTypes;
+import mod.azure.azurelib.animation.primitive.*;
 import mod.azure.azurelib.core.math.Constant;
 import mod.azure.azurelib.core.math.IValue;
 import mod.azure.azurelib.core.molang.MolangException;

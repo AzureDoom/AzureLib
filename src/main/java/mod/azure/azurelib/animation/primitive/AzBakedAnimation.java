@@ -105,12 +105,12 @@ public final class AzBakedAnimation {
     }
 
     public AzBakedAnimation(
-            String name,
-            double length,
-            AzLoopType loopType,
-            AzBoneAnimation[] boneAnimations,
-            AzKeyframes keyframes,
-            AzAnimationDefaults defaults
+        String name,
+        double length,
+        AzLoopType loopType,
+        AzBoneAnimation[] boneAnimations,
+        AzKeyframes keyframes,
+        AzAnimationDefaults defaults
     ) {
         this(name, length, loopType, boneAnimations, keyframes, defaults, AzPoseWeights.NONE);
     }
