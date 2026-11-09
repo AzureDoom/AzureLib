@@ -10,6 +10,7 @@ import mod.azure.azurelib.animation.dispatch.command.action.AzAction;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.controller.*;
 import mod.azure.azurelib.animation.dispatch.command.action.impl.root.*;
 import mod.azure.azurelib.network.AzByteBuf;
+import mod.azure.azurelib.simple.AzSimplePlayAction;
 import mod.azure.azurelib.util.ResourceLocation;
 
 /**
@@ -133,6 +134,12 @@ public class AzActionRegistry {
             AzControllerSetWeightAction.RESOURCE_LOCATION,
             AzControllerSetWeightAction::decode,
             AzControllerSetWeightAction::encode
+        );
+
+        register(
+                AzSimplePlayAction.RESOURCE_LOCATION,
+                AzSimplePlayAction::decode,
+                AzSimplePlayAction::encode
         );
     }
 

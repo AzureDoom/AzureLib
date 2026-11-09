@@ -1,0 +1,10 @@
+{
+    "simple_api.mdx": {
+        "name": "Simple API",
+        "icon": "Zap"
+    },
+    "simple_api_advanced.mdx": {
+        "name": "Simple API: Advanced",
+        "icon": "Zap"
+    }
+}
