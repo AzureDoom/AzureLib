@@ -1,0 +1,188 @@
+---
+title: "Simple API: Advanced"
+hide_meta: true
+---
+
+<Callout variant="info">
+    This page builds on the [Simple API](simple_api) page. Everything here is optional.
+</Callout>
+
+# Simple API: Advanced
+
+## Custom asset paths
+
+Override any of the conventional paths on the builder:
+
+```java
+AzSimple.entity("mymod", "monster")
+    .model(ResourceLocation.fromNamespaceAndPath("mymod", "geo/mobs/custom.geo.json"))
+    .texture(ResourceLocation.fromNamespaceAndPath("mymod", "textures/mobs/custom.png"))
+    .animations(ResourceLocation.fromNamespaceAndPath("mymod", "animations/mobs/custom.animation.json"));
+```
+
+`model`, `texture` and `animations` also accept a function of the animatable, for variants.
+
+## Renderer options
+
+```java
+AzSimple.entity("mymod", "monster")
+    .idle("idle")
+    .walk("walk")
+    .transition(5)   // ticks to blend between animations
+    .speed(1.2)      // playback speed
+    .shadow(0.5f)    // shadow radius
+    .scale(1.5f);    // render scale
+```
+
+## Automatic animations
+
+### Typed builders
+
+When a condition needs your entity's own methods, give the builder your type:
+
+```java
+AzSimple.<Monster>entity("mymod", "monster")
+```
+
+Without it, Java treats the animatable as a plain `Entity`.
+
+### Moving
+
+The entity counts as moving when its walk animation speed is above `0.15` (the same rule GeckoLib used). Change the threshold, or replace the test:
+
+```java
+AzSimple.entity("mymod", "monster")
+    .walk("walk")
+    .movementThreshold(0.05f)                 // for slow mobs
+    .moving(entity -> entity.isSprinting());  // or your own test
+```
+
+### More states, and death
+
+`when` adds automatic animations. They are checked in the order you add them, before walk and idle, and the first match plays:
+
+```java
+AzSimple.<Monster>entity("mymod", "monster")
+    .when(Monster::isSwimming, "swim")
+    .when(Monster::isAggressive, "run")
+    .walk("walk")
+    .idle("idle")
+    .death("death"); // holds the last frame once the entity dies
+```
+
+Block entities and items support `when` too, e.g. `.when(MachineBlockEntity::isRunning, "running")`.
+
+Automatic animations wait for played animations to finish. `death` is the exception: it interrupts whatever is playing, unless that animation is uninterruptible (see below). To give your own state the same power, give it a priority: `.when(condition, "stagger", AzPlayBehaviors.PLAY_ONCE, 10)`.
+
+## Configuring played animations
+
+Animations don't need to be declared to be played, but declaring them lets you change how they behave:
+
+```java
+AzSimple.entity("mymod", "monster")
+    .animation("attack", a -> a.priority(5))
+    .animation("roar", a -> a.priority(10).uninterruptible())
+    .animation("sit", a -> a.hold())
+    .animation("slam", a -> a.transition(2).speed(1.5));
+```
+
+| Setting | What it does |
+|---|---|
+| `hold()` | Stays on the last frame when finished, until `AzSimple.stop` or another animation replaces it. |
+| `priority(int)` | Used by interrupt policies. Default 0. |
+| `interrupt(policy)` | What may replace the animation while it plays: `ALWAYS` (default), `SAME_OR_HIGHER_PRIORITY`, `HIGHER_PRIORITY` or `NEVER`. |
+| `uninterruptible()` | Shorthand for `interrupt(AzSimpleInterruptPolicy.NEVER)`. |
+| `transition(int)` / `speed(double)` | Transition length and speed for this animation only. |
+| `layer(String)` | Plays on a layer instead of the base controller. |
+
+Playing a one-shot animation that is already playing restarts it. Looping an animation that is already looping does nothing.
+
+Calls made on the client only play locally, and never override an animation the server started. That includes `stop`.
+
+## Layers
+
+Layers are extra animation controllers on top of the main one, for things like aiming while walking or recoil on top of everything:
+
+```java
+AzSimple.<Soldier>entity("mymod", "soldier")
+    .idle("idle")
+    .walk("walk")
+    .layer("aim")
+        .animation("aim")
+        .bones("rightArm", "leftArm")
+        .when(Soldier::isAiming)
+        .fade(4)
+        .endLayer()
+    .layer("recoil")
+        .animation("fire")
+        .additive()
+        .bones("rightArm", "leftArm")
+        .fade(5)
+        .endLayer();
+```
+
+| Setting | What it does |
+|---|---|
+| `animation(String)` | The layer's animation. |
+| `bones(...)` / `exceptBones(...)` | Limits the layer to these bones (and their children), or to every other bone. |
+| `weight(float)` | How strongly the layer applies, 0 to 1. Default 1. |
+| `additive()` / `override()` | Adds its motion on top of the layers below, or replaces them (default). |
+| `when(condition)` / `always()` | Makes the layer play by itself while the condition is true, or all the time. |
+| `fade(int)` | Fades the layer in and out over this many ticks. |
+| `transition(int)` / `speed(double)` / `playBehavior(...)` | Per-layer playback settings. |
+
+A layer without `when` or `always` only plays when asked. `AzSimple.play(entity, "fire")` finds the layer whose animation is `fire` by itself, or you can target a layer directly with `AzSimple.playOnLayer(entity, "recoil", "fire")`. `AzSimple.stop(entity)` stops played animations on the main controller and every layer. Layers with a fade fade out before stopping.
+
+Playing an animation on a `when` layer takes it over until that animation finishes; then the layer's own animation fades back in if its condition is still true.
+
+## Procedural bone tweaks
+
+For small per-frame adjustments, such as spinning a part:
+
+```java
+AzSimple.<Turret>entity("mymod", "turret")
+    .idle("idle")
+    .boneTransform("barrel", (turret, bone, partialTick) -> bone.rotate(0, 0, turret.tickCount * 0.2f));
+```
+
+Bone tweaks are pose modifiers under the hood, so they never pile up between frames. Existing modifiers from `AzPoseModifiers` (head look, springs, IK) can be added with `pose`. Head look needs a living entity, so type the builder:
+
+```java
+AzSimple.<Monster>entity("mymod", "monster")
+    .idle("idle")
+    .pose("look", AzPoseModifiers.headLook("neck", "head"));
+```
+
+## Item options
+
+- `.separateFirstPersonAnimator()` gives first person its own animator. Play different animations per view with `AzSimple.playFirstPerson(stack, player, "aim_fire")` and `AzSimple.playThirdPerson(stack, player, "fire")`.
+- `.newOffset(true)` uses the corrected display offsets, if your item looks shifted.
+- `AzSimple.playOnLayer(stack, player, layer, animation)` targets an item layer.
+
+Animations follow each stack's own identity, so pass the stack from the player's inventory rather than a copy.
+
+## Mixing with the full API
+
+The Simple API runs on ordinary AzureLib controllers, so you can combine it with everything else:
+
+- The main controller is named `base_controller` (`AzSimple.BASE_CONTROLLER`), and each layer's controller uses the layer's name. Regular `AzCommand`s can target them. The Simple API leaves an animation you started that way alone until it finishes or is cancelled, then goes back to its automatic animation. Only `death` (or another state with a priority) and `AzSimple.stop` interrupt it. A command that targets a `when` layer while that layer is off plays at the layer's configured weight.
+- `AzSimple.play`, `loop` and `stop` also work on entities with a hand-written animator: they act on the first controller, or the one named with `playOnLayer`.
+- `AzSimpleEntityAnimator#simple()` returns the resolver, whose `owner(controllerName)` tells you who is driving a controller right now (`AUTOMATIC`, `TRIGGERED`, `EXTERNAL`, `RELEASING` or `INACTIVE`). Handy when debugging.
+- To add renderer options the builder doesn't cover, such as render layers, start from `rendererConfigBuilder`:
+
+```java
+public class MonsterRenderer extends AzSimpleEntityRenderer<Monster> {
+
+    public MonsterRenderer(EntityRendererProvider.Context context) {
+        this(context, AzSimpleConfig.narrow(AzSimple.entity("mymod", "monster").idle("idle").build()));
+    }
+
+    private MonsterRenderer(EntityRendererProvider.Context context, AzSimpleConfig<Monster> config) {
+        super(context, config, rendererConfigBuilder(config).addRenderLayer(new AzAutoGlowingLayer<>()).build());
+    }
+}
+```
+
+- To add your own controllers next to the Simple ones, subclass `AzSimpleEntityAnimator` (or the item and block versions), override `registerAdditionalControllers`, and supply it with `setAnimatorProvider`.
+
+When you outgrow the Simple API, the [Animating Entities](../entities/entities), [Animating Items](../items/items) and [Block Entities](../blockentities/blockentities) pages show the full API.

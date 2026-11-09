@@ -1,0 +1,37 @@
+package mod.azure.azurelib.simple;
+
+import net.minecraft.tileentity.TileEntity;
+
+import mod.azure.azurelib.render.block.AzBlockEntityRenderer;
+import mod.azure.azurelib.render.block.AzBlockEntityRendererConfig;
+
+@SuppressWarnings("unused")
+public class AzSimpleBlockRenderer<T extends TileEntity> extends AzBlockEntityRenderer<T> {
+
+    protected final AzSimpleConfig<T> simpleConfig;
+
+    public AzSimpleBlockRenderer(AzSimpleConfig.BlockBuilder<? super T> builder) {
+        this(AzSimpleConfig.narrow(builder.build()));
+    }
+
+    protected AzSimpleBlockRenderer(AzSimpleConfig<T> simpleConfig) {
+        this(simpleConfig, rendererConfigBuilder(simpleConfig).build());
+    }
+
+    protected AzSimpleBlockRenderer(AzSimpleConfig<T> simpleConfig, AzBlockEntityRendererConfig<T> rendererConfig) {
+        super(rendererConfig);
+        this.simpleConfig = simpleConfig;
+    }
+
+    public static <T extends TileEntity> AzBlockEntityRendererConfig.Builder<T> rendererConfigBuilder(
+        AzSimpleConfig<T> config
+    ) {
+        return AzBlockEntityRendererConfig.builder(config::modelLocation, config::textureLocation)
+            .setAnimatorProvider(() -> new AzSimpleBlockAnimator<>(config))
+            .setScale(config.scaleWidth(), config.scaleHeight());
+    }
+
+    public AzSimpleConfig<T> simpleConfig() {
+        return simpleConfig;
+    }
+}
