@@ -16,6 +16,8 @@ import ttv.migami.jeg.entity.projectile.ProjectileEntity;
 import java.util.Optional;
 
 import mod.azure.azurelib.compat.jeg.JegHitboxCompat;
+import mod.azure.azurelib.hitbox.AzHitboxHolder;
+import mod.azure.azurelib.hitbox.AzHitboxes;
 
 @Pseudo
 @Mixin(
@@ -36,12 +38,16 @@ public abstract class JegProjectileMixin {
         Vec3 to,
         CallbackInfoReturnable<ProjectileEntity.EntityResult> cir
     ) {
-        Optional<JegHitboxCompat.Hit> result =
-            JegHitboxCompat.resolve(target, from, to);
-
-        if (result == null) {
+        if (!(target instanceof AzHitboxHolder)) {
             return;
         }
+
+        if (!AzHitboxes.hasLivePose(target)) {
+            return;
+        }
+
+        Optional<JegHitboxCompat.Hit> result =
+            JegHitboxCompat.resolve(target, from, to);
 
         if (result.isEmpty()) {
             cir.setReturnValue(null);
