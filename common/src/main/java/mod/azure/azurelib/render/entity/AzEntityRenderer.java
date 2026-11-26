@@ -19,6 +19,7 @@ import mod.azure.azurelib.hitbox.AzHitboxHolder;
 import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
+import mod.azure.azurelib.render.AzRenderContext;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
 
@@ -112,7 +113,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzEntityAnimator = cachedEntityAnimator;
 
-        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
+        boolean guiRender = AzRenderContext.isGuiRender();
+
+        animateThisFrame = !guiRender && updateLod(entity, cachedEntityAnimator, azBakedModel);
 
         // Execute the render pipeline.
         rendererPipeline.render(
@@ -127,7 +130,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             packedLight
         );
 
-        if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+        if (!guiRender && entity instanceof AzHitboxHolder && azBakedModel != null) {
             AzHitboxClientHooks.afterEntityRender(
                 entity,
                 azBakedModel,
