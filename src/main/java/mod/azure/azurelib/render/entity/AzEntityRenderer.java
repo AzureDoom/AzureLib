@@ -1,6 +1,5 @@
 package mod.azure.azurelib.render.entity;
 
-import mod.azure.azurelib.render.AzRenderContext;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.entity.Entity;
@@ -18,6 +17,7 @@ import mod.azure.azurelib.hitbox.client.AzHitboxClientTicker;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.platform.mc.Mc;
 import mod.azure.azurelib.render.AzProvider;
+import mod.azure.azurelib.render.AzRenderContext;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
 import mod.azure.azurelib.render.vertex.AzBufferSource;
