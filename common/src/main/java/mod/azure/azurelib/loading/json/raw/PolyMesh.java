@@ -25,8 +25,23 @@ public record PolyMesh(
     double[][] normals,
     @Nullable PolysUnion polysUnion,
     double[][] positions,
-    double[][] uvs
+    double[][] uvs,
+    MeshPart[] parts
 ) {
+
+    public PolyMesh(
+        @Nullable Boolean normalizedUVs,
+        double[][] normals,
+        @Nullable PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs
+    ) {
+        this(normalizedUVs, normals, polysUnion, positions, uvs, new MeshPart[0]);
+    }
+
+    public PolyMesh withParts(MeshPart[] parts) {
+        return parts.length == 0 ? this : new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs, parts);
+    }
 
     public boolean usesNormalizedUVs() {
         return normalizedUVs == Boolean.TRUE;
@@ -47,7 +62,7 @@ public record PolyMesh(
         double[][] normals = MeshValidation.vectors(obj.get("normals"), "normals", 3, MeshValidation.MAX_ATTRIBUTES);
         double[][] uvs = MeshValidation.vectors(obj.get("uvs"), "uvs", 2, MeshValidation.MAX_ATTRIBUTES);
         PolysUnion polys = obj.has("polys") ? context.deserialize(obj.get("polys"), PolysUnion.class) : null;
-        PolyMesh mesh = new PolyMesh(normalizedUVs, normals, polys, positions, uvs);
+        PolyMesh mesh = new PolyMesh(normalizedUVs, normals, polys, positions, uvs, MeshPart.readAll(obj));
 
         mesh.validate();
         return mesh;
