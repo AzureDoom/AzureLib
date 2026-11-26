@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.render.AzRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -124,7 +125,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         var previousAnimate = animateThisFrame;
 
         reusedAzEntityAnimator = cachedEntityAnimator;
-        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel, state.distanceToCameraSq);
+        boolean guiRender = AzRenderContext.isGuiRender();
+
+        animateThisFrame = !guiRender && updateLod(entity, cachedEntityAnimator, azBakedModel, state.distanceToCameraSq);
         this.currentRenderOffset = getRenderOffset(state);
 
         var geometry = new AzBufferSource();
@@ -145,7 +148,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
                 state.lightCoords
             );
 
-            if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+            if (!guiRender && entity instanceof AzHitboxHolder && azBakedModel != null) {
                 AzHitboxClientHooks.afterEntityRender(entity, azBakedModel, partialTick);
             }
         } finally {
