@@ -1,9 +1,10 @@
 package mod.azure.azurelib.model.factory.primitive;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import mod.azure.azurelib.loading.json.raw.MeshPart;
 import mod.azure.azurelib.loading.json.raw.PolyMesh;
 import mod.azure.azurelib.loading.json.raw.PolysUnion;
@@ -492,12 +493,12 @@ public final class MeshPolygons {
         private final IntArrayList[] byPosition;
 
         private Smoothing(
-                int[] partOf,
-                float[] minDot,
-                float[] faceNormals,
-                float[] faceWeights,
-                int[] canonical,
-                IntArrayList[] byPosition
+            int[] partOf,
+            float[] minDot,
+            float[] faceNormals,
+            float[] faceWeights,
+            int[] canonical,
+            IntArrayList[] byPosition
         ) {
             this.partOf = partOf;
             this.minDot = minDot;
@@ -548,8 +549,8 @@ public final class MeshPolygons {
                 int[][] polygon = polygons[p];
 
                 if (
-                        partOf[p] < 0 || polygon == null || polygon.length < 3
-                                || !validPositions(polygon, positionCount)
+                    partOf[p] < 0 || polygon == null || polygon.length < 3
+                        || !validPositions(polygon, positionCount)
                 ) {
                     partOf[p] = -1;
                     continue;
@@ -658,9 +659,9 @@ public final class MeshPolygons {
 
             for (int i = 0; i < count; i++) {
                 PositionKey key = new PositionKey(
-                        Math.round(positions[i * 3] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
+                    Math.round(positions[i * 3] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
                 );
                 Integer existing = seen.putIfAbsent(key, i);
                 canonical[i] = existing != null ? existing : i;
@@ -670,9 +671,9 @@ public final class MeshPolygons {
         }
 
         private record PositionKey(
-                int x,
-                int y,
-                int z
+            int x,
+            int y,
+            int z
         ) {}
     }
 }

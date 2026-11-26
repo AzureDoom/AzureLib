@@ -1,7 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.azure.azurelib.render.AzRenderContext;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -20,6 +19,7 @@ import mod.azure.azurelib.hitbox.AzHitboxHolder;
 import mod.azure.azurelib.hitbox.client.AzHitboxClientHooks;
 import mod.azure.azurelib.model.AzBakedModel;
 import mod.azure.azurelib.render.AzProvider;
+import mod.azure.azurelib.render.AzRenderContext;
 import mod.azure.azurelib.render.lod.AzLodConfig;
 import mod.azure.azurelib.render.lod.AzLodManager;
 

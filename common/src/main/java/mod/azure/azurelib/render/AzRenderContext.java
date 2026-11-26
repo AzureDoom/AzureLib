@@ -8,7 +8,7 @@ import java.nio.FloatBuffer;
 public final class AzRenderContext {
 
     private static final FloatBuffer PROJECTION =
-            BufferUtils.createFloatBuffer(16);
+        BufferUtils.createFloatBuffer(16);
 
     private AzRenderContext() {}
 
