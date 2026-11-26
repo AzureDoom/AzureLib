@@ -1,5 +1,6 @@
 package mod.azure.azurelib.render.entity;
 
+import mod.azure.azurelib.render.AzRenderContext;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
@@ -112,7 +113,10 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
 
         this.shadowSize = config.shadowRadius(entity);
         reusedAzEntityAnimator = cachedEntityAnimator;
-        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
+
+        boolean guiRender = AzRenderContext.isGuiRender();
+
+        animateThisFrame = !guiRender && updateLod(entity, cachedEntityAnimator, azBakedModel);
 
         AzBufferSource bufferSource = AzBufferSource.getInstance();
         bufferSource.endBatch();
@@ -134,7 +138,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends Render {
             );
             bufferSource.endBatch();
 
-            if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+            if (!guiRender && entity instanceof AzHitboxHolder && azBakedModel != null) {
                 AzHitboxClientHooks.afterEntityRender(
                     entity,
                     azBakedModel,
