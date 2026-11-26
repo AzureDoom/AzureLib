@@ -30,11 +30,11 @@ public record PolyMesh(
 ) {
 
     public PolyMesh(
-            @Nullable Boolean normalizedUVs,
-            double[][] normals,
-            @Nullable PolysUnion polysUnion,
-            double[][] positions,
-            double[][] uvs
+        @Nullable Boolean normalizedUVs,
+        double[][] normals,
+        @Nullable PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs
     ) {
         this(normalizedUVs, normals, polysUnion, positions, uvs, new MeshPart[0]);
     }

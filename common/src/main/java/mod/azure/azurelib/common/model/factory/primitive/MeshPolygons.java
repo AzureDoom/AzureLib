@@ -424,12 +424,12 @@ public record MeshPolygons(
         private final IntArrayList[] byPosition;
 
         private Smoothing(
-                int[] partOf,
-                float[] minDot,
-                float[] faceNormals,
-                float[] faceWeights,
-                int[] canonical,
-                IntArrayList[] byPosition
+            int[] partOf,
+            float[] minDot,
+            float[] faceNormals,
+            float[] faceWeights,
+            int[] canonical,
+            IntArrayList[] byPosition
         ) {
             this.partOf = partOf;
             this.minDot = minDot;
@@ -480,8 +480,8 @@ public record MeshPolygons(
                 int[][] polygon = polygons[p];
 
                 if (
-                        partOf[p] < 0 || polygon == null || polygon.length < 3
-                                || !validPositions(polygon, positionCount)
+                    partOf[p] < 0 || polygon == null || polygon.length < 3
+                        || !validPositions(polygon, positionCount)
                 ) {
                     partOf[p] = -1;
                     continue;
@@ -590,9 +590,9 @@ public record MeshPolygons(
 
             for (int i = 0; i < count; i++) {
                 PositionKey key = new PositionKey(
-                        Math.round(positions[i * 3] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
+                    Math.round(positions[i * 3] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
                 );
                 Integer existing = seen.putIfAbsent(key, i);
                 canonical[i] = existing != null ? existing : i;
@@ -602,9 +602,9 @@ public record MeshPolygons(
         }
 
         private record PositionKey(
-                int x,
-                int y,
-                int z
+            int x,
+            int y,
+            int z
         ) {}
     }
 }
