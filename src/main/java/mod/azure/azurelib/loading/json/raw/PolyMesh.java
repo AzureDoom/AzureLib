@@ -9,9 +9,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import org.jetbrains.annotations.Nullable;
 
 import mod.azure.azurelib.util.JsonUtil;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Container class for Bedrock {@code poly_mesh} information, only used in deserialization at startup.
@@ -35,12 +35,12 @@ public final class PolyMesh {
     private final MeshPart[] parts;
 
     public PolyMesh(
-            Boolean normalizedUVs,
-            double[][] normals,
-            PolysUnion polysUnion,
-            double[][] positions,
-            double[][] uvs,
-            MeshPart[] parts
+        Boolean normalizedUVs,
+        double[][] normals,
+        PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs,
+        MeshPart[] parts
     ) {
         this.normalizedUVs = normalizedUVs;
         this.normals = normals;
@@ -51,11 +51,11 @@ public final class PolyMesh {
     }
 
     public PolyMesh(
-            @Nullable Boolean normalizedUVs,
-            double[][] normals,
-            @Nullable PolysUnion polysUnion,
-            double[][] positions,
-            double[][] uvs
+        @Nullable Boolean normalizedUVs,
+        double[][] normals,
+        @Nullable PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs
     ) {
         this(normalizedUVs, normals, polysUnion, positions, uvs, new MeshPart[0]);
     }

@@ -74,8 +74,6 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
     private final Vector3f scratch = new Vector3f(), scratch2 = new Vector3f(), jointScratch = new Vector3f();
 
-
-
     private AzSpringBone(Builder<T> builder) {
         this.bones = builder.bones;
         this.hasTip = builder.hasTip;
