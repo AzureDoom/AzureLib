@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.util.Map;
+import java.util.Objects;
 
 import mod.azure.azurelib.util.GsonHelper;
 import mod.azure.azurelib.util.JsonUtil;
@@ -160,43 +161,43 @@ public final class Bone {
         if (!(o instanceof Bone))
             return false;
         Bone other = (Bone) o;
-        return java.util.Objects.equals(this.bindPoseRotation, other.bindPoseRotation)
-            && java.util.Objects.equals(this.cubes, other.cubes)
-            && java.util.Objects.equals(this.debug, other.debug)
-            && java.util.Objects.equals(this.inflate, other.inflate)
-            && java.util.Objects.equals(this.locators, other.locators)
-            && java.util.Objects.equals(this.mirror, other.mirror)
-            && java.util.Objects.equals(this.name, other.name)
-            && java.util.Objects.equals(this.neverRender, other.neverRender)
-            && java.util.Objects.equals(this.parent, other.parent)
-            && java.util.Objects.equals(this.pivot, other.pivot)
-            && java.util.Objects.equals(this.polyMesh, other.polyMesh)
-            && java.util.Objects.equals(this.renderGroupId, other.renderGroupId)
-            && java.util.Objects.equals(this.reset, other.reset)
-            && java.util.Objects.equals(this.rotation, other.rotation)
-            && java.util.Objects.equals(this.textureMeshes, other.textureMeshes)
-            && java.util.Objects.equals(this.skinnedMeshes, other.skinnedMeshes);
+        return Objects.equals(this.bindPoseRotation, other.bindPoseRotation)
+            && Objects.equals(this.cubes, other.cubes)
+            && Objects.equals(this.debug, other.debug)
+            && Objects.equals(this.inflate, other.inflate)
+            && Objects.equals(this.locators, other.locators)
+            && Objects.equals(this.mirror, other.mirror)
+            && Objects.equals(this.name, other.name)
+            && Objects.equals(this.neverRender, other.neverRender)
+            && Objects.equals(this.parent, other.parent)
+            && Objects.equals(this.pivot, other.pivot)
+            && Objects.equals(this.polyMesh, other.polyMesh)
+            && Objects.equals(this.renderGroupId, other.renderGroupId)
+            && Objects.equals(this.reset, other.reset)
+            && Objects.equals(this.rotation, other.rotation)
+            && Objects.equals(this.textureMeshes, other.textureMeshes)
+            && Objects.equals(this.skinnedMeshes, other.skinnedMeshes);
     }
 
     @Override
     public int hashCode() {
         int result = 0;
-        result = 31 * result + java.util.Objects.hashCode(this.bindPoseRotation);
-        result = 31 * result + java.util.Objects.hashCode(this.cubes);
-        result = 31 * result + java.util.Objects.hashCode(this.debug);
-        result = 31 * result + java.util.Objects.hashCode(this.inflate);
-        result = 31 * result + java.util.Objects.hashCode(this.locators);
-        result = 31 * result + java.util.Objects.hashCode(this.mirror);
-        result = 31 * result + java.util.Objects.hashCode(this.name);
-        result = 31 * result + java.util.Objects.hashCode(this.neverRender);
-        result = 31 * result + java.util.Objects.hashCode(this.parent);
-        result = 31 * result + java.util.Objects.hashCode(this.pivot);
-        result = 31 * result + java.util.Objects.hashCode(this.polyMesh);
-        result = 31 * result + java.util.Objects.hashCode(this.renderGroupId);
-        result = 31 * result + java.util.Objects.hashCode(this.reset);
-        result = 31 * result + java.util.Objects.hashCode(this.rotation);
-        result = 31 * result + java.util.Objects.hashCode(this.textureMeshes);
-        result = 31 * result + java.util.Objects.hashCode(this.skinnedMeshes);
+        result = 31 * result + Objects.hashCode(this.bindPoseRotation);
+        result = 31 * result + Objects.hashCode(this.cubes);
+        result = 31 * result + Objects.hashCode(this.debug);
+        result = 31 * result + Objects.hashCode(this.inflate);
+        result = 31 * result + Objects.hashCode(this.locators);
+        result = 31 * result + Objects.hashCode(this.mirror);
+        result = 31 * result + Objects.hashCode(this.name);
+        result = 31 * result + Objects.hashCode(this.neverRender);
+        result = 31 * result + Objects.hashCode(this.parent);
+        result = 31 * result + Objects.hashCode(this.pivot);
+        result = 31 * result + Objects.hashCode(this.polyMesh);
+        result = 31 * result + Objects.hashCode(this.renderGroupId);
+        result = 31 * result + Objects.hashCode(this.reset);
+        result = 31 * result + Objects.hashCode(this.rotation);
+        result = 31 * result + Objects.hashCode(this.textureMeshes);
+        result = 31 * result + Objects.hashCode(this.skinnedMeshes);
         return result;
     }
 
@@ -235,6 +236,10 @@ public final class Bone {
 
             try {
                 polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+
+                if (polyMesh != null) {
+                    polyMesh = polyMesh.withParts(MeshPart.readAll(obj));
+                }
             } catch (JsonParseException e) {
                 throw new JsonParseException("Bone '" + name + "' poly_mesh " + e.getMessage(), e);
             }
