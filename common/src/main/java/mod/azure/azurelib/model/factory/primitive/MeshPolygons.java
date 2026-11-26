@@ -4,7 +4,9 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
+import mod.azure.azurelib.loading.json.raw.MeshPart;
 import mod.azure.azurelib.loading.json.raw.PolyMesh;
 
 /**
@@ -142,12 +144,16 @@ public record MeshPolygons(
 
         var faceNormal = new float[3];
 
-        for (var polygon : polygons) {
+        var smoothing = Smoothing.of(mesh.parts(), positions, polygons);
+
+        for (int polygonIndex = 0; polygonIndex < polygons.length; polygonIndex++) {
+            var polygon = polygons[polygonIndex];
             if (polygon == null || polygon.length < 3 || !validPositions(polygon, positionCount)) {
                 continue;
             }
 
             computeFaceNormal(positions, polygon, faceNormal);
+            var smooth = smoothing != null && smoothing.isSmooth(polygonIndex);
 
             for (var quad : quadsFor(positions, polygon, faceNormal)) {
                 float minU = Float.POSITIVE_INFINITY, minV = Float.POSITIVE_INFINITY;
@@ -158,7 +164,9 @@ public record MeshPolygons(
                     cornerPositions.add(corner[0]);
 
                     var normal = vectorOrNull(mesh.normals(), corner[1], 3);
-                    if (normal != null) {
+                    if (smooth) {
+                        smoothing.normalAt(polygonIndex, corner[0], faceNormal, cornerNormals);
+                    } else if (normal != null) {
                         // Normalize in double: a component near Float.MAX_VALUE would overflow when squared as a float.
                         double nx = -normal[0];
                         double ny = normal[1];
@@ -396,5 +404,206 @@ public record MeshPolygons(
         out[0] = nx / length;
         out[1] = ny / length;
         out[2] = nz / length;
+    }
+
+    private static final class Smoothing {
+
+        private static final float POSITION_EPSILON = 1.0e-4f;
+
+        private final int[] partOf;
+
+        private final float[] minDot;
+
+        private final float[] faceNormals;
+
+        private final float[] faceWeights;
+
+        private final int[] canonical;
+
+        private final IntArrayList[] byPosition;
+
+        private Smoothing(
+            int[] partOf,
+            float[] minDot,
+            float[] faceNormals,
+            float[] faceWeights,
+            int[] canonical,
+            IntArrayList[] byPosition
+        ) {
+            this.partOf = partOf;
+            this.minDot = minDot;
+            this.faceNormals = faceNormals;
+            this.faceWeights = faceWeights;
+            this.canonical = canonical;
+            this.byPosition = byPosition;
+        }
+
+        static Smoothing of(MeshPart[] parts, float[] positions, int[][][] polygons) {
+            if (parts == null || parts.length == 0) {
+                return null;
+            }
+
+            int polygonCount = polygons.length;
+            int[] partOf = new int[polygonCount];
+            Arrays.fill(partOf, -1);
+            float[] minDot = new float[parts.length];
+            boolean any = false;
+
+            for (int i = 0; i < parts.length; i++) {
+                MeshPart part = parts[i];
+                minDot[i] = (float) Math.cos(Math.toRadians(part.smoothAngle()));
+
+                if (!part.smooth()) {
+                    continue;
+                }
+
+                int end = (int) Math.min((long) part.start() + part.count(), polygonCount);
+
+                for (int p = part.start(); p < end; p++) {
+                    partOf[p] = i;
+                    any = true;
+                }
+            }
+
+            if (!any) {
+                return null;
+            }
+
+            int positionCount = positions.length / 3;
+            int[] canonical = canonicalPositions(positions);
+            float[] faceNormals = new float[polygonCount * 3];
+            float[] faceWeights = new float[polygonCount];
+            IntArrayList[] byPosition = new IntArrayList[positionCount];
+
+            for (int p = 0; p < polygonCount; p++) {
+                int[][] polygon = polygons[p];
+
+                if (
+                    partOf[p] < 0 || polygon == null || polygon.length < 3
+                        || !validPositions(polygon, positionCount)
+                ) {
+                    partOf[p] = -1;
+                    continue;
+                }
+
+                float weight = newell(positions, polygon, faceNormals, p * 3);
+
+                if (weight <= 0) {
+                    partOf[p] = -1;
+                    continue;
+                }
+
+                faceWeights[p] = weight;
+
+                for (int[] corner : polygon) {
+                    int key = canonical[corner[0]];
+                    IntArrayList list = byPosition[key];
+
+                    if (list == null) {
+                        byPosition[key] = list = new IntArrayList(6);
+                    }
+
+                    if (!list.contains(p)) {
+                        list.add(p);
+                    }
+                }
+            }
+
+            return new Smoothing(partOf, minDot, faceNormals, faceWeights, canonical, byPosition);
+        }
+
+        boolean isSmooth(int polygon) {
+            return partOf[polygon] >= 0;
+        }
+
+        void normalAt(int polygon, int position, float[] fallback, FloatArrayList out) {
+            IntArrayList shared = byPosition[canonical[position]];
+            int part = partOf[polygon];
+            float threshold = minDot[part];
+            int self = polygon * 3;
+            float fx = faceNormals[self], fy = faceNormals[self + 1], fz = faceNormals[self + 2];
+            double nx = 0, ny = 0, nz = 0;
+
+            if (shared != null) {
+                for (int i = 0, size = shared.size(); i < size; i++) {
+                    int other = shared.getInt(i);
+
+                    if (partOf[other] != part) {
+                        continue;
+                    }
+
+                    int o = other * 3;
+                    float ox = faceNormals[o], oy = faceNormals[o + 1], oz = faceNormals[o + 2];
+
+                    if (other != polygon && fx * ox + fy * oy + fz * oz < threshold) {
+                        continue;
+                    }
+
+                    float w = faceWeights[other];
+                    nx += ox * w;
+                    ny += oy * w;
+                    nz += oz * w;
+                }
+            }
+
+            double length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+            if (length > 1.0e-9 && Double.isFinite(length)) {
+                out.add((float) (nx / length));
+                out.add((float) (ny / length));
+                out.add((float) (nz / length));
+            } else {
+                out.add(fallback[0]);
+                out.add(fallback[1]);
+                out.add(fallback[2]);
+            }
+        }
+
+        private static float newell(float[] positions, int[][] polygon, float[] out, int offset) {
+            float nx = 0, ny = 0, nz = 0;
+
+            for (int i = 0; i < polygon.length; i++) {
+                int a = polygon[i][0] * 3;
+                int b = polygon[(i + 1) % polygon.length][0] * 3;
+                nx += (positions[a + 1] - positions[b + 1]) * (positions[a + 2] + positions[b + 2]);
+                ny += (positions[a + 2] - positions[b + 2]) * (positions[a] + positions[b]);
+                nz += (positions[a] - positions[b]) * (positions[a + 1] + positions[b + 1]);
+            }
+
+            float length = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+            if (!(length > 1.0e-12f) || !Float.isFinite(length)) {
+                return 0;
+            }
+
+            out[offset] = nx / length;
+            out[offset + 1] = ny / length;
+            out[offset + 2] = nz / length;
+            return length * 0.5f;
+        }
+
+        private static int[] canonicalPositions(float[] positions) {
+            int count = positions.length / 3;
+            int[] canonical = new int[count];
+            HashMap<PositionKey, Integer> seen = new HashMap<>(count * 2);
+
+            for (int i = 0; i < count; i++) {
+                PositionKey key = new PositionKey(
+                    Math.round(positions[i * 3] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
+                );
+                Integer existing = seen.putIfAbsent(key, i);
+                canonical[i] = existing != null ? existing : i;
+            }
+
+            return canonical;
+        }
+
+        private record PositionKey(
+            int x,
+            int y,
+            int z
+        ) {}
     }
 }

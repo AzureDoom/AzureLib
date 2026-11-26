@@ -63,6 +63,10 @@ public record Bone(
 
             try {
                 polyMesh = GsonHelper.getAsObject(obj, "poly_mesh", null, context, PolyMesh.class);
+
+                if (polyMesh != null) {
+                    polyMesh = polyMesh.withParts(MeshPart.readAll(obj));
+                }
             } catch (JsonParseException e) {
                 throw new JsonParseException("Bone '" + name + "' poly_mesh " + e.getMessage(), e);
             }
