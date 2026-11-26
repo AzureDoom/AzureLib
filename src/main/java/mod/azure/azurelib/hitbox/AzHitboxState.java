@@ -43,6 +43,10 @@ public final class AzHitboxState {
 
     long lastRenderCaptureTime = Long.MIN_VALUE;
 
+    long lastRenderCaptureNanos;
+
+    boolean renderCaptured;
+
     UUID reporter;
 
     double reporterDistanceSqr;
