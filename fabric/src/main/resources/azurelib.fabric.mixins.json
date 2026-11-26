@@ -22,6 +22,7 @@
     "ItemStackMixin_AzItemAnimatorCache",
     "ItemModelResolverMixin_AzItemHolder",
     "ItemStackRenderStateMixin_AzDisplayContext",
+    "LevelExtractorMixin",
     "MinecraftMixin_AzHitboxOffscreen",
     "MultiPlayerGameModeMixin_AzHitboxAttack",
     "MixinHumanoidArmorLayer",
