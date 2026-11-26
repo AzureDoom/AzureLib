@@ -1,5 +1,6 @@
 package mod.azure.azurelib.common.animation.pose.secondary;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -71,7 +72,13 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
     private final boolean ground;
 
-    private final Vector3f scratch = new Vector3f(), scratch2 = new Vector3f();
+    private final float maxDeflection;
+
+    private static final float BLEND_START_ANGLE = (float) Math.toRadians(90);
+
+    private static final float COHERENT_AXIS_ANGLE = (float) Math.toRadians(150);
+
+    private final Vector3f scratch = new Vector3f(), scratch2 = new Vector3f(), jointScratch = new Vector3f();
 
     private AzSpringBone(Builder<T> builder) {
         this.bones = builder.bones;
@@ -88,6 +95,7 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         this.colliders = builder.colliders.toArray(new AzSpringCollider[0]);
         this.radius = builder.radius;
         this.ground = builder.ground;
+        this.maxDeflection = builder.maxDeflection;
     }
 
     /** A spring chain over the given bones, root-most first; each must be a descendant of the one before it. */
@@ -155,6 +163,7 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         if (pose.isDiscontinuous() || !state.initialized) {
             System.arraycopy(state.target, 0, state.position, 0, points * 3);
             Arrays.fill(state.velocity, 0);
+            Arrays.fill(state.axisValid, false);
             collide(state, points);
             state.initialized = true;
         } else {
@@ -185,7 +194,7 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
                 space.entityToModel(entity, partialTick, scratch2);
             }
 
-            chain.aim(i, scratch, scratch2, 1);
+            aimCoherent(state, chain, i, scratch, scratch2);
 
             for (int c = 0, n = constraints.size(); c < n; c++) {
                 chain.constrain(i, constraints.get(c));
@@ -197,6 +206,142 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
     private int pointCount(AzBoneChain chain) {
         return chain.size() + (hasTip ? 1 : 0);
+    }
+
+    private void aimCoherent(State state, AzBoneChain chain, int index, Vector3f from, Vector3f to) {
+        chain.joint(index, jointScratch);
+        float ux = from.x - jointScratch.x, uy = from.y - jointScratch.y, uz = from.z - jointScratch.z;
+        float vx = to.x - jointScratch.x, vy = to.y - jointScratch.y, vz = to.z - jointScratch.z;
+        float ul = (float) Math.sqrt(ux * ux + uy * uy + uz * uz);
+        float vl = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);
+
+        if (ul < 1e-5f || vl < 1e-5f) {
+            return;
+        }
+
+        ux /= ul;
+        uy /= ul;
+        uz /= ul;
+        vx /= vl;
+        vy /= vl;
+        vz /= vl;
+
+        float angle = (float) Math.acos(Mth.clamp(ux * vx + uy * vy + uz * vz, -1f, 1f));
+
+        if (angle < 1e-6f) {
+            return;
+        }
+
+        float cx = uy * vz - uz * vy, cy = uz * vx - ux * vz, cz = ux * vy - uy * vx;
+        float sin = (float) Math.sqrt(cx * cx + cy * cy + cz * cz);
+        boolean crossValid = sin > 1e-6f;
+
+        if (crossValid) {
+            cx /= sin;
+            cy /= sin;
+            cz /= sin;
+        }
+
+        int o = index * 3;
+        float px = 0, py = 0, pz = 0;
+        boolean previousValid = false;
+
+        if (state.axisValid[index]) {
+            px = state.axis[o];
+            py = state.axis[o + 1];
+            pz = state.axis[o + 2];
+            float along = px * ux + py * uy + pz * uz;
+            px -= along * ux;
+            py -= along * uy;
+            pz -= along * uz;
+            float pl = (float) Math.sqrt(px * px + py * py + pz * pz);
+
+            if (pl > 1e-3f) {
+                px /= pl;
+                py /= pl;
+                pz /= pl;
+                previousValid = true;
+            }
+        }
+
+        float blend = previousValid ? smoothstep(BLEND_START_ANGLE, COHERENT_AXIS_ANGLE, angle) : 0;
+        float ax, ay, az;
+
+        if (crossValid && blend <= 0) {
+            ax = cx;
+            ay = cy;
+            az = cz;
+        } else if (previousValid) {
+            if (crossValid) {
+                if (px * cx + py * cy + pz * cz < 0) {
+                    px = -px;
+                    py = -py;
+                    pz = -pz;
+                }
+
+                ax = cx + (px - cx) * blend;
+                ay = cy + (py - cy) * blend;
+                az = cz + (pz - cz) * blend;
+                float al = (float) Math.sqrt(ax * ax + ay * ay + az * az);
+
+                if (al > 1e-4f) {
+                    ax /= al;
+                    ay /= al;
+                    az /= al;
+                } else {
+                    ax = px;
+                    ay = py;
+                    az = pz;
+                }
+            } else {
+                if ((py * uz - pz * uy) * vx + (pz * ux - px * uz) * vy + (px * uy - py * ux) * vz < 0) {
+                    px = -px;
+                    py = -py;
+                    pz = -pz;
+                }
+
+                ax = px;
+                ay = py;
+                az = pz;
+            }
+        } else {
+            if (Math.abs(ux) < 0.9f) {
+                ax = 0;
+                ay = uz;
+                az = -uy;
+            } else {
+                ax = -uz;
+                ay = 0;
+                az = ux;
+            }
+
+            float al = (float) Math.sqrt(ax * ax + ay * ay + az * az);
+            ax /= al;
+            ay /= al;
+            az /= al;
+        }
+
+        float applied = angle;
+
+        if (applied > maxDeflection) {
+            applied = maxDeflection;
+        }
+
+        chain.rotateAround(index, ax, ay, az, applied);
+        state.axis[o] = ax;
+        state.axis[o + 1] = ay;
+        state.axis[o + 2] = az;
+        state.axisValid[index] = true;
+
+        if (applied == angle && blend > 0) {
+            chainPoint(chain, index + 1, from);
+            chain.aim(index, from, to, 1);
+        }
+    }
+
+    private static float smoothstep(float edge0, float edge1, float x) {
+        float t = Mth.clamp((x - edge0) / (edge1 - edge0), 0f, 1f);
+        return t * t * (3 - 2 * t);
     }
 
     private void chainPoint(AzBoneChain chain, int j, Vector3f dest) {
@@ -467,7 +612,13 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
 
         private float particleRadius;
 
+        private float[] axis;
+
+        private boolean[] axisValid;
+
         void allocate(int points) {
+            axis = new float[points * 3];
+            axisValid = new boolean[points];
             position = new float[points * 3];
             previous = new float[points * 3];
             velocity = new float[points * 3];
@@ -500,6 +651,8 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
         private float radius;
 
         private boolean ground;
+
+        private float maxDeflection = (float) Math.PI;
 
         private Builder(String[] bones) {
             if (bones.length == 0) {
@@ -578,6 +731,11 @@ public final class AzSpringBone<T> implements AzPoseModifier<T> {
          */
         public Builder<T> ground(boolean ground) {
             this.ground = ground;
+            return this;
+        }
+
+        public Builder<T> maxDeflection(float degrees) {
+            this.maxDeflection = (float) Math.toRadians(Mth.clamp(degrees, 1f, 180f));
             return this;
         }
 

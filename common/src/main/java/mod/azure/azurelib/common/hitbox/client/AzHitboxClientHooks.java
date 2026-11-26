@@ -37,6 +37,8 @@ public final class AzHitboxClientHooks {
 
     private static final double REPORT_RANGE = 64;
 
+    private static final long RECENT_RENDER_NANOS = 250_000_000L;
+
     private static final Set<String> WARNED_MISSING = new HashSet<>();
 
     private static final Vector3f SCRATCH_CENTER = new Vector3f();
@@ -110,7 +112,10 @@ public final class AzHitboxClientHooks {
 
             var state = AzHitboxes.getOrCreateState(entity);
 
-            if (state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)) {
+            if (
+                    state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)
+                            || AzHitboxClientAccess.wasRenderedWithin(state, RECENT_RENDER_NANOS)
+            ) {
                 continue;
             }
 
