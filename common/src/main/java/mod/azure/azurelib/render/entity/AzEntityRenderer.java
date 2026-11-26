@@ -1,6 +1,7 @@
 package mod.azure.azurelib.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.azure.azurelib.render.AzRenderContext;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -108,7 +109,9 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
         // Point the renderer's current animator reference to the cached entity animator before rendering.
         reusedAzEntityAnimator = cachedEntityAnimator;
 
-        animateThisFrame = updateLod(entity, cachedEntityAnimator, azBakedModel);
+        boolean guiRender = AzRenderContext.isGuiRender();
+
+        animateThisFrame = !guiRender && updateLod(entity, cachedEntityAnimator, azBakedModel);
 
         // Execute the render pipeline.
         rendererPipeline.render(
@@ -123,7 +126,7 @@ public abstract class AzEntityRenderer<T extends Entity> extends EntityRenderer<
             packedLight
         );
 
-        if (entity instanceof AzHitboxHolder && azBakedModel != null) {
+        if (!guiRender && entity instanceof AzHitboxHolder && azBakedModel != null) {
             AzHitboxClientHooks.afterEntityRender(
                 entity,
                 azBakedModel,
