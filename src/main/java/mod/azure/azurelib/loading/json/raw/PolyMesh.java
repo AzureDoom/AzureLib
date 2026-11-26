@@ -31,18 +31,40 @@ public final class PolyMesh {
 
     private final double[][] uvs;
 
+    private final MeshPart[] parts;
+
     public PolyMesh(
-        Boolean normalizedUVs,
-        double[][] normals,
-        PolysUnion polysUnion,
-        double[][] positions,
-        double[][] uvs
+            Boolean normalizedUVs,
+            double[][] normals,
+            PolysUnion polysUnion,
+            double[][] positions,
+            double[][] uvs,
+            MeshPart[] parts
     ) {
         this.normalizedUVs = normalizedUVs;
         this.normals = normals;
         this.polysUnion = polysUnion;
         this.positions = positions;
         this.uvs = uvs;
+        this.parts = parts;
+    }
+
+    public PolyMesh(
+            Boolean normalizedUVs,
+            double[][] normals,
+            PolysUnion polysUnion,
+            double[][] positions,
+            double[][] uvs
+    ) {
+        this(normalizedUVs, normals, polysUnion, positions, uvs, new MeshPart[0]);
+    }
+
+    public PolyMesh withParts(MeshPart[] parts) {
+        return parts.length == 0 ? this : new PolyMesh(normalizedUVs, normals, polysUnion, positions, uvs, parts);
+    }
+
+    public MeshPart[] parts() {
+        return this.parts;
     }
 
     public Boolean normalizedUVs() {
@@ -88,7 +110,7 @@ public final class PolyMesh {
         PolysUnion polys = obj.has("polys")
             ? context.<PolysUnion>deserialize(obj.get("polys"), PolysUnion.class)
             : null;
-        PolyMesh mesh = new PolyMesh(normalizedUVs, normals, polys, positions, uvs);
+        PolyMesh mesh = new PolyMesh(normalizedUVs, normals, polys, positions, uvs, MeshPart.readAll(obj));
 
         mesh.validate();
         return mesh;
