@@ -48,6 +48,10 @@ public final class AzHitboxState {
 
     long lastRenderCaptureTime = Long.MIN_VALUE;
 
+    long lastRenderCaptureNanos;
+
+    boolean renderCaptured;
+
     /** Entity id of the player whose pose reports are accepted. Beta entities have no UUIDs. */
     int reporterId = -1;
 
