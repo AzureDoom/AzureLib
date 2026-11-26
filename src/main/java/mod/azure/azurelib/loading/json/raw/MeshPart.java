@@ -3,10 +3,11 @@ package mod.azure.azurelib.loading.json.raw;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import mod.azure.azurelib.util.GsonHelper;
 
 import java.util.Arrays;
 import java.util.Objects;
+
+import mod.azure.azurelib.util.GsonHelper;
 
 public final class MeshPart {
 
@@ -15,17 +16,21 @@ public final class MeshPart {
     public static final double DEFAULT_SMOOTH_ANGLE = 60;
 
     private final String name;
+
     private final boolean smooth;
+
     private final double smoothAngle;
+
     private final int start;
+
     private final int count;
 
     public MeshPart(
-            String name,
-            boolean smooth,
-            double smoothAngle,
-            int start,
-            int count
+        String name,
+        boolean smooth,
+        double smoothAngle,
+        int start,
+        int count
     ) {
         this.name = name;
         this.smooth = smooth;
@@ -74,15 +79,15 @@ public final class MeshPart {
         }
 
         return size == parts.length
-                ? parts
-                : Arrays.copyOf(parts, size);
+            ? parts
+            : Arrays.copyOf(parts, size);
     }
 
     private static MeshPart read(JsonObject obj) {
         JsonArray polys = GsonHelper.getAsJsonArray(
-                obj,
-                "polys",
-                null
+            obj,
+            "polys",
+            null
         );
 
         if (polys == null || polys.size() < 2) {
@@ -97,23 +102,23 @@ public final class MeshPart {
         }
 
         String shading = GsonHelper.getAsString(
-                obj,
-                "shading",
-                "flat"
+            obj,
+            "shading",
+            "flat"
         );
 
         double angle = GsonHelper.getAsDouble(
-                obj,
-                "smooth_angle",
-                DEFAULT_SMOOTH_ANGLE
+            obj,
+            "smooth_angle",
+            DEFAULT_SMOOTH_ANGLE
         );
 
         return new MeshPart(
-                GsonHelper.getAsString(obj, "name", null),
-                "smooth".equalsIgnoreCase(shading),
-                Math.max(0, Math.min(180, angle)),
-                start,
-                count
+            GsonHelper.getAsString(obj, "name", null),
+            "smooth".equalsIgnoreCase(shading),
+            Math.max(0, Math.min(180, angle)),
+            start,
+            count
         );
     }
 
@@ -130,10 +135,10 @@ public final class MeshPart {
         MeshPart other = (MeshPart) obj;
 
         return Objects.equals(this.name, other.name)
-                && this.smooth == other.smooth
-                && Double.compare(this.smoothAngle, other.smoothAngle) == 0
-                && this.start == other.start
-                && this.count == other.count;
+            && this.smooth == other.smooth
+            && Double.compare(this.smoothAngle, other.smoothAngle) == 0
+            && this.start == other.start
+            && this.count == other.count;
     }
 
     @Override
@@ -150,11 +155,11 @@ public final class MeshPart {
     @Override
     public String toString() {
         return "MeshPart["
-                + "name=" + this.name
-                + ", smooth=" + this.smooth
-                + ", smoothAngle=" + this.smoothAngle
-                + ", start=" + this.start
-                + ", count=" + this.count
-                + "]";
+            + "name=" + this.name
+            + ", smooth=" + this.smooth
+            + ", smoothAngle=" + this.smoothAngle
+            + ", start=" + this.start
+            + ", count=" + this.count
+            + "]";
     }
 }

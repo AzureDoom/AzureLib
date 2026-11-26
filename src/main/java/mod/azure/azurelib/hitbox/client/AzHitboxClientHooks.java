@@ -115,8 +115,8 @@ public final class AzHitboxClientHooks {
             AzHitboxState state = AzHitboxes.getOrCreateState(entity);
 
             if (
-                    state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)
-                            || AzHitboxClientAccess.wasRenderedWithin(state, RECENT_RENDER_NANOS)
+                state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)
+                    || AzHitboxClientAccess.wasRenderedWithin(state, RECENT_RENDER_NANOS)
             ) {
                 continue;
             }

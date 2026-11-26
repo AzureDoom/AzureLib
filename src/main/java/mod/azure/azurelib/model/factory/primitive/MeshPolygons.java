@@ -421,6 +421,7 @@ public final class MeshPolygons {
     private static final class IntBuffer {
 
         private int[] values;
+
         private int size;
 
         IntBuffer() {
@@ -459,11 +460,11 @@ public final class MeshPolygons {
 
         void remove(int index) {
             System.arraycopy(
-                    values,
-                    index + 1,
-                    values,
-                    index,
-                    size - index - 1
+                values,
+                index + 1,
+                values,
+                index,
+                size - index - 1
             );
 
             size--;
@@ -519,12 +520,12 @@ public final class MeshPolygons {
         private final IntBuffer[] byPosition;
 
         private Smoothing(
-                int[] partOf,
-                float[] minDot,
-                float[] faceNormals,
-                float[] faceWeights,
-                int[] canonical,
-                IntBuffer[] byPosition
+            int[] partOf,
+            float[] minDot,
+            float[] faceNormals,
+            float[] faceWeights,
+            int[] canonical,
+            IntBuffer[] byPosition
         ) {
             this.partOf = partOf;
             this.minDot = minDot;
@@ -575,8 +576,8 @@ public final class MeshPolygons {
                 int[][] polygon = polygons[p];
 
                 if (
-                        partOf[p] < 0 || polygon == null || polygon.length < 3
-                                || !validPositions(polygon, positionCount)
+                    partOf[p] < 0 || polygon == null || polygon.length < 3
+                        || !validPositions(polygon, positionCount)
                 ) {
                     partOf[p] = -1;
                     continue;
@@ -685,9 +686,9 @@ public final class MeshPolygons {
 
             for (int i = 0; i < count; i++) {
                 PositionKey key = new PositionKey(
-                        Math.round(positions[i * 3] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
-                        Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
+                    Math.round(positions[i * 3] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 1] / POSITION_EPSILON),
+                    Math.round(positions[i * 3 + 2] / POSITION_EPSILON)
                 );
                 Integer existing = seen.putIfAbsent(key, i);
                 canonical[i] = existing != null ? existing : i;
@@ -699,7 +700,9 @@ public final class MeshPolygons {
         private static final class PositionKey {
 
             private final int x;
+
             private final int y;
+
             private final int z;
 
             private PositionKey(int x, int y, int z) {
@@ -733,8 +736,8 @@ public final class MeshPolygons {
                 PositionKey other = (PositionKey) obj;
 
                 return this.x == other.x
-                        && this.y == other.y
-                        && this.z == other.z;
+                    && this.y == other.y
+                    && this.z == other.z;
             }
 
             @Override
@@ -748,8 +751,8 @@ public final class MeshPolygons {
             @Override
             public String toString() {
                 return "PositionKey[x=" + this.x
-                        + ", y=" + this.y
-                        + ", z=" + this.z + "]";
+                    + ", y=" + this.y
+                    + ", z=" + this.z + "]";
             }
         }
     }

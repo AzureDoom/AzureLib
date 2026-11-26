@@ -34,12 +34,12 @@ public final class PolyMesh {
     private final MeshPart[] parts;
 
     public PolyMesh(
-            Boolean normalizedUVs,
-            double[][] normals,
-            PolysUnion polysUnion,
-            double[][] positions,
-            double[][] uvs,
-            MeshPart[] parts
+        Boolean normalizedUVs,
+        double[][] normals,
+        PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs,
+        MeshPart[] parts
     ) {
         this.normalizedUVs = normalizedUVs;
         this.normals = normals;
@@ -50,11 +50,11 @@ public final class PolyMesh {
     }
 
     public PolyMesh(
-            Boolean normalizedUVs,
-            double[][] normals,
-            PolysUnion polysUnion,
-            double[][] positions,
-            double[][] uvs
+        Boolean normalizedUVs,
+        double[][] normals,
+        PolysUnion polysUnion,
+        double[][] positions,
+        double[][] uvs
     ) {
         this(normalizedUVs, normals, polysUnion, positions, uvs, new MeshPart[0]);
     }
