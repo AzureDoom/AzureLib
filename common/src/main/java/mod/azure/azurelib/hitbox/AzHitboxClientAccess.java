@@ -49,6 +49,12 @@ public final class AzHitboxClientAccess {
 
     public static void markRendered(AzHitboxState state, long gameTime) {
         state.lastRenderCaptureTime = gameTime;
+        state.lastRenderCaptureNanos = System.nanoTime();
+        state.renderCaptured = true;
+    }
+
+    public static boolean wasRenderedWithin(AzHitboxState state, long nanos) {
+        return state.renderCaptured && System.nanoTime() - state.lastRenderCaptureNanos <= nanos;
     }
 
     public static boolean wasRenderedSince(AzHitboxState state, long gameTime) {
