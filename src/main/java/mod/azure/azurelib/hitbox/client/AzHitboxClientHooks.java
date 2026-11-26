@@ -36,6 +36,8 @@ public final class AzHitboxClientHooks {
 
     private static final double REPORT_RANGE = 64;
 
+    private static final long RECENT_RENDER_NANOS = 250_000_000L;
+
     private static final Set<String> WARNED_MISSING = new HashSet<>();
 
     /**
@@ -108,7 +110,10 @@ public final class AzHitboxClientHooks {
 
             AzHitboxState state = AzHitboxes.getOrCreateState(entity);
 
-            if (state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)) {
+            if (
+                    state == null || AzHitboxClientAccess.wasRenderedSince(state, now - 1)
+                            || AzHitboxClientAccess.wasRenderedWithin(state, RECENT_RENDER_NANOS)
+            ) {
                 continue;
             }
 
